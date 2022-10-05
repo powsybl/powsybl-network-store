@@ -16,6 +16,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
+ * Some equipments can have sub-attributes which are represented in a different table as the equipment's.
+ * When fetching the equipment from the database, we need to also get the sub-attributes from their respective
+ * table sand insert them inside the retrieved equipment.
+ * The sub-attributes all have in common some information about their parent equipment, which are represented
+ * in this OwnerInfo class.
+ * Each sub-attribute is supposed to be linked manually to the equipment with the help of this OwnerInfo class.
+ *
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
  */
 @Data

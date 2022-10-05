@@ -26,7 +26,6 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Temporary limit attributes")
 public class TemporaryLimitAttributes {
 
-    // TODO side and type should be in LimitAttributes
     @JsonIgnore
     @Schema(description = "Temporary limit side", required = true)
     private Integer side;
