@@ -967,7 +967,7 @@ public class NetworkStoreRepository {
         Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
         insertTemporaryLimitsInEquipments(networkUuid, twoWindingsTransformers, temporaryLimits);
 
-        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps = getTapChangerStepsWithInClause(networkUuid, variantNum, ResourceType.TWO_WINDINGS_TRANSFORMER, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps = getTapChangerStepsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
         insertTapChangerStepsInEquipments(networkUuid, twoWindingsTransformers, tapChangerSteps);
 
         return twoWindingsTransformers;
@@ -1049,7 +1049,7 @@ public class NetworkStoreRepository {
         Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
         insertTemporaryLimitsInEquipments(networkUuid, threeWindingsTransformers, temporaryLimits);
 
-        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps = getTapChangerStepsWithInClause(networkUuid, variantNum, ResourceType.THREE_WINDINGS_TRANSFORMER, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps = getTapChangerStepsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
         insertTapChangerStepsInEquipments(networkUuid, threeWindingsTransformers, tapChangerSteps);
 
         return threeWindingsTransformers;
@@ -1498,17 +1498,16 @@ public class NetworkStoreRepository {
 
     // TapChanger Steps
 
-    public Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> getTapChangerStepsWithInClause(UUID networkUuid, int variantNum, ResourceType equipmentType, String columnNameForWhereClause, List<String> valuesForInClause) {
+    public Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> getTapChangerStepsWithInClause(UUID networkUuid, int variantNum, String columnNameForWhereClause, List<String> valuesForInClause) {
         if (valuesForInClause.isEmpty()) {
             return Collections.emptyMap();
         }
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildTapChangerStepWithInClauseQuery(EQUIPMENT_TYPE_COLUMN, columnNameForWhereClause, valuesForInClause.size()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildTapChangerStepWithInClauseQuery(columnNameForWhereClause, valuesForInClause.size()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
-            preparedStmt.setString(3, equipmentType.toString());
             for (int i = 0; i < valuesForInClause.size(); i++) {
-                preparedStmt.setString(4 + i, valuesForInClause.get(i));
+                preparedStmt.setString(3 + i, valuesForInClause.get(i));
             }
 
             return innerGetTapChangerSteps(preparedStmt);
