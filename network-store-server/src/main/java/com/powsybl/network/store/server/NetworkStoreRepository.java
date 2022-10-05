@@ -487,13 +487,9 @@ public class NetworkStoreRepository {
         try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertTemporaryLimitsQuery())) {
                 List<Object> values = new ArrayList<>(10);
-                List<Pair<OwnerInfo, List<TemporaryLimitAttributes>>> list =
-                    temporaryLimits.entrySet()
-                                    .stream()
-                                    .map(e -> Pair.of(e.getKey(), e.getValue()))
-                                    .collect(Collectors.toList());
-                for (List<Pair<OwnerInfo, List<TemporaryLimitAttributes>>> subUnit : Lists.partition(list, BATCH_SIZE)) {
-                    for (Pair<OwnerInfo, List<TemporaryLimitAttributes>> myPair : subUnit) {
+                List<Map.Entry<OwnerInfo, List<TemporaryLimitAttributes>>> list = new ArrayList<>(temporaryLimits.entrySet());
+                for (List<Map.Entry<OwnerInfo, List<TemporaryLimitAttributes>>> subUnit : Lists.partition(list, BATCH_SIZE)) {
+                    for (Map.Entry<OwnerInfo, List<TemporaryLimitAttributes>> myPair : subUnit) {
                         for (TemporaryLimitAttributes temporaryLimit : myPair.getValue()) {
                             values.clear();
                             // In order, from the QueryCatalog.buildInsertTemporaryLimitsQuery SQL query :
@@ -1524,13 +1520,9 @@ public class NetworkStoreRepository {
         try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertReactiveCapabilityCurvePointsQuery())) {
                 List<Object> values = new ArrayList<>(7);
-                List<Pair<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>>> list =
-                        reactiveCapabilityCurvePoints.entrySet()
-                                .stream()
-                                .map(e -> Pair.of(e.getKey(), e.getValue()))
-                                .collect(Collectors.toList());
-                for (List<Pair<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>>> subUnit : Lists.partition(list, BATCH_SIZE)) {
-                    for (Pair<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> myPair : subUnit) {
+                List<Map.Entry<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>>> list = new ArrayList<>(reactiveCapabilityCurvePoints.entrySet());
+                for (List<Map.Entry<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>>> subUnit : Lists.partition(list, BATCH_SIZE)) {
+                    for (Map.Entry<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> myPair : subUnit) {
                         for (ReactiveCapabilityCurvePointAttributes reactiveCapabilityCurvePoint : myPair.getValue()) {
                             values.clear();
                             // In order, from the QueryCatalog.buildInsertReactiveCapabilityCurvePointsQuery SQL query :
