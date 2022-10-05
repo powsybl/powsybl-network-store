@@ -15,6 +15,7 @@ import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -406,7 +407,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public CurrentLimits getCurrentLimits() {
+    public CurrentLimits getNullableCurrentLimits() {
         var resource = checkResource();
         return resource.getAttributes().getCurrentLimits() != null
                 ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits())
@@ -414,7 +415,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits() {
+    public Optional<CurrentLimits> getCurrentLimits() {
+        return Optional.ofNullable(getNullableCurrentLimits());
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits() {
         var resource = checkResource();
         return resource.getAttributes().getActivePowerLimits() != null
                 ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits())
@@ -422,11 +428,21 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits() {
+    public Optional<ActivePowerLimits> getActivePowerLimits() {
+        return Optional.ofNullable(getNullableActivePowerLimits());
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits() {
         var resource = checkResource();
         return resource.getAttributes().getApparentPowerLimits() != null
                 ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits())
                 : null;
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits() {
+        return Optional.ofNullable(getNullableApparentPowerLimits());
     }
 
     @Override

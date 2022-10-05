@@ -9,10 +9,10 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition.Feeder;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
 import com.powsybl.network.store.model.*;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -63,7 +63,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
 
     @Override
     public ConnectablePositionImpl<I> createConnectablePositionExtension(
-            Feeder feeder, Feeder feeder1, Feeder feeder2, Feeder feeder3) {
+            Feeder feeder, Feeder feeder1, Feeder feeder2, ConnectablePosition.Feeder feeder3) {
         Objects.requireNonNull(feeder);
         ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
         ConnectablePositionAttributes cpa = ConnectablePositionAttributes.builder()
