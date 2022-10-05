@@ -175,7 +175,153 @@ public class NetworkStoreRepositoryTest {
         assertNotNull(resLineB.getAttributes().getCurrentLimits1().getTemporaryLimits());
         assertNull(resLineB.getAttributes().getCurrentLimits2());
         assertEquals(3, resLineB.getAttributes().getCurrentLimits1().getTemporaryLimits().size());
-
     }
 
+    @Test
+    public void insertReactiveCapabilityCurvesInGeneratorsTest() {
+
+        String equipmentIdA = "idGeneratorA";
+        String equipmentIdB = "idGeneratorB";
+        String equipmentIdMinMax = "idGeneratorMinMax";
+
+        OwnerInfo infoGeneratorA = new OwnerInfo(
+                equipmentIdA,
+                ResourceType.GENERATOR,
+                NETWORK_UUID,
+                Resource.INITIAL_VARIANT_NUM
+        );
+        OwnerInfo infoGeneratorB = new OwnerInfo(
+                equipmentIdB,
+                ResourceType.GENERATOR,
+                NETWORK_UUID,
+                Resource.INITIAL_VARIANT_NUM
+        );
+        OwnerInfo infoGeneratorMinMax = new OwnerInfo(
+                equipmentIdMinMax,
+                ResourceType.GENERATOR,
+                NETWORK_UUID,
+                Resource.INITIAL_VARIANT_NUM
+        );
+        OwnerInfo infoGeneratorX = new OwnerInfo(
+                "badID",
+                ResourceType.GENERATOR,
+                NETWORK_UUID,
+                Resource.INITIAL_VARIANT_NUM
+        );
+
+        Resource<GeneratorAttributes> resGeneratorA = Resource.generatorBuilder()
+                .id(equipmentIdA)
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("idGeneratorA")
+                        .build()) // In this case, the reactivelimits are not initialized
+                .build();
+
+        Resource<GeneratorAttributes> resGeneratorB = Resource.generatorBuilder()
+                .id(equipmentIdB)
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("vl2")
+                        .name("idGeneratorB")
+                        .reactiveLimits(ReactiveCapabilityCurveAttributes.builder().build()) // In this case, the reactivelimits are already initialized as ReactiveCapabilityCurveAttributes
+                        .build())
+                .build();
+
+        Resource<GeneratorAttributes> resGeneratorMinMax = Resource.generatorBuilder()
+                .id(equipmentIdMinMax)
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("vl3")
+                        .name("idGeneratorMinMax")
+                        .reactiveLimits(MinMaxReactiveLimitsAttributes.builder() // In this case, the reactivelimits are already initialized as MinMaxReactiveLimitsAttributes
+                                .maxQ(50.)
+                                .minQ(20.)
+                                .build())
+                        .build())
+                .build();
+
+        assertEquals(resGeneratorA.getId(), infoGeneratorA.getEquipmentId());
+        assertEquals(resGeneratorB.getId(), infoGeneratorB.getEquipmentId());
+        assertEquals(resGeneratorMinMax.getId(), infoGeneratorMinMax.getEquipmentId());
+        assertNotEquals(resGeneratorA.getId(), infoGeneratorX.getEquipmentId());
+        assertNotEquals(resGeneratorB.getId(), infoGeneratorX.getEquipmentId());
+        assertNotEquals(resGeneratorMinMax.getId(), infoGeneratorX.getEquipmentId());
+
+        ReactiveCapabilityCurvePointAttributes curvePointOka = ReactiveCapabilityCurvePointAttributes.builder()
+                .minQ(-100.)
+                .maxQ(100.)
+                .p(0.)
+                .build();
+
+        ReactiveCapabilityCurvePointAttributes curvePointOkb = ReactiveCapabilityCurvePointAttributes.builder()
+                .minQ(10.)
+                .maxQ(30.)
+                .p(20.)
+                .build();
+
+        ReactiveCapabilityCurvePointAttributes curvePointOkc = ReactiveCapabilityCurvePointAttributes.builder()
+                .minQ(5.)
+                .maxQ(25.)
+                .p(15.)
+                .build();
+
+        // If there are multiple instance of a curve point with the same value P, only one is kept.
+        ReactiveCapabilityCurvePointAttributes curvePointSameValueP = ReactiveCapabilityCurvePointAttributes.builder()
+                .minQ(10.)
+                .maxQ(30.)
+                .p(20.)
+                .build();
+
+        ReactiveCapabilityCurvePointAttributes curvePointWrongEquipmentId = ReactiveCapabilityCurvePointAttributes.builder()
+                .minQ(10.)
+                .maxQ(30.)
+                .p(20.)
+                .build();
+
+        List<Resource<GeneratorAttributes>> generators = new ArrayList<>();
+        generators.add(resGeneratorA);
+        generators.add(resGeneratorB);
+        generators.add(resGeneratorMinMax);
+
+        List<ReactiveCapabilityCurvePointAttributes> curvePointsForGeneratorA = new ArrayList<>();
+        curvePointsForGeneratorA.add(curvePointOka);
+        curvePointsForGeneratorA.add(curvePointOkb);
+        curvePointsForGeneratorA.add(curvePointOkc);
+        curvePointsForGeneratorA.add(curvePointSameValueP);
+
+        List<ReactiveCapabilityCurvePointAttributes> curvePointsForGeneratorB = new ArrayList<>();
+        curvePointsForGeneratorB.add(curvePointOka);
+        curvePointsForGeneratorB.add(curvePointOkb);
+
+        List<ReactiveCapabilityCurvePointAttributes> curvePointsX = new ArrayList<>();
+        curvePointsX.add(curvePointWrongEquipmentId);
+
+        Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> map = new HashMap<>();
+
+        map.put(infoGeneratorA, curvePointsForGeneratorA);
+        map.put(infoGeneratorB, curvePointsForGeneratorB);
+        map.put(infoGeneratorX, curvePointsX);
+
+        assertNull(resGeneratorA.getAttributes().getReactiveLimits());
+        assertTrue(resGeneratorB.getAttributes().getReactiveLimits() instanceof ReactiveCapabilityCurveAttributes);
+        assertNull(((ReactiveCapabilityCurveAttributes) resGeneratorB.getAttributes().getReactiveLimits()).getPoints());
+        assertTrue(resGeneratorMinMax.getAttributes().getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes);
+
+        networkStoreRepository.insertReactiveCapabilityCurvePointsInEquipments(NETWORK_UUID, generators, new HashMap<>());
+
+        assertNull(resGeneratorA.getAttributes().getReactiveLimits());
+        assertTrue(resGeneratorB.getAttributes().getReactiveLimits() instanceof ReactiveCapabilityCurveAttributes);
+        assertNull(((ReactiveCapabilityCurveAttributes) resGeneratorB.getAttributes().getReactiveLimits()).getPoints());
+        assertTrue(resGeneratorMinMax.getAttributes().getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes);
+
+        networkStoreRepository.insertReactiveCapabilityCurvePointsInEquipments(NETWORK_UUID, generators, map);
+
+        assertTrue(resGeneratorA.getAttributes().getReactiveLimits() instanceof ReactiveCapabilityCurveAttributes);
+        assertNotNull(((ReactiveCapabilityCurveAttributes) resGeneratorA.getAttributes().getReactiveLimits()).getPoints());
+        assertEquals(3, ((ReactiveCapabilityCurveAttributes) resGeneratorA.getAttributes().getReactiveLimits()).getPoints().size());
+
+        assertTrue(resGeneratorB.getAttributes().getReactiveLimits() instanceof ReactiveCapabilityCurveAttributes);
+        assertNotNull(((ReactiveCapabilityCurveAttributes) resGeneratorB.getAttributes().getReactiveLimits()).getPoints());
+        assertEquals(2, ((ReactiveCapabilityCurveAttributes) resGeneratorB.getAttributes().getReactiveLimits()).getPoints().size());
+
+        assertTrue(resGeneratorMinMax.getAttributes().getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes);
+    }
 }

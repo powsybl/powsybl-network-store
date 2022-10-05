@@ -21,7 +21,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Battery attributes")
-public class BatteryAttributes extends AbstractAttributes implements InjectionAttributes {
+public class BatteryAttributes extends AbstractAttributes implements InjectionAttributes, ReactiveLimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
