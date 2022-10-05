@@ -31,7 +31,6 @@ public interface TapChangerHolder {
             List<PhaseTapChangerStepAttributes> steps = tapChanger.getSteps();
             for (int i = 0; i < steps.size(); i++) {
                 steps.get(i).setIndex(i);
-                steps.get(i).setType(TapChangerType.PHASE);
                 steps.get(i).setSide(side);
             }
             return steps;
@@ -45,7 +44,6 @@ public interface TapChangerHolder {
             List<RatioTapChangerStepAttributes> steps = tapChanger.getSteps();
             for (int i = 0; i < steps.size(); i++) {
                 steps.get(i).setIndex(i);
-                steps.get(i).setType(TapChangerType.RATIO);
                 steps.get(i).setSide(side);
             }
             return steps;

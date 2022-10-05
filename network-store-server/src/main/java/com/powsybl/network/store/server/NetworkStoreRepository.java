@@ -1392,21 +1392,17 @@ public class NetworkStoreRepository {
         try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertTemporaryLimitsQuery())) {
                 List<Object> values = new ArrayList<>(10);
-                List<Pair<OwnerInfo, List<TemporaryLimitAttributes>>> list =
-                    temporaryLimits.entrySet()
-                                    .stream()
-                                    .map(e -> Pair.of(e.getKey(), e.getValue()))
-                                    .collect(Collectors.toList());
-                for (List<Pair<OwnerInfo, List<TemporaryLimitAttributes>>> subUnit : Lists.partition(list, BATCH_SIZE)) {
-                    for (Pair<OwnerInfo, List<TemporaryLimitAttributes>> myPair : subUnit) {
-                        for (TemporaryLimitAttributes temporaryLimit : myPair.getValue()) {
+                List<Map.Entry<OwnerInfo, List<TemporaryLimitAttributes>>> list = new ArrayList<>(temporaryLimits.entrySet());
+                for (List<Map.Entry<OwnerInfo, List<TemporaryLimitAttributes>>> subUnit : Lists.partition(list, BATCH_SIZE)) {
+                    for (Map.Entry<OwnerInfo, List<TemporaryLimitAttributes>> entry : subUnit) {
+                        for (TemporaryLimitAttributes temporaryLimit : entry.getValue()) {
                             values.clear();
                             // In order, from the QueryCatalog.buildInsertTemporaryLimitsQuery SQL query :
                             // equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious
-                            values.add(myPair.getKey().getEquipmentId());
-                            values.add(myPair.getKey().getEquipmentType().toString());
-                            values.add(myPair.getKey().getNetworkUuid());
-                            values.add(myPair.getKey().getVariantNum());
+                            values.add(entry.getKey().getEquipmentId());
+                            values.add(entry.getKey().getEquipmentType().toString());
+                            values.add(entry.getKey().getNetworkUuid());
+                            values.add(entry.getKey().getVariantNum());
                             values.add(temporaryLimit.getSide());
                             values.add(temporaryLimit.getLimitType().toString());
                             values.add(temporaryLimit.getName());
@@ -1556,7 +1552,6 @@ public class NetworkStoreRepository {
                 }
                 tapChangerStep.setIndex(resultSet.getInt(5));
                 tapChangerStep.setSide(resultSet.getInt(6));
-                tapChangerStep.setType(TapChangerType.valueOf(resultSet.getString(7)));
 
                 tapChangerStep.setRho(resultSet.getDouble(8));
                 tapChangerStep.setR(resultSet.getDouble(9));
@@ -1640,19 +1635,15 @@ public class NetworkStoreRepository {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertTapChangerStepQuery())) {
                 List<Object> values = new ArrayList<>(13);
 
-                List<Pair<OwnerInfo, List<T>>> list =
-                    tapChangerSteps.entrySet()
-                                    .stream()
-                                    .map(e -> Pair.of(e.getKey(), e.getValue()))
-                                    .collect(Collectors.toList());
-                for (List<Pair<OwnerInfo, List<T>>> subTapChangerSteps : Lists.partition(list, BATCH_SIZE)) {
-                    for (Pair<OwnerInfo, List<T>> myPair : subTapChangerSteps) {
-                        for (T tapChangerStep : myPair.getValue()) {
+                List<Map.Entry<OwnerInfo, List<T>>> list = new ArrayList<>(tapChangerSteps.entrySet());
+                for (List<Map.Entry<OwnerInfo, List<T>>> subTapChangerSteps : Lists.partition(list, BATCH_SIZE)) {
+                    for (Map.Entry<OwnerInfo, List<T>> entry : subTapChangerSteps) {
+                        for (T tapChangerStep : entry.getValue()) {
                             values.clear();
-                            values.add(myPair.getKey().getEquipmentId());
-                            values.add(myPair.getKey().getEquipmentType().toString());
-                            values.add(myPair.getKey().getNetworkUuid());
-                            values.add(myPair.getKey().getVariantNum());
+                            values.add(entry.getKey().getEquipmentId());
+                            values.add(entry.getKey().getEquipmentType().toString());
+                            values.add(entry.getKey().getNetworkUuid());
+                            values.add(entry.getKey().getVariantNum());
                             values.add(tapChangerStep.getIndex());
                             values.add(tapChangerStep.getSide());
                             values.add(tapChangerStep.getType().toString());

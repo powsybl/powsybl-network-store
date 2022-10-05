@@ -238,7 +238,6 @@ public class NetworkStoreRepositoryTest {
                 .b(1.)
                 .x(1.)
                 .side(0)
-                .type(TapChangerType.RATIO)
                 .build();
 
         RatioTapChangerStepAttributes ratioStepA2 = RatioTapChangerStepAttributes.builder()
@@ -248,7 +247,6 @@ public class NetworkStoreRepositoryTest {
                 .b(2.)
                 .x(2.)
                 .side(0)
-                .type(TapChangerType.RATIO)
                 .build();
 
         RatioTapChangerStepAttributes ratioStepA3 = RatioTapChangerStepAttributes.builder()
@@ -258,7 +256,6 @@ public class NetworkStoreRepositoryTest {
                 .b(3.)
                 .x(3.)
                 .side(1)
-                .type(TapChangerType.RATIO)
                 .build();
 
         PhaseTapChangerStepAttributes phaseStepB1 = PhaseTapChangerStepAttributes.builder()
@@ -269,7 +266,6 @@ public class NetworkStoreRepositoryTest {
                 .x(10.)
                 .alpha(10.)
                 .side(0)
-                .type(TapChangerType.PHASE)
                 .build();
 
         PhaseTapChangerStepAttributes phaseStepB2 = PhaseTapChangerStepAttributes.builder()
@@ -280,7 +276,6 @@ public class NetworkStoreRepositoryTest {
                 .x(20.)
                 .alpha(20.)
                 .side(0)
-                .type(TapChangerType.PHASE)
                 .build();
 
         PhaseTapChangerStepAttributes phaseStepB3 = PhaseTapChangerStepAttributes.builder()
@@ -291,7 +286,6 @@ public class NetworkStoreRepositoryTest {
                 .x(30.)
                 .alpha(30.)
                 .side(0)
-                .type(TapChangerType.PHASE)
                 .build();
 
         PhaseTapChangerStepAttributes phaseStepB4 = PhaseTapChangerStepAttributes.builder()
@@ -302,8 +296,10 @@ public class NetworkStoreRepositoryTest {
                 .x(40.)
                 .alpha(40.)
                 .side(1)
-                .type(TapChangerType.PHASE)
                 .build();
+
+        assertEquals(TapChangerType.RATIO, ratioStepA1.getType());
+        assertEquals(TapChangerType.PHASE, phaseStepB1.getType());
 
         List<Resource<TwoWindingsTransformerAttributes>> twoWTransformers = new ArrayList<>();
         twoWTransformers.add(res2WTransformerA);
@@ -438,7 +434,6 @@ public class NetworkStoreRepositoryTest {
                 .b(1.)
                 .x(1.)
                 .side(1)
-                .type(TapChangerType.RATIO)
                 .build();
 
         RatioTapChangerStepAttributes ratioStepA2 = RatioTapChangerStepAttributes.builder()
@@ -448,7 +443,6 @@ public class NetworkStoreRepositoryTest {
                 .b(2.)
                 .x(2.)
                 .side(1)
-                .type(TapChangerType.RATIO)
                 .build();
 
         RatioTapChangerStepAttributes ratioStepA3Bad = RatioTapChangerStepAttributes.builder()
@@ -458,7 +452,6 @@ public class NetworkStoreRepositoryTest {
                 .b(3.)
                 .x(3.)
                 .side(4)
-                .type(TapChangerType.RATIO)
                 .build();
 
         PhaseTapChangerStepAttributes phaseStepB1 = PhaseTapChangerStepAttributes.builder()
@@ -469,7 +462,6 @@ public class NetworkStoreRepositoryTest {
                 .x(10.)
                 .alpha(10.)
                 .side(2)
-                .type(TapChangerType.PHASE)
                 .build();
 
         PhaseTapChangerStepAttributes phaseStepB2 = PhaseTapChangerStepAttributes.builder()
@@ -480,7 +472,6 @@ public class NetworkStoreRepositoryTest {
                 .x(20.)
                 .alpha(20.)
                 .side(2)
-                .type(TapChangerType.PHASE)
                 .build();
 
         PhaseTapChangerStepAttributes phaseStepB3 = PhaseTapChangerStepAttributes.builder()
@@ -491,7 +482,6 @@ public class NetworkStoreRepositoryTest {
                 .x(30.)
                 .alpha(30.)
                 .side(2)
-                .type(TapChangerType.PHASE)
                 .build();
 
         PhaseTapChangerStepAttributes phaseStepB4Bad = PhaseTapChangerStepAttributes.builder()
@@ -502,7 +492,6 @@ public class NetworkStoreRepositoryTest {
                 .x(40.)
                 .alpha(40.)
                 .side(4)
-                .type(TapChangerType.PHASE)
                 .build();
 
         List<Resource<ThreeWindingsTransformerAttributes>> threeWTransformers = new ArrayList<>();

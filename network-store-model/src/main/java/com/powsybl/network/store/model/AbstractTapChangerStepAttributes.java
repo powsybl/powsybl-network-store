@@ -47,5 +47,5 @@ public abstract class AbstractTapChangerStepAttributes {
     private Integer side;
 
     @JsonIgnore
-    private TapChangerType type;
+    public abstract TapChangerType getType();
 }
