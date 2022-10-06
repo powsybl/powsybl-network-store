@@ -99,7 +99,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected VoltageLevel checkVoltageLevel1() {
         if (voltageLevelId1 == null) {
-            throw new ValidationException(this,  "first voltage level is not set");
+            throw new ValidationException(this, "first voltage level is not set");
         }
         VoltageLevel voltageLevel1 = getNetwork().getVoltageLevel(voltageLevelId1);
         if (voltageLevel1 == null) {

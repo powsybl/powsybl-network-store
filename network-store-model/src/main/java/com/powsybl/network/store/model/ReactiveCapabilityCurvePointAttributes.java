@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,16 +19,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Point attributes")
 public class ReactiveCapabilityCurvePointAttributes {
 
     @Schema(description = "Active power value")
-    double p;
+    private double p;
 
     @Schema(description = "Reactive power minimum value")
-    double minQ;
+    private double minQ;
 
     @Schema(description = "Reactive power maximum value")
-    double maxQ;
+    private double maxQ;
 }
