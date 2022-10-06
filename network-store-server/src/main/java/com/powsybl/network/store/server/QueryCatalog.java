@@ -20,6 +20,8 @@ import static com.powsybl.network.store.server.Mappings.NETWORK_TABLE;
  */
 public final class QueryCatalog {
 
+    private static final String MINIMAL_VALUE_REQUIREMENT_ERROR = "Function should not be called without at least one value.";
+
     static final String VARIANT_ID_COLUMN = "variantId";
     static final String UUID_COLUMN = "uuid";
     static final String NETWORK_UUID_COLUMN = "networkUuid";
@@ -197,13 +199,24 @@ public final class QueryCatalog {
                 ID_COLUMN + "," +
                 String.join(",", columns) +
                 " from " + tableName + " " +
-                "where networkUuid = ? and variantNum = ?";
+                "where " + NETWORK_UUID_COLUMN + " = ? and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildCloneTemporaryLimitsQuery() {
-        return "insert into temporarylimit(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value_, acceptableDuration, fictitious) " +
-                "select equipmentId, equipmentType, ?, ?, side, limitType, name, value_, acceptableDuration, fictitious " +
-                "from temporarylimit where networkUuid = ? and variantNum = ?";
+        return "insert into temporarylimit(" + EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN + ", " +
+                NETWORK_UUID_COLUMN + ", " + VARIANT_NUM_COLUMN + ", side, limitType, " + NAME_COLUMN +
+                ", value_, acceptableDuration, fictitious) " + "select " + EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", ?, ?, side, limitType, " + NAME_COLUMN +
+                ", value_, acceptableDuration, fictitious from temporarylimit where " + NETWORK_UUID_COLUMN +
+                " = ? and " + VARIANT_NUM_COLUMN + " = ?";
+    }
+
+    public static String buildCloneReactiveCapabilityCurvePointsQuery() {
+        return "insert into ReactiveCapabilityCurvePoint(" + EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN +
+                ", " + NETWORK_UUID_COLUMN + ", " + VARIANT_NUM_COLUMN + ", minQ, maxQ, p) select " +
+                EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN +
+                ", ?, ?, minQ, maxQ, p from ReactiveCapabilityCurvePoint where " + NETWORK_UUID_COLUMN +
+                " = ? and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildCloneNetworksQuery(Collection<String> columns) {
@@ -221,11 +234,12 @@ public final class QueryCatalog {
                 ID_COLUMN + ", " +
                 columns.stream().filter(column -> !column.equals(UUID_COLUMN) && !column.equals(VARIANT_ID_COLUMN) && !column.equals(NAME_COLUMN)).collect(Collectors.joining(",")) +
                 " from network" + " " +
-                "where uuid = ? and variantNum = ?";
+                "where uuid = ? and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildTemporaryLimitQuery(String columnNameForWhereClause) {
-        return "select equipmentId, equipmentType, " +
+        return "select " + EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + ", " +
                 VARIANT_NUM_COLUMN + ", " +
                 "side, limitType, " +
@@ -239,9 +253,10 @@ public final class QueryCatalog {
 
     public static String buildTemporaryLimitWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
         if (numberOfValues < 1) {
-            throw new IllegalArgumentException("Function should not be called without values to insert.");
+            throw new IllegalArgumentException(MINIMAL_VALUE_REQUIREMENT_ERROR);
         }
-        return "select equipmentId, equipmentType, " +
+        return "select " + EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + ", " +
                 VARIANT_NUM_COLUMN + ", " +
                 "side, limitType, " +
@@ -256,7 +271,7 @@ public final class QueryCatalog {
 
     public static String buildInsertTemporaryLimitsQuery() {
         return "insert into temporarylimit(" +
-                "equipmentId, equipmentType, " +
+                EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + " ," +
                 VARIANT_NUM_COLUMN + ", side, limitType, " +
                 NAME_COLUMN + ", value_, acceptableDuration, fictitious)" +
@@ -265,7 +280,7 @@ public final class QueryCatalog {
 
     public static String buildDeleteTemporaryLimitsVariantEquipmentINQuery(int numberOfValues) {
         if (numberOfValues < 1) {
-            throw new IllegalArgumentException("Function should not be called without values to insert.");
+            throw new IllegalArgumentException(MINIMAL_VALUE_REQUIREMENT_ERROR);
         }
         return "delete from temporarylimit where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
@@ -282,6 +297,64 @@ public final class QueryCatalog {
 
     public static String buildDeleteTemporaryLimitsQuery() {
         return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ?";
+    }
+
+    public static String buildReactiveCapabilityCurvePointQuery(String columnNameForWhereClause) {
+        return "select " + EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
+                NETWORK_UUID_COLUMN + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                "minQ, maxQ, p " +
+                "from ReactiveCapabilityCurvePoint where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForWhereClause + " = ?";
+    }
+
+    public static String buildReactiveCapabilityCurvePointWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException(MINIMAL_VALUE_REQUIREMENT_ERROR);
+        }
+        return "select " + EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
+                NETWORK_UUID_COLUMN + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                "minQ, maxQ, p " +
+                "from ReactiveCapabilityCurvePoint where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForInClause + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
+    }
+
+    public static String buildInsertReactiveCapabilityCurvePointsQuery() {
+        return "insert into ReactiveCapabilityCurvePoint(" +
+                EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN + ", " +
+                NETWORK_UUID_COLUMN + " ," +
+                VARIANT_NUM_COLUMN + ", minQ, maxQ, p)" +
+                " values (?, ?, ?, ?, ?, ?, ?)";
+    }
+
+    public static String buildDeleteReactiveCapabilityCurvePointsVariantEquipmentINQuery(int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException(MINIMAL_VALUE_REQUIREMENT_ERROR);
+        }
+        return "delete from ReactiveCapabilityCurvePoint where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                EQUIPMENT_ID_COLUMN + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
+    }
+
+    public static String buildDeleteReactiveCapabilityCurvePointsVariantQuery() {
+        return "delete from ReactiveCapabilityCurvePoint where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ?";
+    }
+
+    public static String buildDeleteReactiveCapabilityCurvePointsQuery() {
+        return "delete from ReactiveCapabilityCurvePoint where " +
                 NETWORK_UUID_COLUMN + " = ?";
     }
 }
