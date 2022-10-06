@@ -482,7 +482,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         delegate.createBusbarSections(networkUuid, busbarSectionResources);
-        for (Resource<BusbarSectionAttributes>  busbarSectionResource : busbarSectionResources) {
+        for (Resource<BusbarSectionAttributes> busbarSectionResource : busbarSectionResources) {
             busbarSectionsCache.getCollection(networkUuid, busbarSectionResource.getVariantNum()).createResource(busbarSectionResource);
         }
     }
@@ -506,7 +506,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     @Override
     public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         delegate.updateBusbarSections(networkUuid, busbarSectionResources);
-        for (Resource<BusbarSectionAttributes>  busbarSectionResource : busbarSectionResources) {
+        for (Resource<BusbarSectionAttributes> busbarSectionResource : busbarSectionResources) {
             busbarSectionsCache.getCollection(networkUuid, busbarSectionResource.getVariantNum()).updateResource(busbarSectionResource);
         }
     }

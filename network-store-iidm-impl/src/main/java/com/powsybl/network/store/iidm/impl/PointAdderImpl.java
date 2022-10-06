@@ -65,8 +65,8 @@ class PointAdderImpl implements ReactiveCapabilityCurveAdder.PointAdder, Validab
         if (point != null) {
             if (point.getMinQ() != minQ || point.getMaxQ() != maxQ) {
                 throw new ValidationException(this,
-                        "a point already exists for active power " + p  + " with a different reactive power range: [" +
-                                minQ  + ", " + maxQ + "] != " + "[" + point.getMinQ() + ", " + point.getMaxQ() + "]");
+                        "a point already exists for active power " + p + " with a different reactive power range: [" +
+                                minQ + ", " + maxQ + "] != " + "[" + point.getMinQ() + ", " + point.getMaxQ() + "]");
             } else {
                 LOGGER.warn("{}duplicate point for active power {}", getMessageHeader(), p);
             }

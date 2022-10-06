@@ -69,7 +69,7 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     @Override
     public double getMinP() {
-        return  attributes.getPoints().firstKey();
+        return attributes.getPoints().firstKey();
     }
 
     @Override
@@ -89,7 +89,7 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         assert points.size() >= 2;
 
         ReactiveCapabilityCurvePointAttributes pt = points.get(p);
-        if  (pt != null) {
+        if (pt != null) {
             return pt.getMinQ();
         } else {
             Map.Entry<Double, ReactiveCapabilityCurvePointAttributes> e1 = points.floorEntry(p);
@@ -114,7 +114,7 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         assert points.size() >= 2;
 
         ReactiveCapabilityCurvePointAttributes pt = points.get(p);
-        if  (pt != null) {
+        if (pt != null) {
             return pt.getMaxQ();
         } else {
             Map.Entry<Double, ReactiveCapabilityCurvePointAttributes> e1 = points.floorEntry(p);

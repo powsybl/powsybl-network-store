@@ -119,13 +119,13 @@ public class NetworkStoreToolsIT extends AbstractNetworkStoreToolsIT {
 
         // apply groovy script
         Files.copy(getClass().getResourceAsStream("/test.groovy"), fileSystem.getPath("/work/test.groovy"));
-        assertCommand(new String[] {"network-store-script", "--network-uuid",  networkUuid.toString(), "--script-file", "/work/test.groovy"},
+        assertCommand(new String[] {"network-store-script", "--network-uuid", networkUuid.toString(), "--script-file", "/work/test.groovy"},
                       0,
                       "Applying '/work/test.groovy' on " + networkUuid + "..." + System.lineSeparator() + "id: sim1",
                       "");
 
         // delete network
-        assertCommand(new String[] {"network-store-delete", "--network-uuid",  networkUuid.toString()},
+        assertCommand(new String[] {"network-store-delete", "--network-uuid", networkUuid.toString()},
                       0,
                       "Deleting " + networkUuid + "...",
                       "");
