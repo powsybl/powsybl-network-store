@@ -177,6 +177,7 @@ public class NetworkStoreRepositoryTest {
         assertEquals(3, resLineB.getAttributes().getCurrentLimits1().getTemporaryLimits().size());
     }
 
+    @Test
     public void insertReactiveCapabilityCurvesInGeneratorsTest() {
 
         String equipmentIdA = "idGeneratorA";
