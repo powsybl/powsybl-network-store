@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.util.*;
@@ -20,7 +21,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @Schema(description = "2 windings transformer attributes")
-public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerHolder, TapChangerParentAttributes, TransformerAttributes {
+public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes {
 
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
@@ -137,23 +138,31 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
 
+    @JsonIgnore
     @Override
-    public RatioTapChangerAttributes getRatioTapChangerAttributes(int side) {
-        return getRatioTapChangerAttributes();
+    public List<PhaseTapChangerStepAttributes> getPhaseTapChangerSteps() {
+        if (phaseTapChangerAttributes != null && phaseTapChangerAttributes.getSteps() != null) {
+            List<PhaseTapChangerStepAttributes> steps = phaseTapChangerAttributes.getSteps();
+            for (int i = 0; i < steps.size(); i++) {
+                steps.get(i).setIndex(i);
+                steps.get(i).setSide(0); // TODO REMOVE ?
+            }
+            return steps;
+        }
+        return Collections.emptyList();
     }
 
+    @JsonIgnore
     @Override
-    public PhaseTapChangerAttributes getPhaseTapChangerAttributes(int side) {
-        return getPhaseTapChangerAttributes();
-    }
-
-    @Override
-    public void setRatioTapChangerAttributes(int side, RatioTapChangerAttributes tapChanger) {
-        setRatioTapChangerAttributes(tapChanger);
-    }
-
-    @Override
-    public void setPhaseTapChangerAttributes(int side, PhaseTapChangerAttributes tapChanger) {
-        setPhaseTapChangerAttributes(tapChanger);
+    public List<RatioTapChangerStepAttributes> getRatioTapChangerSteps() {
+        if (ratioTapChangerAttributes != null && ratioTapChangerAttributes.getSteps() != null) {
+            List<RatioTapChangerStepAttributes> steps = ratioTapChangerAttributes.getSteps();
+            for (int i = 0; i < steps.size(); i++) {
+                steps.get(i).setIndex(i);
+                steps.get(i).setSide(0); // TODO REMOVE ?
+            }
+            return steps;
+        }
+        return Collections.emptyList();
     }
 }

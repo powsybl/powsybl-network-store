@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -22,7 +23,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder, TapChangerHolder {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder {
 
     @Schema(description = "3 windings transformer name")
     private String name;
@@ -152,24 +153,25 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         getLeg(side).setActivePowerLimitsAttributes(limits);
     }
 
-    @Override
-    public RatioTapChangerAttributes getRatioTapChangerAttributes(int side) {
-        return getLeg(side).getRatioTapChangerAttributes();
+    @JsonIgnore
+    public List<PhaseTapChangerStepAttributes> getPhaseTapChangerSteps() {
+        List<PhaseTapChangerStepAttributes> res = new ArrayList<>();
+        IntStream.of(1, 2, 3).forEach(i -> {
+            List<PhaseTapChangerStepAttributes> stepsofLeg = getLeg(i).getPhaseTapChangerSteps();
+            stepsofLeg.forEach(s -> s.setSide(i));
+            res.addAll(stepsofLeg);
+        });
+        return res;
     }
 
-    @Override
-    public PhaseTapChangerAttributes getPhaseTapChangerAttributes(int side) {
-        return getLeg(side).getPhaseTapChangerAttributes();
-    }
-
-    @Override
-    public void setRatioTapChangerAttributes(int side, RatioTapChangerAttributes tapChanger) {
-        getLeg(side).setRatioTapChangerAttributes(tapChanger);
-    }
-
-    @Override
-    public void setPhaseTapChangerAttributes(int side, PhaseTapChangerAttributes tapChanger) {
-        getLeg(side).setPhaseTapChangerAttributes(tapChanger);
-
+    @JsonIgnore
+    public List<RatioTapChangerStepAttributes> getRatioTapChangerSteps() {
+        List<RatioTapChangerStepAttributes> res = new ArrayList<>();
+        IntStream.of(1, 2, 3).forEach(i -> {
+            List<RatioTapChangerStepAttributes> stepsofLeg = getLeg(i).getRatioTapChangerSteps();
+            stepsofLeg.forEach(s -> s.setSide(i));
+            res.addAll(stepsofLeg);
+        });
+        return res;
     }
 }

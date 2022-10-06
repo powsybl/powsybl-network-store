@@ -19,10 +19,11 @@ import static org.junit.Assert.*;
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
  */
-public class TapChangerHolderTest {
+public class TapChangerParentTest {
 
     List<PhaseTapChangerStepAttributes> tapChangerStepsA;
     List<RatioTapChangerStepAttributes> tapChangerStepsB;
+    List<PhaseTapChangerStepAttributes> tapChangerStepsC;
 
     @Before
     public void setUp() {
@@ -70,6 +71,17 @@ public class TapChangerHolderTest {
             .g(30.1)
             .b(40.1)
             .x(50.1)
+            .build()
+        );
+
+        tapChangerStepsC = new ArrayList<>();
+        tapChangerStepsC.add(PhaseTapChangerStepAttributes.builder()
+            .rho(11.)
+            .r(21.)
+            .g(31.)
+            .b(41.)
+            .x(51.)
+            .alpha(61.)
             .build()
         );
     }
@@ -125,10 +137,13 @@ public class TapChangerHolderTest {
 
         TwoWindingsTransformerAttributes twoWTAttributes = resourceTransformer.getAttributes();
 
-        assertEquals(3, twoWTAttributes.getPhaseTapChangerAttributes(0).getSteps().size());
-        assertEquals(2, twoWTAttributes.getRatioTapChangerAttributes(0).getSteps().size());
+        assertEquals(3, twoWTAttributes.getPhaseTapChangerAttributes().getSteps().size());
+        assertEquals(2, twoWTAttributes.getRatioTapChangerAttributes().getSteps().size());
 
-        twoWTAttributes.getPhaseTapChangerAttributes(0).getSteps().add(PhaseTapChangerStepAttributes.builder()
+        assertEquals(3, twoWTAttributes.getPhaseTapChangerSteps().size());
+        assertEquals(2, twoWTAttributes.getRatioTapChangerSteps().size());
+
+        twoWTAttributes.getPhaseTapChangerAttributes().getSteps().add(PhaseTapChangerStepAttributes.builder()
             .rho(1.3)
             .r(2.3)
             .g(3.3)
@@ -137,7 +152,7 @@ public class TapChangerHolderTest {
             .alpha(6.3)
             .build()
         );
-        twoWTAttributes.getRatioTapChangerAttributes(0).getSteps().add(RatioTapChangerStepAttributes.builder()
+        twoWTAttributes.getRatioTapChangerAttributes().getSteps().add(RatioTapChangerStepAttributes.builder()
             .rho(10.2)
             .r(20.2)
             .g(30.2)
@@ -146,8 +161,8 @@ public class TapChangerHolderTest {
             .build()
         );
 
-        assertEquals(4, twoWTAttributes.getPhaseTapChangerAttributes(0).getSteps().size());
-        assertEquals(3, twoWTAttributes.getRatioTapChangerAttributes(0).getSteps().size());
+        assertEquals(4, twoWTAttributes.getPhaseTapChangerAttributes().getSteps().size());
+        assertEquals(3, twoWTAttributes.getRatioTapChangerAttributes().getSteps().size());
 
     }
 
@@ -193,6 +208,19 @@ public class TapChangerHolderTest {
                             .build()
                         )
                         .leg3(LegAttributes.builder()
+                            .phaseTapChangerAttributes(PhaseTapChangerAttributes.builder()
+                                .lowTapPosition(1)
+                                .regulating(true)
+                                .regulatingTerminal(TerminalRefAttributes.builder()
+                                        .connectableId("connectableId")
+                                        .side("this side")
+                                        .build()
+                                )
+                                .regulationMode(RegulationMode.CURRENT_LIMITER)
+                                .regulationValue(20.)
+                                .steps(tapChangerStepsC)
+                                .build()
+                            )
                             .build()
                         )
                         .build())
@@ -200,11 +228,14 @@ public class TapChangerHolderTest {
 
         ThreeWindingsTransformerAttributes threeWTAttributes = resourceTransformer.getAttributes();
 
-        assertEquals(3, threeWTAttributes.getPhaseTapChangerAttributes(1).getSteps().size());
-        assertNull(threeWTAttributes.getPhaseTapChangerAttributes(2));
-        assertNull(threeWTAttributes.getPhaseTapChangerAttributes(3));
-        assertEquals(2, threeWTAttributes.getRatioTapChangerAttributes(2).getSteps().size());
-        assertNull(threeWTAttributes.getRatioTapChangerAttributes(1));
-        assertNull(threeWTAttributes.getRatioTapChangerAttributes(3));
+        assertEquals(3, threeWTAttributes.getLeg(1).getPhaseTapChangerAttributes().getSteps().size());
+        assertNull(threeWTAttributes.getLeg(2).getPhaseTapChangerAttributes());
+        assertEquals(1, threeWTAttributes.getLeg(3).getPhaseTapChangerAttributes().getSteps().size());
+        assertEquals(2, threeWTAttributes.getLeg(2).getRatioTapChangerAttributes().getSteps().size());
+        assertNull(threeWTAttributes.getLeg(1).getRatioTapChangerAttributes());
+        assertNull(threeWTAttributes.getLeg(3).getRatioTapChangerAttributes());
+
+        assertEquals(4, threeWTAttributes.getPhaseTapChangerSteps().size());
+        assertEquals(2, threeWTAttributes.getRatioTapChangerSteps().size());
     }
 }

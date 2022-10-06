@@ -6,6 +6,10 @@
  */
 package com.powsybl.network.store.model;
 
+import java.util.Collections;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -71,4 +75,30 @@ public class LegAttributes implements TapChangerParentAttributes {
 
     @Schema(description = "active power limits")
     private LimitsAttributes activePowerLimitsAttributes;
+
+    @JsonIgnore
+    @Override
+    public List<PhaseTapChangerStepAttributes> getPhaseTapChangerSteps() {
+        if (phaseTapChangerAttributes != null && phaseTapChangerAttributes.getSteps() != null) {
+            List<PhaseTapChangerStepAttributes> steps = phaseTapChangerAttributes.getSteps();
+            for (int i = 0; i < steps.size(); i++) {
+                steps.get(i).setIndex(i);
+            }
+            return steps;
+        }
+        return Collections.emptyList();
+    }
+
+    @JsonIgnore
+    @Override
+    public List<RatioTapChangerStepAttributes> getRatioTapChangerSteps() {
+        if (ratioTapChangerAttributes != null && ratioTapChangerAttributes.getSteps() != null) {
+            List<RatioTapChangerStepAttributes> steps = ratioTapChangerAttributes.getSteps();
+            for (int i = 0; i < steps.size(); i++) {
+                steps.get(i).setIndex(i);
+            }
+            return steps;
+        }
+        return Collections.emptyList();
+    }
 }
