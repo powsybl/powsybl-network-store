@@ -1847,14 +1847,15 @@ public class NetworkStoreRepository {
             List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
             IntStream.of(1, 2, 3).forEach(legNum -> {
                 RatioTapChangerAttributes ratioTapChangerAttributes = ((ThreeWindingsTransformerAttributes) equipment).getLeg(legNum).getRatioTapChangerAttributes();
-                if (ratioTapChangerAttributes != null && ratioTapChangerAttributes.getSteps() != null) {
-                    List<RatioTapChangerStepAttributes> stepsLeg = ratioTapChangerAttributes.getSteps();
-                    for (int i = 0; i < stepsLeg.size(); i++) {
-                        stepsLeg.get(i).setIndex(i);
-                        stepsLeg.get(i).setSide(legNum);
-                    }
-                    steps.addAll(stepsLeg);
+                if (ratioTapChangerAttributes == null || ratioTapChangerAttributes.getSteps() == null) {
+                    return;
                 }
+                List<RatioTapChangerStepAttributes> stepsLeg = ratioTapChangerAttributes.getSteps();
+                for (int i = 0; i < stepsLeg.size(); i++) {
+                    stepsLeg.get(i).setIndex(i);
+                    stepsLeg.get(i).setSide(legNum);
+                }
+                steps.addAll(stepsLeg);
             });
             return steps;
         } else {
@@ -1879,14 +1880,15 @@ public class NetworkStoreRepository {
             List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
             IntStream.of(1, 2, 3).forEach(legNum -> {
                 PhaseTapChangerAttributes phaseTapChangerAttributes = ((ThreeWindingsTransformerAttributes) equipment).getLeg(legNum).getPhaseTapChangerAttributes();
-                if (phaseTapChangerAttributes != null && phaseTapChangerAttributes.getSteps() != null) {
-                    List<PhaseTapChangerStepAttributes> stepsLeg = phaseTapChangerAttributes.getSteps();
-                    for (int i = 0; i < stepsLeg.size(); i++) {
-                        stepsLeg.get(i).setIndex(i);
-                        stepsLeg.get(i).setSide(legNum);
-                    }
-                    steps.addAll(stepsLeg);
+                if (phaseTapChangerAttributes == null || phaseTapChangerAttributes.getSteps() == null) {
+                    return;
                 }
+                List<PhaseTapChangerStepAttributes> stepsLeg = phaseTapChangerAttributes.getSteps();
+                for (int i = 0; i < stepsLeg.size(); i++) {
+                    stepsLeg.get(i).setIndex(i);
+                    stepsLeg.get(i).setSide(legNum);
+                }
+                steps.addAll(stepsLeg);
             });
             return steps;
         } else {
@@ -1982,26 +1984,29 @@ public class NetworkStoreRepository {
     protected <T extends IdentifiableAttributes>
         void insertTapChangerStepsInEquipments(UUID networkUuid, List<Resource<T>> equipments, Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps) {
 
-        if (!tapChangerSteps.isEmpty() && !equipments.isEmpty()) {
-            for (Resource<T> equipmentAttributesResource : equipments) {
-                OwnerInfo owner = new OwnerInfo(
-                    equipmentAttributesResource.getId(),
-                    equipmentAttributesResource.getType(),
-                    networkUuid,
-                    equipmentAttributesResource.getVariantNum()
-                );
-                if (tapChangerSteps.containsKey(owner)) {
-                    T equipment = equipmentAttributesResource.getAttributes();
-                    if (equipment instanceof TwoWindingsTransformerAttributes) {
-                        for (AbstractTapChangerStepAttributes tapChangerStep : tapChangerSteps.get(owner)) {
-                            insertTapChangerStepInEquipment((TwoWindingsTransformerAttributes) equipment, tapChangerStep);
-                        }
-                    } else if (equipment instanceof ThreeWindingsTransformerAttributes) {
-                        for (AbstractTapChangerStepAttributes tapChangerStep : tapChangerSteps.get(owner)) {
-                            LegAttributes leg = ((ThreeWindingsTransformerAttributes) equipment).getLeg(tapChangerStep.getSide());
-                            insertTapChangerStepInEquipment(leg, tapChangerStep);
-                        }
-                    }
+        if (tapChangerSteps.isEmpty() || equipments.isEmpty()) {
+            return;
+        }
+        for (Resource<T> equipmentAttributesResource : equipments) {
+            OwnerInfo owner = new OwnerInfo(
+                equipmentAttributesResource.getId(),
+                equipmentAttributesResource.getType(),
+                networkUuid,
+                equipmentAttributesResource.getVariantNum()
+            );
+            if (!tapChangerSteps.containsKey(owner)) {
+                continue;
+            }
+
+            T equipment = equipmentAttributesResource.getAttributes();
+            if (equipment instanceof TwoWindingsTransformerAttributes) {
+                for (AbstractTapChangerStepAttributes tapChangerStep : tapChangerSteps.get(owner)) {
+                    insertTapChangerStepInEquipment((TwoWindingsTransformerAttributes) equipment, tapChangerStep);
+                }
+            } else if (equipment instanceof ThreeWindingsTransformerAttributes) {
+                for (AbstractTapChangerStepAttributes tapChangerStep : tapChangerSteps.get(owner)) {
+                    LegAttributes leg = ((ThreeWindingsTransformerAttributes) equipment).getLeg(tapChangerStep.getSide());
+                    insertTapChangerStepInEquipment(leg, tapChangerStep);
                 }
             }
         }

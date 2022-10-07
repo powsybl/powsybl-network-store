@@ -71,5 +71,4 @@ public class LegAttributes implements TapChangerParentAttributes {
 
     @Schema(description = "active power limits")
     private LimitsAttributes activePowerLimitsAttributes;
-
 }
