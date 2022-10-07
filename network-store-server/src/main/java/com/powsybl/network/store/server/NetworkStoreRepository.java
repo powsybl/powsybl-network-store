@@ -1767,6 +1767,10 @@ public class NetworkStoreRepository {
         try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildTapChangerStepWithInClauseQuery(columnNameForWhereClause, valuesForInClause.size()));
             preparedStmt.setObject(1, networkUuid);
+            preparedStmt.setInt(2, variantNum);
+            for (int i = 0; i < valuesForInClause.size(); i++) {
+                preparedStmt.setString(3 + i, valuesForInClause.get(i));
+            }
             return innerGetTapChangerSteps(preparedStmt);
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
