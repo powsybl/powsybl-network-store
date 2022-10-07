@@ -7,7 +7,6 @@
 package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.util.*;
@@ -138,31 +137,4 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
 
-    @JsonIgnore
-    @Override
-    public List<PhaseTapChangerStepAttributes> getPhaseTapChangerSteps() {
-        if (phaseTapChangerAttributes != null && phaseTapChangerAttributes.getSteps() != null) {
-            List<PhaseTapChangerStepAttributes> steps = phaseTapChangerAttributes.getSteps();
-            for (int i = 0; i < steps.size(); i++) {
-                steps.get(i).setIndex(i);
-                steps.get(i).setSide(0); // TODO REMOVE ?
-            }
-            return steps;
-        }
-        return Collections.emptyList();
-    }
-
-    @JsonIgnore
-    @Override
-    public List<RatioTapChangerStepAttributes> getRatioTapChangerSteps() {
-        if (ratioTapChangerAttributes != null && ratioTapChangerAttributes.getSteps() != null) {
-            List<RatioTapChangerStepAttributes> steps = ratioTapChangerAttributes.getSteps();
-            for (int i = 0; i < steps.size(); i++) {
-                steps.get(i).setIndex(i);
-                steps.get(i).setSide(0); // TODO REMOVE ?
-            }
-            return steps;
-        }
-        return Collections.emptyList();
-    }
 }

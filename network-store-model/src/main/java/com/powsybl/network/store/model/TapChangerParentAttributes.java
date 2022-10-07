@@ -6,8 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import java.util.List;
-
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
@@ -20,9 +18,5 @@ public interface TapChangerParentAttributes {
     RatioTapChangerAttributes getRatioTapChangerAttributes();
 
     PhaseTapChangerAttributes getPhaseTapChangerAttributes();
-
-    List<PhaseTapChangerStepAttributes> getPhaseTapChangerSteps();
-
-    List<RatioTapChangerStepAttributes> getRatioTapChangerSteps();
 
 }

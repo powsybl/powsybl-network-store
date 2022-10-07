@@ -36,6 +36,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.powsybl.network.store.server.Mappings.*;
 import static com.powsybl.network.store.server.QueryCatalog.*;
@@ -1831,19 +1832,76 @@ public class NetworkStoreRepository {
     }
 
     private <T extends IdentifiableAttributes>
+        List<RatioTapChangerStepAttributes> getRatioTapChangerSteps(T equipment) {
+        if (equipment instanceof TwoWindingsTransformerAttributes) {
+            RatioTapChangerAttributes ratioTapChangerAttributes = ((TwoWindingsTransformerAttributes) equipment).getRatioTapChangerAttributes();
+            if (ratioTapChangerAttributes != null && ratioTapChangerAttributes.getSteps() != null) {
+                List<RatioTapChangerStepAttributes> steps = ratioTapChangerAttributes.getSteps();
+                for (int i = 0; i < steps.size(); i++) {
+                    steps.get(i).setIndex(i);
+                    steps.get(i).setSide(0); // TODO REMOVE ?
+                }
+                return steps;
+            }
+        } else if (equipment instanceof ThreeWindingsTransformerAttributes) {
+            List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
+            IntStream.of(1, 2, 3).forEach(legNum -> {
+                RatioTapChangerAttributes ratioTapChangerAttributes = ((ThreeWindingsTransformerAttributes) equipment).getLeg(legNum).getRatioTapChangerAttributes();
+                if (ratioTapChangerAttributes != null && ratioTapChangerAttributes.getSteps() != null) {
+                    List<RatioTapChangerStepAttributes> stepsLeg = ratioTapChangerAttributes.getSteps();
+                    for (int i = 0; i < stepsLeg.size(); i++) {
+                        stepsLeg.get(i).setIndex(i);
+                        stepsLeg.get(i).setSide(legNum);
+                    }
+                    steps.addAll(stepsLeg);
+                }
+            });
+            return steps;
+        } else {
+            throw new UnsupportedOperationException("equipmentAttributes type invalid");
+        }
+        return Collections.emptyList();
+    }
+
+    private <T extends IdentifiableAttributes>
+        List<PhaseTapChangerStepAttributes> getPhaseTapChangerSteps(T equipment) {
+        if (equipment instanceof TwoWindingsTransformerAttributes) {
+            PhaseTapChangerAttributes phaseTapChangerAttributes = ((TwoWindingsTransformerAttributes) equipment).getPhaseTapChangerAttributes();
+            if (phaseTapChangerAttributes != null && phaseTapChangerAttributes.getSteps() != null) {
+                List<PhaseTapChangerStepAttributes> steps = phaseTapChangerAttributes.getSteps();
+                for (int i = 0; i < steps.size(); i++) {
+                    steps.get(i).setIndex(i);
+                    steps.get(i).setSide(0); // TODO REMOVE ?
+                }
+                return steps;
+            }
+        } else if (equipment instanceof ThreeWindingsTransformerAttributes) {
+            List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
+            IntStream.of(1, 2, 3).forEach(legNum -> {
+                PhaseTapChangerAttributes phaseTapChangerAttributes = ((ThreeWindingsTransformerAttributes) equipment).getLeg(legNum).getPhaseTapChangerAttributes();
+                if (phaseTapChangerAttributes != null && phaseTapChangerAttributes.getSteps() != null) {
+                    List<PhaseTapChangerStepAttributes> stepsLeg = phaseTapChangerAttributes.getSteps();
+                    for (int i = 0; i < stepsLeg.size(); i++) {
+                        stepsLeg.get(i).setIndex(i);
+                        stepsLeg.get(i).setSide(legNum);
+                    }
+                    steps.addAll(stepsLeg);
+                }
+            });
+            return steps;
+        } else {
+            throw new UnsupportedOperationException("equipmentAttributes type invalid");
+        }
+        return Collections.emptyList();
+    }
+
+    private <T extends IdentifiableAttributes>
         Map<OwnerInfo, List<RatioTapChangerStepAttributes>> getRatioTapChangerStepsFromEquipment(UUID networkUuid, List<Resource<T>> resources) {
         if (!resources.isEmpty()) {
             Map<OwnerInfo, List<RatioTapChangerStepAttributes>> map = new HashMap<>();
             for (Resource<T> resource : resources) {
                 T equipment = resource.getAttributes();
-                List<RatioTapChangerStepAttributes> steps;
-                if (equipment instanceof TwoWindingsTransformerAttributes) {
-                    steps = ((TwoWindingsTransformerAttributes) equipment).getRatioTapChangerSteps();
-                } else if (equipment instanceof ThreeWindingsTransformerAttributes) {
-                    steps = ((ThreeWindingsTransformerAttributes) equipment).getRatioTapChangerSteps();
-                } else {
-                    throw new UnsupportedOperationException("equipmentAttributes type invalid");
-                }
+                List<RatioTapChangerStepAttributes> steps = getRatioTapChangerSteps(equipment);
                 if (steps != null && !steps.isEmpty()) {
                     OwnerInfo info = new OwnerInfo(
                         resource.getId(),
@@ -1865,14 +1923,7 @@ public class NetworkStoreRepository {
             Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> map = new HashMap<>();
             for (Resource<T> resource : resources) {
                 T equipment = resource.getAttributes();
-                List<PhaseTapChangerStepAttributes> steps;
-                if (equipment instanceof TwoWindingsTransformerAttributes) {
-                    steps = ((TwoWindingsTransformerAttributes) equipment).getPhaseTapChangerSteps();
-                } else if (equipment instanceof ThreeWindingsTransformerAttributes) {
-                    steps = ((ThreeWindingsTransformerAttributes) equipment).getPhaseTapChangerSteps();
-                } else {
-                    throw new UnsupportedOperationException("equipmentAttributes type invalid");
-                }
+                List<PhaseTapChangerStepAttributes> steps = getPhaseTapChangerSteps(equipment);
                 if (steps != null && !steps.isEmpty()) {
                     OwnerInfo info = new OwnerInfo(
                         resource.getId(),

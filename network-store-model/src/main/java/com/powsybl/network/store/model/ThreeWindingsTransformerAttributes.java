@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -153,25 +152,4 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         getLeg(side).setActivePowerLimitsAttributes(limits);
     }
 
-    @JsonIgnore
-    public List<PhaseTapChangerStepAttributes> getPhaseTapChangerSteps() {
-        List<PhaseTapChangerStepAttributes> res = new ArrayList<>();
-        IntStream.of(1, 2, 3).forEach(i -> {
-            List<PhaseTapChangerStepAttributes> stepsofLeg = getLeg(i).getPhaseTapChangerSteps();
-            stepsofLeg.forEach(s -> s.setSide(i));
-            res.addAll(stepsofLeg);
-        });
-        return res;
-    }
-
-    @JsonIgnore
-    public List<RatioTapChangerStepAttributes> getRatioTapChangerSteps() {
-        List<RatioTapChangerStepAttributes> res = new ArrayList<>();
-        IntStream.of(1, 2, 3).forEach(i -> {
-            List<RatioTapChangerStepAttributes> stepsofLeg = getLeg(i).getRatioTapChangerSteps();
-            stepsofLeg.forEach(s -> s.setSide(i));
-            res.addAll(stepsofLeg);
-        });
-        return res;
-    }
 }

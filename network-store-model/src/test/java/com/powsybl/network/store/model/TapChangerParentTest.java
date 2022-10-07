@@ -140,9 +140,6 @@ public class TapChangerParentTest {
         assertEquals(3, twoWTAttributes.getPhaseTapChangerAttributes().getSteps().size());
         assertEquals(2, twoWTAttributes.getRatioTapChangerAttributes().getSteps().size());
 
-        assertEquals(3, twoWTAttributes.getPhaseTapChangerSteps().size());
-        assertEquals(2, twoWTAttributes.getRatioTapChangerSteps().size());
-
         twoWTAttributes.getPhaseTapChangerAttributes().getSteps().add(PhaseTapChangerStepAttributes.builder()
             .rho(1.3)
             .r(2.3)
@@ -235,7 +232,5 @@ public class TapChangerParentTest {
         assertNull(threeWTAttributes.getLeg(1).getRatioTapChangerAttributes());
         assertNull(threeWTAttributes.getLeg(3).getRatioTapChangerAttributes());
 
-        assertEquals(4, threeWTAttributes.getPhaseTapChangerSteps().size());
-        assertEquals(2, threeWTAttributes.getRatioTapChangerSteps().size());
     }
 }

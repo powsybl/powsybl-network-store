@@ -498,12 +498,6 @@ public class NetworkStoreRepositoryTest {
         assertNull(res2WTransformerB.getAttributes().getRatioTapChangerAttributes());
         assertEquals(4, res2WTransformerB.getAttributes().getPhaseTapChangerAttributes().getSteps().size());
 
-        networkStoreRepository.createTwoWindingsTransformers(NETWORK_UUID, twoWTransformers);
-        assertEquals(7, getTapChangerStepsNumber(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.TWO_WINDINGS_TRANSFORMER, List.of(info2WTransformerA, info2WTransformerB, info2WTransformerX)));
-
-        networkStoreRepository.deleteTwoWindingsTransformer(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, equipmentIdA);
-        assertEquals(4, getTapChangerStepsNumber(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.TWO_WINDINGS_TRANSFORMER, List.of(info2WTransformerA, info2WTransformerB, info2WTransformerX)));
-
     }
 
     public int getTapChangerStepsNumber(UUID networkUuid, int variantNum, ResourceType type, List<OwnerInfo> infos) {
@@ -740,8 +734,6 @@ public class NetworkStoreRepositoryTest {
         assertNull(res3WTransformerA.getAttributes().getLeg(2).getPhaseTapChangerAttributes());
         assertEquals(2, res3WTransformerA.getAttributes().getLeg(2).getRatioTapChangerAttributes().getSteps().size());
 
-        assertEquals(4, res3WTransformerA.getAttributes().getRatioTapChangerSteps().size());
-
         // in B
         assertThrows(IllegalArgumentException.class, () -> {
             networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, threeWTransformers, mapB);
@@ -756,12 +748,5 @@ public class NetworkStoreRepositoryTest {
         assertNotNull(res3WTransformerB.getAttributes().getLeg(3).getPhaseTapChangerAttributes().getSteps());
         assertNull(res3WTransformerB.getAttributes().getLeg(3).getRatioTapChangerAttributes());
         assertEquals(1, res3WTransformerB.getAttributes().getLeg(3).getPhaseTapChangerAttributes().getSteps().size());
-
-        assertEquals(3, res3WTransformerB.getAttributes().getPhaseTapChangerSteps().size());
-        networkStoreRepository.createThreeWindingsTransformers(NETWORK_UUID, threeWTransformers);
-        assertEquals(7, getTapChangerStepsNumber(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.THREE_WINDINGS_TRANSFORMER, List.of(info3WTransformerA, info3WTransformerB, info3WTransformerX)));
-
-        networkStoreRepository.deleteThreeWindingsTransformer(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, equipmentIdA);
-        assertEquals(3, getTapChangerStepsNumber(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.THREE_WINDINGS_TRANSFORMER, List.of(info3WTransformerA, info3WTransformerB, info3WTransformerX)));
     }
 }
