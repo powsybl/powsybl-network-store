@@ -1831,70 +1831,84 @@ public class NetworkStoreRepository {
         }
     }
 
-    private <T extends IdentifiableAttributes>
-        List<RatioTapChangerStepAttributes> getRatioTapChangerSteps(T equipment) {
+    private <T extends IdentifiableAttributes> List<RatioTapChangerStepAttributes> getRatioTapChangerSteps(T equipment) {
         if (equipment instanceof TwoWindingsTransformerAttributes) {
-            RatioTapChangerAttributes ratioTapChangerAttributes = ((TwoWindingsTransformerAttributes) equipment).getRatioTapChangerAttributes();
-            if (ratioTapChangerAttributes != null && ratioTapChangerAttributes.getSteps() != null) {
-                List<RatioTapChangerStepAttributes> steps = ratioTapChangerAttributes.getSteps();
-                for (int i = 0; i < steps.size(); i++) {
-                    steps.get(i).setIndex(i);
-                    steps.get(i).setSide(0); // TODO REMOVE ?
-                }
-                return steps;
+            return getRatioTapChangerStepsTwoWindingsTransformer((TwoWindingsTransformerAttributes) equipment);
+        }
+        if (equipment instanceof ThreeWindingsTransformerAttributes) {
+            return getRatioTapChangerStepsThreeWindingsTransformer((ThreeWindingsTransformerAttributes) equipment);
+        }
+        throw new UnsupportedOperationException("equipmentAttributes type invalid");
+    }
+
+    private List<RatioTapChangerStepAttributes> getRatioTapChangerStepsTwoWindingsTransformer(TwoWindingsTransformerAttributes equipment) {
+        RatioTapChangerAttributes ratioTapChangerAttributes = equipment.getRatioTapChangerAttributes();
+        if (ratioTapChangerAttributes != null && ratioTapChangerAttributes.getSteps() != null) {
+            List<RatioTapChangerStepAttributes> steps = ratioTapChangerAttributes.getSteps();
+            for (int i = 0; i < steps.size(); i++) {
+                steps.get(i).setIndex(i);
+                steps.get(i).setSide(0); // TODO REMOVE ?
             }
-        } else if (equipment instanceof ThreeWindingsTransformerAttributes) {
-            List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
-            IntStream.of(1, 2, 3).forEach(legNum -> {
-                RatioTapChangerAttributes ratioTapChangerAttributes = ((ThreeWindingsTransformerAttributes) equipment).getLeg(legNum).getRatioTapChangerAttributes();
-                if (ratioTapChangerAttributes == null || ratioTapChangerAttributes.getSteps() == null) {
-                    return;
-                }
-                List<RatioTapChangerStepAttributes> stepsLeg = ratioTapChangerAttributes.getSteps();
-                for (int i = 0; i < stepsLeg.size(); i++) {
-                    stepsLeg.get(i).setIndex(i);
-                    stepsLeg.get(i).setSide(legNum);
-                }
-                steps.addAll(stepsLeg);
-            });
             return steps;
-        } else {
-            throw new UnsupportedOperationException("equipmentAttributes type invalid");
         }
         return Collections.emptyList();
     }
 
-    private <T extends IdentifiableAttributes>
-        List<PhaseTapChangerStepAttributes> getPhaseTapChangerSteps(T equipment) {
-        if (equipment instanceof TwoWindingsTransformerAttributes) {
-            PhaseTapChangerAttributes phaseTapChangerAttributes = ((TwoWindingsTransformerAttributes) equipment).getPhaseTapChangerAttributes();
-            if (phaseTapChangerAttributes != null && phaseTapChangerAttributes.getSteps() != null) {
-                List<PhaseTapChangerStepAttributes> steps = phaseTapChangerAttributes.getSteps();
-                for (int i = 0; i < steps.size(); i++) {
-                    steps.get(i).setIndex(i);
-                    steps.get(i).setSide(0); // TODO REMOVE ?
-                }
-                return steps;
+    private List<RatioTapChangerStepAttributes> getRatioTapChangerStepsThreeWindingsTransformer(ThreeWindingsTransformerAttributes equipment) {
+        List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
+        IntStream.of(1, 2, 3).forEach(legNum -> {
+            RatioTapChangerAttributes ratioTapChangerAttributes = equipment.getLeg(legNum).getRatioTapChangerAttributes();
+            if (ratioTapChangerAttributes == null || ratioTapChangerAttributes.getSteps() == null) {
+                return;
             }
-        } else if (equipment instanceof ThreeWindingsTransformerAttributes) {
-            List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
-            IntStream.of(1, 2, 3).forEach(legNum -> {
-                PhaseTapChangerAttributes phaseTapChangerAttributes = ((ThreeWindingsTransformerAttributes) equipment).getLeg(legNum).getPhaseTapChangerAttributes();
-                if (phaseTapChangerAttributes == null || phaseTapChangerAttributes.getSteps() == null) {
-                    return;
-                }
-                List<PhaseTapChangerStepAttributes> stepsLeg = phaseTapChangerAttributes.getSteps();
-                for (int i = 0; i < stepsLeg.size(); i++) {
-                    stepsLeg.get(i).setIndex(i);
-                    stepsLeg.get(i).setSide(legNum);
-                }
-                steps.addAll(stepsLeg);
-            });
+            List<RatioTapChangerStepAttributes> stepsLeg = ratioTapChangerAttributes.getSteps();
+            for (int i = 0; i < stepsLeg.size(); i++) {
+                stepsLeg.get(i).setIndex(i);
+                stepsLeg.get(i).setSide(legNum);
+            }
+            steps.addAll(stepsLeg);
+        });
+        return steps;
+    }
+
+    private <T extends IdentifiableAttributes> List<PhaseTapChangerStepAttributes> getPhaseTapChangerSteps(T equipment) {
+        if (equipment instanceof TwoWindingsTransformerAttributes) {
+            return getPhaseTapChangerStepsTwoWindingsTransformer((TwoWindingsTransformerAttributes) equipment);
+        }
+        if (equipment instanceof ThreeWindingsTransformerAttributes) {
+            return getPhaseTapChangerStepsThreeWindingsTransformer((ThreeWindingsTransformerAttributes) equipment);
+        }
+        throw new UnsupportedOperationException("equipmentAttributes type invalid");
+    }
+
+    private List<PhaseTapChangerStepAttributes> getPhaseTapChangerStepsTwoWindingsTransformer(TwoWindingsTransformerAttributes equipment) {
+        PhaseTapChangerAttributes phaseTapChangerAttributes = equipment.getPhaseTapChangerAttributes();
+        if (phaseTapChangerAttributes != null && phaseTapChangerAttributes.getSteps() != null) {
+            List<PhaseTapChangerStepAttributes> steps = phaseTapChangerAttributes.getSteps();
+            for (int i = 0; i < steps.size(); i++) {
+                steps.get(i).setIndex(i);
+                steps.get(i).setSide(0); // TODO REMOVE ?
+            }
             return steps;
-        } else {
-            throw new UnsupportedOperationException("equipmentAttributes type invalid");
         }
         return Collections.emptyList();
+    }
+
+    private List<PhaseTapChangerStepAttributes> getPhaseTapChangerStepsThreeWindingsTransformer(ThreeWindingsTransformerAttributes equipment) {
+        List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
+        IntStream.of(1, 2, 3).forEach(legNum -> {
+            PhaseTapChangerAttributes phaseTapChangerAttributes = equipment.getLeg(legNum).getPhaseTapChangerAttributes();
+            if (phaseTapChangerAttributes == null || phaseTapChangerAttributes.getSteps() == null) {
+                return;
+            }
+            List<PhaseTapChangerStepAttributes> stepsLeg = phaseTapChangerAttributes.getSteps();
+            for (int i = 0; i < stepsLeg.size(); i++) {
+                stepsLeg.get(i).setIndex(i);
+                stepsLeg.get(i).setSide(legNum);
+            }
+            steps.addAll(stepsLeg);
+        });
+        return steps;
     }
 
     private <T extends IdentifiableAttributes>
