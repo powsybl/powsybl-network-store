@@ -1446,13 +1446,8 @@ public class NetworkStoreRepository {
                 temporaryLimit.setAcceptableDuration(resultSet.getInt(9));
                 temporaryLimit.setFictitious(resultSet.getBoolean(10));
 
-                if (!map.containsKey(owner)) {
-                    List<TemporaryLimitAttributes> limitsCollection = new ArrayList<>();
-                    limitsCollection.add(temporaryLimit);
-                    map.put(owner, limitsCollection);
-                } else {
-                    map.get(owner).add(temporaryLimit);
-                }
+                map.computeIfAbsent(owner, k -> new ArrayList<>());
+                map.get(owner).add(temporaryLimit);
             }
             return map;
         }
@@ -1655,13 +1650,8 @@ public class NetworkStoreRepository {
                 reactiveCapabilityCurvePoint.setMaxQ(resultSet.getInt(6));
                 reactiveCapabilityCurvePoint.setP(resultSet.getInt(7));
 
-                if (!map.containsKey(owner)) {
-                    List<ReactiveCapabilityCurvePointAttributes> reactiveCapabilityCurvePointsCollection = new ArrayList<>();
-                    reactiveCapabilityCurvePointsCollection.add(reactiveCapabilityCurvePoint);
-                    map.put(owner, reactiveCapabilityCurvePointsCollection);
-                } else {
-                    map.get(owner).add(reactiveCapabilityCurvePoint);
-                }
+                map.computeIfAbsent(owner, k -> new ArrayList<>());
+                map.get(owner).add(reactiveCapabilityCurvePoint);
             }
             return map;
         }
@@ -1819,13 +1809,8 @@ public class NetworkStoreRepository {
                 tapChangerStep.setG(resultSet.getDouble(11));
                 tapChangerStep.setB(resultSet.getDouble(12));
 
-                if (!map.containsKey(owner)) {
-                    List<AbstractTapChangerStepAttributes> stepsCollection = new ArrayList<>();
-                    stepsCollection.add(tapChangerStep);
-                    map.put(owner, stepsCollection);
-                } else {
-                    map.get(owner).add(tapChangerStep);
-                }
+                map.computeIfAbsent(owner, k -> new ArrayList<>());
+                map.get(owner).add(tapChangerStep);
             }
             return map;
         }
