@@ -324,4 +324,429 @@ public class NetworkStoreRepositoryTest {
 
         assertTrue(resGeneratorMinMax.getAttributes().getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes);
     }
+
+    @Test
+    public void insertTapChangerStepsInTwoWindingsTranformerTest() {
+
+        String equipmentIdA = "id2WTransformerA";
+        String equipmentIdB = "id2WTransformerB";
+
+        OwnerInfo info2WTransformerA = new OwnerInfo(
+                equipmentIdA,
+                ResourceType.TWO_WINDINGS_TRANSFORMER,
+                NETWORK_UUID,
+                Resource.INITIAL_VARIANT_NUM
+        );
+        OwnerInfo info2WTransformerB = new OwnerInfo(
+                equipmentIdB,
+                ResourceType.TWO_WINDINGS_TRANSFORMER,
+                NETWORK_UUID,
+                Resource.INITIAL_VARIANT_NUM
+        );
+        OwnerInfo info2WTransformerX = new OwnerInfo(
+                "badID",
+                ResourceType.TWO_WINDINGS_TRANSFORMER,
+                NETWORK_UUID,
+                Resource.INITIAL_VARIANT_NUM
+        );
+
+        Resource<TwoWindingsTransformerAttributes> res2WTransformerA = Resource.twoWindingsTransformerBuilder()
+                .id(equipmentIdA)
+                .attributes(TwoWindingsTransformerAttributes.builder()
+                        .voltageLevelId1("vl1")
+                        .voltageLevelId2("vl2")
+                        .name("id2WTransformerA")
+                        .ratioTapChangerAttributes(RatioTapChangerAttributes.builder()
+                                .lowTapPosition(20)
+                                .build())
+                        .build())
+                .build();
+
+        Resource<TwoWindingsTransformerAttributes> res2WTransformerB = Resource.twoWindingsTransformerBuilder()
+                .id(equipmentIdB)
+                .attributes(TwoWindingsTransformerAttributes.builder()
+                        .voltageLevelId1("vl1")
+                        .voltageLevelId2("vl2")
+                        .name("id2WTransformerB")
+                        .phaseTapChangerAttributes(PhaseTapChangerAttributes.builder()
+                                .lowTapPosition(30)
+                                .build())
+                        .build())
+                .build();
+
+        assertEquals(res2WTransformerA.getId(), info2WTransformerA.getEquipmentId());
+        assertEquals(res2WTransformerB.getId(), info2WTransformerB.getEquipmentId());
+        assertNotEquals(res2WTransformerA.getId(), info2WTransformerX.getEquipmentId());
+
+        RatioTapChangerStepAttributes ratioStepA1 = RatioTapChangerStepAttributes.builder()
+                .rho(1.)
+                .r(1.)
+                .g(1.)
+                .b(1.)
+                .x(1.)
+                .side(0)
+                .index(0)
+                .build();
+
+        RatioTapChangerStepAttributes ratioStepA2 = RatioTapChangerStepAttributes.builder()
+                .rho(2.)
+                .r(2.)
+                .g(2.)
+                .b(2.)
+                .x(2.)
+                .side(0)
+                .index(1)
+                .build();
+
+        RatioTapChangerStepAttributes ratioStepA3 = RatioTapChangerStepAttributes.builder()
+                .rho(3.)
+                .r(3.)
+                .g(3.)
+                .b(3.)
+                .x(3.)
+                .side(0)
+                .index(2)
+                .build();
+
+        PhaseTapChangerStepAttributes phaseStepB1 = PhaseTapChangerStepAttributes.builder()
+                .rho(10.)
+                .r(10.)
+                .g(10.)
+                .b(10.)
+                .x(10.)
+                .alpha(10.)
+                .side(0)
+                .index(0)
+                .build();
+
+        PhaseTapChangerStepAttributes phaseStepB2 = PhaseTapChangerStepAttributes.builder()
+                .rho(20.)
+                .r(20.)
+                .g(20.)
+                .b(20.)
+                .x(20.)
+                .alpha(20.)
+                .side(0)
+                .index(1)
+                .build();
+
+        PhaseTapChangerStepAttributes phaseStepB3 = PhaseTapChangerStepAttributes.builder()
+                .rho(30.)
+                .r(30.)
+                .g(30.)
+                .b(30.)
+                .x(30.)
+                .alpha(30.)
+                .side(0)
+                .index(2)
+                .build();
+
+        PhaseTapChangerStepAttributes phaseStepB4 = PhaseTapChangerStepAttributes.builder()
+                .rho(40.)
+                .r(40.)
+                .g(40.)
+                .b(40.)
+                .x(40.)
+                .alpha(40.)
+                .side(0)
+                .index(3)
+                .build();
+
+        assertEquals(TapChangerType.RATIO, ratioStepA1.getType());
+        assertEquals(TapChangerType.PHASE, phaseStepB1.getType());
+
+        List<Resource<TwoWindingsTransformerAttributes>> twoWTransformers = new ArrayList<>();
+        twoWTransformers.add(res2WTransformerA);
+        twoWTransformers.add(res2WTransformerB);
+
+        List<AbstractTapChangerStepAttributes> tapChangerStepsA = new ArrayList<>();
+        tapChangerStepsA.add(ratioStepA1);
+        tapChangerStepsA.add(ratioStepA2);
+        tapChangerStepsA.add(ratioStepA3);
+
+        List<AbstractTapChangerStepAttributes> tapChangerStepsB = new ArrayList<>();
+        tapChangerStepsB.add(phaseStepB1);
+        tapChangerStepsB.add(phaseStepB2);
+        tapChangerStepsB.add(phaseStepB3);
+        tapChangerStepsB.add(phaseStepB4);
+
+        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> mapA = new HashMap<>();
+        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> mapB = new HashMap<>();
+
+        mapA.put(info2WTransformerA, tapChangerStepsA);
+        mapB.put(info2WTransformerB, tapChangerStepsB);
+
+        assertNull(res2WTransformerA.getAttributes().getRatioTapChangerAttributes().getSteps());
+        assertNull(res2WTransformerA.getAttributes().getPhaseTapChangerAttributes());
+        assertNull(res2WTransformerB.getAttributes().getRatioTapChangerAttributes());
+        assertNull(res2WTransformerB.getAttributes().getPhaseTapChangerAttributes().getSteps());
+
+        networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, twoWTransformers, new HashMap<>());
+
+        assertNull(res2WTransformerA.getAttributes().getRatioTapChangerAttributes().getSteps());
+        assertNull(res2WTransformerA.getAttributes().getPhaseTapChangerAttributes());
+        assertNull(res2WTransformerB.getAttributes().getRatioTapChangerAttributes());
+        assertNull(res2WTransformerB.getAttributes().getPhaseTapChangerAttributes().getSteps());
+
+        networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, twoWTransformers, mapA);
+        assertNotNull(res2WTransformerA.getAttributes().getRatioTapChangerAttributes().getSteps());
+        assertNull(res2WTransformerA.getAttributes().getPhaseTapChangerAttributes());
+        assertEquals(3, res2WTransformerA.getAttributes().getRatioTapChangerAttributes().getSteps().size());
+
+        networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, twoWTransformers, mapB);
+        assertNotNull(res2WTransformerB.getAttributes().getPhaseTapChangerAttributes().getSteps());
+        assertNull(res2WTransformerB.getAttributes().getRatioTapChangerAttributes());
+        assertEquals(4, res2WTransformerB.getAttributes().getPhaseTapChangerAttributes().getSteps().size());
+
+    }
+
+    public int getTapChangerStepsNumber(UUID networkUuid, int variantNum, ResourceType type, List<OwnerInfo> infos) {
+        return infos.stream()
+                .map(x -> {
+                    Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> steps = networkStoreRepository.getTapChangerSteps(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "equipmentType", type.toString());
+                    if (steps.get(x) != null) {
+                        return steps.get(x).size();
+                    }
+                    return 0;
+                })
+                .reduce(0, Integer::sum);
+    }
+
+    @Test
+    public void insertTapChangerStepsInThreeWindingsTranformerTest() {
+
+        String equipmentIdA = "id3WTransformerA";
+        String equipmentIdB = "id3WTransformerB";
+
+        OwnerInfo info3WTransformerA = new OwnerInfo(
+                equipmentIdA,
+                ResourceType.THREE_WINDINGS_TRANSFORMER,
+                NETWORK_UUID,
+                Resource.INITIAL_VARIANT_NUM
+        );
+        OwnerInfo info3WTransformerB = new OwnerInfo(
+                equipmentIdB,
+                ResourceType.THREE_WINDINGS_TRANSFORMER,
+                NETWORK_UUID,
+                Resource.INITIAL_VARIANT_NUM
+        );
+        OwnerInfo info3WTransformerX = new OwnerInfo(
+                "badID",
+                ResourceType.TWO_WINDINGS_TRANSFORMER,
+                NETWORK_UUID,
+                Resource.INITIAL_VARIANT_NUM
+        );
+
+        Resource<ThreeWindingsTransformerAttributes> res3WTransformerA = Resource.threeWindingsTransformerBuilder()
+                .id(equipmentIdA)
+                .attributes(ThreeWindingsTransformerAttributes.builder()
+                        .name("id3WTransformerA")
+                        .ratedU0(1)
+                        .branchStatus("IN_OPERATION")
+                        .leg1(LegAttributes.builder()
+                                .ratioTapChangerAttributes(RatioTapChangerAttributes.builder()
+                                .lowTapPosition(20)
+                                .build())
+                        .build()
+                        )
+                        .leg2(new LegAttributes())
+                        .leg3(new LegAttributes())
+                        .build())
+                .build();
+
+        Resource<ThreeWindingsTransformerAttributes> res3WTransformerB = Resource.threeWindingsTransformerBuilder()
+                .id(equipmentIdB)
+                .attributes(ThreeWindingsTransformerAttributes.builder()
+                        .name("id3WTransformerB")
+                        .ratedU0(1)
+                        .branchStatus("IN_OPERATION")
+                        .leg1(new LegAttributes())
+                        .leg2(LegAttributes.builder()
+                                .phaseTapChangerAttributes(PhaseTapChangerAttributes.builder()
+                                .lowTapPosition(20)
+                                .build())
+                        .build()
+                        )
+                        .leg3(new LegAttributes())
+                        .build())
+                .build();
+
+        assertEquals(res3WTransformerA.getId(), info3WTransformerA.getEquipmentId());
+        assertEquals(res3WTransformerB.getId(), info3WTransformerB.getEquipmentId());
+        assertNotEquals(res3WTransformerA.getId(), info3WTransformerX.getEquipmentId());
+
+        RatioTapChangerStepAttributes ratioStepAS11 = RatioTapChangerStepAttributes.builder()
+                .rho(1.)
+                .r(1.)
+                .g(1.)
+                .b(1.)
+                .x(1.)
+                .side(1)
+                .index(0)
+                .build();
+
+        RatioTapChangerStepAttributes ratioStepAS12 = RatioTapChangerStepAttributes.builder()
+                .rho(2.)
+                .r(2.)
+                .g(2.)
+                .b(2.)
+                .x(2.)
+                .side(1)
+                .index(1)
+                .build();
+
+        RatioTapChangerStepAttributes ratioStepAS21 = RatioTapChangerStepAttributes.builder()
+                .rho(1.)
+                .r(1.)
+                .g(1.)
+                .b(1.)
+                .x(1.)
+                .side(2)
+                .index(0)
+                .build();
+
+        RatioTapChangerStepAttributes ratioStepAS22 = RatioTapChangerStepAttributes.builder()
+                .rho(2.)
+                .r(2.)
+                .g(2.)
+                .b(2.)
+                .x(2.)
+                .side(2)
+                .index(1)
+                .build();
+
+        RatioTapChangerStepAttributes ratioStepABad = RatioTapChangerStepAttributes.builder()
+                .rho(3.)
+                .r(3.)
+                .g(3.)
+                .b(3.)
+                .x(3.)
+                .side(4) // this side doesn't exists
+                .index(2)
+                .build();
+
+        PhaseTapChangerStepAttributes phaseStepBS21 = PhaseTapChangerStepAttributes.builder()
+                .rho(10.)
+                .r(10.)
+                .g(10.)
+                .b(10.)
+                .x(10.)
+                .alpha(10.)
+                .side(2)
+                .index(0)
+                .build();
+
+        PhaseTapChangerStepAttributes phaseStepBS22 = PhaseTapChangerStepAttributes.builder()
+                .rho(20.)
+                .r(20.)
+                .g(20.)
+                .b(20.)
+                .x(20.)
+                .alpha(20.)
+                .side(2)
+                .index(1)
+                .build();
+
+        PhaseTapChangerStepAttributes phaseStepBS31 = PhaseTapChangerStepAttributes.builder()
+                .rho(30.)
+                .r(30.)
+                .g(30.)
+                .b(30.)
+                .x(30.)
+                .alpha(30.)
+                .side(3)
+                .index(0)
+                .build();
+
+        PhaseTapChangerStepAttributes phaseStepBBad = PhaseTapChangerStepAttributes.builder()
+                .rho(40.)
+                .r(40.)
+                .g(40.)
+                .b(40.)
+                .x(40.)
+                .alpha(40.)
+                .side(4) // this side doesn't exists
+                .index(0)
+                .build();
+
+        List<Resource<ThreeWindingsTransformerAttributes>> threeWTransformers = new ArrayList<>();
+        threeWTransformers.add(res3WTransformerA);
+        threeWTransformers.add(res3WTransformerB);
+
+        List<AbstractTapChangerStepAttributes> tapChangerStepsA = new ArrayList<>();
+        tapChangerStepsA.add(ratioStepAS11);
+        tapChangerStepsA.add(ratioStepAS12);
+        tapChangerStepsA.add(ratioStepAS21);
+        tapChangerStepsA.add(ratioStepAS22);
+        tapChangerStepsA.add(ratioStepABad);
+
+        List<AbstractTapChangerStepAttributes> tapChangerStepsB = new ArrayList<>();
+        tapChangerStepsB.add(phaseStepBS21);
+        tapChangerStepsB.add(phaseStepBS22);
+        tapChangerStepsB.add(phaseStepBS31);
+        tapChangerStepsB.add(phaseStepBBad);
+
+        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> mapA = new HashMap<>();
+        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> mapB = new HashMap<>();
+
+        mapA.put(info3WTransformerA, tapChangerStepsA);
+        mapB.put(info3WTransformerB, tapChangerStepsB);
+
+        assertNull(res3WTransformerA.getAttributes().getLeg(1).getRatioTapChangerAttributes().getSteps());
+        assertNull(res3WTransformerA.getAttributes().getLeg(1).getPhaseTapChangerAttributes());
+        assertNull(res3WTransformerA.getAttributes().getLeg(2).getRatioTapChangerAttributes());
+        assertNull(res3WTransformerA.getAttributes().getLeg(2).getPhaseTapChangerAttributes());
+        assertNull(res3WTransformerA.getAttributes().getLeg(3).getRatioTapChangerAttributes());
+        assertNull(res3WTransformerA.getAttributes().getLeg(3).getPhaseTapChangerAttributes());
+
+        assertNull(res3WTransformerB.getAttributes().getLeg(1).getRatioTapChangerAttributes());
+        assertNull(res3WTransformerB.getAttributes().getLeg(1).getPhaseTapChangerAttributes());
+        assertNull(res3WTransformerB.getAttributes().getLeg(2).getRatioTapChangerAttributes());
+        assertNull(res3WTransformerB.getAttributes().getLeg(2).getPhaseTapChangerAttributes().getSteps());
+        assertNull(res3WTransformerB.getAttributes().getLeg(3).getRatioTapChangerAttributes());
+        assertNull(res3WTransformerB.getAttributes().getLeg(3).getPhaseTapChangerAttributes());
+
+        networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, threeWTransformers, new HashMap<>());
+
+        assertNull(res3WTransformerA.getAttributes().getLeg(1).getRatioTapChangerAttributes().getSteps());
+        assertNull(res3WTransformerA.getAttributes().getLeg(1).getPhaseTapChangerAttributes());
+        assertNull(res3WTransformerA.getAttributes().getLeg(2).getRatioTapChangerAttributes());
+        assertNull(res3WTransformerA.getAttributes().getLeg(2).getPhaseTapChangerAttributes());
+        assertNull(res3WTransformerA.getAttributes().getLeg(3).getRatioTapChangerAttributes());
+        assertNull(res3WTransformerA.getAttributes().getLeg(3).getPhaseTapChangerAttributes());
+
+        assertNull(res3WTransformerB.getAttributes().getLeg(1).getRatioTapChangerAttributes());
+        assertNull(res3WTransformerB.getAttributes().getLeg(1).getPhaseTapChangerAttributes());
+        assertNull(res3WTransformerB.getAttributes().getLeg(2).getRatioTapChangerAttributes());
+        assertNull(res3WTransformerB.getAttributes().getLeg(2).getPhaseTapChangerAttributes().getSteps());
+        assertNull(res3WTransformerB.getAttributes().getLeg(3).getRatioTapChangerAttributes());
+        assertNull(res3WTransformerB.getAttributes().getLeg(3).getPhaseTapChangerAttributes());
+
+        // in A
+        assertThrows(IllegalArgumentException.class, () -> {
+            networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, threeWTransformers, mapA);
+        });
+        assertNotNull(res3WTransformerA.getAttributes().getLeg(1).getRatioTapChangerAttributes().getSteps());
+        assertNull(res3WTransformerA.getAttributes().getLeg(1).getPhaseTapChangerAttributes());
+        assertEquals(2, res3WTransformerA.getAttributes().getLeg(1).getRatioTapChangerAttributes().getSteps().size());
+
+        assertNotNull(res3WTransformerA.getAttributes().getLeg(2).getRatioTapChangerAttributes().getSteps());
+        assertNull(res3WTransformerA.getAttributes().getLeg(2).getPhaseTapChangerAttributes());
+        assertEquals(2, res3WTransformerA.getAttributes().getLeg(2).getRatioTapChangerAttributes().getSteps().size());
+
+        // in B
+        assertThrows(IllegalArgumentException.class, () -> {
+            networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, threeWTransformers, mapB);
+        });
+        assertNull(res3WTransformerB.getAttributes().getLeg(1).getPhaseTapChangerAttributes());
+        assertNull(res3WTransformerB.getAttributes().getLeg(1).getRatioTapChangerAttributes());
+
+        assertNotNull(res3WTransformerB.getAttributes().getLeg(2).getPhaseTapChangerAttributes().getSteps());
+        assertNull(res3WTransformerB.getAttributes().getLeg(2).getRatioTapChangerAttributes());
+        assertEquals(2, res3WTransformerB.getAttributes().getLeg(2).getPhaseTapChangerAttributes().getSteps().size());
+
+        assertNotNull(res3WTransformerB.getAttributes().getLeg(3).getPhaseTapChangerAttributes().getSteps());
+        assertNull(res3WTransformerB.getAttributes().getLeg(3).getRatioTapChangerAttributes());
+        assertEquals(1, res3WTransformerB.getAttributes().getLeg(3).getPhaseTapChangerAttributes().getSteps().size());
+    }
 }
