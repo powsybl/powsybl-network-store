@@ -384,6 +384,7 @@ public class Mappings {
         voltageLevelMappings.addColumnMapping("busToCalculatedBusForBusBreakerView", new ColumnMapping<>(null, VoltageLevelAttributes::getBusToCalculatedBusForBusBreakerView, VoltageLevelAttributes::setBusToCalculatedBusForBusBreakerView, String.class, Integer.class));
         voltageLevelMappings.addColumnMapping("slackTerminal", new ColumnMapping<>(TerminalRefAttributes.class, VoltageLevelAttributes::getSlackTerminal, VoltageLevelAttributes::setSlackTerminal));
         voltageLevelMappings.addColumnMapping("calculatedBusesValid", new ColumnMapping<>(Boolean.class, VoltageLevelAttributes::isCalculatedBusesValid, VoltageLevelAttributes::setCalculatedBusesValid));
+        voltageLevelMappings.addColumnMapping("identifiableShortCircuit", new ColumnMapping<>(IdentifiableShortCircuitAttributes.class, VoltageLevelAttributes::getIdentifiableShortCircuitAttributes, VoltageLevelAttributes::setIdentifiableShortCircuitAttributes));
     }
 
     public TableMapping getBatteryMappings() {
