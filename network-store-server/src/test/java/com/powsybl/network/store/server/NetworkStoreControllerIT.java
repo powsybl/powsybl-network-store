@@ -482,8 +482,10 @@ public class NetworkStoreControllerIT {
         generator.getAttributes().getRegulatingTerminal().setConnectableId("idEq2");
         generator.getAttributes().getRegulatingTerminal().setSide("TWO");
         generator.getAttributes().setReactiveLimits(ReactiveCapabilityCurveAttributes.builder()
-            .points(new TreeMap<>(Map.of(50., ReactiveCapabilityCurvePointAttributes.builder().p(50.).minQ(11.).maxQ(76.)
-                .build()))).build());
+            .points(new TreeMap<>(Map.of(
+                    50., ReactiveCapabilityCurvePointAttributes.builder().p(50.).minQ(11.).maxQ(76.).build(),
+                    50.12, ReactiveCapabilityCurvePointAttributes.builder().p(50.12).minQ(11.12).maxQ(76.12).build()
+            ))).build());
 
         mvc.perform(put("/" + VERSION + "/networks/" + NETWORK_UUID + "/generators")
                 .contentType(APPLICATION_JSON)
@@ -499,7 +501,10 @@ public class NetworkStoreControllerIT {
                 .andExpect(jsonPath("data[0].attributes.reactiveLimits.kind").value("CURVE"))
                 .andExpect(jsonPath("data[0].attributes.reactiveLimits.points[\"50.0\"].p").value(50.))
                 .andExpect(jsonPath("data[0].attributes.reactiveLimits.points[\"50.0\"].minQ").value(11.))
-                .andExpect(jsonPath("data[0].attributes.reactiveLimits.points[\"50.0\"].maxQ").value(76.));
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.points[\"50.0\"].maxQ").value(76.))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.points[\"50.12\"].p").value(50.12))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.points[\"50.12\"].minQ").value(11.12))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.points[\"50.12\"].maxQ").value(76.12));
 
         // battery creation and update
         Resource<BatteryAttributes> battery = Resource.batteryBuilder()
