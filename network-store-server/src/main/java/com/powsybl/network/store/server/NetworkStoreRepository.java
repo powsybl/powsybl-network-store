@@ -1590,9 +1590,9 @@ public class NetworkStoreRepository {
                 owner.setEquipmentType(ResourceType.valueOf(resultSet.getString(2)));
                 owner.setNetworkUuid(UUID.fromString(resultSet.getString(3)));
                 owner.setVariantNum(resultSet.getInt(4));
-                reactiveCapabilityCurvePoint.setMinQ(resultSet.getInt(5));
-                reactiveCapabilityCurvePoint.setMaxQ(resultSet.getInt(6));
-                reactiveCapabilityCurvePoint.setP(resultSet.getInt(7));
+                reactiveCapabilityCurvePoint.setMinQ(resultSet.getDouble(5));
+                reactiveCapabilityCurvePoint.setMaxQ(resultSet.getDouble(6));
+                reactiveCapabilityCurvePoint.setP(resultSet.getDouble(7));
 
                 if (!map.containsKey(owner)) {
                     List<ReactiveCapabilityCurvePointAttributes> reactiveCapabilityCurvePointsCollection = new ArrayList<>();
