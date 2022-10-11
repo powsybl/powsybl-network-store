@@ -53,7 +53,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     public Map<String, String> getIdByAlias() {
         var resource = checkResource();
         NetworkAttributes attributes = resource.getAttributes();
-        if (attributes.getIdByAlias() ==  null) {
+        if (attributes.getIdByAlias() == null) {
             attributes.setIdByAlias(new HashMap<>());
         }
         return attributes.getIdByAlias();
@@ -765,7 +765,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         Graph<Identifiable, Object> graph = new Pseudograph<>(Object.class);
 
         for (VoltageLevel vl : getVoltageLevels()) {
-            for (Bus bus :  isBusView ? vl.getBusView().getBuses() : vl.getBusBreakerView().getBuses()) {
+            for (Bus bus : isBusView ? vl.getBusView().getBuses() : vl.getBusBreakerView().getBuses()) {
                 graph.addVertex(bus);
 
                 bus.visitConnectedEquipments(new DefaultTopologyVisitor() {

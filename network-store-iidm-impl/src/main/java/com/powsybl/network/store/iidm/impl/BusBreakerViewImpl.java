@@ -27,7 +27,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     private final NetworkObjectIndex index;
 
-    public BusBreakerViewImpl(TopologyKind topologyKind,  VoltageLevelImpl voltageLevel, NetworkObjectIndex index) {
+    public BusBreakerViewImpl(TopologyKind topologyKind, VoltageLevelImpl voltageLevel, NetworkObjectIndex index) {
         this.topologyKind = topologyKind;
         this.voltageLevel = voltageLevel;
         this.index = index;

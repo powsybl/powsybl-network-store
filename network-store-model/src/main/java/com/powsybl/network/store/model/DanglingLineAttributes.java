@@ -105,7 +105,7 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Override
     public LimitsAttributes getCurrentLimits(int side) {
-        if (side == 1)  {
+        if (side == 1) {
             return currentLimits;
         }
         throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
@@ -113,7 +113,7 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Override
     public LimitsAttributes getApparentPowerLimits(int side) {
-        if (side == 1)  {
+        if (side == 1) {
             return apparentPowerLimits;
         }
         throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
@@ -121,7 +121,7 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Override
     public LimitsAttributes getActivePowerLimits(int side) {
-        if (side == 1)  {
+        if (side == 1) {
             return activePowerLimits;
         }
         throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
@@ -129,7 +129,7 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Override
     public void setCurrentLimits(int side, LimitsAttributes limits) {
-        if (side == 1)  {
+        if (side == 1) {
             setCurrentLimits(limits);
         } else {
             throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
@@ -138,7 +138,7 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Override
     public void setApparentPowerLimits(int side, LimitsAttributes limits) {
-        if (side == 1)  {
+        if (side == 1) {
             setApparentPowerLimits(limits);
         } else {
             throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
@@ -147,7 +147,7 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Override
     public void setActivePowerLimits(int side, LimitsAttributes limits) {
-        if (side == 1)  {
+        if (side == 1) {
             setActivePowerLimits(limits);
         } else {
             throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);

@@ -109,87 +109,6 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         return List.of(1, 2, 3);
     }
 
-    @Override
-    public LimitsAttributes getCurrentLimits(int side) {
-        if (side == 1) {
-            return leg1.getCurrentLimitsAttributes();
-        }
-        if (side == 2) {
-            return leg2.getCurrentLimitsAttributes();
-        }
-        if (side == 3) {
-            return leg3.getCurrentLimitsAttributes();
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    public LimitsAttributes getApparentPowerLimits(int side) {
-        if (side == 1) {
-            return leg1.getApparentPowerLimitsAttributes();
-        }
-        if (side == 2) {
-            return leg2.getApparentPowerLimitsAttributes();
-        }
-        if (side == 3) {
-            return leg3.getApparentPowerLimitsAttributes();
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    public LimitsAttributes getActivePowerLimits(int side) {
-        if (side == 1) {
-            return leg1.getActivePowerLimitsAttributes();
-        }
-        if (side == 2) {
-            return leg2.getActivePowerLimitsAttributes();
-        }
-        if (side == 3) {
-            return leg3.getActivePowerLimitsAttributes();
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    public void setCurrentLimits(int side, LimitsAttributes limits) {
-        if (side == 1) {
-            leg1.setCurrentLimitsAttributes(limits);
-        } else if (side == 2) {
-            leg2.setCurrentLimitsAttributes(limits);
-        } else if (side == 3) {
-            leg3.setCurrentLimitsAttributes(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
-    @Override
-    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
-        if (side == 1) {
-            leg1.setApparentPowerLimitsAttributes(limits);
-        } else if (side == 2) {
-            leg2.setApparentPowerLimitsAttributes(limits);
-        } else if (side == 3) {
-            leg3.setApparentPowerLimitsAttributes(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
-    @Override
-    public void setActivePowerLimits(int side, LimitsAttributes limits) {
-        if (side == 1) {
-            leg1.setActivePowerLimitsAttributes(limits);
-        } else if (side == 2) {
-            leg2.setActivePowerLimitsAttributes(limits);
-        } else if (side == 3) {
-            leg3.setActivePowerLimitsAttributes(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
     @JsonIgnore
     public LegAttributes getLeg(int side) {
         if (side == 1) {
@@ -199,7 +118,38 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         } else if (side == 3) {
             return getLeg3();
         } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
         }
     }
+
+    @Override
+    public LimitsAttributes getCurrentLimits(int side) {
+        return getLeg(side).getCurrentLimitsAttributes();
+    }
+
+    @Override
+    public LimitsAttributes getApparentPowerLimits(int side) {
+        return getLeg(side).getApparentPowerLimitsAttributes();
+    }
+
+    @Override
+    public LimitsAttributes getActivePowerLimits(int side) {
+        return getLeg(side).getActivePowerLimitsAttributes();
+    }
+
+    @Override
+    public void setCurrentLimits(int side, LimitsAttributes limits) {
+        getLeg(side).setCurrentLimitsAttributes(limits);
+    }
+
+    @Override
+    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
+        getLeg(side).setApparentPowerLimitsAttributes(limits);
+    }
+
+    @Override
+    public void setActivePowerLimits(int side, LimitsAttributes limits) {
+        getLeg(side).setActivePowerLimitsAttributes(limits);
+    }
+
 }
