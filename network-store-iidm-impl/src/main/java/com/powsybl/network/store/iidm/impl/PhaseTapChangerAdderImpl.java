@@ -27,7 +27,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final TapChangerParentAttributes tapChangerParentAttributes;
 
-    private final List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
+    private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
 
@@ -106,14 +106,15 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 throw new ValidationException(tapChangerParent, "step b is not set");
             }
 
-            PhaseTapChangerStepAttributes phaseTapChangerStepAttributes =
-                    PhaseTapChangerStepAttributes.builder()
+            TapChangerStepAttributes phaseTapChangerStepAttributes =
+                    TapChangerStepAttributes.builder()
                             .alpha(alpha)
                             .b(b)
                             .g(g)
                             .r(r)
                             .rho(rho)
                             .x(x)
+                            .type(TapChangerType.PHASE)
                             .build();
             steps.add(phaseTapChangerStepAttributes);
             return PhaseTapChangerAdderImpl.this;

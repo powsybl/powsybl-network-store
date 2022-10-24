@@ -29,7 +29,7 @@ public class PhaseTapChangerAttributes extends TapChangerAttributes {
     private PhaseTapChanger.RegulationMode regulationMode;
 
     @Schema(description = "steps")
-    private List<PhaseTapChangerStepAttributes> steps;
+    private List<TapChangerStepAttributes> steps;
 
     @Schema(description = "regulationValue")
     private double regulationValue;

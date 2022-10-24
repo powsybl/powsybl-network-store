@@ -27,7 +27,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final TapChangerParentAttributes tapChangerParentAttributes;
 
-    private final List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
+    private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
     private boolean loadTapChangingCapabilities = false;
 
@@ -95,12 +95,13 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 throw new ValidationException(tapChangerParent, "step b is not set");
             }
 
-            RatioTapChangerStepAttributes ratioTapChangerStepAttributes = RatioTapChangerStepAttributes.builder()
+            TapChangerStepAttributes ratioTapChangerStepAttributes = TapChangerStepAttributes.builder()
                     .b(b)
                     .g(g)
                     .r(r)
                     .rho(rho)
                     .x(x)
+                    .type(TapChangerType.RATIO)
                     .build();
             steps.add(ratioTapChangerStepAttributes);
             return RatioTapChangerAdderImpl.this;

@@ -25,7 +25,7 @@ import java.util.List;
 public class RatioTapChangerAttributes extends TapChangerAttributes {
 
     @Schema(description = "steps")
-    private List<RatioTapChangerStepAttributes> steps;
+    private List<TapChangerStepAttributes> steps;
 
     @Schema(description = "loadTapChangingCapabilities")
     private boolean loadTapChangingCapabilities;
