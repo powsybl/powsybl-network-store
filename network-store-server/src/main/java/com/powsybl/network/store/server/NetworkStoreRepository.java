@@ -1857,7 +1857,7 @@ public class NetworkStoreRepository {
             for (Resource<T> resource : resources) {
                 T equipment = resource.getAttributes();
                 List<TapChangerStepAttributes> steps = getTapChangerSteps(equipment);
-                if (steps != null && !steps.isEmpty()) {
+                if (!steps.isEmpty()) {
                     OwnerInfo info = new OwnerInfo(
                         resource.getId(),
                         resource.getType(),
