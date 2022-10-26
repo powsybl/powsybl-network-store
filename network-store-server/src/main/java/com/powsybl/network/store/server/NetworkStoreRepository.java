@@ -36,7 +36,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static com.powsybl.network.store.server.Mappings.*;
 import static com.powsybl.network.store.server.QueryCatalog.*;
@@ -1824,54 +1823,31 @@ public class NetworkStoreRepository {
 
     private List<TapChangerStepAttributes> getTapChangerStepsTwoWindingsTransformer(TwoWindingsTransformerAttributes equipment) {
         List<TapChangerStepAttributes> steps = new ArrayList<>();
-        RatioTapChangerAttributes ratioTapChangerAttributes = equipment.getRatioTapChangerAttributes();
-        if (ratioTapChangerAttributes != null && ratioTapChangerAttributes.getSteps() != null) {
-            List<TapChangerStepAttributes> ratioSteps = ratioTapChangerAttributes.getSteps();
-            for (int i = 0; i < ratioSteps.size(); i++) {
-                ratioSteps.get(i).setIndex(i);
-                ratioSteps.get(i).setSide(0); // TODO REMOVE ?
-                ratioSteps.get(i).setType(TapChangerType.RATIO);
-            }
-            steps.addAll(ratioSteps);
-        }
-        PhaseTapChangerAttributes phaseTapChangerAttributes = equipment.getPhaseTapChangerAttributes();
-        if (phaseTapChangerAttributes != null && phaseTapChangerAttributes.getSteps() != null) {
-            List<TapChangerStepAttributes> phaseSteps = phaseTapChangerAttributes.getSteps();
-            for (int i = 0; i < phaseSteps.size(); i++) {
-                phaseSteps.get(i).setIndex(i);
-                phaseSteps.get(i).setSide(0); // TODO REMOVE ?
-                phaseSteps.get(i).setType(TapChangerType.PHASE);
-            }
-            steps.addAll(phaseSteps);
-        }
+        steps.addAll(getTapChangerStepsFromTapChangerAttributes(equipment.getRatioTapChangerAttributes(), 0, TapChangerType.RATIO));
+        steps.addAll(getTapChangerStepsFromTapChangerAttributes(equipment.getPhaseTapChangerAttributes(), 0, TapChangerType.PHASE));
         return steps;
     }
 
     private List<TapChangerStepAttributes> getTapChangerStepsThreeWindingsTransformer(ThreeWindingsTransformerAttributes equipment) {
         List<TapChangerStepAttributes> steps = new ArrayList<>();
-        IntStream.of(1, 2, 3).forEach(legNum -> {
-            RatioTapChangerAttributes ratioTapChangerAttributes = equipment.getLeg(legNum).getRatioTapChangerAttributes();
-            if (ratioTapChangerAttributes != null && ratioTapChangerAttributes.getSteps() != null) {
-                List<TapChangerStepAttributes> ratioStepsLeg = ratioTapChangerAttributes.getSteps();
-                for (int i = 0; i < ratioStepsLeg.size(); i++) {
-                    ratioStepsLeg.get(i).setIndex(i);
-                    ratioStepsLeg.get(i).setSide(legNum);
-                    ratioStepsLeg.get(i).setType(TapChangerType.RATIO);
-                }
-                steps.addAll(ratioStepsLeg);
-            }
-            PhaseTapChangerAttributes phaseTapChangerAttributes = equipment.getLeg(legNum).getPhaseTapChangerAttributes();
-            if (phaseTapChangerAttributes != null && phaseTapChangerAttributes.getSteps() != null) {
-                List<TapChangerStepAttributes> phaseStepsLeg = phaseTapChangerAttributes.getSteps();
-                for (int i = 0; i < phaseStepsLeg.size(); i++) {
-                    phaseStepsLeg.get(i).setIndex(i);
-                    phaseStepsLeg.get(i).setSide(legNum);
-                    phaseStepsLeg.get(i).setType(TapChangerType.PHASE);
-                }
-                steps.addAll(phaseStepsLeg);
-            }
-        });
+        for (Integer legNum : Set.of(1, 2, 3)) {
+            steps.addAll(getTapChangerStepsFromTapChangerAttributes(equipment.getLeg(legNum).getRatioTapChangerAttributes(), legNum, TapChangerType.RATIO));
+            steps.addAll(getTapChangerStepsFromTapChangerAttributes(equipment.getLeg(legNum).getPhaseTapChangerAttributes(), legNum, TapChangerType.PHASE));
+        }
         return steps;
+    }
+
+    private List<TapChangerStepAttributes> getTapChangerStepsFromTapChangerAttributes(TapChangerAttributes tapChanger, Integer side, TapChangerType type) {
+        if (tapChanger != null && tapChanger.getSteps() != null) {
+            List<TapChangerStepAttributes> steps = tapChanger.getSteps();
+            for (int i = 0; i < steps.size(); i++) {
+                steps.get(i).setIndex(i);
+                steps.get(i).setSide(side);
+                steps.get(i).setType(type);
+            }
+            return steps;
+        }
+        return Collections.emptyList();
     }
 
     private <T extends IdentifiableAttributes>

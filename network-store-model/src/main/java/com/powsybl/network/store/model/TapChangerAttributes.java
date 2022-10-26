@@ -13,6 +13,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -37,4 +39,7 @@ public class TapChangerAttributes {
 
     @Schema(description = "regulatingTerminal")
     private TerminalRefAttributes regulatingTerminal;
+
+    @Schema(description = "steps")
+    private List<TapChangerStepAttributes> steps;
 }
