@@ -1833,6 +1833,7 @@ public class NetworkStoreRepository {
             for (int i = 0; i < steps.size(); i++) {
                 steps.get(i).setIndex(i);
                 steps.get(i).setSide(0); // TODO REMOVE ?
+                steps.get(i).setType(TapChangerType.RATIO);
             }
             return steps;
         }
@@ -1850,6 +1851,7 @@ public class NetworkStoreRepository {
             for (int i = 0; i < stepsLeg.size(); i++) {
                 stepsLeg.get(i).setIndex(i);
                 stepsLeg.get(i).setSide(legNum);
+                stepsLeg.get(i).setType(TapChangerType.RATIO);
             }
             steps.addAll(stepsLeg);
         });
@@ -1873,6 +1875,7 @@ public class NetworkStoreRepository {
             for (int i = 0; i < steps.size(); i++) {
                 steps.get(i).setIndex(i);
                 steps.get(i).setSide(0); // TODO REMOVE ?
+                steps.get(i).setType(TapChangerType.PHASE);
             }
             return steps;
         }
@@ -1890,6 +1893,7 @@ public class NetworkStoreRepository {
             for (int i = 0; i < stepsLeg.size(); i++) {
                 stepsLeg.get(i).setIndex(i);
                 stepsLeg.get(i).setSide(legNum);
+                stepsLeg.get(i).setType(TapChangerType.PHASE);
             }
             steps.addAll(stepsLeg);
         });
