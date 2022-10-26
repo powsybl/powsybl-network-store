@@ -7,7 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.PhaseTapChangerAttributes;
+import com.powsybl.network.store.model.TapChangerParentAttributes;
+import com.powsybl.network.store.model.TapChangerStepAttributes;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +117,6 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                             .r(r)
                             .rho(rho)
                             .x(x)
-                            .type(TapChangerType.PHASE)
                             .build();
             steps.add(phaseTapChangerStepAttributes);
             return PhaseTapChangerAdderImpl.this;

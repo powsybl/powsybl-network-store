@@ -35,7 +35,6 @@ public class TapChangerParentTest {
             .b(4.)
             .x(5.)
             .alpha(6.)
-            .type(TapChangerType.PHASE)
             .build()
         );
         tapChangerStepsA.add(TapChangerStepAttributes.builder()
@@ -45,7 +44,6 @@ public class TapChangerParentTest {
             .b(4.1)
             .x(5.1)
             .alpha(6.1)
-            .type(TapChangerType.PHASE)
             .build()
         );
         tapChangerStepsA.add(TapChangerStepAttributes.builder()
@@ -55,7 +53,6 @@ public class TapChangerParentTest {
             .b(4.2)
             .x(5.2)
             .alpha(6.2)
-            .type(TapChangerType.PHASE)
             .build()
         );
 
@@ -66,7 +63,6 @@ public class TapChangerParentTest {
             .g(30.)
             .b(40.)
             .x(50.)
-            .type(TapChangerType.RATIO)
             .build()
         );
         tapChangerStepsB.add(TapChangerStepAttributes.builder()
@@ -75,7 +71,6 @@ public class TapChangerParentTest {
             .g(30.1)
             .b(40.1)
             .x(50.1)
-            .type(TapChangerType.RATIO)
             .build()
         );
 
@@ -87,7 +82,6 @@ public class TapChangerParentTest {
             .b(41.)
             .x(51.)
             .alpha(61.)
-            .type(TapChangerType.RATIO)
             .build()
         );
     }
@@ -153,7 +147,6 @@ public class TapChangerParentTest {
             .b(4.3)
             .x(5.3)
             .alpha(6.3)
-            .type(TapChangerType.PHASE)
             .build()
         );
         twoWTAttributes.getRatioTapChangerAttributes().getSteps().add(TapChangerStepAttributes.builder()
@@ -162,7 +155,6 @@ public class TapChangerParentTest {
             .g(30.2)
             .b(40.2)
             .x(50.2)
-            .type(TapChangerType.RATIO)
             .build()
         );
 
