@@ -15,11 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -378,7 +374,7 @@ public class NetworkStoreRepositoryTest {
         assertEquals(res2WTransformerB.getId(), info2WTransformerB.getEquipmentId());
         assertNotEquals(res2WTransformerA.getId(), info2WTransformerX.getEquipmentId());
 
-        RatioTapChangerStepAttributes ratioStepA1 = RatioTapChangerStepAttributes.builder()
+        TapChangerStepAttributes ratioStepA1 = TapChangerStepAttributes.builder()
                 .rho(1.)
                 .r(1.)
                 .g(1.)
@@ -386,9 +382,10 @@ public class NetworkStoreRepositoryTest {
                 .x(1.)
                 .side(0)
                 .index(0)
+                .type(TapChangerType.RATIO)
                 .build();
 
-        RatioTapChangerStepAttributes ratioStepA2 = RatioTapChangerStepAttributes.builder()
+        TapChangerStepAttributes ratioStepA2 = TapChangerStepAttributes.builder()
                 .rho(2.)
                 .r(2.)
                 .g(2.)
@@ -396,9 +393,10 @@ public class NetworkStoreRepositoryTest {
                 .x(2.)
                 .side(0)
                 .index(1)
+                .type(TapChangerType.RATIO)
                 .build();
 
-        RatioTapChangerStepAttributes ratioStepA3 = RatioTapChangerStepAttributes.builder()
+        TapChangerStepAttributes ratioStepA3 = TapChangerStepAttributes.builder()
                 .rho(3.)
                 .r(3.)
                 .g(3.)
@@ -406,9 +404,10 @@ public class NetworkStoreRepositoryTest {
                 .x(3.)
                 .side(0)
                 .index(2)
+                .type(TapChangerType.RATIO)
                 .build();
 
-        PhaseTapChangerStepAttributes phaseStepB1 = PhaseTapChangerStepAttributes.builder()
+        TapChangerStepAttributes phaseStepB1 = TapChangerStepAttributes.builder()
                 .rho(10.)
                 .r(10.)
                 .g(10.)
@@ -417,9 +416,10 @@ public class NetworkStoreRepositoryTest {
                 .alpha(10.)
                 .side(0)
                 .index(0)
+                .type(TapChangerType.PHASE)
                 .build();
 
-        PhaseTapChangerStepAttributes phaseStepB2 = PhaseTapChangerStepAttributes.builder()
+        TapChangerStepAttributes phaseStepB2 = TapChangerStepAttributes.builder()
                 .rho(20.)
                 .r(20.)
                 .g(20.)
@@ -428,9 +428,10 @@ public class NetworkStoreRepositoryTest {
                 .alpha(20.)
                 .side(0)
                 .index(1)
+                .type(TapChangerType.PHASE)
                 .build();
 
-        PhaseTapChangerStepAttributes phaseStepB3 = PhaseTapChangerStepAttributes.builder()
+        TapChangerStepAttributes phaseStepB3 = TapChangerStepAttributes.builder()
                 .rho(30.)
                 .r(30.)
                 .g(30.)
@@ -439,9 +440,10 @@ public class NetworkStoreRepositoryTest {
                 .alpha(30.)
                 .side(0)
                 .index(2)
+                .type(TapChangerType.PHASE)
                 .build();
 
-        PhaseTapChangerStepAttributes phaseStepB4 = PhaseTapChangerStepAttributes.builder()
+        TapChangerStepAttributes phaseStepB4 = TapChangerStepAttributes.builder()
                 .rho(40.)
                 .r(40.)
                 .g(40.)
@@ -450,6 +452,7 @@ public class NetworkStoreRepositoryTest {
                 .alpha(40.)
                 .side(0)
                 .index(3)
+                .type(TapChangerType.PHASE)
                 .build();
 
         assertEquals(TapChangerType.RATIO, ratioStepA1.getType());
@@ -459,19 +462,19 @@ public class NetworkStoreRepositoryTest {
         twoWTransformers.add(res2WTransformerA);
         twoWTransformers.add(res2WTransformerB);
 
-        List<AbstractTapChangerStepAttributes> tapChangerStepsA = new ArrayList<>();
+        List<TapChangerStepAttributes> tapChangerStepsA = new ArrayList<>();
         tapChangerStepsA.add(ratioStepA1);
         tapChangerStepsA.add(ratioStepA2);
         tapChangerStepsA.add(ratioStepA3);
 
-        List<AbstractTapChangerStepAttributes> tapChangerStepsB = new ArrayList<>();
+        List<TapChangerStepAttributes> tapChangerStepsB = new ArrayList<>();
         tapChangerStepsB.add(phaseStepB1);
         tapChangerStepsB.add(phaseStepB2);
         tapChangerStepsB.add(phaseStepB3);
         tapChangerStepsB.add(phaseStepB4);
 
-        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> mapA = new HashMap<>();
-        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> mapB = new HashMap<>();
+        Map<OwnerInfo, List<TapChangerStepAttributes>> mapA = new HashMap<>();
+        Map<OwnerInfo, List<TapChangerStepAttributes>> mapB = new HashMap<>();
 
         mapA.put(info2WTransformerA, tapChangerStepsA);
         mapB.put(info2WTransformerB, tapChangerStepsB);
@@ -503,7 +506,7 @@ public class NetworkStoreRepositoryTest {
     public int getTapChangerStepsNumber(UUID networkUuid, int variantNum, ResourceType type, List<OwnerInfo> infos) {
         return infos.stream()
                 .map(x -> {
-                    Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> steps = networkStoreRepository.getTapChangerSteps(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "equipmentType", type.toString());
+                    Map<OwnerInfo, List<TapChangerStepAttributes>> steps = networkStoreRepository.getTapChangerSteps(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "equipmentType", type.toString());
                     if (steps.get(x) != null) {
                         return steps.get(x).size();
                     }
@@ -575,7 +578,7 @@ public class NetworkStoreRepositoryTest {
         assertEquals(res3WTransformerB.getId(), info3WTransformerB.getEquipmentId());
         assertNotEquals(res3WTransformerA.getId(), info3WTransformerX.getEquipmentId());
 
-        RatioTapChangerStepAttributes ratioStepAS11 = RatioTapChangerStepAttributes.builder()
+        TapChangerStepAttributes ratioStepAS11 = TapChangerStepAttributes.builder()
                 .rho(1.)
                 .r(1.)
                 .g(1.)
@@ -583,9 +586,10 @@ public class NetworkStoreRepositoryTest {
                 .x(1.)
                 .side(1)
                 .index(0)
+                .type(TapChangerType.RATIO)
                 .build();
 
-        RatioTapChangerStepAttributes ratioStepAS12 = RatioTapChangerStepAttributes.builder()
+        TapChangerStepAttributes ratioStepAS12 = TapChangerStepAttributes.builder()
                 .rho(2.)
                 .r(2.)
                 .g(2.)
@@ -593,9 +597,10 @@ public class NetworkStoreRepositoryTest {
                 .x(2.)
                 .side(1)
                 .index(1)
+                .type(TapChangerType.RATIO)
                 .build();
 
-        RatioTapChangerStepAttributes ratioStepAS21 = RatioTapChangerStepAttributes.builder()
+        TapChangerStepAttributes ratioStepAS21 = TapChangerStepAttributes.builder()
                 .rho(1.)
                 .r(1.)
                 .g(1.)
@@ -603,9 +608,10 @@ public class NetworkStoreRepositoryTest {
                 .x(1.)
                 .side(2)
                 .index(0)
+                .type(TapChangerType.RATIO)
                 .build();
 
-        RatioTapChangerStepAttributes ratioStepAS22 = RatioTapChangerStepAttributes.builder()
+        TapChangerStepAttributes ratioStepAS22 = TapChangerStepAttributes.builder()
                 .rho(2.)
                 .r(2.)
                 .g(2.)
@@ -613,9 +619,10 @@ public class NetworkStoreRepositoryTest {
                 .x(2.)
                 .side(2)
                 .index(1)
+                .type(TapChangerType.RATIO)
                 .build();
 
-        RatioTapChangerStepAttributes ratioStepABad = RatioTapChangerStepAttributes.builder()
+        TapChangerStepAttributes ratioStepABad = TapChangerStepAttributes.builder()
                 .rho(3.)
                 .r(3.)
                 .g(3.)
@@ -623,9 +630,10 @@ public class NetworkStoreRepositoryTest {
                 .x(3.)
                 .side(4) // this side doesn't exists
                 .index(2)
+                .type(TapChangerType.RATIO)
                 .build();
 
-        PhaseTapChangerStepAttributes phaseStepBS21 = PhaseTapChangerStepAttributes.builder()
+        TapChangerStepAttributes phaseStepBS21 = TapChangerStepAttributes.builder()
                 .rho(10.)
                 .r(10.)
                 .g(10.)
@@ -634,9 +642,10 @@ public class NetworkStoreRepositoryTest {
                 .alpha(10.)
                 .side(2)
                 .index(0)
+                .type(TapChangerType.PHASE)
                 .build();
 
-        PhaseTapChangerStepAttributes phaseStepBS22 = PhaseTapChangerStepAttributes.builder()
+        TapChangerStepAttributes phaseStepBS22 = TapChangerStepAttributes.builder()
                 .rho(20.)
                 .r(20.)
                 .g(20.)
@@ -645,9 +654,10 @@ public class NetworkStoreRepositoryTest {
                 .alpha(20.)
                 .side(2)
                 .index(1)
+                .type(TapChangerType.PHASE)
                 .build();
 
-        PhaseTapChangerStepAttributes phaseStepBS31 = PhaseTapChangerStepAttributes.builder()
+        TapChangerStepAttributes phaseStepBS31 = TapChangerStepAttributes.builder()
                 .rho(30.)
                 .r(30.)
                 .g(30.)
@@ -656,9 +666,10 @@ public class NetworkStoreRepositoryTest {
                 .alpha(30.)
                 .side(3)
                 .index(0)
+                .type(TapChangerType.PHASE)
                 .build();
 
-        PhaseTapChangerStepAttributes phaseStepBBad = PhaseTapChangerStepAttributes.builder()
+        TapChangerStepAttributes phaseStepBBad = TapChangerStepAttributes.builder()
                 .rho(40.)
                 .r(40.)
                 .g(40.)
@@ -667,27 +678,28 @@ public class NetworkStoreRepositoryTest {
                 .alpha(40.)
                 .side(4) // this side doesn't exists
                 .index(0)
+                .type(TapChangerType.PHASE)
                 .build();
 
         List<Resource<ThreeWindingsTransformerAttributes>> threeWTransformers = new ArrayList<>();
         threeWTransformers.add(res3WTransformerA);
         threeWTransformers.add(res3WTransformerB);
 
-        List<AbstractTapChangerStepAttributes> tapChangerStepsA = new ArrayList<>();
+        List<TapChangerStepAttributes> tapChangerStepsA = new ArrayList<>();
         tapChangerStepsA.add(ratioStepAS11);
         tapChangerStepsA.add(ratioStepAS12);
         tapChangerStepsA.add(ratioStepAS21);
         tapChangerStepsA.add(ratioStepAS22);
         tapChangerStepsA.add(ratioStepABad);
 
-        List<AbstractTapChangerStepAttributes> tapChangerStepsB = new ArrayList<>();
+        List<TapChangerStepAttributes> tapChangerStepsB = new ArrayList<>();
         tapChangerStepsB.add(phaseStepBS21);
         tapChangerStepsB.add(phaseStepBS22);
         tapChangerStepsB.add(phaseStepBS31);
         tapChangerStepsB.add(phaseStepBBad);
 
-        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> mapA = new HashMap<>();
-        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> mapB = new HashMap<>();
+        Map<OwnerInfo, List<TapChangerStepAttributes>> mapA = new HashMap<>();
+        Map<OwnerInfo, List<TapChangerStepAttributes>> mapB = new HashMap<>();
 
         mapA.put(info3WTransformerA, tapChangerStepsA);
         mapB.put(info3WTransformerB, tapChangerStepsB);

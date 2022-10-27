@@ -12,8 +12,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 /**
  * @author Abdelsalem HEDHILI <abdelsalem.hedhili at rte-france.com>
  */
@@ -23,9 +21,6 @@ import java.util.List;
 @SuperBuilder
 @Schema(description = "RatioTapChanger attributes")
 public class RatioTapChangerAttributes extends TapChangerAttributes {
-
-    @Schema(description = "steps")
-    private List<RatioTapChangerStepAttributes> steps;
 
     @Schema(description = "loadTapChangingCapabilities")
     private boolean loadTapChangingCapabilities;

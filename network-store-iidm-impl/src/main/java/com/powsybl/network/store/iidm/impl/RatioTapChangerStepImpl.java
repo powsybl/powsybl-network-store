@@ -7,7 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.network.store.model.RatioTapChangerStepAttributes;
+import com.powsybl.network.store.model.TapChangerStepAttributes;
 
 import java.util.Objects;
 
@@ -18,9 +18,9 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
     private final RatioTapChangerImpl ratioTapChanger;
 
-    private final RatioTapChangerStepAttributes attributes;
+    private final TapChangerStepAttributes attributes;
 
-    RatioTapChangerStepImpl(RatioTapChangerImpl ratioTapChanger, RatioTapChangerStepAttributes attributes) {
+    RatioTapChangerStepImpl(RatioTapChangerImpl ratioTapChanger, TapChangerStepAttributes attributes) {
         this.ratioTapChanger = Objects.requireNonNull(ratioTapChanger);
         this.attributes = attributes;
     }

@@ -7,7 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.network.store.model.PhaseTapChangerStepAttributes;
+import com.powsybl.network.store.model.TapChangerStepAttributes;
 
 import java.util.Objects;
 
@@ -19,9 +19,9 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
     private final PhaseTapChangerImpl phaseTapChanger;
 
-    private final PhaseTapChangerStepAttributes attributes;
+    private final TapChangerStepAttributes attributes;
 
-    public PhaseTapChangerStepImpl(PhaseTapChangerImpl phaseTapChanger, PhaseTapChangerStepAttributes attributes) {
+    public PhaseTapChangerStepImpl(PhaseTapChangerImpl phaseTapChanger, TapChangerStepAttributes attributes) {
         this.phaseTapChanger = Objects.requireNonNull(phaseTapChanger);
         this.attributes = attributes;
     }

@@ -6,29 +6,29 @@
  */
 package com.powsybl.network.store.model;
 
+import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
  */
 public class TapChangerParentTest {
 
-    List<PhaseTapChangerStepAttributes> tapChangerStepsA;
-    List<RatioTapChangerStepAttributes> tapChangerStepsB;
-    List<PhaseTapChangerStepAttributes> tapChangerStepsC;
+    List<TapChangerStepAttributes> tapChangerStepsA;
+    List<TapChangerStepAttributes> tapChangerStepsB;
+    List<TapChangerStepAttributes> tapChangerStepsC;
 
     @Before
     public void setUp() {
         tapChangerStepsA = new ArrayList<>();
-        tapChangerStepsA.add(PhaseTapChangerStepAttributes.builder()
+        tapChangerStepsA.add(TapChangerStepAttributes.builder()
             .rho(1.)
             .r(2.)
             .g(3.)
@@ -37,7 +37,7 @@ public class TapChangerParentTest {
             .alpha(6.)
             .build()
         );
-        tapChangerStepsA.add(PhaseTapChangerStepAttributes.builder()
+        tapChangerStepsA.add(TapChangerStepAttributes.builder()
             .rho(1.1)
             .r(2.1)
             .g(3.1)
@@ -46,7 +46,7 @@ public class TapChangerParentTest {
             .alpha(6.1)
             .build()
         );
-        tapChangerStepsA.add(PhaseTapChangerStepAttributes.builder()
+        tapChangerStepsA.add(TapChangerStepAttributes.builder()
             .rho(1.2)
             .r(2.2)
             .g(3.2)
@@ -57,7 +57,7 @@ public class TapChangerParentTest {
         );
 
         tapChangerStepsB = new ArrayList<>();
-        tapChangerStepsB.add(RatioTapChangerStepAttributes.builder()
+        tapChangerStepsB.add(TapChangerStepAttributes.builder()
             .rho(10.)
             .r(20.)
             .g(30.)
@@ -65,7 +65,7 @@ public class TapChangerParentTest {
             .x(50.)
             .build()
         );
-        tapChangerStepsB.add(RatioTapChangerStepAttributes.builder()
+        tapChangerStepsB.add(TapChangerStepAttributes.builder()
             .rho(10.1)
             .r(20.1)
             .g(30.1)
@@ -75,7 +75,7 @@ public class TapChangerParentTest {
         );
 
         tapChangerStepsC = new ArrayList<>();
-        tapChangerStepsC.add(PhaseTapChangerStepAttributes.builder()
+        tapChangerStepsC.add(TapChangerStepAttributes.builder()
             .rho(11.)
             .r(21.)
             .g(31.)
@@ -140,7 +140,7 @@ public class TapChangerParentTest {
         assertEquals(3, twoWTAttributes.getPhaseTapChangerAttributes().getSteps().size());
         assertEquals(2, twoWTAttributes.getRatioTapChangerAttributes().getSteps().size());
 
-        twoWTAttributes.getPhaseTapChangerAttributes().getSteps().add(PhaseTapChangerStepAttributes.builder()
+        twoWTAttributes.getPhaseTapChangerAttributes().getSteps().add(TapChangerStepAttributes.builder()
             .rho(1.3)
             .r(2.3)
             .g(3.3)
@@ -149,7 +149,7 @@ public class TapChangerParentTest {
             .alpha(6.3)
             .build()
         );
-        twoWTAttributes.getRatioTapChangerAttributes().getSteps().add(RatioTapChangerStepAttributes.builder()
+        twoWTAttributes.getRatioTapChangerAttributes().getSteps().add(TapChangerStepAttributes.builder()
             .rho(10.2)
             .r(20.2)
             .g(30.2)
