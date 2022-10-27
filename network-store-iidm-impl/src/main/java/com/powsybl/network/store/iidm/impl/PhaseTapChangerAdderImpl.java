@@ -7,7 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.PhaseTapChangerAttributes;
+import com.powsybl.network.store.model.TapChangerParentAttributes;
+import com.powsybl.network.store.model.TapChangerStepAttributes;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +30,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final TapChangerParentAttributes tapChangerParentAttributes;
 
-    private final List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
+    private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
 
@@ -106,8 +109,8 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 throw new ValidationException(tapChangerParent, "step b is not set");
             }
 
-            PhaseTapChangerStepAttributes phaseTapChangerStepAttributes =
-                    PhaseTapChangerStepAttributes.builder()
+            TapChangerStepAttributes phaseTapChangerStepAttributes =
+                    TapChangerStepAttributes.builder()
                             .alpha(alpha)
                             .b(b)
                             .g(g)

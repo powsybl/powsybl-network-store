@@ -13,8 +13,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 /**
  * @author Abdelsalem HEDHILI <abdelsalem.hedhili at rte-france.com>
  */
@@ -27,9 +25,6 @@ public class PhaseTapChangerAttributes extends TapChangerAttributes {
 
     @Schema(description = "regulationMode")
     private PhaseTapChanger.RegulationMode regulationMode;
-
-    @Schema(description = "steps")
-    private List<PhaseTapChangerStepAttributes> steps;
 
     @Schema(description = "regulationValue")
     private double regulationValue;

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,9 +20,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public abstract class AbstractTapChangerStepAttributes {
+public class TapChangerStepAttributes {
 
     @Schema(description = "rho")
     private double rho;
@@ -39,6 +39,9 @@ public abstract class AbstractTapChangerStepAttributes {
     @Schema(description = "b")
     private double b;
 
+    @Schema(description = "alpha")
+    private Double alpha;
+
     // TODO MOVE THOSE side and type somewhere else (TapChangerAttributes ?)
     @JsonIgnore
     private Integer index;
@@ -47,5 +50,5 @@ public abstract class AbstractTapChangerStepAttributes {
     private Integer side;
 
     @JsonIgnore
-    public abstract TapChangerType getType();
+    private TapChangerType type;
 }

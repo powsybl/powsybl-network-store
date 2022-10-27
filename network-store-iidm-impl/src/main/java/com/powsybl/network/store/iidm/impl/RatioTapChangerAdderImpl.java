@@ -7,7 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.RatioTapChangerAttributes;
+import com.powsybl.network.store.model.TapChangerParentAttributes;
+import com.powsybl.network.store.model.TapChangerStepAttributes;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +30,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final TapChangerParentAttributes tapChangerParentAttributes;
 
-    private final List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
+    private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
     private boolean loadTapChangingCapabilities = false;
 
@@ -95,7 +98,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 throw new ValidationException(tapChangerParent, "step b is not set");
             }
 
-            RatioTapChangerStepAttributes ratioTapChangerStepAttributes = RatioTapChangerStepAttributes.builder()
+            TapChangerStepAttributes ratioTapChangerStepAttributes = TapChangerStepAttributes.builder()
                     .b(b)
                     .g(g)
                     .r(r)
