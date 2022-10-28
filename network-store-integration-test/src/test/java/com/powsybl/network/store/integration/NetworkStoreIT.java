@@ -932,8 +932,8 @@ public class NetworkStoreIT {
             verify(mockedListener, times(1)).onCreation(battery);
 
             assertTrue(battery.isFictitious());
-            assertEquals(50, battery.getP0(), 0.1);
-            assertEquals(10, battery.getQ0(), 0.1);
+            assertEquals(50, battery.getTargetP(), 0.1);
+            assertEquals(10, battery.getTargetQ(), 0.1);
             assertEquals(40, battery.getMinP(), 0.1);
             assertEquals(70, battery.getMaxP(), 0.1);
 
@@ -942,8 +942,8 @@ public class NetworkStoreIT {
             battery.setQ0(20);
 
             assertFalse(battery.isFictitious());
-            assertEquals(65, battery.getP0(), 0.1);
-            assertEquals(20, battery.getQ0(), 0.1);
+            assertEquals(65, battery.getTargetP(), 0.1);
+            assertEquals(20, battery.getTargetQ(), 0.1);
 
             verify(mockedListener, times(1)).onUpdate(battery, "targetP", INITIAL_VARIANT_ID, 50d, 65d);
             verify(mockedListener, times(1)).onUpdate(battery, "targetQ", INITIAL_VARIANT_ID, 10d, 20d);
