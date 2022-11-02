@@ -505,8 +505,8 @@ public final class NetworkStorageTestCaseFactory {
         Battery battery = vl1.newBattery()
                 .setId("battery")
                 .setNode(4)
-                .setP0(50)
-                .setQ0(10)
+                .setTargetP(50)
+                .setTargetQ(10)
                 .setMinP(40)
                 .setMaxP(70)
                 .add();

@@ -223,8 +223,8 @@ final class CreateNetworksUtil {
         invalidNode = initAdder(adder, topologyKind, invalidNode);
         Battery battery = ((BatteryAdder) adder)
                 .setId("battery")
-                .setP0(50)
-                .setQ0(10)
+                .setTargetP(50)
+                .setTargetQ(10)
                 .setMinP(40)
                 .setMaxP(70)
                 .add();

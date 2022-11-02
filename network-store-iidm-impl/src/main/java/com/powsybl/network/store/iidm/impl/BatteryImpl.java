@@ -96,7 +96,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     public Battery setMaxP(double maxP) {
         var resource = checkResource();
         ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP, getP0());
+        ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP, getTargetP());
         double oldValue = resource.getAttributes().getMaxP();
         resource.getAttributes().setMaxP(maxP);
         updateResource();

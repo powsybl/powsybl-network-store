@@ -923,8 +923,8 @@ public class NetworkStoreIT {
                 .setId("battery")
                 .setConnectableBus("b1")
                 .setBus("b1")
-                .setP0(50)
-                .setQ0(10)
+                .setTargetP(50)
+                .setTargetQ(10)
                 .setMinP(40)
                 .setMaxP(70)
                 .add();
@@ -932,18 +932,18 @@ public class NetworkStoreIT {
             verify(mockedListener, times(1)).onCreation(battery);
 
             assertTrue(battery.isFictitious());
-            assertEquals(50, battery.getP0(), 0.1);
-            assertEquals(10, battery.getQ0(), 0.1);
+            assertEquals(50, battery.getTargetP(), 0.1);
+            assertEquals(10, battery.getTargetQ(), 0.1);
             assertEquals(40, battery.getMinP(), 0.1);
             assertEquals(70, battery.getMaxP(), 0.1);
 
             battery.setFictitious(false);
-            battery.setP0(65);
-            battery.setQ0(20);
+            battery.setTargetP(65);
+            battery.setTargetQ(20);
 
             assertFalse(battery.isFictitious());
-            assertEquals(65, battery.getP0(), 0.1);
-            assertEquals(20, battery.getQ0(), 0.1);
+            assertEquals(65, battery.getTargetP(), 0.1);
+            assertEquals(20, battery.getTargetQ(), 0.1);
 
             verify(mockedListener, times(1)).onUpdate(battery, "targetP", INITIAL_VARIANT_ID, 50d, 65d);
             verify(mockedListener, times(1)).onUpdate(battery, "targetQ", INITIAL_VARIANT_ID, 10d, 20d);
