@@ -28,25 +28,25 @@ public class NetworkCollectionIndex<C> {
         this.factory = Objects.requireNonNull(factory);
     }
 
-    public C getCollection(UUID networkUuid, int variantNum) {
+    public synchronized C getCollection(UUID networkUuid, int variantNum) {
         Objects.requireNonNull(networkUuid);
         return collections.computeIfAbsent(Pair.of(networkUuid, variantNum), p -> factory.get());
     }
 
-    public void addCollection(UUID networkUuid, int variantNum, C collection) {
+    public synchronized void addCollection(UUID networkUuid, int variantNum, C collection) {
         collections.put(Pair.of(networkUuid, variantNum), collection);
     }
 
-    public void removeCollection(UUID networkUuid, int variantNum) {
+    public synchronized void removeCollection(UUID networkUuid, int variantNum) {
         Objects.requireNonNull(networkUuid);
         collections.remove(Pair.of(networkUuid, variantNum));
     }
 
-    public void removeCollection(UUID networkUuid) {
+    public synchronized void removeCollection(UUID networkUuid) {
         collections.keySet().removeIf(p -> p.getLeft().equals(networkUuid));
     }
 
-    public void applyToCollection(BiConsumer<Pair<UUID, Integer>, C> fct) {
+    public synchronized void applyToCollection(BiConsumer<Pair<UUID, Integer>, C> fct) {
         for (Map.Entry<Pair<UUID, Integer>, C> e : collections.entrySet()) {
             Pair<UUID, Integer> p = e.getKey();
             C collection = e.getValue();

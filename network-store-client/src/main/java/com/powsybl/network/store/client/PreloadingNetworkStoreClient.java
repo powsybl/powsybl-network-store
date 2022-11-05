@@ -6,25 +6,62 @@
  */
 package com.powsybl.network.store.client;
 
+import com.google.common.base.Stopwatch;
+import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
+ * Per collection preloading.
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PreloadingNetworkStoreClient.class);
+
+    private static final Set<ResourceType> RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW = Set.of(
+        ResourceType.SUBSTATION,
+        ResourceType.VOLTAGE_LEVEL,
+        ResourceType.LOAD,
+        ResourceType.GENERATOR,
+        ResourceType.BATTERY,
+        ResourceType.SHUNT_COMPENSATOR,
+        ResourceType.VSC_CONVERTER_STATION,
+        ResourceType.LCC_CONVERTER_STATION,
+        ResourceType.STATIC_VAR_COMPENSATOR,
+        ResourceType.BUSBAR_SECTION, // FIXME this should not be in the list but as connectable visitor also visit busbar sections we need to keep it
+        ResourceType.TWO_WINDINGS_TRANSFORMER,
+        ResourceType.THREE_WINDINGS_TRANSFORMER,
+        ResourceType.LINE,
+        ResourceType.HVDC_LINE,
+        ResourceType.DANGLING_LINE
+    );
+
+    private boolean allCollectionsNeededForBusView;
+
+    private final ExecutorService executorService;
+
     private final NetworkCollectionIndex<Set<ResourceType>> cachedResourceTypes
             = new NetworkCollectionIndex<>(() -> EnumSet.noneOf(ResourceType.class));
 
-    public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate) {
+    public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
+                                        ExecutorService executorService) {
         super(delegate);
+        this.allCollectionsNeededForBusView = allCollectionsNeededForBusView;
+        this.executorService = Objects.requireNonNull(executorService);
     }
 
     private void loadToCache(ResourceType resourceType, UUID networkUuid, int variantNum) {
@@ -80,7 +117,30 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             case CONFIGURED_BUS:
                 delegate.getConfiguredBuses(networkUuid, variantNum);
                 break;
+            default:
+                break;
         }
+    }
+
+    private void loadAllCollectionsNeededForBusView(UUID networkUuid, int variantNum, Set<ResourceType> resourceTypes) {
+        // directly load all collections
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        List<Future<?>> futures = new ArrayList<>(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW.size());
+        for (ResourceType resourceType : RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW) {
+            futures.add(executorService.submit(() -> loadToCache(resourceType, networkUuid, variantNum)));
+        }
+        for (var future : futures) {
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                throw new UncheckedInterruptedException(e);
+            } catch (ExecutionException e) {
+                throw new UncheckedExecutionException(e);
+            }
+        }
+        resourceTypes.addAll(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW);
+        stopwatch.stop();
+        LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     private void ensureCached(ResourceType resourceType, UUID networkUuid, int variantNum) {
@@ -88,8 +148,12 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         Objects.requireNonNull(networkUuid);
         Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
         if (!resourceTypes.contains(resourceType)) {
-            loadToCache(resourceType, networkUuid, variantNum);
-            resourceTypes.add(resourceType);
+            if (allCollectionsNeededForBusView && RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW.contains(resourceType)) {
+                loadAllCollectionsNeededForBusView(networkUuid, variantNum, resourceTypes);
+            } else {
+                loadToCache(resourceType, networkUuid, variantNum);
+                resourceTypes.add(resourceType);
+            }
         }
     }
 
@@ -377,6 +441,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         delegate.updateBusbarSections(networkUuid, busbarSectionResources);
     }
 
+    @Override
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
         for (Resource<LoadAttributes> loadResource : loadResources) {
             ensureCached(ResourceType.LOAD, networkUuid, loadResource.getVariantNum());
