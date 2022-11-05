@@ -277,6 +277,5 @@ public interface NetworkStoreClient {
 
     Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
 
-    void flush();
-
+    void flush(UUID networkUuid);
 }

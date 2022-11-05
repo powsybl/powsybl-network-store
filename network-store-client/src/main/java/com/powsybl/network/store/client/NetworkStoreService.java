@@ -97,7 +97,7 @@ public class NetworkStoreService implements AutoCloseable {
                                                         ExecutorService executorService) {
         Objects.requireNonNull(preloadingStrategy);
         LOGGER.info("Preloading strategy: {}", preloadingStrategy);
-        var cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient)));
+        var cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient), executorService));
         switch (preloadingStrategy) {
             case NONE:
                 return cachedClient;
@@ -248,7 +248,8 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public void flush(Network network) {
-        getNetworkImpl(network).getIndex().getStoreClient().flush();
+        NetworkImpl networkImpl = getNetworkImpl(network);
+        networkImpl.getIndex().getStoreClient().flush(networkImpl.getUuid());
     }
 
     @PostConstruct

@@ -731,7 +731,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void flush() {
+    public void flush(UUID networkUuid) {
         // nothing to do
     }
 }
