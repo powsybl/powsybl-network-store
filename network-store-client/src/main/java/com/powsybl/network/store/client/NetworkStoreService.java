@@ -9,7 +9,6 @@ package com.powsybl.network.store.client;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -17,6 +16,7 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.network.store.client.util.ExecutorUtil;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
@@ -39,7 +39,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -260,13 +259,7 @@ public class NetworkStoreService implements AutoCloseable {
     @Override
     @PreDestroy
     public void close() {
-        executorService.shutdown();
-        executorService.shutdownNow();
-        try {
-            executorService.awaitTermination(10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new UncheckedInterruptedException(e);
-        }
+        ExecutorUtil.shutdownAndAwaitTermination(executorService);
     }
 
     public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId) {

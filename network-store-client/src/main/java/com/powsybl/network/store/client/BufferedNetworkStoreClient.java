@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.base.Stopwatch;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.network.store.client.util.FutureUtil;
+import com.powsybl.network.store.client.util.ExecutorUtil;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
 import com.powsybl.network.store.model.*;
@@ -516,7 +516,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         for (var buffer : allBuffers) {
             futures.add(executorService.submit(() -> buffer.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
         }
-        FutureUtil.waitAll(futures);
+        ExecutorUtil.waitAllFutures(futures);
         stopwatch.stop();
         LOGGER.info("All buffers flushed in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }

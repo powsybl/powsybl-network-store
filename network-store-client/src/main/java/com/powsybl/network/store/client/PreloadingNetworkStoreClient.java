@@ -7,7 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.google.common.base.Stopwatch;
-import com.powsybl.network.store.client.util.FutureUtil;
+import com.powsybl.network.store.client.util.ExecutorUtil;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
@@ -127,7 +127,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         for (ResourceType resourceType : RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW) {
             futures.add(executorService.submit(() -> loadToCache(resourceType, networkUuid, variantNum)));
         }
-        FutureUtil.waitAll(futures);
+        ExecutorUtil.waitAllFutures(futures);
         resourceTypes.addAll(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW);
         stopwatch.stop();
         LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
