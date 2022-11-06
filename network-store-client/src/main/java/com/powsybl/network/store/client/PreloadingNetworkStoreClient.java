@@ -7,8 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.util.concurrent.UncheckedExecutionException;
-import com.powsybl.commons.exceptions.UncheckedInterruptedException;
+import com.powsybl.network.store.client.util.FutureUtil;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
@@ -18,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -129,15 +127,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         for (ResourceType resourceType : RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW) {
             futures.add(executorService.submit(() -> loadToCache(resourceType, networkUuid, variantNum)));
         }
-        for (var future : futures) {
-            try {
-                future.get();
-            } catch (InterruptedException e) {
-                throw new UncheckedInterruptedException(e);
-            } catch (ExecutionException e) {
-                throw new UncheckedExecutionException(e);
-            }
-        }
+        FutureUtil.waitAll(futures);
         resourceTypes.addAll(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW);
         stopwatch.stop();
         LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));

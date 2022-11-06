@@ -9,9 +9,8 @@ package com.powsybl.network.store.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.base.Stopwatch;
-import com.google.common.util.concurrent.UncheckedExecutionException;
-import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.network.store.client.util.FutureUtil;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
 import com.powsybl.network.store.model.*;
@@ -22,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -518,15 +516,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         for (var buffer : allBuffers) {
             futures.add(executorService.submit(() -> buffer.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
         }
-        for (var future : futures) {
-            try {
-                future.get();
-            } catch (InterruptedException e) {
-                throw new UncheckedInterruptedException(e);
-            } catch (ExecutionException e) {
-                throw new UncheckedExecutionException(e);
-            }
-        }
+        FutureUtil.waitAll(futures);
         stopwatch.stop();
         LOGGER.info("All buffers flushed in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
