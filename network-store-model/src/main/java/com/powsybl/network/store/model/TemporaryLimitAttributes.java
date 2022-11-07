@@ -44,5 +44,5 @@ public class TemporaryLimitAttributes {
     private Integer acceptableDuration;
 
     @Schema(description = "Temporary limit is fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 }

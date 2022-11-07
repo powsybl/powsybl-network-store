@@ -32,7 +32,7 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     private String name;
 
     @Schema(description = "fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;

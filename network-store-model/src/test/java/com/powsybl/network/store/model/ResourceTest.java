@@ -8,6 +8,8 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.*;
@@ -15,6 +17,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -346,8 +349,8 @@ public class ResourceTest {
                 .voltageLevelId("vl1")
                 .name("name")
                 .bus("bus1")
-                .p(100)
-                .q(200)
+                .p(100d)
+                .q(200d)
                 .model(linearModelAttributes)
                 .sectionCount(2)
                 .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
@@ -429,5 +432,41 @@ public class ResourceTest {
 
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
+    }
+
+    @Test
+    public void loadFilterTest() throws IOException {
+        LoadAttributes loadAttributes = LoadAttributes
+                .builder()
+                .voltageLevelId("vl1")
+                .name("name")
+                .bus("bus1")
+                .fictitious(false)
+                .node(1)
+                .p(10d)
+                .q(20.4)
+                .build();
+
+        Resource<LoadAttributes> resource = Resource.loadBuilder()
+                .id("load1")
+                .attributes(loadAttributes)
+                .build();
+
+        SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+//        filterProvider.addFilter("svFilter", SimpleBeanPropertyFilter.filterOutAllExcept("p", "q"));
+        filterProvider.addFilter("svFilter", SimpleBeanPropertyFilter.serializeAllExcept("p", "q"));
+        ObjectMapper objectMapper = new ObjectMapper()
+                .setFilterProvider(filterProvider);
+
+        String json = objectMapper
+                .writeValueAsString(resource);
+        System.out.println(json);
+
+        Resource<LoadAttributes> resource2 = objectMapper.readValue(json, new TypeReference<>() {
+        });
+        String json2 = new ObjectMapper()
+                .setFilterProvider(new SimpleFilterProvider().addFilter("svFilter", SimpleBeanPropertyFilter.serializeAll()))
+                .writeValueAsString(resource2);
+        System.out.println(json2);
     }
 }

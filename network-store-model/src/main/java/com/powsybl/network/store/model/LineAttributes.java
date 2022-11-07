@@ -32,7 +32,7 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     private String name;
 
     @Schema(description = "fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;

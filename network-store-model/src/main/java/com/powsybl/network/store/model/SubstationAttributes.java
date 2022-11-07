@@ -30,7 +30,7 @@ public class SubstationAttributes extends AbstractAttributes implements Identifi
     private String name;
 
     @Schema(description = "fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;

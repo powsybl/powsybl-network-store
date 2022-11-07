@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.powsybl.iidm.network.LoadType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -22,6 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Load attributes")
+@JsonFilter("svFilter")
 public class LoadAttributes extends AbstractAttributes implements InjectionAttributes {
 
     @Schema(description = "Voltage level ID")
@@ -31,7 +33,7 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
     private String name;
 
     @Schema(description = "fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;
@@ -55,18 +57,19 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
     private LoadType loadType;
 
     @Schema(description = "Load constant active power in MW")
-    private double p0;
+    private Double p0;
 
     @Schema(description = "Load constant reactive power in MW")
-    private double q0;
+    private Double q0;
 
     @Schema(description = "Active power in MW")
     @Builder.Default
-    private double p = Double.NaN;
+    @JsonFilter("sv")
+    private Double p = Double.NaN;
 
     @Schema(description = "Reactive power in MW")
     @Builder.Default
-    private double q = Double.NaN;
+    private Double q = Double.NaN;
 
     @Schema(description = "Load detail")
     private LoadDetailAttributes loadDetail;

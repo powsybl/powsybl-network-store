@@ -6,15 +6,22 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.cfg.JacksonJodaDateFormat;
+import com.fasterxml.jackson.datatype.joda.ser.LocalDateTimeSerializer;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.NetworkStoreApi;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TopLevelDocument;
+import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -28,6 +35,9 @@ import java.util.Optional;
  */
 public class RestClientImpl implements RestClient {
 
+    public static final String DATETIME_FORMAT = "dd-MM-yyyy HH:mm";
+    public static final LocalDateTimeSerializer LOCAL_DATETIME_SERIALIZER = new LocalDateTimeSerializer(new JacksonJodaDateFormat(DateTimeFormat.forPattern(DATETIME_FORMAT)));
+
     private final RestTemplate restTemplate;
 
     public RestClientImpl(String baseUri) {
@@ -37,6 +47,11 @@ public class RestClientImpl implements RestClient {
     @Autowired
     public RestClientImpl(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
+        ObjectMapper objectMapper = new Jackson2ObjectMapperBuilder()
+                .serializers(LOCAL_DATETIME_SERIALIZER)
+                .serializationInclusion(JsonInclude.Include.NON_NULL)
+                .build();
+        restTemplate.getMessageConverters().add(0, new MappingJackson2HttpMessageConverter(objectMapper));
     }
 
     public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {

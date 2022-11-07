@@ -32,7 +32,7 @@ public class BusbarSectionAttributes extends AbstractAttributes implements Ident
     private String name;
 
     @Schema(description = "Busbar section fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;

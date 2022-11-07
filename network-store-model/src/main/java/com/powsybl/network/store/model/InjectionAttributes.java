@@ -32,13 +32,13 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained {
 
     void setConnectableBus(String bus);
 
-    double getP();
+    Double getP();
 
-    void setP(double p);
+    void setP(Double p);
 
-    double getQ();
+    Double getQ();
 
-    void setQ(double q);
+    void setQ(Double q);
 
     ConnectablePositionAttributes getPosition();
 

@@ -28,7 +28,7 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
     private String name;
 
     @Schema(description = "fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;

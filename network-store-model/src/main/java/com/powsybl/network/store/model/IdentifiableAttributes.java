@@ -29,9 +29,13 @@ public interface IdentifiableAttributes {
 
     void setResource(Resource resource);
 
-    boolean isFictitious();
+    Boolean getFictitious();
 
-    void setFictitious(boolean fictitious);
+    default boolean isFictitious() {
+        return getFictitious();
+    }
+
+    void setFictitious(Boolean fictitious);
 
     Set<String> getAliasesWithoutType();
 

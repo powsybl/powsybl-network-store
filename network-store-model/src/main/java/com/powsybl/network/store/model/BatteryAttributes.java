@@ -30,7 +30,7 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
     private String name;
 
     @Schema(description = "Battery fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;
@@ -64,11 +64,11 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
 
     @Schema(description = "Active power in MW")
     @Builder.Default
-    private double p = Double.NaN;
+    private Double p = Double.NaN;
 
     @Schema(description = "Reactive power in MW")
     @Builder.Default
-    private double q = Double.NaN;
+    private Double q = Double.NaN;
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
