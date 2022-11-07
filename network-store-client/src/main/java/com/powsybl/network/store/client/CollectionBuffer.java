@@ -15,6 +15,7 @@ import org.apache.logging.log4j.util.TriConsumer;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -29,7 +30,31 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
 
     private final Map<String, Resource<T>> createResources = new LinkedHashMap<>();
 
-    private final Map<String, Resource<T>> updateResources = new LinkedHashMap<>();
+    private static final class ResourceAndFilter<T extends IdentifiableAttributes> {
+
+        private final Resource<T> resource;
+
+        private AttributeFilter attributeFilter;
+
+        private ResourceAndFilter(Resource<T> resource, AttributeFilter attributeFilter) {
+            this.resource = Objects.requireNonNull(resource);
+            this.attributeFilter = attributeFilter;
+        }
+
+        private Resource<T> getResource() {
+            return resource;
+        }
+
+        private AttributeFilter getAttributeFilter() {
+            return attributeFilter;
+        }
+
+        private void setAttributeFilter(AttributeFilter attributeFilter) {
+            this.attributeFilter = attributeFilter;
+        }
+    }
+
+    private final Map<String, ResourceAndFilter<T>> updateResources = new LinkedHashMap<>();
 
     private final Set<String> removeResources = new HashSet<>();
 
@@ -54,7 +79,14 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
         // (so we don't need to generate an update as the resource has not yet been created
         // on server side and is still on client buffer)
         if (!createResources.containsKey(resource.getId())) {
-            updateResources.put(resource.getId(), resource);
+            ResourceAndFilter<T> resourceAndFilter = updateResources.get(resource.getId());
+            if (resourceAndFilter == null) {
+                updateResources.put(resource.getId(), new ResourceAndFilter<>(resource, attributeFilter));
+            } else {
+                if (resourceAndFilter.getAttributeFilter() != null && attributeFilter == null) {
+                    resourceAndFilter.setAttributeFilter(null);
+                }
+            }
         }
     }
 
@@ -82,7 +114,20 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
             createFct.accept(networkUuid, new ArrayList<>(createResources.values()));
         }
         if (updateFct != null && !updateResources.isEmpty()) {
-            updateFct.accept(networkUuid, new ArrayList<>(updateResources.values()), null);
+            List<Resource<T>> fullResources = new ArrayList<>();
+            Map<AttributeFilter, List<Resource<T>>> filteredResources = new EnumMap<>(AttributeFilter.class);
+            for (ResourceAndFilter<T> resource : updateResources.values()) {
+                if (resource.getAttributeFilter() == null) {
+                    fullResources.add(resource.getResource());
+                } else {
+                    filteredResources.computeIfAbsent(resource.getAttributeFilter(), k -> new ArrayList<>())
+                            .add(resource.getResource());
+                }
+            }
+            updateFct.accept(networkUuid, fullResources, null);
+            for (var e : filteredResources.entrySet()) {
+                updateFct.accept(networkUuid, new ArrayList<>(e.getValue()), e.getKey());
+            }
         }
         createResources.clear();
         updateResources.clear();
@@ -98,15 +143,15 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
      * @return the buffer clone
      */
     public CollectionBuffer<T> clone(ObjectMapper objectMapper, int newVariantNum, Consumer<Resource<T>> resourcePostProcessor) {
-        List<Resource<T>> clonedCreateResources = Resource.cloneResourcesToVariant(createResources, newVariantNum, objectMapper, resourcePostProcessor);
-        List<Resource<T>> clonedUpdateResources = Resource.cloneResourcesToVariant(updateResources, newVariantNum, objectMapper, resourcePostProcessor);
+        List<Resource<T>> clonedCreateResources = Resource.cloneResourcesToVariant(createResources.values(), newVariantNum, objectMapper, resourcePostProcessor);
+        List<Resource<T>> clonedUpdateResources = Resource.cloneResourcesToVariant(updateResources.values().stream().map(ResourceAndFilter::getResource).collect(Collectors.toList()), newVariantNum, objectMapper, resourcePostProcessor);
 
         var clonedBuffer = new CollectionBuffer<>(createFct, updateFct, removeFct);
         for (Resource<T> clonedResource : clonedCreateResources) {
             clonedBuffer.createResources.put(clonedResource.getId(), clonedResource);
         }
         for (Resource<T> clonedResource : clonedUpdateResources) {
-            clonedBuffer.updateResources.put(clonedResource.getId(), clonedResource);
+            clonedBuffer.updateResources.put(clonedResource.getId(), new ResourceAndFilter<>(clonedResource, null));
         }
         clonedBuffer.removeResources.addAll(removeResources);
 

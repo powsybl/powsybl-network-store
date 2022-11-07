@@ -93,7 +93,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private <T extends IdentifiableAttributes> void updateAll(String target, String url, List<Resource<T>> resourceList, AttributeFilter attributeFilter, Object... uriVariables) {
         for (List<Resource<T>> resourcePartition : Lists.partition(resourceList, RESOURCES_CREATION_CHUNK_SIZE)) {
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Updating {} {} resources ({})...", resourcePartition.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
+                LOGGER.info("Updating {} {} resources ({}) with attribute filter {}...", resourcePartition.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables),
+                        attributeFilter != null ? attributeFilter : "ALL");
             }
             Stopwatch stopwatch = Stopwatch.createStarted();
             try {

@@ -6,9 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -17,9 +17,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.io.UncheckedIOException;
-import java.util.Objects;
-import java.util.Map;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -180,12 +180,12 @@ public class Resource<T extends IdentifiableAttributes> implements Validable {
     }
 
     public static <T extends IdentifiableAttributes> List<Resource<T>> cloneResourcesToVariant(
-        Map<String, Resource<T>> resources, int newVariantNum,
+        Collection<Resource<T>> resources, int newVariantNum,
         ObjectMapper objectMapper, Consumer<Resource<T>> resourcePostProcessor) {
         // use json serialization to clone the resources of source collection
         List<Resource<T>> clonedResources;
         try {
-            var json = objectMapper.writeValueAsString(resources.values());
+            var json = objectMapper.writeValueAsString(resources);
             clonedResources = objectMapper.readValue(json, new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {
