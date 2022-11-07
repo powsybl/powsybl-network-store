@@ -1002,7 +1002,7 @@ public class NetworkObjectIndex {
     }
 
     <T extends IdentifiableAttributes> void updateResource(Resource<T> resource) {
-        updateResource(resource, AttributeFilter.ALL);
+        updateResource(resource, null);
     }
 
     @SuppressWarnings("unchecked")
@@ -1072,7 +1072,7 @@ public class NetworkObjectIndex {
     }
 
     void updateVoltageLevelResource(Resource<VoltageLevelAttributes> resource) {
-        updateVoltageLevelResource(resource, AttributeFilter.ALL);
+        updateVoltageLevelResource(resource, null);
     }
 
     void updateVoltageLevelResource(Resource<VoltageLevelAttributes> resource, AttributeFilter attributeFilter) {
@@ -1080,7 +1080,7 @@ public class NetworkObjectIndex {
     }
 
     void updateSwitchResource(Resource<SwitchAttributes> resource) {
-        updateSwitchResource(resource, AttributeFilter.ALL);
+        updateSwitchResource(resource, null);
     }
 
     void updateSwitchResource(Resource<SwitchAttributes> resource, AttributeFilter attributeFilter) {

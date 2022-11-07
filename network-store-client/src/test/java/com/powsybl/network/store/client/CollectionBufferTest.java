@@ -83,7 +83,7 @@ public class CollectionBufferTest {
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
         collectionBuffer.create(l1);
-        collectionBuffer.update(l1, AttributeFilter.ALL);
+        collectionBuffer.update(l1);
         collectionBuffer.flush(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, created.size());
         assertTrue(updated.isEmpty());
@@ -95,7 +95,7 @@ public class CollectionBufferTest {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
-        collectionBuffer.update(l1, AttributeFilter.ALL);
+        collectionBuffer.update(l1);
         collectionBuffer.flush(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM);
         assertTrue(created.isEmpty());
         assertEquals(1, updated.size());
@@ -132,7 +132,7 @@ public class CollectionBufferTest {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
-        collectionBuffer.update(l1, AttributeFilter.ALL);
+        collectionBuffer.update(l1);
         collectionBuffer.remove(l1.getId());
         collectionBuffer.flush(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM);
         assertTrue(created.isEmpty());

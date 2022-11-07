@@ -10,6 +10,5 @@ package com.powsybl.network.store.iidm.impl;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum AttributeFilter {
-    ALL,
     SV
 }

@@ -45,6 +45,10 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
         createResources.put(resource.getId(), resource);
     }
 
+    void update(Resource<T> resource) {
+        update(resource, null);
+    }
+
     void update(Resource<T> resource, AttributeFilter attributeFilter) {
         // do not update the resource if a creation resource is already in the buffer
         // (so we don't need to generate an update as the resource has not yet been created
@@ -78,7 +82,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
             createFct.accept(networkUuid, new ArrayList<>(createResources.values()));
         }
         if (updateFct != null && !updateResources.isEmpty()) {
-            updateFct.accept(networkUuid, new ArrayList<>(updateResources.values()), AttributeFilter.ALL);
+            updateFct.accept(networkUuid, new ArrayList<>(updateResources.values()), null);
         }
         createResources.clear();
         updateResources.clear();
