@@ -30,7 +30,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PreloadingNetworkStoreClient.class);
 
-    private static final Set<ResourceType> RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW = Set.of(
+    static final Set<ResourceType> RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW = Set.of(
         ResourceType.SUBSTATION,
         ResourceType.VOLTAGE_LEVEL,
         ResourceType.LOAD,
@@ -48,7 +48,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.DANGLING_LINE
     );
 
-    private boolean allCollectionsNeededForBusView;
+    private final boolean allCollectionsNeededForBusView;
 
     private final ExecutorService executorService;
 
@@ -131,6 +131,12 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         resourceTypes.addAll(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW);
         stopwatch.stop();
         LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    boolean isResourceTypeCached(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
+        Objects.requireNonNull(resourceType);
+        return resourceTypes.contains(resourceType);
     }
 
     private void ensureCached(ResourceType resourceType, UUID networkUuid, int variantNum) {
