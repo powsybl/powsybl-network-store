@@ -108,7 +108,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             throw new ValidationException(this, "cannot set active power on a busbar section");
         }
         attributes.setP(p);
-        index.updateResource(attributes.getResource());
+        index.updateResource(attributes.getResource(), AttributeFilter.SV);
         return this;
     }
 
@@ -123,7 +123,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             throw new ValidationException(this, "cannot set reactive power on a busbar section");
         }
         attributes.setQ(q);
-        index.updateResource(attributes.getResource());
+        index.updateResource(attributes.getResource(), AttributeFilter.SV);
         return this;
     }
 

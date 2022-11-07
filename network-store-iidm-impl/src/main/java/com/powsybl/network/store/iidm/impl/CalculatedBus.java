@@ -135,7 +135,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Bus setV(double v) {
         getAttributes().setV(v);
-        index.updateVoltageLevelResource(voltageLevelResource);
+        index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
         return this;
     }
 
@@ -147,7 +147,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Bus setAngle(double angle) {
         getAttributes().setAngle(angle);
-        index.updateVoltageLevelResource(voltageLevelResource);
+        index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
         return this;
     }
 

@@ -22,7 +22,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Load attributes")
-//@JsonFilter("svFilter")
 public class LoadAttributes extends AbstractAttributes implements InjectionAttributes {
 
     @Schema(description = "Voltage level ID")

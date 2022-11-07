@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.network.store.iidm.impl.AttributeFilter;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -59,7 +60,7 @@ public class CollectionBufferTest {
                 .build();
 
         BiConsumer<UUID, List<Resource<LoadAttributes>>> createFct = (uuid, resources) -> created.addAll(resources);
-        BiConsumer<UUID, List<Resource<LoadAttributes>>> updateFct = (uuid, resources) -> updated.addAll(resources);
+        TriConsumer<UUID, List<Resource<LoadAttributes>>, AttributeFilter> updateFct = (uuid, resources, attributeFilter) -> updated.addAll(resources);
         TriConsumer<UUID, Integer, List<String>> removeFct = (uuid, variantNum, ids) -> removed.addAll(ids);
         collectionBuffer = new CollectionBuffer<>(createFct, updateFct, removeFct);
     }
@@ -82,7 +83,7 @@ public class CollectionBufferTest {
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
         collectionBuffer.create(l1);
-        collectionBuffer.update(l1);
+        collectionBuffer.update(l1, AttributeFilter.ALL);
         collectionBuffer.flush(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, created.size());
         assertTrue(updated.isEmpty());
@@ -94,7 +95,7 @@ public class CollectionBufferTest {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
-        collectionBuffer.update(l1);
+        collectionBuffer.update(l1, AttributeFilter.ALL);
         collectionBuffer.flush(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM);
         assertTrue(created.isEmpty());
         assertEquals(1, updated.size());
@@ -131,7 +132,7 @@ public class CollectionBufferTest {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
-        collectionBuffer.update(l1);
+        collectionBuffer.update(l1, AttributeFilter.ALL);
         collectionBuffer.remove(l1.getId());
         collectionBuffer.flush(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM);
         assertTrue(created.isEmpty());

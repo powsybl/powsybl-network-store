@@ -7,6 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.network.store.iidm.impl.AttributeFilter;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -22,7 +23,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
 
     private final BiConsumer<UUID, List<Resource<T>>> createFct;
 
-    private final BiConsumer<UUID, List<Resource<T>>> updateFct;
+    private final TriConsumer<UUID, List<Resource<T>>, AttributeFilter> updateFct;
 
     private final TriConsumer<UUID, Integer, List<String>> removeFct;
 
@@ -33,7 +34,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
     private final Set<String> removeResources = new HashSet<>();
 
     public CollectionBuffer(BiConsumer<UUID, List<Resource<T>>> createFct,
-                            BiConsumer<UUID, List<Resource<T>>> updateFct,
+                            TriConsumer<UUID, List<Resource<T>>, AttributeFilter> updateFct,
                             TriConsumer<UUID, Integer, List<String>> removeFct) {
         this.createFct = Objects.requireNonNull(createFct);
         this.updateFct = updateFct;
@@ -44,7 +45,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
         createResources.put(resource.getId(), resource);
     }
 
-    void update(Resource<T> resource) {
+    void update(Resource<T> resource, AttributeFilter attributeFilter) {
         // do not update the resource if a creation resource is already in the buffer
         // (so we don't need to generate an update as the resource has not yet been created
         // on server side and is still on client buffer)
@@ -77,7 +78,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
             createFct.accept(networkUuid, new ArrayList<>(createResources.values()));
         }
         if (updateFct != null && !updateResources.isEmpty()) {
-            updateFct.accept(networkUuid, new ArrayList<>(updateResources.values()));
+            updateFct.accept(networkUuid, new ArrayList<>(updateResources.values()), AttributeFilter.ALL);
         }
         createResources.clear();
         updateResources.clear();

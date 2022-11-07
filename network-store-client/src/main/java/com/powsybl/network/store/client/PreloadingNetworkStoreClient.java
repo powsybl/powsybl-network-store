@@ -6,10 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
-import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
-import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
-import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.*;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
@@ -132,11 +129,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources, AttributeFilter attributeFilter) {
         for (Resource<SubstationAttributes> substationResource : substationResources) {
             ensureCached(ResourceType.SUBSTATION, networkUuid, substationResource.getVariantNum());
         }
-        delegate.updateSubstations(networkUuid, substationResources);
+        delegate.updateSubstations(networkUuid, substationResources, attributeFilter);
     }
 
     @Override
@@ -336,11 +333,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources, AttributeFilter attributeFilter) {
         for (Resource<SwitchAttributes> switchResource : switchResources) {
             ensureCached(ResourceType.SWITCH, networkUuid, switchResource.getVariantNum());
         }
-        delegate.updateSwitches(networkUuid, switchResources);
+        delegate.updateSwitches(networkUuid, switchResources, attributeFilter);
     }
 
     @Override
@@ -370,11 +367,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources, AttributeFilter attributeFilter) {
         for (Resource<BusbarSectionAttributes> busbarSectionResource : busbarSectionResources) {
             ensureCached(ResourceType.BUSBAR_SECTION, networkUuid, busbarSectionResource.getVariantNum());
         }
-        delegate.updateBusbarSections(networkUuid, busbarSectionResources);
+        delegate.updateBusbarSections(networkUuid, busbarSectionResources, attributeFilter);
     }
 
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
@@ -397,11 +394,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
+    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources, AttributeFilter attributeFilter) {
         for (Resource<LoadAttributes> loadResource : loadResources) {
             ensureCached(ResourceType.LOAD, networkUuid, loadResource.getVariantNum());
         }
-        delegate.updateLoads(networkUuid, loadResources);
+        delegate.updateLoads(networkUuid, loadResources, attributeFilter);
     }
 
     @Override
@@ -425,11 +422,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
+    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources, AttributeFilter attributeFilter) {
         for (Resource<GeneratorAttributes> generatorResource : generatorResources) {
             ensureCached(ResourceType.GENERATOR, networkUuid, generatorResource.getVariantNum());
         }
-        delegate.updateGenerators(networkUuid, generatorResources);
+        delegate.updateGenerators(networkUuid, generatorResources, attributeFilter);
     }
 
     @Override
@@ -453,11 +450,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources, AttributeFilter attributeFilter) {
         for (Resource<BatteryAttributes> batteryResource : batteryResources) {
             ensureCached(ResourceType.BATTERY, networkUuid, batteryResource.getVariantNum());
         }
-        delegate.updateBatteries(networkUuid, batteryResources);
+        delegate.updateBatteries(networkUuid, batteryResources, attributeFilter);
     }
 
     @Override
@@ -481,11 +478,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
+    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources, AttributeFilter attributeFilter) {
         for (Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource : twoWindingsTransformerResources) {
             ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid, twoWindingsTransformerResource.getVariantNum());
         }
-        delegate.updateTwoWindingsTransformers(networkUuid, twoWindingsTransformerResources);
+        delegate.updateTwoWindingsTransformers(networkUuid, twoWindingsTransformerResources, attributeFilter);
     }
 
     // 3 windings transformer
@@ -511,11 +508,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources, AttributeFilter attributeFilter) {
         for (Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource : threeWindingsTransformerResources) {
             ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid, threeWindingsTransformerResource.getVariantNum());
         }
-        delegate.updateThreeWindingsTransformers(networkUuid, threeWindingsTransformerResources);
+        delegate.updateThreeWindingsTransformers(networkUuid, threeWindingsTransformerResources, attributeFilter);
     }
 
     @Override
@@ -539,11 +536,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
+    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources, AttributeFilter attributeFilter) {
         for (Resource<LineAttributes> lineResource : lineResources) {
             ensureCached(ResourceType.LINE, networkUuid, lineResource.getVariantNum());
         }
-        delegate.updateLines(networkUuid, lineResources);
+        delegate.updateLines(networkUuid, lineResources, attributeFilter);
     }
 
     @Override
@@ -567,11 +564,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
+    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources, AttributeFilter attributeFilter) {
         for (Resource<ShuntCompensatorAttributes> shuntCompensatorResource : shuntCompensatorResources) {
             ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid, shuntCompensatorResource.getVariantNum());
         }
-        delegate.updateShuntCompensators(networkUuid, shuntCompensatorResources);
+        delegate.updateShuntCompensators(networkUuid, shuntCompensatorResources, attributeFilter);
     }
 
     @Override
@@ -595,11 +592,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
+    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources, AttributeFilter attributeFilter) {
         for (Resource<VscConverterStationAttributes> vscConverterStationResource : vscConverterStationResources) {
             ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid, vscConverterStationResource.getVariantNum());
         }
-        delegate.updateVscConverterStations(networkUuid, vscConverterStationResources);
+        delegate.updateVscConverterStations(networkUuid, vscConverterStationResources, attributeFilter);
     }
 
     @Override
@@ -623,11 +620,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources, AttributeFilter attributeFilter) {
         for (Resource<LccConverterStationAttributes> lccConverterStationResource : lccConverterStationResources) {
             ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid, lccConverterStationResource.getVariantNum());
         }
-        delegate.updateLccConverterStations(networkUuid, lccConverterStationResources);
+        delegate.updateLccConverterStations(networkUuid, lccConverterStationResources, attributeFilter);
     }
 
     @Override
@@ -651,11 +648,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
+    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources, AttributeFilter attributeFilter) {
         for (Resource<StaticVarCompensatorAttributes> svcResource : svcResources) {
             ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid, svcResource.getVariantNum());
         }
-        delegate.updateStaticVarCompensators(networkUuid, svcResources);
+        delegate.updateStaticVarCompensators(networkUuid, svcResources, attributeFilter);
     }
 
     @Override
@@ -685,11 +682,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
+    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources, AttributeFilter attributeFilter) {
         for (Resource<HvdcLineAttributes> hvdcLineResource : hvdcLineResources) {
             ensureCached(ResourceType.HVDC_LINE, networkUuid, hvdcLineResource.getVariantNum());
         }
-        delegate.updateHvdcLines(networkUuid, hvdcLineResources);
+        delegate.updateHvdcLines(networkUuid, hvdcLineResources, attributeFilter);
     }
 
     @Override
@@ -713,11 +710,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
         for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
             ensureCached(ResourceType.DANGLING_LINE, networkUuid, danglingLineResource.getVariantNum());
         }
-        delegate.updateDanglingLines(networkUuid, danglingLineResources);
+        delegate.updateDanglingLines(networkUuid, danglingLineResources, attributeFilter);
     }
 
     @Override
@@ -753,11 +750,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busResources) {
+    public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busResources, AttributeFilter attributeFilter) {
         for (Resource<ConfiguredBusAttributes> busResource : busResources) {
             ensureCached(ResourceType.CONFIGURED_BUS, networkUuid, busResource.getVariantNum());
         }
-        delegate.updateConfiguredBuses(networkUuid, busResources);
+        delegate.updateConfiguredBuses(networkUuid, busResources, attributeFilter);
     }
 
     @Override

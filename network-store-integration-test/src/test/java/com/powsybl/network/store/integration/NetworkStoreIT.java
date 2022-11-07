@@ -5137,4 +5137,19 @@ public class NetworkStoreIT {
             assertNull(l.getCurrentLimits1().orElseThrow().getTemporaryLimit(60 * 20));
         }
     }
+
+    @Test
+    public void testIncrementalUpdate() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            service.flush(EurostagTutorialExample1Factory.create(service.getNetworkFactory()));
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
+            Load load = network.getLoad("LOAD");
+            load.getTerminal().setP(13.45d);
+            service.flush(network);
+        }
+    }
 }

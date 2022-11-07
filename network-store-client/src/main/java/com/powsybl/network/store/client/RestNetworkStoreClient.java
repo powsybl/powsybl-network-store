@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.network.store.iidm.impl.AttributeFilter;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
@@ -149,7 +150,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateNetworks(List<Resource<NetworkAttributes>> networkResources) {
+    public void updateNetworks(List<Resource<NetworkAttributes>> networkResources, AttributeFilter attributeFilter) {
         for (Resource<NetworkAttributes> networkResource : networkResources) {
             updateAll("network", "/networks/{networkUuid}", Collections.singletonList(networkResource), networkResource.getAttributes().getUuid());
         }
@@ -210,7 +211,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources, AttributeFilter attributeFilter) {
         updateAll("substation", "/networks/{networkUuid}/substations/", substationResources, networkUuid);
     }
 
@@ -241,7 +242,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelsResources) {
+    public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelsResources, AttributeFilter attributeFilter) {
         updateAll("voltage level", "/networks/{networkUuid}/voltage-levels", voltageLevelsResources, networkUuid);
     }
 
@@ -383,7 +384,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources, AttributeFilter attributeFilter) {
         updateAll("switches", "/networks/{networkUuid}/switches", switchResources, networkUuid);
     }
 
@@ -410,7 +411,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources, AttributeFilter attributeFilter) {
         updateAll("busbar section", "/networks/{networkUuid}/busbar-sections", busbarSectionResources, networkUuid);
     }
 
@@ -432,7 +433,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
+    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources, AttributeFilter attributeFilter) {
         updateAll("load", "/networks/{networkUuid}/loads", loadResources, networkUuid);
     }
 
@@ -459,7 +460,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
+    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources, AttributeFilter attributeFilter) {
         updateAll("generator", "/networks/{networkUuid}/generators", generatorResources, networkUuid);
     }
 
@@ -481,7 +482,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources, AttributeFilter attributeFilter) {
         updateAll("battery", "/networks/{networkUuid}/batteries", batteryResources, networkUuid);
     }
 
@@ -503,7 +504,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
+    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources, AttributeFilter attributeFilter) {
         updateAll("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers", twoWindingsTransformerResources, networkUuid);
     }
 
@@ -525,7 +526,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources, AttributeFilter attributeFilter) {
         updateAll("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers", threeWindingsTransformerResources, networkUuid);
     }
 
@@ -547,7 +548,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
+    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources, AttributeFilter attributeFilter) {
         updateAll("line", "/networks/{networkUuid}/lines", lineResources, networkUuid);
     }
 
@@ -569,7 +570,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
+    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources, AttributeFilter attributeFilter) {
         updateAll("shunt compensator", "/networks/{networkUuid}/shunt-compensators", shuntCompensatorResources, networkUuid);
     }
 
@@ -591,7 +592,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
+    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources, AttributeFilter attributeFilter) {
         updateAll("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations", vscConverterStationResources, networkUuid);
     }
 
@@ -613,7 +614,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources, AttributeFilter attributeFilter) {
         updateAll("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations", lccConverterStationResources, networkUuid);
     }
 
@@ -635,7 +636,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
+    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources, AttributeFilter attributeFilter) {
         updateAll("static var compensator", "/networks/{networkUuid}/static-var-compensators", staticVarCompensatorResources, networkUuid);
     }
 
@@ -662,7 +663,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
+    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources, AttributeFilter attributeFilter) {
         updateAll("hvdc line", "/networks/{networkUuid}/hvdc-lines", hvdcLineResources, networkUuid);
     }
 
@@ -689,7 +690,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
         updateAll("dangling line", "/networks/{networkUuid}/dangling-lines", danglingLineResources, networkUuid);
     }
 
@@ -716,7 +717,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+    public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources, AttributeFilter attributeFilter) {
         updateAll("bus", "/networks/{networkUuid}/configured-buses", busesResources, networkUuid);
     }
 
