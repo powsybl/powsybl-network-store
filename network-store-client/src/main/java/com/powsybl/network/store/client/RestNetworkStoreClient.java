@@ -7,7 +7,10 @@
 
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
@@ -21,6 +24,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +42,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private final ObjectMapper objectMapper;
 
+    private final Map<AttributeFilter, ObjectMapper> objectMappersByAttributeFilter = new HashMap<>();
+
     public RestNetworkStoreClient(RestClient restClient) {
         this(restClient, new ObjectMapper());
     }
@@ -45,6 +51,14 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     public RestNetworkStoreClient(RestClient restClient, ObjectMapper objectMapper) {
         this.restClient = Objects.requireNonNull(restClient);
         this.objectMapper = Objects.requireNonNull(objectMapper);
+        for (AttributeFilter attributeFilter : AttributeFilter.values()) {
+            SimpleFilterProvider filterProvider = new SimpleFilterProvider()
+                    .addFilter(attributeFilter.name(), SimpleBeanPropertyFilter.filterOutAllExcept(attributeFilter.getIncluded()));
+            var objectMapperWithFilter = objectMapper.copy()
+                    .setFilterProvider(filterProvider);
+            objectMapperWithFilter.addMixIn(LoadAttributes.class, attributeFilter.getMixInClass());
+            objectMappersByAttributeFilter.put(attributeFilter, objectMapperWithFilter);
+        }
     }
 
     // network
@@ -90,6 +104,19 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return resource;
     }
 
+    private <T extends IdentifiableAttributes> void updateAll(String url, AttributeFilter attributeFilter, List<Resource<T>> resourcePartition, Object[] uriVariables) {
+        if (attributeFilter == null) {
+            restClient.updateAll(url, resourcePartition, uriVariables);
+        } else {
+            try {
+                String json = objectMappersByAttributeFilter.get(attributeFilter).writeValueAsString(resourcePartition);
+                restClient.updateAll(url, json, uriVariables);
+            } catch (JsonProcessingException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+    }
+
     private <T extends IdentifiableAttributes> void updateAll(String target, String url, List<Resource<T>> resourceList, AttributeFilter attributeFilter, Object... uriVariables) {
         for (List<Resource<T>> resourcePartition : Lists.partition(resourceList, RESOURCES_CREATION_CHUNK_SIZE)) {
             if (LOGGER.isInfoEnabled()) {
@@ -98,12 +125,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             }
             Stopwatch stopwatch = Stopwatch.createStarted();
             try {
-                restClient.updateAll(url, resourcePartition, uriVariables);
+                updateAll(url, attributeFilter, resourcePartition, uriVariables);
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
                 LOGGER.info("Retrying...");
-                restClient.updateAll(url, resourcePartition, uriVariables);
+                updateAll(url, attributeFilter, resourcePartition, uriVariables);
             }
             stopwatch.stop();
             LOGGER.info("{} {} resources updated in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));

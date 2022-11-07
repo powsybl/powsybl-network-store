@@ -98,6 +98,14 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
+    public <T extends IdentifiableAttributes> void updateAll(String url, String body, Object... uriVariables) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new  HttpEntity<String>(body, headers);
+        restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class, uriVariables);
+    }
+
+    @Override
     public <E> E get(String uri, ParameterizedTypeReference<E> responseType, Object... uriVariables) {
         return restTemplate.exchange(uri, HttpMethod.GET, null, responseType, uriVariables)
             .getBody();
