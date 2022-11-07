@@ -121,12 +121,12 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
-    public double getP() {
+    public Double getP() {
         return side1 ? attributes.getP1() : attributes.getP2();
     }
 
     @Override
-    public void setP(double p) {
+    public void setP(Double p) {
         if (side1) {
             double oldValue = attributes.getP1();
             attributes.setP1(p);
@@ -139,12 +139,12 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
-    public double getQ() {
+    public Double getQ() {
         return side1 ? attributes.getQ1() : attributes.getQ2();
     }
 
     @Override
-    public void setQ(double q) {
+    public void setQ(Double q) {
         if (side1) {
             double oldValue = attributes.getQ1();
             attributes.setQ1(q);
@@ -181,12 +181,12 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
-    public boolean isFictitious() {
+    public Boolean getFictitious() {
         return attributes.isFictitious();
     }
 
     @Override
-    public void setFictitious(boolean fictitious) {
+    public void setFictitious(Boolean fictitious) {
         attributes.setFictitious(fictitious);
     }
 

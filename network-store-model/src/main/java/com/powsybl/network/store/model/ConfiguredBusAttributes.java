@@ -27,8 +27,9 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
     @Schema(description = "Bus name")
     private String name;
 
+    @Builder.Default
     @Schema(description = "Bus fictitious")
-    private boolean fictitious;
+    private Boolean fictitious = false;
 
     @Schema(description = "Aliases without type")
     private Set<String> aliasesWithoutType;

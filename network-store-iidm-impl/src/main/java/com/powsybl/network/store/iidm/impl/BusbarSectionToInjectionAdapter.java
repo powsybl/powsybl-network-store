@@ -43,12 +43,12 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     }
 
     @Override
-    public boolean isFictitious() {
+    public Boolean getFictitious() {
         return attributes.isFictitious();
     }
 
     @Override
-    public void setFictitious(boolean fictitious) {
+    public void setFictitious(Boolean fictitious) {
         attributes.setFictitious(fictitious);
     }
 
@@ -103,22 +103,22 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     }
 
     @Override
-    public double getP() {
+    public Double getP() {
         throw new AssertionError();
     }
 
     @Override
-    public void setP(double p) {
+    public void setP(Double p) {
         throw new AssertionError();
     }
 
     @Override
-    public double getQ() {
+    public Double getQ() {
         throw new AssertionError();
     }
 
     @Override
-    public void setQ(double q) {
+    public void setQ(Double q) {
         throw new AssertionError();
     }
 

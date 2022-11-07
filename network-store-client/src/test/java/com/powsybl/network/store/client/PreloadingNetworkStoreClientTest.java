@@ -187,7 +187,7 @@ public class PreloadingNetworkStoreClientTest {
                 .attributes(GeneratorAttributes.builder()
                         .voltageLevelId("vl1")
                         .name("g1")
-                        .p(200)
+                        .p(200d)
                         .build())
                 .build();
 
@@ -225,8 +225,8 @@ public class PreloadingNetworkStoreClientTest {
                 .attributes(BatteryAttributes.builder()
                         .voltageLevelId("vl1")
                         .name("b1")
-                        .p(250)
-                        .q(120)
+                        .p(250d)
+                        .q(120d)
                         .build())
                 .build();
 
@@ -268,7 +268,7 @@ public class PreloadingNetworkStoreClientTest {
                         .voltageLevelId("vl1")
                         .name("l1")
                         .loadType(LoadType.AUXILIARY)
-                        .p0(100)
+                        .p0(100d)
                         .build())
                 .build();
 

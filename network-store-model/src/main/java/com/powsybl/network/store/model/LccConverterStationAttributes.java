@@ -29,8 +29,9 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
     @Schema(description = "LCC converter station name")
     private String name;
 
+    @Builder.Default
     @Schema(description = "fictitious")
-    private boolean fictitious;
+    private Boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;
@@ -59,11 +60,11 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
 
     @Schema(description = "Active power in MW")
     @Builder.Default
-    private double p = Double.NaN;
+    private Double p = Double.NaN;
 
     @Schema(description = "Reactive power in MW")
     @Builder.Default
-    private double q = Double.NaN;
+    private Double q = Double.NaN;
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;

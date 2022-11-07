@@ -534,8 +534,8 @@ public class NetworkStoreControllerIT {
                 .andExpect(jsonPath("data[0].attributes.maxP").value("500.0"))
                 .andExpect(jsonPath("data[0].attributes.minP").value("100.0"));
 
-        battery.getAttributes().setP(310);
-        battery.getAttributes().setQ(120);
+        battery.getAttributes().setP(310d);
+        battery.getAttributes().setQ(120d);
         mvc.perform(put("/" + VERSION + "/networks/" + NETWORK_UUID + "/batteries")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(battery))))
@@ -649,8 +649,8 @@ public class NetworkStoreControllerIT {
                                 .build())
                         .ucteXnodeCode("XN1")
                         .currentLimits(LimitsAttributes.builder().permanentLimit(5).build())
-                        .p(100.)
-                        .q(200)
+                        .p(100d)
+                        .q(200d)
                         .build())
                 .build();
 

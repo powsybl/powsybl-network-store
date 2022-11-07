@@ -60,8 +60,9 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
     @Schema(description = "Switch retained status")
     private boolean retained;
 
+    @Builder.Default
     @Schema(description = "Switch fictitious status")
-    private boolean fictitious;
+    private Boolean fictitious = false;
 
     @Override
     @JsonIgnore

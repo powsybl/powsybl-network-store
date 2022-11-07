@@ -30,8 +30,9 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @Schema(description = "Voltage level name")
     private String name;
 
+    @Builder.Default
     @Schema(description = "fictitious")
-    private boolean fictitious;
+    private Boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;
