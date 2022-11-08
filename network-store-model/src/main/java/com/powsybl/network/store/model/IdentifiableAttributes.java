@@ -32,7 +32,7 @@ public interface IdentifiableAttributes {
     Boolean getFictitious();
 
     default boolean isFictitious() {
-        return getFictitious();
+        return Boolean.TRUE.equals(getFictitious());
     }
 
     void setFictitious(Boolean fictitious);

@@ -44,7 +44,7 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
 
     @Override
     public Boolean getFictitious() {
-        return attributes.isFictitious();
+        return attributes.getFictitious();
     }
 
     @Override

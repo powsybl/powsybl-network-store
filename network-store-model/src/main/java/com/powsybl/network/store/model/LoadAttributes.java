@@ -62,11 +62,9 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
     private Double q0;
 
     @Schema(description = "Active power in MW")
-    @Builder.Default
-    private Double p = Double.NaN;
+    private Double p;
 
     @Schema(description = "Reactive power in MW")
-    @Builder.Default
     private Double q = Double.NaN;
 
     @Schema(description = "Load detail")

@@ -97,9 +97,13 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new);
     }
 
+    private static double nullToNan(Double v) {
+        return v == null ? Double.NaN : v;
+    }
+
     @Override
     public double getP() {
-        return attributes.getP();
+        return nullToNan(attributes.getP());
     }
 
     @Override
@@ -114,7 +118,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public double getQ() {
-        return attributes.getQ();
+        return nullToNan(attributes.getQ());
     }
 
     @Override

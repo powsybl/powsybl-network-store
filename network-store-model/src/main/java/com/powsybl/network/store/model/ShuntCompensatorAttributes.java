@@ -58,12 +58,10 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
     private int sectionCount;
 
     @Schema(description = "Active power in MW")
-    @Builder.Default
-    private Double p = Double.NaN;
+    private Double p;
 
     @Schema(description = "Reactive power in MW")
-    @Builder.Default
-    private Double q = Double.NaN;
+    private Double q;
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;

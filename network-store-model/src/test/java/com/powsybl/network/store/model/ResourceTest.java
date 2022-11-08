@@ -252,8 +252,8 @@ public class ResourceTest {
         assertFalse(resourceLoad.getAttributes().isFictitious());
         assertEquals(1, resourceLoad.getAttributes().getNode(), 0);
 
-        assertTrue(Double.isNaN(resourceLoad.getAttributes().getP()));
-        assertTrue(Double.isNaN(resourceLoad.getAttributes().getQ()));
+        assertNull(resourceLoad.getAttributes().getP());
+        assertNull(resourceLoad.getAttributes().getQ());
     }
 
     @Test
@@ -285,8 +285,8 @@ public class ResourceTest {
         assertEquals(4, resourceGenerator.getAttributes().getTargetV(), 0);
         assertEquals(1, resourceGenerator.getAttributes().getNode(), 0);
 
-        assertTrue(Double.isNaN(resourceGenerator.getAttributes().getP()));
-        assertTrue(Double.isNaN(resourceGenerator.getAttributes().getQ()));
+        assertNull(resourceGenerator.getAttributes().getP());
+        assertNull(resourceGenerator.getAttributes().getQ());
 
         assertEquals("idEq", resourceGenerator.getAttributes().getRegulatingTerminal().getConnectableId());
         assertEquals("ONE", resourceGenerator.getAttributes().getRegulatingTerminal().getSide());
@@ -320,8 +320,8 @@ public class ResourceTest {
         assertEquals(100, resourceBattery.getAttributes().getTargetQ(), 0);
         assertEquals(1, resourceBattery.getAttributes().getNode(), 0);
 
-        assertTrue(Double.isNaN(resourceBattery.getAttributes().getP()));
-        assertTrue(Double.isNaN(resourceBattery.getAttributes().getQ()));
+        assertNull(resourceBattery.getAttributes().getQ());
+        assertNull(resourceBattery.getAttributes().getP());
     }
 
     @Test
@@ -429,8 +429,8 @@ public class ResourceTest {
         assertEquals("XN1", resourceDanglingLine.getAttributes().getUcteXnodeCode());
         assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
 
-        assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
-        assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
+        assertNull(resourceDanglingLine.getAttributes().getP());
+        assertNull(resourceDanglingLine.getAttributes().getQ());
     }
 
     @Test
