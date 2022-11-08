@@ -56,8 +56,8 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     @Autowired
-    public NetworkStoreService(@Value("${network-store-server.base-uri:http://network-store-server/}") String baseUri,
-                               @Value("${network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
+    public NetworkStoreService(@Value("${backing-services.network-store-server.base-uri:http://network-store-server/}") String baseUri,
+                               @Value("${backing-services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
         this(new RestClientImpl(baseUri), defaultPreloadingStrategy);
     }
 
