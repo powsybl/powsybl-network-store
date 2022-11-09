@@ -8,13 +8,22 @@ package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.google.common.base.Stopwatch;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.network.store.client.util.ExecutorUtil;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
 import com.powsybl.network.store.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -23,6 +32,8 @@ import java.util.function.Consumer;
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BufferedNetworkStoreClient.class);
 
     private final NetworkCollectionIndex<CollectionBuffer<NetworkAttributes>> networkResourcesToFlush
             = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>((networkUuid, resources) -> delegate.createNetworks(resources),
@@ -134,8 +145,11 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             lineResourcesToFlush,
             busResourcesToFlush);
 
-    public BufferedNetworkStoreClient(RestNetworkStoreClient delegate) {
+    private final ExecutorService executorService;
+
+    public BufferedNetworkStoreClient(RestNetworkStoreClient delegate, ExecutorService executorService) {
         super(delegate);
+        this.executorService = Objects.requireNonNull(executorService);
     }
 
     @Override
@@ -496,8 +510,15 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
-    public void flush() {
-        allBuffers.forEach(buffer -> buffer.applyToCollection((p, buffer2) -> buffer2.flush(p.getLeft(), p.getRight())));
+    public void flush(UUID networkUuid) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        List<Future<?>> futures = new ArrayList<>(allBuffers.size());
+        for (var buffer : allBuffers) {
+            futures.add(executorService.submit(() -> buffer.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
+        }
+        ExecutorUtil.waitAllFutures(futures);
+        stopwatch.stop();
+        LOGGER.info("All buffers flushed in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     private static <T extends IdentifiableAttributes> void cloneBuffer(NetworkCollectionIndex<CollectionBuffer<T>> buffer, UUID networkUuid,

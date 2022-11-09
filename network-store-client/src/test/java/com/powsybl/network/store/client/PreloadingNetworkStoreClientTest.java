@@ -27,6 +27,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.UUID;
+import java.util.concurrent.ForkJoinPool;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -60,7 +61,7 @@ public class PreloadingNetworkStoreClientTest {
     @Before
     public void setUp() throws IOException {
         restStoreClient = new RestNetworkStoreClient(restClient);
-        cachedClient = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient)));
+        cachedClient = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool())), false, ForkJoinPool.commonPool());
         networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
     }
 
