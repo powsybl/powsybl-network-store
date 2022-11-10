@@ -458,27 +458,27 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     @Override
     public ConnectablePositionImpl<T> createConnectablePositionExtension(Feeder feeder, Feeder feeder1, Feeder feeder2, Feeder feeder3) {
         ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
-        ConnectablePositionAttributes cpa1 = null;
-        ConnectablePositionAttributes cpa2 = null;
-        if (feeder1 != null) {
-            cpa1 = ConnectablePositionAttributes.builder()
-                    .label(feeder1.getName())
-                    .order(feeder1.getOrder().orElse(null))
-                    .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
-                    .build();
+
+        if (feeder1 == null || feeder2 == null) {
+            throw new IllegalArgumentException("feeder 1 and feeder 2 are inclusive");
         }
-        if (feeder2 != null) {
-            cpa2 = ConnectablePositionAttributes.builder()
-                    .label(feeder2.getName())
-                    .order(feeder2.getOrder().orElse(null))
-                    .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
-                    .build();
-        }
+
+        var cpa1 = ConnectablePositionAttributes.builder()
+                .label(feeder1.getName())
+                .order(feeder1.getOrder().orElse(null))
+                .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
+                .build();
+        var cpa2 = ConnectablePositionAttributes.builder()
+                .label(feeder2.getName())
+                .order(feeder2.getOrder().orElse(null))
+                .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
+                .build();
         return new ConnectablePositionImpl<>(getBranch(),
                 null,
-                cpa1 != null ? new ConnectablePositionImpl.FeederImpl(cpa1) : null,
-                cpa2 != null ? new ConnectablePositionImpl.FeederImpl(cpa2) : null,
+                new ConnectablePositionImpl.FeederImpl(cpa1),
+                new ConnectablePositionImpl.FeederImpl(cpa2),
                 null);
+
     }
 
     private <E extends Extension<T>> E createBranchStatusExtension() {
