@@ -444,10 +444,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         var resource = checkResource();
         if (type == ConnectablePosition.class) {
             connectablePositionExtension = (ConnectablePositionImpl<T>) extension;
-            if (connectablePositionExtension.getFeeder1() != null) {
+            if (connectablePositionExtension != null && connectablePositionExtension.getFeeder1() != null) {
                 resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
             }
-            if (connectablePositionExtension.getFeeder2() != null) {
+            if (connectablePositionExtension != null && connectablePositionExtension.getFeeder2() != null) {
                 resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
                 updateResource();
             }
@@ -462,16 +462,24 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     @Override
     public ConnectablePositionImpl<T> createConnectablePositionExtension(Feeder feeder, Feeder feeder1, Feeder feeder2, Feeder feeder3) {
         ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
-        var cpa1 = ConnectablePositionAttributes.builder()
-                .label(feeder1.getName())
-                .order(feeder1.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
-                .build();
-        var cpa2 = ConnectablePositionAttributes.builder()
-                .label(feeder2.getName())
-                .order(feeder2.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
-                .build();
+        ConnectablePositionAttributes cpa1 = null;
+        ConnectablePositionAttributes cpa2 = null;
+        if (feeder1 != null) {
+            cpa1 = ConnectablePositionAttributes.builder()
+                    .label(feeder1.getName())
+                    .order(feeder1.getOrder().orElse(null))
+                    .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
+                    .build();
+        }
+
+        if (feeder2 != null) {
+            cpa2 = ConnectablePositionAttributes.builder()
+                    .label(feeder2.getName())
+                    .order(feeder2.getOrder().orElse(null))
+                    .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
+                    .build();
+        }
+
         return new ConnectablePositionImpl<>(getBranch(),
                 null,
                 new ConnectablePositionImpl.FeederImpl(cpa1),
