@@ -37,10 +37,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         terminal2 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(this, resource.getAttributes(), false), getBranch());
         ConnectablePositionAttributes cpa1 = resource.getAttributes().getPosition1();
         ConnectablePositionAttributes cpa2 = resource.getAttributes().getPosition2();
-        if (cpa1 != null && cpa2 != null) {
+        if (cpa1 != null || cpa2 != null) {
             connectablePositionExtension = new ConnectablePositionImpl<>(getBranch(), null,
-                    new ConnectablePositionImpl.FeederImpl(cpa1),
-                    new ConnectablePositionImpl.FeederImpl(cpa2), null);
+                    cpa1 != null ? new ConnectablePositionImpl.FeederImpl(cpa1) : null,
+                    cpa2 != null ? new ConnectablePositionImpl.FeederImpl(cpa2) : null, null);
         }
     }
 
