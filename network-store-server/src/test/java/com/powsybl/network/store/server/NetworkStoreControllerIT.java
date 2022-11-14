@@ -344,9 +344,48 @@ public class NetworkStoreControllerIT {
             .build();
 
         mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/lines")
-            .contentType(APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
-            .andExpect(status().isCreated());
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
+                .andExpect(status().isCreated());
+
+        // line creation Without Positions
+        Resource<LineAttributes> lineWithoutFirstPositions = Resource.lineBuilder()
+                .id("idLineWithoutFirstPosition")
+                .attributes(LineAttributes.builder()
+                        .voltageLevelId1("vl1")
+                        .voltageLevelId2("vl2")
+                        .name("idLineWithoutFirstPosition")
+                        .node1(1)
+                        .node2(1)
+                        .bus1("bus1")
+                        .bus2("bus2")
+                        .connectableBus1("bus1")
+                        .connectableBus2("bus2")
+                        .r(1)
+                        .x(1)
+                        .g1(1)
+                        .b1(1)
+                        .g2(1)
+                        .b2(1)
+                        .p1(0)
+                        .q1(0)
+                        .p2(0)
+                        .q2(0)
+                        .fictitious(true)
+                        .properties(new HashMap<>(Map.of("property1", "value1", "property2", "value2")))
+                        .aliasesWithoutType(new HashSet<>(Set.of("alias1")))
+                        .aliasByType(new HashMap<>(Map.of("aliasInt", "valueAliasInt", "aliasDouble", "valueAliasDouble")))
+                        .position1(null)
+                        .position2(null)
+                        .mergedXnode(MergedXnodeAttributes.builder().rdp(50.).build())
+                        .currentLimits1(LimitsAttributes.builder().permanentLimit(20.).build())
+                        .build())
+                .build();
+
+        mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/lines")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(lineWithoutFirstPositions))))
+                .andExpect(status().isCreated());
 
         mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/idLine")
                 .contentType(APPLICATION_JSON))
