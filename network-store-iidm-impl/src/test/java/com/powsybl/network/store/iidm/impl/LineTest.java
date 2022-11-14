@@ -108,8 +108,7 @@ public class LineTest extends AbstractLineTest {
 
         assertNotNull(connectablePositionExtension1);
         assertNotNull(connectablePositionExtension2);
-        assertThrows(IllegalArgumentException.class,
-                () -> new ConnectablePositionImpl<>(l1.getBranch(), null,
+        assertThrows(IllegalArgumentException.class, () -> new ConnectablePositionImpl<>(l1.getBranch(), null,
                         null,
                         null,
                         null));
