@@ -11,5 +11,6 @@ package com.powsybl.network.store.client;
  */
 public enum PreloadingStrategy {
     NONE,
-    COLLECTION
+    COLLECTION,
+    ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW
 }

@@ -575,7 +575,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void flush() {
+    public void flush(UUID networkUuid) {
         // nothing to do
     }
 }
