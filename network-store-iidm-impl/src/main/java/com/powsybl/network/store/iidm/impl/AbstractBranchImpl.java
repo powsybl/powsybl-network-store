@@ -449,8 +449,8 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             }
             if (connectablePositionExtension != null && connectablePositionExtension.getFeeder2() != null) {
                 resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
-                updateResource();
             }
+            updateResource();
         } else if (type == BranchStatus.class) {
             BranchStatus branchStatus = (BranchStatus) extension;
             setBranchStatus(branchStatus.getStatus());
@@ -482,8 +482,8 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
         return new ConnectablePositionImpl<>(getBranch(),
                 null,
-                new ConnectablePositionImpl.FeederImpl(cpa1),
-                new ConnectablePositionImpl.FeederImpl(cpa2),
+                cpa1 != null ? new ConnectablePositionImpl.FeederImpl(cpa1) : null,
+                cpa2 != null ? new ConnectablePositionImpl.FeederImpl(cpa2) : null,
                 null);
     }
 
