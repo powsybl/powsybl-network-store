@@ -9,8 +9,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.tck.AbstractLineTest;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
@@ -78,39 +76,5 @@ public class LineTest extends AbstractLineTest {
     @Override
     public void testRemoveAcLine() {
         // exception message is not the same and should not be checked in TCK
-    }
-
-    @Test
-    public void testAddConnectablePositionExtensionToLineWithOneFeeder() {
-        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
-        LineImpl l1 = (LineImpl) network.getLine("L1");
-        l1.newExtension(ConnectablePositionAdder.class)
-                .newFeeder1()
-                .withName("cn1")
-                .withOrder(0)
-                .withDirection(ConnectablePosition.Direction.TOP).add()
-                .newFeeder2()
-                .withName("cn1")
-                .withOrder(0)
-                .withDirection(ConnectablePosition.Direction.TOP).add()
-                .add();
-        var cpa1 = l1.getResource().getAttributes().getPosition1();
-        var cpa2 = l1.getResource().getAttributes().getPosition2();
-
-        var connectablePositionExtension1 = new ConnectablePositionImpl<>(l1.getBranch(), null,
-                cpa1 != null ? new ConnectablePositionImpl.FeederImpl(cpa1) : null,
-                null,
-                null);
-        var connectablePositionExtension2 = new ConnectablePositionImpl<>(l1.getBranch(), null,
-                null,
-                cpa2 != null ? new ConnectablePositionImpl.FeederImpl(cpa2) : null,
-                null);
-
-        assertNotNull(connectablePositionExtension1);
-        assertNotNull(connectablePositionExtension2);
-        assertThrows(IllegalArgumentException.class, () -> new ConnectablePositionImpl<>(l1.getBranch(), null,
-                        null,
-                        null,
-                        null));
     }
 }

@@ -7,6 +7,8 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 
 import java.util.List;
 import java.util.SortedSet;
@@ -815,7 +817,7 @@ final class CreateNetworksUtil {
                 .setNode2(3)
                 .setOpen(false)
                 .add();
-        network.newLine()
+        var l1 = network.newLine()
                 .setId("L1")
                 .setVoltageLevel1("VL1")
                 .setNode1(3)
@@ -828,6 +830,17 @@ final class CreateNetworksUtil {
                 .setG2(0.0)
                 .setB2(0.0)
                 .add();
+        l1.newExtension(ConnectablePositionAdder.class)
+                .newFeeder1()
+                .withName("cn1")
+                .withOrder(0)
+                .withDirection(ConnectablePosition.Direction.TOP).add()
+                .newFeeder2()
+                .withName("cn1")
+                .withOrder(0)
+                .withDirection(ConnectablePosition.Direction.TOP).add()
+                .add();
+
         return network;
     }
 
