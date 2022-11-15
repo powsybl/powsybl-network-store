@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonDeserialize(using = ResourceDeserializer.class)
-public class Resource<T extends IdentifiableAttributes> implements Validable {
+public class Resource<T extends Attributes> implements Validable {
 
     public static final int INITIAL_VARIANT_NUM = 0;
 
@@ -53,6 +53,10 @@ public class Resource<T extends IdentifiableAttributes> implements Validable {
     @JsonIgnore
     public String getMessageHeader() {
         return type.getDescription() + " '" + id + "': ";
+    }
+
+    public <U extends SvAttributes> Resource<U> toSv() {
+        return new Resource<>(type, id, variantNum, ((IdentifiableAttributes) attributes).toSv());
     }
 
     public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, int variantNum, T attributes) {

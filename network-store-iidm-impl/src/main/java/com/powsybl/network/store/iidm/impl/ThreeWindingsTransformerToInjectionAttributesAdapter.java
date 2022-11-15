@@ -120,7 +120,7 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     }
 
     @Override
-    public Double getP() {
+    public double getP() {
         switch (side) {
             case ONE:
                 return attributes.getP1();
@@ -134,7 +134,7 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     }
 
     @Override
-    public void setP(Double p) {
+    public void setP(double p) {
         switch (side) {
             case ONE:
                 attributes.setP1(p);
@@ -151,7 +151,7 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     }
 
     @Override
-    public Double getQ() {
+    public double getQ() {
         switch (side) {
             case ONE:
                 return attributes.getQ1();
@@ -165,7 +165,7 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     }
 
     @Override
-    public void setQ(Double q) {
+    public void setQ(double q) {
         switch (side) {
             case ONE:
                 attributes.setQ1(q);
@@ -213,12 +213,12 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     }
 
     @Override
-    public Boolean getFictitious() {
-        return attributes.getFictitious();
+    public boolean isFictitious() {
+        return attributes.isFictitious();
     }
 
     @Override
-    public void setFictitious(Boolean fictitious) {
+    public void setFictitious(boolean fictitious) {
         attributes.setFictitious(fictitious);
     }
 

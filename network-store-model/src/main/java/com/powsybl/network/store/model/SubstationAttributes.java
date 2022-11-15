@@ -31,7 +31,7 @@ public class SubstationAttributes extends AbstractAttributes implements Identifi
 
     @Builder.Default
     @Schema(description = "fictitious")
-    private Boolean fictitious = false;
+    private boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;

@@ -8,8 +8,6 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.*;
@@ -434,9 +432,8 @@ public class ResourceTest {
     }
 
     @Test
-    public void loadFilterTest() throws IOException {
-        LoadAttributes loadAttributes = LoadAttributes
-                .builder()
+    public void toSvTest() {
+        LoadAttributes attributes = LoadAttributes.builder()
                 .voltageLevelId("vl1")
                 .name("name")
                 .bus("bus1")
@@ -448,24 +445,15 @@ public class ResourceTest {
 
         Resource<LoadAttributes> resource = Resource.loadBuilder()
                 .id("load1")
-                .attributes(loadAttributes)
+                .attributes(attributes)
                 .build();
 
-        SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-//        filterProvider.addFilter("svFilter", SimpleBeanPropertyFilter.filterOutAllExcept("p", "q"));
-        filterProvider.addFilter("svFilter", SimpleBeanPropertyFilter.serializeAllExcept("p", "q"));
-        ObjectMapper objectMapper = new ObjectMapper()
-                .setFilterProvider(filterProvider);
-
-        String json = objectMapper
-                .writeValueAsString(resource);
-        System.out.println(json);
-
-        Resource<LoadAttributes> resource2 = objectMapper.readValue(json, new TypeReference<>() {
-        });
-        String json2 = new ObjectMapper()
-                .setFilterProvider(new SimpleFilterProvider().addFilter("svFilter", SimpleBeanPropertyFilter.serializeAll()))
-                .writeValueAsString(resource2);
-        System.out.println(json2);
+        Resource<SvAttributes> svResource = resource.toSv();
+        assertEquals(ResourceType.LOAD, svResource.getType());
+        assertEquals("load1", svResource.getId());
+        assertEquals(0, svResource.getVariantNum());
+        assertTrue(svResource.getAttributes() instanceof InjectionSvAttributes);
+        assertEquals(10d, ((InjectionSvAttributes) svResource.getAttributes()).getP(), 0);
+        assertEquals(20.4d, ((InjectionSvAttributes) svResource.getAttributes()).getQ(), 0);
     }
 }

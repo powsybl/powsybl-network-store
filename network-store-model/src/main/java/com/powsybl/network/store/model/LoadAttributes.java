@@ -32,7 +32,7 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
 
     @Builder.Default
     @Schema(description = "fictitious")
-    private Boolean fictitious = false;
+    private boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;
@@ -56,16 +56,18 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
     private LoadType loadType;
 
     @Schema(description = "Load constant active power in MW")
-    private Double p0;
+    private double p0;
 
     @Schema(description = "Load constant reactive power in MW")
-    private Double q0;
+    private double q0;
 
     @Schema(description = "Active power in MW")
-    private Double p;
+    @Builder.Default
+    private double p = Double.NaN;
 
     @Schema(description = "Reactive power in MW")
-    private Double q = Double.NaN;
+    @Builder.Default
+    private double q = Double.NaN;
 
     @Schema(description = "Load detail")
     private LoadDetailAttributes loadDetail;

@@ -7,10 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.network.store.model.IdentifiableAttributes;
-import com.powsybl.network.store.model.NetworkStoreApi;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TopLevelDocument;
+import com.powsybl.network.store.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
@@ -93,16 +90,8 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends IdentifiableAttributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables) {
+    public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables) {
         restTemplate.put(url, resources, uriVariables);
-    }
-
-    @Override
-    public void updateAll(String url, String body, Object... uriVariables) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<>(body, headers);
-        restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class, uriVariables);
     }
 
     @Override

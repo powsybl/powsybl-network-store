@@ -33,7 +33,7 @@ public class BusbarSectionAttributes extends AbstractAttributes implements Ident
 
     @Builder.Default
     @Schema(description = "Busbar section fictitious")
-    private Boolean fictitious = false;
+    private boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;

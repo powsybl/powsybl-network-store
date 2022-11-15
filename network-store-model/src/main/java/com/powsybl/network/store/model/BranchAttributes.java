@@ -180,4 +180,9 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
             throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
+
+    @JsonIgnore
+    default BranchSvAttributes toSv() {
+        return new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
+    }
 }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.network.store.model.Attributes;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,9 +27,7 @@ public interface RestClient {
 
     <T extends IdentifiableAttributes> void update(String url, Resource<T> resource, Object... uriVariables);
 
-    <T extends IdentifiableAttributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables);
-
-    void updateAll(String url, String body, Object... uriVariables);
+    <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables);
 
     <E> E get(String uri, ParameterizedTypeReference<E> responseType, Object... uriVariables);
 

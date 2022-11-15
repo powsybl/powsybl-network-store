@@ -29,7 +29,7 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
 
     @Builder.Default
     @Schema(description = "Bus fictitious")
-    private Boolean fictitious = false;
+    private boolean fictitious = false;
 
     @Schema(description = "Aliases without type")
     private Set<String> aliasesWithoutType;

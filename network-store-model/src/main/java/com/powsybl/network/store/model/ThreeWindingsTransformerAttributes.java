@@ -29,7 +29,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
 
     @Builder.Default
     @Schema(description = "fictitious")
-    private Boolean fictitious = false;
+    private boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;
@@ -153,4 +153,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         getLeg(side).setActivePowerLimitsAttributes(limits);
     }
 
+    public ThreeWindingsTransformerSvAttributes toSv() {
+        return new ThreeWindingsTransformerSvAttributes(getP1(), getQ1(), getP2(), getQ2(), getP3(), getQ3());
+    }
 }

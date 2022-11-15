@@ -6,8 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,26 +14,15 @@ import java.util.Set;
  */
 public enum AttributeFilter {
 
-    SV(Set.of("p", "q", "calculatedBusesForBusView", "calculatedBusesForBusBreakerView"), SvMixIn.class);
+    SV(Set.of("p", "q", "calculatedBusesForBusView", "calculatedBusesForBusBreakerView"));
 
     private final Set<String> included;
 
-    private final Class<?> mixInClass;
-
-    @JsonFilter("SV")
-    class SvMixIn {
-    }
-
-    AttributeFilter(Set<String> included, Class<?> mixInClass) {
+    AttributeFilter(Set<String> included) {
         this.included = Objects.requireNonNull(included);
-        this.mixInClass = Objects.requireNonNull(mixInClass);
     }
 
     public Set<String> getIncluded() {
         return included;
-    }
-
-    public Class<?> getMixInClass() {
-        return mixInClass;
     }
 }

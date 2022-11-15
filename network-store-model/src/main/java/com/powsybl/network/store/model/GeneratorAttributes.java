@@ -32,7 +32,7 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
 
     @Builder.Default
     @Schema(description = "Generator fictitious")
-    private Boolean fictitious = false;
+    private boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;
@@ -77,10 +77,12 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     private double ratedS;
 
     @Schema(description = "Active power in MW")
-    private Double p;
+    @Builder.Default
+    private double p = Double.NaN;
 
     @Schema(description = "Reactive power in MW")
-    private Double q;
+    @Builder.Default
+    private double q = Double.NaN;
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;

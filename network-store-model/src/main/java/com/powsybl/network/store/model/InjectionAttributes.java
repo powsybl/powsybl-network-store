@@ -32,13 +32,13 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained {
 
     void setConnectableBus(String bus);
 
-    Double getP();
+    double getP();
 
-    void setP(Double p);
+    void setP(double p);
 
-    Double getQ();
+    double getQ();
 
-    void setQ(Double q);
+    void setQ(double q);
 
     ConnectablePositionAttributes getPosition();
 
@@ -54,5 +54,10 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained {
     @JsonIgnore
     default Set<String> getContainerIds() {
         return Collections.singleton(getVoltageLevelId());
+    }
+
+    @JsonIgnore
+    default InjectionSvAttributes toSv() {
+        return new InjectionSvAttributes(getP(), getQ());
     }
 }
