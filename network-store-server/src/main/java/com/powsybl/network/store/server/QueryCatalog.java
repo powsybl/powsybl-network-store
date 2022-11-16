@@ -188,6 +188,34 @@ public final class QueryCatalog {
         return query.toString();
     }
 
+    public static String buildUpdateBranchSvQuery(String tableName) {
+        StringBuilder query = new StringBuilder("update ")
+                .append(tableName)
+                .append(" set p1 = ?")
+                .append(", q1 = ?")
+                .append(", p2 = ?")
+                .append(", q2 = ?")
+                .append(" where ").append(NETWORK_UUID_COLUMN).append(" = ? and ")
+                .append(VARIANT_NUM_COLUMN).append(" = ? and ")
+                .append(ID_COLUMN).append(" = ?");
+        return query.toString();
+    }
+
+    public static String buildUpdateThreeWindingsTransformerSvQuery(String tableName) {
+        StringBuilder query = new StringBuilder("update ")
+                .append(tableName)
+                .append(" set p1 = ?")
+                .append(", q1 = ?")
+                .append(", p2 = ?")
+                .append(", q2 = ?")
+                .append(", p3 = ?")
+                .append(", q3 = ?")
+                .append(" where ").append(NETWORK_UUID_COLUMN).append(" = ? and ")
+                .append(VARIANT_NUM_COLUMN).append(" = ? and ")
+                .append(ID_COLUMN).append(" = ?");
+        return query.toString();
+    }
+
     public static String buildUpdateNetworkQuery(Collection<String> columns) {
         StringBuilder query = new StringBuilder("update ")
                 .append(NETWORK_TABLE)

@@ -69,8 +69,34 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         } else {
             if (filter == AttributeFilter.SV) {
                 switch (type) {
+                    case NETWORK:
+                        return NetworkAttributes.class;
+                    case SUBSTATION:
+                        return SubstationAttributes.class;
+                    case VOLTAGE_LEVEL:
+                        return VoltageLevelAttributes.class;
                     case LOAD:
+                    case GENERATOR:
+                    case BATTERY:
+                    case VSC_CONVERTER_STATION:
+                    case LCC_CONVERTER_STATION:
+                    case SHUNT_COMPENSATOR:
+                    case STATIC_VAR_COMPENSATOR:
+                    case DANGLING_LINE:
                         return InjectionSvAttributes.class;
+                    case BUSBAR_SECTION:
+                        return BusbarSectionAttributes.class;
+                    case SWITCH:
+                        return SwitchAttributes.class;
+                    case TWO_WINDINGS_TRANSFORMER:
+                    case LINE:
+                        return BranchSvAttributes.class;
+                    case THREE_WINDINGS_TRANSFORMER:
+                        return ThreeWindingsTransformerSvAttributes.class;
+                    case HVDC_LINE:
+                        return HvdcLineAttributes.class;
+                    case CONFIGURED_BUS:
+                        return ConfiguredBusAttributes.class;
                     default:
                         throw new IllegalStateException("Unknown resource type: " + type);
                 }

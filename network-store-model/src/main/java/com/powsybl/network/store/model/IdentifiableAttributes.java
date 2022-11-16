@@ -38,6 +38,6 @@ public interface IdentifiableAttributes extends Attributes {
     void setAliasByType(Map<String, String> aliasByType);
 
     default Attributes filter(AttributeFilter filter) {
-        throw new UnsupportedOperationException("Not supported");
+        return this;
     }
 }

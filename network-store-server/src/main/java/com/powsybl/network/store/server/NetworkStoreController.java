@@ -129,7 +129,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update network")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update network"))
     public ResponseEntity<Void> updateNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                    @Parameter(description = "network resource", required = true) @RequestBody Resource<NetworkAttributes> networkResources) {
+                                              @Parameter(description = "network resource", required = true) @RequestBody Resource<NetworkAttributes> networkResources) {
 
         return updateAll(resources -> repository.updateNetworks(resources), Collections.singletonList(networkResources));
     }
@@ -434,9 +434,18 @@ public class NetworkStoreController {
     @Operation(summary = "Update generators")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update generators"))
     public ResponseEntity<Void> updateGenerators(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                 @Parameter(description = "generator resource", required = true) @RequestBody List<Resource<GeneratorAttributes>> generatorResources) {
+                                                 @Parameter(description = "generator resources", required = true) @RequestBody List<Resource<GeneratorAttributes>> generatorResources) {
 
         return updateAll(resources -> repository.updateGenerators(networkId, resources), generatorResources);
+    }
+
+    @PutMapping(value = "/{networkId}/generators/sv")
+    @Operation(summary = "Update generators SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update generators SV"))
+    public ResponseEntity<Void> updateGeneratorsSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                   @Parameter(description = "generator SV resources", required = true) @RequestBody List<Resource<InjectionSvAttributes>> generatorResources) {
+
+        return updateAll(resources -> repository.updateGeneratorsSv(networkId, resources), generatorResources);
     }
 
     @DeleteMapping(value = "/{networkId}/{variantNum}/generators/{generatorId}", produces = APPLICATION_JSON_VALUE)
@@ -486,9 +495,18 @@ public class NetworkStoreController {
     @Operation(summary = "Update batteries")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update batteries"))
     public ResponseEntity<Void> updateBatteries(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                @Parameter(description = "Battery resource", required = true) @RequestBody List<Resource<BatteryAttributes>> batteryResources) {
+                                                @Parameter(description = "Battery resources", required = true) @RequestBody List<Resource<BatteryAttributes>> batteryResources) {
 
         return updateAll(resources -> repository.updateBatteries(networkId, resources), batteryResources);
+    }
+
+    @PutMapping(value = "/{networkId}/batteries/sv")
+    @Operation(summary = "Update batteries SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update batteries SV"))
+    public ResponseEntity<Void> updateBatteriesSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                  @Parameter(description = "Battery SV resources", required = true) @RequestBody List<Resource<InjectionSvAttributes>> batteryResources) {
+
+        return updateAll(resources -> repository.updateBatteriesSv(networkId, resources), batteryResources);
     }
 
     @DeleteMapping(value = "/{networkId}/{variantNum}/batteries/{batteryId}", produces = APPLICATION_JSON_VALUE)
@@ -538,16 +556,16 @@ public class NetworkStoreController {
     @Operation(summary = "Update loads")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update loads"))
     public ResponseEntity<Void> updateLoads(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                 @Parameter(description = "load resource", required = true) @RequestBody List<Resource<LoadAttributes>> loadResources) {
+                                            @Parameter(description = "load resources", required = true) @RequestBody List<Resource<LoadAttributes>> loadResources) {
 
         return updateAll(resources -> repository.updateLoads(networkId, resources), loadResources);
     }
 
     @PutMapping(value = "/{networkId}/loads/sv")
     @Operation(summary = "Update loads SV")
-    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update loads"))
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update loads SV"))
     public ResponseEntity<Void> updateLoadsSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                              @Parameter(description = "load resource", required = true) @RequestBody List<Resource<InjectionSvAttributes>> loadResources) {
+                                              @Parameter(description = "load SV resources", required = true) @RequestBody List<Resource<InjectionSvAttributes>> loadResources) {
 
         return updateAll(resources -> repository.updateLoadsSv(networkId, resources), loadResources);
     }
@@ -599,9 +617,18 @@ public class NetworkStoreController {
     @Operation(summary = "Update shunt compensators")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update shunt compensators"))
     public ResponseEntity<Void> updateShuntCompensators(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                 @Parameter(description = "shunt compensator resource", required = true) @RequestBody List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
+                                                        @Parameter(description = "shunt compensator resources", required = true) @RequestBody List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
 
         return updateAll(resources -> repository.updateShuntCompensators(networkId, resources), shuntCompensatorResources);
+    }
+
+    @PutMapping(value = "/{networkId}/shunt-compensators/sv")
+    @Operation(summary = "Update shunt compensators SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update shunt compensators SV"))
+    public ResponseEntity<Void> updateShuntCompensatorsSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                          @Parameter(description = "shunt compensator SV resources", required = true) @RequestBody List<Resource<InjectionSvAttributes>> shuntCompensatorResources) {
+
+        return updateAll(resources -> repository.updateShuntCompensatorsSv(networkId, resources), shuntCompensatorResources);
     }
 
     @DeleteMapping(value = "/{networkId}/{variantNum}/shunt-compensators/{shuntCompensatorId}", produces = APPLICATION_JSON_VALUE)
@@ -650,10 +677,19 @@ public class NetworkStoreController {
     @PutMapping(value = "/{networkId}/vsc-converter-stations")
     @Operation(summary = "Update VSC converter stations")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update VSC converter stations"))
-    public ResponseEntity<Void> updateVscConverterStations(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                           @Parameter(description = "VSC converter station resource", required = true) @RequestBody List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
+    public ResponseEntity<Void> updateVscConverterStationsSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                             @Parameter(description = "VSC converter station resources", required = true) @RequestBody List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
 
         return updateAll(resources -> repository.updateVscConverterStations(networkId, resources), vscConverterStationResources);
+    }
+
+    @PutMapping(value = "/{networkId}/vsc-converter-stations/sv")
+    @Operation(summary = "Update VSC converter stations SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update VSC converter stations SV"))
+    public ResponseEntity<Void> updateVscConverterStations(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                           @Parameter(description = "VSC converter station SV resources", required = true) @RequestBody List<Resource<InjectionSvAttributes>> vscConverterStationResources) {
+
+        return updateAll(resources -> repository.updateVscConverterStationsSv(networkId, resources), vscConverterStationResources);
     }
 
     @DeleteMapping(value = "/{networkId}/{variantNum}/vsc-converter-stations/{vscConverterStationId}", produces = APPLICATION_JSON_VALUE)
@@ -703,9 +739,18 @@ public class NetworkStoreController {
     @Operation(summary = "Update LCC converter stations")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update LCC converter stations"))
     public ResponseEntity<Void> updateLccConverterStations(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                           @Parameter(description = "LCC converter station resource", required = true) @RequestBody List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+                                                           @Parameter(description = "LCC converter station resources", required = true) @RequestBody List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
 
         return updateAll(resources -> repository.updateLccConverterStations(networkId, resources), lccConverterStationResources);
+    }
+
+    @PutMapping(value = "/{networkId}/lcc-converter-stations/sv")
+    @Operation(summary = "Update LCC converter stations SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update LCC converter stations SV"))
+    public ResponseEntity<Void> updateLccConverterStationsSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                             @Parameter(description = "LCC converter station SV resources", required = true) @RequestBody List<Resource<InjectionSvAttributes>> lccConverterStationResources) {
+
+        return updateAll(resources -> repository.updateLccConverterStationsSv(networkId, resources), lccConverterStationResources);
     }
 
     @DeleteMapping(value = "/{networkId}/{variantNum}/lcc-converter-stations/{lccConverterStationId}", produces = APPLICATION_JSON_VALUE)
@@ -755,9 +800,18 @@ public class NetworkStoreController {
     @Operation(summary = "Update static var compensators")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update static var compensators"))
     public ResponseEntity<Void> updateStaticVarCompensators(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                           @Parameter(description = "Static var compensator resource", required = true) @RequestBody List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
+                                                           @Parameter(description = "Static var compensator resources", required = true) @RequestBody List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
 
         return updateAll(resources -> repository.updateStaticVarCompensators(networkId, resources), staticVarCompensatorResources);
+    }
+
+    @PutMapping(value = "/{networkId}/static-var-compensators/sv")
+    @Operation(summary = "Update static var compensators SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update static var compensators SV"))
+    public ResponseEntity<Void> updateStaticVarCompensatorsSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                              @Parameter(description = "Static var compensator SV resources", required = true) @RequestBody List<Resource<InjectionSvAttributes>> staticVarCompensatorResources) {
+
+        return updateAll(resources -> repository.updateStaticVarCompensatorsSv(networkId, resources), staticVarCompensatorResources);
     }
 
     @DeleteMapping(value = "/{networkId}/{variantNum}/static-var-compensators/{staticVarCompensatorId}", produces = APPLICATION_JSON_VALUE)
@@ -911,9 +965,18 @@ public class NetworkStoreController {
     @Operation(summary = "Update 2 windings transformers")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update 2 windings transformers"))
     public ResponseEntity<Void> updateTwoWindingsTransformers(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                               @Parameter(description = "2 windings transformer resource", required = true) @RequestBody List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
+                                                              @Parameter(description = "2 windings transformer resources", required = true) @RequestBody List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
 
         return updateAll(resources -> repository.updateTwoWindingsTransformers(networkId, resources), twoWindingsTransformerResources);
+    }
+
+    @PutMapping(value = "/{networkId}/2-windings-transformers/sv")
+    @Operation(summary = "Update 2 windings transformers SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update 2 windings transformers SV"))
+    public ResponseEntity<Void> updateTwoWindingsTransformersSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                @Parameter(description = "2 windings transformer SV resources", required = true) @RequestBody List<Resource<BranchSvAttributes>> twoWindingsTransformerResources) {
+
+        return updateAll(resources -> repository.updateTwoWindingsTransformersSv(networkId, resources), twoWindingsTransformerResources);
     }
 
     @DeleteMapping(value = "/{networkId}/{variantNum}/2-windings-transformers/{twoWindingsTransformerId}", produces = APPLICATION_JSON_VALUE)
@@ -963,9 +1026,18 @@ public class NetworkStoreController {
     @Operation(summary = "Update 3 windings transformers")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update 3 windings transformers"))
     public ResponseEntity<Void> updateThreeWindingsTransformers(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                              @Parameter(description = "3 windings transformer resource", required = true) @RequestBody List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+                                                              @Parameter(description = "3 windings transformer resources", required = true) @RequestBody List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
 
         return updateAll(resources -> repository.updateThreeWindingsTransformers(networkId, resources), threeWindingsTransformerResources);
+    }
+
+    @PutMapping(value = "/{networkId}/3-windings-transformers/sv")
+    @Operation(summary = "Update 3 windings transformers SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update 3 windings transformers SV"))
+    public ResponseEntity<Void> updateThreeWindingsTransformersSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                  @Parameter(description = "3 windings transformer SV resources", required = true) @RequestBody List<Resource<ThreeWindingsTransformerSvAttributes>> threeWindingsTransformerResources) {
+
+        return updateAll(resources -> repository.updateThreeWindingsTransformersSv(networkId, resources), threeWindingsTransformerResources);
     }
 
     @DeleteMapping(value = "/{networkId}/{variantNum}/3-windings-transformers/{threeWindingsTransformerId}", produces = APPLICATION_JSON_VALUE)
@@ -1015,9 +1087,18 @@ public class NetworkStoreController {
     @Operation(summary = "Update lines")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update lines"))
     public ResponseEntity<Void> updateLines(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                            @Parameter(description = "line resource", required = true) @RequestBody List<Resource<LineAttributes>> lineResources) {
+                                            @Parameter(description = "line resources", required = true) @RequestBody List<Resource<LineAttributes>> lineResources) {
 
         return updateAll(resources -> repository.updateLines(networkId, resources), lineResources);
+    }
+
+    @PutMapping(value = "/{networkId}/lines/sv")
+    @Operation(summary = "Update lines SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update lines SV"))
+    public ResponseEntity<Void> updateLinesSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                              @Parameter(description = "line SV resources", required = true) @RequestBody List<Resource<BranchSvAttributes>> lineResources) {
+
+        return updateAll(resources -> repository.updateLinesSv(networkId, resources), lineResources);
     }
 
     @DeleteMapping(value = "/{networkId}/{variantNum}/lines/{lineId}", produces = APPLICATION_JSON_VALUE)
@@ -1131,9 +1212,18 @@ public class NetworkStoreController {
     @Operation(summary = "Update dangling lines")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update dangling lines"))
     public ResponseEntity<Void> updateDanglingLines(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                           @Parameter(description = "dangling line resource", required = true) @RequestBody List<Resource<DanglingLineAttributes>> danglingLineResources) {
+                                                    @Parameter(description = "dangling line resources", required = true) @RequestBody List<Resource<DanglingLineAttributes>> danglingLineResources) {
 
         return updateAll(resources -> repository.updateDanglingLines(networkId, resources), danglingLineResources);
+    }
+
+    @PutMapping(value = "/{networkId}/dangling-lines/sv")
+    @Operation(summary = "Update dangling lines SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update dangling lines SV"))
+    public ResponseEntity<Void> updateDanglingLinesSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                      @Parameter(description = "dangling line SV resources", required = true) @RequestBody List<Resource<InjectionSvAttributes>> danglingLineResources) {
+
+        return updateAll(resources -> repository.updateDanglingLinesSv(networkId, resources), danglingLineResources);
     }
 
     // buses

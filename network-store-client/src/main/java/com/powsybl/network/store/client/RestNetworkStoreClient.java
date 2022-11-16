@@ -121,7 +121,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
                 updateAll(target, url, attributeFilter, resourcePartition, uriVariables);
             }
             stopwatch.stop();
-            LOGGER.info("{} {} resources updated in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            if (LOGGER.isInfoEnabled()) {
+                if (attributeFilter == null) {
+                    LOGGER.info("{} {} resources updated in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                } else {
+                    LOGGER.info("{} {} {} resources updated in {} ms", resourcePartition.size(), target, attributeFilter, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                }
+            }
         }
     }
 

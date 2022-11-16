@@ -5149,6 +5149,13 @@ public class NetworkStoreIT {
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
             Load load = network.getLoad("LOAD");
             load.getTerminal().setP(13.45d);
+            Generator gen = network.getGenerator("GEN");
+            gen.getTerminal().setP(1).setQ(2);
+            Line l1 = network.getLine("NHV1_NHV2_1");
+            l1.getTerminal1().setP(12.3);
+            Line l2 = network.getLine("NHV1_NHV2_1");
+            l2.getTerminal1().setQ(1.45);
+            l2.setX(1.35);
             service.flush(network);
         }
     }
