@@ -5146,9 +5146,11 @@ public class NetworkStoreIT {
             service.flush(network);
         }
 
-        try (NetworkStoreService service = createNetworkStoreService()) {
+        var metrics = new RestClientMetrics();
+        try (NetworkStoreService service = createNetworkStoreService(metrics)) {
             Map<UUID, String> networkIds = service.getNetworkIds();
-            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
+            UUID networkUuid = networkIds.keySet().stream().findFirst().orElseThrow();
+            Network network = service.getNetwork(networkUuid);
             Load load = network.getLoad("LOAD");
             load.getTerminal().setP(13.45d);
             Generator gen = network.getGenerator("GEN");
@@ -5165,6 +5167,14 @@ public class NetworkStoreIT {
             Bus nload = network.getBusBreakerView().getBus("NLOAD");
             nload.setV(25);
             service.flush(network);
+
+            assertEquals(Set.of("/networks/" + networkUuid + "/generators/sv",     // GEN only SV
+                                "/networks/" + networkUuid + "/voltage-levels/sv", // VLGEN only SV
+                                "/networks/" + networkUuid + "/loads/sv",          // LOAD only SV
+                                "/networks/" + networkUuid + "/lines",             // NHV1_NHV2_2 full
+                                "/networks/" + networkUuid + "/configured-buses",  // NLOAD full because not optimized (useless)
+                                "/networks/" + networkUuid + "/lines/sv"),         // NHV1_NHV2_1 only SV
+                    metrics.updatedUrls);
         }
     }
 }

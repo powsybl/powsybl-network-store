@@ -85,11 +85,6 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends IdentifiableAttributes> void update(String url, Resource<T> resource, Object... uriVariables) {
-        restTemplate.put(url, resource, uriVariables);
-    }
-
-    @Override
     public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables) {
         HttpEntity<?> entity = new HttpEntity<>(resources);
         ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class, uriVariables);

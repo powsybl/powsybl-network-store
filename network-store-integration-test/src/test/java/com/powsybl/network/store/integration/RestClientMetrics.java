@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.integration;
 
+import java.util.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -15,8 +17,11 @@ public class RestClientMetrics {
 
     int allGetterCallCount = 0;
 
+    Set<String> updatedUrls = new HashSet<>();
+
     void reset() {
         oneGetterCallCount = 0;
         allGetterCallCount = 0;
+        updatedUrls.clear();
     }
 }

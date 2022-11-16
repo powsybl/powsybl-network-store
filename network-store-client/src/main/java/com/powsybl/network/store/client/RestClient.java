@@ -25,8 +25,6 @@ public interface RestClient {
 
     <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables);
 
-    <T extends IdentifiableAttributes> void update(String url, Resource<T> resource, Object... uriVariables);
-
     <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables);
 
     <E> E get(String uri, ParameterizedTypeReference<E> responseType, Object... uriVariables);
