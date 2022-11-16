@@ -8,12 +8,18 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.tck.AbstractLineTest;
+import com.powsybl.network.store.model.ConnectableDirection;
+import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import org.junit.Test;
 
+import java.util.Optional;
 import java.util.TreeMap;
 
 import static org.junit.Assert.*;
@@ -76,5 +82,68 @@ public class LineTest extends AbstractLineTest {
     @Override
     public void testRemoveAcLine() {
         // exception message is not the same and should not be checked in TCK
+    }
+
+    @Test
+    public void testAddConnectablePositionExtensionToLine() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        Line l1 = network.getLine("L1");
+        ConnectablePositionAttributes cpa1 = new ConnectablePositionAttributes("cpa1", 0, ConnectableDirection.TOP);
+        ConnectablePositionAttributes cpa2 = new ConnectablePositionAttributes("cpa2", 0, ConnectableDirection.TOP);
+
+        var f1 = new ConnectablePositionImpl.FeederImpl(cpa1);
+        var f2 = new ConnectablePositionImpl.FeederImpl(cpa2);
+
+        ConnectablePosition cp = new ConnectablePositionImpl(l1, null, f1, f2, null);
+        ConnectablePosition cp1 = new ConnectablePositionImpl(l1, null, f1, null, null);
+
+        l1.addExtension(ConnectablePosition.class, cp);
+
+        Line l2 = network.newLine()
+                .setId("L2")
+                .setVoltageLevel1("VL1")
+                .setNode1(3)
+                .setVoltageLevel2("VL2")
+                .setNode2(3)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .add();
+        l2.addExtension(ConnectablePosition.class, cp1);
+
+        Line l3 = network.newLine()
+                .setId("L3")
+                .setVoltageLevel1("VL1")
+                .setNode1(3)
+                .setVoltageLevel2("VL2")
+                .setNode2(3)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .add();
+        l3.newExtension(ConnectablePositionAdder.class).newFeeder2().withDirection(ConnectablePosition.Direction.TOP).withOrder(0).withName("cpa3").add().add();
+
+        assertEquals("cpa1", l1.getExtension(ConnectablePosition.class).getFeeder1().getName());
+        assertEquals(ConnectablePosition.Direction.TOP, l1.getExtension(ConnectablePosition.class).getFeeder1().getDirection());
+        assertEquals(Optional.of(0), l1.getExtension(ConnectablePosition.class).getFeeder1().getOrder());
+        assertEquals("cpa2", l1.getExtension(ConnectablePosition.class).getFeeder2().getName());
+        assertEquals(ConnectablePosition.Direction.TOP, l1.getExtension(ConnectablePosition.class).getFeeder2().getDirection());
+        assertEquals(Optional.of(0), l1.getExtension(ConnectablePosition.class).getFeeder2().getOrder());
+
+        assertEquals("cpa1", l2.getExtension(ConnectablePosition.class).getFeeder1().getName());
+        assertEquals(ConnectablePosition.Direction.TOP, l2.getExtension(ConnectablePosition.class).getFeeder1().getDirection());
+        assertEquals(Optional.of(0), l2.getExtension(ConnectablePosition.class).getFeeder1().getOrder());
+        assertNull(l2.getExtension(ConnectablePosition.class).getFeeder2());
+
+        assertEquals("cpa3", l3.getExtension(ConnectablePosition.class).getFeeder2().getName());
+        assertEquals(ConnectablePosition.Direction.TOP, l3.getExtension(ConnectablePosition.class).getFeeder2().getDirection());
+        assertEquals(Optional.of(0), l3.getExtension(ConnectablePosition.class).getFeeder2().getOrder());
+        assertNull(l3.getExtension(ConnectablePosition.class).getFeeder1());
     }
 }
