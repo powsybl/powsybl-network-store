@@ -33,7 +33,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestNetworkStoreClient.class);
 
-    private static final int RESOURCES_CREATION_CHUNK_SIZE = 1000;
+    private static final int RESOURCES_CREATION_CHUNK_SIZE = 10000;
 
     private final RestClient restClient;
 

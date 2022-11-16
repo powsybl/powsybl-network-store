@@ -74,7 +74,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case SUBSTATION:
                         return SubstationAttributes.class;
                     case VOLTAGE_LEVEL:
-                        return VoltageLevelAttributes.class;
+                        return VoltageLevelSvAttributes.class;
                     case LOAD:
                     case GENERATOR:
                     case BATTERY:

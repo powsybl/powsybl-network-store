@@ -5141,7 +5141,9 @@ public class NetworkStoreIT {
     @Test
     public void testIncrementalUpdate() {
         try (NetworkStoreService service = createNetworkStoreService()) {
-            service.flush(EurostagTutorialExample1Factory.create(service.getNetworkFactory()));
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            network.getBusView().getBuses(); // force storing calculated topology and connectivity
+            service.flush(network);
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
@@ -5153,9 +5155,15 @@ public class NetworkStoreIT {
             gen.getTerminal().setP(1).setQ(2);
             Line l1 = network.getLine("NHV1_NHV2_1");
             l1.getTerminal1().setP(12.3);
-            Line l2 = network.getLine("NHV1_NHV2_1");
+            Line l2 = network.getLine("NHV1_NHV2_2");
             l2.getTerminal1().setQ(1.45);
             l2.setX(1.35);
+            VoltageLevel vlgen = network.getVoltageLevel("VLGEN");
+            for (Bus b : vlgen.getBusView().getBuses()) {
+                b.setV(399).setAngle(4);
+            }
+            Bus nload = network.getBusBreakerView().getBus("NLOAD");
+            nload.setV(25);
             service.flush(network);
         }
     }

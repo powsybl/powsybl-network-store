@@ -261,6 +261,15 @@ public class NetworkStoreController {
         return updateAll(resources -> repository.updateVoltageLevels(networkId, resources), voltageLevelResources);
     }
 
+    @PutMapping(value = "/{networkId}/voltage-levels/sv")
+    @Operation(summary = "Update voltage levels SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update voltage levels SV"))
+    public ResponseEntity<Void> updateVoltageLevelsSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                      @Parameter(description = "voltage level SV resources", required = true) @RequestBody List<Resource<VoltageLevelSvAttributes>> voltageLevelResources) {
+
+        return updateAll(resources -> repository.updateVoltageLevelsSv(networkId, resources), voltageLevelResources);
+    }
+
     @DeleteMapping(value = "/{networkId}/{variantNum}/voltage-levels/{voltageLevelId}", produces = APPLICATION_JSON_VALUE)
     @Operation(summary = "Delete a voltage level by id")
     @ApiResponses(value = {
