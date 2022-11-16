@@ -420,7 +420,6 @@ public class NetworkStoreControllerIT {
                         .content(objectMapper.writeValueAsString(Collections.singleton(lineWithoutFirstPositions))))
                 .andExpect(status().isCreated());
 
-
         mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/idLineWithoutFirstPosition")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
