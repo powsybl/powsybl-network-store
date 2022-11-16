@@ -85,7 +85,7 @@ public class LineTest extends AbstractLineTest {
     }
 
     @Test
-    public void testAddConnectablePositionExtensionToLineWithOneFeeder() {
+    public void testAddConnectablePositionExtensionToLine() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         Line l1 = network.getLine("L1");
         ConnectablePositionAttributes cpa1 = new ConnectablePositionAttributes("cpa1", 0, ConnectableDirection.TOP);
