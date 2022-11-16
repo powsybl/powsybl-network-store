@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;

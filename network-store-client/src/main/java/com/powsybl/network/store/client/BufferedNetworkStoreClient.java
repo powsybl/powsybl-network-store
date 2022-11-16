@@ -12,7 +12,7 @@ import com.google.common.base.Stopwatch;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.client.util.ExecutorUtil;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
-import com.powsybl.network.store.iidm.impl.AttributeFilter;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;

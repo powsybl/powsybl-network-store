@@ -7,7 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.network.store.iidm.impl.AttributeFilter;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.logging.log4j.util.TriConsumer;

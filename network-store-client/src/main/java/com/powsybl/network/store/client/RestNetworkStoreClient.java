@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.network.store.iidm.impl.AttributeFilter;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
