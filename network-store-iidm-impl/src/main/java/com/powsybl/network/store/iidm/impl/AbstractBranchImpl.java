@@ -37,10 +37,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         terminal2 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(this, resource.getAttributes(), false), getBranch());
         ConnectablePositionAttributes cpa1 = resource.getAttributes().getPosition1();
         ConnectablePositionAttributes cpa2 = resource.getAttributes().getPosition2();
-        if (cpa1 != null && cpa2 != null) {
+        if (cpa1 != null || cpa2 != null) {
             connectablePositionExtension = new ConnectablePositionImpl<>(getBranch(), null,
-                    new ConnectablePositionImpl.FeederImpl(cpa1),
-                    new ConnectablePositionImpl.FeederImpl(cpa2), null);
+                    cpa1 != null ? new ConnectablePositionImpl.FeederImpl(cpa1) : null,
+                    cpa2 != null ? new ConnectablePositionImpl.FeederImpl(cpa2) : null, null);
         }
     }
 
@@ -444,8 +444,12 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         var resource = checkResource();
         if (type == ConnectablePosition.class) {
             connectablePositionExtension = (ConnectablePositionImpl<T>) extension;
-            resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
-            resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
+            if (connectablePositionExtension != null && connectablePositionExtension.getFeeder1() != null) {
+                resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
+            }
+            if (connectablePositionExtension != null && connectablePositionExtension.getFeeder2() != null) {
+                resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
+            }
             updateResource();
         } else if (type == BranchStatus.class) {
             BranchStatus branchStatus = (BranchStatus) extension;
@@ -456,27 +460,30 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     @Override
-    public ConnectablePositionImpl<T> createConnectablePositionExtension(Feeder feeder, Feeder feeder1, Feeder feeder2,
-                                                                         Feeder feeder3) {
-        Objects.requireNonNull(feeder2);
-        if (feeder3 != null) {
-            throw new IllegalArgumentException("feeder3 must be null for branches");
-        }
+    public ConnectablePositionImpl<T> createConnectablePositionExtension(Feeder feeder, Feeder feeder1, Feeder feeder2, Feeder feeder3) {
         ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
-        ConnectablePositionAttributes cpa1 = ConnectablePositionAttributes.builder()
-                .label(feeder1.getName())
-                .order(feeder1.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
-                .build();
-        ConnectablePositionAttributes cpa2 = ConnectablePositionAttributes.builder()
-                .label(feeder2.getName())
-                .order(feeder2.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
-                .build();
+        ConnectablePositionAttributes cpa1 = null;
+        ConnectablePositionAttributes cpa2 = null;
+        if (feeder1 != null) {
+            cpa1 = ConnectablePositionAttributes.builder()
+                    .label(feeder1.getName())
+                    .order(feeder1.getOrder().orElse(null))
+                    .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
+                    .build();
+        }
+
+        if (feeder2 != null) {
+            cpa2 = ConnectablePositionAttributes.builder()
+                    .label(feeder2.getName())
+                    .order(feeder2.getOrder().orElse(null))
+                    .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
+                    .build();
+        }
+
         return new ConnectablePositionImpl<>(getBranch(),
                 null,
-                new ConnectablePositionImpl.FeederImpl(cpa1),
-                new ConnectablePositionImpl.FeederImpl(cpa2),
+                cpa1 != null ? new ConnectablePositionImpl.FeederImpl(cpa1) : null,
+                cpa2 != null ? new ConnectablePositionImpl.FeederImpl(cpa2) : null,
                 null);
     }
 
