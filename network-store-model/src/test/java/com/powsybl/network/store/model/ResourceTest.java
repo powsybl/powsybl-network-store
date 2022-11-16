@@ -250,8 +250,8 @@ public class ResourceTest {
         assertFalse(resourceLoad.getAttributes().isFictitious());
         assertEquals(1, resourceLoad.getAttributes().getNode(), 0);
 
-        assertNull(resourceLoad.getAttributes().getP());
-        assertNull(resourceLoad.getAttributes().getQ());
+        assertTrue(Double.isNaN(resourceLoad.getAttributes().getP()));
+        assertTrue(Double.isNaN(resourceLoad.getAttributes().getQ()));
     }
 
     @Test
@@ -283,8 +283,8 @@ public class ResourceTest {
         assertEquals(4, resourceGenerator.getAttributes().getTargetV(), 0);
         assertEquals(1, resourceGenerator.getAttributes().getNode(), 0);
 
-        assertNull(resourceGenerator.getAttributes().getP());
-        assertNull(resourceGenerator.getAttributes().getQ());
+        assertTrue(Double.isNaN(resourceGenerator.getAttributes().getP()));
+        assertTrue(Double.isNaN(resourceGenerator.getAttributes().getQ()));
 
         assertEquals("idEq", resourceGenerator.getAttributes().getRegulatingTerminal().getConnectableId());
         assertEquals("ONE", resourceGenerator.getAttributes().getRegulatingTerminal().getSide());
@@ -318,8 +318,8 @@ public class ResourceTest {
         assertEquals(100, resourceBattery.getAttributes().getTargetQ(), 0);
         assertEquals(1, resourceBattery.getAttributes().getNode(), 0);
 
-        assertNull(resourceBattery.getAttributes().getQ());
-        assertNull(resourceBattery.getAttributes().getP());
+        assertTrue(Double.isNaN(resourceBattery.getAttributes().getP()));
+        assertTrue(Double.isNaN(resourceBattery.getAttributes().getQ()));
     }
 
     @Test
@@ -346,8 +346,8 @@ public class ResourceTest {
                 .voltageLevelId("vl1")
                 .name("name")
                 .bus("bus1")
-                .p(100d)
-                .q(200d)
+                .p(100)
+                .q(200)
                 .model(linearModelAttributes)
                 .sectionCount(2)
                 .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
@@ -427,8 +427,8 @@ public class ResourceTest {
         assertEquals("XN1", resourceDanglingLine.getAttributes().getUcteXnodeCode());
         assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
 
-        assertNull(resourceDanglingLine.getAttributes().getP());
-        assertNull(resourceDanglingLine.getAttributes().getQ());
+        assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
+        assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
     }
 
     @Test

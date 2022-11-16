@@ -91,35 +91,38 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return resource;
     }
 
-    private <T extends IdentifiableAttributes> void updateAll(String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
+    private <T extends IdentifiableAttributes> void updateAll(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
         if (attributeFilter == null) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Updating {} {} resources ({})...", resources.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
+            }
             restClient.updateAll(url, resources, uriVariables);
         } else {
             if (attributeFilter == AttributeFilter.SV) {
                 List<Resource<SvAttributes>> svResources = resources.stream()
                         .map(Resource::toSv)
                         .collect(Collectors.toList());
-                restClient.updateAll(url + "/sv", svResources, uriVariables);
+                String svUrl = url + "/sv";
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Updating {} {} {} resources ({})...", svResources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(svUrl).buildAndExpand(uriVariables));
+                }
+                restClient.updateAll(svUrl, svResources, uriVariables);
             } else {
                 throw new IllegalStateException("Unsupported attribute filter type: " + attributeFilter);
             }
         }
     }
 
-    private <T extends IdentifiableAttributes> void updateAll(String target, String url, List<Resource<T>> resourceList, AttributeFilter attributeFilter, Object... uriVariables) {
-        for (List<Resource<T>> resourcePartition : Lists.partition(resourceList, RESOURCES_CREATION_CHUNK_SIZE)) {
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Updating {} {} resources ({}) with attribute filter {}...", resourcePartition.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables),
-                        attributeFilter != null ? attributeFilter : "ALL");
-            }
+    private <T extends IdentifiableAttributes> void updateAll(String target, String url, List<Resource<T>> resources, AttributeFilter attributeFilter, Object... uriVariables) {
+        for (List<Resource<T>> resourcePartition : Lists.partition(resources, RESOURCES_CREATION_CHUNK_SIZE)) {
             Stopwatch stopwatch = Stopwatch.createStarted();
             try {
-                updateAll(url, attributeFilter, resourcePartition, uriVariables);
+                updateAll(target, url, attributeFilter, resourcePartition, uriVariables);
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
                 LOGGER.info("Retrying...");
-                updateAll(url, attributeFilter, resourcePartition, uriVariables);
+                updateAll(target, url, attributeFilter, resourcePartition, uriVariables);
             }
             stopwatch.stop();
             LOGGER.info("{} {} resources updated in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));

@@ -91,7 +91,11 @@ public class RestClientImpl implements RestClient {
 
     @Override
     public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables) {
-        restTemplate.put(url, resources, uriVariables);
+        HttpEntity<?> entity = new HttpEntity<>(resources);
+        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class, uriVariables);
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw new PowsyblException("Fail to put at " + url + ", status: " + response.getStatusCode());
+        }
     }
 
     @Override

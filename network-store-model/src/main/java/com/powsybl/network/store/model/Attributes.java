@@ -6,12 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public interface Attributes {
 
     Resource getResource();
