@@ -828,7 +828,6 @@ final class CreateNetworksUtil {
                 .setG2(0.0)
                 .setB2(0.0)
                 .add();
-
         return network;
     }
 
