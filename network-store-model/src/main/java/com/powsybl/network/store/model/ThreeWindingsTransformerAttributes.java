@@ -154,6 +154,8 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         getLeg(side).setActivePowerLimitsAttributes(limits);
     }
 
+    @JsonIgnore
+    @Override
     public Attributes filter(AttributeFilter filter) {
         if (filter != AttributeFilter.SV) {
             throw new PowsyblException("Unsupported attribute filter: " + filter);

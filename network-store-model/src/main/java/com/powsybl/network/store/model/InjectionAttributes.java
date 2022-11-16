@@ -58,6 +58,7 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained {
     }
 
     @JsonIgnore
+    @Override
     default Attributes filter(AttributeFilter filter) {
         if (filter != AttributeFilter.SV) {
             throw new PowsyblException("Unsupported attribute filter: " + filter);
