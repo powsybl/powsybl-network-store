@@ -177,6 +177,17 @@ public final class QueryCatalog {
         return query.toString();
     }
 
+    public static String buildUpdateInjectionSvQuery(String tableName) {
+        StringBuilder query = new StringBuilder("update ")
+                .append(tableName)
+                .append(" set p = ?")
+                .append(", q = ?")
+                .append(" where ").append(NETWORK_UUID_COLUMN).append(" = ? and ")
+                .append(VARIANT_NUM_COLUMN).append(" = ? and ")
+                .append(ID_COLUMN).append(" = ?");
+        return query.toString();
+    }
+
     public static String buildUpdateNetworkQuery(Collection<String> columns) {
         StringBuilder query = new StringBuilder("update ")
                 .append(NETWORK_TABLE)

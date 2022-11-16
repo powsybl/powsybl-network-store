@@ -49,7 +49,7 @@ public class NetworkStoreController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    private <T extends IdentifiableAttributes> ResponseEntity<Void> updateAll(Consumer<List<Resource<T>>> f, List<Resource<T>> resources) {
+    private <T extends Attributes> ResponseEntity<Void> updateAll(Consumer<List<Resource<T>>> f, List<Resource<T>> resources) {
         f.accept(resources);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -541,6 +541,15 @@ public class NetworkStoreController {
                                                  @Parameter(description = "load resource", required = true) @RequestBody List<Resource<LoadAttributes>> loadResources) {
 
         return updateAll(resources -> repository.updateLoads(networkId, resources), loadResources);
+    }
+
+    @PutMapping(value = "/{networkId}/loads/sv")
+    @Operation(summary = "Update loads SV")
+    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update loads"))
+    public ResponseEntity<Void> updateLoadsSv(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                              @Parameter(description = "load resource", required = true) @RequestBody List<Resource<InjectionSvAttributes>> loadResources) {
+
+        return updateAll(resources -> repository.updateLoadsSv(networkId, resources), loadResources);
     }
 
     @DeleteMapping(value = "/{networkId}/{variantNum}/loads/{loadId}", produces = APPLICATION_JSON_VALUE)

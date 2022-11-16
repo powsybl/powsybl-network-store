@@ -623,6 +623,30 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void updateInjectionsSv(UUID networkUuid, List<Resource<InjectionSvAttributes>> resources, String tableName) {
+        try (var connection = dataSource.getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateInjectionSvQuery(tableName))) {
+                List<Object> values = new ArrayList<>(5);
+                for (List<Resource<InjectionSvAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
+                    for (Resource<InjectionSvAttributes> resource : subResources) {
+                        InjectionSvAttributes attributes = resource.getAttributes();
+                        values.clear();
+                        values.add(attributes.getP());
+                        values.add(attributes.getQ());
+                        values.add(networkUuid);
+                        values.add(resource.getVariantNum());
+                        values.add(resource.getId());
+                        bindValues(preparedStmt, values);
+                        preparedStmt.addBatch();
+                    }
+                    preparedStmt.executeBatch();
+                }
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
     public <T extends IdentifiableAttributes> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                        TableMapping tableMapping) {
         executeWithoutAutoCommit(connection -> {
@@ -840,6 +864,10 @@ public class NetworkStoreRepository {
 
     public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
         updateIdentifiables(networkUuid, resources, mappings.getLoadMappings(), VOLTAGE_LEVEL_ID_COLUMN);
+    }
+
+    public void updateLoadsSv(UUID networkUuid, List<Resource<InjectionSvAttributes>> resources) {
+        updateInjectionsSv(networkUuid, resources, LOAD_TABLE);
     }
 
     public void deleteLoad(UUID networkUuid, int variantNum, String loadId) {
