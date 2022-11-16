@@ -347,6 +347,39 @@ public class NetworkStoreControllerIT {
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
                 .andExpect(status().isCreated());
+        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/idLine")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].id").value("idLine"))
+                .andExpect(jsonPath("data[0].attributes.p1").value(0.))
+                .andExpect(jsonPath("data[0].attributes.bus2").value("bus2"))
+                .andExpect(jsonPath("data[0].attributes.node1").value(1))
+                .andExpect(jsonPath("data[0].attributes.fictitious").value(true))
+                .andExpect(jsonPath("data[0].attributes.properties[\"property1\"]").value("value1"))
+                .andExpect(jsonPath("data[0].attributes.aliasByType[\"aliasDouble\"]").value("valueAliasDouble"))
+                .andExpect(jsonPath("data[0].attributes.aliasesWithoutType").value("alias1"))
+                .andExpect(jsonPath("data[0].attributes.position1.label").value("labPosition1"))
+                .andExpect(jsonPath("data[0].attributes.position1.direction").value("BOTTOM"))
+                .andExpect(jsonPath("data[0].attributes.position2.label").value("labPosition2"))
+                .andExpect(jsonPath("data[0].attributes.position2.direction").value("TOP"))
+                .andExpect(jsonPath("data[0].attributes.mergedXnode.rdp").value(50.0))
+                .andExpect(jsonPath("data[0].attributes.currentLimits1.permanentLimit").value(20.));
+
+        resLine.getAttributes().setP1(100.);  // changing p1 value
+        resLine.getAttributes().getProperties().put("property1", "newValue1");  // changing property value
+        mvc.perform(put("/" + VERSION + "/networks/" + NETWORK_UUID + "/lines")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/idLine")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].id").value("idLine"))
+                .andExpect(jsonPath("data[0].attributes.p1").value(100.))
+                .andExpect(jsonPath("data[0].attributes.properties[\"property1\"]").value("newValue1"));
 
         // line creation Without Positions
         Resource<LineAttributes> lineWithoutFirstPositions = Resource.lineBuilder()
@@ -387,11 +420,12 @@ public class NetworkStoreControllerIT {
                         .content(objectMapper.writeValueAsString(Collections.singleton(lineWithoutFirstPositions))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/idLine")
-                .contentType(APPLICATION_JSON))
+
+        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/idLineWithoutFirstPosition")
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data[0].id").value("idLine"))
+                .andExpect(jsonPath("data[0].id").value("idLineWithoutFirstPosition"))
                 .andExpect(jsonPath("data[0].attributes.p1").value(0.))
                 .andExpect(jsonPath("data[0].attributes.bus2").value("bus2"))
                 .andExpect(jsonPath("data[0].attributes.node1").value(1))
@@ -399,27 +433,8 @@ public class NetworkStoreControllerIT {
                 .andExpect(jsonPath("data[0].attributes.properties[\"property1\"]").value("value1"))
                 .andExpect(jsonPath("data[0].attributes.aliasByType[\"aliasDouble\"]").value("valueAliasDouble"))
                 .andExpect(jsonPath("data[0].attributes.aliasesWithoutType").value("alias1"))
-                .andExpect(jsonPath("data[0].attributes.position1.label").value("labPosition1"))
-                .andExpect(jsonPath("data[0].attributes.position1.direction").value("BOTTOM"))
-                .andExpect(jsonPath("data[0].attributes.position2.label").value("labPosition2"))
-                .andExpect(jsonPath("data[0].attributes.position2.direction").value("TOP"))
                 .andExpect(jsonPath("data[0].attributes.mergedXnode.rdp").value(50.0))
                 .andExpect(jsonPath("data[0].attributes.currentLimits1.permanentLimit").value(20.));
-
-        resLine.getAttributes().setP1(100.);  // changing p1 value
-        resLine.getAttributes().getProperties().put("property1", "newValue1");  // changing property value
-        mvc.perform(put("/" + VERSION + "/networks/" + NETWORK_UUID + "/lines")
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
-                .andExpect(status().isOk());
-
-        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/idLine")
-                .contentType(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data[0].id").value("idLine"))
-                .andExpect(jsonPath("data[0].attributes.p1").value(100.))
-                .andExpect(jsonPath("data[0].attributes.properties[\"property1\"]").value("newValue1"));
 
         Resource<LineAttributes> resLine2 = Resource.lineBuilder()
             .id("idLine2")
