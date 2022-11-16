@@ -448,7 +448,7 @@ public class ResourceTest {
                 .attributes(attributes)
                 .build();
 
-        Resource<SvAttributes> svResource = resource.toSv();
+        Resource<Attributes> svResource = resource.filterAttributes(AttributeFilter.SV);
         assertEquals(ResourceType.LOAD, svResource.getType());
         assertEquals("load1", svResource.getId());
         assertEquals(0, svResource.getVariantNum());

@@ -18,7 +18,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Load attributes")
-public class ThreeWindingsTransformerSvAttributes extends AbstractAttributes implements SvAttributes {
+public class ThreeWindingsTransformerSvAttributes extends AbstractAttributes implements Attributes {
 
     @Schema(description = "Side 1 active power in MW")
     @Builder.Default

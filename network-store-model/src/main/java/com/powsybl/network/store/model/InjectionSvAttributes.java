@@ -18,7 +18,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Load attributes")
-public class InjectionSvAttributes extends AbstractAttributes implements SvAttributes {
+public class InjectionSvAttributes extends AbstractAttributes implements Attributes {
 
     @Schema(description = "Active power in MW")
     @Builder.Default

@@ -98,18 +98,14 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             }
             restClient.updateAll(url, resources, uriVariables);
         } else {
-            if (attributeFilter == AttributeFilter.SV) {
-                List<Resource<SvAttributes>> svResources = resources.stream()
-                        .map(Resource::toSv)
-                        .collect(Collectors.toList());
-                String svUrl = url + "/sv";
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Updating {} {} {} resources ({})...", svResources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(svUrl).buildAndExpand(uriVariables));
-                }
-                restClient.updateAll(svUrl, svResources, uriVariables);
-            } else {
-                throw new IllegalStateException("Unsupported attribute filter type: " + attributeFilter);
+            List<Resource<Attributes>> filteredResources = resources.stream()
+                    .map(resource -> resource.filterAttributes(attributeFilter))
+                    .collect(Collectors.toList());
+            String filteredUrl = url + "/" + attributeFilter.name().toLowerCase();
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Updating {} {} {} resources ({})...", filteredResources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(filteredUrl).buildAndExpand(uriVariables));
             }
+            restClient.updateAll(filteredUrl, filteredResources, uriVariables);
         }
     }
 

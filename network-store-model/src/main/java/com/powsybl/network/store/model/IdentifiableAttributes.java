@@ -37,7 +37,7 @@ public interface IdentifiableAttributes extends Attributes {
 
     void setAliasByType(Map<String, String> aliasByType);
 
-    default <U extends SvAttributes> U toSv() {
+    default Attributes filter(AttributeFilter filter) {
         throw new UnsupportedOperationException("Not supported");
     }
 }

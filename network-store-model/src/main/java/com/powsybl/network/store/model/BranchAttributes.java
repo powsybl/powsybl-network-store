@@ -8,6 +8,7 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
+import com.powsybl.commons.PowsyblException;
 
 import java.util.List;
 import java.util.Set;
@@ -182,7 +183,10 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     }
 
     @JsonIgnore
-    default BranchSvAttributes toSv() {
+    default Attributes filter(AttributeFilter filter) {
+        if (filter != AttributeFilter.SV) {
+            throw new PowsyblException("Unsupported attribute filter: " + filter);
+        }
         return new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
     }
 }

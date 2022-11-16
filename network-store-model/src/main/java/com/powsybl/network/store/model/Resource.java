@@ -55,8 +55,9 @@ public class Resource<T extends Attributes> implements Validable {
         return type.getDescription() + " '" + id + "': ";
     }
 
-    public <U extends SvAttributes> Resource<U> toSv() {
-        return new Resource<>(type, id, variantNum, ((IdentifiableAttributes) attributes).toSv());
+    public Resource<Attributes> filterAttributes(AttributeFilter filter) {
+        Objects.requireNonNull(filter);
+        return new Resource<>(type, id, variantNum, ((IdentifiableAttributes) attributes).filter(filter));
     }
 
     public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, int variantNum, T attributes) {
