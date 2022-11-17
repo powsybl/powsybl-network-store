@@ -46,32 +46,42 @@ public class RestClientImpl implements RestClient {
         return restTemplate.exchange(url,
                 HttpMethod.GET,
                 new HttpEntity<>(new HttpHeaders()),
-                new ParameterizedTypeReference<TopLevelDocument<T>>() {
+                new ParameterizedTypeReference<>() {
                 },
                 uriVariables);
     }
 
     private static <T extends IdentifiableAttributes> TopLevelDocument<T> getBody(ResponseEntity<TopLevelDocument<T>> response) {
-        if (response.getBody() == null) {
+        TopLevelDocument<T> body = response.getBody();
+        if (body == null) {
             throw new PowsyblException("Body is null");
         }
-        return response.getBody();
+        return body;
+    }
+
+    private static PowsyblException createHttpException(String url, String method, HttpStatus httpStatus) {
+        return new PowsyblException("Fail to " + method + " at " + url + ", status: " + httpStatus);
     }
 
     @Override
     public <T extends IdentifiableAttributes> void create(String url, List<Resource<T>> resources, Object... uriVariables) {
-        restTemplate.postForObject(url, resources, Void.class, uriVariables);
+        HttpEntity<?> entity = new HttpEntity<>(resources);
+        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.POST, entity, Void.class, uriVariables);
+        if (response.getStatusCode() != HttpStatus.CREATED) {
+            throw createHttpException(url, "post", response.getStatusCode());
+        }
     }
 
     @Override
     public <T extends IdentifiableAttributes> Optional<Resource<T>> getOne(String target, String url, Object... uriVariables) {
         ResponseEntity<TopLevelDocument<T>> response = getDocument(url, uriVariables);
         if (response.getStatusCode() == HttpStatus.OK) {
-            return Optional.of(getBody(response).getData().get(0));
+            TopLevelDocument<T> body = getBody(response);
+            return Optional.of(body.getData().get(0));
         } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
             return Optional.empty();
         } else {
-            throw new PowsyblException("Fail to get " + target + ", status: " + response.getStatusCode());
+            throw createHttpException(url, "get", response.getStatusCode());
         }
     }
 
@@ -79,9 +89,10 @@ public class RestClientImpl implements RestClient {
     public <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
         ResponseEntity<TopLevelDocument<T>> response = getDocument(url, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {
-            throw new PowsyblException("Fail to get " + target + " list, status: " + response.getStatusCode());
+            throw createHttpException(url, "get", response.getStatusCode());
         }
-        return getBody(response).getData();
+        TopLevelDocument<T> body = getBody(response);
+        return body.getData();
     }
 
     @Override
@@ -89,30 +100,40 @@ public class RestClientImpl implements RestClient {
         HttpEntity<?> entity = new HttpEntity<>(resources);
         ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {
-            throw new PowsyblException("Fail to put at " + url + ", status: " + response.getStatusCode());
+            throw createHttpException(url, "put", response.getStatusCode());
         }
     }
 
     @Override
-    public <E> E get(String uri, ParameterizedTypeReference<E> responseType, Object... uriVariables) {
-        return restTemplate.exchange(uri, HttpMethod.GET, null, responseType, uriVariables)
-            .getBody();
+    public <E> E get(String url, ParameterizedTypeReference<E> responseType, Object... uriVariables) {
+        ResponseEntity<E> response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, uriVariables);
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw createHttpException(url, "get", response.getStatusCode());
+        }
+        return response.getBody();
     }
 
     @Override
-    public void put(String uri, Object... uriVariables) {
-        restTemplate.put(uri, null, uriVariables);
+    public void put(String url, Object... uriVariables) {
+        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.PUT, null, Void.class, uriVariables);
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw createHttpException(url, "put", response.getStatusCode());
+        }
     }
 
     @Override
-    public void post(String uri, Object... uriVariables) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        restTemplate.postForEntity(uri, new HttpEntity<>(headers), Void.class, uriVariables);
+    public void post(String url, Object... uriVariables) {
+        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.POST, null, Void.class, uriVariables);
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw createHttpException(url, "post", response.getStatusCode());
+        }
     }
 
     @Override
     public void delete(String url, Object... uriVariables) {
-        restTemplate.delete(url, uriVariables);
+        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.DELETE, null, Void.class, uriVariables);
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw createHttpException(url, "delete", response.getStatusCode());
+        }
     }
 }
