@@ -46,7 +46,7 @@ public class RestClientImpl implements RestClient {
         return restTemplate.exchange(url,
                 HttpMethod.GET,
                 new HttpEntity<>(new HttpHeaders()),
-                new ParameterizedTypeReference<>() {
+                new ParameterizedTypeReference<TopLevelDocument<T>>() { // this unnecessary type should not be removed!!! https://github.com/powsybl/powsybl-network-store/commit/9744168f47210eab11796861f9dcf4ffdd5aea0c
                 },
                 uriVariables);
     }
@@ -64,7 +64,7 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends IdentifiableAttributes> void create(String url, List<Resource<T>> resources, Object... uriVariables) {
+    public <T extends IdentifiableAttributes> void createAll(String url, List<Resource<T>> resources, Object... uriVariables) {
         HttpEntity<?> entity = new HttpEntity<>(resources);
         ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.POST, entity, Void.class, uriVariables);
         if (response.getStatusCode() != HttpStatus.CREATED) {

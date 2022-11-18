@@ -650,7 +650,7 @@ public class NetworkStoreRepository {
     public void updateBranchesSv(UUID networkUuid, List<Resource<BranchSvAttributes>> resources, String tableName) {
         try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateBranchSvQuery(tableName))) {
-                List<Object> values = new ArrayList<>(5);
+                List<Object> values = new ArrayList<>(7);
                 for (List<Resource<BranchSvAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                     for (Resource<BranchSvAttributes> resource : subResources) {
                         BranchSvAttributes attributes = resource.getAttributes();
@@ -1275,7 +1275,7 @@ public class NetworkStoreRepository {
     public void updateThreeWindingsTransformersSv(UUID networkUuid, List<Resource<ThreeWindingsTransformerSvAttributes>> resources) {
         try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateThreeWindingsTransformerSvQuery())) {
-                List<Object> values = new ArrayList<>(5);
+                List<Object> values = new ArrayList<>(9);
                 for (List<Resource<ThreeWindingsTransformerSvAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                     for (Resource<ThreeWindingsTransformerSvAttributes> resource : subResources) {
                         ThreeWindingsTransformerSvAttributes attributes = resource.getAttributes();

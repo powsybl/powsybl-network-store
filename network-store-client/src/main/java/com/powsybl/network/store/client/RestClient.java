@@ -19,7 +19,7 @@ import java.util.Optional;
  */
 public interface RestClient {
 
-    <T extends IdentifiableAttributes> void create(String url, List<Resource<T>> resources, Object... uriVariables);
+    <T extends IdentifiableAttributes> void createAll(String url, List<Resource<T>> resources, Object... uriVariables);
 
     <T extends IdentifiableAttributes> Optional<Resource<T>> getOne(String target, String url, Object... uriVariables);
 

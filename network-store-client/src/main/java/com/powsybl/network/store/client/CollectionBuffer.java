@@ -83,6 +83,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
             if (resourceAndFilter == null) {
                 updateResources.put(resource.getId(), new ResourceAndFilter<>(resource, attributeFilter));
             } else {
+                // To update when new filter will be added to define how to merge 2 different filters
                 if (resourceAndFilter.getAttributeFilter() != null && attributeFilter == null) {
                     resourceAndFilter.setAttributeFilter(null);
                 }

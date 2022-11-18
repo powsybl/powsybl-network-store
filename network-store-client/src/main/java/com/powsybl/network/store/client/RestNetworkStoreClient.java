@@ -33,7 +33,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestNetworkStoreClient.class);
 
-    private static final int RESOURCES_CREATION_CHUNK_SIZE = 10000;
+    private static final int RESOURCES_CREATION_CHUNK_SIZE = 1000;
 
     private final RestClient restClient;
 
@@ -57,12 +57,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             }
             Stopwatch stopwatch = Stopwatch.createStarted();
             try {
-                restClient.create(url, resourcePartition, uriVariables);
+                restClient.createAll(url, resourcePartition, uriVariables);
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
                 LOGGER.info("Retrying...");
-                restClient.create(url, resourcePartition, uriVariables);
+                restClient.createAll(url, resourcePartition, uriVariables);
             }
             stopwatch.stop();
             LOGGER.info("{} {} resources created in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -91,7 +91,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return resource;
     }
 
-    private <T extends IdentifiableAttributes> void updateAll(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
+    private <T extends IdentifiableAttributes> void updatePartition(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
         if (attributeFilter == null) {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Updating {} {} resources ({})...", resources.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
@@ -113,12 +113,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         for (List<Resource<T>> resourcePartition : Lists.partition(resources, RESOURCES_CREATION_CHUNK_SIZE)) {
             Stopwatch stopwatch = Stopwatch.createStarted();
             try {
-                updateAll(target, url, attributeFilter, resourcePartition, uriVariables);
+                updatePartition(target, url, attributeFilter, resourcePartition, uriVariables);
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
                 LOGGER.info("Retrying...");
-                updateAll(target, url, attributeFilter, resourcePartition, uriVariables);
+                updatePartition(target, url, attributeFilter, resourcePartition, uriVariables);
             }
             stopwatch.stop();
             if (LOGGER.isInfoEnabled()) {
