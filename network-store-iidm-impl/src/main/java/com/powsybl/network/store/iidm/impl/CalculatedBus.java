@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -135,7 +136,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Bus setV(double v) {
         getAttributes().setV(v);
-        index.updateVoltageLevelResource(voltageLevelResource);
+        index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
         return this;
     }
 
@@ -147,7 +148,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Bus setAngle(double angle) {
         getAttributes().setAngle(angle);
-        index.updateVoltageLevelResource(voltageLevelResource);
+        index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
         return this;
     }
 

@@ -5137,4 +5137,72 @@ public class NetworkStoreIT {
             assertNull(l.getCurrentLimits1().orElseThrow().getTemporaryLimit(60 * 20));
         }
     }
+
+    @Test
+    public void testIncrementalUpdate() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            network.getBusView().getBuses(); // force storing calculated topology and connectivity
+            service.flush(network);
+        }
+
+        var metrics = new RestClientMetrics();
+        try (NetworkStoreService service = createNetworkStoreService(metrics)) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            UUID networkUuid = networkIds.keySet().stream().findFirst().orElseThrow();
+            Network network = service.getNetwork(networkUuid);
+            Load load = network.getLoad("LOAD");
+            load.getTerminal().setP(13.45d);
+            Generator gen = network.getGenerator("GEN");
+            gen.getTerminal().setP(1).setQ(2);
+            Line l1 = network.getLine("NHV1_NHV2_1");
+            l1.getTerminal1().setP(12.3);
+            Line l2 = network.getLine("NHV1_NHV2_2");
+            l2.getTerminal1().setQ(1.45);
+            l2.setX(1.35);
+            VoltageLevel vlgen = network.getVoltageLevel("VLGEN");
+            for (Bus b : vlgen.getBusView().getBuses()) {
+                b.setV(399).setAngle(4);
+            }
+            Bus nload = network.getBusBreakerView().getBus("NLOAD");
+            nload.setV(25);
+            TwoWindingsTransformer twt1 = network.getTwoWindingsTransformer("NGEN_NHV1");
+            twt1.getTerminal2().setP(100);
+            service.flush(network);
+
+            assertEquals(Set.of("/networks/" + networkUuid + "/generators/sv",               // GEN only SV
+                                "/networks/" + networkUuid + "/voltage-levels/sv",           // VLGEN only SV
+                                "/networks/" + networkUuid + "/loads/sv",                    // LOAD only SV
+                                "/networks/" + networkUuid + "/lines",                       // NHV1_NHV2_2 full
+                                "/networks/" + networkUuid + "/configured-buses",            // NLOAD full because not optimized (useless)
+                                "/networks/" + networkUuid + "/lines/sv",                    // NHV1_NHV2_1 only SV
+                                "/networks/" + networkUuid + "/2-windings-transformers/sv"), // NGEN_NHV1 only SV
+                    metrics.updatedUrls);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService(metrics)) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            UUID networkUuid = networkIds.keySet().stream().findFirst().orElseThrow();
+            Network network = service.getNetwork(networkUuid);
+            Load load = network.getLoad("LOAD");
+            assertEquals(13.45d, load.getTerminal().getP(), 0);
+            Generator gen = network.getGenerator("GEN");
+            assertEquals(1, gen.getTerminal().getP(), 0);
+            assertEquals(2, gen.getTerminal().getQ(), 0);
+            Line l1 = network.getLine("NHV1_NHV2_1");
+            assertEquals(12.3, l1.getTerminal1().getP(), 0);
+            Line l2 = network.getLine("NHV1_NHV2_2");
+            assertEquals(1.45, l2.getTerminal1().getQ(), 0);
+            assertEquals(1.35, l2.getX(), 0);
+            VoltageLevel vlgen = network.getVoltageLevel("VLGEN");
+            for (Bus b : vlgen.getBusView().getBuses()) {
+                assertEquals(399, b.getV(), 0);
+                assertEquals(4, b.getAngle(), 0);
+            }
+            Bus nload = network.getBusBreakerView().getBus("NLOAD");
+            assertEquals(25, nload.getV(), 0);
+            TwoWindingsTransformer twt1 = network.getTwoWindingsTransformer("NGEN_NHV1");
+            assertEquals(100, twt1.getTerminal2().getP(), 0);
+        }
+    }
 }

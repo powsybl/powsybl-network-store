@@ -23,47 +23,86 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         super(Resource.class);
     }
 
-    private static Class<? extends IdentifiableAttributes> getTypeClass(ResourceType type) {
+    private static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
         Objects.requireNonNull(type);
-        switch (type) {
-            case NETWORK:
-                return NetworkAttributes.class;
-            case SUBSTATION:
-                return SubstationAttributes.class;
-            case VOLTAGE_LEVEL:
-                return VoltageLevelAttributes.class;
-            case LOAD:
-                return LoadAttributes.class;
-            case GENERATOR:
-                return GeneratorAttributes.class;
-            case BATTERY:
-                return BatteryAttributes.class;
-            case VSC_CONVERTER_STATION:
-                return VscConverterStationAttributes.class;
-            case LCC_CONVERTER_STATION:
-                return LccConverterStationAttributes.class;
-            case SHUNT_COMPENSATOR:
-                return ShuntCompensatorAttributes.class;
-            case STATIC_VAR_COMPENSATOR:
-                return StaticVarCompensatorAttributes.class;
-            case BUSBAR_SECTION:
-                return BusbarSectionAttributes.class;
-            case SWITCH:
-                return SwitchAttributes.class;
-            case TWO_WINDINGS_TRANSFORMER:
-                return TwoWindingsTransformerAttributes.class;
-            case THREE_WINDINGS_TRANSFORMER:
-                return ThreeWindingsTransformerAttributes.class;
-            case LINE:
-                return LineAttributes.class;
-            case HVDC_LINE:
-                return HvdcLineAttributes.class;
-            case DANGLING_LINE:
-                return DanglingLineAttributes.class;
-            case CONFIGURED_BUS:
-                return ConfiguredBusAttributes.class;
-            default:
-                throw new IllegalStateException("Unknown resource type: " + type);
+        if (filter == null) {
+            switch (type) {
+                case NETWORK:
+                    return NetworkAttributes.class;
+                case SUBSTATION:
+                    return SubstationAttributes.class;
+                case VOLTAGE_LEVEL:
+                    return VoltageLevelAttributes.class;
+                case LOAD:
+                    return LoadAttributes.class;
+                case GENERATOR:
+                    return GeneratorAttributes.class;
+                case BATTERY:
+                    return BatteryAttributes.class;
+                case VSC_CONVERTER_STATION:
+                    return VscConverterStationAttributes.class;
+                case LCC_CONVERTER_STATION:
+                    return LccConverterStationAttributes.class;
+                case SHUNT_COMPENSATOR:
+                    return ShuntCompensatorAttributes.class;
+                case STATIC_VAR_COMPENSATOR:
+                    return StaticVarCompensatorAttributes.class;
+                case BUSBAR_SECTION:
+                    return BusbarSectionAttributes.class;
+                case SWITCH:
+                    return SwitchAttributes.class;
+                case TWO_WINDINGS_TRANSFORMER:
+                    return TwoWindingsTransformerAttributes.class;
+                case THREE_WINDINGS_TRANSFORMER:
+                    return ThreeWindingsTransformerAttributes.class;
+                case LINE:
+                    return LineAttributes.class;
+                case HVDC_LINE:
+                    return HvdcLineAttributes.class;
+                case DANGLING_LINE:
+                    return DanglingLineAttributes.class;
+                case CONFIGURED_BUS:
+                    return ConfiguredBusAttributes.class;
+                default:
+                    throw new IllegalStateException("Unknown resource type: " + type);
+            }
+        } else {
+            if (filter == AttributeFilter.SV) {
+                switch (type) {
+                    case NETWORK:
+                        return NetworkAttributes.class;
+                    case SUBSTATION:
+                        return SubstationAttributes.class;
+                    case VOLTAGE_LEVEL:
+                        return VoltageLevelSvAttributes.class;
+                    case LOAD:
+                    case GENERATOR:
+                    case BATTERY:
+                    case VSC_CONVERTER_STATION:
+                    case LCC_CONVERTER_STATION:
+                    case SHUNT_COMPENSATOR:
+                    case STATIC_VAR_COMPENSATOR:
+                    case DANGLING_LINE:
+                        return InjectionSvAttributes.class;
+                    case BUSBAR_SECTION:
+                        return BusbarSectionAttributes.class;
+                    case SWITCH:
+                        return SwitchAttributes.class;
+                    case TWO_WINDINGS_TRANSFORMER:
+                    case LINE:
+                        return BranchSvAttributes.class;
+                    case THREE_WINDINGS_TRANSFORMER:
+                        return ThreeWindingsTransformerSvAttributes.class;
+                    case HVDC_LINE:
+                        return HvdcLineAttributes.class;
+                    case CONFIGURED_BUS:
+                        return ConfiguredBusAttributes.class;
+                    default:
+                        throw new IllegalStateException("Unknown resource type: " + type);
+                }
+            } else {
+                throw new IllegalStateException("Unknown attribute filter: " + filter);
+            }
         }
     }
 
@@ -72,7 +111,8 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         ResourceType type = null;
         String id = null;
         int variantNum = -1;
-        IdentifiableAttributes attributes = null;
+        Attributes attributes = null;
+        AttributeFilter filter = null;
 
         JsonToken token;
         while ((token = parser.nextToken()) != null) {
@@ -88,9 +128,12 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case "variantNum":
                         variantNum = parser.nextIntValue(-1);
                         break;
+                    case "filter":
+                        filter = AttributeFilter.valueOf(parser.nextTextValue());
+                        break;
                     case "attributes":
                         parser.nextValue();
-                        attributes = parser.readValueAs(getTypeClass(type));
+                        attributes = parser.readValueAs(getTypeClass(type, filter));
                         break;
                     default:
                         break;
@@ -100,6 +143,6 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
             }
         }
 
-        return Resource.create(type, id, variantNum, attributes);
+        return Resource.create(type, id, variantNum, filter, attributes);
     }
 }

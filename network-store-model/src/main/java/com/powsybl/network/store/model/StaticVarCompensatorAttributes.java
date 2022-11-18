@@ -30,8 +30,9 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
     @Schema(description = "Static var compensator name")
     private String name;
 
+    @Builder.Default
     @Schema(description = "fictitious")
-    private boolean fictitious;
+    private boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;
