@@ -2,6 +2,8 @@ target/
 
 # IntelliJ
 /.idea
+/powsybl-network-store-server/.idea
+/powsybl-network-store-client/.idea
 *.iml
 .toDelete
 

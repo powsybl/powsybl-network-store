@@ -14,7 +14,7 @@
 
     <parent>
         <groupId>com.powsybl</groupId>
-        <artifactId>powsybl-network-store</artifactId>
+        <artifactId>powsybl-network-store-server-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
@@ -66,12 +66,12 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-network-store-client</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-network-store-iidm-impl</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -86,7 +86,7 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-network-store-model</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <!-- test dependencies -->
