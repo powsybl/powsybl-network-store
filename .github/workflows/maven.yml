@@ -23,9 +23,13 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v1
 
-      - name: Build with Maven
+      - name: Build client with Maven
         run: mvn --batch-mode verify -Pjacoco
         working-directory: ./powsybl-network-store-client
+
+      - name: Build server with Maven
+        run: mvn --batch-mode verify -Pjacoco
+        working-directory: ./powsybl-network-store-server
 
       - name: Run SonarCloud analysis
         run: >
