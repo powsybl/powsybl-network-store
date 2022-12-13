@@ -421,21 +421,6 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         return otherTerminals;
     }
 
-    public void removeDanglingSwitches() {
-        TopologyKind topologyKind = getTopologyKind();
-        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
-        switch (topologyKind) {
-            case NODE_BREAKER:
-                ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).removeDanglingSwitches(attributes.getNode());
-                break;
-            case BUS_BREAKER:
-                // make sense?
-                break;
-            default:
-                throw new IllegalStateException("Unknown topology kind: " + topologyKind);
-        }
-    }
-
     public String getVoltageLevelId() {
         return attributes.getVoltageLevelId();
     }

@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 

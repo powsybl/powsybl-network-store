@@ -1746,18 +1746,18 @@ public class NetworkStoreIT {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
 
-            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
 
-            assertEquals(254, readNetwork.getIdByAlias().size());
+            assertEquals(256, readNetwork.getIdByAlias().size());
 
             TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("7fe566b9-6bac-4cd3-8b52-8f46e9ba237d");
             assertEquals("813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getId());
             assertEquals("813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("7fe566b9-6bac-4cd3-8b52-8f46e9ba237d").getId());
             assertEquals("813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("0522ca48-e644-4d3a-9721-22bb0abd1c8b").getId());
 
-            assertEquals("7fe566b9-6bac-4cd3-8b52-8f46e9ba237d", twoWT.getAliasFromType("CGMES.Terminal2").get());
-            assertEquals("82611054-72b9-4cb0-8621-e418b8962cb1", twoWT.getAliasFromType("CGMES.Terminal1").get());
-            assertEquals("0522ca48-e644-4d3a-9721-22bb0abd1c8b", twoWT.getAliasFromType("CGMES.RatioTapChanger2").get());
+            assertEquals("7fe566b9-6bac-4cd3-8b52-8f46e9ba237d", twoWT.getAliasFromType("CGMES.Terminal2").orElseThrow());
+            assertEquals("82611054-72b9-4cb0-8621-e418b8962cb1", twoWT.getAliasFromType("CGMES.Terminal1").orElseThrow());
+            assertEquals("0522ca48-e644-4d3a-9721-22bb0abd1c8b", twoWT.getAliasFromType("CGMES.RatioTapChanger2").orElseThrow());
             assertEquals(Optional.empty(), twoWT.getAliasFromType("non_existing_type"));
 
             twoWT.removeAlias("0522ca48-e644-4d3a-9721-22bb0abd1c8b");
@@ -1770,14 +1770,14 @@ public class NetworkStoreIT {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
-            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
 
-            assertEquals(253, readNetwork.getIdByAlias().size());
+            assertEquals(255, readNetwork.getIdByAlias().size());
 
             TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
             assertEquals(4, twoWT.getAliases().size());
 
-            assertEquals(null, readNetwork.getTwoWindingsTransformer("0522ca48-e644-4d3a-9721-22bb0abd1c8b"));
+            assertNull(readNetwork.getTwoWindingsTransformer("0522ca48-e644-4d3a-9721-22bb0abd1c8b"));
 
             ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
             threeWT.addAlias("alias_without_type");
@@ -1787,15 +1787,15 @@ public class NetworkStoreIT {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
-            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
 
-            assertEquals(255, readNetwork.getIdByAlias().size());
+            assertEquals(257, readNetwork.getIdByAlias().size());
 
             ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
             assertEquals("5d38b7ed-73fd-405a-9cdb-78425e003773", readNetwork.getThreeWindingsTransformer("alias_without_type").getId());
             assertEquals("5d38b7ed-73fd-405a-9cdb-78425e003773", readNetwork.getThreeWindingsTransformer("alias_with_type").getId());
             assertEquals(Optional.empty(), threeWT.getAliasType("alias_without_type"));
-            assertEquals("alias_with_type", threeWT.getAliasFromType("typeA").get());
+            assertEquals("alias_with_type", threeWT.getAliasFromType("typeA").orElseThrow());
             assertEquals(9, threeWT.getAliases().size());
             threeWT.removeAlias("alias_without_type");
             service.flush(readNetwork);
@@ -1804,9 +1804,9 @@ public class NetworkStoreIT {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
-            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
 
-            assertEquals(254, readNetwork.getIdByAlias().size());
+            assertEquals(256, readNetwork.getIdByAlias().size());
 
             ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
             assertEquals(8, threeWT.getAliases().size());
