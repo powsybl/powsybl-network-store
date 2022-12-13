@@ -145,7 +145,7 @@ public class NetworkStoreController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/{targetNetworkUuid}", consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{targetNetworkUuid}")
     @Operation(summary = "Clone a network provided variants to a different network")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully clone the network"))
     public ResponseEntity<Void> cloneNetwork(@Parameter(description = "Target network ID", required = true) @PathVariable("targetNetworkUuid") UUID targetNetworkUuid,
