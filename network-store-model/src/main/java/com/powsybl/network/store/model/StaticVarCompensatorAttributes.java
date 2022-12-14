@@ -83,4 +83,7 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
 
     @Schema(description = "Voltage per reactive control")
     private VoltagePerReactivePowerControlAttributes voltagePerReactiveControl;
+
+    @Schema(description = "Standby automaton")
+    private StandbyAutomatonAttributes standbyAutomaton;
 }
