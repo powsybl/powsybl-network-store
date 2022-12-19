@@ -367,8 +367,8 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     @Override
     public void removeInternalConnections(int node1, int node2) {
         if (!getVoltageLevelResource().getAttributes().getInternalConnections()
-                .removeIf(internalConnectionAttributes -> internalConnectionAttributes.getNode1() == node1
-                        && internalConnectionAttributes.getNode2() == node2)) {
+                .removeIf(attributes -> (attributes.getNode1() == node1 && attributes.getNode2() == node2) ||
+                                        (attributes.getNode1() == node2 && attributes.getNode2() == node1))) {
             throw new PowsyblException("Internal connection not found between " + node1 + " and " + node2);
         }
     }
