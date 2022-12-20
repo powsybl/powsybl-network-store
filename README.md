@@ -132,17 +132,18 @@ public class TestController {
 Network store service could be configured using application.yml like this:
 
 ```yaml
-network-store-server:
-    base-uri: http://localhost:8080/
-    preloading-strategy: COLLECTION
+backing-services:
+    network-store-server:
+        base-uri: http://localhost:8080/
+        preloading-strategy: COLLECTION
 ```
 
 List of available  variables:
 
-| Variable                                 | Description                     | Optional | Default vallue               |
-| ---------------------------------------- | ------------------------------- | -------- | ---------------------------- |
-| network-store-server.base-uri            | URL of the network store server | Yes      | http://network-store-server/ |
-| network-store-server.preloading-strategy | Preloading strategy             | Yes      | NONE                         |
+| Variable                                                  | Description                     | Optional | Default vallue               |
+| --------------------------------------------------------- | ------------------------------- | -------- | ---------------------------- |
+| backing-services.network-store-server.base-uri            | URL of the network store server | Yes      | http://network-store-server/ |
+| backing-services.network-store-server.preloading-strategy | Preloading strategy             | Yes      | NONE                         |
 
 ### Run integration tests
 
