@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyKind;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -30,8 +31,9 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @Schema(description = "Voltage level name")
     private String name;
 
+    @Builder.Default
     @Schema(description = "fictitious")
-    private boolean fictitious;
+    private boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;
@@ -90,5 +92,13 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @JsonIgnore
     public Set<String> getContainerIds() {
         return Collections.singleton(substationId);
+    }
+
+    @Override
+    public Attributes filter(AttributeFilter filter) {
+        if (filter != AttributeFilter.SV) {
+            throw new PowsyblException("Unsupported attribute filter: " + filter);
+        }
+        return new VoltageLevelSvAttributes(calculatedBusesForBusView, calculatedBusesForBusBreakerView);
     }
 }

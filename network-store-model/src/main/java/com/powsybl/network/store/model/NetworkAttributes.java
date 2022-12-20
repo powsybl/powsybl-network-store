@@ -32,8 +32,9 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @Schema(description = "Network name")
     private String name;
 
+    @Builder.Default
     @Schema(description = "fictitious")
-    private boolean fictitious;
+    private boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;

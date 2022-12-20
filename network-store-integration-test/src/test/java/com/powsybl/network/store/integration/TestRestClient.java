@@ -7,8 +7,10 @@
 package com.powsybl.network.store.integration;
 
 import com.powsybl.network.store.client.RestClient;
+import com.powsybl.network.store.model.Attributes;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,5 +38,11 @@ public class TestRestClient extends AbstractForwardingRestClient {
     public <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
         metrics.allGetterCallCount++;
         return super.getAll(target, url, uriVariables);
+    }
+
+    @Override
+    public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables) {
+        metrics.updatedUrls.add(UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables).toString());
+        super.updateAll(url, resources, uriVariables);
     }
 }

@@ -131,7 +131,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void lineTest() throws IOException {
+    public void lineTest() {
         Resource<LineAttributes> resourceLine = Resource.lineBuilder()
                 .id("idLine")
                 .attributes(LineAttributes.builder()
@@ -429,5 +429,33 @@ public class ResourceTest {
 
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
+    }
+
+    @Test
+    public void toSvTest() {
+        LoadAttributes attributes = LoadAttributes.builder()
+                .voltageLevelId("vl1")
+                .name("name")
+                .bus("bus1")
+                .fictitious(false)
+                .node(1)
+                .p(10d)
+                .q(20.4)
+                .build();
+
+        Resource<LoadAttributes> resource = Resource.loadBuilder()
+                .id("load1")
+                .attributes(attributes)
+                .build();
+        assertNull(resource.getFilter());
+
+        Resource<Attributes> svResource = resource.filterAttributes(AttributeFilter.SV);
+        assertEquals(ResourceType.LOAD, svResource.getType());
+        assertEquals("load1", svResource.getId());
+        assertEquals(0, svResource.getVariantNum());
+        assertSame(AttributeFilter.SV, svResource.getFilter());
+        assertTrue(svResource.getAttributes() instanceof InjectionSvAttributes);
+        assertEquals(10d, ((InjectionSvAttributes) svResource.getAttributes()).getP(), 0);
+        assertEquals(20.4d, ((InjectionSvAttributes) svResource.getAttributes()).getQ(), 0);
     }
 }

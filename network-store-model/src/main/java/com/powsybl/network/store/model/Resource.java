@@ -6,9 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -17,9 +17,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.io.UncheckedIOException;
-import java.util.Objects;
-import java.util.Map;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonDeserialize(using = ResourceDeserializer.class)
-public class Resource<T extends IdentifiableAttributes> implements Validable {
+public class Resource<T extends Attributes> implements Validable {
 
     public static final int INITIAL_VARIANT_NUM = 0;
 
@@ -47,6 +47,10 @@ public class Resource<T extends IdentifiableAttributes> implements Validable {
     private int variantNum;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Attribute filter")
+    private AttributeFilter filter;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "Resource attributes")
     private T attributes;
 
@@ -55,9 +59,14 @@ public class Resource<T extends IdentifiableAttributes> implements Validable {
         return type.getDescription() + " '" + id + "': ";
     }
 
-    public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, int variantNum, T attributes) {
+    public Resource<Attributes> filterAttributes(AttributeFilter filter) {
+        Objects.requireNonNull(filter);
+        return new Resource<>(type, id, variantNum, filter, ((IdentifiableAttributes) attributes).filter(filter));
+    }
+
+    public static <T extends Attributes> Resource<T> create(ResourceType type, String id, int variantNum, AttributeFilter filter, T attributes) {
         Objects.requireNonNull(attributes);
-        Resource<T> resource = new Resource<>(type, id, variantNum, attributes);
+        Resource<T> resource = new Resource<>(type, id, variantNum, filter, attributes);
         attributes.setResource(resource);
         return resource;
     }
@@ -101,7 +110,7 @@ public class Resource<T extends IdentifiableAttributes> implements Validable {
             if (attributes == null) {
                 throw new IllegalStateException("attributes is not set");
             }
-            Resource<T> resource = new Resource<>(type, id, variantNum, attributes);
+            Resource<T> resource = new Resource<>(type, id, variantNum, null, attributes);
             attributes.setResource(resource);
             return resource;
         }
@@ -180,12 +189,12 @@ public class Resource<T extends IdentifiableAttributes> implements Validable {
     }
 
     public static <T extends IdentifiableAttributes> List<Resource<T>> cloneResourcesToVariant(
-        Map<String, Resource<T>> resources, int newVariantNum,
+        Collection<Resource<T>> resources, int newVariantNum,
         ObjectMapper objectMapper, Consumer<Resource<T>> resourcePostProcessor) {
         // use json serialization to clone the resources of source collection
         List<Resource<T>> clonedResources;
         try {
-            var json = objectMapper.writeValueAsString(resources.values());
+            var json = objectMapper.writeValueAsString(resources);
             clonedResources = objectMapper.readValue(json, new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {

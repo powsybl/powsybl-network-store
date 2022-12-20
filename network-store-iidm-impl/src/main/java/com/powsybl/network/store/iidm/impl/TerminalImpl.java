@@ -9,10 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.network.store.model.InjectionAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.SwitchAttributes;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.flow.EdmondsKarpMFImpl;
@@ -108,7 +105,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             throw new ValidationException(this, "cannot set active power on a busbar section");
         }
         attributes.setP(p);
-        index.updateResource(attributes.getResource());
+        index.updateResource(attributes.getResource(), AttributeFilter.SV);
         return this;
     }
 
@@ -123,7 +120,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             throw new ValidationException(this, "cannot set reactive power on a busbar section");
         }
         attributes.setQ(q);
-        index.updateResource(attributes.getResource());
+        index.updateResource(attributes.getResource(), AttributeFilter.SV);
         return this;
     }
 
@@ -422,21 +419,6 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         }
 
         return otherTerminals;
-    }
-
-    public void removeDanglingSwitches() {
-        TopologyKind topologyKind = getTopologyKind();
-        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
-        switch (topologyKind) {
-            case NODE_BREAKER:
-                ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).removeDanglingSwitches(attributes.getNode());
-                break;
-            case BUS_BREAKER:
-                // make sense?
-                break;
-            default:
-                throw new IllegalStateException("Unknown topology kind: " + topologyKind);
-        }
     }
 
     public String getVoltageLevelId() {

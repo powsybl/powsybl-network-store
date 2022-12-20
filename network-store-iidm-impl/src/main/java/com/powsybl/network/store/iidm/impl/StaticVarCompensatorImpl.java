@@ -8,7 +8,9 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+import com.powsybl.network.store.iidm.impl.extensions.StandbyAutomatonImpl;
 import com.powsybl.network.store.iidm.impl.extensions.VoltagePerReactivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
@@ -143,6 +145,16 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         return extension;
     }
 
+    private <E extends Extension<StaticVarCompensator>> E createStandbyAutomatonExtension() {
+        E extension = null;
+        var resource = checkResource();
+        StandbyAutomatonAttributes attributes = resource.getAttributes().getStandbyAutomaton();
+        if (attributes != null) {
+            extension = (E) new StandbyAutomatonImpl(getInjection());
+        }
+        return extension;
+    }
+
     @Override
     public <E extends Extension<StaticVarCompensator>> void addExtension(Class<? super E> type, E extension) {
         if (type == VoltagePerReactivePowerControl.class) {
@@ -150,6 +162,9 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
             resource.getAttributes().setVoltagePerReactiveControl(VoltagePerReactivePowerControlAttributes.builder()
                     .slope(((VoltagePerReactivePowerControl) extension).getSlope())
                     .build());
+        } else if (type == StandbyAutomaton.class) {
+            var resource = checkResource();
+            resource.getAttributes().setStandbyAutomaton(StandbyAutomatonImpl.createAttributes((StandbyAutomaton) extension));
         } else {
             super.addExtension(type, extension);
         }
@@ -159,6 +174,8 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     public <E extends Extension<StaticVarCompensator>> E getExtension(Class<? super E> type) {
         if (type == VoltagePerReactivePowerControl.class) {
             return createVoltagePerReactiveControlExtension();
+        } else if (type == StandbyAutomaton.class) {
+            return createStandbyAutomatonExtension();
         }
         return super.getExtension(type);
     }
@@ -167,6 +184,8 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     public <E extends Extension<StaticVarCompensator>> E getExtensionByName(String name) {
         if (name.equals("voltagePerReactivePowerControl")) {
             return createVoltagePerReactiveControlExtension();
+        } else if (name.equals(StandbyAutomaton.NAME)) {
+            return createStandbyAutomatonExtension();
         }
         return super.getExtensionByName(name);
     }
@@ -178,19 +197,20 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         if (extension != null) {
             extensions.add(extension);
         }
+        extension = createStandbyAutomatonExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
         return extensions;
     }
 
     @Override
-    public void remove(boolean removeDanglingSwitches) {
+    public void remove() {
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeStaticVarCompensator(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-        if (removeDanglingSwitches) {
-            getTerminal().removeDanglingSwitches();
-        }
     }
 }

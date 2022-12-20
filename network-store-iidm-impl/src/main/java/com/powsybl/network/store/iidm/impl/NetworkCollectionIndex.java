@@ -8,10 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -46,11 +43,14 @@ public class NetworkCollectionIndex<C> {
         collections.keySet().removeIf(p -> p.getLeft().equals(networkUuid));
     }
 
-    public void applyToCollection(BiConsumer<Pair<UUID, Integer>, C> fct) {
+    public void applyToCollection(UUID networkUuid, BiConsumer<Integer, C> fct) {
         for (Map.Entry<Pair<UUID, Integer>, C> e : collections.entrySet()) {
             Pair<UUID, Integer> p = e.getKey();
-            C collection = e.getValue();
-            fct.accept(p, collection);
+            if (p.getLeft().equals(networkUuid)) {
+                int variantNum = p.getRight();
+                C collection = e.getValue();
+                fct.accept(variantNum, collection);
+            }
         }
     }
 }

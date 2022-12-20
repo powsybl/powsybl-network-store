@@ -15,7 +15,7 @@ import java.util.Set;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public interface IdentifiableAttributes {
+public interface IdentifiableAttributes extends Attributes {
 
     String getName();
 
@@ -24,10 +24,6 @@ public interface IdentifiableAttributes {
     Map<String, String> getProperties();
 
     void setProperties(Map<String, String> properties);
-
-    Resource getResource();
-
-    void setResource(Resource resource);
 
     boolean isFictitious();
 
@@ -40,4 +36,8 @@ public interface IdentifiableAttributes {
     Map<String, String> getAliasByType();
 
     void setAliasByType(Map<String, String> aliasByType);
+
+    default Attributes filter(AttributeFilter filter) {
+        return this;
+    }
 }

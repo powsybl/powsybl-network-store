@@ -30,8 +30,9 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @Schema(description = "Generator name")
     private String name;
 
+    @Builder.Default
     @Schema(description = "Generator fictitious")
-    private boolean fictitious;
+    private boolean fictitious = false;
 
     @Schema(description = "Properties")
     private Map<String, String> properties;

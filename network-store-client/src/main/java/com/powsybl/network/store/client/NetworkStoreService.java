@@ -12,16 +12,19 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Importer;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.network.store.client.util.ExecutorUtil;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.util.TriFunction;
 import com.powsybl.network.store.model.NetworkInfos;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VariantInfos;
 import com.powsybl.tools.Version;
 import org.slf4j.Logger;
@@ -34,7 +37,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.BiFunction;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +53,9 @@ public class NetworkStoreService implements AutoCloseable {
 
     private final PreloadingStrategy defaultPreloadingStrategy;
 
-    private final BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator;
+    private final TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator;
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(ResourceType.values().length);
 
     public NetworkStoreService(String baseUri) {
         this(baseUri, PreloadingStrategy.NONE);
@@ -66,14 +72,14 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy,
-                        BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator) {
+                        TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
         this.restClient = Objects.requireNonNull(restClient);
         this.defaultPreloadingStrategy = Objects.requireNonNull(defaultPreloadingStrategy);
         this.decorator = Objects.requireNonNull(decorator);
     }
 
     public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy,
-                               BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator) {
+                               TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
         this(new RestClientImpl(baseUri), defaultPreloadingStrategy, decorator);
     }
 
@@ -86,15 +92,18 @@ public class NetworkStoreService implements AutoCloseable {
         return preloadingStrategy != null ? preloadingStrategy : defaultPreloadingStrategy;
     }
 
-    private static NetworkStoreClient createStoreClient(RestClient restClient, PreloadingStrategy preloadingStrategy) {
+    private static NetworkStoreClient createStoreClient(RestClient restClient, PreloadingStrategy preloadingStrategy,
+                                                        ExecutorService executorService) {
         Objects.requireNonNull(preloadingStrategy);
         LOGGER.info("Preloading strategy: {}", preloadingStrategy);
-        var cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient)));
+        var cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient), executorService));
         switch (preloadingStrategy) {
             case NONE:
                 return cachedClient;
             case COLLECTION:
-                return new PreloadingNetworkStoreClient(cachedClient);
+                return new PreloadingNetworkStoreClient(cachedClient, false, executorService);
+            case ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW:
+                return new PreloadingNetworkStoreClient(cachedClient, true, executorService);
             default:
                 throw new IllegalStateException("Unknown preloading strategy: " + preloadingStrategy);
         }
@@ -105,7 +114,7 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public NetworkFactory getNetworkFactory(PreloadingStrategy preloadingStrategy) {
-        return new NetworkFactoryImpl(() -> decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy)));
+        return new NetworkFactoryImpl(() -> decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy), executorService));
     }
 
     public Network createNetwork(String id, String sourceFormat) {
@@ -200,7 +209,7 @@ public class NetworkStoreService implements AutoCloseable {
 
     public Network getNetwork(UUID uuid, PreloadingStrategy preloadingStrategy) {
         Objects.requireNonNull(uuid);
-        NetworkStoreClient storeClient = decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy));
+        NetworkStoreClient storeClient = decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy), executorService);
         return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid, Resource.INITIAL_VARIANT_NUM)
                 .orElseThrow(() -> new PowsyblException("Network '" + uuid + "' not found")));
     }
@@ -238,7 +247,8 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public void flush(Network network) {
-        getNetworkImpl(network).getIndex().getStoreClient().flush();
+        NetworkImpl networkImpl = getNetworkImpl(network);
+        networkImpl.getIndex().getStoreClient().flush(networkImpl.getUuid());
     }
 
     @PostConstruct
@@ -249,6 +259,7 @@ public class NetworkStoreService implements AutoCloseable {
     @Override
     @PreDestroy
     public void close() {
+        ExecutorUtil.shutdownAndAwaitTermination(executorService);
     }
 
     public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId) {

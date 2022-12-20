@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -59,7 +60,7 @@ public class CollectionBufferTest {
                 .build();
 
         BiConsumer<UUID, List<Resource<LoadAttributes>>> createFct = (uuid, resources) -> created.addAll(resources);
-        BiConsumer<UUID, List<Resource<LoadAttributes>>> updateFct = (uuid, resources) -> updated.addAll(resources);
+        TriConsumer<UUID, List<Resource<LoadAttributes>>, AttributeFilter> updateFct = (uuid, resources, attributeFilter) -> updated.addAll(resources);
         TriConsumer<UUID, Integer, List<String>> removeFct = (uuid, variantNum, ids) -> removed.addAll(ids);
         collectionBuffer = new CollectionBuffer<>(createFct, updateFct, removeFct);
     }

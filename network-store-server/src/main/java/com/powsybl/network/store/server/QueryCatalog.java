@@ -12,8 +12,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.network.store.server.Mappings.ELEMENT_TABLES;
-import static com.powsybl.network.store.server.Mappings.NETWORK_TABLE;
+import static com.powsybl.network.store.server.Mappings.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -175,6 +174,52 @@ public final class QueryCatalog {
             query.append(" and ").append(columnToAddToWhereClause).append(" = ?");
         }
         return query.toString();
+    }
+
+    public static String buildUpdateInjectionSvQuery(String tableName) {
+        return "update " +
+                tableName +
+                " set p = ?" +
+                ", q = ?" +
+                " where " + NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                ID_COLUMN + " = ?";
+    }
+
+    public static String buildUpdateBranchSvQuery(String tableName) {
+        return "update " +
+                tableName +
+                " set p1 = ?" +
+                ", q1 = ?" +
+                ", p2 = ?" +
+                ", q2 = ?" +
+                " where " + NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                ID_COLUMN + " = ?";
+    }
+
+    public static String buildUpdateThreeWindingsTransformerSvQuery() {
+        return "update " +
+                THREE_WINDINGS_TRANSFORMER_TABLE +
+                " set p1 = ?" +
+                ", q1 = ?" +
+                ", p2 = ?" +
+                ", q2 = ?" +
+                ", p3 = ?" +
+                ", q3 = ?" +
+                " where " + NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                ID_COLUMN + " = ?";
+    }
+
+    public static String buildUpdateVoltageLevelSvQuery() {
+        return "update " +
+                VOLTAGE_LEVEL_TABLE +
+                " set calculatedbusesforbusview = ?" +
+                ", calculatedbusesforbusbreakerview = ?" +
+                " where " + NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                ID_COLUMN + " = ?";
     }
 
     public static String buildUpdateNetworkQuery(Collection<String> columns) {

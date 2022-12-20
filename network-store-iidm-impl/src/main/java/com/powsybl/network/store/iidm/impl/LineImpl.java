@@ -204,16 +204,12 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     }
 
     @Override
-    public void remove(boolean removeDanglingSwitches) {
+    public void remove() {
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeLine(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-        if (removeDanglingSwitches) {
-            getTerminal1().removeDanglingSwitches();
-            getTerminal2().removeDanglingSwitches();
-        }
     }
 }

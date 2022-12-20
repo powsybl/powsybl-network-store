@@ -8,7 +8,7 @@ package com.powsybl.network.store.tools;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.network.store.client.NetworkStoreConfig;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.tools.Command;
@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.*;
 
 /**
  *

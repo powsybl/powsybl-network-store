@@ -281,7 +281,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      */
     public CollectionCache<T> clone(ObjectMapper objectMapper, int newVariantNum, Consumer<Resource<T>> resourcePostProcessor) {
         // use json serialization to clone the resources of source collection
-        List<Resource<T>> clonedResources = Resource.cloneResourcesToVariant(resources, newVariantNum, objectMapper, resourcePostProcessor);
+        List<Resource<T>> clonedResources = Resource.cloneResourcesToVariant(resources.values(), newVariantNum, objectMapper, resourcePostProcessor);
 
         var clonedCache = new CollectionCache<>(oneLoaderFunction, containerLoaderFunction, allLoaderFunction);
         for (Resource<T> clonedResource : clonedResources) {

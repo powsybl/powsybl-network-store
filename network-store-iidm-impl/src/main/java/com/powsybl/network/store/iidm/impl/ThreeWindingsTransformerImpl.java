@@ -390,18 +390,13 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public void remove(boolean removeDanglingSwitches) {
+    public void remove() {
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeThreeWindingsTransformer(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-        if (removeDanglingSwitches) {
-            leg1.getTerminal().removeDanglingSwitches();
-            leg2.getTerminal().removeDanglingSwitches();
-            leg3.getTerminal().removeDanglingSwitches();
-        }
     }
 
     public BranchStatus.Status getBranchStatus() {

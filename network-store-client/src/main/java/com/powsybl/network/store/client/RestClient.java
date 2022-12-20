@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.network.store.model.Attributes;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.springframework.core.ParameterizedTypeReference;
@@ -18,22 +19,20 @@ import java.util.Optional;
  */
 public interface RestClient {
 
-    <T extends IdentifiableAttributes> void create(String url, List<Resource<T>> resources, Object... uriVariables);
+    <T extends IdentifiableAttributes> void createAll(String url, List<Resource<T>> resources, Object... uriVariables);
 
     <T extends IdentifiableAttributes> Optional<Resource<T>> getOne(String target, String url, Object... uriVariables);
 
     <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables);
 
-    <T extends IdentifiableAttributes> void update(String url, Resource<T> resource, Object... uriVariables);
+    <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables);
 
-    <T extends IdentifiableAttributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables);
+    <E> E get(String url, ParameterizedTypeReference<E> responseType, Object... uriVariables);
 
-    <E> E get(String uri, ParameterizedTypeReference<E> responseType, Object... uriVariables);
-
-    void put(String uri, Object... uriVariables);
+    void put(String url, Object... uriVariables);
 
     void delete(String url, Object... uriVariables);
 
-    void post(String uri, Object... uriVariables);
+    void post(String url, Object... uriVariables);
 
 }

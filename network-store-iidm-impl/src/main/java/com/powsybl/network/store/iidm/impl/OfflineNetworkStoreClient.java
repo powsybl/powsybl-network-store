@@ -50,7 +50,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateNetworks(List<Resource<NetworkAttributes>> networkResources) {
+    public void updateNetworks(List<Resource<NetworkAttributes>> networkResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -85,7 +85,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -115,7 +115,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
+    public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -260,7 +260,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -285,7 +285,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -310,7 +310,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
+    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -330,7 +330,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
+    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -350,7 +350,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -370,7 +370,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
+    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -390,7 +390,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResourceq) {
+    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -410,7 +410,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResourceq) {
+    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -430,7 +430,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
+    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -450,7 +450,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
+    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -470,7 +470,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -490,7 +490,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
+    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -515,7 +515,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
+    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -540,7 +540,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -560,7 +560,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+    public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -575,7 +575,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void flush() {
+    public void flush(UUID networkUuid) {
         // nothing to do
     }
 }
