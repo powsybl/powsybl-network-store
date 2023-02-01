@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ConnectablePosition.Feeder;
 import com.powsybl.network.store.model.ConnectableDirection;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 

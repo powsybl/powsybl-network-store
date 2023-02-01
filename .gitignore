@@ -1,7 +1,7 @@
 target/
 
 # IntelliJ
-/.idea
+**/.idea
 *.iml
 .toDelete
 
