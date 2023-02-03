@@ -31,6 +31,8 @@ jobs:
         run: mvn --batch-mode verify -Pjacoco
         working-directory: ./powsybl-network-store-server-parent
 
+      #We only run the sonar analysis on the server directory because we can't push 2 sonar result to the same sonar repository
+      #TODO add the analysis on the client when the client and server are split
       - name: Run SonarCloud analysis on server
         run: >
           mvn --batch-mode -DskipTests sonar:sonar
