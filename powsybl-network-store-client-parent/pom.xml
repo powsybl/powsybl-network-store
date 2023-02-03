@@ -68,7 +68,6 @@
     <modules>
         <module>network-store-client</module>
         <module>network-store-model</module>
-        <module>network-store-iidm-tck</module>
         <module>network-store-iidm-impl</module>
     </modules>
 

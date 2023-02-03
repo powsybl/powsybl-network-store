@@ -65,6 +65,7 @@
         <module>network-store-integration-test</module>
         <module>network-store-server</module>
         <module>network-store-tools</module>
+        <module>network-store-iidm-tck</module>
     </modules>
 
     <dependencyManagement>
