@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Build client with Maven
-        run: mvn --batch-mode verify -Pjacoco
+        run: mvn --batch-mode install -Pjacoco
         working-directory: ./powsybl-network-store-client-parent
 
       - name: Build server with Maven
@@ -52,6 +52,7 @@ jobs:
           -Djib.to.image=docker.io/powsybl/network-store-server
           -Djib.to.auth.username=powsyblci
           -Djib.to.auth.password=${{ secrets.DOCKERHUB_TOKEN }}
+        working-directory: ./powsybl-network-store-server-parent
 
       - name: Build Docker image - Tag
         if: startsWith(github.ref, 'refs/tags/')
@@ -61,6 +62,7 @@ jobs:
           -Djib.to.image=docker.io/powsybl/network-store-server:${GITHUB_REF_NAME#v}
           -Djib.to.auth.username=powsyblci
           -Djib.to.auth.password=${{ secrets.DOCKERHUB_TOKEN }}
+        working-directory: ./powsybl-network-store-server-parent
 
       - name: Broadcast update event
         if: github.ref == 'refs/heads/main'
