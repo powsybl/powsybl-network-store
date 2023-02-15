@@ -23,23 +23,15 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v1
 
-      - name: Build client with Maven
+      - name: Build with Maven
         run: mvn --batch-mode install -Pjacoco
-        working-directory: ./powsybl-network-store-client-parent
 
-      - name: Build server with Maven
-        run: mvn --batch-mode verify -Pjacoco
-        working-directory: ./powsybl-network-store-server-parent
-
-      #We only run the sonar analysis on the server directory because we can't push 2 sonar result to the same sonar repository
-      #TODO add the analysis on the client when the client and server are split
       - name: Run SonarCloud analysis on server
         run: >
           mvn --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.organization=powsybl-ci-github
           -Dsonar.projectKey=com.powsybl:powsybl-network-store
-        working-directory: ./powsybl-network-store-server-parent
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -52,7 +44,6 @@ jobs:
           -Djib.to.image=docker.io/powsybl/network-store-server
           -Djib.to.auth.username=powsyblci
           -Djib.to.auth.password=${{ secrets.DOCKERHUB_TOKEN }}
-        working-directory: ./powsybl-network-store-server-parent
 
       - name: Build Docker image - Tag
         if: startsWith(github.ref, 'refs/tags/')
@@ -62,7 +53,6 @@ jobs:
           -Djib.to.image=docker.io/powsybl/network-store-server:${GITHUB_REF_NAME#v}
           -Djib.to.auth.username=powsyblci
           -Djib.to.auth.password=${{ secrets.DOCKERHUB_TOKEN }}
-        working-directory: ./powsybl-network-store-server-parent
 
       - name: Broadcast update event
         if: github.ref == 'refs/heads/main'
