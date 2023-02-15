@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.util.Identifiables;
 
 /**
@@ -90,6 +91,17 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
             uniqueId = id;
         }
         return uniqueId;
+    }
+
+    protected String checkAndGetDefaultVoltageLevelId(String connectableBusId) {
+        if (connectableBusId == null) {
+            return null;
+        }
+        ConfiguredBusImpl bus = (ConfiguredBusImpl) getNetwork().getBusBreakerView().getBus(connectableBusId);
+        if (bus == null) {
+            throw new ValidationException(this, "configured bus '" + connectableBusId + "' not found");
+        }
+        return bus.getVoltageLevel().getId();
     }
 
     @Override

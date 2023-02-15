@@ -41,8 +41,8 @@ public class FeederImpl implements ConnectablePosition.Feeder {
     }
 
     @Override
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     @Override

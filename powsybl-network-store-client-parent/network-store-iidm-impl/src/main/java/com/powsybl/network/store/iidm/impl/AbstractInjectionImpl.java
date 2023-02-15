@@ -67,7 +67,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         Objects.requireNonNull(feeder);
         ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
         ConnectablePositionAttributes cpa = ConnectablePositionAttributes.builder()
-                .label(feeder.getName())
+                .label(feeder.getName().orElse(null))
                 .order(feeder.getOrder().orElse(null))
                 .direction(ConnectableDirection.valueOf(feeder.getDirection().name()))
                 .build();

@@ -73,8 +73,7 @@
 
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-cgmes-model</artifactId>
-            <type>test-jar</type>
+            <artifactId>powsybl-cgmes-model-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

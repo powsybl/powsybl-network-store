@@ -20,7 +20,9 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
 
     private boolean participate;
 
-    private float droop;
+    private double droop;
+
+    private double participationFactor;
 
     public ActivePowerControlAdderImpl(I extendable) {
         super(extendable);
@@ -42,8 +44,14 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
     }
 
     @Override
-    public ActivePowerControlAdder<I> withDroop(float droop) {
+    public ActivePowerControlAdder<I> withDroop(double droop) {
         this.droop = droop;
+        return this;
+    }
+
+    @Override
+    public ActivePowerControlAdder<I> withParticipationFactor(double v) {
+        this.participationFactor = participationFactor;
         return this;
     }
 }

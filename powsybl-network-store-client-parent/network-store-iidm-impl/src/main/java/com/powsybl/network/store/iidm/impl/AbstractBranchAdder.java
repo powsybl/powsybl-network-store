@@ -50,6 +50,9 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     public T setBus1(String bus1) {
         this.bus1 = bus1;
+        if (connectableBus1 == null && bus1 != null) {
+            connectableBus1 = bus1;
+        }
         return (T) this;
     }
 
@@ -99,7 +102,12 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected VoltageLevel checkVoltageLevel1() {
         if (voltageLevelId1 == null) {
-            throw new ValidationException(this, "first voltage level is not set");
+            String defaultVoltageLevelId1 = checkAndGetDefaultVoltageLevelId(connectableBus1);
+            if (defaultVoltageLevelId1 == null) {
+                throw new ValidationException(this, "first voltage level is not set and has no default value");
+            } else {
+                voltageLevelId1 = defaultVoltageLevelId1;
+            }
         }
         VoltageLevel voltageLevel1 = getNetwork().getVoltageLevel(voltageLevelId1);
         if (voltageLevel1 == null) {
@@ -123,6 +131,9 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     public T setBus2(String bus2) {
         this.bus2 = bus2;
+        if (connectableBus2 == null && bus2 != null) {
+            connectableBus2 = bus2;
+        }
         return (T) this;
     }
 
@@ -172,7 +183,12 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected VoltageLevel checkVoltageLevel2() {
         if (voltageLevelId2 == null) {
-            throw new ValidationException(this, "second voltage level is not set");
+            String defaultVoltageLevelId2 = checkAndGetDefaultVoltageLevelId(connectableBus2);
+            if (defaultVoltageLevelId2 == null) {
+                throw new ValidationException(this, "second voltage level is not set and has no default value");
+            } else {
+                voltageLevelId2 = defaultVoltageLevelId2;
+            }
         }
         VoltageLevel voltageLevel2 = getNetwork().getVoltageLevel(voltageLevelId2);
         if (voltageLevel2 == null) {

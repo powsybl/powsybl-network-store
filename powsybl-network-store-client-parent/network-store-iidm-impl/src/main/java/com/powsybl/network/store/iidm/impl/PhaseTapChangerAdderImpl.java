@@ -36,21 +36,19 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private double regulationValue = Double.NaN;
 
-    private String id;
-
     class StepAdderImpl implements StepAdder {
 
         private double alpha = Double.NaN;
 
-        private double rho = Double.NaN;
+        private double rho = 1;
 
-        private double r = Double.NaN;
+        private double r = 0;
 
-        private double x = Double.NaN;
+        private double x = 0;
 
-        private double g = Double.NaN;
+        private double g = 0;
 
-        private double b = Double.NaN;
+        private double b = 0;
 
         @Override
         public PhaseTapChangerAdder.StepAdder setAlpha(double alpha) {
@@ -123,11 +121,10 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
     }
 
-    public PhaseTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes, String id) {
+    public PhaseTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes) {
         super(index);
         this.tapChangerParent = tapChangerParent;
         this.tapChangerParentAttributes = tapChangerParentAttributes;
-        this.id = id;
     }
 
     @Override

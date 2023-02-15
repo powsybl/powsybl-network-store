@@ -38,7 +38,6 @@ public class BoundaryTest {
         assertEquals(222.9, boundary.getV(), EPS1);
         assertEquals(9.38, boundary.getAngle(), EPS2);
         assertSame(dl, boundary.getConnectable());
-        assertSame(dl.getTerminal().getVoltageLevel(), boundary.getVoltageLevel());
         assertNull(boundary.getSide());
     }
 
@@ -71,7 +70,6 @@ public class BoundaryTest {
         assertEquals(430.1, boundary2.getV(), EPS1);
         assertEquals(0.1, boundary2.getAngle(), EPS2);
         assertSame(tieLine, boundary2.getConnectable());
-        assertSame(tieLine.getTerminal2().getVoltageLevel(), boundary2.getVoltageLevel());
         assertEquals(Branch.Side.TWO, boundary2.getSide());
     }
 }

@@ -26,5 +26,7 @@ public class ActivePowerControlAttributes {
 
     private boolean participate;
 
-    private float droop;
+    private double droop;
+
+    private double participationFactor;
 }

@@ -39,9 +39,9 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         private double x = Double.NaN;
 
-        private double g = Double.NaN;
+        private double g = 0;
 
-        private double b = Double.NaN;
+        private double b = 0;
 
         private double ratedU = Double.NaN;
 
@@ -69,6 +69,9 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
         @Override
         public LegAdder setBus(String bus) {
             this.bus = bus;
+            if (connectableBus == null && bus != null) {
+                connectableBus = bus;
+            }
             return this;
         }
 
@@ -159,7 +162,12 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         protected VoltageLevel checkVoltageLevel() {
             if (voltageLevelId == null) {
-                throw new ValidationException(this, "voltage level is not set");
+                String defaultVoltageLevelId = checkAndGetDefaultVoltageLevelId(connectableBus);
+                if (defaultVoltageLevelId == null) {
+                    throw new ValidationException(this, "voltage level is not set and has no default value");
+                } else {
+                    voltageLevelId = defaultVoltageLevelId;
+                }
             }
             VoltageLevel voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
             if (voltageLevel == null) {

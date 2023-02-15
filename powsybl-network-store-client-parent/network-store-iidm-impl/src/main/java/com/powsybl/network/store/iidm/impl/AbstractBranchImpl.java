@@ -466,7 +466,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         ConnectablePositionAttributes cpa2 = null;
         if (feeder1 != null) {
             cpa1 = ConnectablePositionAttributes.builder()
-                    .label(feeder1.getName())
+                    .label(feeder1.getName().orElse(null))
                     .order(feeder1.getOrder().orElse(null))
                     .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
                     .build();
@@ -474,7 +474,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
         if (feeder2 != null) {
             cpa2 = ConnectablePositionAttributes.builder()
-                    .label(feeder2.getName())
+                    .label(feeder2.getName().orElse(null))
                     .order(feeder2.getOrder().orElse(null))
                     .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
                     .build();

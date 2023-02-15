@@ -210,12 +210,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public PhaseTapChangerAdder newPhaseTapChanger() {
-            return new PhaseTapChangerAdderImpl(this, index, attributes, transformer.getId());
+            return new PhaseTapChangerAdderImpl(this, index, attributes);
         }
 
         @Override
         public RatioTapChangerAdder newRatioTapChanger() {
-            return new RatioTapChangerAdderImpl(this, index, attributes, transformer.getId());
+            return new RatioTapChangerAdderImpl(this, index, attributes);
         }
 
         @Override
@@ -439,17 +439,17 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         Objects.requireNonNull(feeder3);
         ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
         ConnectablePositionAttributes cpa1 = ConnectablePositionAttributes.builder()
-                .label(feeder1.getName())
+                .label(feeder1.getName().orElse(null))
                 .order(feeder1.getOrder().orElse(null))
                 .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
                 .build();
         ConnectablePositionAttributes cpa2 = ConnectablePositionAttributes.builder()
-                .label(feeder2.getName())
+                .label(feeder2.getName().orElse(null))
                 .order(feeder2.getOrder().orElse(null))
                 .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
                 .build();
         ConnectablePositionAttributes cpa3 = ConnectablePositionAttributes.builder()
-                .label(feeder3.getName())
+                .label(feeder3.getName().orElse(null))
                 .order(feeder3.getOrder().orElse(null))
                 .direction(ConnectableDirection.valueOf(feeder3.getDirection().name()))
                 .build();

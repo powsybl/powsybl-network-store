@@ -23,7 +23,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> implements ActivePow
         this.injection = injection;
     }
 
-    public ActivePowerControlImpl(I injection, boolean isParticipate, float droop) {
+    public ActivePowerControlImpl(I injection, boolean isParticipate, double droop) {
         this(injection);
         if (injection instanceof GeneratorImpl || injection instanceof BatteryImpl) {
             getInjectionResources().setActivePowerControl(ActivePowerControlAttributes.builder()
@@ -47,13 +47,24 @@ public class ActivePowerControlImpl<I extends Injection<I>> implements ActivePow
     }
 
     @Override
-    public float getDroop() {
+    public double getDroop() {
         return getInjectionResources().getActivePowerControl().getDroop();
     }
 
     @Override
-    public void setDroop(float droop) {
+    public void setDroop(double droop) {
         getInjectionResources().getActivePowerControl().setDroop(droop);
+        updateResource();
+    }
+
+    @Override
+    public double getParticipationFactor() {
+        return getInjectionResources().getActivePowerControl().getParticipationFactor();
+    }
+
+    @Override
+    public void setParticipationFactor(double participationFactor) {
+        getInjectionResources().getActivePowerControl().setParticipationFactor(participationFactor);
         updateResource();
     }
 

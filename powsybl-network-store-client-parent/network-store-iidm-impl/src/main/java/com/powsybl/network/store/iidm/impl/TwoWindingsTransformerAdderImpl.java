@@ -22,9 +22,9 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private double x = Double.NaN;
 
-    private double g = Double.NaN;
+    private double g = 0;
 
-    private double b = Double.NaN;
+    private double b = 0;
 
     private double ratedU1 = Double.NaN;
 
@@ -105,8 +105,12 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
-        ValidationUtil.checkRatedU1(this, ratedU1);
-        ValidationUtil.checkRatedU2(this, ratedU2);
+        if (Double.isNaN(ratedU1)) {
+            ratedU1 = voltageLevel1.getNominalV();
+        }
+        if (Double.isNaN(ratedU2)) {
+            ratedU2 = voltageLevel2.getNominalV();
+        }
         ValidationUtil.checkRatedS(this, ratedS);
 
         Resource<TwoWindingsTransformerAttributes> resource = Resource.twoWindingsTransformerBuilder()

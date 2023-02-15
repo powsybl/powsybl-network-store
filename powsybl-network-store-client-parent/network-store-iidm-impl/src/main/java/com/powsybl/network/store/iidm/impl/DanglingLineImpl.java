@@ -227,11 +227,6 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         public Connectable getConnectable() {
             return danglingLine;
         }
-
-        @Override
-        public VoltageLevel getVoltageLevel() {
-            return danglingLine.getTerminal().getVoltageLevel();
-        }
     }
 
     private final BoundaryImpl boundary = new BoundaryImpl(this);

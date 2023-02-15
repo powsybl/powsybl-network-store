@@ -76,11 +76,6 @@ public class TieLineImpl extends LineImpl implements TieLine {
             public Connectable getConnectable() {
                 return TieLineImpl.this;
             }
-
-            @Override
-            public VoltageLevel getVoltageLevel() {
-                return getTerminal().getVoltageLevel();
-            }
         }
 
         private final BoundaryImpl boundary = new BoundaryImpl();

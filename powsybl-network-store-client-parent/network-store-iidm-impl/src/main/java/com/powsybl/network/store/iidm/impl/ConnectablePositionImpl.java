@@ -45,8 +45,8 @@ public class ConnectablePositionImpl<C extends Connectable<C>>
         }
 
         @Override
-        public String getName() {
-            return cpa.getLabel();
+        public Optional<String> getName() {
+            return Optional.ofNullable(cpa.getLabel());
         }
 
         @Override
