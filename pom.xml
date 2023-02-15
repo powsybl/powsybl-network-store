@@ -19,11 +19,11 @@
         <relativePath/>
     </parent>
 
-    <artifactId>powsybl-network-store-server-parent</artifactId>
+    <artifactId>powsybl-network-store-client-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
-    <name>Network store server parent</name>
+    <name>Network store client parent</name>
     <url>http://www.powsybl.org</url>
 
     <scm>
@@ -50,46 +50,60 @@
     <properties>
         <java.version>11</java.version>
 
-        <sirocco.version>1.0</sirocco.version>
-
-        <powsybl-ws-dependencies.version>2.0.0</powsybl-ws-dependencies.version>
-
-        <sonar.coverage.jacoco.xmlReportPaths>
-            ../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,
-            ../../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,
-            ../../../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
+        <lombok.version>1.18.24</lombok.version>
+        <springboot.version>2.7.3</springboot.version>
+        <equalsverifier.version>3.10</equalsverifier.version>
+        <commons-lang3.version>3.9</commons-lang3.version>
+        <powsybl-dependencies.version>2023.0.1</powsybl-dependencies.version>
+        <powsybl-ws-commons.version>1.3.0</powsybl-ws-commons.version>
     </properties>
 
     <modules>
-        <module>network-store-integration-test</module>
-        <module>network-store-server</module>
-        <module>network-store-tools</module>
-        <module>network-store-iidm-tck</module>
+        <module>network-store-client</module>
+        <module>network-store-model</module>
+        <module>network-store-iidm-impl</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <!-- overrides of imports -->
+
             <!-- imports -->
             <dependency>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-ws-dependencies</artifactId>
-                <version>${powsybl-ws-dependencies.version}</version>
+                <artifactId>powsybl-dependencies</artifactId>
+                <version>${powsybl-dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${springboot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
 
             <!-- project specific dependencies (also overrides imports, but separate for clarity) -->
             <dependency>
-                <groupId>org.ow2.sirocco</groupId>
-                <artifactId>sirocco-text-table-formatter</artifactId>
-                <version>${sirocco.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>nl.jqno.equalsverifier</groupId>
+                <artifactId>equalsverifier</artifactId>
+                <version>${equalsverifier.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-ws-commons</artifactId>
+                <version>${powsybl-ws-commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -118,4 +132,5 @@
             </plugins>
         </pluginManagement>
     </build>
+
 </project>

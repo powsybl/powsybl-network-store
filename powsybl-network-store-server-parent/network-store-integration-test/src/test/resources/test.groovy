@@ -1,1 +1,0 @@
-print('id: ' + network.id)
