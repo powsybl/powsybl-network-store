@@ -24,6 +24,7 @@
 
     <packaging>pom</packaging>
     <name>Network store client parent</name>
+    <description>Network store client parent POM</description>
     <url>http://www.powsybl.org</url>
 
     <scm>
