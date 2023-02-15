@@ -50,7 +50,7 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
     }
 
     @Override
-    public ActivePowerControlAdder<I> withParticipationFactor(double v) {
+    public ActivePowerControlAdder<I> withParticipationFactor(double participationFactor) {
         this.participationFactor = participationFactor;
         return this;
     }
