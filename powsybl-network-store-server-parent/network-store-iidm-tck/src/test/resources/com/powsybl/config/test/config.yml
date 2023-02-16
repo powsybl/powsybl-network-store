@@ -1,5 +1,0 @@
-network:
-    default-impl-name: NetworkStoreTest
-
-network-store:
-    base-url: http://localhost:23146/

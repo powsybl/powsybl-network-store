@@ -1,6 +1,0 @@
-spring:
-    port: 8080
-
-powsybl-ws:
-  database:
-    host: localhost
