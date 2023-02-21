@@ -11,15 +11,15 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public abstract class AbstractLoadingLimits<T extends LoadingLimits> implements LoadingLimits {
+
+    public static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
     private static final class TemporaryLimitImpl implements LoadingLimits.TemporaryLimit {
 
@@ -73,8 +73,13 @@ public abstract class AbstractLoadingLimits<T extends LoadingLimits> implements 
 
     @Override
     public Collection<LoadingLimits.TemporaryLimit> getTemporaryLimits() {
-        return attributes.getTemporaryLimits() == null ? Collections.emptyList()
-                                                       : attributes.getTemporaryLimits().values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toUnmodifiableList());
+        if (attributes.getTemporaryLimits() == null) {
+            return Collections.emptyList();
+        }
+        // make sure limits are provided by descending durations
+        TreeMap<Integer, TemporaryLimitAttributes> sortedLimitAttributes = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
+        sortedLimitAttributes.putAll(attributes.getTemporaryLimits());
+        return sortedLimitAttributes.values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toUnmodifiableList());
     }
 
     @Override

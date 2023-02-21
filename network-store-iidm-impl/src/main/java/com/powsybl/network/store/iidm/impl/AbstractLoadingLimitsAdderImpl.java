@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -26,8 +25,6 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>, L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>>
         implements LoadingLimitsAdderExt<S, O, L, A> {
-
-    private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdderImpl.class);
 
@@ -73,7 +70,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     public void addTemporaryLimit(TemporaryLimitAttributes temporaryLimitAttribute) {
         if (temporaryLimits == null) {
-            temporaryLimits = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
+            temporaryLimits = new TreeMap<>(AbstractLoadingLimits.ACCEPTABLE_DURATION_COMPARATOR);
         }
         temporaryLimits.put(temporaryLimitAttribute.getAcceptableDuration(), temporaryLimitAttribute);
     }

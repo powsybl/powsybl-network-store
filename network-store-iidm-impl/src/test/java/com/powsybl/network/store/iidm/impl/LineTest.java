@@ -17,6 +17,7 @@ import com.powsybl.network.store.model.ConnectableDirection;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -53,10 +54,11 @@ public class LineTest extends AbstractLineTest {
 
         l1.getTerminal1().setP(400);
         l1.setCurrentLimits(Branch.Side.ONE, new LimitsAttributes(40, null));
+        assertTrue(l1.getNullableCurrentLimits1().getTemporaryLimits().isEmpty());
         assertTrue(l1.isOverloaded());
 
         TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
-        temporaryLimits.put(0, TemporaryLimitAttributes.builder().name("TempLimit1").value(1000).acceptableDuration(5).fictitious(false).build());
+        temporaryLimits.put(5, TemporaryLimitAttributes.builder().name("TempLimit5").value(1000).acceptableDuration(5).fictitious(false).build());
         l1.setCurrentLimits(Branch.Side.ONE, new LimitsAttributes(40, temporaryLimits));
         l1.setCurrentLimits(Branch.Side.TWO, new LimitsAttributes(40, temporaryLimits));
         assertEquals(5, l1.getOverloadDuration());
@@ -70,13 +72,17 @@ public class LineTest extends AbstractLineTest {
         assertThrows(UnsupportedOperationException.class, () -> l1.checkPermanentLimit(Branch.Side.TWO, LimitType.VOLTAGE));
 
         Branch.Overload overload = l1.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT);
-        assertEquals("TempLimit1", overload.getTemporaryLimit().getName());
+        assertEquals("TempLimit5", overload.getTemporaryLimit().getName());
         assertEquals(40.0, overload.getPreviousLimit(), 0);
         assertEquals(5, overload.getTemporaryLimit().getAcceptableDuration());
         assertNull(l1.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
 
-        temporaryLimits.put(0, TemporaryLimitAttributes.builder().name("TempLimit1").value(20).acceptableDuration(5).fictitious(false).build());
+        temporaryLimits.put(5, TemporaryLimitAttributes.builder().name("TempLimit5").value(20).acceptableDuration(5).fictitious(false).build());
         assertEquals(Integer.MAX_VALUE, l1.getOverloadDuration());
+
+        temporaryLimits.put(10, TemporaryLimitAttributes.builder().name("TempLimit10").value(8).acceptableDuration(10).fictitious(false).build());
+        // check duration sorting order: first entry has the highest duration
+        Assert.assertEquals(10., l1.getNullableCurrentLimits1().getTemporaryLimits().iterator().next().getAcceptableDuration(), 0);
     }
 
     @Override
