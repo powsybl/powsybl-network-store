@@ -182,10 +182,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Network setCaseDate(DateTime date) {
-        var resource = checkResource();
         ValidationUtil.checkCaseDate(this, date);
-        resource.getAttributes().setCaseDate(date);
-        updateResource();
+        updateResource(res -> res.getAttributes().setCaseDate(date));
         return this;
     }
 
@@ -196,10 +194,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Network setForecastDistance(int forecastDistance) {
-        var resource = checkResource();
         ValidationUtil.checkForecastDistance(this, forecastDistance);
-        resource.getAttributes().setForecastDistance(forecastDistance);
-        updateResource();
+        updateResource(res -> res.getAttributes().setForecastDistance(forecastDistance));
         return this;
     }
 

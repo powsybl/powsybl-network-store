@@ -10,8 +10,10 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.network.store.iidm.impl.AbstractInjectionImpl;
 import com.powsybl.network.store.iidm.impl.BatteryImpl;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
+import com.powsybl.network.store.model.ActivePowerControlAttributes;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -31,7 +33,13 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
     @Override
     protected ActivePowerControl<I> createExtension(I injection) {
         if (injection instanceof GeneratorImpl || injection instanceof BatteryImpl) {
-            return new ActivePowerControlImpl<>(injection, participate, droop);
+            ActivePowerControlAttributes attributes = ActivePowerControlAttributes.builder()
+                    .droop(droop)
+                    .participate(participate)
+                    .participationFactor(participationFactor)
+                    .build();
+            ((AbstractInjectionImpl<?, ?>) injection).updateResource(res -> res.getAttributes().setActivePowerControl(attributes));
+            return new ActivePowerControlImpl<>(injection);
         } else {
             throw new UnsupportedOperationException("Cannot set ActivePowerControl on this kind of component");
         }

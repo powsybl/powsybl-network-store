@@ -8,7 +8,10 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ShuntCompensatorAttributes;
+import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -36,13 +39,13 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setSectionCount(int sectionCount) {
-        var resource = checkResource();
         ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        int oldValue = resource.getAttributes().getSectionCount();
-        resource.getAttributes().setSectionCount(sectionCount);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "sectionCount", variantId, oldValue, sectionCount);
+        int oldValue = checkResource().getAttributes().getSectionCount();
+        if (sectionCount != oldValue) {
+            updateResource(res -> res.getAttributes().setSectionCount(sectionCount));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "sectionCount", variantId, oldValue, sectionCount);
+        }
         return this;
     }
 
@@ -89,9 +92,9 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         var resource = checkResource();
         ShuntCompensatorModelAttributes shuntCompensatorModelAttributes = resource.getAttributes().getModel();
         if (shuntCompensatorModelAttributes.getType() == ShuntCompensatorModelType.LINEAR) {
-            return new ShuntCompensatorLinearModelImpl(this, (ShuntCompensatorLinearModelAttributes) shuntCompensatorModelAttributes);
+            return new ShuntCompensatorLinearModelImpl(this);
         } else {
-            return new ShuntCompensatorNonLinearModelImpl(this, (ShuntCompensatorNonLinearModelAttributes) shuntCompensatorModelAttributes);
+            return new ShuntCompensatorNonLinearModelImpl(this);
         }
     }
 
@@ -120,32 +123,29 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
-        resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        boolean oldValue = checkResource().getAttributes().isVoltageRegulatorOn();
+        if (voltageRegulatorOn != oldValue) {
+            updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        }
         return this;
     }
 
     @Override
     public Terminal getRegulatingTerminal() {
-        var resource = checkResource();
-        TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
+        TerminalRefAttributes terminalRefAttributes = checkResource().getAttributes().getRegulatingTerminal();
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
         return regulatingTerminal != null ? regulatingTerminal : terminal;
     }
 
     @Override
     public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        var resource = checkResource();
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        TerminalRefAttributes oldValue = resource.getAttributes().getRegulatingTerminal();
-        resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
-        updateResource();
+        TerminalRefAttributes oldValue = checkResource().getAttributes().getRegulatingTerminal();
+        updateResource(res -> res.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
         index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return this;
     }
@@ -157,13 +157,13 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setTargetV(double targetV) {
-        var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = resource.getAttributes().getTargetV();
-        resource.getAttributes().setTargetV(targetV);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
+        double oldValue = checkResource().getAttributes().getTargetV();
+        if (Double.compare(targetV, oldValue) != 0) {
+            updateResource(res -> res.getAttributes().setTargetV(targetV));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
+        }
         return this;
     }
 
@@ -174,13 +174,13 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
-        var resource = checkResource();
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = resource.getAttributes().getTargetDeadband();
-        resource.getAttributes().setTargetDeadband(targetDeadband);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "targetDeadband", variantId, oldValue, targetDeadband);
+        double oldValue = checkResource().getAttributes().getTargetDeadband();
+        if (Double.compare(targetDeadband, oldValue) != 0) {
+            updateResource(res -> res.getAttributes().setTargetDeadband(targetDeadband));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "targetDeadband", variantId, oldValue, targetDeadband);
+        }
         return this;
     }
 

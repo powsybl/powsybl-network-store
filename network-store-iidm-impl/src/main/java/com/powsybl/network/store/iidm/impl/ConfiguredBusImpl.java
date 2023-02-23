@@ -56,15 +56,15 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Bus setV(double v) {
-        var resource = checkResource();
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
         }
-        double oldValue = resource.getAttributes().getV();
-        resource.getAttributes().setV(v);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "v", variantId, oldValue, v);
+        double oldValue = checkResource().getAttributes().getV();
+        if (v != oldValue) {
+            updateResource(res -> res.getAttributes().setV(v));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "v", variantId, oldValue, v);
+        }
         return this;
     }
 
@@ -75,12 +75,12 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Bus setAngle(double angle) {
-        var resource = checkResource();
-        double oldValue = resource.getAttributes().getAngle();
-        resource.getAttributes().setAngle(angle);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "angle", variantId, oldValue, angle);
+        double oldValue = checkResource().getAttributes().getAngle();
+        if (angle != oldValue) {
+            updateResource(res -> res.getAttributes().setAngle(angle));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "angle", variantId, oldValue, angle);
+        }
         return this;
     }
 

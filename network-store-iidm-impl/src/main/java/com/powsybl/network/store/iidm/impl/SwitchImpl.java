@@ -62,8 +62,7 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
         var resource = checkResource();
         boolean wasOpen = resource.getAttributes().isOpen();
         if (open != wasOpen) {
-            resource.getAttributes().setOpen(open);
-            updateResource();
+            updateResource(r -> r.getAttributes().setOpen(open));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "open", variantId, wasOpen, open);
             // invalidate calculated buses
@@ -78,32 +77,16 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
 
     @Override
     public void setRetained(boolean retained) {
-        var resource = checkResource();
         if (getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new ValidationException(this, "retain status is not modifiable in a non node/breaker voltage level");
         }
-        boolean oldValue = resource.getAttributes().isRetained();
+        boolean oldValue = checkResource().getAttributes().isRetained();
         if (retained != oldValue) {
-            resource.getAttributes().setRetained(retained);
-            updateResource();
+            updateResource(r -> r.getAttributes().setRetained(retained));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "retained", variantId, oldValue, retained);
             // invalidate calculated buses
             getVoltageLevel().invalidateCalculatedBuses();
         }
-    }
-
-    @Override
-    public boolean isFictitious() {
-        return checkResource().getAttributes().isFictitious();
-    }
-
-    @Override
-    public void setFictitious(boolean fictitious) {
-        var resource = checkResource();
-        boolean oldValue = resource.getAttributes().isFictitious();
-        resource.getAttributes().setFictitious(fictitious);
-        updateResource();
-        index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 }

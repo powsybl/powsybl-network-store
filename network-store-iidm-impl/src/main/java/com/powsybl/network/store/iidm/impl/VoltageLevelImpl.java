@@ -16,7 +16,10 @@ import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.network.store.iidm.impl.extensions.IdentifiableShortCircuitImpl;
 import com.powsybl.network.store.iidm.impl.extensions.SlackTerminalImpl;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.IdentifiableShortCircuitAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TerminalRefAttributes;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -49,9 +52,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     void invalidateCalculatedBuses() {
-        var resource = checkResource();
-        resource.getAttributes().setCalculatedBusesValid(false);
-        updateResource();
+        updateResource(res -> res.getAttributes().setCalculatedBusesValid(false));
         getNetwork().invalidateComponents();
     }
 
@@ -76,9 +77,10 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         var resource = checkResource();
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = resource.getAttributes().getNominalV();
-        resource.getAttributes().setNominalV(nominalV);
-        updateResource();
-        index.notifyUpdate(this, "nominalV", oldValue, nominalV);
+        if (nominalV != oldValue) {
+            updateResource(res -> res.getAttributes().setNominalV(nominalV));
+            index.notifyUpdate(this, "nominalV", oldValue, nominalV);
+        }
         return this;
     }
 
@@ -92,9 +94,10 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         var resource = checkResource();
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, getHighVoltageLimit());
         double oldValue = resource.getAttributes().getLowVoltageLimit();
-        resource.getAttributes().setLowVoltageLimit(lowVoltageLimit);
-        updateResource();
-        index.notifyUpdate(this, "lowVoltageLimit", oldValue, lowVoltageLimit);
+        if (lowVoltageLimit != oldValue) {
+            updateResource(res -> res.getAttributes().setLowVoltageLimit(lowVoltageLimit));
+            index.notifyUpdate(this, "lowVoltageLimit", oldValue, lowVoltageLimit);
+        }
         return this;
     }
 
@@ -108,9 +111,10 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         var resource = checkResource();
         ValidationUtil.checkVoltageLimits(this, getLowVoltageLimit(), highVoltageLimit);
         double oldValue = resource.getAttributes().getHighVoltageLimit();
-        resource.getAttributes().setHighVoltageLimit(highVoltageLimit);
-        updateResource();
-        index.notifyUpdate(this, "highVoltageLimit", oldValue, highVoltageLimit);
+        if (highVoltageLimit != oldValue) {
+            updateResource(res -> res.getAttributes().setHighVoltageLimit(highVoltageLimit));
+            index.notifyUpdate(this, "highVoltageLimit", oldValue, highVoltageLimit);
+        }
         return this;
     }
 
@@ -527,24 +531,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         }
     }
 
-    @Override
-    public <E extends Extension<VoltageLevel>> void addExtension(Class<? super E> type, E extension) {
-        super.addExtension(type, extension);
-        var resource = checkResource();
-        if (type == SlackTerminal.class) {
-            SlackTerminal slackTerminal = (SlackTerminal) extension;
-            resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(slackTerminal.getTerminal()));
-            updateResource();
-        } else if (type == IdentifiableShortCircuit.class) {
-            IdentifiableShortCircuit identifiableShortCircuit = (IdentifiableShortCircuit) extension;
-            resource.getAttributes().setIdentifiableShortCircuitAttributes(IdentifiableShortCircuitAttributes.builder()
-                    .ipMin(identifiableShortCircuit.getIpMin())
-                    .ipMax(identifiableShortCircuit.getIpMax())
-                    .build());
-            updateResource();
-        }
-    }
-
     private <E extends Extension<VoltageLevel>> void addIfNotNull(Collection<E> list, E extension) {
         if (extension != null) {
             list.add(extension);
@@ -563,9 +549,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @SuppressWarnings("unchecked")
     public <E extends Extension<VoltageLevel>> E getExtension(Class<? super E> type) {
         if (type == SlackTerminal.class) {
-            return (E) createSlackTerminal();
+            return createSlackTerminal();
         } else if (type == IdentifiableShortCircuit.class) {
-            return (E) createIdentifiableShortCircuitExtension();
+            return createIdentifiableShortCircuitExtension();
         }
         return super.getExtension(type);
     }
@@ -597,25 +583,13 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         var resource = checkResource();
         IdentifiableShortCircuitAttributes attributes = resource.getAttributes().getIdentifiableShortCircuitAttributes();
         if (attributes != null) {
-            extension = (E) new IdentifiableShortCircuitImpl<>(this, attributes.getIpMin(), attributes.getIpMax());
+            extension = (E) new IdentifiableShortCircuitImpl<>(this);
         }
         return extension;
     }
 
     public Terminal getTerminal(TerminalRefAttributes tra) {
         return TerminalRefUtils.getTerminal(index, tra);
-    }
-
-    public VoltageLevelImpl initSlackTerminalAttributes(Terminal terminal) {
-        checkResource().getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
-        updateResource();
-        return this;
-    }
-
-    public VoltageLevelImpl initIdentifiableShortCircuitAttributes(double ipMin, double ipMax) {
-        checkResource().getAttributes().setIdentifiableShortCircuitAttributes(new IdentifiableShortCircuitAttributes(ipMin, ipMax));
-        updateResource();
-        return this;
     }
 
     @Override

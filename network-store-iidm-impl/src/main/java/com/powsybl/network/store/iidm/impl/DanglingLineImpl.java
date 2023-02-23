@@ -27,139 +27,143 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         private final DanglingLineImpl danglingLine;
 
-        private final DanglingLineGenerationAttributes attributes;
-
-        private final String id;
-
-        GenerationImpl(DanglingLineImpl danglingLine, DanglingLineGenerationAttributes attributes, String id) {
+        GenerationImpl(DanglingLineImpl danglingLine) {
             this.danglingLine = Objects.requireNonNull(danglingLine);
-            this.attributes = attributes;
-            if (this.attributes.getReactiveLimits() == null) {
-                this.attributes.setReactiveLimits(new MinMaxReactiveLimitsAttributes(-Double.MAX_VALUE, Double.MAX_VALUE));
-                danglingLine.updateResource();
-            }
-            this.id = id;
+        }
+
+        private static DanglingLineGenerationAttributes getAttributes(Resource<DanglingLineAttributes> resource) {
+            return resource.getAttributes().getGeneration();
+        }
+
+        private DanglingLineGenerationAttributes getAttributes() {
+            return getAttributes(danglingLine.getResource());
         }
 
         @Override
         public double getTargetP() {
-            return attributes.getTargetP();
+            return getAttributes().getTargetP();
         }
 
         @Override
         public GenerationImpl setTargetP(double targetP) {
             ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-            double oldValue = attributes.getTargetP();
-            attributes.setTargetP(targetP);
-            danglingLine.updateResource();
-            String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
-            danglingLine.notifyUpdate("targetP", variantId, oldValue, targetP);
+            double oldValue = getAttributes().getTargetP();
+            if (targetP != oldValue) {
+                danglingLine.updateResource(res -> getAttributes(res).setTargetP(targetP));
+                String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
+                danglingLine.notifyUpdate("targetP", variantId, oldValue, targetP);
+            }
             return this;
         }
 
         @Override
         public double getMaxP() {
-            return attributes.getMaxP();
+            return getAttributes().getMaxP();
         }
 
         @Override
         public GenerationImpl setMaxP(double maxP) {
             ValidationUtil.checkMaxP(danglingLine, maxP);
             ValidationUtil.checkActivePowerLimits(danglingLine, getMinP(), maxP);
-            double oldValue = attributes.getMaxP();
-            attributes.setMaxP(maxP);
-            danglingLine.updateResource();
-            danglingLine.notifyUpdate("maxP", oldValue, maxP);
+            double oldValue = getAttributes().getMaxP();
+            if (maxP != oldValue) {
+                danglingLine.updateResource(res -> getAttributes(res).setMaxP(maxP));
+                danglingLine.notifyUpdate("maxP", oldValue, maxP);
+            }
             return this;
         }
 
         @Override
         public double getMinP() {
-            return attributes.getMinP();
+            return getAttributes().getMinP();
         }
 
         @Override
         public GenerationImpl setMinP(double minP) {
             ValidationUtil.checkMinP(danglingLine, minP);
             ValidationUtil.checkActivePowerLimits(danglingLine, minP, getMaxP());
-            double oldValue = attributes.getMinP();
-            attributes.setMinP(minP);
-            danglingLine.updateResource();
-            danglingLine.notifyUpdate("minP", oldValue, minP);
+            double oldValue = getAttributes().getMinP();
+            if (minP != oldValue) {
+                danglingLine.updateResource(res -> getAttributes(res).setMinP(minP));
+                danglingLine.notifyUpdate("minP", oldValue, minP);
+            }
             return this;
         }
 
         @Override
         public double getTargetQ() {
-            return attributes.getTargetQ();
+            return getAttributes().getTargetQ();
         }
 
         @Override
         public GenerationImpl setTargetQ(double targetQ) {
             ValidationUtil.checkVoltageControl(danglingLine, isVoltageRegulationOn(), getTargetV(), targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-            double oldValue = attributes.getTargetQ();
-            attributes.setTargetQ(targetQ);
-            danglingLine.updateResource();
-            String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
-            danglingLine.notifyUpdate("targetQ", variantId, oldValue, targetQ);
+            double oldValue = getAttributes().getTargetQ();
+            if (targetQ != oldValue) {
+                danglingLine.updateResource(res -> getAttributes(res).setTargetQ(targetQ));
+                String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
+                danglingLine.notifyUpdate("targetQ", variantId, oldValue, targetQ);
+            }
             return this;
         }
 
         @Override
         public boolean isVoltageRegulationOn() {
-            return attributes.isVoltageRegulationOn();
+            return getAttributes().isVoltageRegulationOn();
         }
 
         @Override
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
             ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn, getTargetV(), getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-            boolean oldValue = attributes.isVoltageRegulationOn();
-            attributes.setVoltageRegulationOn(voltageRegulationOn);
-            danglingLine.updateResource();
-            danglingLine.notifyUpdate("voltageRegulationOn", oldValue, voltageRegulationOn);
+            boolean oldValue = getAttributes().isVoltageRegulationOn();
+            if (voltageRegulationOn != oldValue) {
+                danglingLine.updateResource(res -> getAttributes(res).setVoltageRegulationOn(voltageRegulationOn));
+                danglingLine.notifyUpdate("voltageRegulationOn", oldValue, voltageRegulationOn);
+            }
             return this;
         }
 
         @Override
         public double getTargetV() {
-            return attributes.getTargetV();
+            return getAttributes().getTargetV();
         }
 
         @Override
         public GenerationImpl setTargetV(double targetV) {
             ValidationUtil.checkVoltageControl(danglingLine, isVoltageRegulationOn(), targetV, getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-            double oldValue = attributes.getTargetV();
-            attributes.setTargetV(targetV);
-            danglingLine.updateResource();
-            String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
-            danglingLine.notifyUpdate("targetV", variantId, oldValue, targetV);
+            double oldValue = getAttributes().getTargetV();
+            if (targetV != oldValue) {
+                danglingLine.updateResource(res -> getAttributes(res).setTargetV(targetV));
+                String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
+                danglingLine.notifyUpdate("targetV", variantId, oldValue, targetV);
+            }
             return this;
         }
 
         @Override
-        public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
+        public ReactiveCapabilityCurveAdderImpl<GenerationImpl> newReactiveCapabilityCurve() {
             return new ReactiveCapabilityCurveAdderImpl<>(this);
         }
 
         @Override
-        public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
+        public MinMaxReactiveLimitsAdderImpl<GenerationImpl> newMinMaxReactiveLimits() {
             return new MinMaxReactiveLimitsAdderImpl<>(this);
         }
 
         @Override
         public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
-            ReactiveLimitsAttributes oldValue = attributes.getReactiveLimits();
-            attributes.setReactiveLimits(reactiveLimits);
-            danglingLine.updateResource();
+            ReactiveLimitsAttributes oldValue = getAttributes().getReactiveLimits();
+            danglingLine.updateResource(res -> getAttributes(res).setReactiveLimits(reactiveLimits));
             danglingLine.notifyUpdate("reactiveLimits", oldValue, reactiveLimits);
         }
 
         @Override
         public ReactiveLimits getReactiveLimits() {
-            if (attributes.getReactiveLimits().getKind() == ReactiveLimitsKind.MIN_MAX) {
-                return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits());
+            ReactiveLimitsAttributes reactiveLimits = getAttributes().getReactiveLimits();
+            if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+                return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimits);
             } else {
-                return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) attributes.getReactiveLimits());
+                return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimits);
             }
         }
 
@@ -178,7 +182,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public String getMessageHeader() {
-            return "generation part for dangling line '" + id + "': ";
+            return "generation part for dangling line '" + danglingLine.getId() + "': ";
         }
     }
 
@@ -269,13 +273,13 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setP0(double p0) {
-        var resource = checkResource();
         ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = resource.getAttributes().getP0();
-        resource.getAttributes().setP0(p0);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        notifyUpdate("p0", variantId, oldValue, p0);
+        double oldValue = checkResource().getAttributes().getP0();
+        if (p0 != oldValue) {
+            updateResource(res -> res.getAttributes().setP0(p0));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            notifyUpdate("p0", variantId, oldValue, p0);
+        }
         return this;
     }
 
@@ -286,13 +290,13 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setQ0(double q0) {
-        var resource = checkResource();
         ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = resource.getAttributes().getQ0();
-        resource.getAttributes().setQ0(q0);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        notifyUpdate("q0", variantId, oldValue, q0);
+        double oldValue = checkResource().getAttributes().getQ0();
+        if (q0 != oldValue) {
+            updateResource(res -> res.getAttributes().setQ0(q0));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            notifyUpdate("q0", variantId, oldValue, q0);
+        }
         return this;
     }
 
@@ -303,12 +307,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setR(double r) {
-        var resource = checkResource();
         ValidationUtil.checkR(this, r);
-        double oldValue = resource.getAttributes().getR();
-        resource.getAttributes().setR(r);
-        updateResource();
-        notifyUpdate("r", oldValue, r);
+        double oldValue = checkResource().getAttributes().getR();
+        if (r != oldValue) {
+            updateResource(res -> res.getAttributes().setR(r));
+            notifyUpdate("r", oldValue, r);
+        }
         return this;
     }
 
@@ -319,12 +323,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setX(double x) {
-        var resource = checkResource();
         ValidationUtil.checkX(this, x);
-        double oldValue = resource.getAttributes().getX();
-        resource.getAttributes().setX(x);
-        updateResource();
-        notifyUpdate("x", oldValue, x);
+        double oldValue = checkResource().getAttributes().getX();
+        if (x != oldValue) {
+            updateResource(res -> res.getAttributes().setX(x));
+            notifyUpdate("x", oldValue, x);
+        }
         return this;
     }
 
@@ -335,12 +339,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setG(double g) {
-        var resource = checkResource();
         ValidationUtil.checkG(this, g);
-        double oldValue = resource.getAttributes().getG();
-        resource.getAttributes().setG(g);
-        updateResource();
-        notifyUpdate("g", oldValue, g);
+        double oldValue = checkResource().getAttributes().getG();
+        if (g != oldValue) {
+            updateResource(res -> res.getAttributes().setG(g));
+            notifyUpdate("g", oldValue, g);
+        }
         return this;
     }
 
@@ -351,12 +355,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setB(double b) {
-        var resource = checkResource();
         ValidationUtil.checkB(this, b);
-        double oldValue = resource.getAttributes().getB();
-        resource.getAttributes().setB(b);
-        updateResource();
-        notifyUpdate("b", oldValue, b);
+        double oldValue = checkResource().getAttributes().getB();
+        if (b != oldValue) {
+            updateResource(res -> res.getAttributes().setB(b));
+            notifyUpdate("b", oldValue, b);
+        }
         return this;
     }
 
@@ -364,10 +368,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     public DanglingLine.Generation getGeneration() {
         var resource = checkResource();
         if (resource.getAttributes().getGeneration() != null) {
-            return new GenerationImpl(this, resource.getAttributes().getGeneration(), getId());
-        } else {
-            return null;
+            return new GenerationImpl(this);
         }
+        return null;
     }
 
     @Override
@@ -376,11 +379,11 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     public DanglingLine setUcteXnodeCode(String ucteXnodeCode) {
-        var resource = checkResource();
-        String oldValue = resource.getAttributes().getUcteXnodeCode();
-        resource.getAttributes().setUcteXnodeCode(ucteXnodeCode);
-        updateResource();
-        notifyUpdate("ucteXnodeCode", oldValue, ucteXnodeCode);
+        String oldValue = checkResource().getAttributes().getUcteXnodeCode();
+        if (!Objects.equals(ucteXnodeCode, oldValue)) {
+            updateResource(res -> res.getAttributes().setUcteXnodeCode(ucteXnodeCode));
+            notifyUpdate("ucteXnodeCode", oldValue, ucteXnodeCode);
+        }
         return this;
     }
 
@@ -388,8 +391,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     public void setCurrentLimits(Void side, LimitsAttributes currentLimits) {
         var resource = checkResource();
         LimitsAttributes oldValue = resource.getAttributes().getCurrentLimits();
-        resource.getAttributes().setCurrentLimits(currentLimits);
-        updateResource();
+        updateResource(res -> res.getAttributes().setCurrentLimits(currentLimits));
         notifyUpdate("currentLimits", oldValue, currentLimits);
     }
 
@@ -454,19 +456,15 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public void setApparentPowerLimits(Void unused, LimitsAttributes apparentPowerLimitsAttributes) {
-        var resource = checkResource();
-        LimitsAttributes oldValue = resource.getAttributes().getApparentPowerLimits();
-        resource.getAttributes().setApparentPowerLimits(apparentPowerLimitsAttributes);
-        updateResource();
+        LimitsAttributes oldValue = checkResource().getAttributes().getApparentPowerLimits();
+        updateResource(res -> res.getAttributes().setApparentPowerLimits(apparentPowerLimitsAttributes));
         notifyUpdate("apparentPowerLimits", oldValue, apparentPowerLimitsAttributes);
     }
 
     @Override
     public void setActivePowerLimits(Void unused, LimitsAttributes activePowerLimitsAttributes) {
-        var resource = checkResource();
-        LimitsAttributes oldValue = resource.getAttributes().getActivePowerLimits();
-        resource.getAttributes().setActivePowerLimits(activePowerLimitsAttributes);
-        updateResource();
+        LimitsAttributes oldValue = checkResource().getAttributes().getActivePowerLimits();
+        updateResource(res -> res.getAttributes().setActivePowerLimits(activePowerLimitsAttributes));
         notifyUpdate("activePowerLimits", oldValue, activePowerLimitsAttributes);
     }
 

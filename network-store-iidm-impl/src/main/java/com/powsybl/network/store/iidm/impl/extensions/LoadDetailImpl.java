@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.network.store.iidm.impl.LoadImpl;
 
+import java.util.Objects;
+
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
@@ -18,12 +20,7 @@ public class LoadDetailImpl implements LoadDetail {
     private LoadImpl load;
 
     public LoadDetailImpl(LoadImpl load) {
-        this.load = load;
-    }
-
-    public LoadDetailImpl(LoadImpl load, double fixedActivePower, double fixedReactivePower,
-                          double variableActivePower, double variableReactivePower) {
-        this(load.initLoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
+        this.load = Objects.requireNonNull(load);
     }
 
     @Override

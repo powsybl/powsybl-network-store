@@ -44,12 +44,12 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public LccConverterStation setPowerFactor(float powerFactor) {
-        var resource = checkResource();
         ValidationUtil.checkPowerFactor(this, powerFactor);
-        float oldValue = resource.getAttributes().getPowerFactor();
-        resource.getAttributes().setPowerFactor(powerFactor);
-        updateResource();
-        index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
+        float oldValue = checkResource().getAttributes().getPowerFactor();
+        if (powerFactor != oldValue) {
+            updateResource(res -> res.getAttributes().setPowerFactor(powerFactor));
+            index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
+        }
         return this;
     }
 
@@ -60,12 +60,12 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public LccConverterStation setLossFactor(float lossFactor) {
-        var resource = checkResource();
         ValidationUtil.checkLossFactor(this, lossFactor);
-        float oldValue = resource.getAttributes().getLossFactor();
-        resource.getAttributes().setLossFactor(lossFactor);
-        updateResource();
-        index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+        float oldValue = checkResource().getAttributes().getLossFactor();
+        if (lossFactor != oldValue) {
+            updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
+            index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+        }
         return this;
     }
 
