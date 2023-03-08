@@ -26,6 +26,10 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
         this.tapPositionIndex = tapPositionIndex;
     }
 
+    private AbstractIdentifiableImpl<?, ?> getTransformer() {
+        return ratioTapChanger.getTransformer();
+    }
+
     private TapChangerStepAttributes getTapChangerStepAttributes(Resource<?> res) {
         return ratioTapChanger.getAttributes(res).getSteps().get(tapPositionIndex);
     }
@@ -43,7 +47,7 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setRho(double rho) {
         double oldValue = getTapChangerStepAttributes().getRho();
         if (rho != oldValue) {
-            ratioTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setRho(rho));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setRho(rho));
             ratioTapChanger.notifyUpdate("rho", oldValue, rho);
         }
         return this;
@@ -58,7 +62,7 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setR(double r) {
         double oldValue = getTapChangerStepAttributes().getR();
         if (r != oldValue) {
-            ratioTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setR(r));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setR(r));
             ratioTapChanger.notifyUpdate("r", oldValue, r);
         }
         return this;
@@ -73,7 +77,7 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setX(double x) {
         double oldValue = getTapChangerStepAttributes().getX();
         if (x != oldValue) {
-            ratioTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setX(x));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setX(x));
             ratioTapChanger.notifyUpdate("x", oldValue, x);
         }
         return this;
@@ -88,7 +92,7 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setG(double g) {
         double oldValue = getTapChangerStepAttributes().getG();
         if (g != oldValue) {
-            ratioTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setG(g));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setG(g));
             ratioTapChanger.notifyUpdate("g", oldValue, g);
         }
         return this;
@@ -103,7 +107,7 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setB(double b) {
         double oldValue = getTapChangerStepAttributes().getB();
         if (b != oldValue) {
-            ratioTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setB(b));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setB(b));
             ratioTapChanger.notifyUpdate("b", oldValue, b);
         }
         return this;

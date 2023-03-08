@@ -27,6 +27,10 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
         this.tapPositionIndex = tapPositionIndex;
     }
 
+    private AbstractIdentifiableImpl<?, ?> getTransformer() {
+        return phaseTapChanger.getTransformer();
+    }
+
     private TapChangerStepAttributes getTapChangerStepAttributes(Resource<?> res) {
         return phaseTapChanger.getAttributes(res).getSteps().get(tapPositionIndex);
     }
@@ -44,7 +48,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStepImpl setRho(double rho) {
         double oldValue = getTapChangerStepAttributes().getRho();
         if (rho != oldValue) {
-            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setRho(rho));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setRho(rho));
             phaseTapChanger.notifyUpdate("rho", oldValue, rho);
         }
         return this;
@@ -59,7 +63,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStepImpl setR(double r) {
         double oldValue = getTapChangerStepAttributes().getR();
         if (r != oldValue) {
-            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setR(r));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setR(r));
             phaseTapChanger.notifyUpdate("r", oldValue, r);
         }
         return this;
@@ -74,7 +78,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStepImpl setX(double x) {
         double oldValue = getTapChangerStepAttributes().getX();
         if (x != oldValue) {
-            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setX(x));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setX(x));
             phaseTapChanger.notifyUpdate("x", oldValue, x);
         }
         return this;
@@ -89,7 +93,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStepImpl setB(double b) {
         double oldValue = getTapChangerStepAttributes().getB();
         if (b != oldValue) {
-            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setB(b));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setB(b));
             phaseTapChanger.notifyUpdate("b", oldValue, b);
         }
         return this;
@@ -104,7 +108,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStepImpl setG(double g) {
         double oldValue = getTapChangerStepAttributes().getG();
         if (g != oldValue) {
-            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setG(g));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setG(g));
             phaseTapChanger.notifyUpdate("g", oldValue, g);
         }
         return this;
@@ -119,7 +123,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStep setAlpha(double alpha) {
         double oldValue = getTapChangerStepAttributes().getAlpha();
         if (alpha != oldValue) {
-            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setAlpha(alpha));
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setAlpha(alpha));
             phaseTapChanger.notifyUpdate("alpha", oldValue, alpha);
         }
         return this;
