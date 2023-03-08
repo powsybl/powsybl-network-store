@@ -26,9 +26,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final TapChangerParent tapChangerParent;
 
-    private final TapChangerParentAttributes tapChangerParentAttributes;
-
-    private final Function<Attributes, RatioTapChangerAttributes> attributesGetter;
+    private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
@@ -108,11 +106,10 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
     }
 
-    public RatioTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes,
-                                    Function<Attributes, RatioTapChangerAttributes> attributesGetter) {
+    public RatioTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index,
+                                    Function<Attributes, TapChangerParentAttributes> attributesGetter) {
         super(index);
         this.tapChangerParent = tapChangerParent;
-        this.tapChangerParentAttributes = tapChangerParentAttributes;
         this.attributesGetter = attributesGetter;
     }
 
@@ -196,11 +193,11 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .steps(steps)
                 .regulatingTerminal(terminalRefAttributes)
                 .build();
-        tapChangerParentAttributes.setRatioTapChangerAttributes(ratioTapChangerAttributes);
-
+        TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().getResource().getAttributes());
         if (tapChangerParentAttributes.getPhaseTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
+        tapChangerParentAttributes.setRatioTapChangerAttributes(ratioTapChangerAttributes);
 
         return new RatioTapChangerImpl(tapChangerParent, index, attributesGetter);
     }

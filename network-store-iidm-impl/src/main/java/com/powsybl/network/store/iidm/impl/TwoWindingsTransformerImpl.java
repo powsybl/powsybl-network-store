@@ -54,19 +54,19 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public RatioTapChangerAdder newRatioTapChanger() {
-        return new RatioTapChangerAdderImpl(this, index, checkResource().getAttributes(), attributes -> ((TapChangerParentAttributes) attributes).getRatioTapChangerAttributes());
+        return new RatioTapChangerAdderImpl(this, index, TapChangerParentAttributes.class::cast);
     }
 
     @Override
     public PhaseTapChangerAdder newPhaseTapChanger() {
-        return new PhaseTapChangerAdderImpl(this, index, checkResource().getAttributes(), attributes -> ((TapChangerParentAttributes) attributes).getPhaseTapChangerAttributes());
+        return new PhaseTapChangerAdderImpl(this, index, TapChangerParentAttributes.class::cast);
     }
 
     @Override
     public RatioTapChanger getRatioTapChanger() {
         var resource = checkResource();
         if (resource.getAttributes().getRatioTapChangerAttributes() != null) {
-            return new RatioTapChangerImpl(this, index, attributes -> ((TapChangerParentAttributes) attributes).getRatioTapChangerAttributes());
+            return new RatioTapChangerImpl(this, index, TapChangerParentAttributes.class::cast);
         }
         return null;
     }
@@ -75,7 +75,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     public PhaseTapChanger getPhaseTapChanger() {
         var resource = checkResource();
         if (resource.getAttributes().getPhaseTapChangerAttributes() != null) {
-            return new PhaseTapChangerImpl(this, index, attributes -> ((TapChangerParentAttributes) attributes).getPhaseTapChangerAttributes());
+            return new PhaseTapChangerImpl(this, index, TapChangerParentAttributes.class::cast);
         }
         return null;
     }

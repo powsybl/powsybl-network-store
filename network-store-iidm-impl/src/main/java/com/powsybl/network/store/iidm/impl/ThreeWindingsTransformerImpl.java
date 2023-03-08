@@ -224,25 +224,25 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public PhaseTapChangerAdder newPhaseTapChanger() {
-            return new PhaseTapChangerAdderImpl(this, index, getLegAttributes(), attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes).getPhaseTapChangerAttributes());
+            return new PhaseTapChangerAdderImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes));
         }
 
         @Override
         public RatioTapChangerAdder newRatioTapChanger() {
-            return new RatioTapChangerAdderImpl(this, index, getLegAttributes(), attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes).getRatioTapChangerAttributes());
+            return new RatioTapChangerAdderImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes));
         }
 
         @Override
         public PhaseTapChanger getPhaseTapChanger() {
             return getLegAttributes().getPhaseTapChangerAttributes() != null
-                    ? new PhaseTapChangerImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes).getPhaseTapChangerAttributes())
+                    ? new PhaseTapChangerImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes))
                     : null;
         }
 
         @Override
         public RatioTapChanger getRatioTapChanger() {
             return getLegAttributes().getRatioTapChangerAttributes() != null
-                    ? new RatioTapChangerImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes).getRatioTapChangerAttributes())
+                    ? new RatioTapChangerImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes))
                     : null;
         }
 

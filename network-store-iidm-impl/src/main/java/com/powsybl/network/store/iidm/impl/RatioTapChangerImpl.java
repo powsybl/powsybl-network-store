@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Attributes;
 import com.powsybl.network.store.model.RatioTapChangerAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TapChangerParentAttributes;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -21,9 +22,9 @@ import java.util.function.Function;
  */
 public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, RatioTapChangerImpl, RatioTapChangerAttributes> implements RatioTapChanger, Validable {
 
-    private final Function<Attributes, RatioTapChangerAttributes> attributesGetter;
+    private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
-    public RatioTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, Function<Attributes, RatioTapChangerAttributes> attributesGetter) {
+    public RatioTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, Function<Attributes, TapChangerParentAttributes> attributesGetter) {
         super(parent, index, "ratio tap changer");
         this.attributesGetter = Objects.requireNonNull(attributesGetter);
     }
@@ -34,7 +35,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     protected RatioTapChangerAttributes getAttributes(Resource<?> resource) {
-        return attributesGetter.apply(resource.getAttributes());
+        return attributesGetter.apply(resource.getAttributes()).getRatioTapChangerAttributes();
     }
 
     @Override

@@ -18,9 +18,9 @@ import java.util.function.Function;
  */
 public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, PhaseTapChangerImpl, PhaseTapChangerAttributes> implements PhaseTapChanger, Validable {
 
-    private final Function<Attributes, PhaseTapChangerAttributes> attributesGetter;
+    private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
-    public PhaseTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, Function<Attributes, PhaseTapChangerAttributes> attributesGetter) {
+    public PhaseTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, Function<Attributes, TapChangerParentAttributes> attributesGetter) {
         super(parent, index, "phase tap changer");
         this.attributesGetter = attributesGetter;
     }
@@ -31,7 +31,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     }
 
     protected PhaseTapChangerAttributes getAttributes(Resource<?> resource) {
-        return attributesGetter.apply(resource.getAttributes());
+        return attributesGetter.apply(resource.getAttributes()).getPhaseTapChangerAttributes();
     }
 
     @Override

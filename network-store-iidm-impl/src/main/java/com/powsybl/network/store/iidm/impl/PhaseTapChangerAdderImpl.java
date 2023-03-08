@@ -26,9 +26,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final TapChangerParent tapChangerParent;
 
-    private final TapChangerParentAttributes tapChangerParentAttributes;
-
-    private final Function<Attributes, PhaseTapChangerAttributes> attributesGetter;
+    private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
@@ -121,11 +119,10 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
     }
 
-    public PhaseTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes,
-                                    Function<Attributes, PhaseTapChangerAttributes> attributesGetter) {
+    public PhaseTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index,
+                                    Function<Attributes, TapChangerParentAttributes> attributesGetter) {
         super(index);
         this.tapChangerParent = tapChangerParent;
-        this.tapChangerParentAttributes = tapChangerParentAttributes;
         this.attributesGetter = attributesGetter;
     }
 
@@ -211,11 +208,11 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .targetDeadband(targetDeadband)
                 .regulatingTerminal(terminalRefAttributes)
                 .build();
-        tapChangerParentAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
-
+        TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().getResource().getAttributes());
         if (tapChangerParentAttributes.getRatioTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
+        tapChangerParentAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
 
         return new PhaseTapChangerImpl(tapChangerParent, index, attributesGetter);
     }
