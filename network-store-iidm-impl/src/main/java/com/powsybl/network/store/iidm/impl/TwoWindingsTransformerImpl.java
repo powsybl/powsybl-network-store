@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.TwoWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TapChangerParentAttributes;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
 
@@ -53,19 +54,19 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public RatioTapChangerAdder newRatioTapChanger() {
-        return new RatioTapChangerAdderImpl(this, index, checkResource().getAttributes());
+        return new RatioTapChangerAdderImpl(this, index, checkResource().getAttributes(), attributes -> ((TapChangerParentAttributes) attributes).getRatioTapChangerAttributes());
     }
 
     @Override
     public PhaseTapChangerAdder newPhaseTapChanger() {
-        return new PhaseTapChangerAdderImpl(this, index, checkResource().getAttributes());
+        return new PhaseTapChangerAdderImpl(this, index, checkResource().getAttributes(), attributes -> ((TapChangerParentAttributes) attributes).getPhaseTapChangerAttributes());
     }
 
     @Override
     public RatioTapChanger getRatioTapChanger() {
         var resource = checkResource();
         if (resource.getAttributes().getRatioTapChangerAttributes() != null) {
-            return new RatioTapChangerImpl(this, index, resource.getAttributes().getRatioTapChangerAttributes());
+            return new RatioTapChangerImpl(this, index, attributes -> ((TapChangerParentAttributes) attributes).getRatioTapChangerAttributes());
         }
         return null;
     }
@@ -74,7 +75,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     public PhaseTapChanger getPhaseTapChanger() {
         var resource = checkResource();
         if (resource.getAttributes().getPhaseTapChangerAttributes() != null) {
-            return new PhaseTapChangerImpl(this, index, resource.getAttributes().getPhaseTapChangerAttributes());
+            return new PhaseTapChangerImpl(this, index, attributes -> ((TapChangerParentAttributes) attributes).getPhaseTapChangerAttributes());
         }
         return null;
     }

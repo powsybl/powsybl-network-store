@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.RatioTapChangerAttributes;
-import com.powsybl.network.store.model.TapChangerParentAttributes;
-import com.powsybl.network.store.model.TapChangerStepAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
+import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -29,6 +27,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
     private final TapChangerParent tapChangerParent;
 
     private final TapChangerParentAttributes tapChangerParentAttributes;
+
+    private final Function<Attributes, RatioTapChangerAttributes> attributesGetter;
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
@@ -108,10 +108,12 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
     }
 
-    public RatioTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes) {
+    public RatioTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes,
+                                    Function<Attributes, RatioTapChangerAttributes> attributesGetter) {
         super(index);
         this.tapChangerParent = tapChangerParent;
         this.tapChangerParentAttributes = tapChangerParentAttributes;
+        this.attributesGetter = attributesGetter;
     }
 
     @Override
@@ -200,6 +202,6 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
 
-        return new RatioTapChangerImpl(tapChangerParent, index, ratioTapChangerAttributes);
+        return new RatioTapChangerImpl(tapChangerParent, index, attributesGetter);
     }
 }

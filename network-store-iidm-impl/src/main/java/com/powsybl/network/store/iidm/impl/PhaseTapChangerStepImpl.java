@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 
 import java.util.Objects;
@@ -19,94 +20,108 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
     private final PhaseTapChangerImpl phaseTapChanger;
 
-    private final TapChangerStepAttributes attributes;
+    private final int tapPositionIndex;
 
-    public PhaseTapChangerStepImpl(PhaseTapChangerImpl phaseTapChanger, TapChangerStepAttributes attributes) {
+    public PhaseTapChangerStepImpl(PhaseTapChangerImpl phaseTapChanger, int tapPositionIndex) {
         this.phaseTapChanger = Objects.requireNonNull(phaseTapChanger);
-        this.attributes = attributes;
+        this.tapPositionIndex = tapPositionIndex;
+    }
+
+    private TapChangerStepAttributes getTapChangerStepAttributes(Resource<?> res) {
+        return phaseTapChanger.getAttributes(res).getSteps().get(tapPositionIndex);
+    }
+
+    private TapChangerStepAttributes getTapChangerStepAttributes() {
+        return phaseTapChanger.getAttributes().getSteps().get(tapPositionIndex);
     }
 
     @Override
     public double getRho() {
-        return attributes.getRho();
+        return getTapChangerStepAttributes().getRho();
     }
 
     @Override
     public PhaseTapChangerStepImpl setRho(double rho) {
-        double oldValue = attributes.getRho();
-        attributes.setRho(rho);
-        phaseTapChanger.updateResource();
-        phaseTapChanger.notifyUpdate("rho", oldValue, rho);
+        double oldValue = getTapChangerStepAttributes().getRho();
+        if (rho != oldValue) {
+            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setRho(rho));
+            phaseTapChanger.notifyUpdate("rho", oldValue, rho);
+        }
         return this;
     }
 
     @Override
     public double getR() {
-        return attributes.getR();
+        return getTapChangerStepAttributes().getR();
     }
 
     @Override
     public PhaseTapChangerStepImpl setR(double r) {
-        double oldValue = attributes.getR();
-        attributes.setR(r);
-        phaseTapChanger.updateResource();
-        phaseTapChanger.notifyUpdate("r", oldValue, r);
+        double oldValue = getTapChangerStepAttributes().getR();
+        if (r != oldValue) {
+            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setR(r));
+            phaseTapChanger.notifyUpdate("r", oldValue, r);
+        }
         return this;
     }
 
     @Override
     public double getX() {
-        return attributes.getX();
+        return getTapChangerStepAttributes().getX();
     }
 
     @Override
     public PhaseTapChangerStepImpl setX(double x) {
-        double oldValue = attributes.getX();
-        attributes.setX(x);
-        phaseTapChanger.updateResource();
-        phaseTapChanger.notifyUpdate("x", oldValue, x);
+        double oldValue = getTapChangerStepAttributes().getX();
+        if (x != oldValue) {
+            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setX(x));
+            phaseTapChanger.notifyUpdate("x", oldValue, x);
+        }
         return this;
     }
 
     @Override
     public double getB() {
-        return attributes.getB();
+        return getTapChangerStepAttributes().getB();
     }
 
     @Override
     public PhaseTapChangerStepImpl setB(double b) {
-        double oldValue = attributes.getB();
-        attributes.setB(b);
-        phaseTapChanger.updateResource();
-        phaseTapChanger.notifyUpdate("b", oldValue, b);
+        double oldValue = getTapChangerStepAttributes().getB();
+        if (b != oldValue) {
+            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setB(b));
+            phaseTapChanger.notifyUpdate("b", oldValue, b);
+        }
         return this;
     }
 
     @Override
     public double getG() {
-        return attributes.getG();
+        return getTapChangerStepAttributes().getG();
     }
 
     @Override
     public PhaseTapChangerStepImpl setG(double g) {
-        double oldValue = attributes.getG();
-        attributes.setG(g);
-        phaseTapChanger.updateResource();
-        phaseTapChanger.notifyUpdate("g", oldValue, g);
+        double oldValue = getTapChangerStepAttributes().getG();
+        if (g != oldValue) {
+            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setG(g));
+            phaseTapChanger.notifyUpdate("g", oldValue, g);
+        }
         return this;
     }
 
     @Override
     public double getAlpha() {
-        return attributes.getAlpha();
+        return getTapChangerStepAttributes().getAlpha();
     }
 
     @Override
     public PhaseTapChangerStep setAlpha(double alpha) {
-        double oldValue = attributes.getAlpha();
-        attributes.setAlpha(alpha);
-        phaseTapChanger.updateResource();
-        phaseTapChanger.notifyUpdate("alpha", oldValue, alpha);
+        double oldValue = getTapChangerStepAttributes().getAlpha();
+        if (alpha != oldValue) {
+            phaseTapChanger.getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setAlpha(alpha));
+            phaseTapChanger.notifyUpdate("alpha", oldValue, alpha);
+        }
         return this;
     }
 }
