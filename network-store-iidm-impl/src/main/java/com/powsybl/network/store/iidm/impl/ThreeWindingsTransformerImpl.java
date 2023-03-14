@@ -405,11 +405,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
         var resource = checkResource();
-        if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
-            resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg2());
-            resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg3(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg3());
-            updateResource();
-        } else if (type == CgmesTapChangers.class) {
+        if (type == CgmesTapChangers.class) {
             resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
         } else {
             super.addExtension(type, extension);
@@ -503,15 +499,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         var resource = checkResource();
         ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock = resource.getAttributes().getPhaseAngleClock();
         if (phaseAngleClock != null) {
-            extension = (E) new ThreeWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClock.getPhaseAngleClockLeg2(), phaseAngleClock.getPhaseAngleClockLeg3());
+            extension = (E) new ThreeWindingsTransformerPhaseAngleClockImpl(this);
         }
         return extension;
-    }
-
-    public ThreeWindingsTransformerImpl initPhaseAngleClockAttributes(int phaseAngleClockLeg2, int phaseAngleClockLeg3) {
-        checkResource().getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3));
-        updateResource();
-        return this;
     }
 
     private <E extends Extension<ThreeWindingsTransformer>> E createCgmesTapChangers() {

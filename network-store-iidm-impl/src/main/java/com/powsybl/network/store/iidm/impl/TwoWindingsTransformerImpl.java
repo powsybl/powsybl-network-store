@@ -263,7 +263,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         var resource = checkResource();
         TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes = resource.getAttributes().getPhaseAngleClockAttributes();
         if (phaseAngleClockAttributes != null) {
-            extension = (E) new TwoWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClockAttributes.getPhaseAngleClock());
+            extension = (E) new TwoWindingsTransformerPhaseAngleClockImpl(this);
         }
         return extension;
     }
