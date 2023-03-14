@@ -138,7 +138,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         var resource = checkResource();
         VoltagePerReactivePowerControlAttributes attributes = resource.getAttributes().getVoltagePerReactiveControl();
         if (attributes != null) {
-            extension = (E) new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) getInjection(), attributes.getSlope());
+            extension = (E) new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) getInjection());
         }
         return extension;
     }
@@ -151,21 +151,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
             extension = (E) new StandbyAutomatonImpl(getInjection());
         }
         return extension;
-    }
-
-    @Override
-    public <E extends Extension<StaticVarCompensator>> void addExtension(Class<? super E> type, E extension) {
-        if (type == VoltagePerReactivePowerControl.class) {
-            var resource = checkResource();
-            resource.getAttributes().setVoltagePerReactiveControl(VoltagePerReactivePowerControlAttributes.builder()
-                    .slope(((VoltagePerReactivePowerControl) extension).getSlope())
-                    .build());
-        } else if (type == StandbyAutomaton.class) {
-            var resource = checkResource();
-            resource.getAttributes().setStandbyAutomaton(StandbyAutomatonImpl.createAttributes((StandbyAutomaton) extension));
-        } else {
-            super.addExtension(type, extension);
-        }
     }
 
     @Override

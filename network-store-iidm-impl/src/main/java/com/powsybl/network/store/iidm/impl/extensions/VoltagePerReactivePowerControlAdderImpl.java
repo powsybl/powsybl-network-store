@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.network.store.iidm.impl.StaticVarCompensatorImpl;
+import com.powsybl.network.store.model.VoltagePerReactivePowerControlAttributes;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -25,7 +26,11 @@ public class VoltagePerReactivePowerControlAdderImpl extends AbstractExtensionAd
 
     @Override
     protected VoltagePerReactivePowerControl createExtension(StaticVarCompensator staticVarCompensator) {
-        return new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) staticVarCompensator, slope);
+        VoltagePerReactivePowerControlAttributes attributes = VoltagePerReactivePowerControlAttributes.builder()
+                .slope(slope)
+                .build();
+        ((StaticVarCompensatorImpl) staticVarCompensator).updateResource(res -> res.getAttributes().setVoltagePerReactiveControl(attributes));
+        return new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) staticVarCompensator);
     }
 
     @Override

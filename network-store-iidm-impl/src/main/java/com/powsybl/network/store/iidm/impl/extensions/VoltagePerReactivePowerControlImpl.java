@@ -6,49 +6,32 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.network.store.iidm.impl.StaticVarCompensatorImpl;
-import com.powsybl.network.store.model.VoltagePerReactivePowerControlAttributes;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class VoltagePerReactivePowerControlImpl implements VoltagePerReactivePowerControl {
-
-    private StaticVarCompensatorImpl staticVarCompensator;
+public class VoltagePerReactivePowerControlImpl extends AbstractExtension<StaticVarCompensator> implements VoltagePerReactivePowerControl {
 
     public VoltagePerReactivePowerControlImpl(StaticVarCompensatorImpl staticVarCompensator) {
-        this.staticVarCompensator = staticVarCompensator;
+        super(staticVarCompensator);
     }
 
-    public VoltagePerReactivePowerControlImpl(StaticVarCompensatorImpl staticVarCompensator, double slope) {
-        this(staticVarCompensator);
-        staticVarCompensator.getResource().getAttributes().setVoltagePerReactiveControl(VoltagePerReactivePowerControlAttributes.builder()
-                .slope(slope)
-                .build());
+    private StaticVarCompensatorImpl getSvc() {
+        return (StaticVarCompensatorImpl) getExtendable();
     }
 
     @Override
     public double getSlope() {
-        return staticVarCompensator.getResource().getAttributes().getVoltagePerReactiveControl().getSlope();
+        return getSvc().checkResource().getAttributes().getVoltagePerReactiveControl().getSlope();
     }
 
     @Override
     public VoltagePerReactivePowerControl setSlope(double slope) {
-        staticVarCompensator.getResource().getAttributes().getVoltagePerReactiveControl().setSlope(slope);
-        staticVarCompensator.updateResource();
+        getSvc().updateResource(res -> res.getAttributes().getVoltagePerReactiveControl().setSlope(slope));
         return this;
     }
-
-    @Override
-    public StaticVarCompensator getExtendable() {
-        return staticVarCompensator;
-    }
-
-    @Override
-    public void setExtendable(StaticVarCompensator staticVarCompensator) {
-        this.staticVarCompensator = (StaticVarCompensatorImpl) staticVarCompensator;
-    }
-
 }
