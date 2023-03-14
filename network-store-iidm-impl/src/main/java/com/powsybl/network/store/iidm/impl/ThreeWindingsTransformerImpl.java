@@ -242,8 +242,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public void setCurrentLimits(Void side, LimitsAttributes currentLimitsAttributes) {
-            getLegAttributes().setCurrentLimitsAttributes(currentLimitsAttributes);
-            transformer.updateResource();
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setCurrentLimitsAttributes(currentLimitsAttributes));
         }
 
         @Override

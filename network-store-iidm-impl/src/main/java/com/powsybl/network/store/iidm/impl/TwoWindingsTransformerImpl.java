@@ -210,11 +210,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public <E extends Extension<TwoWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
         var resource = checkResource();
-        if (type == TwoWindingsTransformerPhaseAngleClock.class) {
-            TwoWindingsTransformerPhaseAngleClock twoWindingsTransformerPhaseAngleClock = (TwoWindingsTransformerPhaseAngleClock) extension;
-            resource.getAttributes().setPhaseAngleClockAttributes(TwoWindingsTransformerPhaseAngleClockAttributes.builder()
-                    .phaseAngleClock(twoWindingsTransformerPhaseAngleClock.getPhaseAngleClock()).build());
-        } else if (type == CgmesTapChangers.class) {
+        if (type == CgmesTapChangers.class) {
             resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
         }
         super.addExtension(type, extension);

@@ -100,14 +100,16 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         var resource = checkResource();
         if (side == Branch.Side.ONE) {
             LimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits1();
-            resource.getAttributes().setCurrentLimits1(currentLimits);
-            updateResource();
-            index.notifyUpdate(this, "currentLimits1", oldCurrentLimits, currentLimits);
+            if (currentLimits != oldCurrentLimits) {
+                updateResource(res -> res.getAttributes().setCurrentLimits1(currentLimits));
+                index.notifyUpdate(this, "currentLimits1", oldCurrentLimits, currentLimits);
+            }
         } else if (side == Branch.Side.TWO) {
             LimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits2();
-            resource.getAttributes().setCurrentLimits2(currentLimits);
-            updateResource();
-            index.notifyUpdate(this, "currentLimits2", oldCurrentLimits, currentLimits);
+            if (currentLimits != oldCurrentLimits) {
+                updateResource(res -> res.getAttributes().setCurrentLimits2(currentLimits));
+                index.notifyUpdate(this, "currentLimits2", oldCurrentLimits, currentLimits);
+            }
         }
     }
 
@@ -184,14 +186,17 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         var resource = checkResource();
         if (side == Branch.Side.ONE) {
             LimitsAttributes oldApparentPowerLimits = resource.getAttributes().getApparentPowerLimits1();
-            resource.getAttributes().setApparentPowerLimits1(apparentPowerLimitsAttributes);
-            index.notifyUpdate(this, "apparentPowerLimits1", oldApparentPowerLimits, apparentPowerLimitsAttributes);
+            if (apparentPowerLimitsAttributes != oldApparentPowerLimits) {
+                updateResource(res -> res.getAttributes().setApparentPowerLimits1(apparentPowerLimitsAttributes));
+                index.notifyUpdate(this, "apparentPowerLimits1", oldApparentPowerLimits, apparentPowerLimitsAttributes);
+            }
         } else if (side == Branch.Side.TWO) {
             LimitsAttributes oldApparentPowerLimits = resource.getAttributes().getApparentPowerLimits2();
-            resource.getAttributes().setApparentPowerLimits2(apparentPowerLimitsAttributes);
-            index.notifyUpdate(this, "apparentPowerLimits2", oldApparentPowerLimits, apparentPowerLimitsAttributes);
+            if (apparentPowerLimitsAttributes != oldApparentPowerLimits) {
+                updateResource(res -> res.getAttributes().setApparentPowerLimits2(apparentPowerLimitsAttributes));
+                index.notifyUpdate(this, "apparentPowerLimits2", oldApparentPowerLimits, apparentPowerLimitsAttributes);
+            }
         }
-        updateResource();
     }
 
     @Override
@@ -252,14 +257,17 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         var resource = checkResource();
         if (side == Branch.Side.ONE) {
             LimitsAttributes oldActivePowerLimits = resource.getAttributes().getActivePowerLimits1();
-            resource.getAttributes().setActivePowerLimits1(activePowerLimitsAttributes);
-            index.notifyUpdate(this, "apparentPowerLimits1", oldActivePowerLimits, activePowerLimitsAttributes);
+            if (activePowerLimitsAttributes != oldActivePowerLimits) {
+                updateResource(res -> res.getAttributes().setActivePowerLimits1(activePowerLimitsAttributes));
+                index.notifyUpdate(this, "apparentPowerLimits1", oldActivePowerLimits, activePowerLimitsAttributes);
+            }
         } else if (side == Branch.Side.TWO) {
             LimitsAttributes oldActivePowerLimits = resource.getAttributes().getActivePowerLimits2();
-            resource.getAttributes().setActivePowerLimits2(activePowerLimitsAttributes);
-            index.notifyUpdate(this, "apparentPowerLimits2", oldActivePowerLimits, activePowerLimitsAttributes);
+            if (activePowerLimitsAttributes != oldActivePowerLimits) {
+                updateResource(res -> res.getAttributes().setActivePowerLimits2(activePowerLimitsAttributes));
+                index.notifyUpdate(this, "apparentPowerLimits2", oldActivePowerLimits, activePowerLimitsAttributes);
+            }
         }
-        updateResource();
     }
 
     @Override
