@@ -40,8 +40,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public LoadDetail setFixedActivePower(double fixedActivePower) {
-        load.getResource().getAttributes().getLoadDetail().setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower"));
-        load.updateResource();
+        load.updateResource(res -> res.getAttributes().getLoadDetail().setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower")));
         return this;
     }
 
@@ -52,8 +51,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public LoadDetail setFixedReactivePower(double fixedReactivePower) {
-        load.getResource().getAttributes().getLoadDetail().setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower"));
-        load.updateResource();
+        load.updateResource(res -> res.getAttributes().getLoadDetail().setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower")));
         return this;
     }
 
@@ -64,8 +62,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public LoadDetail setVariableActivePower(double variableActivePower) {
-        load.getResource().getAttributes().getLoadDetail().setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower"));
-        load.updateResource();
+        load.updateResource(res -> res.getAttributes().getLoadDetail().setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower")));
         return this;
     }
 
@@ -76,8 +73,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public LoadDetail setVariableReactivePower(double variableReactivePower) {
-        load.getResource().getAttributes().getLoadDetail().setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower"));
-        load.updateResource();
+        load.updateResource(res -> res.getAttributes().getLoadDetail().setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower")));
         return this;
     }
 

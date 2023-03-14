@@ -6,23 +6,22 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.network.store.iidm.impl.StaticVarCompensatorImpl;
+import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.StandbyAutomatonAttributes;
+import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StandbyAutomatonImpl implements StandbyAutomaton {
+public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator> implements StandbyAutomaton {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StandbyAutomatonImpl.class);
-
-    private StaticVarCompensator svc;
 
     private static double checkB0(double b0) {
         if (Double.isNaN(b0)) {
@@ -80,15 +79,19 @@ public class StandbyAutomatonImpl implements StandbyAutomaton {
     }
 
     public StandbyAutomatonImpl(StaticVarCompensator svc) {
-        this.svc = Objects.requireNonNull(svc);
+        super(svc);
+    }
+
+    private StaticVarCompensatorImpl getSvc() {
+        return (StaticVarCompensatorImpl) getExtendable();
     }
 
     private StandbyAutomatonAttributes getAttributes() {
-        return ((StaticVarCompensatorImpl) svc).getResource().getAttributes().getStandbyAutomaton();
+        return getAttributes(getSvc().checkResource());
     }
 
-    private void updateResource() {
-        ((StaticVarCompensatorImpl) svc).updateResource();
+    private static StandbyAutomatonAttributes getAttributes(Resource<StaticVarCompensatorAttributes> resource) {
+        return resource.getAttributes().getStandbyAutomaton();
     }
 
     @Override
@@ -109,8 +112,7 @@ public class StandbyAutomatonImpl implements StandbyAutomaton {
 
     @Override
     public StandbyAutomatonImpl setB0(double b0) {
-        getAttributes().setB0(checkB0(b0));
-        updateResource();
+        getSvc().updateResource(res -> getAttributes(res).setB0(checkB0(b0)));
         return this;
     }
 
@@ -122,8 +124,7 @@ public class StandbyAutomatonImpl implements StandbyAutomaton {
     @Override
     public StandbyAutomatonImpl setHighVoltageSetpoint(double highVoltageSetpoint) {
         checkVoltageConfig(getLowVoltageSetpoint(), highVoltageSetpoint, getLowVoltageThreshold(), getHighVoltageThreshold());
-        getAttributes().setHighVoltageSetpoint(highVoltageSetpoint);
-        updateResource();
+        getSvc().updateResource(res -> getAttributes(res).setHighVoltageSetpoint(highVoltageSetpoint));
         return this;
     }
 
@@ -135,8 +136,7 @@ public class StandbyAutomatonImpl implements StandbyAutomaton {
     @Override
     public StandbyAutomatonImpl setHighVoltageThreshold(double highVoltageThreshold) {
         checkVoltageConfig(getLowVoltageSetpoint(), getHighVoltageSetpoint(), getLowVoltageThreshold(), highVoltageThreshold);
-        getAttributes().setHighVoltageThreshold(highVoltageThreshold);
-        updateResource();
+        getSvc().updateResource(res -> getAttributes(res).setHighVoltageThreshold(highVoltageThreshold));
         return this;
     }
 
@@ -148,8 +148,7 @@ public class StandbyAutomatonImpl implements StandbyAutomaton {
     @Override
     public StandbyAutomatonImpl setLowVoltageSetpoint(double lowVoltageSetpoint) {
         checkVoltageConfig(lowVoltageSetpoint, getHighVoltageSetpoint(), getLowVoltageThreshold(), getHighVoltageThreshold());
-        getAttributes().setLowVoltageSetpoint(lowVoltageSetpoint);
-        updateResource();
+        getSvc().updateResource(res -> getAttributes(res).setLowVoltageSetpoint(lowVoltageSetpoint));
         return this;
     }
 
@@ -161,17 +160,7 @@ public class StandbyAutomatonImpl implements StandbyAutomaton {
     @Override
     public StandbyAutomatonImpl setLowVoltageThreshold(double lowVoltageThreshold) {
         checkVoltageConfig(getLowVoltageSetpoint(), getHighVoltageSetpoint(), lowVoltageThreshold, getHighVoltageThreshold());
-        getAttributes().setLowVoltageThreshold(lowVoltageThreshold);
+        getSvc().updateResource(res -> getAttributes(res).setLowVoltageThreshold(lowVoltageThreshold));
         return this;
-    }
-
-    @Override
-    public StaticVarCompensator getExtendable() {
-        return svc;
-    }
-
-    @Override
-    public void setExtendable(StaticVarCompensator svc) {
-        this.svc = svc;
     }
 }
