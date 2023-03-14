@@ -13,22 +13,30 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
+import com.powsybl.network.store.model.GeneratorShortCircuitAttributes;
 
 /**
  * @author Seddik Yengui <seddik.yengui at rte-france.com>
  */
 
 public class GeneratorShortCircuitAdderImpl extends AbstractExtensionAdder<Generator, GeneratorShortCircuit> implements GeneratorShortCircuitAdder {
-    double directTransX = 0.0D;
-    double directSubtransX = Double.NaN;
-    double stepUpTransformerX = Double.NaN;
+
+    private double directTransX = 0.0D;
+    private double directSubtransX = Double.NaN;
+    private double stepUpTransformerX = Double.NaN;
 
     protected GeneratorShortCircuitAdderImpl(Generator extendable) {
         super(extendable);
     }
 
-    protected GeneratorShortCircuit createExtension(Generator extendable) {
-        return new GeneratorShortCircuitImpl((GeneratorImpl) extendable, this.directSubtransX, this.directTransX, this.stepUpTransformerX);
+    protected GeneratorShortCircuit createExtension(Generator generator) {
+        var attributes = GeneratorShortCircuitAttributes.builder()
+                .directSubtransX(directSubtransX)
+                .directTransX(directTransX)
+                .stepUpTransformerX(stepUpTransformerX)
+                .build();
+        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setGeneratorShortCircuitAttributes(attributes));
+        return new GeneratorShortCircuitImpl((GeneratorImpl) generator);
     }
 
     public GeneratorShortCircuitAdder withDirectTransX(double directTransX) {

@@ -11,9 +11,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BranchStatus;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ConnectablePosition.Feeder;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
-import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
 import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
@@ -26,7 +24,7 @@ import java.util.function.Function;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer, ConnectablePositionCreator<ThreeWindingsTransformer> {
+public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer {
 
     private final TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> terminal1;
 
@@ -39,10 +37,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     private final LegImpl leg2;
 
     private final LegImpl leg3;
-
-    private ConnectablePositionImpl<ThreeWindingsTransformer> connectablePositionExtension;
-
-    private BranchStatus<ThreeWindingsTransformer> branchStatusExtension;
 
     static class LegImpl implements Leg, LimitsOwner<Void>, TapChangerParent {
 
@@ -330,16 +324,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         terminal1 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg1, resource.getAttributes(), Side.ONE), this);
         terminal2 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg2, resource.getAttributes(), Side.TWO), this);
         terminal3 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg3, resource.getAttributes(), Side.THREE), this);
-
-        ConnectablePositionAttributes cpa1 = resource.getAttributes().getPosition1();
-        ConnectablePositionAttributes cpa2 = resource.getAttributes().getPosition2();
-        ConnectablePositionAttributes cpa3 = resource.getAttributes().getPosition3();
-        if (cpa1 != null && cpa2 != null && cpa3 != null) {
-            connectablePositionExtension = new ConnectablePositionImpl<>(this, null,
-                    new ConnectablePositionImpl.FeederImpl(cpa1),
-                    new ConnectablePositionImpl.FeederImpl(cpa2),
-                    new ConnectablePositionImpl.FeederImpl(cpa3));
-        }
     }
 
     static ThreeWindingsTransformerImpl create(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
@@ -418,33 +402,13 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         index.notifyAfterRemoval(resource.getId());
     }
 
-    public BranchStatus.Status getBranchStatus() {
-        return BranchStatus.Status.valueOf(checkResource().getAttributes().getBranchStatus());
-    }
-
-    public ThreeWindingsTransformer setBranchStatus(BranchStatus.Status branchStatus) {
-        Objects.requireNonNull(branchStatus);
-        checkResource().getAttributes().setBranchStatus(branchStatus.name());
-        updateResource();
-        return this;
-    }
-
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
         var resource = checkResource();
-        if (type == ConnectablePosition.class) {
-            connectablePositionExtension = (ConnectablePositionImpl<ThreeWindingsTransformer>) extension;
-            resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
-            resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
-            resource.getAttributes().setPosition3(connectablePositionExtension.getFeeder3().getConnectablePositionAttributes());
-            updateResource();
-        } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
+        if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
             resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg2());
             resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg3(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg3());
             updateResource();
-        } else if (type == BranchStatus.class) {
-            BranchStatus branchStatus = (BranchStatus) extension;
-            setBranchStatus(branchStatus.getStatus());
         } else if (type == CgmesTapChangers.class) {
             resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
         } else {
@@ -452,32 +416,19 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
     }
 
-    @Override
-    public ConnectablePositionImpl<ThreeWindingsTransformer> createConnectablePositionExtension(Feeder feeder,
-                                                                                                Feeder feeder1, Feeder feeder2, Feeder feeder3) {
-        Objects.requireNonNull(feeder3);
-        ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
-        ConnectablePositionAttributes cpa1 = ConnectablePositionAttributes.builder()
-                .label(feeder1.getName().orElse(null))
-                .order(feeder1.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
-                .build();
-        ConnectablePositionAttributes cpa2 = ConnectablePositionAttributes.builder()
-                .label(feeder2.getName().orElse(null))
-                .order(feeder2.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
-                .build();
-        ConnectablePositionAttributes cpa3 = ConnectablePositionAttributes.builder()
-                .label(feeder3.getName().orElse(null))
-                .order(feeder3.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder3.getDirection().name()))
-                .build();
-        return new ConnectablePositionImpl<>(this,
+    public <E extends Extension<ThreeWindingsTransformer>> E createConnectablePositionExtension() {
+        E extension = null;
+        var resource = checkResource();
+        if (resource.getAttributes().getPosition1() != null
+                || resource.getAttributes().getPosition2() != null
+                || resource.getAttributes().getPosition3() != null) {
+            return (E) new ConnectablePositionImpl<>(this,
                 null,
-                new ConnectablePositionImpl.FeederImpl(cpa1),
-                new ConnectablePositionImpl.FeederImpl(cpa2),
-                new ConnectablePositionImpl.FeederImpl(cpa3)
-        );
+                connectable -> ((ThreeWindingsTransformerImpl) connectable).checkResource().getAttributes().getPosition1(),
+                connectable -> ((ThreeWindingsTransformerImpl) connectable).checkResource().getAttributes().getPosition2(),
+                connectable -> ((ThreeWindingsTransformerImpl) connectable).checkResource().getAttributes().getPosition3());
+        }
+        return extension;
     }
 
     private <E extends Extension<ThreeWindingsTransformer>> E createBranchStatusExtension() {
@@ -485,7 +436,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         var resource = checkResource();
         String branchStatus = resource.getAttributes().getBranchStatus();
         if (branchStatus != null) {
-            extension = (E) new BranchStatusImpl(this, BranchStatus.Status.valueOf(branchStatus));
+            extension = (E) new BranchStatusImpl(this);
         }
         return extension;
     }
@@ -494,7 +445,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     public <E extends Extension<ThreeWindingsTransformer>> E getExtension(Class<? super E> type) {
         E extension;
         if (type == ConnectablePosition.class) {
-            extension = (E) connectablePositionExtension;
+            extension = createConnectablePositionExtension();
         } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
             extension = createPhaseAngleClock();
         } else if (type == BranchStatus.class) {
@@ -511,7 +462,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     public <E extends Extension<ThreeWindingsTransformer>> E getExtensionByName(String name) {
         E extension;
         if (name.equals(ConnectablePosition.NAME)) {
-            extension = (E) connectablePositionExtension;
+            extension = createConnectablePositionExtension();
         } else if (name.equals(ThreeWindingsTransformerPhaseAngleClock.NAME)) {
             extension = createPhaseAngleClock();
         } else if (name.equals(BranchStatus.NAME)) {
@@ -528,10 +479,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     public <E extends Extension<ThreeWindingsTransformer>> Collection<E> getExtensions() {
         Collection<E> superExtensions = super.getExtensions();
         Collection<E> result = new ArrayList<>(superExtensions);
-        if (connectablePositionExtension != null) {
-            result.add((E) connectablePositionExtension);
+        E extension = createConnectablePositionExtension();
+        if (extension != null) {
+            result.add(extension);
         }
-        E extension = createPhaseAngleClock();
+        extension = createPhaseAngleClock();
         if (extension != null) {
             result.add(extension);
         }

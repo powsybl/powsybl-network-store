@@ -10,33 +10,24 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ConnectablePosition.Feeder;
-import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractIdentifiableImpl<I, D> implements ConnectablePositionCreator<I> {
+public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractIdentifiableImpl<I, D> {
 
     protected final TerminalImpl<D> terminal;
-
-    private ConnectablePositionImpl<I> connectablePositionExtension;
 
     protected AbstractInjectionImpl(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
         terminal = TerminalImpl.create(index, resource.getAttributes(), getInjection());
-        ConnectablePositionAttributes cpa = resource.getAttributes().getPosition();
-        if (cpa != null) {
-            connectablePositionExtension = new ConnectablePositionImpl<>(getInjection(),
-                    new ConnectablePositionImpl.FeederImpl(cpa), null, null, null);
-        }
     }
 
     protected abstract I getInjection();
@@ -49,38 +40,24 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         return terminal;
     }
 
-    @Override
-    public <E extends Extension<I>> void addExtension(Class<? super E> type, E extension) {
+    public <E extends Extension<I>> E createConnectablePositionExtension() {
+        E extension = null;
         var resource = checkResource();
-        if (type == ConnectablePosition.class) {
-            connectablePositionExtension = (ConnectablePositionImpl<I>) extension;
-            resource.getAttributes().setPosition(connectablePositionExtension.getFeeder().getConnectablePositionAttributes());
-            updateResource();
-        } else {
-            super.addExtension(type, extension);
+        if (resource.getAttributes().getPosition() != null) {
+            return (E) new ConnectablePositionImpl<>(getInjection(),
+                connectable -> ((AbstractInjectionImpl<?, ?>) connectable).checkResource().getAttributes().getPosition(),
+                null,
+                null,
+                null);
         }
-    }
-
-    @Override
-    public ConnectablePositionImpl<I> createConnectablePositionExtension(
-            Feeder feeder, Feeder feeder1, Feeder feeder2, ConnectablePosition.Feeder feeder3) {
-        Objects.requireNonNull(feeder);
-        ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
-        ConnectablePositionAttributes cpa = ConnectablePositionAttributes.builder()
-                .label(feeder.getName().orElse(null))
-                .order(feeder.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder.getDirection().name()))
-                .build();
-        return new ConnectablePositionImpl<>(getInjection(),
-                new ConnectablePositionImpl.FeederImpl(cpa),
-                null, null, null);
+        return extension;
     }
 
     @Override
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
         E extension;
         if (type == ConnectablePosition.class) {
-            extension = (E) connectablePositionExtension;
+            extension = createConnectablePositionExtension();
         } else {
             extension = super.getExtension(type);
         }
@@ -91,7 +68,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
     public <E extends Extension<I>> E getExtensionByName(String name) {
         E extension;
         if (name.equals("position")) {
-            extension = (E) connectablePositionExtension;
+            extension = createConnectablePositionExtension();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -101,8 +78,9 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
     @Override
     public <E extends Extension<I>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
-        if (connectablePositionExtension != null) {
-            extensions.add((E) connectablePositionExtension);
+        E extension = createConnectablePositionExtension();
+        if (extension != null) {
+            extensions.add(extension);
         }
         return extensions;
     }

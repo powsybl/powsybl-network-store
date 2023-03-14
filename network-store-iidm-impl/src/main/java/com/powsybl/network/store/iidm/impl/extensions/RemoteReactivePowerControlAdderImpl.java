@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
 import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
+import com.powsybl.network.store.model.RemoteReactivePowerControlAttributes;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com.com>
@@ -25,13 +26,19 @@ public class RemoteReactivePowerControlAdderImpl extends AbstractExtensionAdder<
 
     private boolean enabled;
 
-    protected RemoteReactivePowerControlAdderImpl(final Generator extendable) {
+    protected RemoteReactivePowerControlAdderImpl(Generator extendable) {
         super(extendable);
     }
 
     @Override
-    protected RemoteReactivePowerControl createExtension(final Generator generator) {
-        return new RemoteReactivePowerControlImpl((GeneratorImpl) generator, targetQ, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal), enabled);
+    protected RemoteReactivePowerControl createExtension(Generator generator) {
+        RemoteReactivePowerControlAttributes attributes = RemoteReactivePowerControlAttributes.builder()
+                .targetQ(targetQ)
+                .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal))
+                .enabled(enabled)
+                .build();
+        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setRemoteReactivePowerControl(attributes));
+        return new RemoteReactivePowerControlImpl((GeneratorImpl) generator);
     }
 
     @Override

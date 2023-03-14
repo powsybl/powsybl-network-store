@@ -247,35 +247,6 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         return new MinMaxReactiveLimitsAdderImpl<>(this);
     }
 
-    @Override
-    public <E extends Extension<Generator>> void addExtension(Class<? super E> type, E extension) {
-        super.addExtension(type, extension);
-        var resource = checkResource();
-        if (type == CoordinatedReactiveControl.class) {
-            CoordinatedReactiveControl coordinatedReactiveControl = (CoordinatedReactiveControl) extension;
-            resource.getAttributes().setCoordinatedReactiveControl(CoordinatedReactiveControlAttributes.builder()
-                    .qPercent(coordinatedReactiveControl.getQPercent())
-                    .build());
-            updateResource();
-        } else if (type == RemoteReactivePowerControl.class) {
-            RemoteReactivePowerControl remoteReactivePowerControl = (RemoteReactivePowerControl) extension;
-            resource.getAttributes().setRemoteReactivePowerControl(RemoteReactivePowerControlAttributes.builder()
-                    .targetQ(remoteReactivePowerControl.getTargetQ())
-                    .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(remoteReactivePowerControl.getRegulatingTerminal()))
-                    .enabled(remoteReactivePowerControl.isEnabled())
-                    .build());
-            updateResource();
-        } else if (type == GeneratorShortCircuit.class) {
-            GeneratorShortCircuit generatorShortCircuit = (GeneratorShortCircuit) extension;
-            resource.getAttributes().setGeneratorShortCircuitAttributes(GeneratorShortCircuitAttributes.builder()
-                    .directSubtransX(generatorShortCircuit.getDirectSubtransX())
-                    .directTransX(generatorShortCircuit.getDirectTransX())
-                    .stepUpTransformerX(generatorShortCircuit.getStepUpTransformerX())
-                    .build());
-            updateResource();
-        }
-    }
-
     private <E extends Extension<Generator>> E createActivePowerControlExtension() {
         E extension = null;
         var resource = checkResource();
@@ -291,20 +262,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         var resource = checkResource();
         CoordinatedReactiveControlAttributes attributes = resource.getAttributes().getCoordinatedReactiveControl();
         if (attributes != null) {
-            extension = (E) new CoordinatedReactiveControlImpl((GeneratorImpl) getInjection(), attributes.getQPercent());
+            extension = (E) new CoordinatedReactiveControlImpl((GeneratorImpl) getInjection());
         }
         return extension;
-    }
-
-    public Terminal getRemoteReactivePowerControlRegulatingTerminal() {
-        var resource = checkResource();
-        RemoteReactivePowerControlAttributes attributes = resource.getAttributes().getRemoteReactivePowerControl();
-        if (attributes != null) {
-            TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
-            return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
-        } else {
-            return null;
-        }
     }
 
     private <E extends Extension<Generator>> E createRemoteReactivePowerControlExtension() {
@@ -312,7 +272,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         var resource = checkResource();
         RemoteReactivePowerControlAttributes attributes = resource.getAttributes().getRemoteReactivePowerControl();
         if (attributes != null) {
-            extension = (E) new RemoteReactivePowerControlImpl((GeneratorImpl) getInjection(), attributes.getTargetQ(), attributes.getRegulatingTerminal(), attributes.isEnabled());
+            extension = (E) new RemoteReactivePowerControlImpl((GeneratorImpl) getInjection());
         }
         return extension;
     }
@@ -322,9 +282,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         var resource = checkResource();
         GeneratorStartupAttributes attributes = resource.getAttributes().getGeneratorStartupAttributes();
         if (attributes != null) {
-            extension = (E) new GeneratorStartupImpl((GeneratorImpl) getInjection(),
-                    attributes.getPlannedActivePowerSetpoint(), attributes.getStartupCost(),
-                    attributes.getMarginalCost(), attributes.getPlannedOutageRate(), attributes.getForcedOutageRate());
+            extension = (E) new GeneratorStartupImpl((GeneratorImpl) getInjection());
         }
         return extension;
     }
@@ -334,8 +292,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         var resource = checkResource();
         GeneratorShortCircuitAttributes attributes = resource.getAttributes().getGeneratorShortCircuitAttributes();
         if (attributes != null) {
-            extension = (E) new GeneratorShortCircuitImpl((GeneratorImpl) getInjection(),
-                    attributes.getDirectSubtransX(), attributes.getDirectTransX(), attributes.getStepUpTransformerX());
+            extension = (E) new GeneratorShortCircuitImpl((GeneratorImpl) getInjection());
         }
         return extension;
     }
@@ -345,7 +302,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         var resource = checkResource();
         GeneratorEntsoeCategoryAttributes attributes = resource.getAttributes().getEntsoeCategoryAttributes();
         if (attributes != null) {
-            extension = (E) new GeneratorEntsoeCategoryImpl((GeneratorImpl) getInjection(), attributes.getCode());
+            extension = (E) new GeneratorEntsoeCategoryImpl((GeneratorImpl) getInjection());
         }
         return extension;
     }
@@ -404,16 +361,5 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         addIfNotNull(extensions, createGeneratorStartupExtension());
         addIfNotNull(extensions, createGeneratorShortCircuitExtension());
         return extensions;
-    }
-
-    public GeneratorImpl initGeneratorStartupAttributes(double plannedActivePowerSetpoint, double startupCost, double marginalCost, double plannedOutageRate, double forcedOutageRate) {
-        checkResource().getAttributes().setGeneratorStartupAttributes(new GeneratorStartupAttributes(plannedActivePowerSetpoint, startupCost, marginalCost, plannedOutageRate, forcedOutageRate));
-        updateResource();
-        return this;
-    }
-
-    public GeneratorImpl initGeneratorShortCircuitAttributes(double directSubtransX, double directTransX, double stepUpTransformerX) {
-        checkResource().getAttributes().setGeneratorShortCircuitAttributes(new GeneratorShortCircuitAttributes(directSubtransX, directTransX, stepUpTransformerX));
-        return this;
     }
 }

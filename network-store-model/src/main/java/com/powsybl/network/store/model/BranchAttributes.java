@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitHolder {
+public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitHolder, BranchStatusHolder {
 
     String getVoltageLevelId1();
 
@@ -97,10 +97,6 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     LimitsAttributes getActivePowerLimits2();
 
     void setActivePowerLimits2(LimitsAttributes activePowerLimits);
-
-    String getBranchStatus();
-
-    void setBranchStatus(String branchStatus);
 
     @JsonIgnore
     default Set<String> getContainerIds() {

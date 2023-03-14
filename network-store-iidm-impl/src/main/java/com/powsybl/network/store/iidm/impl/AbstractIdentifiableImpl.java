@@ -55,7 +55,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         this.resource = resource;
     }
 
-    protected Resource<D> checkResource() {
+    public Resource<D> checkResource() {
         if (resource == null) {
             throw new PowsyblException("Object has been removed in current variant");
         }

@@ -6,47 +6,31 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
-import com.powsybl.network.store.model.CoordinatedReactiveControlAttributes;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class CoordinatedReactiveControlImpl implements CoordinatedReactiveControl {
-
-    private GeneratorImpl generator;
+public class CoordinatedReactiveControlImpl extends AbstractExtension<Generator> implements CoordinatedReactiveControl {
 
     public CoordinatedReactiveControlImpl(GeneratorImpl generator) {
-        this.generator = generator;
+        super(generator);
     }
 
-    public CoordinatedReactiveControlImpl(GeneratorImpl generator, double qPercent) {
-        this(generator);
-        generator.getResource().getAttributes().setCoordinatedReactiveControl(CoordinatedReactiveControlAttributes
-                .builder().qPercent(qPercent).build());
+    private GeneratorImpl getGenerator() {
+        return (GeneratorImpl) getExtendable();
     }
 
     @Override
     public double getQPercent() {
-        return generator.getResource().getAttributes().getCoordinatedReactiveControl().getQPercent();
+        return getGenerator().getResource().getAttributes().getCoordinatedReactiveControl().getQPercent();
     }
 
     @Override
     public void setQPercent(double qPercent) {
-        generator.getResource().getAttributes().getCoordinatedReactiveControl().setQPercent(qPercent);
-        generator.updateResource();
+        getGenerator().updateResource(res -> res.getAttributes().getCoordinatedReactiveControl().setQPercent(qPercent));
     }
-
-    @Override
-    public Generator getExtendable() {
-        return generator;
-    }
-
-    @Override
-    public void setExtendable(Generator generator) {
-        this.generator = (GeneratorImpl) generator;
-    }
-
 }
