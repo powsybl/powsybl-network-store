@@ -208,7 +208,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .targetDeadband(targetDeadband)
                 .regulatingTerminal(terminalRefAttributes)
                 .build();
-        TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().getResource().getAttributes());
+        TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().checkResource().getAttributes());
         if (tapChangerParentAttributes.getRatioTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }

@@ -31,11 +31,11 @@ public class HvdcOperatorActivePowerRangeAdderImpl extends AbstractExtensionAdde
 
     @Override
     protected HvdcOperatorActivePowerRange createExtension(HvdcLine hvdcLine) {
-        ((HvdcLineImpl) hvdcLine).getResource().getAttributes().setHvdcOperatorActivePowerRange(
+        ((HvdcLineImpl) hvdcLine).updateResource(res -> res.getAttributes().setHvdcOperatorActivePowerRange(
                 HvdcOperatorActivePowerRangeAttributes.builder()
                         .oprFromCS1toCS2(oprFromCS1toCS2)
                         .oprFromCS2toCS1(oprFromCS2toCS1)
-                        .build());
+                        .build()));
         return new HvdcOperatorActivePowerRangeImpl((HvdcLineImpl) hvdcLine);
     }
 

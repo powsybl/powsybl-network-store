@@ -38,7 +38,7 @@ public class SlackTerminalImpl implements SlackTerminal {
 
     @Override
     public Terminal getTerminal() {
-        return voltageLevel.getTerminal(voltageLevel.getResource().getAttributes().getSlackTerminal());
+        return voltageLevel.getTerminal(voltageLevel.checkResource().getAttributes().getSlackTerminal());
     }
 
     @Override

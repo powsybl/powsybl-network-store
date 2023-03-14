@@ -26,7 +26,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public double getPlannedActivePowerSetpoint() {
-        return getGenerator().getResource().getAttributes().getGeneratorStartupAttributes()
+        return getGenerator().checkResource().getAttributes().getGeneratorStartupAttributes()
                 .getPlannedActivePowerSetpoint();
     }
 
@@ -39,7 +39,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public double getStartupCost() {
-        return getGenerator().getResource().getAttributes().getGeneratorStartupAttributes()
+        return getGenerator().checkResource().getAttributes().getGeneratorStartupAttributes()
                 .getStartupCost();
     }
 
@@ -52,7 +52,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public double getMarginalCost() {
-        return getGenerator().getResource().getAttributes().getGeneratorStartupAttributes()
+        return getGenerator().checkResource().getAttributes().getGeneratorStartupAttributes()
                 .getMarginalCost();
     }
 
@@ -65,7 +65,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public double getPlannedOutageRate() {
-        return getGenerator().getResource().getAttributes().getGeneratorStartupAttributes()
+        return getGenerator().checkResource().getAttributes().getGeneratorStartupAttributes()
                 .getPlannedOutageRate();
     }
 
@@ -78,7 +78,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public double getForcedOutageRate() {
-        return getGenerator().getResource().getAttributes().getGeneratorStartupAttributes()
+        return getGenerator().checkResource().getAttributes().getGeneratorStartupAttributes()
                 .getForcedOutageRate();
     }
 

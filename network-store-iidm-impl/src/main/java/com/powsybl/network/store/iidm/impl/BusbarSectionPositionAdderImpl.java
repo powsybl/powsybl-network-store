@@ -44,7 +44,7 @@ public class BusbarSectionPositionAdderImpl extends AbstractExtensionAdder<Busba
                 .busbarIndex(busbarIndex)
                 .sectionIndex(sectionIndex)
                 .build();
-        busbarSectionImpl.getResource().getAttributes().setPosition(bspa);
+        busbarSectionImpl.updateResource(res -> res.getAttributes().setPosition(bspa));
         return new BusbarSectionPositionImpl(busbarSectionImpl);
     }
 

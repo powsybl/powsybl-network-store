@@ -53,7 +53,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         private LegAttributes getLegAttributes() {
-            return legGetter.apply(transformer.getResource().getAttributes());
+            return legGetter.apply(transformer.checkResource().getAttributes());
         }
 
         protected String getLegAttribute() {

@@ -32,7 +32,7 @@ public class IdentifiableShortCircuitAdderImpl<I extends Identifiable<I>> extend
                 .ipMin(ipMin)
                 .ipMax(ipMax)
                 .build();
-        ((VoltageLevelImpl) extendable).getResource().getAttributes().setIdentifiableShortCircuitAttributes(attributes);
+        ((VoltageLevelImpl) extendable).updateResource(res -> res.getAttributes().setIdentifiableShortCircuitAttributes(attributes));
         return new IdentifiableShortCircuitImpl<>(extendable);
     }
 

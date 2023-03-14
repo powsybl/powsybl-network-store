@@ -26,7 +26,7 @@ public class TwoWindingsTransformerPhaseAngleClockImpl extends AbstractExtension
 
     @Override
     public int getPhaseAngleClock() {
-        return getTwoWindingsTransformer().getResource().getAttributes().getPhaseAngleClockAttributes().getPhaseAngleClock();
+        return getTwoWindingsTransformer().checkResource().getAttributes().getPhaseAngleClockAttributes().getPhaseAngleClock();
     }
 
     @Override

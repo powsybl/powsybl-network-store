@@ -26,7 +26,7 @@ public class CoordinatedReactiveControlImpl extends AbstractExtension<Generator>
 
     @Override
     public double getQPercent() {
-        return getGenerator().getResource().getAttributes().getCoordinatedReactiveControl().getQPercent();
+        return getGenerator().checkResource().getAttributes().getCoordinatedReactiveControl().getQPercent();
     }
 
     @Override

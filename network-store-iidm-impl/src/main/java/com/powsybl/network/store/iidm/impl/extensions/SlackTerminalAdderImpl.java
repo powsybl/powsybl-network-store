@@ -41,8 +41,8 @@ public class SlackTerminalAdderImpl extends AbstractExtensionAdder<VoltageLevel,
             throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
                     + terminal.getVoltageLevel().getId() + " instead of " + voltageLevel.getId() + ")");
         }
-        ((VoltageLevelImpl) voltageLevel).getResource().getAttributes()
-                .setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
+        ((VoltageLevelImpl) voltageLevel).updateResource(res -> res.getAttributes()
+                .setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal)));
         return new SlackTerminalImpl((VoltageLevelImpl) voltageLevel);
     }
 }

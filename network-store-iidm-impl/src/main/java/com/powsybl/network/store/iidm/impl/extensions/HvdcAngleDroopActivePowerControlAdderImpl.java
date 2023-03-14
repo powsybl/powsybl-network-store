@@ -51,12 +51,12 @@ public class HvdcAngleDroopActivePowerControlAdderImpl extends AbstractExtension
 
     @Override
     protected HvdcAngleDroopActivePowerControl createExtension(HvdcLine hvdcLine) {
-        ((HvdcLineImpl) hvdcLine).getResource().getAttributes().setHvdcAngleDroopActivePowerControl(
+        ((HvdcLineImpl) hvdcLine).updateResource(res -> res.getAttributes().setHvdcAngleDroopActivePowerControl(
                 HvdcAngleDroopActivePowerControlAttributes.builder()
                         .p0(p0)
                         .droop(droop)
                         .enabled(enabled)
-                        .build());
+                        .build()));
         return new HvdcAngleDroopActivePowerControlImpl((HvdcLineImpl) hvdcLine);
     }
 }

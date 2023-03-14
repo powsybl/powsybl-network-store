@@ -39,12 +39,12 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractExtension<HvdcLine
 
     @Override
     public float getOprFromCS1toCS2() {
-        return hvdcLine.getResource().getAttributes().getHvdcOperatorActivePowerRange().getOprFromCS1toCS2();
+        return hvdcLine.checkResource().getAttributes().getHvdcOperatorActivePowerRange().getOprFromCS1toCS2();
     }
 
     @Override
     public float getOprFromCS2toCS1() {
-        return hvdcLine.getResource().getAttributes().getHvdcOperatorActivePowerRange().getOprFromCS2toCS1();
+        return hvdcLine.checkResource().getAttributes().getHvdcOperatorActivePowerRange().getOprFromCS2toCS1();
     }
 
     @Override

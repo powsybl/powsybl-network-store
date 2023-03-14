@@ -35,7 +35,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public double getFixedActivePower() {
-        return load.getResource().getAttributes().getLoadDetail().getFixedActivePower();
+        return load.checkResource().getAttributes().getLoadDetail().getFixedActivePower();
     }
 
     @Override
@@ -46,7 +46,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public double getFixedReactivePower() {
-        return load.getResource().getAttributes().getLoadDetail().getFixedReactivePower();
+        return load.checkResource().getAttributes().getLoadDetail().getFixedReactivePower();
     }
 
     @Override
@@ -57,7 +57,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public double getVariableActivePower() {
-        return load.getResource().getAttributes().getLoadDetail().getVariableActivePower();
+        return load.checkResource().getAttributes().getLoadDetail().getVariableActivePower();
     }
 
     @Override
@@ -68,7 +68,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public double getVariableReactivePower() {
-        return load.getResource().getAttributes().getLoadDetail().getVariableReactivePower();
+        return load.checkResource().getAttributes().getLoadDetail().getVariableReactivePower();
     }
 
     @Override
