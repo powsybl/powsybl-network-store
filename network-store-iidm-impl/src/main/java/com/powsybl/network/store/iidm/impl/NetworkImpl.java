@@ -51,7 +51,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public Map<String, String> getIdByAlias() {
-        var resource = checkResource();
+        return getIdByAlias(checkResource());
+    }
+
+    public Map<String, String> getIdByAlias(Resource<NetworkAttributes> resource) {
         NetworkAttributes attributes = resource.getAttributes();
         if (attributes.getIdByAlias() == null) {
             attributes.setIdByAlias(new HashMap<>());
@@ -60,16 +63,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public void addAlias(String alias, String id) {
-        getIdByAlias().put(alias, id);
-        updateResource();
+        updateResource(res -> getIdByAlias(res).put(alias, id));
     }
 
     public void removeAlias(String alias) {
-        getIdByAlias().remove(alias);
-        updateResource();
+        updateResource(res -> getIdByAlias(res).remove(alias));
     }
 
-    public boolean checkAliasUnicity(AbstractIdentifiableImpl obj, String alias) {
+    public boolean checkAliasUnicity(AbstractIdentifiableImpl<?, ?> obj, String alias) {
         Objects.requireNonNull(alias);
         Identifiable<?> identifiable = getIdentifiable(alias);
         if (identifiable != null) {
@@ -829,8 +830,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         var resource = checkResource();
         if (!resource.getAttributes().isConnectedComponentsValid()) {
             update(ComponentType.CONNECTED, isBusView);
-            resource.getAttributes().setConnectedComponentsValid(true);
-            updateResource();
+            updateResource(res -> res.getAttributes().setConnectedComponentsValid(true));
         }
     }
 
@@ -838,16 +838,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         var resource = checkResource();
         if (!resource.getAttributes().isSynchronousComponentsValid()) {
             update(ComponentType.SYNCHRONOUS, isBusView);
-            resource.getAttributes().setSynchronousComponentsValid(true);
-            updateResource();
+            updateResource(res -> res.getAttributes().setSynchronousComponentsValid(true));
         }
     }
 
     void invalidateComponents() {
-        var resource = checkResource();
-        resource.getAttributes().setConnectedComponentsValid(false);
-        resource.getAttributes().setSynchronousComponentsValid(false);
-        updateResource();
+        updateResource(res -> {
+            res.getAttributes().setConnectedComponentsValid(false);
+            res.getAttributes().setSynchronousComponentsValid(false);
+        });
     }
 
     @Override

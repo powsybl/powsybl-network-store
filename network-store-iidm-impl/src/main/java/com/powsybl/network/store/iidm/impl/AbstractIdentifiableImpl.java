@@ -38,10 +38,6 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         this.resource = resource;
     }
 
-    public void updateResource() {
-        index.updateResource(resource);
-    }
-
     public void updateResource(Consumer<Resource<D>> modifier) {
         modifier.accept(resource);
         index.updateResource(resource);
