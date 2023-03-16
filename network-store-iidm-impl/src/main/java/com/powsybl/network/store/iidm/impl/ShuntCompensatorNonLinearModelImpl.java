@@ -84,7 +84,8 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
 
     @Override
     public List<Section> getAllSections() {
-        return IntStream.range(0, getAttributes().getSections().size() - 1).boxed()
+        return IntStream.range(0, getAttributes().getSections().size())
+                .boxed()
                 .map((Function<Integer, Section>) i -> new SectionImpl(shuntCompensator, i))
                 .collect(Collectors.toList());
     }
