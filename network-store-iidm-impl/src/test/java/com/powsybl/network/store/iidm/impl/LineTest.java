@@ -17,7 +17,6 @@ import com.powsybl.network.store.model.ConnectableDirection;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -82,7 +81,7 @@ public class LineTest extends AbstractLineTest {
 
         temporaryLimits.put(10, TemporaryLimitAttributes.builder().name("TempLimit10").value(8).acceptableDuration(10).fictitious(false).build());
         // check duration sorting order: first entry has the highest duration
-        Assert.assertEquals(10., l1.getNullableCurrentLimits1().getTemporaryLimits().iterator().next().getAcceptableDuration(), 0);
+        assertEquals(10., l1.getNullableCurrentLimits1().getTemporaryLimits().iterator().next().getAcceptableDuration(), 0);
     }
 
     @Override
