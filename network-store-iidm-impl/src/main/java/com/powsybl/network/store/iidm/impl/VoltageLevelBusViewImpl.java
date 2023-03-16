@@ -32,7 +32,7 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return voltageLevel.getResource();
+        return voltageLevel.checkResource();
     }
 
     private boolean isBusBeakerTopologyKind() {

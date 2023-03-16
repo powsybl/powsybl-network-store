@@ -71,7 +71,7 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
     }
 
     private Resource<ShuntCompensatorAttributes> getResource() {
-        return shuntCompensator.getResource();
+        return shuntCompensator.checkResource();
     }
 
     private static ShuntCompensatorNonLinearModelAttributes getAttributes(Resource<ShuntCompensatorAttributes> resource) {

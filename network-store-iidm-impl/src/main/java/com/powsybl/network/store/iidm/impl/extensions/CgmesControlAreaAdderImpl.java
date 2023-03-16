@@ -64,7 +64,7 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
             throw new PowsyblException("Undefined ID for CGMES control area");
         }
         CgmesControlAreaAttributes attributes = new CgmesControlAreaAttributes(id, name, energyIdentificationCodeEic, new ArrayList<>(), new ArrayList<>(), netInterchange);
-        List<CgmesControlAreaAttributes> controlAreas = network.getResource().getAttributes().getCgmesControlAreas().getControlAreas();
+        List<CgmesControlAreaAttributes> controlAreas = network.checkResource().getAttributes().getCgmesControlAreas().getControlAreas();
         int index = controlAreas.size();
         controlAreas.add(attributes);
         return new CgmesControlAreaImpl(network, index);

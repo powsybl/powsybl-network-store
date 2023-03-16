@@ -38,7 +38,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return voltageLevel.getResource();
+        return voltageLevel.checkResource();
     }
 
     private boolean isNodeBeakerTopologyKind() {

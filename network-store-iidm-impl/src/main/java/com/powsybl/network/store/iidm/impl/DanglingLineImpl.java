@@ -36,7 +36,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
 
         private DanglingLineGenerationAttributes getAttributes() {
-            return getAttributes(danglingLine.getResource());
+            return getAttributes(danglingLine.checkResource());
         }
 
         @Override
