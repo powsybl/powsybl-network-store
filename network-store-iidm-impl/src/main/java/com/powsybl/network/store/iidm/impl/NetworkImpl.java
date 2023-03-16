@@ -853,37 +853,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public <E extends Extension<Network>> void addExtension(Class<? super E> type, E extension) {
         var resource = checkResource();
-        if (type == CgmesSvMetadata.class) {
-            CgmesSvMetadata cgmesSvMetadata = (CgmesSvMetadata) extension;
-            resource.getAttributes().setCgmesSvMetadata(
-                    CgmesSvMetadataAttributes.builder()
-                            .description(cgmesSvMetadata.getDescription())
-                            .svVersion(cgmesSvMetadata.getSvVersion())
-                            .dependencies(cgmesSvMetadata.getDependencies())
-                            .modelingAuthoritySet(cgmesSvMetadata.getModelingAuthoritySet())
-                            .build());
-            updateResource();
-        }
-        if (type == CgmesSshMetadata.class) {
-            CgmesSshMetadata cgmesSshMetadata = (CgmesSshMetadata) extension;
-            resource.getAttributes().setCgmesSshMetadata(
-                    CgmesSshMetadataAttributes.builder()
-                            .description(cgmesSshMetadata.getDescription())
-                            .sshVersion(cgmesSshMetadata.getSshVersion())
-                            .dependencies(cgmesSshMetadata.getDependencies())
-                            .modelingAuthoritySet(cgmesSshMetadata.getModelingAuthoritySet())
-                            .build());
-            updateResource();
-        }
-        if (type == CimCharacteristics.class) {
-            CimCharacteristics cimCharacteristics = (CimCharacteristics) extension;
-            resource.getAttributes().setCimCharacteristics(
-                    CimCharacteristicsAttributes.builder()
-                            .cgmesTopologyKind(cimCharacteristics.getTopologyKind())
-                            .cimVersion(cimCharacteristics.getCimVersion())
-                            .build());
-            updateResource();
-        }
         if (type == CgmesControlAreas.class) {
             resource.getAttributes().setCgmesControlAreas(new CgmesControlAreasAttributes());
             updateResource();
@@ -1008,23 +977,5 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             extension = (E) new BaseVoltageMappingImpl(this, attributes.getBaseVoltages());
         }
         return extension;
-    }
-
-    public NetworkImpl initCgmesSvMetadataAttributes(String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
-        checkResource().getAttributes().setCgmesSvMetadata(new CgmesSvMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
-        updateResource();
-        return this;
-    }
-
-    public NetworkImpl initCgmesSshMetadataAttributes(String description, int sshVersion, List<String> dependencies, String modelingAuthoritySet) {
-        checkResource().getAttributes().setCgmesSshMetadata(new CgmesSshMetadataAttributes(description, sshVersion, dependencies, modelingAuthoritySet));
-        updateResource();
-        return this;
-    }
-
-    public NetworkImpl initCimCharacteristicsAttributes(CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
-        checkResource().getAttributes().setCimCharacteristics(new CimCharacteristicsAttributes(cgmesTopologyKind, cimVersion));
-        updateResource();
-        return this;
     }
 }

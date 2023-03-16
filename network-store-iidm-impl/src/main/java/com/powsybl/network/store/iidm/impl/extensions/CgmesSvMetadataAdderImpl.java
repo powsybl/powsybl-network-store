@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,14 @@ public class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, Cg
         } else if (this.modelingAuthoritySet == null) {
             throw new PowsyblException("cgmesSvMetadata.modelingAuthoritySet is undefined");
         } else {
-            return new CgmesSvMetadataImpl((NetworkImpl) network, description, svVersion, dependencies, modelingAuthoritySet);
+            var attributes = CgmesSvMetadataAttributes.builder()
+                    .description(description)
+                    .svVersion(svVersion)
+                    .dependencies(dependencies)
+                    .modelingAuthoritySet(modelingAuthoritySet)
+                    .build();
+            ((NetworkImpl) network).updateResource(res -> res.getAttributes().setCgmesSvMetadata(attributes));
+            return new CgmesSvMetadataImpl((NetworkImpl) network);
         }
     }
 
