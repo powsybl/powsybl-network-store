@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Temporary limit attributes")
-public class TemporaryLimitAttributes {
+public class TemporaryLimitAttributes implements Comparable<TemporaryLimitAttributes> {
 
     @JsonIgnore
     @Schema(description = "Temporary limit side", required = true)
@@ -45,4 +45,10 @@ public class TemporaryLimitAttributes {
 
     @Schema(description = "Temporary limit is fictitious")
     private boolean fictitious;
+
+    @Override
+    // descending order on acceptableDuration
+    public int compareTo(TemporaryLimitAttributes other) {
+        return other.getAcceptableDuration() - this.getAcceptableDuration();
+    }
 }

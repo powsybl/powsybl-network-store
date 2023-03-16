@@ -72,9 +72,9 @@ public abstract class AbstractLoadingLimits<T extends LoadingLimits> implements 
     }
 
     @Override
-    public Collection<LoadingLimits.TemporaryLimit> getTemporaryLimits() {
+    public Collection<TemporaryLimit> getTemporaryLimits() {
         return attributes.getTemporaryLimits() == null ? Collections.emptyList()
-                                                       : attributes.getTemporaryLimits().values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toUnmodifiableList());
+            : attributes.getTemporaryLimits().values().stream().sorted().map(TemporaryLimitImpl::new).collect(Collectors.toUnmodifiableList());
     }
 
     @Override
