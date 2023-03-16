@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
 import com.powsybl.network.store.model.CgmesControlAreaAttributes;
+import com.powsybl.network.store.model.NetworkAttributes;
+import com.powsybl.network.store.model.Resource;
 
 import java.util.Objects;
 import java.util.Set;
@@ -23,31 +25,39 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
 
     private final NetworkImpl network;
 
-    private final CgmesControlAreaAttributes attributes;
+    private final int index;
 
-    CgmesControlAreaImpl(NetworkImpl network, CgmesControlAreaAttributes attributes) {
+    CgmesControlAreaImpl(NetworkImpl network, int index) {
         this.network = Objects.requireNonNull(network);
-        this.attributes = Objects.requireNonNull(attributes);
+        this.index = index;
+    }
+
+    private CgmesControlAreaAttributes getAttributes(Resource<NetworkAttributes> resource) {
+        return network.checkResource().getAttributes().getCgmesControlAreas().getControlAreas().get(index);
+    }
+
+    private CgmesControlAreaAttributes getAttributes() {
+        return getAttributes(network.checkResource());
     }
 
     @Override
     public String getId() {
-        return attributes.getId();
+        return getAttributes().getId();
     }
 
     @Override
     public String getName() {
-        return attributes.getName();
+        return getAttributes().getName();
     }
 
     @Override
     public String getEnergyIdentificationCodeEIC() {
-        return attributes.getEnergyIdentificationCodeEic();
+        return getAttributes().getEnergyIdentificationCodeEic();
     }
 
     @Override
     public Set<Terminal> getTerminals() {
-        return attributes.getTerminals().stream().map(a -> TerminalRefUtils.getTerminal(network.getIndex(), a)).collect(Collectors.toSet());
+        return getAttributes().getTerminals().stream().map(a -> TerminalRefUtils.getTerminal(network.getIndex(), a)).collect(Collectors.toSet());
     }
 
     public static Boundary getTerminalBoundary(Terminal terminal) {
@@ -64,7 +74,7 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
 
     @Override
     public Set<Boundary> getBoundaries() {
-        return attributes.getBoundaries().stream()
+        return getAttributes().getBoundaries().stream()
                 .map(a -> TerminalRefUtils.getTerminal(network.getIndex(), a))
                 .map(CgmesControlAreaImpl::getTerminalBoundary)
                 .collect(Collectors.toSet());
@@ -72,13 +82,12 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
 
     @Override
     public double getNetInterchange() {
-        return attributes.getNetInterchange();
+        return getAttributes().getNetInterchange();
     }
 
     @Override
     public void add(Terminal terminal) {
-        attributes.getTerminals().add(TerminalRefUtils.getTerminalRefAttributes(terminal));
-        network.updateResource();
+        network.updateResource(res -> getAttributes(res).getTerminals().add(TerminalRefUtils.getTerminalRefAttributes(terminal)));
     }
 
     public static Terminal getBoundaryTerminal(Boundary boundary) {
@@ -94,7 +103,6 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
     @Override
     public void add(Boundary boundary) {
         Terminal terminal = getBoundaryTerminal(boundary);
-        attributes.getBoundaries().add(TerminalRefUtils.getTerminalRefAttributes(terminal));
-        network.updateResource();
+        network.updateResource(res -> getAttributes(res).getBoundaries().add(TerminalRefUtils.getTerminalRefAttributes(terminal)));
     }
 }

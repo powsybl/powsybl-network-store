@@ -851,23 +851,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public <E extends Extension<Network>> void addExtension(Class<? super E> type, E extension) {
-        var resource = checkResource();
-        if (type == CgmesControlAreas.class) {
-            resource.getAttributes().setCgmesControlAreas(new CgmesControlAreasAttributes());
-            updateResource();
-        }
-        if (type == BaseVoltageMapping.class) {
-            var newMap = ((BaseVoltageMapping) extension).getBaseVoltages().entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> new BaseVoltageSourceAttribute(e.getValue().getId(), e.getValue().getNominalV(), e.getValue().getSource())));
-            resource.getAttributes().setBaseVoltageMapping(new BaseVoltageMappingAttributes(newMap));
-            updateResource();
-        }
-        super.addExtension(type, extension);
-    }
-
-    @Override
     public <E extends Extension<Network>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
         E extension = createCgmesSvMetadata();
@@ -974,7 +957,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         var resource = checkResource();
         BaseVoltageMappingAttributes attributes = resource.getAttributes().getBaseVoltageMapping();
         if (attributes != null) {
-            extension = (E) new BaseVoltageMappingImpl(this, attributes.getBaseVoltages());
+            extension = (E) new BaseVoltageMappingImpl(this);
         }
         return extension;
     }
