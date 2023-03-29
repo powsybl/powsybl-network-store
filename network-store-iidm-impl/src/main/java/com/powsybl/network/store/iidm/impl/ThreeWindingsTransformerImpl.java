@@ -411,7 +411,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
     }
 
-    public <E extends Extension<ThreeWindingsTransformer>> E createConnectablePositionExtension() {
+    private <E extends Extension<ThreeWindingsTransformer>> E createConnectablePositionExtension() {
         E extension = null;
         var resource = checkResource();
         if (resource.getAttributes().getPosition1() != null

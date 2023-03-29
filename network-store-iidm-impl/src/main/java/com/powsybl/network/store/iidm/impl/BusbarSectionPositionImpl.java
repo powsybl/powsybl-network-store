@@ -42,8 +42,8 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
         return getPositionAttributes().getBusbarIndex();
     }
 
-    private BusbarSectionPositionAttributes getPositionAttributes(Resource<BusbarSectionAttributes> attributes) {
-        return attributes.getAttributes().getPosition();
+    private BusbarSectionPositionAttributes getPositionAttributes(Resource<BusbarSectionAttributes> resource) {
+        return resource.getAttributes().getPosition();
     }
 
     @Override

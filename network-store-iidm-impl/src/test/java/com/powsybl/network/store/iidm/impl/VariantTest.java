@@ -126,14 +126,14 @@ public class VariantTest {
         // recalculate buses on the new variant
         assertTrue(gt.isConnected());
         assertTrue(gt.disconnect());
-        assertFalse(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        assertFalse(((VoltageLevelImpl) vl1).checkResource().getAttributes().isCalculatedBusesValid());
         assertFalse(gt.isConnected());
         assertTrue(vl1.getNodeBreakerView().getSwitch("BR1").isOpen());
         assertEquals(3, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(3, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
 
         // calculated buses on the initial variant not changed
-        assertTrue(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        assertTrue(((VoltageLevelImpl) vl1).checkResource().getAttributes().isCalculatedBusesValid());
         network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertTrue(gt.isConnected());
         assertFalse(vl1.getNodeBreakerView().getSwitch("BR1").isOpen());

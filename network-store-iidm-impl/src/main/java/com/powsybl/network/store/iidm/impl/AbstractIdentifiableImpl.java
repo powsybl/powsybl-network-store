@@ -85,8 +85,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public I setName(String name) {
         String oldName = checkResource().getAttributes().getName();
-        updateResource(r -> r.getAttributes().setName(name));
-        index.notifyUpdate(this, "name", oldName, name);
+        if (!Objects.equals(oldName, name)) {
+            updateResource(r -> r.getAttributes().setName(name));
+            index.notifyUpdate(this, "name", oldName, name);
+        }
         return (I) this;
     }
 

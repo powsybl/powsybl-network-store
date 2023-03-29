@@ -139,12 +139,12 @@ public class BusBreakerTerminalTest {
         assertTrue(assertThrows(PowsyblException.class, () -> gtbbv.setConnectableBus("FOO")).getMessage().contains("FOO not found"));
 
         gt.getBusBreakerView().setConnectableBus("B1");
-        assertFalse(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        assertFalse(((VoltageLevelImpl) vl1).checkResource().getAttributes().isCalculatedBusesValid());
 
         assertTrue(gt.disconnect());
         assertFalse(gt.isConnected());
         gt.getBusBreakerView().setConnectableBus("B2");
-        assertFalse(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        assertFalse(((VoltageLevelImpl) vl1).checkResource().getAttributes().isCalculatedBusesValid());
         assertEquals("B2", gt.getBusBreakerView().getConnectableBus().getId());
 
         assertTrue(gt.connect());
@@ -154,13 +154,13 @@ public class BusBreakerTerminalTest {
         assertTrue(l1t.disconnect());
         assertFalse(l1t.isConnected());
         l1t.getBusBreakerView().setConnectableBus("B2");
-        assertFalse(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        assertFalse(((VoltageLevelImpl) vl1).checkResource().getAttributes().isCalculatedBusesValid());
         assertEquals("B2", l1t.getBusBreakerView().getConnectableBus().getId());
 
         assertTrue(l2t.disconnect());
         assertFalse(l2t.isConnected());
         l2t.getBusBreakerView().setConnectableBus("B21");
-        assertFalse(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        assertFalse(((VoltageLevelImpl) vl1).checkResource().getAttributes().isCalculatedBusesValid());
         assertEquals("B21", l2t.getBusBreakerView().getConnectableBus().getId());
     }
 }

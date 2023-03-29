@@ -424,7 +424,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         }
     }
 
-    public <E extends Extension<T>> E createConnectablePositionExtension() {
+    private <E extends Extension<T>> E createConnectablePositionExtension() {
         E extension = null;
         var resource = checkResource();
         if (resource.getAttributes().getPosition1() != null || resource.getAttributes().getPosition2() != null) {

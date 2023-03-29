@@ -28,15 +28,15 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
 
         private final ShuntCompensatorImpl shuntCompensator;
 
-        private final int i;
+        private final int index;
 
-        public SectionImpl(ShuntCompensatorImpl shuntCompensator, int i) {
+        public SectionImpl(ShuntCompensatorImpl shuntCompensator, int index) {
             this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
-            this.i = i;
+            this.index = index;
         }
 
         private ShuntCompensatorNonLinearSectionAttributes getSectionAttributes() {
-            return getAttributes().getSections().get(i);
+            return getAttributes().getSections().get(index);
         }
 
         @Override
