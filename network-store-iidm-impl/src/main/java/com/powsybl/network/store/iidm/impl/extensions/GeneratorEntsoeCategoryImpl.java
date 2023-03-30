@@ -26,7 +26,7 @@ public class GeneratorEntsoeCategoryImpl extends AbstractExtension<Generator> im
 
     @Override
     public int getCode() {
-        return getGenerator().checkResource().getAttributes().getEntsoeCategoryAttributes().getCode();
+        return getGenerator().getResource().getAttributes().getEntsoeCategoryAttributes().getCode();
     }
 
     @Override

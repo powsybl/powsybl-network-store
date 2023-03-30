@@ -43,7 +43,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         index.updateResource(resource);
     }
 
-    public Resource<D> getResource() {
+    public Resource<D> getNullableResource() {
         return resource;
     }
 
@@ -51,19 +51,19 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         this.resource = resource;
     }
 
-    public Resource<D> checkResource() {
+    public Resource<D> getResource() {
         if (resource == null) {
             throw new PowsyblException("Object has been removed in current variant");
         }
         return resource;
     }
 
-    protected Optional<Resource<D>> optResource() {
+    protected Optional<Resource<D>> getOptionalResource() {
         return Optional.ofNullable(resource);
     }
 
     public String getId() {
-        return checkResource().getId();
+        return getResource().getId();
     }
 
     @Deprecated
@@ -73,18 +73,18 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     @Override
     public String getNameOrId() {
-        Resource<D> r = checkResource();
+        Resource<D> r = getResource();
         return r.getAttributes().getName() != null ? r.getAttributes().getName() : r.getId();
     }
 
     @Override
     public Optional<String> getOptionalName() {
-        return Optional.ofNullable(checkResource().getAttributes().getName());
+        return Optional.ofNullable(getResource().getAttributes().getName());
     }
 
     @Override
     public I setName(String name) {
-        String oldName = checkResource().getAttributes().getName();
+        String oldName = getResource().getAttributes().getName();
         if (!Objects.equals(oldName, name)) {
             updateResource(r -> r.getAttributes().setName(name));
             index.notifyUpdate(this, "name", oldName, name);
@@ -95,7 +95,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public Set<String> getAliases() {
         Set<String> aliases = new HashSet<>();
-        var attributes = checkResource().getAttributes();
+        var attributes = getResource().getAttributes();
         if (attributes.getAliasesWithoutType() != null) {
             aliases.addAll(attributes.getAliasesWithoutType());
         }
@@ -108,7 +108,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public Optional<String> getAliasType(String alias) {
         Objects.requireNonNull(alias);
-        var attributes = checkResource().getAttributes();
+        var attributes = getResource().getAttributes();
         if (attributes.getAliasByType() != null) {
             return attributes.getAliasByType().entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).findFirst();
         }
@@ -118,7 +118,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public Optional<String> getAliasFromType(String aliasType) {
         Objects.requireNonNull(aliasType);
-        var attributes = checkResource().getAttributes();
+        var attributes = getResource().getAttributes();
         if (attributes.getAliasByType() != null) {
             return Optional.ofNullable(attributes.getAliasByType().get(aliasType));
         }
@@ -199,14 +199,14 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     @Override
     public boolean hasAliases() {
-        var attributes = checkResource().getAttributes();
+        var attributes = getResource().getAttributes();
         var aliasByType = attributes.getAliasByType();
         return aliasByType != null && !aliasByType.isEmpty();
     }
 
     @Deprecated
     public Properties getProperties() {
-        Resource<D> r = checkResource();
+        Resource<D> r = getResource();
         Properties properties = new Properties();
         if (r.getAttributes().getProperties() != null) {
             properties.putAll(r.getAttributes().getProperties());
@@ -215,17 +215,17 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public String getProperty(String key) {
-        Map<String, String> properties = checkResource().getAttributes().getProperties();
+        Map<String, String> properties = getResource().getAttributes().getProperties();
         return properties != null ? properties.get(key) : null;
     }
 
     public String getProperty(String key, String defaultValue) {
-        Map<String, String> properties = checkResource().getAttributes().getProperties();
+        Map<String, String> properties = getResource().getAttributes().getProperties();
         return properties != null ? properties.getOrDefault(key, defaultValue) : null;
     }
 
     public Set<String> getPropertyNames() {
-        Map<String, String> properties = checkResource().getAttributes().getProperties();
+        Map<String, String> properties = getResource().getAttributes().getProperties();
         return properties != null ? properties.keySet() : Collections.emptySet();
     }
 
@@ -250,18 +250,18 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public boolean hasProperty() {
-        Map<String, String> properties = checkResource().getAttributes().getProperties();
+        Map<String, String> properties = getResource().getAttributes().getProperties();
         return properties != null && !properties.isEmpty();
     }
 
     public boolean hasProperty(String key) {
-        Map<String, String> properties = checkResource().getAttributes().getProperties();
+        Map<String, String> properties = getResource().getAttributes().getProperties();
         return properties != null && properties.containsKey(key);
     }
 
     @Override
     public boolean removeProperty(String key) {
-        Resource<D> r = checkResource();
+        Resource<D> r = getResource();
         Map<String, String> properties = r.getAttributes().getProperties();
         if (properties != null) {
             return properties.remove(key) != null;
@@ -270,7 +270,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public NetworkImpl getNetwork() {
-        checkResource();
+        getResource();
         return index.getNetwork();
     }
 
@@ -312,12 +312,12 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     @Override
     public boolean isFictitious() {
-        return checkResource().getAttributes().isFictitious();
+        return getResource().getAttributes().isFictitious();
     }
 
     @Override
     public void setFictitious(boolean fictitious) {
-        boolean oldValue = checkResource().getAttributes().isFictitious();
+        boolean oldValue = getResource().getAttributes().isFictitious();
         if (fictitious != oldValue) {
             updateResource(r -> r.getAttributes().setFictitious(fictitious));
             index.notifyUpdate(this, "fictitious", oldValue, fictitious);

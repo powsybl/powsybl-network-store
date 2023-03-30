@@ -67,7 +67,7 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
             });
         }
         return new ConnectablePositionImpl<>(extendable,
-            connectable -> ((AbstractInjectionImpl<?, ?>) connectable).checkResource().getAttributes().getPosition(),
+            connectable -> ((AbstractInjectionImpl<?, ?>) connectable).getResource().getAttributes().getPosition(),
             null,
             null,
             null);
@@ -92,8 +92,8 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
         });
         return new ConnectablePositionImpl<>(extendable,
             null,
-            connectable -> ((AbstractBranchImpl<?, ?>) connectable).checkResource().getAttributes().getPosition1(),
-            connectable -> ((AbstractBranchImpl<?, ?>) connectable).checkResource().getAttributes().getPosition2(),
+            connectable -> ((AbstractBranchImpl<?, ?>) connectable).getResource().getAttributes().getPosition1(),
+            connectable -> ((AbstractBranchImpl<?, ?>) connectable).getResource().getAttributes().getPosition2(),
             null);
     }
 
@@ -123,9 +123,9 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
         });
         return new ConnectablePositionImpl<>(extendable,
             null,
-            connectable -> ((ThreeWindingsTransformerImpl) connectable).checkResource().getAttributes().getPosition1(),
-            connectable -> ((ThreeWindingsTransformerImpl) connectable).checkResource().getAttributes().getPosition2(),
-            connectable -> ((ThreeWindingsTransformerImpl) connectable).checkResource().getAttributes().getPosition3());
+            connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition1(),
+            connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition2(),
+            connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition3());
     }
 
     @Override

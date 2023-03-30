@@ -22,7 +22,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public boolean isParticipate() {
-        return getInjection().checkResource().getAttributes().getActivePowerControl().isParticipate();
+        return getInjection().getResource().getAttributes().getActivePowerControl().isParticipate();
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public double getDroop() {
-        return getInjection().checkResource().getAttributes().getActivePowerControl().getDroop();
+        return getInjection().getResource().getAttributes().getActivePowerControl().getDroop();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public double getParticipationFactor() {
-        return getInjection().checkResource().getAttributes().getActivePowerControl().getParticipationFactor();
+        return getInjection().getResource().getAttributes().getActivePowerControl().getParticipationFactor();
     }
 
     @Override

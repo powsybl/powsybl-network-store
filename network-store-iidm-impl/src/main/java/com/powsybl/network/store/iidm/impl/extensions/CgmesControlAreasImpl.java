@@ -41,7 +41,7 @@ public class CgmesControlAreasImpl extends AbstractExtension<Network> implements
     @Override
     public Collection<CgmesControlArea> getCgmesControlAreas() {
         List<CgmesControlAreaAttributes> cgmesControlAreaAttributes = getNetwork()
-                .checkResource()
+                .getResource()
                 .getAttributes()
                 .getCgmesControlAreas()
                 .getControlAreas();
@@ -55,7 +55,7 @@ public class CgmesControlAreasImpl extends AbstractExtension<Network> implements
     public CgmesControlArea getCgmesControlArea(String controlAreaId) {
         Objects.requireNonNull(controlAreaId);
         List<CgmesControlAreaAttributes> cgmesControlAreaAttributes = getNetwork()
-                .checkResource()
+                .getResource()
                 .getAttributes()
                 .getCgmesControlAreas()
                 .getControlAreas();
@@ -71,7 +71,7 @@ public class CgmesControlAreasImpl extends AbstractExtension<Network> implements
     public boolean containsCgmesControlAreaId(String controlAreaId) {
         Objects.requireNonNull(controlAreaId);
         return getNetwork()
-                .checkResource()
+                .getResource()
                 .getAttributes()
                 .getCgmesControlAreas()
                 .getControlAreas()

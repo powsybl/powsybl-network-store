@@ -40,13 +40,13 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public LoadType getLoadType() {
-        return checkResource().getAttributes().getLoadType();
+        return getResource().getAttributes().getLoadType();
     }
 
     @Override
     public Load setLoadType(LoadType loadType) {
         ValidationUtil.checkLoadType(this, loadType);
-        LoadType oldValue = checkResource().getAttributes().getLoadType();
+        LoadType oldValue = getResource().getAttributes().getLoadType();
         if (loadType != oldValue) {
             updateResource(r -> r.getAttributes().setLoadType(loadType));
             index.notifyUpdate(this, "loadType", oldValue, loadType);
@@ -56,13 +56,13 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public double getP0() {
-        return checkResource().getAttributes().getP0();
+        return getResource().getAttributes().getP0();
     }
 
     @Override
     public Load setP0(double p0) {
         ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = checkResource().getAttributes().getP0();
+        double oldValue = getResource().getAttributes().getP0();
         if (p0 != oldValue) {
             updateResource(r -> r.getAttributes().setP0(p0));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -73,13 +73,13 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public double getQ0() {
-        return checkResource().getAttributes().getQ0();
+        return getResource().getAttributes().getQ0();
     }
 
     @Override
     public Load setQ0(double q0) {
         ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = checkResource().getAttributes().getQ0();
+        double oldValue = getResource().getAttributes().getQ0();
         if (q0 != oldValue) {
             updateResource(r -> r.getAttributes().setQ0(q0));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -118,7 +118,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     private <E extends Extension<Load>> E createLoadDetail() {
         E extension = null;
-        LoadDetailAttributes attributes = checkResource().getAttributes().getLoadDetail();
+        LoadDetailAttributes attributes = getResource().getAttributes().getLoadDetail();
         if (attributes != null) {
             extension = (E) new LoadDetailImpl(this);
         }
@@ -127,7 +127,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());

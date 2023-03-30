@@ -27,7 +27,7 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
     }
 
     private Resource<ShuntCompensatorAttributes> getResource() {
-        return shuntCompensator.checkResource();
+        return shuntCompensator.getResource();
     }
 
     private static ShuntCompensatorLinearModelAttributes getAttributes(Resource<ShuntCompensatorAttributes> resource) {

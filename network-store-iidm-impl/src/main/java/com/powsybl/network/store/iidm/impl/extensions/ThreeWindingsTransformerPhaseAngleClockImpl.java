@@ -26,12 +26,12 @@ public class ThreeWindingsTransformerPhaseAngleClockImpl extends AbstractExtensi
 
     @Override
     public int getPhaseAngleClockLeg2() {
-        return getThreeWindingsTransformer().checkResource().getAttributes().getPhaseAngleClock().getPhaseAngleClockLeg2();
+        return getThreeWindingsTransformer().getResource().getAttributes().getPhaseAngleClock().getPhaseAngleClockLeg2();
     }
 
     @Override
     public int getPhaseAngleClockLeg3() {
-        return getThreeWindingsTransformer().checkResource().getAttributes().getPhaseAngleClock().getPhaseAngleClockLeg3();
+        return getThreeWindingsTransformer().getResource().getAttributes().getPhaseAngleClock().getPhaseAngleClockLeg3();
     }
 
     @Override

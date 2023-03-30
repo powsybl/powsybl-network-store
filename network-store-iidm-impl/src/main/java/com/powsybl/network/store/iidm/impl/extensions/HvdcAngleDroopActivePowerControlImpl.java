@@ -37,17 +37,17 @@ public class HvdcAngleDroopActivePowerControlImpl implements HvdcAngleDroopActiv
 
     @Override
     public float getP0() {
-        return hvdcLine.checkResource().getAttributes().getHvdcAngleDroopActivePowerControl().getP0();
+        return hvdcLine.getResource().getAttributes().getHvdcAngleDroopActivePowerControl().getP0();
     }
 
     @Override
     public float getDroop() {
-        return hvdcLine.checkResource().getAttributes().getHvdcAngleDroopActivePowerControl().getDroop();
+        return hvdcLine.getResource().getAttributes().getHvdcAngleDroopActivePowerControl().getDroop();
     }
 
     @Override
     public boolean isEnabled() {
-        return hvdcLine.checkResource().getAttributes().getHvdcAngleDroopActivePowerControl().isEnabled();
+        return hvdcLine.getResource().getAttributes().getHvdcAngleDroopActivePowerControl().isEnabled();
     }
 
     @Override

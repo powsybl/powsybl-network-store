@@ -33,11 +33,11 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
     }
 
     private CgmesControlAreaAttributes getAttributes(Resource<NetworkAttributes> resource) {
-        return network.checkResource().getAttributes().getCgmesControlAreas().getControlAreas().get(index);
+        return network.getResource().getAttributes().getCgmesControlAreas().getControlAreas().get(index);
     }
 
     private CgmesControlAreaAttributes getAttributes() {
-        return getAttributes(network.checkResource());
+        return getAttributes(network.getResource());
     }
 
     @Override

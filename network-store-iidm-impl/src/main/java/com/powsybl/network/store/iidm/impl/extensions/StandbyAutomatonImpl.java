@@ -87,7 +87,7 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
     }
 
     private StandbyAutomatonAttributes getAttributes() {
-        return getAttributes(getSvc().checkResource());
+        return getAttributes(getSvc().getResource());
     }
 
     private static StandbyAutomatonAttributes getAttributes(Resource<StaticVarCompensatorAttributes> resource) {

@@ -26,7 +26,7 @@ public class VoltagePerReactivePowerControlImpl extends AbstractExtension<Static
 
     @Override
     public double getSlope() {
-        return getSvc().checkResource().getAttributes().getVoltagePerReactiveControl().getSlope();
+        return getSvc().getResource().getAttributes().getVoltagePerReactiveControl().getSlope();
     }
 
     @Override

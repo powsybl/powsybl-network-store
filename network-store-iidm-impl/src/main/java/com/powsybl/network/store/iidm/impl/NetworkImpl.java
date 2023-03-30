@@ -51,7 +51,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public Map<String, String> getIdByAlias() {
-        return getIdByAlias(checkResource());
+        return getIdByAlias(getResource());
     }
 
     public Map<String, String> getIdByAlias(Resource<NetworkAttributes> resource) {
@@ -163,12 +163,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public UUID getUuid() {
-        return checkResource().getAttributes().getUuid();
+        return getResource().getAttributes().getUuid();
     }
 
     @Override
     public String getId() {
-        return checkResource().getId();
+        return getResource().getId();
     }
 
     @Override
@@ -178,7 +178,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public DateTime getCaseDate() {
-        return checkResource().getAttributes().getCaseDate();
+        return getResource().getAttributes().getCaseDate();
     }
 
     @Override
@@ -190,7 +190,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getForecastDistance() {
-        return checkResource().getAttributes().getForecastDistance();
+        return getResource().getAttributes().getForecastDistance();
     }
 
     @Override
@@ -202,7 +202,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public String getSourceFormat() {
-        return checkResource().getAttributes().getSourceFormat();
+        return getResource().getAttributes().getSourceFormat();
     }
 
     @Override
@@ -827,7 +827,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     void ensureConnectedComponentsUpToDate(boolean isBusView) {
-        var resource = checkResource();
+        var resource = getResource();
         if (!resource.getAttributes().isConnectedComponentsValid()) {
             update(ComponentType.CONNECTED, isBusView);
             updateResource(res -> res.getAttributes().setConnectedComponentsValid(true));
@@ -835,7 +835,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     void ensureSynchronousComponentsUpToDate(boolean isBusView) {
-        var resource = checkResource();
+        var resource = getResource();
         if (!resource.getAttributes().isSynchronousComponentsValid()) {
             update(ComponentType.SYNCHRONOUS, isBusView);
             updateResource(res -> res.getAttributes().setSynchronousComponentsValid(true));
@@ -913,7 +913,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCgmesSvMetadata() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         CgmesSvMetadataAttributes attributes = resource.getAttributes().getCgmesSvMetadata();
         if (attributes != null) {
             extension = (E) new CgmesSvMetadataImpl(this);
@@ -923,7 +923,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCgmesSshMetadata() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         CgmesSshMetadataAttributes attributes = resource.getAttributes().getCgmesSshMetadata();
         if (attributes != null) {
             extension = (E) new CgmesSshMetadataImpl(this);
@@ -933,7 +933,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCimCharacteristics() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         CimCharacteristicsAttributes attributes = resource.getAttributes().getCimCharacteristics();
         if (attributes != null) {
             extension = (E) new CimCharacteristicsImpl(this);
@@ -943,7 +943,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCgmesControlAreas() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         CgmesControlAreasAttributes attributes = resource.getAttributes().getCgmesControlAreas();
         if (attributes != null) {
             extension = (E) new CgmesControlAreasImpl(this);
@@ -953,7 +953,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createBaseVoltageMapping() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         BaseVoltageMappingAttributes attributes = resource.getAttributes().getBaseVoltageMapping();
         if (attributes != null) {
             extension = (E) new BaseVoltageMappingImpl(this);

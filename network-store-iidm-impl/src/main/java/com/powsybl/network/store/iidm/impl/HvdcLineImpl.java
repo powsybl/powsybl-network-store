@@ -36,19 +36,19 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcConverterStation<?> getConverterStation1() {
-        var resource = checkResource();
+        var resource = getResource();
         return resource.getAttributes().getConverterStationId1() != null ? index.getHvdcConverterStation(resource.getAttributes().getConverterStationId1()).orElse(null) : null;
     }
 
     @Override
     public HvdcConverterStation<?> getConverterStation2() {
-        var resource = checkResource();
+        var resource = getResource();
         return resource.getAttributes().getConverterStationId2() != null ? index.getHvdcConverterStation(resource.getAttributes().getConverterStationId2()).orElse(null) : null;
     }
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         resource.getAttributes().setConverterStationId1(null);
         resource.getAttributes().setConverterStationId2(null);
@@ -70,13 +70,13 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public ConvertersMode getConvertersMode() {
-        return checkResource().getAttributes().getConvertersMode();
+        return getResource().getAttributes().getConvertersMode();
     }
 
     @Override
     public HvdcLine setConvertersMode(ConvertersMode mode) {
         ValidationUtil.checkConvertersMode(this, mode, true);
-        ConvertersMode oldValue = checkResource().getAttributes().getConvertersMode();
+        ConvertersMode oldValue = getResource().getAttributes().getConvertersMode();
         if (mode != oldValue) {
             updateResource(res -> res.getAttributes().setConvertersMode(mode));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -87,13 +87,13 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public double getR() {
-        return checkResource().getAttributes().getR();
+        return getResource().getAttributes().getR();
     }
 
     @Override
     public HvdcLine setR(double r) {
         ValidationUtil.checkR(this, r);
-        double oldValue = checkResource().getAttributes().getR();
+        double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r));
             index.notifyUpdate(this, "r", oldValue, r);
@@ -103,13 +103,13 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public double getNominalV() {
-        return checkResource().getAttributes().getNominalV();
+        return getResource().getAttributes().getNominalV();
     }
 
     @Override
     public HvdcLine setNominalV(double nominalV) {
         ValidationUtil.checkNominalV(this, nominalV);
-        double oldValue = checkResource().getAttributes().getNominalV();
+        double oldValue = getResource().getAttributes().getNominalV();
         if (nominalV != oldValue) {
             updateResource(res -> res.getAttributes().setNominalV(nominalV));
             index.notifyUpdate(this, "nominalV", oldValue, nominalV);
@@ -119,13 +119,13 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public double getActivePowerSetpoint() {
-        return checkResource().getAttributes().getActivePowerSetpoint();
+        return getResource().getAttributes().getActivePowerSetpoint();
     }
 
     @Override
     public HvdcLine setActivePowerSetpoint(double activePowerSetpoint) {
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, true);
-        double oldValue = checkResource().getAttributes().getActivePowerSetpoint();
+        double oldValue = getResource().getAttributes().getActivePowerSetpoint();
         if (activePowerSetpoint != oldValue) {
             updateResource(res -> res.getAttributes().setActivePowerSetpoint(activePowerSetpoint));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -136,13 +136,13 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public double getMaxP() {
-        return checkResource().getAttributes().getMaxP();
+        return getResource().getAttributes().getMaxP();
     }
 
     @Override
     public HvdcLine setMaxP(double maxP) {
         ValidationUtil.checkHvdcMaxP(this, maxP);
-        double oldValue = checkResource().getAttributes().getMaxP();
+        double oldValue = getResource().getAttributes().getMaxP();
         if (maxP != oldValue) {
             updateResource(res -> res.getAttributes().setMaxP(maxP));
             index.notifyUpdate(this, "maxP", oldValue, maxP);
@@ -188,7 +188,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     private <E extends Extension<HvdcLine>> E createHvdcAngleDroopActivePowerControl() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         HvdcAngleDroopActivePowerControlAttributes attributes = resource.getAttributes().getHvdcAngleDroopActivePowerControl();
         if (attributes != null) {
             extension = (E) new HvdcAngleDroopActivePowerControlImpl(this);
@@ -198,7 +198,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     private <E extends Extension<HvdcLine>> E createHvdcOperatorActivePowerRange() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         HvdcOperatorActivePowerRangeAttributes attributes = resource.getAttributes().getHvdcOperatorActivePowerRange();
         if (attributes != null) {
             extension = (E) new HvdcOperatorActivePowerRangeImpl(this);

@@ -37,13 +37,13 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public double getBmin() {
-        return checkResource().getAttributes().getBmin();
+        return getResource().getAttributes().getBmin();
     }
 
     @Override
     public StaticVarCompensator setBmin(double bMin) {
         ValidationUtil.checkBmin(this, bMin);
-        double oldValue = checkResource().getAttributes().getBmin();
+        double oldValue = getResource().getAttributes().getBmin();
         if (bMin != oldValue) {
             updateResource(res -> res.getAttributes().setBmin(bMin));
             index.notifyUpdate(this, "bMin", oldValue, bMin);
@@ -53,13 +53,13 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public double getBmax() {
-        return checkResource().getAttributes().getBmax();
+        return getResource().getAttributes().getBmax();
     }
 
     @Override
     public StaticVarCompensator setBmax(double bMax) {
         ValidationUtil.checkBmax(this, bMax);
-        double oldValue = checkResource().getAttributes().getBmax();
+        double oldValue = getResource().getAttributes().getBmax();
         if (bMax != oldValue) {
             updateResource(res -> res.getAttributes().setBmax(bMax));
             index.notifyUpdate(this, "bMax", oldValue, bMax);
@@ -69,13 +69,13 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public double getVoltageSetpoint() {
-        return checkResource().getAttributes().getVoltageSetPoint();
+        return getResource().getAttributes().getVoltageSetPoint();
     }
 
     @Override
     public StaticVarCompensator setVoltageSetpoint(double voltageSetPoint) {
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = checkResource().getAttributes().getVoltageSetPoint();
+        double oldValue = getResource().getAttributes().getVoltageSetPoint();
         if (Double.compare(voltageSetPoint, oldValue) != 0) { // could be nan
             updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetPoint));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -86,13 +86,13 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public double getReactivePowerSetpoint() {
-        return checkResource().getAttributes().getReactivePowerSetPoint();
+        return getResource().getAttributes().getReactivePowerSetPoint();
     }
 
     @Override
     public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetPoint) {
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = checkResource().getAttributes().getReactivePowerSetPoint();
+        double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
         if (Double.compare(reactivePowerSetPoint, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -103,13 +103,13 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public RegulationMode getRegulationMode() {
-        return checkResource().getAttributes().getRegulationMode();
+        return getResource().getAttributes().getRegulationMode();
     }
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        RegulationMode oldValue = checkResource().getAttributes().getRegulationMode();
+        RegulationMode oldValue = getResource().getAttributes().getRegulationMode();
         if (regulationMode != oldValue) {
             updateResource(res -> res.getAttributes().setRegulationMode(regulationMode));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -120,7 +120,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public Terminal getRegulatingTerminal() {
-        var resource = checkResource();
+        var resource = getResource();
         TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
         return regulatingTerminal != null ? regulatingTerminal : terminal;
@@ -135,7 +135,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     private <E extends Extension<StaticVarCompensator>> E createVoltagePerReactiveControlExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         VoltagePerReactivePowerControlAttributes attributes = resource.getAttributes().getVoltagePerReactiveControl();
         if (attributes != null) {
             extension = (E) new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) getInjection());
@@ -145,7 +145,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     private <E extends Extension<StaticVarCompensator>> E createStandbyAutomatonExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         StandbyAutomatonAttributes attributes = resource.getAttributes().getStandbyAutomaton();
         if (attributes != null) {
             extension = (E) new StandbyAutomatonImpl(getInjection());
@@ -189,7 +189,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());

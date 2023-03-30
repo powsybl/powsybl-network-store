@@ -47,7 +47,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public Optional<Substation> getSubstation() {
-        return index.getVoltageLevel(checkResource().getAttributes().getVoltageLevelId1())
+        return index.getVoltageLevel(getResource().getAttributes().getVoltageLevelId1())
                 .orElseThrow(AssertionError::new)
                 .getSubstation();
     }
@@ -64,7 +64,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public RatioTapChanger getRatioTapChanger() {
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getRatioTapChangerAttributes() != null) {
             return new RatioTapChangerImpl(this, index, TapChangerParentAttributes.class::cast);
         }
@@ -73,7 +73,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public PhaseTapChanger getPhaseTapChanger() {
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getPhaseTapChangerAttributes() != null) {
             return new PhaseTapChangerImpl(this, index, TapChangerParentAttributes.class::cast);
         }
@@ -82,13 +82,13 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public double getR() {
-        return checkResource().getAttributes().getR();
+        return getResource().getAttributes().getR();
     }
 
     @Override
     public TwoWindingsTransformer setR(double r) {
         ValidationUtil.checkR(this, r);
-        double oldValue = checkResource().getAttributes().getR();
+        double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r));
             index.notifyUpdate(this, "r", oldValue, r);
@@ -98,13 +98,13 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public double getX() {
-        return checkResource().getAttributes().getX();
+        return getResource().getAttributes().getX();
     }
 
     @Override
     public TwoWindingsTransformer setX(double x) {
         ValidationUtil.checkX(this, x);
-        double oldValue = checkResource().getAttributes().getX();
+        double oldValue = getResource().getAttributes().getX();
         if (x != oldValue) {
             updateResource(res -> res.getAttributes().setX(x));
             index.notifyUpdate(this, "x", oldValue, x);
@@ -114,13 +114,13 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public double getG() {
-        return checkResource().getAttributes().getG();
+        return getResource().getAttributes().getG();
     }
 
     @Override
     public TwoWindingsTransformer setG(double g) {
         ValidationUtil.checkG(this, g);
-        double oldValue = checkResource().getAttributes().getG();
+        double oldValue = getResource().getAttributes().getG();
         if (g != oldValue) {
             updateResource(res -> res.getAttributes().setG(g));
             index.notifyUpdate(this, "g", oldValue, g);
@@ -130,13 +130,13 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public double getB() {
-        return checkResource().getAttributes().getB();
+        return getResource().getAttributes().getB();
     }
 
     @Override
     public TwoWindingsTransformer setB(double b) {
         ValidationUtil.checkB(this, b);
-        double oldValue = checkResource().getAttributes().getB();
+        double oldValue = getResource().getAttributes().getB();
         if (b != oldValue) {
             updateResource(res -> res.getAttributes().setB(b));
             index.notifyUpdate(this, "b", oldValue, b);
@@ -146,13 +146,13 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public double getRatedU1() {
-        return checkResource().getAttributes().getRatedU1();
+        return getResource().getAttributes().getRatedU1();
     }
 
     @Override
     public TwoWindingsTransformer setRatedU1(double ratedU1) {
         ValidationUtil.checkRatedU1(this, ratedU1);
-        double oldValue = checkResource().getAttributes().getRatedU1();
+        double oldValue = getResource().getAttributes().getRatedU1();
         if (ratedU1 != oldValue) {
             updateResource(res -> res.getAttributes().setRatedU1(ratedU1));
             index.notifyUpdate(this, "ratedU1", oldValue, ratedU1);
@@ -162,13 +162,13 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public double getRatedU2() {
-        return checkResource().getAttributes().getRatedU2();
+        return getResource().getAttributes().getRatedU2();
     }
 
     @Override
     public TwoWindingsTransformer setRatedU2(double ratedU2) {
         ValidationUtil.checkRatedU2(this, ratedU2);
-        double oldValue = checkResource().getAttributes().getRatedU2();
+        double oldValue = getResource().getAttributes().getRatedU2();
         if (ratedU2 != oldValue) {
             updateResource(res -> res.getAttributes().setRatedU2(ratedU2));
             index.notifyUpdate(this, "ratedU2", oldValue, ratedU2);
@@ -178,13 +178,13 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public double getRatedS() {
-        return checkResource().getAttributes().getRatedS();
+        return getResource().getAttributes().getRatedS();
     }
 
     @Override
     public TwoWindingsTransformer setRatedS(double ratedS) {
         ValidationUtil.checkRatedS(this, ratedS);
-        double oldValue = checkResource().getAttributes().getRatedS();
+        double oldValue = getResource().getAttributes().getRatedS();
         if (Double.compare(ratedS, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setRatedS(ratedS));
             index.notifyUpdate(this, "ratedS", oldValue, ratedS);
@@ -194,7 +194,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
@@ -209,7 +209,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public <E extends Extension<TwoWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
-        var resource = checkResource();
+        var resource = getResource();
         if (type == CgmesTapChangers.class) {
             resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
         }
@@ -256,7 +256,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @SuppressWarnings("unchecked")
     private <E extends Extension<TwoWindingsTransformer>> E createPhaseAngleClock() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes = resource.getAttributes().getPhaseAngleClockAttributes();
         if (phaseAngleClockAttributes != null) {
             extension = (E) new TwoWindingsTransformerPhaseAngleClockImpl(this);
@@ -266,7 +266,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     private <E extends Extension<TwoWindingsTransformer>> E createCgmesTapChangers() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
             extension = (E) new CgmesTapChangersImpl(this);
         }

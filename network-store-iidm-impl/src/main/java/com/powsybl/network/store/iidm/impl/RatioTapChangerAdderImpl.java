@@ -193,7 +193,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .steps(steps)
                 .regulatingTerminal(terminalRefAttributes)
                 .build();
-        TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().checkResource().getAttributes());
+        TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().getResource().getAttributes());
         if (tapChangerParentAttributes.getPhaseTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }

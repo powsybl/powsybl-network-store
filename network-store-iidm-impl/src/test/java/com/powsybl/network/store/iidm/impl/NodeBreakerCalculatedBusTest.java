@@ -95,7 +95,7 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
         assertEquals(0, vl1.getBusBreakerView().getSwitchCount());
 
         s.setRetained(false);
-        assertTrue(((VoltageLevelImpl) vl1).checkResource().getAttributes().isCalculatedBusesValid());
+        assertTrue(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
     }
 
     @Test

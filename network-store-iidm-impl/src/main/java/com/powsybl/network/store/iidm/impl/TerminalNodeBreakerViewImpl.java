@@ -43,7 +43,7 @@ class TerminalNodeBreakerViewImpl<U extends InjectionAttributes> implements Term
     @Override
     public void moveConnectable(int node, String voltageLevelId) {
         Objects.requireNonNull(voltageLevelId);
-        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+        if (((AbstractIdentifiableImpl) connectable).getOptionalResource().isEmpty()) {
             throw new PowsyblException("Cannot modify removed equipment");
         }
         VoltageLevelImpl voltageLevel = index.getVoltageLevel(voltageLevelId)

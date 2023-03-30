@@ -40,7 +40,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
@@ -54,7 +54,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     private <E extends Extension<BusbarSection>> E createBusbarSectionPositionExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         var attributes = resource.getAttributes().getPosition();
         if (attributes != null) {
             extension = (E) new BusbarSectionPositionImpl(this);

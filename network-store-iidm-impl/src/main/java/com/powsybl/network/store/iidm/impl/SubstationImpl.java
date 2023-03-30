@@ -45,17 +45,17 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Optional<Country> getCountry() {
-        return Optional.ofNullable(checkResource().getAttributes().getCountry());
+        return Optional.ofNullable(getResource().getAttributes().getCountry());
     }
 
     @Override
     public Country getNullableCountry() {
-        return checkResource().getAttributes().getCountry();
+        return getResource().getAttributes().getCountry();
     }
 
     @Override
     public Substation setCountry(Country country) {
-        var resource = checkResource();
+        var resource = getResource();
         Country oldValue = resource.getAttributes().getCountry();
         updateResource(r -> r.getAttributes().setCountry(country));
         index.notifyUpdate(this, "country", oldValue, country);
@@ -64,12 +64,12 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public String getTso() {
-        return checkResource().getAttributes().getTso();
+        return getResource().getAttributes().getTso();
     }
 
     @Override
     public Substation setTso(String tso) {
-        var resource = checkResource();
+        var resource = getResource();
         String oldValue = resource.getAttributes().getTso();
         updateResource(r -> r.getAttributes().setTso(tso));
         index.notifyUpdate(this, "tso", oldValue, tso);
@@ -78,12 +78,12 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return new VoltageLevelAdderImpl(index, checkResource());
+        return new VoltageLevelAdderImpl(index, getResource());
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return index.getVoltageLevels(checkResource().getId()).stream();
+        return index.getVoltageLevels(getResource().getId()).stream();
     }
 
     @Override
@@ -152,7 +152,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Set<String> getGeographicalTags() {
-        return checkResource().getAttributes().getGeographicalTags();
+        return getResource().getAttributes().getGeographicalTags();
     }
 
     @Override
@@ -199,7 +199,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     private <E extends Extension<Substation>> E createEntsoeArea() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getEntsoeArea() != null) {
             extension = (E) new EntsoeAreaImpl(this,
                     EntsoeGeographicalCode.valueOf(resource.getAttributes().getEntsoeArea().getCode()));
@@ -211,7 +211,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     public void remove() {
         SubstationUtil.checkRemovability(this);
 
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
 
         for (VoltageLevel vl : getVoltageLevels()) {

@@ -28,21 +28,21 @@ public class CgmesSvMetadataImpl extends AbstractExtension<Network> implements C
 
     @Override
     public String getDescription() {
-        return getNetwork().checkResource().getAttributes().getCgmesSvMetadata().getDescription();
+        return getNetwork().getResource().getAttributes().getCgmesSvMetadata().getDescription();
     }
 
     @Override
     public int getSvVersion() {
-        return getNetwork().checkResource().getAttributes().getCgmesSvMetadata().getSvVersion();
+        return getNetwork().getResource().getAttributes().getCgmesSvMetadata().getSvVersion();
     }
 
     @Override
     public List<String> getDependencies() {
-        return getNetwork().checkResource().getAttributes().getCgmesSvMetadata().getDependencies();
+        return getNetwork().getResource().getAttributes().getCgmesSvMetadata().getDependencies();
     }
 
     @Override
     public String getModelingAuthoritySet() {
-        return getNetwork().checkResource().getAttributes().getCgmesSvMetadata().getModelingAuthoritySet();
+        return getNetwork().getResource().getAttributes().getCgmesSvMetadata().getModelingAuthoritySet();
     }
 }

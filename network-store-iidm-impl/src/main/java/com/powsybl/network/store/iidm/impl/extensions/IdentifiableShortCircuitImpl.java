@@ -32,7 +32,7 @@ public class IdentifiableShortCircuitImpl<I extends Identifiable<I>> extends Abs
     }
 
     private IdentifiableShortCircuitAttributes getAttributes() {
-        return getAttributes(getVoltageLevel().checkResource());
+        return getAttributes(getVoltageLevel().getResource());
     }
 
     @Override

@@ -39,13 +39,13 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public float getPowerFactor() {
-        return checkResource().getAttributes().getPowerFactor();
+        return getResource().getAttributes().getPowerFactor();
     }
 
     @Override
     public LccConverterStation setPowerFactor(float powerFactor) {
         ValidationUtil.checkPowerFactor(this, powerFactor);
-        float oldValue = checkResource().getAttributes().getPowerFactor();
+        float oldValue = getResource().getAttributes().getPowerFactor();
         if (powerFactor != oldValue) {
             updateResource(res -> res.getAttributes().setPowerFactor(powerFactor));
             index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
@@ -55,13 +55,13 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public float getLossFactor() {
-        return checkResource().getAttributes().getLossFactor();
+        return getResource().getAttributes().getLossFactor();
     }
 
     @Override
     public LccConverterStation setLossFactor(float lossFactor) {
         ValidationUtil.checkLossFactor(this, lossFactor);
-        float oldValue = checkResource().getAttributes().getLossFactor();
+        float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
             updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
             index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
@@ -71,7 +71,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");

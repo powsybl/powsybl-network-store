@@ -846,44 +846,44 @@ final class CreateNetworksUtil {
         network.getVoltageLevel("VL6");
 
         VscConverterStationImpl vsc1 = (VscConverterStationImpl) network.getVscConverterStation("VSC1");
-        vsc1.checkResource().getAttributes().setNode(1);
+        vsc1.getResource().getAttributes().setNode(1);
 
         VscConverterStationImpl vsc2 = (VscConverterStationImpl) network.getVscConverterStation("VSC2");
-        vsc2.checkResource().getAttributes().setNode(2);
+        vsc2.getResource().getAttributes().setNode(2);
 
         StaticVarCompensatorImpl svc2 = (StaticVarCompensatorImpl) network.getStaticVarCompensator("SVC2");
-        svc2.checkResource().getAttributes().setNode(0);
+        svc2.getResource().getAttributes().setNode(0);
 
         LccConverterStationImpl lcc2 = (LccConverterStationImpl) network.getLccConverterStation("LCC2");
-        lcc2.checkResource().getAttributes().setNode(1);
+        lcc2.getResource().getAttributes().setNode(1);
 
         DanglingLineImpl dl1 = (DanglingLineImpl) network.getDanglingLine("DL1");
-        dl1.checkResource().getAttributes().setNode(2);
+        dl1.getResource().getAttributes().setNode(2);
 
         DanglingLineImpl dl2 = (DanglingLineImpl) network.getDanglingLine("DL2");
-        dl2.checkResource().getAttributes().setNode(3);
+        dl2.getResource().getAttributes().setNode(3);
 
         LineImpl l1 = (LineImpl) network.getLine("LINE1");
-        l1.checkResource().getAttributes().setNode1(5);
-        l1.checkResource().getAttributes().setNode2(4);
+        l1.getResource().getAttributes().setNode1(5);
+        l1.getResource().getAttributes().setNode2(4);
 
         ThreeWindingsTransformerImpl twt1 = (ThreeWindingsTransformerImpl) network.getThreeWindingsTransformer("TWT1");
-        twt1.checkResource().getAttributes().getLeg1().setNode(1);
-        twt1.checkResource().getAttributes().getLeg2().setNode(2);
-        twt1.checkResource().getAttributes().getLeg3().setNode(3);
+        twt1.getResource().getAttributes().getLeg1().setNode(1);
+        twt1.getResource().getAttributes().getLeg2().setNode(2);
+        twt1.getResource().getAttributes().getLeg3().setNode(3);
 
         TwoWindingsTransformerImpl twowt1 = (TwoWindingsTransformerImpl) network.getTwoWindingsTransformer("TwoWT1");
-        twowt1.checkResource().getAttributes().setNode1(1);
-        twowt1.checkResource().getAttributes().setNode2(2);
+        twowt1.getResource().getAttributes().setNode1(1);
+        twowt1.getResource().getAttributes().setNode2(2);
 
         ShuntCompensatorImpl shunt1 = (ShuntCompensatorImpl) network.getShuntCompensator("SHUNT1");
-        shunt1.checkResource().getAttributes().setNode(0);
+        shunt1.getResource().getAttributes().setNode(0);
 
         ShuntCompensatorImpl shunt2 = (ShuntCompensatorImpl) network.getShuntCompensator("SHUNT2");
-        shunt2.checkResource().getAttributes().setNode(3);
+        shunt2.getResource().getAttributes().setNode(3);
 
         BatteryImpl battery = (BatteryImpl) network.getBattery("battery");
-        battery.checkResource().getAttributes().setNode(4);
+        battery.getResource().getAttributes().setNode(4);
 
         return network;
     }
@@ -906,44 +906,44 @@ final class CreateNetworksUtil {
         vl6.getBusBreakerView().newBus().setId("BUS6").add();
 
         VscConverterStationImpl vsc1 = (VscConverterStationImpl) network.getVscConverterStation("VSC1");
-        vsc1.checkResource().getAttributes().setConnectableBus("BUS1");
+        vsc1.getResource().getAttributes().setConnectableBus("BUS1");
 
         VscConverterStationImpl vsc2 = (VscConverterStationImpl) network.getVscConverterStation("VSC2");
-        vsc2.checkResource().getAttributes().setConnectableBus("BUS2");
+        vsc2.getResource().getAttributes().setConnectableBus("BUS2");
 
         StaticVarCompensatorImpl svc2 = (StaticVarCompensatorImpl) network.getStaticVarCompensator("SVC2");
-        svc2.checkResource().getAttributes().setConnectableBus("BUS2");
+        svc2.getResource().getAttributes().setConnectableBus("BUS2");
 
         LccConverterStationImpl lcc2 = (LccConverterStationImpl) network.getLccConverterStation("LCC2");
-        lcc2.checkResource().getAttributes().setConnectableBus("BUS2");
+        lcc2.getResource().getAttributes().setConnectableBus("BUS2");
 
         DanglingLineImpl dl1 = (DanglingLineImpl) network.getDanglingLine("DL1");
-        dl1.checkResource().getAttributes().setConnectableBus("BUS1");
+        dl1.getResource().getAttributes().setConnectableBus("BUS1");
 
         DanglingLineImpl dl2 = (DanglingLineImpl) network.getDanglingLine("DL2");
-        dl2.checkResource().getAttributes().setConnectableBus("BUS1");
+        dl2.getResource().getAttributes().setConnectableBus("BUS1");
 
         LineImpl l1 = (LineImpl) network.getLine("LINE1");
-        l1.checkResource().getAttributes().setConnectableBus1("BUS1");
-        l1.checkResource().getAttributes().setConnectableBus2("BUS2");
+        l1.getResource().getAttributes().setConnectableBus1("BUS1");
+        l1.getResource().getAttributes().setConnectableBus2("BUS2");
 
         ThreeWindingsTransformerImpl twt1 = (ThreeWindingsTransformerImpl) network.getThreeWindingsTransformer("TWT1");
-        twt1.checkResource().getAttributes().getLeg1().setConnectableBus("BUS2");
-        twt1.checkResource().getAttributes().getLeg2().setConnectableBus("BUS3");
-        twt1.checkResource().getAttributes().getLeg3().setConnectableBus("BUS4");
+        twt1.getResource().getAttributes().getLeg1().setConnectableBus("BUS2");
+        twt1.getResource().getAttributes().getLeg2().setConnectableBus("BUS3");
+        twt1.getResource().getAttributes().getLeg3().setConnectableBus("BUS4");
 
         TwoWindingsTransformerImpl twowt1 = (TwoWindingsTransformerImpl) network.getTwoWindingsTransformer("TwoWT1");
-        twowt1.checkResource().getAttributes().setConnectableBus1("BUS5");
-        twowt1.checkResource().getAttributes().setConnectableBus2("BUS6");
+        twowt1.getResource().getAttributes().setConnectableBus1("BUS5");
+        twowt1.getResource().getAttributes().setConnectableBus2("BUS6");
 
         ShuntCompensatorImpl shunt1 = (ShuntCompensatorImpl) network.getShuntCompensator("SHUNT1");
-        shunt1.checkResource().getAttributes().setConnectableBus("BUS1");
+        shunt1.getResource().getAttributes().setConnectableBus("BUS1");
 
         ShuntCompensatorImpl shunt2 = (ShuntCompensatorImpl) network.getShuntCompensator("SHUNT2");
-        shunt2.checkResource().getAttributes().setConnectableBus("BUS2");
+        shunt2.getResource().getAttributes().setConnectableBus("BUS2");
 
         BatteryImpl battery = (BatteryImpl) network.getBattery("battery");
-        battery.checkResource().getAttributes().setConnectableBus("BUS1");
+        battery.getResource().getAttributes().setConnectableBus("BUS1");
 
         return network;
     }

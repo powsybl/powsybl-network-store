@@ -53,7 +53,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         private LegAttributes getLegAttributes() {
-            return legGetter.apply(transformer.checkResource().getAttributes());
+            return legGetter.apply(transformer.getResource().getAttributes());
         }
 
         protected String getLegAttribute() {
@@ -383,7 +383,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public double getRatedU0() {
-        return checkResource().getAttributes().getRatedU0();
+        return getResource().getAttributes().getRatedU0();
     }
 
     @Override
@@ -393,7 +393,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
@@ -403,7 +403,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
-        var resource = checkResource();
+        var resource = getResource();
         if (type == CgmesTapChangers.class) {
             resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
         } else {
@@ -413,22 +413,22 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private <E extends Extension<ThreeWindingsTransformer>> E createConnectablePositionExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getPosition1() != null
                 || resource.getAttributes().getPosition2() != null
                 || resource.getAttributes().getPosition3() != null) {
             return (E) new ConnectablePositionImpl<>(this,
                 null,
-                connectable -> ((ThreeWindingsTransformerImpl) connectable).checkResource().getAttributes().getPosition1(),
-                connectable -> ((ThreeWindingsTransformerImpl) connectable).checkResource().getAttributes().getPosition2(),
-                connectable -> ((ThreeWindingsTransformerImpl) connectable).checkResource().getAttributes().getPosition3());
+                connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition1(),
+                connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition2(),
+                connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition3());
         }
         return extension;
     }
 
     private <E extends Extension<ThreeWindingsTransformer>> E createBranchStatusExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         String branchStatus = resource.getAttributes().getBranchStatus();
         if (branchStatus != null) {
             extension = (E) new BranchStatusImpl(this);
@@ -495,7 +495,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private <E extends Extension<ThreeWindingsTransformer>> E createPhaseAngleClock() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock = resource.getAttributes().getPhaseAngleClock();
         if (phaseAngleClock != null) {
             extension = (E) new ThreeWindingsTransformerPhaseAngleClockImpl(this);
@@ -505,7 +505,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private <E extends Extension<ThreeWindingsTransformer>> E createCgmesTapChangers() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
             extension = (E) new CgmesTapChangersImpl(this);
         }

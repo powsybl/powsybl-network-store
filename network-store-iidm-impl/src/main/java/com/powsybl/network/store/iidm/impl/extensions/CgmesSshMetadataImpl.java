@@ -28,21 +28,21 @@ public class CgmesSshMetadataImpl extends AbstractExtension<Network> implements 
 
     @Override
     public String getDescription() {
-        return getNetwork().checkResource().getAttributes().getCgmesSshMetadata().getDescription();
+        return getNetwork().getResource().getAttributes().getCgmesSshMetadata().getDescription();
     }
 
     @Override
     public int getSshVersion() {
-        return getNetwork().checkResource().getAttributes().getCgmesSshMetadata().getSshVersion();
+        return getNetwork().getResource().getAttributes().getCgmesSshMetadata().getSshVersion();
     }
 
     @Override
     public List<String> getDependencies() {
-        return getNetwork().checkResource().getAttributes().getCgmesSshMetadata().getDependencies();
+        return getNetwork().getResource().getAttributes().getCgmesSshMetadata().getDependencies();
     }
 
     @Override
     public String getModelingAuthoritySet() {
-        return getNetwork().checkResource().getAttributes().getCgmesSshMetadata().getModelingAuthoritySet();
+        return getNetwork().getResource().getAttributes().getCgmesSshMetadata().getModelingAuthoritySet();
     }
 }

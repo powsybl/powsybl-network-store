@@ -42,10 +42,10 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
 
     public <E extends Extension<I>> E createConnectablePositionExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getPosition() != null) {
             return (E) new ConnectablePositionImpl<>(getInjection(),
-                connectable -> ((AbstractInjectionImpl<?, ?>) connectable).checkResource().getAttributes().getPosition(),
+                connectable -> ((AbstractInjectionImpl<?, ?>) connectable).getResource().getAttributes().getPosition(),
                 null,
                 null,
                 null);

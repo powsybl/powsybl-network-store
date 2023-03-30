@@ -32,7 +32,7 @@ public class BaseVoltageMappingImpl extends AbstractExtension<Network> implement
     }
 
     private Map<Double, BaseVoltageSourceAttribute> getResourcesBaseVoltages() {
-        return getNetwork().checkResource().getAttributes().getBaseVoltageMapping().getBaseVoltages();
+        return getNetwork().getResource().getAttributes().getBaseVoltageMapping().getBaseVoltages();
     }
 
     @Override

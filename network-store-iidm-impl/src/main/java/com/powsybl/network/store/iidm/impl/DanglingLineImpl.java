@@ -36,7 +36,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
 
         private DanglingLineGenerationAttributes getAttributes() {
-            return getAttributes(danglingLine.checkResource());
+            return getAttributes(danglingLine.getResource());
         }
 
         @Override
@@ -253,7 +253,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
@@ -268,13 +268,13 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getP0() {
-        return checkResource().getAttributes().getP0();
+        return getResource().getAttributes().getP0();
     }
 
     @Override
     public DanglingLine setP0(double p0) {
         ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = checkResource().getAttributes().getP0();
+        double oldValue = getResource().getAttributes().getP0();
         if (p0 != oldValue) {
             updateResource(res -> res.getAttributes().setP0(p0));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -285,13 +285,13 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getQ0() {
-        return checkResource().getAttributes().getQ0();
+        return getResource().getAttributes().getQ0();
     }
 
     @Override
     public DanglingLine setQ0(double q0) {
         ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = checkResource().getAttributes().getQ0();
+        double oldValue = getResource().getAttributes().getQ0();
         if (q0 != oldValue) {
             updateResource(res -> res.getAttributes().setQ0(q0));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -302,13 +302,13 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getR() {
-        return checkResource().getAttributes().getR();
+        return getResource().getAttributes().getR();
     }
 
     @Override
     public DanglingLine setR(double r) {
         ValidationUtil.checkR(this, r);
-        double oldValue = checkResource().getAttributes().getR();
+        double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r));
             notifyUpdate("r", oldValue, r);
@@ -318,13 +318,13 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getX() {
-        return checkResource().getAttributes().getX();
+        return getResource().getAttributes().getX();
     }
 
     @Override
     public DanglingLine setX(double x) {
         ValidationUtil.checkX(this, x);
-        double oldValue = checkResource().getAttributes().getX();
+        double oldValue = getResource().getAttributes().getX();
         if (x != oldValue) {
             updateResource(res -> res.getAttributes().setX(x));
             notifyUpdate("x", oldValue, x);
@@ -334,13 +334,13 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getG() {
-        return checkResource().getAttributes().getG();
+        return getResource().getAttributes().getG();
     }
 
     @Override
     public DanglingLine setG(double g) {
         ValidationUtil.checkG(this, g);
-        double oldValue = checkResource().getAttributes().getG();
+        double oldValue = getResource().getAttributes().getG();
         if (g != oldValue) {
             updateResource(res -> res.getAttributes().setG(g));
             notifyUpdate("g", oldValue, g);
@@ -350,13 +350,13 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getB() {
-        return checkResource().getAttributes().getB();
+        return getResource().getAttributes().getB();
     }
 
     @Override
     public DanglingLine setB(double b) {
         ValidationUtil.checkB(this, b);
-        double oldValue = checkResource().getAttributes().getB();
+        double oldValue = getResource().getAttributes().getB();
         if (b != oldValue) {
             updateResource(res -> res.getAttributes().setB(b));
             notifyUpdate("b", oldValue, b);
@@ -366,7 +366,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine.Generation getGeneration() {
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getGeneration() != null) {
             return new GenerationImpl(this);
         }
@@ -375,11 +375,11 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public String getUcteXnodeCode() {
-        return checkResource().getAttributes().getUcteXnodeCode();
+        return getResource().getAttributes().getUcteXnodeCode();
     }
 
     public DanglingLine setUcteXnodeCode(String ucteXnodeCode) {
-        String oldValue = checkResource().getAttributes().getUcteXnodeCode();
+        String oldValue = getResource().getAttributes().getUcteXnodeCode();
         if (!Objects.equals(ucteXnodeCode, oldValue)) {
             updateResource(res -> res.getAttributes().setUcteXnodeCode(ucteXnodeCode));
             notifyUpdate("ucteXnodeCode", oldValue, ucteXnodeCode);
@@ -389,7 +389,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public void setCurrentLimits(Void side, LimitsAttributes currentLimits) {
-        var resource = checkResource();
+        var resource = getResource();
         LimitsAttributes oldValue = resource.getAttributes().getCurrentLimits();
         updateResource(res -> res.getAttributes().setCurrentLimits(currentLimits));
         notifyUpdate("currentLimits", oldValue, currentLimits);
@@ -402,7 +402,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public CurrentLimits getNullableCurrentLimits() {
-        var resource = checkResource();
+        var resource = getResource();
         return resource.getAttributes().getCurrentLimits() != null
                 ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits())
                 : null;
@@ -415,7 +415,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits() {
-        var resource = checkResource();
+        var resource = getResource();
         return resource.getAttributes().getActivePowerLimits() != null
                 ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits())
                 : null;
@@ -428,7 +428,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits() {
-        var resource = checkResource();
+        var resource = getResource();
         return resource.getAttributes().getApparentPowerLimits() != null
                 ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits())
                 : null;
@@ -456,14 +456,14 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public void setApparentPowerLimits(Void unused, LimitsAttributes apparentPowerLimitsAttributes) {
-        LimitsAttributes oldValue = checkResource().getAttributes().getApparentPowerLimits();
+        LimitsAttributes oldValue = getResource().getAttributes().getApparentPowerLimits();
         updateResource(res -> res.getAttributes().setApparentPowerLimits(apparentPowerLimitsAttributes));
         notifyUpdate("apparentPowerLimits", oldValue, apparentPowerLimitsAttributes);
     }
 
     @Override
     public void setActivePowerLimits(Void unused, LimitsAttributes activePowerLimitsAttributes) {
-        LimitsAttributes oldValue = checkResource().getAttributes().getActivePowerLimits();
+        LimitsAttributes oldValue = getResource().getAttributes().getActivePowerLimits();
         updateResource(res -> res.getAttributes().setActivePowerLimits(activePowerLimitsAttributes));
         notifyUpdate("activePowerLimits", oldValue, activePowerLimitsAttributes);
     }
@@ -497,7 +497,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     private <E extends Extension<DanglingLine>> E createXnodeExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         DanglingLineImpl dl = index.getDanglingLine(resource.getId())
                 .orElseThrow(() -> new PowsyblException("DanglingLine " + resource.getId() + " doesn't exist"));
         String xNodeCode = resource.getAttributes().getUcteXnodeCode();

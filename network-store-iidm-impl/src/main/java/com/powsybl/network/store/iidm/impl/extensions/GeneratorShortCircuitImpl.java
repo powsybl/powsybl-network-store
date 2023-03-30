@@ -29,7 +29,7 @@ public class GeneratorShortCircuitImpl extends AbstractExtension<Generator> impl
 
     @Override
     public double getDirectSubtransX() {
-        return getGenerator().checkResource().getAttributes().getGeneratorShortCircuitAttributes().getDirectSubtransX();
+        return getGenerator().getResource().getAttributes().getGeneratorShortCircuitAttributes().getDirectSubtransX();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class GeneratorShortCircuitImpl extends AbstractExtension<Generator> impl
 
     @Override
     public double getDirectTransX() {
-        return getGenerator().checkResource().getAttributes().getGeneratorShortCircuitAttributes().getDirectTransX();
+        return getGenerator().getResource().getAttributes().getGeneratorShortCircuitAttributes().getDirectTransX();
     }
 
     @Override
@@ -54,7 +54,7 @@ public class GeneratorShortCircuitImpl extends AbstractExtension<Generator> impl
 
     @Override
     public double getStepUpTransformerX() {
-        return getGenerator().checkResource().getAttributes().getGeneratorShortCircuitAttributes()
+        return getGenerator().getResource().getAttributes().getGeneratorShortCircuitAttributes()
                 .getStepUpTransformerX();
     }
 

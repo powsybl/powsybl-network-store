@@ -36,7 +36,7 @@ public class RemoteReactivePowerControlImpl extends AbstractExtension<Generator>
 
     @Override
     public double getTargetQ() {
-        return getGenerator().checkResource().getAttributes().getRemoteReactivePowerControl().getTargetQ();
+        return getGenerator().getResource().getAttributes().getRemoteReactivePowerControl().getTargetQ();
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RemoteReactivePowerControlImpl extends AbstractExtension<Generator>
 
     @Override
     public boolean isEnabled() {
-        return getGenerator().checkResource().getAttributes().getRemoteReactivePowerControl().isEnabled();
+        return getGenerator().getResource().getAttributes().getRemoteReactivePowerControl().isEnabled();
     }
 
     @Override
@@ -58,7 +58,7 @@ public class RemoteReactivePowerControlImpl extends AbstractExtension<Generator>
 
     @Override
     public Terminal getRegulatingTerminal() {
-        RemoteReactivePowerControlAttributes attributes = getGenerator().checkResource().getAttributes().getRemoteReactivePowerControl();
+        RemoteReactivePowerControlAttributes attributes = getGenerator().getResource().getAttributes().getRemoteReactivePowerControl();
         if (attributes != null) {
             TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
             return TerminalRefUtils.getTerminal(getGenerator().getNetwork().getIndex(), terminalRefAttributes);

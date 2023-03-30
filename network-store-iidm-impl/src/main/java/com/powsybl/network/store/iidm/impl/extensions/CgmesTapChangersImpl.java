@@ -31,7 +31,7 @@ public class CgmesTapChangersImpl<C extends Connectable<C>> extends AbstractExte
     }
 
     private TransformerAttributes getAttributes() {
-        return (TransformerAttributes) ((AbstractIdentifiableImpl<?, ?>) getExtendable()).checkResource().getAttributes();
+        return (TransformerAttributes) ((AbstractIdentifiableImpl<?, ?>) getExtendable()).getResource().getAttributes();
     }
 
     @Override

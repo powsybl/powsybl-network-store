@@ -26,11 +26,11 @@ public class CimCharacteristicsImpl extends AbstractExtension<Network> implement
     }
 
     public CgmesTopologyKind getTopologyKind() {
-        return getNetwork().checkResource().getAttributes().getCimCharacteristics().getCgmesTopologyKind();
+        return getNetwork().getResource().getAttributes().getCimCharacteristics().getCgmesTopologyKind();
     }
 
     public int getCimVersion() {
-        Integer cimVersion = getNetwork().checkResource().getAttributes().getCimCharacteristics().getCimVersion();
+        Integer cimVersion = getNetwork().getResource().getAttributes().getCimCharacteristics().getCimVersion();
         return cimVersion == null ? -1 : cimVersion;
     }
 }

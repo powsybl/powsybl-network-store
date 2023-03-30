@@ -23,7 +23,7 @@ public class BranchStatusImpl<C extends Connectable<C>> extends AbstractExtensio
 
     @Override
     public Status getStatus() {
-        var resource = ((AbstractIdentifiableImpl<?, ?>) getExtendable()).checkResource();
+        var resource = ((AbstractIdentifiableImpl<?, ?>) getExtendable()).getResource();
         return Status.valueOf(((BranchStatusHolder) resource.getAttributes()).getBranchStatus());
     }
 

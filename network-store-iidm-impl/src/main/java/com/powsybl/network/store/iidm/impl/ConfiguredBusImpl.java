@@ -31,12 +31,12 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public String getId() {
-        return checkResource().getId();
+        return getResource().getId();
     }
 
     @Override
     public String getName() {
-        return checkResource().getAttributes().getName();
+        return getResource().getAttributes().getName();
     }
 
     @Override
@@ -46,12 +46,12 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public VoltageLevel getVoltageLevel() {
-        return index.getVoltageLevel(checkResource().getAttributes().getVoltageLevelId()).orElse(null);
+        return index.getVoltageLevel(getResource().getAttributes().getVoltageLevelId()).orElse(null);
     }
 
     @Override
     public double getV() {
-        return checkResource().getAttributes().getV();
+        return getResource().getAttributes().getV();
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
         }
-        double oldValue = checkResource().getAttributes().getV();
+        double oldValue = getResource().getAttributes().getV();
         if (v != oldValue) {
             updateResource(res -> res.getAttributes().setV(v));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -70,12 +70,12 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public double getAngle() {
-        return checkResource().getAttributes().getAngle();
+        return getResource().getAttributes().getAngle();
     }
 
     @Override
     public Bus setAngle(double angle) {
-        double oldValue = checkResource().getAttributes().getAngle();
+        double oldValue = getResource().getAttributes().getAngle();
         if (angle != oldValue) {
             updateResource(res -> res.getAttributes().setAngle(angle));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();

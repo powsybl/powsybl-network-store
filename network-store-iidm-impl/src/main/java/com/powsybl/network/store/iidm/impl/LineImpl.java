@@ -42,13 +42,13 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getR() {
-        return checkResource().getAttributes().getR();
+        return getResource().getAttributes().getR();
     }
 
     @Override
     public Line setR(double r) {
         ValidationUtil.checkR(this, r);
-        double oldValue = checkResource().getAttributes().getR();
+        double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r));
             index.notifyUpdate(this, "r", oldValue, r);
@@ -58,13 +58,13 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getX() {
-        return checkResource().getAttributes().getX();
+        return getResource().getAttributes().getX();
     }
 
     @Override
     public Line setX(double x) {
         ValidationUtil.checkX(this, x);
-        double oldValue = checkResource().getAttributes().getX();
+        double oldValue = getResource().getAttributes().getX();
         if (x != oldValue) {
             updateResource(res -> res.getAttributes().setX(x));
             index.notifyUpdate(this, "x", oldValue, x);
@@ -74,13 +74,13 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getG1() {
-        return checkResource().getAttributes().getG1();
+        return getResource().getAttributes().getG1();
     }
 
     @Override
     public Line setG1(double g1) {
         ValidationUtil.checkG1(this, g1);
-        double oldValue = checkResource().getAttributes().getG1();
+        double oldValue = getResource().getAttributes().getG1();
         if (g1 != oldValue) {
             updateResource(res -> res.getAttributes().setG1(g1));
             index.notifyUpdate(this, "g1", oldValue, g1);
@@ -90,13 +90,13 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getG2() {
-        return checkResource().getAttributes().getG2();
+        return getResource().getAttributes().getG2();
     }
 
     @Override
     public Line setG2(double g2) {
         ValidationUtil.checkG2(this, g2);
-        double oldValue = checkResource().getAttributes().getG2();
+        double oldValue = getResource().getAttributes().getG2();
         if (g2 != oldValue) {
             updateResource(res -> res.getAttributes().setG2(g2));
             index.notifyUpdate(this, "g2", oldValue, g2);
@@ -106,12 +106,12 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getB1() {
-        return checkResource().getAttributes().getB1();
+        return getResource().getAttributes().getB1();
     }
 
     @Override
     public Line setB1(double b1) {
-        var resource = checkResource();
+        var resource = getResource();
         ValidationUtil.checkB1(this, b1);
         double oldValue = resource.getAttributes().getB1();
         if (b1 != oldValue) {
@@ -123,12 +123,12 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getB2() {
-        return checkResource().getAttributes().getB2();
+        return getResource().getAttributes().getB2();
     }
 
     @Override
     public Line setB2(double b2) {
-        var resource = checkResource();
+        var resource = getResource();
         ValidationUtil.checkB2(this, b2);
         double oldValue = resource.getAttributes().getB2();
         if (b2 != oldValue) {
@@ -179,7 +179,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     }
 
     private MergedXnode createMergedXnode() {
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getMergedXnode() != null) {
             return new MergedXnodeImpl(this,
                     resource.getAttributes().getMergedXnode().getRdp(),
@@ -207,7 +207,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
