@@ -57,10 +57,17 @@
         <commons-lang3.version>3.9</commons-lang3.version>
         <powsybl-dependencies.version>2023.0.1</powsybl-dependencies.version>
         <powsybl-ws-commons.version>1.3.0</powsybl-ws-commons.version>
+
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
+            ../../network-store-client-distributiont/target/site/jacoco-aggregate/jacoco.xml,
+            ../../../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <modules>
         <module>network-store-client</module>
+        <module>network-store-client-distribution</module>
         <module>network-store-model</module>
         <module>network-store-iidm-impl</module>
     </modules>
