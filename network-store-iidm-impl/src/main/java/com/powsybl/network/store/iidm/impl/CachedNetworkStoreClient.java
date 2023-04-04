@@ -152,7 +152,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             networkContainersCaches.values().forEach(cache -> cache.getCollection(networkUuid, networkResource.getVariantNum()).init());
 
             variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
-                    .add(new VariantInfos(networkResource.getAttributes().getVariantId(), networkResource.getVariantNum()));
+                    .add(new VariantInfos(networkResource.getAttributes().getVariantId(), networkResource.getVariantNum(),
+                            networkResource.getAttributes().getVariantMode(), networkResource.getAttributes().getSrcVariantNum()));
         }
     }
 
@@ -216,8 +217,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
-        delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, VariantMode variantMode) {
+        delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, variantMode);
 
         var objectMapper = JsonUtil.createObjectMapper();
         objectMapper.registerModule(new JodaModule());
@@ -244,7 +245,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
 
         variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
-                .add(new VariantInfos(targetVariantId, targetVariantNum));
+                .add(new VariantInfos(targetVariantId, targetVariantNum, variantMode, sourceVariantNum));
     }
 
     @Override

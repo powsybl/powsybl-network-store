@@ -17,15 +17,9 @@ import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.network.store.client.util.ExecutorUtil;
-import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
-import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
-import com.powsybl.network.store.iidm.impl.NetworkImpl;
-import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.*;
 import com.powsybl.network.store.iidm.impl.util.TriFunction;
-import com.powsybl.network.store.model.NetworkInfos;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ResourceType;
-import com.powsybl.network.store.model.VariantInfos;
+import com.powsybl.network.store.model.*;
 import com.powsybl.tools.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -249,6 +243,11 @@ public class NetworkStoreService implements AutoCloseable {
     public void flush(Network network) {
         NetworkImpl networkImpl = getNetworkImpl(network);
         networkImpl.getIndex().getStoreClient().flush(networkImpl.getUuid());
+    }
+
+    public void setVariantMode(Network network, VariantMode variantMode) {
+        NetworkImpl networkImpl = getNetworkImpl(network);
+        networkImpl.getResource().getAttributes().setVariantMode(variantMode);
     }
 
     @PostConstruct

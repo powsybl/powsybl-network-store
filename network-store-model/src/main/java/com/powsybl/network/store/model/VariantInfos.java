@@ -24,4 +24,10 @@ public class VariantInfos {
 
     @Schema(description = "Variant number")
     private int num;
+
+    @Schema(description = "Variant mode")
+    private VariantMode mode;
+
+    @Schema(description = "Source variant number")
+    private int srcVariantNum;
 }

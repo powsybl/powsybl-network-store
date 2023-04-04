@@ -179,10 +179,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
-        LOGGER.info("Cloning network {} variant {} to variant {} (variantId='{}')", networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
-        restClient.put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}",
-                networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, VariantMode variantMode) {
+        LOGGER.info("Cloning network {} variant {} to variant {} (variantId='{}', variantMode={})", networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, variantMode);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        restClient.put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}&variantMode={variantMode}",
+                networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, variantMode);
+        stopwatch.stop();
+        LOGGER.info("Network {} variant {} cloned to variant {} in {} ms", networkUuid, sourceVariantNum, targetVariantNum, stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     @Override

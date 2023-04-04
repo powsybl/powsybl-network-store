@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VariantInfos;
 import com.powsybl.network.store.model.utils.VariantUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +90,7 @@ public class VariantManagerImpl implements VariantManager {
             }
             int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
             // clone resources
-            index.getStoreClient().cloneNetwork(index.getNetwork().getUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
+            index.getStoreClient().cloneNetwork(index.getNetwork().getUuid(), sourceVariantNum, targetVariantNum, targetVariantId, index.getNetwork().getResource().getAttributes().getVariantMode());
             notifyVariantCreated(sourceVariantId, targetVariantId);
         }
     }

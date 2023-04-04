@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.VariantMode;
 import org.joda.time.DateTime;
 
 import java.util.Collections;
@@ -43,6 +44,8 @@ public class NetworkFactoryImpl implements NetworkFactory {
                 .attributes(NetworkAttributes.builder()
                                              .uuid(networkUuid)
                                              .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                                             .variantMode(VariantMode.FULL)
+                                             .srcVariantNum(-1)
                                              .caseDate(DateTime.now())
                                              .forecastDistance(0)
                                              .sourceFormat(sourceFormat)

@@ -29,6 +29,12 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @Schema(description = "Variant ID")
     private String variantId;
 
+    @Schema(description = "Variant mode")
+    private VariantMode variantMode;
+
+    @Schema(description = "Source variant number")
+    private int srcVariantNum;
+
     @Schema(description = "Network name")
     private String name;
 

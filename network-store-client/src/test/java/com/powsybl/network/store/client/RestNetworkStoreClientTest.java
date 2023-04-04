@@ -155,7 +155,7 @@ public class RestNetworkStoreClientTest {
 
         server.expect(requestTo("/networks/" + networkUuid))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(objectMapper.writeValueAsString(List.of(new VariantInfos(VariantManagerConstants.INITIAL_VARIANT_ID, Resource.INITIAL_VARIANT_NUM))), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(objectMapper.writeValueAsString(List.of(new VariantInfos(VariantManagerConstants.INITIAL_VARIANT_ID, Resource.INITIAL_VARIANT_NUM, VariantMode.FULL, 0))), MediaType.APPLICATION_JSON));
 
         // line
         Resource<LineAttributes> line = Resource.lineBuilder()
