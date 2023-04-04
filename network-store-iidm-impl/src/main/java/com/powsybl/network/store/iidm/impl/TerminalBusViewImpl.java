@@ -41,7 +41,7 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).checkResource();
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
     }
 
     private Bus calculateBus() {
@@ -57,7 +57,7 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
 
     @Override
     public Bus getConnectableBus() {
-        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+        if (((AbstractIdentifiableImpl) connectable).getOptionalResource().isEmpty()) {
             return null;
         }
 

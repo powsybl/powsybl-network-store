@@ -13,6 +13,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -44,7 +45,12 @@ public class CimCharacteristicsAdderImpl extends AbstractExtensionAdder<Network,
         } else if (this.cimVersion == null) {
             throw new PowsyblException("CimCharacteristics.cimVersion is undefined");
         } else {
-            return new CimCharacteristicsImpl((NetworkImpl) network, cgmesTopologyKind, cimVersion);
+            var attributes = CimCharacteristicsAttributes.builder()
+                    .cgmesTopologyKind(cgmesTopologyKind)
+                    .cimVersion(cimVersion)
+                    .build();
+            ((NetworkImpl) network).updateResource(res -> res.getAttributes().setCimCharacteristics(attributes));
+            return new CimCharacteristicsImpl((NetworkImpl) network);
         }
     }
 }

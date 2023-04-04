@@ -88,7 +88,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public VoltageLevelImpl getVoltageLevel() {
-        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+        if (((AbstractIdentifiableImpl) connectable).getOptionalResource().isEmpty()) {
             return null;
         }
         return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new);
@@ -133,7 +133,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).checkResource();
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
     }
 
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
@@ -350,7 +350,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     @Override
     public void traverse(Terminal.TopologyTraverser traverser) {
         Set<Terminal> traversedTerminals = new HashSet<>();
-        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+        if (((AbstractIdentifiableImpl) connectable).getOptionalResource().isEmpty()) {
             throw new PowsyblException("Associated equipment is removed");
         }
 

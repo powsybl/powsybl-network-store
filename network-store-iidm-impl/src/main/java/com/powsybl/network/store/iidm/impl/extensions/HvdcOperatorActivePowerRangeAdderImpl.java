@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
 import com.powsybl.network.store.iidm.impl.HvdcLineImpl;
+import com.powsybl.network.store.model.HvdcOperatorActivePowerRangeAttributes;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -30,7 +31,12 @@ public class HvdcOperatorActivePowerRangeAdderImpl extends AbstractExtensionAdde
 
     @Override
     protected HvdcOperatorActivePowerRange createExtension(HvdcLine hvdcLine) {
-        return new HvdcOperatorActivePowerRangeImpl((HvdcLineImpl) hvdcLine, oprFromCS1toCS2, oprFromCS2toCS1);
+        ((HvdcLineImpl) hvdcLine).updateResource(res -> res.getAttributes().setHvdcOperatorActivePowerRange(
+                HvdcOperatorActivePowerRangeAttributes.builder()
+                        .oprFromCS1toCS2(oprFromCS1toCS2)
+                        .oprFromCS2toCS1(oprFromCS2toCS1)
+                        .build()));
+        return new HvdcOperatorActivePowerRangeImpl((HvdcLineImpl) hvdcLine);
     }
 
     @Override

@@ -39,39 +39,39 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public float getPowerFactor() {
-        return checkResource().getAttributes().getPowerFactor();
+        return getResource().getAttributes().getPowerFactor();
     }
 
     @Override
     public LccConverterStation setPowerFactor(float powerFactor) {
-        var resource = checkResource();
         ValidationUtil.checkPowerFactor(this, powerFactor);
-        float oldValue = resource.getAttributes().getPowerFactor();
-        resource.getAttributes().setPowerFactor(powerFactor);
-        updateResource();
-        index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
+        float oldValue = getResource().getAttributes().getPowerFactor();
+        if (powerFactor != oldValue) {
+            updateResource(res -> res.getAttributes().setPowerFactor(powerFactor));
+            index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
+        }
         return this;
     }
 
     @Override
     public float getLossFactor() {
-        return checkResource().getAttributes().getLossFactor();
+        return getResource().getAttributes().getLossFactor();
     }
 
     @Override
     public LccConverterStation setLossFactor(float lossFactor) {
-        var resource = checkResource();
         ValidationUtil.checkLossFactor(this, lossFactor);
-        float oldValue = resource.getAttributes().getLossFactor();
-        resource.getAttributes().setLossFactor(lossFactor);
-        updateResource();
-        index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+        float oldValue = getResource().getAttributes().getLossFactor();
+        if (lossFactor != oldValue) {
+            updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
+            index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+        }
         return this;
     }
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");

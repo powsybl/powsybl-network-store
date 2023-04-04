@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.network.store.iidm.impl.LoadImpl;
 
+import java.util.Objects;
+
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
@@ -18,12 +20,7 @@ public class LoadDetailImpl implements LoadDetail {
     private LoadImpl load;
 
     public LoadDetailImpl(LoadImpl load) {
-        this.load = load;
-    }
-
-    public LoadDetailImpl(LoadImpl load, double fixedActivePower, double fixedReactivePower,
-                          double variableActivePower, double variableReactivePower) {
-        this(load.initLoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
+        this.load = Objects.requireNonNull(load);
     }
 
     @Override
@@ -43,8 +40,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public LoadDetail setFixedActivePower(double fixedActivePower) {
-        load.getResource().getAttributes().getLoadDetail().setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower"));
-        load.updateResource();
+        load.updateResource(res -> res.getAttributes().getLoadDetail().setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower")));
         return this;
     }
 
@@ -55,8 +51,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public LoadDetail setFixedReactivePower(double fixedReactivePower) {
-        load.getResource().getAttributes().getLoadDetail().setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower"));
-        load.updateResource();
+        load.updateResource(res -> res.getAttributes().getLoadDetail().setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower")));
         return this;
     }
 
@@ -67,8 +62,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public LoadDetail setVariableActivePower(double variableActivePower) {
-        load.getResource().getAttributes().getLoadDetail().setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower"));
-        load.updateResource();
+        load.updateResource(res -> res.getAttributes().getLoadDetail().setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower")));
         return this;
     }
 
@@ -79,8 +73,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public LoadDetail setVariableReactivePower(double variableReactivePower) {
-        load.getResource().getAttributes().getLoadDetail().setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower"));
-        load.updateResource();
+        load.updateResource(res -> res.getAttributes().getLoadDetail().setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower")));
         return this;
     }
 

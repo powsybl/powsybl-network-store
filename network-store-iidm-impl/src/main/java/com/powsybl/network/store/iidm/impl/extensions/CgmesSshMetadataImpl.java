@@ -18,33 +18,31 @@ import java.util.List;
  */
 public class CgmesSshMetadataImpl extends AbstractExtension<Network> implements CgmesSshMetadata {
 
-    private final NetworkImpl network;
-
     public CgmesSshMetadataImpl(NetworkImpl network) {
-        this.network = network;
+        super(network);
     }
 
-    public CgmesSshMetadataImpl(NetworkImpl network, String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
-        this(network.initCgmesSshMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
+    private NetworkImpl getNetwork() {
+        return (NetworkImpl) getExtendable();
     }
 
     @Override
     public String getDescription() {
-        return network.getResource().getAttributes().getCgmesSshMetadata().getDescription();
+        return getNetwork().getResource().getAttributes().getCgmesSshMetadata().getDescription();
     }
 
     @Override
     public int getSshVersion() {
-        return network.getResource().getAttributes().getCgmesSshMetadata().getSshVersion();
+        return getNetwork().getResource().getAttributes().getCgmesSshMetadata().getSshVersion();
     }
 
     @Override
     public List<String> getDependencies() {
-        return network.getResource().getAttributes().getCgmesSshMetadata().getDependencies();
+        return getNetwork().getResource().getAttributes().getCgmesSshMetadata().getDependencies();
     }
 
     @Override
     public String getModelingAuthoritySet() {
-        return network.getResource().getAttributes().getCgmesSshMetadata().getModelingAuthoritySet();
+        return getNetwork().getResource().getAttributes().getCgmesSshMetadata().getModelingAuthoritySet();
     }
 }

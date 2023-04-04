@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
+import com.powsybl.network.store.model.GeneratorStartupAttributes;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
@@ -32,8 +33,10 @@ public class GeneratorStartupAdderImpl extends AbstractExtensionAdder<Generator,
     }
 
     @Override
-    protected GeneratorStartup createExtension(Generator extendable) {
-        return new GeneratorStartupImpl((GeneratorImpl) extendable, plannedActivePowerSetpoint, startupCost, marginalCost, plannedOutageRate, forcedOutageRate);
+    protected GeneratorStartup createExtension(Generator generator) {
+        var attributes = new GeneratorStartupAttributes(plannedActivePowerSetpoint, startupCost, marginalCost, plannedOutageRate, forcedOutageRate);
+        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setGeneratorStartupAttributes(attributes));
+        return new GeneratorStartupImpl((GeneratorImpl) generator);
     }
 
     @Override

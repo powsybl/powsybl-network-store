@@ -42,6 +42,7 @@ public class DanglingLineGenerationAttributes {
     @Schema(description = "Voltage regulation status")
     private boolean voltageRegulationOn;
 
+    @Builder.Default
     @Schema(description = "reactiveLimits")
-    private ReactiveLimitsAttributes reactiveLimits;
+    private ReactiveLimitsAttributes reactiveLimits = new MinMaxReactiveLimitsAttributes(-Double.MAX_VALUE, Double.MAX_VALUE);
 }

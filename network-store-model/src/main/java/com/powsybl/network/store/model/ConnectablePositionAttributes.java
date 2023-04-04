@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,5 +29,5 @@ public class ConnectablePositionAttributes {
 
     private Integer order;
 
-    private ConnectableDirection direction;
+    private ConnectablePosition.Direction direction;
 }

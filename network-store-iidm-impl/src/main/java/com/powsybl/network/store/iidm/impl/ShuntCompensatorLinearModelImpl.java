@@ -9,7 +9,11 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
+
+import java.util.Objects;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -18,49 +22,61 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
 
     private final ShuntCompensatorImpl shuntCompensator;
 
-    private final ShuntCompensatorLinearModelAttributes attributes;
+    public ShuntCompensatorLinearModelImpl(ShuntCompensatorImpl shuntCompensator) {
+        this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
+    }
 
-    public ShuntCompensatorLinearModelImpl(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorLinearModelAttributes attributes) {
-        this.shuntCompensator = shuntCompensator;
-        this.attributes = attributes;
+    private Resource<ShuntCompensatorAttributes> getResource() {
+        return shuntCompensator.getResource();
+    }
+
+    private static ShuntCompensatorLinearModelAttributes getAttributes(Resource<ShuntCompensatorAttributes> resource) {
+        return (ShuntCompensatorLinearModelAttributes) resource.getAttributes().getModel();
+    }
+
+    private ShuntCompensatorLinearModelAttributes getAttributes() {
+        return getAttributes(getResource());
     }
 
     @Override
     public double getBPerSection() {
-        return attributes.getBPerSection();
+        return getAttributes().getBPerSection();
     }
 
     @Override
     public ShuntCompensatorLinearModel setBPerSection(double bPerSection) {
         ValidationUtil.checkBPerSection(shuntCompensator, bPerSection);
-        double oldValue = attributes.getBPerSection();
-        attributes.setBPerSection(bPerSection);
-        shuntCompensator.updateResource();
-        shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);
+        double oldValue = getAttributes().getBPerSection();
+        if (bPerSection != oldValue) {
+            shuntCompensator.updateResource(res -> getAttributes(res).setBPerSection(bPerSection));
+            shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);
+        }
         return this;
     }
 
     @Override
     public double getGPerSection() {
-        return attributes.getGPerSection();
+        return getAttributes().getGPerSection();
     }
 
     @Override
     public ShuntCompensatorLinearModel setGPerSection(double gPerSection) {
-        double oldValue = attributes.getGPerSection();
-        attributes.setGPerSection(gPerSection);
-        shuntCompensator.updateResource();
-        shuntCompensator.notifyUpdate("gPerSection", oldValue, gPerSection);
+        double oldValue = getAttributes().getGPerSection();
+        if (gPerSection != oldValue) {
+            shuntCompensator.updateResource(res -> getAttributes(res).setGPerSection(gPerSection));
+            shuntCompensator.notifyUpdate("gPerSection", oldValue, gPerSection);
+        }
         return this;
     }
 
     @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
         ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        int oldValue = attributes.getMaximumSectionCount();
-        attributes.setMaximumSectionCount(maximumSectionCount);
-        shuntCompensator.updateResource();
-        shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
+        int oldValue = getAttributes().getMaximumSectionCount();
+        if (maximumSectionCount != oldValue) {
+            shuntCompensator.updateResource(res -> getAttributes(res).setMaximumSectionCount(maximumSectionCount));
+            shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
+        }
         return this;
     }
 }

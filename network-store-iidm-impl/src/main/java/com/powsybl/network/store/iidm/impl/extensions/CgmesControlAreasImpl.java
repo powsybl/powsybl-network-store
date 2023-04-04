@@ -12,10 +12,13 @@ import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.model.CgmesControlAreaAttributes;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,27 +40,29 @@ public class CgmesControlAreasImpl extends AbstractExtension<Network> implements
 
     @Override
     public Collection<CgmesControlArea> getCgmesControlAreas() {
-        return getNetwork()
+        List<CgmesControlAreaAttributes> cgmesControlAreaAttributes = getNetwork()
                 .getResource()
                 .getAttributes()
                 .getCgmesControlAreas()
-                .getControlAreas()
-                .stream()
-                .map(a -> new CgmesControlAreaImpl(getNetwork(), a))
+                .getControlAreas();
+        return IntStream.range(0, cgmesControlAreaAttributes.size())
+                .boxed()
+                .map(index -> new CgmesControlAreaImpl(getNetwork(), index))
                 .collect(Collectors.toSet());
     }
 
     @Override
     public CgmesControlArea getCgmesControlArea(String controlAreaId) {
         Objects.requireNonNull(controlAreaId);
-        return getNetwork()
+        List<CgmesControlAreaAttributes> cgmesControlAreaAttributes = getNetwork()
                 .getResource()
                 .getAttributes()
                 .getCgmesControlAreas()
-                .getControlAreas()
-                .stream()
-                .filter(a -> a.getId().equals(controlAreaId))
-                .map(a -> new CgmesControlAreaImpl(getNetwork(), a))
+                .getControlAreas();
+        return IntStream.range(0, cgmesControlAreaAttributes.size())
+                .boxed()
+                .map(index -> new CgmesControlAreaImpl(getNetwork(), index))
+                .filter(area -> area.getId().equals(controlAreaId))
                 .findFirst()
                 .orElse(null);
     }

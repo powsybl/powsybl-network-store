@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.PhaseTapChangerAttributes;
-import com.powsybl.network.store.model.TapChangerParentAttributes;
-import com.powsybl.network.store.model.TapChangerStepAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
+import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,7 +26,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final TapChangerParent tapChangerParent;
 
-    private final TapChangerParentAttributes tapChangerParentAttributes;
+    private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
@@ -121,10 +119,11 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
     }
 
-    public PhaseTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes) {
+    public PhaseTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index,
+                                    Function<Attributes, TapChangerParentAttributes> attributesGetter) {
         super(index);
         this.tapChangerParent = tapChangerParent;
-        this.tapChangerParentAttributes = tapChangerParentAttributes;
+        this.attributesGetter = attributesGetter;
     }
 
     @Override
@@ -209,12 +208,12 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .targetDeadband(targetDeadband)
                 .regulatingTerminal(terminalRefAttributes)
                 .build();
-        tapChangerParentAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
-
+        TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().getResource().getAttributes());
         if (tapChangerParentAttributes.getRatioTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
+        tapChangerParentAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
 
-        return new PhaseTapChangerImpl(tapChangerParent, index, phaseTapChangerAttributes);
+        return new PhaseTapChangerImpl(tapChangerParent, index, attributesGetter);
     }
 }

@@ -31,12 +31,12 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public String getId() {
-        return checkResource().getId();
+        return getResource().getId();
     }
 
     @Override
     public String getName() {
-        return checkResource().getAttributes().getName();
+        return getResource().getAttributes().getName();
     }
 
     @Override
@@ -46,41 +46,41 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public VoltageLevel getVoltageLevel() {
-        return index.getVoltageLevel(checkResource().getAttributes().getVoltageLevelId()).orElse(null);
+        return index.getVoltageLevel(getResource().getAttributes().getVoltageLevelId()).orElse(null);
     }
 
     @Override
     public double getV() {
-        return checkResource().getAttributes().getV();
+        return getResource().getAttributes().getV();
     }
 
     @Override
     public Bus setV(double v) {
-        var resource = checkResource();
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
         }
-        double oldValue = resource.getAttributes().getV();
-        resource.getAttributes().setV(v);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "v", variantId, oldValue, v);
+        double oldValue = getResource().getAttributes().getV();
+        if (v != oldValue) {
+            updateResource(res -> res.getAttributes().setV(v));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "v", variantId, oldValue, v);
+        }
         return this;
     }
 
     @Override
     public double getAngle() {
-        return checkResource().getAttributes().getAngle();
+        return getResource().getAttributes().getAngle();
     }
 
     @Override
     public Bus setAngle(double angle) {
-        var resource = checkResource();
-        double oldValue = resource.getAttributes().getAngle();
-        resource.getAttributes().setAngle(angle);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "angle", variantId, oldValue, angle);
+        double oldValue = getResource().getAttributes().getAngle();
+        if (angle != oldValue) {
+            updateResource(res -> res.getAttributes().setAngle(angle));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "angle", variantId, oldValue, angle);
+        }
         return this;
     }
 

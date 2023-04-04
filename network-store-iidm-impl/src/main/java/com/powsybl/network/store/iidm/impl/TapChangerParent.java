@@ -21,7 +21,7 @@ public interface TapChangerParent extends Validable {
 
     NetworkImpl getNetwork();
 
-    AbstractIdentifiableImpl getTransformer();
+    AbstractIdentifiableImpl<?, ?> getTransformer();
 
     String getTapChangerAttribute();
 

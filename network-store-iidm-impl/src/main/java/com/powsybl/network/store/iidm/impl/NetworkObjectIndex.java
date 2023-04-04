@@ -157,7 +157,7 @@ public class NetworkObjectIndex {
                 }
             }
             return objectsById.values().stream()
-                    .filter(obj -> obj.getResource() != null); // to discard removed objects in the current variant
+                    .filter(obj -> obj.getNullableResource() != null); // to discard removed objects in the current variant
         }
 
         Stream<T> getSome(String containerId) {
@@ -173,7 +173,7 @@ public class NetworkObjectIndex {
                 updateLoadingInfos(resource.getId(), loadingInfos);
                 return obj;
             })
-            .filter(obj -> obj.getResource() != null); // to discard removed objects in the current variant
+            .filter(obj -> obj.getNullableResource() != null); // to discard removed objects in the current variant
         }
 
         T add(Resource<U> resource) {
@@ -199,13 +199,13 @@ public class NetworkObjectIndex {
                 updateLoadingInfos(id, LoadingInfos.createOne());
             }
             return Optional.ofNullable(obj)
-                    .filter(o -> o.getResource() != null); // to discard removed objects in the current variant
+                    .filter(o -> o.getNullableResource() != null); // to discard removed objects in the current variant
         }
 
         T create(Resource<U> resource) {
             T obj = objectsById.get(resource.getId());
             if (obj != null) {
-                if (obj.getResource() != null) {
+                if (obj.getNullableResource() != null) {
                     throw new IllegalArgumentException("'" + resource.getId() + "' already exists");
                 } else {
                     // reuse previously created object

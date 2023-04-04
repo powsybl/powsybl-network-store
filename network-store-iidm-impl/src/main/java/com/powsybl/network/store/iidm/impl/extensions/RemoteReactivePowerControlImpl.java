@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
+import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
 import com.powsybl.network.store.model.RemoteReactivePowerControlAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 
@@ -20,16 +21,12 @@ import com.powsybl.network.store.model.TerminalRefAttributes;
  */
 public class RemoteReactivePowerControlImpl extends AbstractExtension<Generator> implements RemoteReactivePowerControl {
 
-    private GeneratorImpl generator;
-
     public RemoteReactivePowerControlImpl(GeneratorImpl generator) {
-        this.generator = generator;
+        super(generator);
     }
 
-    public RemoteReactivePowerControlImpl(GeneratorImpl generatorImpl, double targetQ, TerminalRefAttributes regulatingTerminal, boolean enabled) {
-        this(generatorImpl);
-        generatorImpl.getResource().getAttributes().setRemoteReactivePowerControl(RemoteReactivePowerControlAttributes
-                .builder().targetQ(targetQ).regulatingTerminal(regulatingTerminal).enabled(enabled).build());
+    private GeneratorImpl getGenerator() {
+        return (GeneratorImpl) getExtendable();
     }
 
     @Override
@@ -39,28 +36,33 @@ public class RemoteReactivePowerControlImpl extends AbstractExtension<Generator>
 
     @Override
     public double getTargetQ() {
-        return generator.getResource().getAttributes().getRemoteReactivePowerControl().getTargetQ();
+        return getGenerator().getResource().getAttributes().getRemoteReactivePowerControl().getTargetQ();
     }
 
     @Override
     public RemoteReactivePowerControl setTargetQ(double targetQ) {
-        generator.getResource().getAttributes().getRemoteReactivePowerControl().setTargetQ(targetQ);
+        getGenerator().updateResource(res -> res.getAttributes().getRemoteReactivePowerControl().setTargetQ(targetQ));
         return this;
     }
 
     @Override
     public boolean isEnabled() {
-        return generator.getResource().getAttributes().getRemoteReactivePowerControl().isEnabled();
+        return getGenerator().getResource().getAttributes().getRemoteReactivePowerControl().isEnabled();
     }
 
     @Override
     public RemoteReactivePowerControl setEnabled(boolean enabled) {
-        generator.getResource().getAttributes().getRemoteReactivePowerControl().setEnabled(enabled);
+        getGenerator().updateResource(res -> res.getAttributes().getRemoteReactivePowerControl().setEnabled(enabled));
         return this;
     }
 
     @Override
     public Terminal getRegulatingTerminal() {
-        return generator.getRemoteReactivePowerControlRegulatingTerminal();
+        RemoteReactivePowerControlAttributes attributes = getGenerator().getResource().getAttributes().getRemoteReactivePowerControl();
+        if (attributes != null) {
+            TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
+            return TerminalRefUtils.getTerminal(getGenerator().getNetwork().getIndex(), terminalRefAttributes);
+        }
+        return null;
     }
 }

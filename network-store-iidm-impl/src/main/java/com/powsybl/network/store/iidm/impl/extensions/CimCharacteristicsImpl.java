@@ -17,22 +17,20 @@ import com.powsybl.network.store.iidm.impl.NetworkImpl;
  */
 public class CimCharacteristicsImpl extends AbstractExtension<Network> implements CimCharacteristics {
 
-    private NetworkImpl network;
-
     public CimCharacteristicsImpl(NetworkImpl network) {
-        this.network = network;
+        super(network);
     }
 
-    public CimCharacteristicsImpl(NetworkImpl network, CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
-        this(network.initCimCharacteristicsAttributes(cgmesTopologyKind, cimVersion));
+    private NetworkImpl getNetwork() {
+        return (NetworkImpl) getExtendable();
     }
 
     public CgmesTopologyKind getTopologyKind() {
-        return network.getResource().getAttributes().getCimCharacteristics().getCgmesTopologyKind();
+        return getNetwork().getResource().getAttributes().getCimCharacteristics().getCgmesTopologyKind();
     }
 
     public int getCimVersion() {
-        Integer cimVersion = network.getResource().getAttributes().getCimCharacteristics().getCimVersion();
+        Integer cimVersion = getNetwork().getResource().getAttributes().getCimCharacteristics().getCimVersion();
         return cimVersion == null ? -1 : cimVersion;
     }
 }

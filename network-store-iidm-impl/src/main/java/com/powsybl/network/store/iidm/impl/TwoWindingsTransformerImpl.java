@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.TwoWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TapChangerParentAttributes;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
 
@@ -46,154 +47,154 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public Optional<Substation> getSubstation() {
-        return index.getVoltageLevel(checkResource().getAttributes().getVoltageLevelId1())
+        return index.getVoltageLevel(getResource().getAttributes().getVoltageLevelId1())
                 .orElseThrow(AssertionError::new)
                 .getSubstation();
     }
 
     @Override
     public RatioTapChangerAdder newRatioTapChanger() {
-        return new RatioTapChangerAdderImpl(this, index, checkResource().getAttributes());
+        return new RatioTapChangerAdderImpl(this, index, TapChangerParentAttributes.class::cast);
     }
 
     @Override
     public PhaseTapChangerAdder newPhaseTapChanger() {
-        return new PhaseTapChangerAdderImpl(this, index, checkResource().getAttributes());
+        return new PhaseTapChangerAdderImpl(this, index, TapChangerParentAttributes.class::cast);
     }
 
     @Override
     public RatioTapChanger getRatioTapChanger() {
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getRatioTapChangerAttributes() != null) {
-            return new RatioTapChangerImpl(this, index, resource.getAttributes().getRatioTapChangerAttributes());
+            return new RatioTapChangerImpl(this, index, TapChangerParentAttributes.class::cast);
         }
         return null;
     }
 
     @Override
     public PhaseTapChanger getPhaseTapChanger() {
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getPhaseTapChangerAttributes() != null) {
-            return new PhaseTapChangerImpl(this, index, resource.getAttributes().getPhaseTapChangerAttributes());
+            return new PhaseTapChangerImpl(this, index, TapChangerParentAttributes.class::cast);
         }
         return null;
     }
 
     @Override
     public double getR() {
-        return checkResource().getAttributes().getR();
+        return getResource().getAttributes().getR();
     }
 
     @Override
     public TwoWindingsTransformer setR(double r) {
-        var resource = checkResource();
         ValidationUtil.checkR(this, r);
-        double oldValue = resource.getAttributes().getR();
-        resource.getAttributes().setR(r);
-        updateResource();
-        index.notifyUpdate(this, "r", oldValue, r);
+        double oldValue = getResource().getAttributes().getR();
+        if (r != oldValue) {
+            updateResource(res -> res.getAttributes().setR(r));
+            index.notifyUpdate(this, "r", oldValue, r);
+        }
         return this;
     }
 
     @Override
     public double getX() {
-        return checkResource().getAttributes().getX();
+        return getResource().getAttributes().getX();
     }
 
     @Override
     public TwoWindingsTransformer setX(double x) {
-        var resource = checkResource();
         ValidationUtil.checkX(this, x);
-        double oldValue = resource.getAttributes().getX();
-        resource.getAttributes().setX(x);
-        updateResource();
-        index.notifyUpdate(this, "x", oldValue, x);
+        double oldValue = getResource().getAttributes().getX();
+        if (x != oldValue) {
+            updateResource(res -> res.getAttributes().setX(x));
+            index.notifyUpdate(this, "x", oldValue, x);
+        }
         return this;
     }
 
     @Override
     public double getG() {
-        return checkResource().getAttributes().getG();
+        return getResource().getAttributes().getG();
     }
 
     @Override
     public TwoWindingsTransformer setG(double g) {
-        var resource = checkResource();
         ValidationUtil.checkG(this, g);
-        double oldValue = resource.getAttributes().getG();
-        resource.getAttributes().setG(g);
-        updateResource();
-        index.notifyUpdate(this, "g", oldValue, g);
+        double oldValue = getResource().getAttributes().getG();
+        if (g != oldValue) {
+            updateResource(res -> res.getAttributes().setG(g));
+            index.notifyUpdate(this, "g", oldValue, g);
+        }
         return this;
     }
 
     @Override
     public double getB() {
-        return checkResource().getAttributes().getB();
+        return getResource().getAttributes().getB();
     }
 
     @Override
     public TwoWindingsTransformer setB(double b) {
-        var resource = checkResource();
         ValidationUtil.checkB(this, b);
-        double oldValue = resource.getAttributes().getB();
-        resource.getAttributes().setB(b);
-        updateResource();
-        index.notifyUpdate(this, "b", oldValue, b);
+        double oldValue = getResource().getAttributes().getB();
+        if (b != oldValue) {
+            updateResource(res -> res.getAttributes().setB(b));
+            index.notifyUpdate(this, "b", oldValue, b);
+        }
         return this;
     }
 
     @Override
     public double getRatedU1() {
-        return checkResource().getAttributes().getRatedU1();
+        return getResource().getAttributes().getRatedU1();
     }
 
     @Override
     public TwoWindingsTransformer setRatedU1(double ratedU1) {
-        var resource = checkResource();
         ValidationUtil.checkRatedU1(this, ratedU1);
-        double oldValue = resource.getAttributes().getRatedU1();
-        resource.getAttributes().setRatedU1(ratedU1);
-        updateResource();
-        index.notifyUpdate(this, "ratedU1", oldValue, ratedU1);
+        double oldValue = getResource().getAttributes().getRatedU1();
+        if (ratedU1 != oldValue) {
+            updateResource(res -> res.getAttributes().setRatedU1(ratedU1));
+            index.notifyUpdate(this, "ratedU1", oldValue, ratedU1);
+        }
         return this;
     }
 
     @Override
     public double getRatedU2() {
-        return checkResource().getAttributes().getRatedU2();
+        return getResource().getAttributes().getRatedU2();
     }
 
     @Override
     public TwoWindingsTransformer setRatedU2(double ratedU2) {
-        var resource = checkResource();
         ValidationUtil.checkRatedU2(this, ratedU2);
-        double oldValue = resource.getAttributes().getRatedU2();
-        resource.getAttributes().setRatedU2(ratedU2);
-        updateResource();
-        index.notifyUpdate(this, "ratedU2", oldValue, ratedU2);
+        double oldValue = getResource().getAttributes().getRatedU2();
+        if (ratedU2 != oldValue) {
+            updateResource(res -> res.getAttributes().setRatedU2(ratedU2));
+            index.notifyUpdate(this, "ratedU2", oldValue, ratedU2);
+        }
         return this;
     }
 
     @Override
     public double getRatedS() {
-        return checkResource().getAttributes().getRatedS();
+        return getResource().getAttributes().getRatedS();
     }
 
     @Override
     public TwoWindingsTransformer setRatedS(double ratedS) {
-        var resource = checkResource();
         ValidationUtil.checkRatedS(this, ratedS);
-        double oldValue = resource.getAttributes().getRatedS();
-        resource.getAttributes().setRatedS(ratedS);
-        updateResource();
-        index.notifyUpdate(this, "ratedS", oldValue, ratedS);
+        double oldValue = getResource().getAttributes().getRatedS();
+        if (Double.compare(ratedS, oldValue) != 0) {
+            updateResource(res -> res.getAttributes().setRatedS(ratedS));
+            index.notifyUpdate(this, "ratedS", oldValue, ratedS);
+        }
         return this;
     }
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
@@ -208,12 +209,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public <E extends Extension<TwoWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
-        var resource = checkResource();
-        if (type == TwoWindingsTransformerPhaseAngleClock.class) {
-            TwoWindingsTransformerPhaseAngleClock twoWindingsTransformerPhaseAngleClock = (TwoWindingsTransformerPhaseAngleClock) extension;
-            resource.getAttributes().setPhaseAngleClockAttributes(TwoWindingsTransformerPhaseAngleClockAttributes.builder()
-                    .phaseAngleClock(twoWindingsTransformerPhaseAngleClock.getPhaseAngleClock()).build());
-        } else if (type == CgmesTapChangers.class) {
+        var resource = getResource();
+        if (type == CgmesTapChangers.class) {
             resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
         }
         super.addExtension(type, extension);
@@ -259,17 +256,17 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @SuppressWarnings("unchecked")
     private <E extends Extension<TwoWindingsTransformer>> E createPhaseAngleClock() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes = resource.getAttributes().getPhaseAngleClockAttributes();
         if (phaseAngleClockAttributes != null) {
-            extension = (E) new TwoWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClockAttributes.getPhaseAngleClock());
+            extension = (E) new TwoWindingsTransformerPhaseAngleClockImpl(this);
         }
         return extension;
     }
 
     private <E extends Extension<TwoWindingsTransformer>> E createCgmesTapChangers() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
             extension = (E) new CgmesTapChangersImpl(this);
         }

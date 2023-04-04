@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.network.store.iidm.impl.HvdcLineImpl;
+import com.powsybl.network.store.model.HvdcAngleDroopActivePowerControlAttributes;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -50,6 +51,12 @@ public class HvdcAngleDroopActivePowerControlAdderImpl extends AbstractExtension
 
     @Override
     protected HvdcAngleDroopActivePowerControl createExtension(HvdcLine hvdcLine) {
-        return new HvdcAngleDroopActivePowerControlImpl((HvdcLineImpl) hvdcLine, p0, droop, enabled);
+        ((HvdcLineImpl) hvdcLine).updateResource(res -> res.getAttributes().setHvdcAngleDroopActivePowerControl(
+                HvdcAngleDroopActivePowerControlAttributes.builder()
+                        .p0(p0)
+                        .droop(droop)
+                        .enabled(enabled)
+                        .build()));
+        return new HvdcAngleDroopActivePowerControlImpl((HvdcLineImpl) hvdcLine);
     }
 }

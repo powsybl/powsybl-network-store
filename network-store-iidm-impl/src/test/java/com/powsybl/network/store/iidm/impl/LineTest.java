@@ -13,13 +13,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.tck.AbstractLineTest;
-import com.powsybl.network.store.model.ConnectableDirection;
-import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import org.junit.Test;
 
-import java.util.Optional;
 import java.util.TreeMap;
 
 import static org.junit.Assert.*;
@@ -93,16 +90,19 @@ public class LineTest extends AbstractLineTest {
     public void testAddConnectablePositionExtensionToLine() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         Line l1 = network.getLine("L1");
-        ConnectablePositionAttributes cpa1 = new ConnectablePositionAttributes("cpa1", 0, ConnectableDirection.TOP);
-        ConnectablePositionAttributes cpa2 = new ConnectablePositionAttributes("cpa2", 0, ConnectableDirection.TOP);
 
-        var f1 = new ConnectablePositionImpl.FeederImpl(cpa1);
-        var f2 = new ConnectablePositionImpl.FeederImpl(cpa2);
-
-        ConnectablePosition cp = new ConnectablePositionImpl(l1, null, f1, f2, null);
-        ConnectablePosition cp1 = new ConnectablePositionImpl(l1, null, f1, null, null);
-
-        l1.addExtension(ConnectablePosition.class, cp);
+        l1.newExtension(ConnectablePositionAdder.class)
+                .newFeeder1()
+                    .withName("cpa1")
+                    .withOrder(0)
+                    .withDirection(ConnectablePosition.Direction.TOP)
+                .add()
+                .newFeeder2()
+                    .withName("cpa2")
+                    .withOrder(0)
+                    .withDirection(ConnectablePosition.Direction.TOP)
+                .add()
+                .add();
 
         Line l2 = network.newLine()
                 .setId("L2")
@@ -117,7 +117,13 @@ public class LineTest extends AbstractLineTest {
                 .setG2(0.0)
                 .setB2(0.0)
                 .add();
-        l2.addExtension(ConnectablePosition.class, cp1);
+        l2.newExtension(ConnectablePositionAdder.class)
+                .newFeeder1()
+                    .withName("cpa1")
+                    .withOrder(0)
+                    .withDirection(ConnectablePosition.Direction.TOP)
+                .add()
+                .add();
 
         Line l3 = network.newLine()
                 .setId("L3")
@@ -139,7 +145,7 @@ public class LineTest extends AbstractLineTest {
         assertEquals(0, (int) l1.getExtension(ConnectablePosition.class).getFeeder1().getOrder().orElseThrow());
         assertEquals("cpa2", l1.getExtension(ConnectablePosition.class).getFeeder2().getName().orElseThrow());
         assertEquals(ConnectablePosition.Direction.TOP, l1.getExtension(ConnectablePosition.class).getFeeder2().getDirection());
-        assertEquals(Optional.of(0), l1.getExtension(ConnectablePosition.class).getFeeder2().getOrder());
+        assertEquals(0, (int) l1.getExtension(ConnectablePosition.class).getFeeder2().getOrder().orElseThrow());
 
         assertEquals("cpa1", l2.getExtension(ConnectablePosition.class).getFeeder1().getName().orElseThrow());
         assertEquals(ConnectablePosition.Direction.TOP, l2.getExtension(ConnectablePosition.class).getFeeder1().getDirection());
