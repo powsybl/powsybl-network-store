@@ -261,10 +261,12 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     @Override
     public boolean removeProperty(String key) {
-        Resource<D> r = getResource();
-        Map<String, String> properties = r.getAttributes().getProperties();
-        if (properties != null) {
-            return properties.remove(key) != null;
+        Map<String, String> properties = getResource().getAttributes().getProperties();
+        if (properties != null && properties.containsKey(key)) {
+            String oldValue = properties.get(key);
+            updateResource(r -> r.getAttributes().getProperties().remove(key));
+            index.notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
+            return true;
         }
         return false;
     }

@@ -520,6 +520,22 @@ public class NetworkObjectIndex {
         }
     }
 
+    void notifyElementRemoved(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue) {
+        if (!network.getListeners().isEmpty()) {
+            notifyElementRemoved(identifiable, attribute.get(), oldValue);
+        }
+    }
+
+    void notifyElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onElementRemoved(identifiable, attribute, oldValue);
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
+            }
+        }
+    }
+
     // substation
 
     Optional<SubstationImpl> getSubstation(String id) {
