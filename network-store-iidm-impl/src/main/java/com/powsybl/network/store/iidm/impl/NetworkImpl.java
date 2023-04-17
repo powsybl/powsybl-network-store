@@ -30,6 +30,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -148,13 +152,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
 
         @Override
-        public Collection<Component> getConnectedComponents() { // FIXME : need a reference bus by component
-            return getBusStream().map(Bus::getConnectedComponent).collect(Collectors.toList());
+        public Collection<Component> getConnectedComponents() {
+            return getBusStream().map(Bus::getConnectedComponent)
+                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Component::getNum))), ArrayList::new));
         }
 
         @Override
-        public Collection<Component> getSynchronousComponents() { // FIXME : need a reference bus by component
-            return getBusStream().map(Bus::getSynchronousComponent).collect(Collectors.toList());
+        public Collection<Component> getSynchronousComponents() {
+            return getBusStream().map(Bus::getSynchronousComponent)
+                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Component::getNum))), ArrayList::new));
         }
     }
 
