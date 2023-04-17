@@ -264,7 +264,12 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         Resource<D> r = getResource();
         Map<String, String> properties = r.getAttributes().getProperties();
         if (properties != null) {
-            return properties.remove(key) != null;
+            String oldValue = properties.get(key);
+            if (properties.remove(key) != null) {
+                index.updateResource(resource);
+                index.notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
+                return true;
+            }
         }
         return false;
     }
