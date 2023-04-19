@@ -33,7 +33,8 @@ public class NetworkTest extends AbstractNetworkTest {
 
         assertEquals(1, Iterables.size(network.getSubstations(Country.FR, "TSO1", "region1")));
 
-        assertEquals(2, network.getBusView().getConnectedComponents().size()); // FIXME : normally should be 1
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
+        assertEquals(1, network.getBusView().getSynchronousComponents().size());
         assertNotNull(network.getBusView().getBus("VL1_0"));
         assertNotNull(network.getBusView().getBus("VL2_0"));
     }
@@ -53,7 +54,8 @@ public class NetworkTest extends AbstractNetworkTest {
         assertEquals(1, Iterables.size(network.getSubstations(Country.FR, "TSO1", "region12")));
         assertEquals(1, Iterables.size(network.getSubstations(Country.FR, "TSO2", "region2")));
 
-        assertEquals(2, network.getBusView().getConnectedComponents().size());  // FIXME : normally should be 1
+        assertEquals(1, network.getBusView().getConnectedComponents().size());
+        assertEquals(1, network.getBusView().getSynchronousComponents().size());
         assertNotNull(network.getBusView().getBus("VL1_0"));
         assertNotNull(network.getBusView().getBus("VL2_0"));
     }
