@@ -8,7 +8,7 @@ package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TieLine;
 
 /**
  * FIXME: to implement
@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Line;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class CgmesLineBoundaryNodeAdderNetworkStoreImplProvider implements ExtensionAdderProvider<Line, CgmesLineBoundaryNode, CgmesLineBoundaryNodeAdderImpl> {
+public class CgmesLineBoundaryNodeAdderNetworkStoreImplProvider implements ExtensionAdderProvider<TieLine, CgmesLineBoundaryNode, CgmesLineBoundaryNodeAdderImpl> {
     @Override
     public String getImplementationName() {
         return "NetworkStore";
@@ -28,7 +28,7 @@ public class CgmesLineBoundaryNodeAdderNetworkStoreImplProvider implements Exten
     }
 
     @Override
-    public CgmesLineBoundaryNodeAdderImpl newAdder(Line extendable) {
-        return new CgmesLineBoundaryNodeAdderImpl(extendable);
+    public CgmesLineBoundaryNodeAdderImpl newAdder(TieLine tieLine) {
+        return new CgmesLineBoundaryNodeAdderImpl(tieLine);
     }
 }

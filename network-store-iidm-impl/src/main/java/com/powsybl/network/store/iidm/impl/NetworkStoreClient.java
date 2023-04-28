@@ -275,6 +275,18 @@ public interface NetworkStoreClient {
 
     void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId);
 
+    // Tie Lines
+
+    void createTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources);
+
+    List<Resource<TieLineAttributes>> getTieLines(UUID networkUuid, int variantNum);
+
+    Optional<Resource<TieLineAttributes>> getTieLine(UUID networkUuid, int variantNum, String tieLineId);
+
+    void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId);
+
+    void updateTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources, AttributeFilter attributeFilter);
+
     Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
 
     void flush(UUID networkUuid);

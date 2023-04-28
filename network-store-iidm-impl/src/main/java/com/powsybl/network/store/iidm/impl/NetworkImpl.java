@@ -542,6 +542,26 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
+    public Iterable<TieLine> getTieLines() {
+        return index.getTieLines();
+    }
+
+    @Override
+    public Stream<TieLine> getTieLineStream() {
+        return index.getTieLines().stream();
+    }
+
+    @Override
+    public int getTieLineCount() {
+        return index.getTieLines().size();
+    }
+
+    @Override
+    public TieLine getTieLine(String s) {
+        return index.getTieLine(getIdFromAlias(s)).orElse(null);
+    }
+
+    @Override
     public TieLineAdder newTieLine() {
         return new TieLineAdderImpl(index);
     }

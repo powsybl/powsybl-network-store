@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
@@ -429,6 +430,29 @@ public class ResourceTest {
 
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
+    }
+
+    @Test
+    public void tieLine() throws JsonProcessingException {
+        TieLineAttributes tieLineAttributes = TieLineAttributes
+                .builder()
+                .name("tieLine1")
+                .fictitious(false)
+                .half1Id("half1")
+                .half2Id("half2")
+                .build();
+
+        Resource<TieLineAttributes> resourceTieLine = Resource.tieLineBuilder()
+                .id("dl1")
+                .attributes(tieLineAttributes)
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JodaModule());
+        String json = objectMapper.writeValueAsString(resourceTieLine);
+
+        Resource<TieLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<TieLineAttributes>>() { });
+        assertNotNull(resource2);
     }
 
     @Test

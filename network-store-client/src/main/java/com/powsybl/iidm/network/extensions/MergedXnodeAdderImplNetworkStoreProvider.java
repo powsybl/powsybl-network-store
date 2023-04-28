@@ -11,15 +11,13 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.entsoe.util.MergedXnodeAdderImpl;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Identifiable;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class MergedXnodeAdderImplNetworkStoreProvider
-        implements
-        ExtensionAdderProvider<Line, MergedXnode, MergedXnodeAdderImpl> {
+public class MergedXnodeAdderImplNetworkStoreProvider<T extends Identifiable<T>> implements ExtensionAdderProvider<T, MergedXnode<T>, MergedXnodeAdderImpl<T>> {
 
     @Override
     public String getImplementationName() {
@@ -37,7 +35,7 @@ public class MergedXnodeAdderImplNetworkStoreProvider
     }
 
     @Override
-    public MergedXnodeAdderImpl newAdder(Line extendable) {
+    public MergedXnodeAdderImpl<T> newAdder(T extendable) {
         return new MergedXnodeAdderImpl(extendable);
     }
 }

@@ -176,6 +176,10 @@ public class Resource<T extends Attributes> implements Validable {
         return new Builder<>(ResourceType.LINE);
     }
 
+    public static Builder<TieLineAttributes> tieLineBuilder() {
+        return new Builder<>(ResourceType.TIE_LINE);
+    }
+
     public static Builder<HvdcLineAttributes> hvdcLineBuilder() {
         return new Builder<>(ResourceType.HVDC_LINE);
     }

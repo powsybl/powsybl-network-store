@@ -10,7 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.SV;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -186,57 +185,13 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
     }
 
-    static class BoundaryImpl implements Boundary {
+    private TieLineImpl parent = null;
 
-        private final DanglingLine danglingLine;
-
-        BoundaryImpl(DanglingLine danglingLine) {
-            this.danglingLine = Objects.requireNonNull(danglingLine);
-        }
-
-        @Override
-        public double getV() {
-            Terminal t = danglingLine.getTerminal();
-            Bus b = t.getBusView().getBus();
-            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), Branch.Side.ONE).otherSideU(danglingLine, true);
-        }
-
-        @Override
-        public double getAngle() {
-            Terminal t = danglingLine.getTerminal();
-            Bus b = t.getBusView().getBus();
-            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), Branch.Side.ONE).otherSideA(danglingLine, true);
-        }
-
-        @Override
-        public double getP() {
-            Terminal t = danglingLine.getTerminal();
-            Bus b = t.getBusView().getBus();
-            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), Branch.Side.ONE).otherSideP(danglingLine, true);
-        }
-
-        @Override
-        public double getQ() {
-            Terminal t = danglingLine.getTerminal();
-            Bus b = t.getBusView().getBus();
-            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), Branch.Side.ONE).otherSideQ(danglingLine, true);
-        }
-
-        @Override
-        public Branch.Side getSide() {
-            return null;
-        }
-
-        @Override
-        public Connectable getConnectable() {
-            return danglingLine;
-        }
-    }
-
-    private final BoundaryImpl boundary = new BoundaryImpl(this);
+    private final DanglingLineBoundaryImpl boundary;
 
     public DanglingLineImpl(NetworkObjectIndex index, Resource<DanglingLineAttributes> resource) {
         super(index, resource);
+        boundary = new DanglingLineBoundaryImpl(this);
     }
 
     static DanglingLineImpl create(NetworkObjectIndex index, Resource<DanglingLineAttributes> resource) {
@@ -264,6 +219,11 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     protected DanglingLine getInjection() {
         return this;
+    }
+
+    @Override
+    public boolean isMerged() {
+        return parent != null;
     }
 
     @Override
@@ -520,5 +480,28 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     public Boundary getBoundary() {
         return boundary;
+    }
+
+    void setParent(TieLineImpl parent, Branch.Side side) {
+        var resource = getResource();
+        String oldValue = resource.getAttributes().getParentId();
+        resource.getAttributes().setParentId(parent.getId());
+        updateResource(res -> res.getAttributes().setParentId(parent.getId()));
+        notifyUpdate("parentId", oldValue, parent.getId());
+        //FIXME handle operationalLimitsHolder
+        /*if (side == Branch.Side.ONE) {
+            this.operationalLimitsHolder = parent.operationalLimitsHolder1;
+        } else if (side == Branch.Side.TWO) {
+            this.operationalLimitsHolder = parent.operationalLimitsHolder2;
+        }*/
+    }
+
+    @Override
+    public Optional<TieLine> getTieLine() {
+        var resource = getResource();
+        String tieLineId = resource.getAttributes().getParentId();
+        //FIXME Clean
+        TieLineImpl tieLine = index.getTieLine(tieLineId).get();
+        return Optional.of(tieLine);
     }
 }

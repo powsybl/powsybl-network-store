@@ -6,193 +6,225 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.SV;
-import com.powsybl.network.store.model.LineAttributes;
+import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TieLineAttributes;
+
+import java.util.*;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 
-public class TieLineImpl extends LineImpl implements TieLine {
+public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttributes> implements TieLine {
 
-    private final HalfLineImpl half1 = new HalfLineImpl(true);
+    private DanglingLineImpl half1;
+    private String danglingLineHalf1;
 
-    private final HalfLineImpl half2 = new HalfLineImpl(false);
+    private DanglingLineImpl half2;
+    private String danglingLineHalf2;
 
-    public TieLineImpl(NetworkObjectIndex index, Resource<LineAttributes> resource) {
+    NetworkObjectIndex index;
+
+    private final Map<Class<?>, Extension<TieLine>> extensions = new HashMap<>();
+
+    private final Map<String, Extension<TieLine>> extensionsByName = new HashMap<>();
+
+    public TieLineImpl(NetworkObjectIndex index, Resource<TieLineAttributes> resource) {
         super(index, resource);
-        if (resource.getAttributes().getMergedXnode() == null) {
+        this.index = index;
+        //FIXME Check mergedXNode status
+        /*if (resource.getAttributes().getMergedXnode() == null) {
             throw new PowsyblException("A tie line must have MergedXnode extension");
-        }
-    }
-
-    class HalfLineImpl implements HalfLine {
-
-        private final boolean one;
-
-        class BoundaryImpl implements Boundary {
-
-            private Terminal getTerminal() {
-                return one ? getTerminal1() : getTerminal2();
-            }
-
-            @Override
-            public double getV() {
-                Terminal t = getTerminal();
-                Bus b = t.getBusView().getBus();
-                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), getSide()).otherSideU(HalfLineImpl.this);
-            }
-
-            @Override
-            public double getAngle() {
-                Terminal t = getTerminal();
-                Bus b = t.getBusView().getBus();
-                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), getSide()).otherSideA(HalfLineImpl.this);
-            }
-
-            @Override
-            public double getP() {
-                Terminal t = getTerminal();
-                Bus b = t.getBusView().getBus();
-                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), getSide()).otherSideP(HalfLineImpl.this);
-            }
-
-            @Override
-            public double getQ() {
-                Terminal t = getTerminal();
-                Bus b = t.getBusView().getBus();
-                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), getSide()).otherSideQ(HalfLineImpl.this);
-            }
-
-            @Override
-            public Branch.Side getSide() {
-                return one ? Side.ONE : Side.TWO;
-            }
-
-            @Override
-            public Connectable getConnectable() {
-                return TieLineImpl.this;
-            }
-        }
-
-        private final BoundaryImpl boundary = new BoundaryImpl();
-
-        public HalfLineImpl(boolean one) {
-            this.one = one;
-        }
-
-        @Override
-        public String getId() {
-            var resource = getResource();
-            return one ? resource.getAttributes().getMergedXnode().getLine1Name()
-                       : resource.getAttributes().getMergedXnode().getLine2Name();
-        }
-
-        @Override
-        public String getName() {
-            return getId();
-        }
-
-        @Override
-        public double getR() {
-            var resource = getResource();
-            return TieLineImpl.this.getR() * (one ? resource.getAttributes().getMergedXnode().getRdp() : 1 - resource.getAttributes().getMergedXnode().getRdp());
-        }
-
-        @Override
-        public HalfLineImpl setR(double r) {
-            throw new UnsupportedOperationException("TODO");
-        }
-
-        @Override
-        public double getX() {
-            var resource = getResource();
-            return TieLineImpl.this.getX() * (one ? resource.getAttributes().getMergedXnode().getXdp() : 1 - resource.getAttributes().getMergedXnode().getXdp());
-        }
-
-        @Override
-        public HalfLineImpl setX(double x) {
-            throw new UnsupportedOperationException("TODO");
-        }
-
-        @Override
-        public double getG1() {
-            return one ? TieLineImpl.this.getG1() / 2 : TieLineImpl.this.getG2() / 2;
-        }
-
-        @Override
-        public HalfLineImpl setG1(double g1) {
-            throw new UnsupportedOperationException("TODO");
-        }
-
-        @Override
-        public double getG2() {
-            return one ? TieLineImpl.this.getG1() / 2 : TieLineImpl.this.getG2() / 2;
-        }
-
-        @Override
-        public HalfLineImpl setG2(double g2) {
-            throw new UnsupportedOperationException("TODO");
-        }
-
-        @Override
-        public double getB1() {
-            return one ? TieLineImpl.this.getB1() / 2 : TieLineImpl.this.getB2() / 2;
-        }
-
-        @Override
-        public HalfLineImpl setB1(double b1) {
-            throw new UnsupportedOperationException("TODO");
-        }
-
-        @Override
-        public double getB2() {
-            return one ? TieLineImpl.this.getB1() / 2 : TieLineImpl.this.getB2() / 2;
-        }
-
-        @Override
-        public HalfLineImpl setB2(double b2) {
-            throw new UnsupportedOperationException("TODO");
-        }
-
-        @Override
-        public Boundary getBoundary() {
-            return boundary;
-        }
+        }*/
+        danglingLineHalf1 = resource.getAttributes().getHalf1Id();
+        danglingLineHalf2 = resource.getAttributes().getHalf2Id();
     }
 
     @Override
     public String getUcteXnodeCode() {
-        return getResource().getAttributes().getMergedXnode().getCode();
+        return Optional.ofNullable(getHalf1().getUcteXnodeCode()).orElseGet(() -> getHalf2().getUcteXnodeCode());
     }
 
     @Override
-    public HalfLine getHalf1() {
-        return half1;
+    public DanglingLineImpl getHalf1() {
+        return index.getDanglingLine(danglingLineHalf1).get();
     }
 
     @Override
-    public HalfLine getHalf2() {
-        return half2;
+    public DanglingLineImpl getHalf2() {
+        return index.getDanglingLine(danglingLineHalf2).get();
+    }
+
+        /*@Override
+        public String getId() {
+            var resource = getResource();
+            return one ? resource.getAttributes().getMergedXnode().getLine1Name()
+                       : resource.getAttributes().getMergedXnode().getLine2Name();
+        }*/
+    @Override
+    public DanglingLine getHalf(Branch.Side side) {
+        return null;
     }
 
     @Override
-    public HalfLine getHalf(Side side) {
-        switch (side) {
-            case ONE:
-                return half1;
-            case TWO:
-                return half2;
-            default:
-                throw new AssertionError("Unknown branch side " + side);
+    public DanglingLine getHalf(String s) {
+        return null;
+    }
+
+    @Override
+    public void remove() {
+        var resource = getResource();
+        index.notifyBeforeRemoval(this);
+        index.removeTieLine(resource.getId());
+        index.notifyAfterRemoval(resource.getId());
+        /*NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(this);
+
+        // Remove dangling lines
+        half1.removeTieLine();
+        half2.removeTieLine();
+
+        // Remove this voltage level from the network
+        network.getIndex().remove(this);
+
+        network.getListeners().notifyAfterRemoval(id);
+        removed = true;*/
+    }
+
+    @Override
+    public String getId() {
+        return null;
+    }
+
+    @Override
+    public boolean hasProperty() {
+        return false;
+    }
+
+    @Override
+    public boolean hasProperty(String s) {
+        return false;
+    }
+
+    @Override
+    public String getProperty(String s) {
+        return null;
+    }
+
+    @Override
+    public String getProperty(String s, String s1) {
+        return null;
+    }
+
+    @Override
+    public String setProperty(String s, String s1) {
+        return null;
+    }
+
+    @Override
+    public boolean removeProperty(String s) {
+        return false;
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        return null;
+    }
+
+    void attachDanglingLines(DanglingLineImpl half1, DanglingLineImpl half2) {
+        this.half1 = half1;
+        this.half2 = half2;
+        this.half1.setParent(this, Branch.Side.ONE);
+        this.half2.setParent(this, Branch.Side.TWO);
+    }
+
+    @Override
+    public <E extends Extension<TieLine>> void addExtension(Class<? super E> aClass, E e) {
+        Objects.requireNonNull(aClass);
+        Objects.requireNonNull(e);
+        e.setExtendable(this);
+        extensions.put(aClass, e);
+        extensionsByName.put(e.getName(), e);
+    }
+
+    @Override
+    public <E extends Extension<TieLine>> E getExtension(Class<? super E> aClass) {
+        Objects.requireNonNull(aClass);
+        return (E) extensions.get(aClass);
+    }
+
+    @Override
+    public <E extends Extension<TieLine>> E getExtensionByName(String name) {
+        Objects.requireNonNull(name);
+        return (E) extensionsByName.get(name);
+    }
+
+    @Override
+    public <E extends Extension<TieLine>> boolean removeExtension(Class<E> aClass) {
+        boolean removed = false;
+
+        E extension = getExtension(aClass);
+        if (extension != null) {
+            extensions.remove(aClass);
+            extensionsByName.remove(extension.getName());
+            extension.setExtendable(null);
+            removed = true;
         }
+
+        return removed;
     }
 
     @Override
-    public boolean isTieLine() {
-        return true;
+    public Collection<Extension<TieLine>> getExtensions() {
+        return extensionsByName.values();
+    }
+
+    @Override
+    public double getR() {
+        DanglingLineImpl dl1 = getHalf1();
+        DanglingLineImpl dl2 = getHalf2();
+        return TieLineUtil.getR(dl1, dl2);
+    }
+
+    @Override
+    public double getX() {
+        DanglingLineImpl dl1 = getHalf1();
+        DanglingLineImpl dl2 = getHalf2();
+        return TieLineUtil.getX(dl1, dl2);
+    }
+
+    @Override
+    public double getG1() {
+        DanglingLineImpl dl1 = getHalf1();
+        DanglingLineImpl dl2 = getHalf2();
+        return TieLineUtil.getG1(dl1, dl2);
+    }
+
+    @Override
+    public double getG2() {
+        DanglingLineImpl dl1 = getHalf1();
+        DanglingLineImpl dl2 = getHalf2();
+        return TieLineUtil.getG2(dl1, dl2);
+    }
+
+    @Override
+    public double getB1() {
+        DanglingLineImpl dl1 = getHalf1();
+        DanglingLineImpl dl2 = getHalf2();
+        return TieLineUtil.getB1(dl1, dl2);
+    }
+
+    @Override
+    public double getB2() {
+        DanglingLineImpl dl1 = getHalf1();
+        DanglingLineImpl dl2 = getHalf2();
+        return TieLineUtil.getB2(dl1, dl2);
+    }
+
+    static TieLineImpl create(NetworkObjectIndex index, Resource<TieLineAttributes> resource) {
+        return new TieLineImpl(index, resource);
     }
 }

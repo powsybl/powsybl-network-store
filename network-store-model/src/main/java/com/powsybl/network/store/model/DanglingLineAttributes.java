@@ -98,6 +98,9 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @Schema(description = "Active power limits")
     private LimitsAttributes activePowerLimits;
 
+    @Schema(description = "Parent")
+    private String parentId;
+
     @Override
     @JsonIgnore
     public List<Integer> getSideList() {

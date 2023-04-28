@@ -6,266 +6,60 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.google.common.base.Strings;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.TieLineAdder;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.network.store.model.LineAttributes;
-import com.powsybl.network.store.model.MergedXnodeAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ResourceType;
+import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 
-public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements TieLineAdder {
+public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> implements TieLineAdder {
 
-    private final class HalfLineAdderImpl implements HalfLineAdder {
-
-        private final boolean one;
-
-        private String id;
-
-        private String name;
-
-        private double r = Double.NaN;
-
-        private double x = Double.NaN;
-
-        private double g1 = Double.NaN;
-
-        private double g2 = Double.NaN;
-
-        private double b1 = Double.NaN;
-
-        private double b2 = Double.NaN;
-
-        private boolean fictitious = false;
-
-        private HalfLineAdderImpl(boolean one) {
-            this.one = one;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public HalfLineAdderImpl setId(String id) {
-            this.id = id;
-            return this;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public HalfLineAdderImpl setName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public boolean isFictitious() {
-            return fictitious;
-        }
-
-        @Override
-        public HalfLineAdder setFictitious(boolean fictitious) {
-            this.fictitious = fictitious;
-            return this;
-        }
-
-        public double getR() {
-            return r;
-        }
-
-        public HalfLineAdderImpl setR(double r) {
-            this.r = r;
-            return this;
-        }
-
-        public double getX() {
-            return x;
-        }
-
-        public HalfLineAdderImpl setX(double x) {
-            this.x = x;
-            return this;
-        }
-
-        public double getG1() {
-            return g1;
-        }
-
-        public HalfLineAdderImpl setG1(double g1) {
-            this.g1 = g1;
-            return this;
-        }
-
-        public double getG2() {
-            return g2;
-        }
-
-        public HalfLineAdderImpl setG2(double g2) {
-            this.g2 = g2;
-            return this;
-        }
-
-        public double getB1() {
-            return b1;
-        }
-
-        public HalfLineAdderImpl setB1(double b1) {
-            this.b1 = b1;
-            return this;
-        }
-
-        public double getB2() {
-            return b2;
-        }
-
-        public HalfLineAdderImpl setB2(double b2) {
-            this.b2 = b2;
-            return this;
-        }
-
-        private void validate() {
-            int num = one ? 1 : 2;
-            if (Strings.isNullOrEmpty(id)) {
-                throw new ValidationException(TieLineAdderImpl.this, "id is not set for half line " + num);
-            }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(TieLineAdderImpl.this, "r is not set for half line " + num);
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(TieLineAdderImpl.this, "x is not set for half line " + num);
-            }
-            if (Double.isNaN(g1)) {
-                throw new ValidationException(TieLineAdderImpl.this, "g1 is not set for half line " + num);
-            }
-            if (Double.isNaN(b1)) {
-                throw new ValidationException(TieLineAdderImpl.this, "b1 is not set for half line " + num);
-            }
-            if (Double.isNaN(g2)) {
-                throw new ValidationException(TieLineAdderImpl.this, "g2 is not set for half line " + num);
-            }
-            if (Double.isNaN(b2)) {
-                throw new ValidationException(TieLineAdderImpl.this, "b2 is not set for half line " + num);
-            }
-        }
-
-        @Override
-        public TieLineAdder add() {
-            return TieLineAdderImpl.this;
-        }
-    }
-
-    private HalfLineAdderImpl halfLine1Adder;
-
-    private HalfLineAdderImpl halfLine2Adder;
-
-    private String ucteXnodeCode;
+    String half1;
+    String half2;
 
     public TieLineAdderImpl(NetworkObjectIndex index) {
         super(index);
     }
 
     @Override
-    public TieLineAdder setUcteXnodeCode(String ucteXnodeCode) {
-        this.ucteXnodeCode = ucteXnodeCode;
+    public TieLineAdder setHalf1(String danglingLine1) {
+        half1 = danglingLine1;
         return this;
     }
 
     @Override
-    public HalfLineAdder newHalfLine1() {
-        halfLine1Adder = new HalfLineAdderImpl(true);
-        return halfLine1Adder;
-    }
-
-    @Override
-    public HalfLineAdder newHalfLine2() {
-        halfLine2Adder = new HalfLineAdderImpl(false);
-        return halfLine2Adder;
+    public TieLineAdder setHalf2(String danglingLine2) {
+        half2 = danglingLine2;
+        return this;
     }
 
     @Override
     public TieLine add() {
         String id = checkAndGetUniqueId();
-        checkVoltageLevel1();
-        checkVoltageLevel2();
-        checkNodeBus1();
-        checkNodeBus2();
+        if (half1 == null || half2 == null) {
+            throw new ValidationException(this, "undefined half");
+        }
 
-        validate();
+        DanglingLineImpl dl1 = index.getDanglingLine(half1).orElseThrow(() -> new ValidationException(this, half1 + " are not dangling lines in the network"));
+        DanglingLineImpl dl2 = index.getDanglingLine(half2).orElseThrow(() -> new ValidationException(this, half2 + " are not dangling lines in the network"));
 
-        double r = halfLine1Adder.getR() + halfLine2Adder.getR();
-        double x = halfLine1Adder.getX() + halfLine2Adder.getX();
-        double b1 = halfLine1Adder.getB1() + halfLine1Adder.getB2();
-        double b2 = halfLine2Adder.getB1() + halfLine2Adder.getB2();
-        double g1 = halfLine1Adder.getG1() + halfLine1Adder.getG2();
-        double g2 = halfLine2Adder.getG1() + halfLine2Adder.getG2();
-        double rdp = r == 0 ? 0.5 : halfLine1Adder.getR() / r;
-        double xdp = x == 0 ? 0.5 : halfLine1Adder.getX() / x;
-        Resource<LineAttributes> resource = Resource.lineBuilder()
+        Resource<TieLineAttributes> resource = Resource.tieLineBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
-                .attributes(LineAttributes.builder()
-                        .name(getName())
-                        .fictitious(isFictitious())
-                        .r(r)
-                        .x(x)
-                        .b1(b1)
-                        .b2(b2)
-                        .g1(g1)
-                        .g2(g2)
-                        .voltageLevelId1(getVoltageLevelId1())
-                        .voltageLevelId2(getVoltageLevelId2())
-                        .node1(getNode1())
-                        .node2(getNode2())
-                        .bus1(getBus1())
-                        .bus2(getBus2())
-                        .connectableBus1(getConnectableBus1() != null ? getConnectableBus1() : getBus1())
-                        .connectableBus2(getConnectableBus2() != null ? getConnectableBus2() : getBus2())
-                        .mergedXnode(
-                                MergedXnodeAttributes.builder()
-                                        .rdp(rdp)
-                                        .xdp(xdp)
-                                        //FIXME need to implement boundary to set the xnodeP and xnodeQ (https://github.com/powsybl/powsybl-core/wiki/IIDM-&-XIIDM-1.5-evolutions#changes-and-fixes)
-                                        .xnodeP1(Double.NaN)
-                                        .xnodeQ1(Double.NaN)
-                                        .xnodeP2(Double.NaN)
-                                        .xnodeQ2(Double.NaN)
-                                        .line1Name(halfLine1Adder.getId())
-                                        .line2Name(halfLine2Adder.getId())
-                                        .code(ucteXnodeCode)
-                                        .build())
+                .attributes(TieLineAttributes.builder()
+                        .half1Id(dl1.getId())
+                        .half2Id(dl2.getId())
                         .build()).build();
-        getIndex().createLine(resource);
+        getIndex().createTieLine(resource);
         TieLineImpl tieLine = new TieLineImpl(getIndex(), resource);
-        tieLine.getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
-        tieLine.getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
+        dl1.setParent(tieLine, Branch.Side.ONE);
+        dl2.setParent(tieLine, Branch.Side.TWO);
         return tieLine;
-    }
-
-    private void validate() {
-        if (ucteXnodeCode == null) {
-            throw new ValidationException(this, "ucteXnodeCode is not set");
-        }
-
-        if (halfLine1Adder == null) {
-            throw new ValidationException(this, "half line 1 is not set");
-        }
-
-        if (halfLine2Adder == null) {
-            throw new ValidationException(this, "half line 2 is not set");
-        }
-
-        halfLine1Adder.validate();
-        halfLine2Adder.validate();
     }
 
     @Override
     protected String getTypeDescription() {
-        return ResourceType.LINE.getDescription();
+        return ResourceType.TIE_LINE.getDescription();
     }
 }

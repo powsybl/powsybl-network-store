@@ -18,10 +18,7 @@ import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -126,6 +123,11 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                 delegate::updateConfiguredBuses,
                 delegate::removeConfiguredBuses));
 
+    private final NetworkCollectionIndex<CollectionBuffer<TieLineAttributes>> tieLineResourcesToFlush
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createTieLines,
+            delegate::updateTieLines,
+            delegate::removeTieLines));
+
     private final List<NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = List.of(
             networkResourcesToFlush,
             substationResourcesToFlush,
@@ -144,7 +146,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             twoWindingsTransformerResourcesToFlush,
             threeWindingsTransformerResourcesToFlush,
             lineResourcesToFlush,
-            busResourcesToFlush);
+            busResourcesToFlush,
+            tieLineResourcesToFlush);
 
     private final ExecutorService executorService;
 
@@ -511,6 +514,25 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
+    public void createTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources) {
+        for (Resource<TieLineAttributes> tieLineResource : tieLineResources) {
+            tieLineResourcesToFlush.getCollection(networkUuid, tieLineResource.getVariantNum()).create(tieLineResource);
+        }
+    }
+
+    @Override
+    public void updateTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources, AttributeFilter attributeFilter) {
+        for (Resource<TieLineAttributes> tieLineResource : tieLineResources) {
+            tieLineResourcesToFlush.getCollection(networkUuid, tieLineResource.getVariantNum()).update(tieLineResource, attributeFilter);
+        }
+    }
+
+    @Override
+    public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
+        tieLineResourcesToFlush.getCollection(networkUuid, variantNum).remove(tieLinesId);
+    }
+
+    @Override
     public void flush(UUID networkUuid) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Future<?>> futures = new ArrayList<>(allBuffers.size());
@@ -561,6 +583,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(busResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(substationResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(voltageLevelResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(tieLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(networkResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
             networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
     }
