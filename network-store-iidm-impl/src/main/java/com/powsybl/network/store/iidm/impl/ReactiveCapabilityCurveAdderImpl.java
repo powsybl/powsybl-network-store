@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
 import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -45,6 +47,14 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implem
         if (points.size() < 2) {
             throw new ValidationException(owner, "a reactive capability curve should have at least two points");
         }
+        Set<Map.Entry<Double, ReactiveCapabilityCurvePointAttributes>> entries = points.entrySet();
+        entries.forEach(point -> {
+            double minQ = point.getValue().getMinQ();
+            double maxQ = point.getValue().getMaxQ();
+            if (minQ > maxQ) {
+                throw new ValidationException(owner, "maximum reactive power " + maxQ + " is expected to be greater than or equal to minimum reactive power" + minQ);
+            }
+        });
         ReactiveCapabilityCurveAttributes attributes = ReactiveCapabilityCurveAttributes.builder()
                 .points(points)
                 .build();
