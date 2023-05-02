@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.network.store.iidm.impl.LoadImpl;
+import com.powsybl.network.store.model.LoadDetailAttributes;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -31,7 +32,14 @@ public class LoadDetailAdderImpl extends AbstractExtensionAdder<Load, LoadDetail
 
     @Override
     protected LoadDetail createExtension(Load load) {
-        return new LoadDetailImpl((LoadImpl) load, fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower);
+        LoadDetailAttributes attributes = LoadDetailAttributes.builder()
+                .fixedActivePower(fixedActivePower)
+                .fixedReactivePower(fixedReactivePower)
+                .variableActivePower(variableActivePower)
+                .variableReactivePower(variableReactivePower)
+                .build();
+        ((LoadImpl) load).updateResource(res -> res.getAttributes().setLoadDetail(attributes));
+        return new LoadDetailImpl((LoadImpl) load);
     }
 
     @Override

@@ -30,6 +30,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -51,7 +55,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public Map<String, String> getIdByAlias() {
-        var resource = checkResource();
+        return getIdByAlias(getResource());
+    }
+
+    public Map<String, String> getIdByAlias(Resource<NetworkAttributes> resource) {
         NetworkAttributes attributes = resource.getAttributes();
         if (attributes.getIdByAlias() == null) {
             attributes.setIdByAlias(new HashMap<>());
@@ -60,16 +67,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public void addAlias(String alias, String id) {
-        getIdByAlias().put(alias, id);
-        updateResource();
+        updateResource(res -> getIdByAlias(res).put(alias, id));
     }
 
     public void removeAlias(String alias) {
-        getIdByAlias().remove(alias);
-        updateResource();
+        updateResource(res -> getIdByAlias(res).remove(alias));
     }
 
-    public boolean checkAliasUnicity(AbstractIdentifiableImpl obj, String alias) {
+    public boolean checkAliasUnicity(AbstractIdentifiableImpl<?, ?> obj, String alias) {
         Objects.requireNonNull(alias);
         Identifiable<?> identifiable = getIdentifiable(alias);
         if (identifiable != null) {
@@ -147,13 +152,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
 
         @Override
-        public Collection<Component> getConnectedComponents() { // FIXME : need a reference bus by component
-            return getBusStream().map(Bus::getConnectedComponent).collect(Collectors.toList());
+        public Collection<Component> getConnectedComponents() {
+            return getBusStream().map(Bus::getConnectedComponent)
+                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Component::getNum))), ArrayList::new));
         }
 
         @Override
-        public Collection<Component> getSynchronousComponents() { // FIXME : need a reference bus by component
-            return getBusStream().map(Bus::getSynchronousComponent).collect(Collectors.toList());
+        public Collection<Component> getSynchronousComponents() {
+            return getBusStream().map(Bus::getSynchronousComponent)
+                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Component::getNum))), ArrayList::new));
         }
     }
 
@@ -162,12 +169,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public UUID getUuid() {
-        return checkResource().getAttributes().getUuid();
+        return getResource().getAttributes().getUuid();
     }
 
     @Override
     public String getId() {
-        return checkResource().getId();
+        return getResource().getId();
     }
 
     @Override
@@ -177,35 +184,31 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public DateTime getCaseDate() {
-        return checkResource().getAttributes().getCaseDate();
+        return getResource().getAttributes().getCaseDate();
     }
 
     @Override
     public Network setCaseDate(DateTime date) {
-        var resource = checkResource();
         ValidationUtil.checkCaseDate(this, date);
-        resource.getAttributes().setCaseDate(date);
-        updateResource();
+        updateResource(res -> res.getAttributes().setCaseDate(date));
         return this;
     }
 
     @Override
     public int getForecastDistance() {
-        return checkResource().getAttributes().getForecastDistance();
+        return getResource().getAttributes().getForecastDistance();
     }
 
     @Override
     public Network setForecastDistance(int forecastDistance) {
-        var resource = checkResource();
         ValidationUtil.checkForecastDistance(this, forecastDistance);
-        resource.getAttributes().setForecastDistance(forecastDistance);
-        updateResource();
+        updateResource(res -> res.getAttributes().setForecastDistance(forecastDistance));
         return this;
     }
 
     @Override
     public String getSourceFormat() {
-        return checkResource().getAttributes().getSourceFormat();
+        return getResource().getAttributes().getSourceFormat();
     }
 
     @Override
@@ -830,76 +833,26 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     void ensureConnectedComponentsUpToDate(boolean isBusView) {
-        var resource = checkResource();
+        var resource = getResource();
         if (!resource.getAttributes().isConnectedComponentsValid()) {
             update(ComponentType.CONNECTED, isBusView);
-            resource.getAttributes().setConnectedComponentsValid(true);
-            updateResource();
+            updateResource(res -> res.getAttributes().setConnectedComponentsValid(true));
         }
     }
 
     void ensureSynchronousComponentsUpToDate(boolean isBusView) {
-        var resource = checkResource();
+        var resource = getResource();
         if (!resource.getAttributes().isSynchronousComponentsValid()) {
             update(ComponentType.SYNCHRONOUS, isBusView);
-            resource.getAttributes().setSynchronousComponentsValid(true);
-            updateResource();
+            updateResource(res -> res.getAttributes().setSynchronousComponentsValid(true));
         }
     }
 
     void invalidateComponents() {
-        var resource = checkResource();
-        resource.getAttributes().setConnectedComponentsValid(false);
-        resource.getAttributes().setSynchronousComponentsValid(false);
-        updateResource();
-    }
-
-    @Override
-    public <E extends Extension<Network>> void addExtension(Class<? super E> type, E extension) {
-        var resource = checkResource();
-        if (type == CgmesSvMetadata.class) {
-            CgmesSvMetadata cgmesSvMetadata = (CgmesSvMetadata) extension;
-            resource.getAttributes().setCgmesSvMetadata(
-                    CgmesSvMetadataAttributes.builder()
-                            .description(cgmesSvMetadata.getDescription())
-                            .svVersion(cgmesSvMetadata.getSvVersion())
-                            .dependencies(cgmesSvMetadata.getDependencies())
-                            .modelingAuthoritySet(cgmesSvMetadata.getModelingAuthoritySet())
-                            .build());
-            updateResource();
-        }
-        if (type == CgmesSshMetadata.class) {
-            CgmesSshMetadata cgmesSshMetadata = (CgmesSshMetadata) extension;
-            resource.getAttributes().setCgmesSshMetadata(
-                    CgmesSshMetadataAttributes.builder()
-                            .description(cgmesSshMetadata.getDescription())
-                            .sshVersion(cgmesSshMetadata.getSshVersion())
-                            .dependencies(cgmesSshMetadata.getDependencies())
-                            .modelingAuthoritySet(cgmesSshMetadata.getModelingAuthoritySet())
-                            .build());
-            updateResource();
-        }
-        if (type == CimCharacteristics.class) {
-            CimCharacteristics cimCharacteristics = (CimCharacteristics) extension;
-            resource.getAttributes().setCimCharacteristics(
-                    CimCharacteristicsAttributes.builder()
-                            .cgmesTopologyKind(cimCharacteristics.getTopologyKind())
-                            .cimVersion(cimCharacteristics.getCimVersion())
-                            .build());
-            updateResource();
-        }
-        if (type == CgmesControlAreas.class) {
-            resource.getAttributes().setCgmesControlAreas(new CgmesControlAreasAttributes());
-            updateResource();
-        }
-        if (type == BaseVoltageMapping.class) {
-            var newMap = ((BaseVoltageMapping) extension).getBaseVoltages().entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> new BaseVoltageSourceAttribute(e.getValue().getId(), e.getValue().getNominalV(), e.getValue().getSource())));
-            resource.getAttributes().setBaseVoltageMapping(new BaseVoltageMappingAttributes(newMap));
-            updateResource();
-        }
-        super.addExtension(type, extension);
+        updateResource(res -> {
+            res.getAttributes().setConnectedComponentsValid(false);
+            res.getAttributes().setSynchronousComponentsValid(false);
+        });
     }
 
     @Override
@@ -966,7 +919,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCgmesSvMetadata() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         CgmesSvMetadataAttributes attributes = resource.getAttributes().getCgmesSvMetadata();
         if (attributes != null) {
             extension = (E) new CgmesSvMetadataImpl(this);
@@ -976,7 +929,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCgmesSshMetadata() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         CgmesSshMetadataAttributes attributes = resource.getAttributes().getCgmesSshMetadata();
         if (attributes != null) {
             extension = (E) new CgmesSshMetadataImpl(this);
@@ -986,7 +939,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCimCharacteristics() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         CimCharacteristicsAttributes attributes = resource.getAttributes().getCimCharacteristics();
         if (attributes != null) {
             extension = (E) new CimCharacteristicsImpl(this);
@@ -996,7 +949,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCgmesControlAreas() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         CgmesControlAreasAttributes attributes = resource.getAttributes().getCgmesControlAreas();
         if (attributes != null) {
             extension = (E) new CgmesControlAreasImpl(this);
@@ -1006,29 +959,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createBaseVoltageMapping() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         BaseVoltageMappingAttributes attributes = resource.getAttributes().getBaseVoltageMapping();
         if (attributes != null) {
-            extension = (E) new BaseVoltageMappingImpl(this, attributes.getBaseVoltages());
+            extension = (E) new BaseVoltageMappingImpl(this);
         }
         return extension;
-    }
-
-    public NetworkImpl initCgmesSvMetadataAttributes(String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
-        checkResource().getAttributes().setCgmesSvMetadata(new CgmesSvMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
-        updateResource();
-        return this;
-    }
-
-    public NetworkImpl initCgmesSshMetadataAttributes(String description, int sshVersion, List<String> dependencies, String modelingAuthoritySet) {
-        checkResource().getAttributes().setCgmesSshMetadata(new CgmesSshMetadataAttributes(description, sshVersion, dependencies, modelingAuthoritySet));
-        updateResource();
-        return this;
-    }
-
-    public NetworkImpl initCimCharacteristicsAttributes(CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
-        checkResource().getAttributes().setCimCharacteristics(new CimCharacteristicsAttributes(cgmesTopologyKind, cimVersion));
-        updateResource();
-        return this;
     }
 }

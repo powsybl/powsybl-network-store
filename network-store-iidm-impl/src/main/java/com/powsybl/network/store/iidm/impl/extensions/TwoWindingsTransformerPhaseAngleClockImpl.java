@@ -6,44 +6,31 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.network.store.iidm.impl.TwoWindingsTransformerImpl;
-import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class TwoWindingsTransformerPhaseAngleClockImpl implements TwoWindingsTransformerPhaseAngleClock {
+public class TwoWindingsTransformerPhaseAngleClockImpl extends AbstractExtension<TwoWindingsTransformer> implements TwoWindingsTransformerPhaseAngleClock {
 
-    private TwoWindingsTransformerImpl twoWindingsTransformer;
+    public TwoWindingsTransformerPhaseAngleClockImpl(TwoWindingsTransformerImpl twoWindingsTransformer) {
+        super(twoWindingsTransformer);
+    }
 
-    public TwoWindingsTransformerPhaseAngleClockImpl(TwoWindingsTransformerImpl twoWindingsTransformer, int phaseAngleClock) {
-        this.twoWindingsTransformer = twoWindingsTransformer;
-        this.twoWindingsTransformer.getResource().getAttributes().setPhaseAngleClockAttributes(
-                TwoWindingsTransformerPhaseAngleClockAttributes.builder()
-                        .phaseAngleClock(phaseAngleClock)
-                        .build());
+    private TwoWindingsTransformerImpl getTwoWindingsTransformer() {
+        return (TwoWindingsTransformerImpl) getExtendable();
     }
 
     @Override
     public int getPhaseAngleClock() {
-        return twoWindingsTransformer.getResource().getAttributes().getPhaseAngleClockAttributes().getPhaseAngleClock();
+        return getTwoWindingsTransformer().getResource().getAttributes().getPhaseAngleClockAttributes().getPhaseAngleClock();
     }
 
     @Override
-    public void setPhaseAngleClock(int i) {
-        twoWindingsTransformer.getResource().getAttributes().getPhaseAngleClockAttributes().setPhaseAngleClock(i);
-        twoWindingsTransformer.updateResource();
-    }
-
-    @Override
-    public TwoWindingsTransformer getExtendable() {
-        return twoWindingsTransformer;
-    }
-
-    @Override
-    public void setExtendable(TwoWindingsTransformer twoWindingsTransformer) {
-        this.twoWindingsTransformer = (TwoWindingsTransformerImpl) twoWindingsTransformer;
+    public void setPhaseAngleClock(int phaseAngleClock) {
+        getTwoWindingsTransformer().updateResource(res -> res.getAttributes().getPhaseAngleClockAttributes().setPhaseAngleClock(phaseAngleClock));
     }
 }

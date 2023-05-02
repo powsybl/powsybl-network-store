@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,14 @@ public class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, C
         if (modelingAuthoritySet == null) {
             throw new PowsyblException("cgmesSshMetadata.modelingAuthoritySet is undefined");
         }
-        return new CgmesSshMetadataImpl((NetworkImpl) network, description, sshVersion, dependencies, modelingAuthoritySet);
+        var attributes = CgmesSshMetadataAttributes.builder()
+                .description(description)
+                .sshVersion(sshVersion)
+                .dependencies(dependencies)
+                .modelingAuthoritySet(modelingAuthoritySet)
+                .build();
+        ((NetworkImpl) network).updateResource(res -> res.getAttributes().setCgmesSshMetadata(attributes));
+        return new CgmesSshMetadataImpl((NetworkImpl) network);
 
     }
 

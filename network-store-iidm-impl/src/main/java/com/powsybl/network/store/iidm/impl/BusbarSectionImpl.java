@@ -11,10 +11,8 @@ import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
-import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
 import com.powsybl.network.store.model.Resource;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -27,15 +25,9 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     protected final TerminalImpl<BusbarSectionToInjectionAdapter> terminal;
 
-    private BusbarSectionPositionImpl busbarSectionPosition;
-
     public BusbarSectionImpl(NetworkObjectIndex index, Resource<BusbarSectionAttributes> resource) {
         super(index, resource);
         terminal = TerminalImpl.create(index, new BusbarSectionToInjectionAdapter(resource.getAttributes()), this);
-        BusbarSectionPositionAttributes bspa = resource.getAttributes().getPosition();
-        if (bspa != null) {
-            busbarSectionPosition = new BusbarSectionPositionImpl(this, bspa);
-        }
     }
 
     static BusbarSectionImpl create(NetworkObjectIndex index, Resource<BusbarSectionAttributes> resource) {
@@ -48,7 +40,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
@@ -60,23 +52,21 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         return terminal;
     }
 
-    @Override
-    public <E extends Extension<BusbarSection>> void addExtension(Class<? super E> type, E extension) {
-        var resource = checkResource();
-        if (type == BusbarSectionPosition.class) {
-            busbarSectionPosition = (BusbarSectionPositionImpl) extension;
-            resource.getAttributes().setPosition(busbarSectionPosition.getBusbarSectionPositionAttributes());
-            updateResource();
-        } else {
-            super.addExtension(type, extension);
+    private <E extends Extension<BusbarSection>> E createBusbarSectionPositionExtension() {
+        E extension = null;
+        var resource = getResource();
+        var attributes = resource.getAttributes().getPosition();
+        if (attributes != null) {
+            extension = (E) new BusbarSectionPositionImpl(this);
         }
+        return extension;
     }
 
     @Override
     public <E extends Extension<BusbarSection>> E getExtension(Class<? super E> type) {
         E extension;
         if (type == BusbarSectionPosition.class) {
-            extension = (E) busbarSectionPosition;
+            extension = createBusbarSectionPositionExtension();
         } else {
             extension = super.getExtension(type);
         }
@@ -87,7 +77,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     public <E extends Extension<BusbarSection>> E getExtensionByName(String name) {
         E extension;
         if (name.equals("position")) {
-            extension = (E) busbarSectionPosition;
+            extension = createBusbarSectionPositionExtension();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -96,15 +86,12 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public <E extends Extension<BusbarSection>> Collection<E> getExtensions() {
-        Collection<E> superExtensions = super.getExtensions();
-        Collection<E> result;
-        if (busbarSectionPosition != null) {
-            result = new ArrayList<E>(superExtensions);
-            result.add((E) busbarSectionPosition);
-        } else {
-            result = superExtensions;
+        Collection<E> extensions = super.getExtensions();
+        E extension = createBusbarSectionPositionExtension();
+        if (extension != null) {
+            extensions.add(extension);
         }
-        return result;
+        return extensions;
     }
 
     @Override

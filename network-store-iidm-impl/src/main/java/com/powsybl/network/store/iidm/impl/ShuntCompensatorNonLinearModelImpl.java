@@ -8,78 +8,85 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ShuntCompensatorNonLinearModel;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorNonLinearModelAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorNonLinearSectionAttributes;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLinearModel {
 
-    static class SectionImpl implements Section {
+    class SectionImpl implements Section {
 
         private final ShuntCompensatorImpl shuntCompensator;
 
-        private final ShuntCompensatorNonLinearSectionAttributes attributes;
+        private final int index;
 
-        public SectionImpl(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorNonLinearSectionAttributes attributes) {
-            this.shuntCompensator = shuntCompensator;
-            this.attributes = attributes;
+        public SectionImpl(ShuntCompensatorImpl shuntCompensator, int index) {
+            this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
+            this.index = index;
         }
 
-        static SectionImpl create(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorNonLinearSectionAttributes attributes) {
-            return new SectionImpl(shuntCompensator, attributes);
+        private ShuntCompensatorNonLinearSectionAttributes getSectionAttributes() {
+            return getAttributes().getSections().get(index);
         }
 
         @Override
         public double getB() {
-            return attributes.getB();
+            return getSectionAttributes().getB();
         }
 
         @Override
         public Section setB(double b) {
             ValidationUtil.checkB(shuntCompensator, b);
-            attributes.setB(b);
-            shuntCompensator.updateResource();
+            shuntCompensator.updateResource(res -> getSectionAttributes().setB(b));
             return this;
         }
 
         @Override
         public double getG() {
-            return attributes.getG();
+            return getSectionAttributes().getG();
         }
 
         @Override
         public Section setG(double g) {
             ValidationUtil.checkG(shuntCompensator, g);
-            attributes.setG(g);
-            shuntCompensator.updateResource();
+            shuntCompensator.updateResource(res -> getSectionAttributes().setG(g));
             return this;
         }
     }
 
     private final ShuntCompensatorImpl shuntCompensator;
 
-    private final ShuntCompensatorNonLinearModelAttributes attributes;
-
-    public ShuntCompensatorNonLinearModelImpl(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorNonLinearModelAttributes attributes) {
-        this.shuntCompensator = shuntCompensator;
-        this.attributes = attributes;
+    public ShuntCompensatorNonLinearModelImpl(ShuntCompensatorImpl shuntCompensator) {
+        this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
     }
 
-    static ShuntCompensatorNonLinearModelImpl create(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorNonLinearModelAttributes attributes) {
-        return new ShuntCompensatorNonLinearModelImpl(shuntCompensator, attributes);
+    private Resource<ShuntCompensatorAttributes> getResource() {
+        return shuntCompensator.getResource();
     }
 
-    private SectionImpl createSection(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorNonLinearSectionAttributes attributes) {
-        return SectionImpl.create(shuntCompensator, attributes);
+    private static ShuntCompensatorNonLinearModelAttributes getAttributes(Resource<ShuntCompensatorAttributes> resource) {
+        return (ShuntCompensatorNonLinearModelAttributes) resource.getAttributes().getModel();
+    }
+
+    private ShuntCompensatorNonLinearModelAttributes getAttributes() {
+        return getAttributes(getResource());
     }
 
     @Override
     public List<Section> getAllSections() {
-        return attributes.getSections().stream().map(s -> createSection(shuntCompensator, s)).collect(Collectors.toList());
+        return IntStream.range(0, getAttributes().getSections().size())
+                .boxed()
+                .map((Function<Integer, Section>) i -> new SectionImpl(shuntCompensator, i))
+                .collect(Collectors.toList());
     }
 }

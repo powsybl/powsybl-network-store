@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.network.store.iidm.impl.HvdcLineImpl;
 
+import java.util.Objects;
+
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -20,11 +22,7 @@ public class HvdcAngleDroopActivePowerControlImpl implements HvdcAngleDroopActiv
     private HvdcLineImpl hvdcLine;
 
     public HvdcAngleDroopActivePowerControlImpl(HvdcLineImpl hvdcLine) {
-        this.hvdcLine = hvdcLine;
-    }
-
-    public HvdcAngleDroopActivePowerControlImpl(HvdcLineImpl hvdcLine, float p0, float droop, boolean enabled) {
-        this(hvdcLine.initHvdcAngleDroopActivePowerControlAttributes(p0, droop, enabled));
+        this.hvdcLine = Objects.requireNonNull(hvdcLine);
     }
 
     @Override
@@ -54,22 +52,19 @@ public class HvdcAngleDroopActivePowerControlImpl implements HvdcAngleDroopActiv
 
     @Override
     public HvdcAngleDroopActivePowerControl setP0(float p0) {
-        hvdcLine.getResource().getAttributes().getHvdcAngleDroopActivePowerControl().setP0(checkP0(p0));
-        hvdcLine.updateResource();
+        hvdcLine.updateResource(res -> res.getAttributes().getHvdcAngleDroopActivePowerControl().setP0(checkP0(p0)));
         return this;
     }
 
     @Override
     public HvdcAngleDroopActivePowerControl setDroop(float droop) {
-        hvdcLine.getResource().getAttributes().getHvdcAngleDroopActivePowerControl().setDroop(checkDroop(droop));
-        hvdcLine.updateResource();
+        hvdcLine.updateResource(res -> res.getAttributes().getHvdcAngleDroopActivePowerControl().setDroop(checkDroop(droop)));
         return this;
     }
 
     @Override
     public HvdcAngleDroopActivePowerControl setEnabled(boolean enabled) {
-        hvdcLine.getResource().getAttributes().getHvdcAngleDroopActivePowerControl().setEnabled(enabled);
-        hvdcLine.updateResource();
+        hvdcLine.updateResource(res -> res.getAttributes().getHvdcAngleDroopActivePowerControl().setEnabled(enabled));
         return this;
     }
 

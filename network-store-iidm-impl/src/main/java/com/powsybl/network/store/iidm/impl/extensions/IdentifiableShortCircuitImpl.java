@@ -10,38 +10,50 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.network.store.iidm.impl.VoltageLevelImpl;
+import com.powsybl.network.store.model.IdentifiableShortCircuitAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class IdentifiableShortCircuitImpl<I extends Identifiable<I>> extends AbstractExtension<I> implements IdentifiableShortCircuit<I> {
 
-    public IdentifiableShortCircuitImpl(I extendable, double ipMin, double ipMax) {
+    public IdentifiableShortCircuitImpl(I extendable) {
         super(extendable);
-        ((VoltageLevelImpl) extendable).initIdentifiableShortCircuitAttributes(ipMin, ipMax);
+    }
+
+    private VoltageLevelImpl getVoltageLevel() {
+        return (VoltageLevelImpl) getExtendable();
+    }
+
+    private static IdentifiableShortCircuitAttributes getAttributes(Resource<VoltageLevelAttributes> resource) {
+        return resource.getAttributes().getIdentifiableShortCircuitAttributes();
+    }
+
+    private IdentifiableShortCircuitAttributes getAttributes() {
+        return getAttributes(getVoltageLevel().getResource());
     }
 
     @Override
     public double getIpMin() {
-        return ((VoltageLevelImpl) getExtendable()).getResource().getAttributes().getIdentifiableShortCircuitAttributes().getIpMin();
+        return getAttributes().getIpMin();
     }
 
     @Override
     public IdentifiableShortCircuit<I> setIpMin(double ipMin) {
-        ((VoltageLevelImpl) getExtendable()).getResource().getAttributes().getIdentifiableShortCircuitAttributes()
-                .setIpMin(ipMin);
+        getVoltageLevel().updateResource(res -> getAttributes(res).setIpMin(ipMin));
         return this;
     }
 
     @Override
     public double getIpMax() {
-        return ((VoltageLevelImpl) getExtendable()).getResource().getAttributes().getIdentifiableShortCircuitAttributes().getIpMax();
+        return getAttributes().getIpMax();
     }
 
     @Override
     public IdentifiableShortCircuit<I> setIpMax(double ipMax) {
-        ((VoltageLevelImpl) getExtendable()).getResource().getAttributes().getIdentifiableShortCircuitAttributes()
-                .setIpMax(ipMax);
+        getVoltageLevel().updateResource(res -> getAttributes(res).setIpMax(ipMax));
         return this;
     }
 }

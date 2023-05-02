@@ -6,120 +6,112 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.network.store.model.ConnectableDirection;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
-public class ConnectablePositionImpl<C extends Connectable<C>>
+public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractExtension<C>
         implements ConnectablePosition<C> {
 
-    C connectable;
+    public class FeederImpl implements Feeder {
 
-    @Override
-    public C getExtendable() {
-        return connectable;
-    }
+        private final Function<Connectable<C>, ConnectablePositionAttributes> getter;
 
-    @Override
-    public void setExtendable(C connectable) {
-        this.connectable = connectable;
-    }
-
-    public static class FeederImpl implements Feeder {
-
-        private ConnectablePositionAttributes cpa;
-
-        public FeederImpl(ConnectablePositionAttributes cpa) {
-            this.cpa = cpa;
+        public FeederImpl(Function<Connectable<C>, ConnectablePositionAttributes> getter) {
+            this.getter = Objects.requireNonNull(getter);
         }
 
-        public ConnectablePositionAttributes getConnectablePositionAttributes() {
-            return cpa;
+        private ConnectablePositionAttributes getAttributes() {
+            return getter.apply(getExtendable());
         }
 
         @Override
         public Optional<String> getName() {
-            return Optional.ofNullable(cpa.getLabel());
+            return Optional.ofNullable(getAttributes().getLabel());
         }
 
         @Override
         public Feeder setName(String name) {
-            cpa.setLabel(Objects.requireNonNull(name));
+            getAttributes().setLabel(Objects.requireNonNull(name));
             return this;
         }
 
         @Override
         public Optional<Integer> getOrder() {
-            return Optional.ofNullable(cpa.getOrder());
+            return Optional.ofNullable(getAttributes().getOrder());
         }
 
         @Override
         public Feeder removeOrder() {
-            cpa.setOrder(null);
+            getAttributes().setOrder(null);
             return this;
         }
 
         @Override
         public Feeder setOrder(int order) {
-            cpa.setOrder(order);
+            getAttributes().setOrder(order);
             return this;
         }
 
         @Override
         public Direction getDirection() {
-            return Direction.valueOf(cpa.getDirection().name());
+            return Direction.valueOf(getAttributes().getDirection().name());
         }
 
         @Override
         public Feeder setDirection(Direction direction) {
-            cpa.setDirection(ConnectableDirection.valueOf(Objects.requireNonNull(direction).name()));
+            getAttributes().setDirection(Direction.valueOf(Objects.requireNonNull(direction).name()));
             return this;
         }
     }
 
-    private FeederImpl feeder;
-    private FeederImpl feeder1;
-    private FeederImpl feeder2;
-    private FeederImpl feeder3;
+    private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter;
+    private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter1;
+    private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter2;
+    private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter3;
 
     public ConnectablePositionImpl(C connectable,
-            FeederImpl feeder,
-            FeederImpl feeder1,
-            FeederImpl feeder2,
-            FeederImpl feeder3) {
-        ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
-        this.connectable = connectable;
-        this.feeder = feeder;
-        this.feeder1 = feeder1;
-        this.feeder2 = feeder2;
-        this.feeder3 = feeder3;
+                                   Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter,
+                                   Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter1,
+                                   Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter2,
+                                   Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter3) {
+        super(connectable);
+        this.positionAttributesGetter = positionAttributesGetter;
+        this.positionAttributesGetter1 = positionAttributesGetter1;
+        this.positionAttributesGetter2 = positionAttributesGetter2;
+        this.positionAttributesGetter3 = positionAttributesGetter3;
+    }
+
+    private FeederImpl getFeeder(Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter) {
+        return (positionAttributesGetter != null && positionAttributesGetter.apply(getExtendable()) != null) ?
+                new FeederImpl(positionAttributesGetter) : null;
     }
 
     @Override
     public FeederImpl getFeeder() {
-        return feeder;
+        return getFeeder(positionAttributesGetter);
     }
 
     @Override
     public FeederImpl getFeeder1() {
-        return feeder1;
+        return getFeeder(positionAttributesGetter1);
     }
 
     @Override
     public FeederImpl getFeeder2() {
-        return feeder2;
+        return getFeeder(positionAttributesGetter2);
     }
 
     @Override
     public FeederImpl getFeeder3() {
-        return feeder3;
+        return getFeeder(positionAttributesGetter3);
     }
-
 }

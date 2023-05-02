@@ -86,7 +86,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public String getId() {
-            var resource = checkResource();
+            var resource = getResource();
             return one ? resource.getAttributes().getMergedXnode().getLine1Name()
                        : resource.getAttributes().getMergedXnode().getLine2Name();
         }
@@ -98,7 +98,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public double getR() {
-            var resource = checkResource();
+            var resource = getResource();
             return TieLineImpl.this.getR() * (one ? resource.getAttributes().getMergedXnode().getRdp() : 1 - resource.getAttributes().getMergedXnode().getRdp());
         }
 
@@ -109,7 +109,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public double getX() {
-            var resource = checkResource();
+            var resource = getResource();
             return TieLineImpl.this.getX() * (one ? resource.getAttributes().getMergedXnode().getXdp() : 1 - resource.getAttributes().getMergedXnode().getXdp());
         }
 
@@ -166,7 +166,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public String getUcteXnodeCode() {
-        return checkResource().getAttributes().getMergedXnode().getCode();
+        return getResource().getAttributes().getMergedXnode().getCode();
     }
 
     @Override

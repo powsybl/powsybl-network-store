@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.network.store.iidm.impl.HvdcLineImpl;
 
+import java.util.Objects;
+
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -22,11 +24,7 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractExtension<HvdcLine
     private HvdcLineImpl hvdcLine;
 
     public HvdcOperatorActivePowerRangeImpl(HvdcLineImpl hvdcLine) {
-        this.hvdcLine = hvdcLine;
-    }
-
-    public HvdcOperatorActivePowerRangeImpl(HvdcLineImpl hvdcLine, float oprFromCS1toCS2, float oprFromCS2toCS1) {
-        this(hvdcLine.initHvdcOperatorActivePowerRangeAttributes(oprFromCS1toCS2, oprFromCS2toCS1));
+        this.hvdcLine = Objects.requireNonNull(hvdcLine);
     }
 
     @Override
@@ -51,15 +49,13 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractExtension<HvdcLine
 
     @Override
     public HvdcOperatorActivePowerRangeImpl setOprFromCS1toCS2(float oprFromCS1toCS2) {
-        hvdcLine.getResource().getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS1toCS2(checkOPR(oprFromCS1toCS2, getExtendable().getConverterStation1(), getExtendable().getConverterStation2()));
-        hvdcLine.updateResource();
+        hvdcLine.updateResource(res -> res.getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS1toCS2(checkOPR(oprFromCS1toCS2, getExtendable().getConverterStation1(), getExtendable().getConverterStation2())));
         return this;
     }
 
     @Override
     public HvdcOperatorActivePowerRangeImpl setOprFromCS2toCS1(float oprFromCS2toCS1) {
-        hvdcLine.getResource().getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS2toCS1(checkOPR(oprFromCS2toCS1, getExtendable().getConverterStation1(), getExtendable().getConverterStation2()));
-        hvdcLine.updateResource();
+        hvdcLine.updateResource(res -> res.getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS2toCS1(checkOPR(oprFromCS2toCS1, getExtendable().getConverterStation1(), getExtendable().getConverterStation2())));
         return this;
     }
 

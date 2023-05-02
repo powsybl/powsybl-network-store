@@ -7,7 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.ValidationLevel;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.network.store.iidm.impl.extensions.LoadDetailImpl;
 import com.powsybl.network.store.model.LoadAttributes;
@@ -37,67 +40,52 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public LoadType getLoadType() {
-        return checkResource().getAttributes().getLoadType();
+        return getResource().getAttributes().getLoadType();
     }
 
     @Override
     public Load setLoadType(LoadType loadType) {
-        var resource = checkResource();
         ValidationUtil.checkLoadType(this, loadType);
-        LoadType oldValue = resource.getAttributes().getLoadType();
-        resource.getAttributes().setLoadType(loadType);
-        updateResource();
-        index.notifyUpdate(this, "loadType", oldValue, loadType);
+        LoadType oldValue = getResource().getAttributes().getLoadType();
+        if (loadType != oldValue) {
+            updateResource(r -> r.getAttributes().setLoadType(loadType));
+            index.notifyUpdate(this, "loadType", oldValue, loadType);
+        }
         return this;
     }
 
     @Override
     public double getP0() {
-        return checkResource().getAttributes().getP0();
+        return getResource().getAttributes().getP0();
     }
 
     @Override
     public Load setP0(double p0) {
         ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        var resource = checkResource();
-        double oldValue = resource.getAttributes().getP0();
-        resource.getAttributes().setP0(p0);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "p0", variantId, oldValue, p0);
+        double oldValue = getResource().getAttributes().getP0();
+        if (p0 != oldValue) {
+            updateResource(r -> r.getAttributes().setP0(p0));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "p0", variantId, oldValue, p0);
+        }
         return this;
     }
 
     @Override
     public double getQ0() {
-        return checkResource().getAttributes().getQ0();
+        return getResource().getAttributes().getQ0();
     }
 
     @Override
     public Load setQ0(double q0) {
-        var resource = checkResource();
         ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = resource.getAttributes().getQ0();
-        resource.getAttributes().setQ0(q0);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "q0", variantId, oldValue, q0);
-        return this;
-    }
-
-    @Override
-    public <E extends Extension<Load>> void addExtension(Class<? super E> type, E extension) {
-        if (type == LoadDetail.class) {
-            LoadDetail loadDetail = (LoadDetail) extension;
-            checkResource().getAttributes().setLoadDetail(
-                    LoadDetailAttributes.builder()
-                            .fixedActivePower(loadDetail.getFixedActivePower())
-                            .fixedReactivePower(loadDetail.getFixedReactivePower())
-                            .variableActivePower(loadDetail.getVariableActivePower())
-                            .variableReactivePower(loadDetail.getVariableReactivePower())
-                            .build());
+        double oldValue = getResource().getAttributes().getQ0();
+        if (q0 != oldValue) {
+            updateResource(r -> r.getAttributes().setQ0(q0));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "q0", variantId, oldValue, q0);
         }
-        super.addExtension(type, extension);
+        return this;
     }
 
     @Override
@@ -130,22 +118,16 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     private <E extends Extension<Load>> E createLoadDetail() {
         E extension = null;
-        LoadDetailAttributes attributes = checkResource().getAttributes().getLoadDetail();
+        LoadDetailAttributes attributes = getResource().getAttributes().getLoadDetail();
         if (attributes != null) {
             extension = (E) new LoadDetailImpl(this);
         }
         return extension;
     }
 
-    public LoadImpl initLoadDetailAttributes(double fixedActivePower, double fixedReactivePower, double variableActivePower, double variableReactivePower) {
-        checkResource().getAttributes().setLoadDetail(new LoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
-        updateResource();
-        return this;
-    }
-
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());

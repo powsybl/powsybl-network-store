@@ -11,21 +11,20 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BranchStatus;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ConnectablePosition.Feeder;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
-import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
 import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer, ConnectablePositionCreator<ThreeWindingsTransformer> {
+public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer {
 
     private final TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> terminal1;
 
@@ -39,30 +38,31 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private final LegImpl leg3;
 
-    private ConnectablePositionImpl<ThreeWindingsTransformer> connectablePositionExtension;
-
-    private BranchStatus<ThreeWindingsTransformer> branchStatusExtension;
-
     static class LegImpl implements Leg, LimitsOwner<Void>, TapChangerParent {
-
-        private final LegAttributes attributes;
 
         private final ThreeWindingsTransformerImpl transformer;
 
+        private final Function<ThreeWindingsTransformerAttributes, LegAttributes> legGetter;
+
         private final NetworkObjectIndex index;
 
-        public LegImpl(NetworkObjectIndex index, LegAttributes attributes, ThreeWindingsTransformerImpl transformer) {
-            this.attributes = attributes;
+        public LegImpl(ThreeWindingsTransformerImpl transformer, Function<ThreeWindingsTransformerAttributes, LegAttributes> legGetter, NetworkObjectIndex index) {
             this.transformer = transformer;
+            this.legGetter = legGetter;
             this.index = index;
         }
 
+        private LegAttributes getLegAttributes() {
+            return legGetter.apply(transformer.getResource().getAttributes());
+        }
+
         protected String getLegAttribute() {
-            return String.format("leg%d", attributes.getLegNumber());
+            return String.format("leg%d", getLegAttributes().getLegNumber());
         }
 
         @Override
         public TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> getTerminal() {
+            var attributes = getLegAttributes();
             if (attributes.getLegNumber() == 1) {
                 return transformer.terminal1;
             } else if (attributes.getLegNumber() == 2) {
@@ -76,7 +76,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public double getR() {
-            return attributes.getR();
+            return getLegAttributes().getR();
         }
 
         @Override
@@ -84,16 +84,17 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             if (Double.isNaN(r)) {
                 throw new ValidationException(this, "r is invalid");
             }
-            double oldValue = attributes.getR();
-            attributes.setR(r);
-            transformer.updateResource();
-            index.notifyUpdate(transformer, getLegAttribute() + ".r", oldValue, r);
+            double oldValue = getLegAttributes().getR();
+            if (r != oldValue) {
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setR(r));
+                index.notifyUpdate(transformer, getLegAttribute() + ".r", oldValue, r);
+            }
             return this;
         }
 
         @Override
         public double getX() {
-            return attributes.getX();
+            return getLegAttributes().getX();
         }
 
         @Override
@@ -101,16 +102,17 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             if (Double.isNaN(x)) {
                 throw new ValidationException(this, "x is invalid");
             }
-            double oldValue = attributes.getX();
-            attributes.setX(x);
-            transformer.updateResource();
-            index.notifyUpdate(transformer, getLegAttribute() + ".x", oldValue, x);
+            double oldValue = getLegAttributes().getX();
+            if (x != oldValue) {
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setX(x));
+                index.notifyUpdate(transformer, getLegAttribute() + ".x", oldValue, x);
+            }
             return this;
         }
 
         @Override
         public double getG() {
-            return attributes.getG();
+            return getLegAttributes().getG();
         }
 
         @Override
@@ -118,16 +120,17 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             if (Double.isNaN(g)) {
                 throw new ValidationException(this, "g is invalid");
             }
-            double oldValue = attributes.getG();
-            attributes.setG(g);
-            transformer.updateResource();
-            index.notifyUpdate(transformer, getLegAttribute() + ".g", oldValue, g);
+            double oldValue = getLegAttributes().getG();
+            if (g != oldValue) {
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setG(g));
+                index.notifyUpdate(transformer, getLegAttribute() + ".g", oldValue, g);
+            }
             return this;
         }
 
         @Override
         public double getB() {
-            return attributes.getB();
+            return getLegAttributes().getB();
         }
 
         @Override
@@ -135,25 +138,27 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             if (Double.isNaN(b)) {
                 throw new ValidationException(this, "b is invalid");
             }
-            double oldValue = attributes.getB();
-            attributes.setB(b);
-            transformer.updateResource();
-            index.notifyUpdate(transformer, getLegAttribute() + ".b", oldValue, b);
+            double oldValue = getLegAttributes().getB();
+            if (b != oldValue) {
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setB(b));
+                index.notifyUpdate(transformer, getLegAttribute() + ".b", oldValue, b);
+            }
             return this;
         }
 
         @Override
         public double getRatedU() {
-            return attributes.getRatedU();
+            return getLegAttributes().getRatedU();
         }
 
         @Override
         public Leg setRatedU(double ratedU) {
             ValidationUtil.checkRatedU(this, ratedU, "");
-            double oldValue = attributes.getRatedU();
-            attributes.setRatedU(ratedU);
-            transformer.updateResource();
-            index.notifyUpdate(transformer, "ratedU", oldValue, ratedU);
+            double oldValue = getLegAttributes().getRatedU();
+            if (ratedU != oldValue) {
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatedU(ratedU));
+                index.notifyUpdate(transformer, "ratedU", oldValue, ratedU);
+            }
             return this;
         }
 
@@ -164,6 +169,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public CurrentLimits getNullableCurrentLimits() {
+            var attributes = getLegAttributes();
             return attributes.getCurrentLimitsAttributes() != null
                     ? new CurrentLimitsImpl(this, attributes.getCurrentLimitsAttributes())
                     : null;
@@ -176,6 +182,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public ApparentPowerLimits getNullableApparentPowerLimits() {
+            var attributes = getLegAttributes();
             return attributes.getApparentPowerLimitsAttributes() != null
                     ? new ApparentPowerLimitsImpl(this, attributes.getApparentPowerLimitsAttributes())
                     : null;
@@ -188,6 +195,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public ActivePowerLimits getNullableActivePowerLimits() {
+            var attributes = getLegAttributes();
             return attributes.getActivePowerLimitsAttributes() != null
                     ? new ActivePowerLimitsImpl(this, attributes.getActivePowerLimitsAttributes())
                     : null;
@@ -210,28 +218,31 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public PhaseTapChangerAdder newPhaseTapChanger() {
-            return new PhaseTapChangerAdderImpl(this, index, attributes);
+            return new PhaseTapChangerAdderImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes));
         }
 
         @Override
         public RatioTapChangerAdder newRatioTapChanger() {
-            return new RatioTapChangerAdderImpl(this, index, attributes);
+            return new RatioTapChangerAdderImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes));
         }
 
         @Override
         public PhaseTapChanger getPhaseTapChanger() {
-            return attributes.getPhaseTapChangerAttributes() != null ? new PhaseTapChangerImpl(this, index, attributes.getPhaseTapChangerAttributes()) : null;
+            return getLegAttributes().getPhaseTapChangerAttributes() != null
+                    ? new PhaseTapChangerImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes))
+                    : null;
         }
 
         @Override
         public RatioTapChanger getRatioTapChanger() {
-            return attributes.getRatioTapChangerAttributes() != null ? new RatioTapChangerImpl(this, index, attributes.getRatioTapChangerAttributes()) : null;
+            return getLegAttributes().getRatioTapChangerAttributes() != null
+                    ? new RatioTapChangerImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes))
+                    : null;
         }
 
         @Override
         public void setCurrentLimits(Void side, LimitsAttributes currentLimitsAttributes) {
-            this.attributes.setCurrentLimitsAttributes(currentLimitsAttributes);
-            transformer.updateResource();
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setCurrentLimitsAttributes(currentLimitsAttributes));
         }
 
         @Override
@@ -241,32 +252,33 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public void setApparentPowerLimits(Void side, LimitsAttributes apparentPowerLimitsAttributes) {
-            this.attributes.setApparentPowerLimitsAttributes(apparentPowerLimitsAttributes);
+            getLegAttributes().setApparentPowerLimitsAttributes(apparentPowerLimitsAttributes);
         }
 
         @Override
         public void setActivePowerLimits(Void side, LimitsAttributes activePowerLimitsAttributes) {
-            this.attributes.setActivePowerLimitsAttributes(activePowerLimitsAttributes);
+            getLegAttributes().setActivePowerLimitsAttributes(activePowerLimitsAttributes);
         }
 
         @Override
         public double getRatedS() {
-            return attributes.getRatedS();
+            return getLegAttributes().getRatedS();
         }
 
         @Override
         public Leg setRatedS(double ratedS) {
             ValidationUtil.checkRatedS(this, ratedS);
-            double oldValue = attributes.getRatedS();
-            attributes.setRatedS(ratedS);
-            transformer.updateResource();
-            index.notifyUpdate(transformer, "ratedS", oldValue, ratedS);
+            double oldValue = getLegAttributes().getRatedS();
+            if (ratedS != oldValue) {
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatedS(ratedS));
+                index.notifyUpdate(transformer, "ratedS", oldValue, ratedS);
+            }
             return this;
         }
 
         @Override
         public String getMessageHeader() {
-            return "3 windings transformer leg" + attributes.getLegNumber() + " '" + transformer.getId() + "': ";
+            return "3 windings transformer leg" + getLegAttributes().getLegNumber() + " '" + transformer.getId() + "': ";
         }
 
         @Override
@@ -281,7 +293,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public String getTapChangerAttribute() {
-            return String.format("TapChanger%d", attributes.getLegNumber());
+            return String.format("TapChanger%d", getLegAttributes().getLegNumber());
         }
 
         @Override
@@ -304,23 +316,13 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     ThreeWindingsTransformerImpl(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
         super(index, resource);
 
-        leg1 = new LegImpl(index, resource.getAttributes().getLeg1(), this);
-        leg2 = new LegImpl(index, resource.getAttributes().getLeg2(), this);
-        leg3 = new LegImpl(index, resource.getAttributes().getLeg3(), this);
+        leg1 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg1, index);
+        leg2 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg2, index);
+        leg3 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg3, index);
 
         terminal1 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg1, resource.getAttributes(), Side.ONE), this);
         terminal2 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg2, resource.getAttributes(), Side.TWO), this);
         terminal3 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg3, resource.getAttributes(), Side.THREE), this);
-
-        ConnectablePositionAttributes cpa1 = resource.getAttributes().getPosition1();
-        ConnectablePositionAttributes cpa2 = resource.getAttributes().getPosition2();
-        ConnectablePositionAttributes cpa3 = resource.getAttributes().getPosition3();
-        if (cpa1 != null && cpa2 != null && cpa3 != null) {
-            connectablePositionExtension = new ConnectablePositionImpl<>(this, null,
-                    new ConnectablePositionImpl.FeederImpl(cpa1),
-                    new ConnectablePositionImpl.FeederImpl(cpa2),
-                    new ConnectablePositionImpl.FeederImpl(cpa3));
-        }
     }
 
     static ThreeWindingsTransformerImpl create(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
@@ -381,7 +383,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public double getRatedU0() {
-        return checkResource().getAttributes().getRatedU0();
+        return getResource().getAttributes().getRatedU0();
     }
 
     @Override
@@ -391,7 +393,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
@@ -399,74 +401,37 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         index.notifyAfterRemoval(resource.getId());
     }
 
-    public BranchStatus.Status getBranchStatus() {
-        return BranchStatus.Status.valueOf(checkResource().getAttributes().getBranchStatus());
-    }
-
-    public ThreeWindingsTransformer setBranchStatus(BranchStatus.Status branchStatus) {
-        Objects.requireNonNull(branchStatus);
-        checkResource().getAttributes().setBranchStatus(branchStatus.name());
-        updateResource();
-        return this;
-    }
-
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
-        var resource = checkResource();
-        if (type == ConnectablePosition.class) {
-            connectablePositionExtension = (ConnectablePositionImpl<ThreeWindingsTransformer>) extension;
-            resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
-            resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
-            resource.getAttributes().setPosition3(connectablePositionExtension.getFeeder3().getConnectablePositionAttributes());
-            updateResource();
-        } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
-            resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg2());
-            resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg3(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg3());
-            updateResource();
-        } else if (type == BranchStatus.class) {
-            BranchStatus branchStatus = (BranchStatus) extension;
-            setBranchStatus(branchStatus.getStatus());
-        } else if (type == CgmesTapChangers.class) {
+        var resource = getResource();
+        if (type == CgmesTapChangers.class) {
             resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
         } else {
             super.addExtension(type, extension);
         }
     }
 
-    @Override
-    public ConnectablePositionImpl<ThreeWindingsTransformer> createConnectablePositionExtension(Feeder feeder,
-                                                                                                Feeder feeder1, Feeder feeder2, Feeder feeder3) {
-        Objects.requireNonNull(feeder3);
-        ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
-        ConnectablePositionAttributes cpa1 = ConnectablePositionAttributes.builder()
-                .label(feeder1.getName().orElse(null))
-                .order(feeder1.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
-                .build();
-        ConnectablePositionAttributes cpa2 = ConnectablePositionAttributes.builder()
-                .label(feeder2.getName().orElse(null))
-                .order(feeder2.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
-                .build();
-        ConnectablePositionAttributes cpa3 = ConnectablePositionAttributes.builder()
-                .label(feeder3.getName().orElse(null))
-                .order(feeder3.getOrder().orElse(null))
-                .direction(ConnectableDirection.valueOf(feeder3.getDirection().name()))
-                .build();
-        return new ConnectablePositionImpl<>(this,
+    private <E extends Extension<ThreeWindingsTransformer>> E createConnectablePositionExtension() {
+        E extension = null;
+        var resource = getResource();
+        if (resource.getAttributes().getPosition1() != null
+                || resource.getAttributes().getPosition2() != null
+                || resource.getAttributes().getPosition3() != null) {
+            return (E) new ConnectablePositionImpl<>(this,
                 null,
-                new ConnectablePositionImpl.FeederImpl(cpa1),
-                new ConnectablePositionImpl.FeederImpl(cpa2),
-                new ConnectablePositionImpl.FeederImpl(cpa3)
-        );
+                connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition1(),
+                connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition2(),
+                connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition3());
+        }
+        return extension;
     }
 
     private <E extends Extension<ThreeWindingsTransformer>> E createBranchStatusExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         String branchStatus = resource.getAttributes().getBranchStatus();
         if (branchStatus != null) {
-            extension = (E) new BranchStatusImpl(this, BranchStatus.Status.valueOf(branchStatus));
+            extension = (E) new BranchStatusImpl(this);
         }
         return extension;
     }
@@ -475,7 +440,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     public <E extends Extension<ThreeWindingsTransformer>> E getExtension(Class<? super E> type) {
         E extension;
         if (type == ConnectablePosition.class) {
-            extension = (E) connectablePositionExtension;
+            extension = createConnectablePositionExtension();
         } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
             extension = createPhaseAngleClock();
         } else if (type == BranchStatus.class) {
@@ -492,7 +457,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     public <E extends Extension<ThreeWindingsTransformer>> E getExtensionByName(String name) {
         E extension;
         if (name.equals(ConnectablePosition.NAME)) {
-            extension = (E) connectablePositionExtension;
+            extension = createConnectablePositionExtension();
         } else if (name.equals(ThreeWindingsTransformerPhaseAngleClock.NAME)) {
             extension = createPhaseAngleClock();
         } else if (name.equals(BranchStatus.NAME)) {
@@ -509,10 +474,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     public <E extends Extension<ThreeWindingsTransformer>> Collection<E> getExtensions() {
         Collection<E> superExtensions = super.getExtensions();
         Collection<E> result = new ArrayList<>(superExtensions);
-        if (connectablePositionExtension != null) {
-            result.add((E) connectablePositionExtension);
+        E extension = createConnectablePositionExtension();
+        if (extension != null) {
+            result.add(extension);
         }
-        E extension = createPhaseAngleClock();
+        extension = createPhaseAngleClock();
         if (extension != null) {
             result.add(extension);
         }
@@ -529,23 +495,17 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private <E extends Extension<ThreeWindingsTransformer>> E createPhaseAngleClock() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock = resource.getAttributes().getPhaseAngleClock();
         if (phaseAngleClock != null) {
-            extension = (E) new ThreeWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClock.getPhaseAngleClockLeg2(), phaseAngleClock.getPhaseAngleClockLeg3());
+            extension = (E) new ThreeWindingsTransformerPhaseAngleClockImpl(this);
         }
         return extension;
     }
 
-    public ThreeWindingsTransformerImpl initPhaseAngleClockAttributes(int phaseAngleClockLeg2, int phaseAngleClockLeg3) {
-        checkResource().getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3));
-        updateResource();
-        return this;
-    }
-
     private <E extends Extension<ThreeWindingsTransformer>> E createCgmesTapChangers() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
             extension = (E) new CgmesTapChangersImpl(this);
         }

@@ -38,7 +38,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).checkResource();
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
     }
 
     private boolean isNodeBeakerTopologyKind() {
@@ -65,7 +65,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getBus() {
-        ((AbstractIdentifiableImpl) connectable).checkResource();
+        ((AbstractIdentifiableImpl) connectable).getResource();
         if (isNodeBeakerTopologyKind()) { // calculated bus
             return calculateBus();
         } else {  // configured bus
@@ -76,7 +76,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getConnectableBus() {
-        ((AbstractIdentifiableImpl) connectable).checkResource();
+        ((AbstractIdentifiableImpl) connectable).getResource();
         if (isBusBeakerTopologyKind()) { // Configured bus
             String busId = attributes.getConnectableBus();
             return index.getConfiguredBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND));
@@ -115,7 +115,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     @Override
     public void moveConnectable(String busId, boolean connected) {
         Objects.requireNonNull(busId);
-        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+        if (((AbstractIdentifiableImpl) connectable).getOptionalResource().isEmpty()) {
             throw new PowsyblException("Cannot modify removed equipment");
         }
         Bus bus = index.getNetwork().getBusBreakerView().getBus(busId);

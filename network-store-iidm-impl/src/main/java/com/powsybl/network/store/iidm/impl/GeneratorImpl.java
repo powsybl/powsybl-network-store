@@ -46,57 +46,58 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public EnergySource getEnergySource() {
-        return checkResource().getAttributes().getEnergySource();
+        return getResource().getAttributes().getEnergySource();
     }
 
     @Override
     public Generator setEnergySource(EnergySource energySource) {
-        var resource = checkResource();
         ValidationUtil.checkEnergySource(this, energySource);
-        EnergySource oldValue = resource.getAttributes().getEnergySource();
-        resource.getAttributes().setEnergySource(energySource);
-        updateResource();
-        index.notifyUpdate(this, "energySource", oldValue.toString(), energySource.toString());
+        EnergySource oldValue = getResource().getAttributes().getEnergySource();
+        if (energySource != oldValue) {
+            updateResource(res -> res.getAttributes().setEnergySource(energySource));
+            index.notifyUpdate(this, "energySource", oldValue.toString(), energySource.toString());
+        }
         return this;
     }
 
     @Override
     public double getMaxP() {
-        return checkResource().getAttributes().getMaxP();
+        return getResource().getAttributes().getMaxP();
     }
 
     @Override
     public Generator setMaxP(double maxP) {
-        var resource = checkResource();
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP);
-        double oldValue = resource.getAttributes().getMaxP();
-        resource.getAttributes().setMaxP(maxP);
-        updateResource();
-        index.notifyUpdate(this, "maxP", oldValue, maxP);
+        double oldValue = getResource().getAttributes().getMaxP();
+        if (maxP != oldValue) {
+            updateResource(res -> res.getAttributes().setMaxP(maxP));
+            index.notifyUpdate(this, "maxP", oldValue, maxP);
+        }
         return this;
     }
 
     @Override
     public double getMinP() {
-        return checkResource().getAttributes().getMinP();
+        return getResource().getAttributes().getMinP();
     }
 
     @Override
     public Generator setMinP(double minP) {
-        var resource = checkResource();
+        var resource = getResource();
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkActivePowerLimits(this, minP, getMaxP());
         double oldValue = resource.getAttributes().getMinP();
-        resource.getAttributes().setMinP(minP);
-        updateResource();
-        index.notifyUpdate(this, "minP", oldValue, minP);
+        if (minP != oldValue) {
+            updateResource(res -> res.getAttributes().setMinP(minP));
+            index.notifyUpdate(this, "minP", oldValue, minP);
+        }
         return this;
     }
 
     @Override
     public void remove() {
-        var resource = checkResource();
+        var resource = getResource();
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
@@ -106,24 +107,24 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return checkResource().getAttributes().isVoltageRegulatorOn();
+        return getResource().getAttributes().isVoltageRegulatorOn();
     }
 
     @Override
     public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
-        resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        boolean oldValue = getResource().getAttributes().isVoltageRegulatorOn();
+        if (voltageRegulatorOn != oldValue) {
+            updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        }
         return this;
     }
 
     @Override
     public Terminal getRegulatingTerminal() {
-        var resource = checkResource();
+        var resource = getResource();
         TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
         return regulatingTerminal != null ? regulatingTerminal : terminal;
@@ -131,92 +132,89 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
-        var resource = checkResource();
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        TerminalRefAttributes oldValue = resource.getAttributes().getRegulatingTerminal();
-        resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
-        updateResource();
+        TerminalRefAttributes oldValue = getResource().getAttributes().getRegulatingTerminal();
+        updateResource(res -> res.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
         index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return this;
     }
 
     @Override
     public double getTargetV() {
-        return checkResource().getAttributes().getTargetV();
+        return getResource().getAttributes().getTargetV();
     }
 
     @Override
     public Generator setTargetV(double targetV) {
-        var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = resource.getAttributes().getTargetV();
-        resource.getAttributes().setTargetV(targetV);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
+        double oldValue = getResource().getAttributes().getTargetV();
+        if (Double.compare(targetV, oldValue) != 0) { // could be nan
+            updateResource(res -> res.getAttributes().setTargetV(targetV));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
+        }
         return this;
     }
 
     @Override
     public double getTargetP() {
-        return checkResource().getAttributes().getTargetP();
+        return getResource().getAttributes().getTargetP();
     }
 
     @Override
     public Generator setTargetP(double targetP) {
-        var resource = checkResource();
         ValidationUtil.checkActivePowerSetpoint(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = resource.getAttributes().getTargetP();
-        resource.getAttributes().setTargetP(targetP);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "targetP", variantId, oldValue, targetP);
+        double oldValue = getResource().getAttributes().getTargetP();
+        if (targetP != oldValue) {
+            updateResource(res -> res.getAttributes().setTargetP(targetP));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "targetP", variantId, oldValue, targetP);
+        }
         return this;
     }
 
     @Override
     public double getTargetQ() {
-        return checkResource().getAttributes().getTargetQ();
+        return getResource().getAttributes().getTargetQ();
     }
 
     @Override
     public Generator setTargetQ(double targetQ) {
-        var resource = checkResource();
+        var resource = getResource();
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getTargetV(), targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getTargetQ();
-        resource.getAttributes().setTargetQ(targetQ);
-        updateResource();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
+        if (Double.compare(targetQ, oldValue) != 0) { // could be nan
+            updateResource(res -> res.getAttributes().setTargetQ(targetQ));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
+        }
         return this;
     }
 
     @Override
     public double getRatedS() {
-        return checkResource().getAttributes().getRatedS();
+        return getResource().getAttributes().getRatedS();
     }
 
     @Override
     public Generator setRatedS(double ratedS) {
-        var resource = checkResource();
         ValidationUtil.checkRatedS(this, ratedS);
-        double oldValue = resource.getAttributes().getRatedS();
-        resource.getAttributes().setRatedS(ratedS);
-        updateResource();
-        index.notifyUpdate(this, "ratedS", oldValue, ratedS);
+        double oldValue = getResource().getAttributes().getRatedS();
+        if (Double.compare(ratedS, oldValue) != 0) { // could be nan
+            updateResource(res -> res.getAttributes().setRatedS(ratedS));
+            index.notifyUpdate(this, "ratedS", oldValue, ratedS);
+        }
         return this;
     }
 
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
-        var resource = checkResource();
-        resource.getAttributes().setReactiveLimits(reactiveLimits);
-        updateResource();
+        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
     }
 
     @Override
     public ReactiveLimits getReactiveLimits() {
-        var resource = checkResource();
+        var resource = getResource();
         ReactiveLimitsAttributes reactiveLimitsAttributes = resource.getAttributes().getReactiveLimits();
         if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
             return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
@@ -241,120 +239,70 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this);
-    }
-
-    @Override
-    public <E extends Extension<Generator>> void addExtension(Class<? super E> type, E extension) {
-        super.addExtension(type, extension);
-        var resource = checkResource();
-        if (type == ActivePowerControl.class) {
-            ActivePowerControl activePowerControl = (ActivePowerControl) extension;
-            resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
-                    .participate(activePowerControl.isParticipate())
-                    .droop(activePowerControl.getDroop())
-                    .build());
-            updateResource();
-        } else if (type == CoordinatedReactiveControl.class) {
-            CoordinatedReactiveControl coordinatedReactiveControl = (CoordinatedReactiveControl) extension;
-            resource.getAttributes().setCoordinatedReactiveControl(CoordinatedReactiveControlAttributes.builder()
-                    .qPercent(coordinatedReactiveControl.getQPercent())
-                    .build());
-            updateResource();
-        } else if (type == RemoteReactivePowerControl.class) {
-            RemoteReactivePowerControl remoteReactivePowerControl = (RemoteReactivePowerControl) extension;
-            resource.getAttributes().setRemoteReactivePowerControl(RemoteReactivePowerControlAttributes.builder()
-                    .targetQ(remoteReactivePowerControl.getTargetQ())
-                    .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(remoteReactivePowerControl.getRegulatingTerminal()))
-                    .enabled(remoteReactivePowerControl.isEnabled())
-                    .build());
-            updateResource();
-        } else if (type == GeneratorShortCircuit.class) {
-            GeneratorShortCircuit generatorShortCircuit = (GeneratorShortCircuit) extension;
-            resource.getAttributes().setGeneratorShortCircuitAttributes(GeneratorShortCircuitAttributes.builder()
-                    .directSubtransX(generatorShortCircuit.getDirectSubtransX())
-                    .directTransX(generatorShortCircuit.getDirectTransX())
-                    .stepUpTransformerX(generatorShortCircuit.getStepUpTransformerX())
-                    .build());
-            updateResource();
-        }
+        return new MinMaxReactiveLimitsAdderImpl<>(this);
     }
 
     private <E extends Extension<Generator>> E createActivePowerControlExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
         if (attributes != null) {
-            extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
+            extension = (E) new ActivePowerControlImpl<>(getInjection());
         }
         return extension;
     }
 
     private <E extends Extension<Generator>> E createCoordinatedReactiveControlExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         CoordinatedReactiveControlAttributes attributes = resource.getAttributes().getCoordinatedReactiveControl();
         if (attributes != null) {
-            extension = (E) new CoordinatedReactiveControlImpl((GeneratorImpl) getInjection(), attributes.getQPercent());
+            extension = (E) new CoordinatedReactiveControlImpl((GeneratorImpl) getInjection());
         }
         return extension;
     }
 
-    public Terminal getRemoteReactivePowerControlRegulatingTerminal() {
-        var resource = checkResource();
-        RemoteReactivePowerControlAttributes attributes = resource.getAttributes().getRemoteReactivePowerControl();
-        if (attributes != null) {
-            TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
-            return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
-        } else {
-            return null;
-        }
-    }
-
     private <E extends Extension<Generator>> E createRemoteReactivePowerControlExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         RemoteReactivePowerControlAttributes attributes = resource.getAttributes().getRemoteReactivePowerControl();
         if (attributes != null) {
-            extension = (E) new RemoteReactivePowerControlImpl((GeneratorImpl) getInjection(), attributes.getTargetQ(), attributes.getRegulatingTerminal(), attributes.isEnabled());
+            extension = (E) new RemoteReactivePowerControlImpl((GeneratorImpl) getInjection());
         }
         return extension;
     }
 
     private <E extends Extension<Generator>> E createGeneratorStartupExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         GeneratorStartupAttributes attributes = resource.getAttributes().getGeneratorStartupAttributes();
         if (attributes != null) {
-            extension = (E) new GeneratorStartupImpl((GeneratorImpl) getInjection(),
-                    attributes.getPlannedActivePowerSetpoint(), attributes.getStartupCost(),
-                    attributes.getMarginalCost(), attributes.getPlannedOutageRate(), attributes.getForcedOutageRate());
+            extension = (E) new GeneratorStartupImpl((GeneratorImpl) getInjection());
         }
         return extension;
     }
 
     private <E extends Extension<Generator>> E createGeneratorShortCircuitExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         GeneratorShortCircuitAttributes attributes = resource.getAttributes().getGeneratorShortCircuitAttributes();
         if (attributes != null) {
-            extension = (E) new GeneratorShortCircuitImpl((GeneratorImpl) getInjection(),
-                    attributes.getDirectSubtransX(), attributes.getDirectTransX(), attributes.getStepUpTransformerX());
+            extension = (E) new GeneratorShortCircuitImpl((GeneratorImpl) getInjection());
         }
         return extension;
     }
 
     private <E extends Extension<Generator>> E createEntsoeCategoryExtension() {
         E extension = null;
-        var resource = checkResource();
+        var resource = getResource();
         GeneratorEntsoeCategoryAttributes attributes = resource.getAttributes().getEntsoeCategoryAttributes();
         if (attributes != null) {
-            extension = (E) new GeneratorEntsoeCategoryImpl((GeneratorImpl) getInjection(), attributes.getCode());
+            extension = (E) new GeneratorEntsoeCategoryImpl((GeneratorImpl) getInjection());
         }
         return extension;
     }
@@ -413,16 +361,5 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         addIfNotNull(extensions, createGeneratorStartupExtension());
         addIfNotNull(extensions, createGeneratorShortCircuitExtension());
         return extensions;
-    }
-
-    public GeneratorImpl initGeneratorStartupAttributes(double plannedActivePowerSetpoint, double startupCost, double marginalCost, double plannedOutageRate, double forcedOutageRate) {
-        checkResource().getAttributes().setGeneratorStartupAttributes(new GeneratorStartupAttributes(plannedActivePowerSetpoint, startupCost, marginalCost, plannedOutageRate, forcedOutageRate));
-        updateResource();
-        return this;
-    }
-
-    public GeneratorImpl initGeneratorShortCircuitAttributes(double directSubtransX, double directTransX, double stepUpTransformerX) {
-        checkResource().getAttributes().setGeneratorShortCircuitAttributes(new GeneratorShortCircuitAttributes(directSubtransX, directTransX, stepUpTransformerX));
-        return this;
     }
 }

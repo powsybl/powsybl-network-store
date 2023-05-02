@@ -83,7 +83,7 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
             if (nodeToCalculatedBus == null) {
                 return null;
             }
-            int node = index.getBusbarSection(configuredBusIdOrBusbarSectionId).orElseThrow(AssertionError::new).checkResource().getAttributes().getNode();
+            int node = index.getBusbarSection(configuredBusIdOrBusbarSectionId).orElseThrow(AssertionError::new).getResource().getAttributes().getNode();
             calculatedBusNum = nodeToCalculatedBus.get(node);
         }
 

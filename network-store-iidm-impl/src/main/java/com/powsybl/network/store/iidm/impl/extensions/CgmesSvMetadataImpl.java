@@ -18,33 +18,31 @@ import java.util.*;
  */
 public class CgmesSvMetadataImpl extends AbstractExtension<Network> implements CgmesSvMetadata {
 
-    private NetworkImpl network;
-
     public CgmesSvMetadataImpl(NetworkImpl network) {
-        this.network = network;
+        super(network);
     }
 
-    public CgmesSvMetadataImpl(NetworkImpl network, String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
-        this(network.initCgmesSvMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
+    private NetworkImpl getNetwork() {
+        return (NetworkImpl) getExtendable();
     }
 
     @Override
     public String getDescription() {
-        return network.getResource().getAttributes().getCgmesSvMetadata().getDescription();
+        return getNetwork().getResource().getAttributes().getCgmesSvMetadata().getDescription();
     }
 
     @Override
     public int getSvVersion() {
-        return network.getResource().getAttributes().getCgmesSvMetadata().getSvVersion();
+        return getNetwork().getResource().getAttributes().getCgmesSvMetadata().getSvVersion();
     }
 
     @Override
     public List<String> getDependencies() {
-        return network.getResource().getAttributes().getCgmesSvMetadata().getDependencies();
+        return getNetwork().getResource().getAttributes().getCgmesSvMetadata().getDependencies();
     }
 
     @Override
     public String getModelingAuthoritySet() {
-        return network.getResource().getAttributes().getCgmesSvMetadata().getModelingAuthoritySet();
+        return getNetwork().getResource().getAttributes().getCgmesSvMetadata().getModelingAuthoritySet();
     }
 }

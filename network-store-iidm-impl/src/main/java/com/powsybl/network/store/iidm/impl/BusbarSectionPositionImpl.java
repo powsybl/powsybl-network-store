@@ -6,31 +6,20 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
+import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
-public class BusbarSectionPositionImpl implements BusbarSectionPosition {
+public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> implements BusbarSectionPosition {
 
-    private BusbarSectionImpl busbarSectionImpl;
-
-    private final BusbarSectionPositionAttributes busbarSectionPositionAttributes;
-
-    public BusbarSectionPositionImpl(BusbarSectionImpl busbarSectionImpl,
-            BusbarSectionPositionAttributes busbarSectionPositionAttributes) {
-        this.busbarSectionImpl = busbarSectionImpl;
-        this.busbarSectionPositionAttributes = busbarSectionPositionAttributes;
-    }
-
-    public BusbarSectionPositionImpl(BusbarSectionImpl busbarSectionImpl,
-            BusbarSectionPositionAttributes busbarSectionPositionAttributes,
-            int busbarIndex, int sectionIndex) {
-        this(busbarSectionImpl, busbarSectionPositionAttributes);
-        busbarSectionPositionAttributes.setBusbarIndex(checkIndex(busbarIndex));
-        busbarSectionPositionAttributes.setSectionIndex(checkIndex(sectionIndex));
+    public BusbarSectionPositionImpl(BusbarSectionImpl busbarSectionImpl) {
+        super(busbarSectionImpl);
     }
 
     private static int checkIndex(int index) {
@@ -40,42 +29,37 @@ public class BusbarSectionPositionImpl implements BusbarSectionPosition {
         return index;
     }
 
-    @Override
-    public BusbarSection getExtendable() {
-        return busbarSectionImpl;
+    private BusbarSectionImpl getBusbarSection() {
+        return (BusbarSectionImpl) getExtendable();
     }
 
-    @Override
-    public void setExtendable(BusbarSection busbarSection) {
-        this.busbarSectionImpl = (BusbarSectionImpl) busbarSection;
+    private BusbarSectionPositionAttributes getPositionAttributes() {
+        return getPositionAttributes(getBusbarSection().getResource());
     }
 
     @Override
     public int getBusbarIndex() {
-        return busbarSectionPositionAttributes.getBusbarIndex();
+        return getPositionAttributes().getBusbarIndex();
+    }
+
+    private BusbarSectionPositionAttributes getPositionAttributes(Resource<BusbarSectionAttributes> resource) {
+        return resource.getAttributes().getPosition();
     }
 
     @Override
     public BusbarSectionPosition setBusbarIndex(int busbarIndex) {
-        busbarSectionPositionAttributes.setBusbarIndex(checkIndex(busbarIndex));
-        busbarSectionImpl.updateResource();
+        getBusbarSection().updateResource(res -> getPositionAttributes(res).setBusbarIndex(checkIndex(busbarIndex)));
         return this;
     }
 
     @Override
     public int getSectionIndex() {
-        return busbarSectionPositionAttributes.getSectionIndex();
+        return getPositionAttributes().getSectionIndex();
     }
 
     @Override
     public BusbarSectionPosition setSectionIndex(int sectionIndex) {
-        busbarSectionPositionAttributes.setSectionIndex(checkIndex(sectionIndex));
-        busbarSectionImpl.updateResource();
+        getBusbarSection().updateResource(res -> getPositionAttributes(res).setSectionIndex(checkIndex(sectionIndex)));
         return this;
     }
-
-    public BusbarSectionPositionAttributes getBusbarSectionPositionAttributes() {
-        return busbarSectionPositionAttributes;
-    }
-
 }

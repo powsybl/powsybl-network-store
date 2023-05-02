@@ -23,7 +23,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder, BranchStatusHolder {
 
     @Schema(description = "3 windings transformer name")
     private String name;

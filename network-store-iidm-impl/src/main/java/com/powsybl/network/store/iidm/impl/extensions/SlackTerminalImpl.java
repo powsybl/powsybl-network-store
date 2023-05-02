@@ -20,29 +20,25 @@ import java.util.Objects;
  */
 public class SlackTerminalImpl implements SlackTerminal {
 
-    private VoltageLevelImpl vl;
+    private VoltageLevelImpl voltageLevel;
 
     public SlackTerminalImpl(VoltageLevelImpl voltageLevel) {
-        this.vl = voltageLevel;
-    }
-
-    public SlackTerminalImpl(VoltageLevelImpl voltageLevel, Terminal terminal) {
-        this(voltageLevel.initSlackTerminalAttributes(terminal));
+        this.voltageLevel = Objects.requireNonNull(voltageLevel);
     }
 
     @Override
     public VoltageLevel getExtendable() {
-        return vl;
+        return voltageLevel;
     }
 
     @Override
-    public void setExtendable(VoltageLevel vl) {
-        this.vl = (VoltageLevelImpl) vl;
+    public void setExtendable(VoltageLevel voltageLevel) {
+        this.voltageLevel = (VoltageLevelImpl) voltageLevel;
     }
 
     @Override
     public Terminal getTerminal() {
-        return vl.getTerminal(vl.getResource().getAttributes().getSlackTerminal());
+        return voltageLevel.getTerminal(voltageLevel.getResource().getAttributes().getSlackTerminal());
     }
 
     @Override
@@ -51,8 +47,7 @@ public class SlackTerminalImpl implements SlackTerminal {
             throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
                     + terminal.getVoltageLevel().getId() + " instead of " + getExtendable().getId() + ")");
         }
-        vl.getResource().getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
-        vl.updateResource();
+        voltageLevel.updateResource(res -> res.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal)));
         return this;
     }
 

@@ -10,6 +10,8 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
+import com.powsybl.network.store.iidm.impl.VoltageLevelImpl;
+import com.powsybl.network.store.model.IdentifiableShortCircuitAttributes;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -26,7 +28,12 @@ public class IdentifiableShortCircuitAdderImpl<I extends Identifiable<I>> extend
 
     @Override
     protected IdentifiableShortCircuit<I> createExtension(I extendable) {
-        return new IdentifiableShortCircuitImpl<>(extendable, ipMin, ipMax);
+        var attributes = IdentifiableShortCircuitAttributes.builder()
+                .ipMin(ipMin)
+                .ipMax(ipMax)
+                .build();
+        ((VoltageLevelImpl) extendable).updateResource(res -> res.getAttributes().setIdentifiableShortCircuitAttributes(attributes));
+        return new IdentifiableShortCircuitImpl<>(extendable);
     }
 
     @Override
