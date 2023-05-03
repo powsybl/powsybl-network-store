@@ -61,6 +61,9 @@ class PointAdderImpl implements ReactiveCapabilityCurveAdder.PointAdder, Validab
         if (Double.isNaN(maxQ)) {
             throw new ValidationException(this, "max Q is not set");
         }
+        if (minQ > maxQ) {
+            throw new ValidationException(this, "maximum reactive power " + maxQ + " is expected to be greater than or equal to minimum reactive power " + minQ);
+        }
         ReactiveCapabilityCurvePointAttributes point = reactiveCapabilityCurveAdder.getPoint(p);
         if (point != null) {
             if (point.getMinQ() != minQ || point.getMaxQ() != maxQ) {
@@ -83,6 +86,6 @@ class PointAdderImpl implements ReactiveCapabilityCurveAdder.PointAdder, Validab
 
     @Override
     public String getMessageHeader() {
-        return "reactiveCapabilityCurvePoint '" + toString() + "': ";
+        return "reactiveCapabilityCurvePoint: ";
     }
 }
