@@ -23,13 +23,13 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
     }
 
     @Override
-    public TieLineAdder setHalf1(String danglingLine1) {
+    public TieLineAdder setDanglingLine1(String danglingLine1) {
         half1 = danglingLine1;
         return this;
     }
 
     @Override
-    public TieLineAdder setHalf2(String danglingLine2) {
+    public TieLineAdder setDanglingLine2(String danglingLine2) {
         half2 = danglingLine2;
         return this;
     }
@@ -38,7 +38,7 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
     public TieLine add() {
         String id = checkAndGetUniqueId();
         if (half1 == null || half2 == null) {
-            throw new ValidationException(this, "undefined half");
+            throw new ValidationException(this, "undefined dangling line");
         }
 
         DanglingLineImpl dl1 = index.getDanglingLine(half1).orElseThrow(() -> new ValidationException(this, half1 + " are not dangling lines in the network"));

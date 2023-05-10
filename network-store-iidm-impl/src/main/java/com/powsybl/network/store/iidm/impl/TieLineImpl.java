@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.TieLineUtil;
@@ -45,33 +46,37 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public String getUcteXnodeCode() {
-        return Optional.ofNullable(getHalf1().getUcteXnodeCode()).orElseGet(() -> getHalf2().getUcteXnodeCode());
+        return Optional.ofNullable(getDanglingLine1().getUcteXnodeCode()).orElseGet(() -> getDanglingLine2().getUcteXnodeCode());
     }
 
     @Override
-    public DanglingLineImpl getHalf1() {
+    public DanglingLine getDanglingLine1() {
         return index.getDanglingLine(danglingLineHalf1).get();
     }
 
     @Override
-    public DanglingLineImpl getHalf2() {
+    public DanglingLine getDanglingLine2() {
         return index.getDanglingLine(danglingLineHalf2).get();
     }
 
-        /*@Override
-        public String getId() {
-            var resource = getResource();
-            return one ? resource.getAttributes().getMergedXnode().getLine1Name()
-                       : resource.getAttributes().getMergedXnode().getLine2Name();
-        }*/
     @Override
-    public DanglingLine getHalf(Branch.Side side) {
-        return null;
+    public DanglingLine getDanglingLine(Branch.Side side) {
+        if (Branch.Side.ONE.equals(side)) {
+            return getDanglingLine1();
+        } else {
+            return getDanglingLine2();
+        }
     }
 
     @Override
-    public DanglingLine getHalf(String s) {
-        return null;
+    public DanglingLine getDanglingLine(String s) {
+        if (s.equals(getDanglingLine1().getId())) {
+            return getDanglingLine1();
+        } else if (s.equals(getDanglingLine2().getId())) {
+            return getDanglingLine2();
+        } else {
+            throw new PowsyblException("Unknown dangling line :" + s);
+        }
     }
 
     @Override
@@ -184,43 +189,43 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public double getR() {
-        DanglingLineImpl dl1 = getHalf1();
-        DanglingLineImpl dl2 = getHalf2();
+        DanglingLine dl1 = getDanglingLine1();
+        DanglingLine dl2 = getDanglingLine2();
         return TieLineUtil.getR(dl1, dl2);
     }
 
     @Override
     public double getX() {
-        DanglingLineImpl dl1 = getHalf1();
-        DanglingLineImpl dl2 = getHalf2();
+        DanglingLine dl1 = getDanglingLine1();
+        DanglingLine dl2 = getDanglingLine2();
         return TieLineUtil.getX(dl1, dl2);
     }
 
     @Override
     public double getG1() {
-        DanglingLineImpl dl1 = getHalf1();
-        DanglingLineImpl dl2 = getHalf2();
+        DanglingLine dl1 = getDanglingLine1();
+        DanglingLine dl2 = getDanglingLine2();
         return TieLineUtil.getG1(dl1, dl2);
     }
 
     @Override
     public double getG2() {
-        DanglingLineImpl dl1 = getHalf1();
-        DanglingLineImpl dl2 = getHalf2();
+        DanglingLine dl1 = getDanglingLine1();
+        DanglingLine dl2 = getDanglingLine2();
         return TieLineUtil.getG2(dl1, dl2);
     }
 
     @Override
     public double getB1() {
-        DanglingLineImpl dl1 = getHalf1();
-        DanglingLineImpl dl2 = getHalf2();
+        DanglingLine dl1 = getDanglingLine1();
+        DanglingLine dl2 = getDanglingLine2();
         return TieLineUtil.getB1(dl1, dl2);
     }
 
     @Override
     public double getB2() {
-        DanglingLineImpl dl1 = getHalf1();
-        DanglingLineImpl dl2 = getHalf2();
+        DanglingLine dl1 = getDanglingLine1();
+        DanglingLine dl2 = getDanglingLine2();
         return TieLineUtil.getB2(dl1, dl2);
     }
 

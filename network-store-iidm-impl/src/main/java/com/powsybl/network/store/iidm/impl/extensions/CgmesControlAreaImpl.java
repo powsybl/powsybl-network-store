@@ -65,8 +65,8 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
             return ((DanglingLine) terminal.getConnectable()).getBoundary();
         } else if (terminal.getConnectable() instanceof TieLine) {
             TieLine tieLine = (TieLine) terminal.getConnectable();
-            Branch.Side side = terminal == tieLine.getHalf1().getTerminal() ? Branch.Side.ONE : Branch.Side.TWO;
-            return tieLine.getHalf(side).getBoundary();
+            Branch.Side side = terminal == tieLine.getDanglingLine1().getTerminal() ? Branch.Side.ONE : Branch.Side.TWO;
+            return tieLine.getDanglingLine(side).getBoundary();
         } else {
             throw new IllegalStateException("Unexpected boundary component: " + terminal.getConnectable().getType());
         }

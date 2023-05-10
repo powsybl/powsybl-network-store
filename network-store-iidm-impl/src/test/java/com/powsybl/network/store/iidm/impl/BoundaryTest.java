@@ -46,16 +46,16 @@ public class BoundaryTest {
         Network network = Importer.find("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
-        tieLine.getHalf1().getTerminal().setP(-26);
-        tieLine.getHalf1().getTerminal().setQ(193);
-        tieLine.getHalf1().getTerminal().getBusView().getBus().setV(411.3);
-        tieLine.getHalf1().getTerminal().getBusView().getBus().setAngle(0);
-        tieLine.getHalf2().getTerminal().setP(40);
-        tieLine.getHalf2().getTerminal().setQ(-214);
-        tieLine.getHalf2().getTerminal().getBusView().getBus().setV(427.1);
-        tieLine.getHalf2().getTerminal().getBusView().getBus().setAngle(0.2);
-        Boundary boundary1 = tieLine.getHalf1().getBoundary();
-        Boundary boundary2 = tieLine.getHalf2().getBoundary();
+        tieLine.getDanglingLine1().getTerminal().setP(-26);
+        tieLine.getDanglingLine1().getTerminal().setQ(193);
+        tieLine.getDanglingLine1().getTerminal().getBusView().getBus().setV(411.3);
+        tieLine.getDanglingLine1().getTerminal().getBusView().getBus().setAngle(0);
+        tieLine.getDanglingLine2().getTerminal().setP(40);
+        tieLine.getDanglingLine2().getTerminal().setQ(-214);
+        tieLine.getDanglingLine2().getTerminal().getBusView().getBus().setV(427.1);
+        tieLine.getDanglingLine2().getTerminal().getBusView().getBus().setAngle(0.2);
+        Boundary boundary1 = tieLine.getDanglingLine1().getBoundary();
+        Boundary boundary2 = tieLine.getDanglingLine2().getBoundary();
         assertNotNull(boundary1);
         assertNotNull(boundary2);
         assertEquals(33.15, boundary1.getP(), EPS1);
@@ -66,7 +66,7 @@ public class BoundaryTest {
         assertEquals(203.62, boundary2.getQ(), EPS1);
         assertEquals(430.1, boundary2.getV(), EPS1);
         assertEquals(0.1, boundary2.getAngle(), EPS2);
-        //assertSame(tieLine.getHalf2(), boundary2.getConnectable());
+        //assertSame(tieLine.getDanglingLine2(), boundary2.getConnectable());
         //assertEquals(Branch.Side.TWO, boundary2.getSide());
     }
 }
