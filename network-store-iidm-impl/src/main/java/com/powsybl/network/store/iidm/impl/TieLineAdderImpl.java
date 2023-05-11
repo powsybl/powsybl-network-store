@@ -15,8 +15,8 @@ import com.powsybl.network.store.model.*;
 
 public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> implements TieLineAdder {
 
-    String half1;
-    String half2;
+    String danglingLine1;
+    String danglingLine2;
 
     public TieLineAdderImpl(NetworkObjectIndex index) {
         super(index);
@@ -24,25 +24,25 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
 
     @Override
     public TieLineAdder setDanglingLine1(String danglingLine1) {
-        half1 = danglingLine1;
+        this.danglingLine1 = danglingLine1;
         return this;
     }
 
     @Override
     public TieLineAdder setDanglingLine2(String danglingLine2) {
-        half2 = danglingLine2;
+        this.danglingLine2 = danglingLine2;
         return this;
     }
 
     @Override
     public TieLine add() {
         String id = checkAndGetUniqueId();
-        if (half1 == null || half2 == null) {
+        if (danglingLine1 == null || danglingLine2 == null) {
             throw new ValidationException(this, "undefined dangling line");
         }
 
-        DanglingLineImpl dl1 = index.getDanglingLine(half1).orElseThrow(() -> new ValidationException(this, half1 + " are not dangling lines in the network"));
-        DanglingLineImpl dl2 = index.getDanglingLine(half2).orElseThrow(() -> new ValidationException(this, half2 + " are not dangling lines in the network"));
+        DanglingLineImpl dl1 = index.getDanglingLine(danglingLine1).orElseThrow(() -> new ValidationException(this, danglingLine1 + " are not dangling lines in the network"));
+        DanglingLineImpl dl2 = index.getDanglingLine(danglingLine2).orElseThrow(() -> new ValidationException(this, danglingLine2 + " are not dangling lines in the network"));
 
         Resource<TieLineAttributes> resource = Resource.tieLineBuilder()
                 .id(id)
@@ -53,8 +53,8 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
                         .build()).build();
         getIndex().createTieLine(resource);
         TieLineImpl tieLine = new TieLineImpl(getIndex(), resource);
-        dl1.setParent(tieLine, Branch.Side.ONE);
-        dl2.setParent(tieLine, Branch.Side.TWO);
+        dl1.setTieLine(tieLine);
+        dl2.setTieLine(tieLine);
         return tieLine;
     }
 

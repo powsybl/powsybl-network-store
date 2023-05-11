@@ -21,10 +21,8 @@ import java.util.*;
 
 public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttributes> implements TieLine {
 
-    private DanglingLineImpl half1;
     private String danglingLineHalf1;
 
-    private DanglingLineImpl half2;
     private String danglingLineHalf2;
 
     NetworkObjectIndex index;
@@ -36,10 +34,6 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public TieLineImpl(NetworkObjectIndex index, Resource<TieLineAttributes> resource) {
         super(index, resource);
         this.index = index;
-        //FIXME Check mergedXNode status
-        /*if (resource.getAttributes().getMergedXnode() == null) {
-            throw new PowsyblException("A tie line must have MergedXnode extension");
-        }*/
         danglingLineHalf1 = resource.getAttributes().getHalf1Id();
         danglingLineHalf2 = resource.getAttributes().getHalf2Id();
     }
@@ -82,21 +76,15 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     @Override
     public void remove() {
         var resource = getResource();
+        Optional<DanglingLineImpl> dl1 = index.getDanglingLine(danglingLineHalf1);
+        Optional<DanglingLineImpl> dl2 = index.getDanglingLine(danglingLineHalf2);
+
+        dl1.ifPresent(DanglingLineImpl::removeTieLine);
+        dl2.ifPresent(DanglingLineImpl::removeTieLine);
+
         index.notifyBeforeRemoval(this);
         index.removeTieLine(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-        /*NetworkImpl network = getNetwork();
-        network.getListeners().notifyBeforeRemoval(this);
-
-        // Remove dangling lines
-        half1.removeTieLine();
-        half2.removeTieLine();
-
-        // Remove this voltage level from the network
-        network.getIndex().remove(this);
-
-        network.getListeners().notifyAfterRemoval(id);
-        removed = true;*/
     }
 
     @Override
@@ -137,13 +125,6 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     @Override
     public Set<String> getPropertyNames() {
         return null;
-    }
-
-    void attachDanglingLines(DanglingLineImpl half1, DanglingLineImpl half2) {
-        this.half1 = half1;
-        this.half2 = half2;
-        this.half1.setParent(this, Branch.Side.ONE);
-        this.half2.setParent(this, Branch.Side.TWO);
     }
 
     @Override

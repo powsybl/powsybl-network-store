@@ -185,8 +185,6 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
     }
 
-    private TieLineImpl parent = null;
-
     private final DanglingLineBoundaryImpl boundary;
 
     public DanglingLineImpl(NetworkObjectIndex index, Resource<DanglingLineAttributes> resource) {
@@ -223,7 +221,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public boolean isMerged() {
-        return parent != null;
+        return getTieLine().isPresent();
     }
 
     @Override
@@ -482,26 +480,28 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         return boundary;
     }
 
-    void setParent(TieLineImpl parent, Branch.Side side) {
+    void setTieLine(TieLineImpl parent) {
         var resource = getResource();
         String oldValue = resource.getAttributes().getParentId();
-        resource.getAttributes().setParentId(parent.getId());
-        updateResource(res -> res.getAttributes().setParentId(parent.getId()));
-        notifyUpdate("parentId", oldValue, parent.getId());
-        //FIXME handle operationalLimitsHolder
-        /*if (side == Branch.Side.ONE) {
-            this.operationalLimitsHolder = parent.operationalLimitsHolder1;
-        } else if (side == Branch.Side.TWO) {
-            this.operationalLimitsHolder = parent.operationalLimitsHolder2;
-        }*/
+        String parentId;
+        if (parent != null) {
+            parentId = parent.getId();
+        } else {
+            parentId = null;
+        }
+        resource.getAttributes().setParentId(parentId);
+        updateResource(res -> res.getAttributes().setParentId(parentId));
+        notifyUpdate("parentId", oldValue, parentId);
+    }
+
+    void removeTieLine() {
+        setTieLine(null);
     }
 
     @Override
     public Optional<TieLine> getTieLine() {
         var resource = getResource();
         String tieLineId = resource.getAttributes().getParentId();
-        //FIXME Clean
-        TieLineImpl tieLine = index.getTieLine(tieLineId).get();
-        return Optional.of(tieLine);
+        return index.getTieLine(tieLineId).flatMap(Optional::of);
     }
 }

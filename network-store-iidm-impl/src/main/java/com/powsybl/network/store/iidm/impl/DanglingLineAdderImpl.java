@@ -158,8 +158,6 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
     public DanglingLine add() {
         String id = checkAndGetUniqueId();
         checkNodeBus();
-        //ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        //ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);
