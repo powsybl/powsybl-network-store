@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractSwitchSetRetainedTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest {
+public class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest {
     @Override
     public void test() {
         // FIXME

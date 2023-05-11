@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractLoadTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LoadTest extends AbstractLoadTest {
+public class LoadTest extends AbstractLoadTest {
     @Override
     public void testSetterGetterInMultiVariants() {
         // FIXME

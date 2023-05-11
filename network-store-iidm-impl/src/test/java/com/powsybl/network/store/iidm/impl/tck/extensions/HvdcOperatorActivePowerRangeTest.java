@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractHvdcOperatorActivePowerRa
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class HvdcOperatorActivePowerRangeTest extends AbstractHvdcOperatorActivePowerRangeTest {
+public class HvdcOperatorActivePowerRangeTest extends AbstractHvdcOperatorActivePowerRangeTest {
 
     @Override
     public void variantsCloneTest() {

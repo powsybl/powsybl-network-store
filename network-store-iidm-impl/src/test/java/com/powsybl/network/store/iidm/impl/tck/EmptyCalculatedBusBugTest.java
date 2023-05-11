@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractEmptyCalculatedBusBugTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest { }
+public class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest { }

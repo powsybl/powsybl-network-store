@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractNpeInBusbarSectionAdderTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NpeInBusbarSectionAdderTest extends AbstractNpeInBusbarSectionAdderTest {
+public class NpeInBusbarSectionAdderTest extends AbstractNpeInBusbarSectionAdderTest {
     @Override
     public void test() {
         // FIXME

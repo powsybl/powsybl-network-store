@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractGeneratorStartupTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorStartupTest extends AbstractGeneratorStartupTest {
+public class GeneratorStartupTest extends AbstractGeneratorStartupTest {
 }

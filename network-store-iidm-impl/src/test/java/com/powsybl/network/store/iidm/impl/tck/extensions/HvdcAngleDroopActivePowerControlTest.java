@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractHvdcAngleDroopActivePower
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class HvdcAngleDroopActivePowerControlTest extends AbstractHvdcAngleDroopActivePowerTest {
+public class HvdcAngleDroopActivePowerControlTest extends AbstractHvdcAngleDroopActivePowerTest {
     @Override
     public void variantsCloneTest() {
         // FIXME

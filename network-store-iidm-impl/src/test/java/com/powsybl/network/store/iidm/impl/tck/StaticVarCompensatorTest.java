@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractStaticVarCompensatorTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
+public class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
     @Override
     public void regulatingTerminalTest() {
         // FIXME

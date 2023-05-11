@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractTapChangerTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TapChangerTest extends AbstractTapChangerTest {
+public class TapChangerTest extends AbstractTapChangerTest {
     @Override
     public void baseTestsRatioTapChanger() {
         // FIXME

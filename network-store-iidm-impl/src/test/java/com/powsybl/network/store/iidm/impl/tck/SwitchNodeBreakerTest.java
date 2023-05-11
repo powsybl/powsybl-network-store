@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractSwitchNodeBreakerTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SwitchNodeBreakerTest extends AbstractSwitchNodeBreakerTest {
+public class SwitchNodeBreakerTest extends AbstractSwitchNodeBreakerTest {
     @Override
     public void addSwitchWithSameNodeAtBothEnds() {
         // FIXME

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractThreeWindingsTransformerP
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerPhaseAngleClockTest extends AbstractThreeWindingsTransformerPhaseAngleClockTest {
+public class ThreeWindingsTransformerPhaseAngleClockTest extends AbstractThreeWindingsTransformerPhaseAngleClockTest {
     @Override
     public void testEnd() {
         // FIXME

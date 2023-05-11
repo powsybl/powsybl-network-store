@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractMergeNetworkTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class MergeNetworkTest extends AbstractMergeNetworkTest {
+public class MergeNetworkTest extends AbstractMergeNetworkTest {
 
     @Override
     public void checkMergingDifferentFormat() {

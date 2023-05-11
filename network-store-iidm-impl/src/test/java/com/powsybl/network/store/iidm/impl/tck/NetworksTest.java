@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractNetworksTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NetworksTest extends AbstractNetworksTest {
+public class NetworksTest extends AbstractNetworksTest {
 }

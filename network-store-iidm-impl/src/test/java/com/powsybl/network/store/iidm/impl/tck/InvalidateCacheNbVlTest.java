@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractInvalidateCacheNbVlTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class InvalidateCacheNbVlTest extends AbstractInvalidateCacheNbVlTest {
+public class InvalidateCacheNbVlTest extends AbstractInvalidateCacheNbVlTest {
 }

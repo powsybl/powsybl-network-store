@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractVoltagePerReactivePowerCo
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VoltagePerReactivePowerControlTest extends AbstractVoltagePerReactivePowerControlTest {
+public class VoltagePerReactivePowerControlTest extends AbstractVoltagePerReactivePowerControlTest {
     @Override
     public void testUndefined() {
         // FIXME

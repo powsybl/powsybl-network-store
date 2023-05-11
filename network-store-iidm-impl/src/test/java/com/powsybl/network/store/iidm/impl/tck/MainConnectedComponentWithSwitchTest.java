@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractMainConnectedComponentWithSwitchTest
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class MainConnectedComponentWithSwitchTest extends AbstractMainConnectedComponentWithSwitchTest {
+public class MainConnectedComponentWithSwitchTest extends AbstractMainConnectedComponentWithSwitchTest {
 
     @Override
     public void test() {

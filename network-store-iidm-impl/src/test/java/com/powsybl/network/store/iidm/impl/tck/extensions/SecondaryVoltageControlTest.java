@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControlTest {
+public class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControlTest {
     @Override
     public void test() throws IOException {
         // FIXME

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractActivePowerControlTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ActivePowerControlTest extends AbstractActivePowerControlTest {
+public class ActivePowerControlTest extends AbstractActivePowerControlTest {
     @Override
     public void variantsCloneTest() {
         // FIXME

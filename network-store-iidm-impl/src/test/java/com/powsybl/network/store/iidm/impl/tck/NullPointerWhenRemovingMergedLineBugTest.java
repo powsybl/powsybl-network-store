@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractNullPointerWhenRemovingMergedLineBug
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NullPointerWhenRemovingMergedLineBugTest extends AbstractNullPointerWhenRemovingMergedLineBugTest {
+public class NullPointerWhenRemovingMergedLineBugTest extends AbstractNullPointerWhenRemovingMergedLineBugTest {
     @Override
     public void test() {
         // FIXME

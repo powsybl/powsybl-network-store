@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractTwoWindingsTransformerToB
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TwoWindingsTransformerToBeEstimatedTest extends AbstractTwoWindingsTransformerToBeEstimatedTest {
+public class TwoWindingsTransformerToBeEstimatedTest extends AbstractTwoWindingsTransformerToBeEstimatedTest {
     @Override
     public void test() {
         // FIXME

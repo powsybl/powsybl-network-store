@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractDiscreteMeasurementsTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DiscreteMeasurementsTest extends AbstractDiscreteMeasurementsTest {
+public class DiscreteMeasurementsTest extends AbstractDiscreteMeasurementsTest {
     @Override
     public void test() {
         // FIXME

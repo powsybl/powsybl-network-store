@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractShuntCompensatorTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ShuntCompensatorTest extends AbstractShuntCompensatorTest {
+public class ShuntCompensatorTest extends AbstractShuntCompensatorTest {
     @Override
     public void baseLinearShuntTest() {
         // FIXME

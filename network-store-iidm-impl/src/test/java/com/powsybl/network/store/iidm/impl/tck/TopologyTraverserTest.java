@@ -13,19 +13,19 @@ import com.powsybl.iidm.network.tck.AbstractTopologyTraverserTest;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TopologyTraverserTest extends AbstractTopologyTraverserTest {
+public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
 
     @Test
-    void testTerminateTraverser() {
+    public void testTerminateTraverser() {
         Network network = createMixedNodeBreakerBusBreakerNetwork();
         Terminal startGNbv = network.getGenerator("G").getTerminal();
         List<Pair<String, Integer>> visited1 = getVisitedList(startGNbv, s -> s != null && s.getId().equals("BR2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractHvdcLineTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class HvdcLineTest extends AbstractHvdcLineTest {
+public class HvdcLineTest extends AbstractHvdcLineTest {
 
     @Override
     public void testSetterGetterInMultiVariants() {

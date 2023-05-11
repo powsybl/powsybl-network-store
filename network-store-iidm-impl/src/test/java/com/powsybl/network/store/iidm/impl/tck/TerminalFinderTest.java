@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.tck.AbstractTerminalFinderTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TerminalFinderTest extends AbstractTerminalFinderTest {
+public class TerminalFinderTest extends AbstractTerminalFinderTest {
     @Override
     public void testLineTerminal1() {
         // FIXME

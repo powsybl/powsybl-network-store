@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractNetworkRemoveTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NetworkRemoveTest extends AbstractNetworkRemoveTest { }
+public class NetworkRemoveTest extends AbstractNetworkRemoveTest { }

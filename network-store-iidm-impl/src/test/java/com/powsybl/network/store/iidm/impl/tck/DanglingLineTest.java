@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractDanglingLineTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineTest extends AbstractDanglingLineTest {
+public class DanglingLineTest extends AbstractDanglingLineTest {
 
     @Override
     public void testSetterGetterInMultiVariants() {

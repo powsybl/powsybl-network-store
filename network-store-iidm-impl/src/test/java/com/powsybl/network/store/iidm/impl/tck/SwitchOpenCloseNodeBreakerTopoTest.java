@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractSwitchOpenCloseNodeBreakerTopoTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SwitchOpenCloseNodeBreakerTopoTest extends AbstractSwitchOpenCloseNodeBreakerTopoTest { }
+public class SwitchOpenCloseNodeBreakerTopoTest extends AbstractSwitchOpenCloseNodeBreakerTopoTest { }

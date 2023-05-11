@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractNetworkTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NetworkTest extends AbstractNetworkTest {
+public class NetworkTest extends AbstractNetworkTest {
 
     @Override
     public void testWith() {

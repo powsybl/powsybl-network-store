@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractBusBreakerTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusTest extends AbstractBusBreakerTest {
+public class BusTest extends AbstractBusBreakerTest {
     @Override
     public void testNodeBreakerNonSupportedMethods() {
         // FIXME

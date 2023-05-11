@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractExceptionIsThrownWhenRemoveVariantAn
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest extends AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest {
+public class ExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest extends AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest {
 
     @Override
     public void test() throws InterruptedException {

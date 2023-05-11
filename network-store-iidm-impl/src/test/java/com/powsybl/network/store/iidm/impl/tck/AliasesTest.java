@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractAliasesTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class AliasesTest extends AbstractAliasesTest {
+public class AliasesTest extends AbstractAliasesTest {
     @Override
     public void failWhenAliasTypeIsEmpty() {
         // FIXME

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractMultiVariantNetworkTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class MultiVariantNetworkTest extends AbstractMultiVariantNetworkTest {
+public class MultiVariantNetworkTest extends AbstractMultiVariantNetworkTest {
     @Override
     public void multiThreadTest() throws InterruptedException {
         // FIXME

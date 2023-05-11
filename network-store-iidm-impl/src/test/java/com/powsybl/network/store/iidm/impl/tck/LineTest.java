@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractLineTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LineTest extends AbstractLineTest {
+public class LineTest extends AbstractLineTest {
     @Override
     public void baseAcLineTests() {
         // FIXME

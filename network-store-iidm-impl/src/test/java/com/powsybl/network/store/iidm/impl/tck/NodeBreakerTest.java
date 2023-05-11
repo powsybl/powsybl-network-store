@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractNodeBreakerTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NodeBreakerTest extends AbstractNodeBreakerTest {
+public class NodeBreakerTest extends AbstractNodeBreakerTest {
     @Override
     public void testCalculatedBus() {
         // FIXME

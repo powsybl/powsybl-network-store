@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractVoltageLevelTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VoltageLevelTest extends AbstractVoltageLevelTest {
+public class VoltageLevelTest extends AbstractVoltageLevelTest {
     @Override
     public void baseTests() {
         // FIXME

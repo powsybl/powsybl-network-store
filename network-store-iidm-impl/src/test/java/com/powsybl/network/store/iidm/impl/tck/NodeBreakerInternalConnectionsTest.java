@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractNodeBreakerInternalConnectionsTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInternalConnectionsTest {
+public class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInternalConnectionsTest {
 
     @Override
     public void testTraversalInternalConnections() {

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractVscTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VscTest extends AbstractVscTest {
+public class VscTest extends AbstractVscTest {
     @Override
     public void testRegulatingTerminal() {
         // FIXME

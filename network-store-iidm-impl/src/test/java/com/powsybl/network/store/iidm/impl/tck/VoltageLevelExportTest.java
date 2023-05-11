@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VoltageLevelExportTest extends AbstractVoltageLevelExportTest {
+public class VoltageLevelExportTest extends AbstractVoltageLevelExportTest {
     @Override
     public void nodeBreakerTest() throws IOException {
         // FIXME

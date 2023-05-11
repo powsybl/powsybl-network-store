@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractGeneratorTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorTest extends AbstractGeneratorTest {
+public class GeneratorTest extends AbstractGeneratorTest {
     @Override
     public void testSetterGetterInMultiVariants() {
         // FIXME

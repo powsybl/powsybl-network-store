@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractLccTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LccTest extends AbstractLccTest {
+public class LccTest extends AbstractLccTest {
     @Override
     public void testHvdcLineRemove() {
         // FIXME

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractBatteryTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BatteryTest extends AbstractBatteryTest {
+public class BatteryTest extends AbstractBatteryTest {
     @Override
     public void testRemove() {
         // FIXME

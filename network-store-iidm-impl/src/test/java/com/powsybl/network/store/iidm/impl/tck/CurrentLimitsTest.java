@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractCurrentLimitsTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CurrentLimitsTest extends AbstractCurrentLimitsTest {
+public class CurrentLimitsTest extends AbstractCurrentLimitsTest {
     @Override
     public void test() {
         // FIXME

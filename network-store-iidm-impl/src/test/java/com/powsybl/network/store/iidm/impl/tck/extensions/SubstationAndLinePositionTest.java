@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractSubstationAndLinePosition
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SubstationAndLinePositionTest extends AbstractSubstationAndLinePositionTest {
+public class SubstationAndLinePositionTest extends AbstractSubstationAndLinePositionTest {
     @Override
     public void test() {
         // FIXME

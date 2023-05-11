@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractSlackTerminalTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SlackTerminalTest extends AbstractSlackTerminalTest {
+public class SlackTerminalTest extends AbstractSlackTerminalTest {
     @Override
     public void variantsCloneTest() {
         // FIXME

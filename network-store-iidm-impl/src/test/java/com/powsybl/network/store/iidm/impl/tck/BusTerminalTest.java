@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractBusTerminalTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusTerminalTest extends AbstractBusTerminalTest { }
+public class BusTerminalTest extends AbstractBusTerminalTest { }

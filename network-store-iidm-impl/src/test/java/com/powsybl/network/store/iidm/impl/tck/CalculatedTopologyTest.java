@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractCalculatedTopologyTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CalculatedTopologyTest extends AbstractCalculatedTopologyTest { }
+public class CalculatedTopologyTest extends AbstractCalculatedTopologyTest { }

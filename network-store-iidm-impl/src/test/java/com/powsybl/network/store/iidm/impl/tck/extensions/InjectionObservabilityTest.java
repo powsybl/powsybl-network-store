@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractInjectionObservabilityTes
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class InjectionObservabilityTest extends AbstractInjectionObservabilityTest {
+public class InjectionObservabilityTest extends AbstractInjectionObservabilityTest {
     @Override
     public void testRedundancy() {
         // FIXME
