@@ -164,6 +164,9 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getR() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
+        if (dl1 == null || dl2 == null) {
+            throw new PowsyblException("Cannot get R for TieLine " + getId() + " dangling line is null.");
+        }
         return TieLineUtil.getR(dl1, dl2);
     }
 
@@ -171,6 +174,9 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getX() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
+        if (dl1 == null || dl2 == null) {
+            throw new PowsyblException("Cannot get X for TieLine " + getId() + " dangling line is null.");
+        }
         return TieLineUtil.getX(dl1, dl2);
     }
 
@@ -178,6 +184,9 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getG1() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
+        if (dl1 == null || dl2 == null) {
+            throw new PowsyblException("Cannot get G1 for TieLine " + getId() + " dangling line is null.");
+        }
         return TieLineUtil.getG1(dl1, dl2);
     }
 
@@ -185,6 +194,9 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getG2() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
+        if (dl1 == null || dl2 == null) {
+            throw new PowsyblException("Cannot get G2 for TieLine " + getId() + " dangling line is null.");
+        }
         return TieLineUtil.getG2(dl1, dl2);
     }
 
@@ -192,6 +204,9 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getB1() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
+        if (dl1 == null || dl2 == null) {
+            throw new PowsyblException("Cannot get B1 for TieLine " + getId() + " dangling line is null.");
+        }
         return TieLineUtil.getB1(dl1, dl2);
     }
 
@@ -199,6 +214,9 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getB2() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
+        if (dl1 == null || dl2 == null) {
+            throw new PowsyblException("Cannot get B2 for TieLine " + getId() + " dangling line is null.");
+        }
         return TieLineUtil.getB2(dl1, dl2);
     }
 
