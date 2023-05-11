@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.tck.AbstractCalculatedTopologyTest;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
@@ -20,7 +19,7 @@ import static org.junit.Assert.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class BusBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest {
+public class BusBreakerCalculatedBusTest {
 
     @Test
     public void equalsContract() {

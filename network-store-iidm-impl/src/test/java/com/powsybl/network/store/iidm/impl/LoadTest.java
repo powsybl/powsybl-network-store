@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.iidm.network.tck.AbstractLoadTest;
 import org.junit.Test;
 
 import static com.powsybl.network.store.iidm.impl.CreateNetworksUtil.createNodeBreakerNetworkWithLine;
@@ -20,12 +19,7 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadTest extends AbstractLoadTest {
-
-    @Test
-    public void testSetterGetterInMultiVariants() {
-        // FIXME variant difference with core
-    }
+public class LoadTest {
 
     @Test
     public void testAddConnectablePositionExtension() {

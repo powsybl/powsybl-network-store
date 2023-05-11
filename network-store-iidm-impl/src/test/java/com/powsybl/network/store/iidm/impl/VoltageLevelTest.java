@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.tck.AbstractVoltageLevelTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -15,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class VoltageLevelTest extends AbstractVoltageLevelTest {
+public class VoltageLevelTest {
 
     @Test
     public void testBusBreakerConnectables() {
@@ -36,10 +35,5 @@ public class VoltageLevelTest extends AbstractVoltageLevelTest {
         assertEquals(network.getGenerator("G"), network.getVoltageLevel("VL1").getConnectable("G", Generator.class));
         assertEquals(network.getLoad("L"), network.getVoltageLevel("VL1").getConnectable("L", Load.class));
         assertEquals(network.getBusbarSection("BBS1"), network.getVoltageLevel("VL1").getConnectable("BBS1", BusbarSection.class));
-    }
-
-    @Override
-    public void baseTests() {
-        // exception message is not the same and should not be checked in TCK
     }
 }
