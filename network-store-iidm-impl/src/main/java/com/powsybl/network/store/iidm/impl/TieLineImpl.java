@@ -21,11 +21,9 @@ import java.util.*;
 
 public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttributes> implements TieLine {
 
-    private String danglingLineHalf1;
+    private final String danglingLineHalf1;
 
-    private String danglingLineHalf2;
-
-    NetworkObjectIndex index;
+    private final String danglingLineHalf2;
 
     private final Map<Class<?>, Extension<TieLine>> extensions = new HashMap<>();
 
@@ -33,7 +31,6 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     public TieLineImpl(NetworkObjectIndex index, Resource<TieLineAttributes> resource) {
         super(index, resource);
-        this.index = index;
         danglingLineHalf1 = resource.getAttributes().getHalf1Id();
         danglingLineHalf2 = resource.getAttributes().getHalf2Id();
     }
@@ -45,12 +42,12 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public DanglingLine getDanglingLine1() {
-        return index.getDanglingLine(danglingLineHalf1).get();
+        return index.getDanglingLine(danglingLineHalf1).orElse(null);
     }
 
     @Override
     public DanglingLine getDanglingLine2() {
-        return index.getDanglingLine(danglingLineHalf2).get();
+        return index.getDanglingLine(danglingLineHalf2).orElse(null);
     }
 
     @Override
@@ -85,11 +82,6 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         index.notifyBeforeRemoval(this);
         index.removeTieLine(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-    }
-
-    @Override
-    public String getId() {
-        return null;
     }
 
     @Override
