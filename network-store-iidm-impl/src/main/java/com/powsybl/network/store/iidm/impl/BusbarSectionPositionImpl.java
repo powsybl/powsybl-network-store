@@ -20,6 +20,8 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
 
     public BusbarSectionPositionImpl(BusbarSectionImpl busbarSectionImpl) {
         super(busbarSectionImpl);
+        checkIndex(getBusbarIndex());
+        checkIndex(getSectionIndex());
     }
 
     private static int checkIndex(int index) {
