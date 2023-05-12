@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.tck.AbstractEmptyCalculatedBusBugTest;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -17,7 +16,7 @@ import static org.junit.Assert.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest {
+public class EmptyCalculatedBusBugTest {
 
     @Test
     public void testCalculatedBuses1() {

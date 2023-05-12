@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.tck.AbstractTopologyTraverserTest;
 import com.powsybl.math.graph.TraverseResult;
 import org.junit.Test;
 
@@ -24,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class TerminalTopologyTraverserTest extends AbstractTopologyTraverserTest {
+public class TerminalTopologyTraverserTest {
 
     @Test
     public void testWithOneBus() {

@@ -91,8 +91,8 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
     }
 
     private FeederImpl getFeeder(Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter) {
-        var attributes = positionAttributesGetter.apply(getExtendable());
-        return attributes != null ? new FeederImpl(positionAttributesGetter) : null;
+        return (positionAttributesGetter != null && positionAttributesGetter.apply(getExtendable()) != null) ?
+                new FeederImpl(positionAttributesGetter) : null;
     }
 
     @Override

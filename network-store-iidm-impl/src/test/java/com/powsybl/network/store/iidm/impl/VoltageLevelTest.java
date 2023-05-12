@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class VoltageLevelTest extends AbstractVoltageLevelTest {
+public class VoltageLevelTest {
 
     @Test
     public void testBusBreakerConnectables() {
