@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.tck.AbstractCalculatedTopologyTest;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -19,7 +18,7 @@ import static org.junit.Assert.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest {
+public class NodeBreakerCalculatedBusTest {
 
     @Test
     public void testCalculatedBuses() {
