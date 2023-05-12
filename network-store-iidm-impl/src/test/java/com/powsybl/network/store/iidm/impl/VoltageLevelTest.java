@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import com.powsybl.iidm.network.tck.AbstractVoltageLevelTest;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -84,10 +83,5 @@ public class VoltageLevelTest {
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(-1).withSectionIndex(-1);
         assertEquals("Busbar index has to be greater or equals to zero",
             assertThrows(IllegalArgumentException.class, busbarSectionPositionAdder::add).getMessage());
-    }
-
-    @Override
-    public void baseTests() {
-        // exception message is not the same and should not be checked in TCK
     }
 }
