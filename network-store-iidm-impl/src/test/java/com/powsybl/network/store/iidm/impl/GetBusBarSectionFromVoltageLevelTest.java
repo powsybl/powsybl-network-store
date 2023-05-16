@@ -21,6 +21,10 @@ public class GetBusBarSectionFromVoltageLevelTest {
         BusbarSection bbs2 = vl2.getNodeBreakerView().getBusbarSection("BBS2");
         assertNotNull(bbs2);
 
+        BusbarSection notExistingBbs = vl1.getNodeBreakerView().getBusbarSection("unknownBBS");
+
+        assertNull(notExistingBbs);
+
         BusbarSection bbs2FromVl1 = vl1.getNodeBreakerView().getBusbarSection("BBS2");
         BusbarSection bbs1FromVl2 = vl2.getNodeBreakerView().getBusbarSection("BBS1");
 
