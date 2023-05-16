@@ -11,7 +11,7 @@ import static org.junit.Assert.assertNull;
 public class GetBusBarSectionFromVoltageLevelTest {
 
     @Test
-    public void testGetBusBarSectionFromWrongVoltageLevel () {
+    public void testGetBusBarSectionFromWrongVoltageLevel() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithTwoVoltageLevelsAndBusBarSections();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         BusbarSection bbs1 = vl1.getNodeBreakerView().getBusbarSection("BBS1");
