@@ -715,6 +715,43 @@ final class CreateNetworksUtil {
         return network;
     }
 
+    static Network createNodeBreakerNetworkWithTwoVoltageLevelsAndBusBarSections() {
+        Network network = Network.create("test", "test");
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .setTso("TSO1")
+                .setGeographicalTags("region11", "region12")
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.getNodeBreakerView().newBusbarSection()
+                .setId("BBS1")
+                .setNode(0)
+                .add();
+
+        Substation s2 = network.newSubstation()
+                .setId("S2")
+                .setCountry(Country.FR)
+                .setTso("TSO2")
+                .setGeographicalTags("region11", "region12")
+                .add();
+        VoltageLevel vl2 = s2.newVoltageLevel()
+                .setId("VL2")
+                .setNominalV(225.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+                .setId("BBS2")
+                .setNode(0)
+                .add();
+
+        return network;
+    }
+
     static Network createNodeBreakerNetworkWithLine() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
