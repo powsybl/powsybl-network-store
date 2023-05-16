@@ -4,17 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network.store.iidm.impl;
+package com.powsybl.network.store.iidm.impl.tck;
 
-import com.powsybl.iidm.network.tck.AbstractNodeBreakerInternalConnectionsTest;
+import com.powsybl.iidm.network.tck.AbstractThreeWindingsTransformerTest;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInternalConnectionsTest {
-
+public class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest {
     @Override
-    public void testTraversalInternalConnections() {
-        // FIXME test too much dependent of implementation?
+    public void baseTests() {
+        // FIXME
     }
 }

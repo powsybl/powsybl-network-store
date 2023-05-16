@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
+public class NodeBreakerTerminalTest {
 
     @Test
     public void connectDisconnectRemove() {
@@ -203,10 +203,5 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
         assertTrue(assertThrows(PowsyblException.class, () -> {
             bbs1tbbv.setConnectableBus("FOO");
         }).getMessage().contains("Not supported in a node breaker topology"));
-    }
-
-    @Override
-    public void testCalculatedBus() {
-        // TODO: to remove when calculated bus naming will have been reverted
     }
 }

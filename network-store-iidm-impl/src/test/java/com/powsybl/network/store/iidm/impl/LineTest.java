@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.iidm.network.tck.AbstractLineTest;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import org.junit.Test;
@@ -25,17 +24,7 @@ import static org.junit.Assert.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class LineTest extends AbstractLineTest {
-
-    @Test
-    public void testTieLineAdder() {
-        // FIXME TO FIX LATER
-    }
-
-    @Test
-    public void baseAcLineTests() {
-        // FIXME TO FIX LATER
-    }
+public class LineTest {
 
     //TODO: there is a similar test in the TCK tests. A CurrentLimitsTest extends AbstractCurrentLimitsTest should be created and this test can be deleted.
     // The TCK test doesn't pass yet. As is, the network-store implementation of setV(v) on buses is not consistent. We have problems with the views we are working on (BusBreakerView or BusView).
@@ -79,11 +68,6 @@ public class LineTest extends AbstractLineTest {
         temporaryLimits.put(10, TemporaryLimitAttributes.builder().name("TempLimit10").value(8).acceptableDuration(10).fictitious(false).build());
         // check duration sorting order: first entry has the highest duration
         assertEquals(10., l1.getNullableCurrentLimits1().getTemporaryLimits().iterator().next().getAcceptableDuration(), 0);
-    }
-
-    @Override
-    public void testRemoveAcLine() {
-        // exception message is not the same and should not be checked in TCK
     }
 
     @Test

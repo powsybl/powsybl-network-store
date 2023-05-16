@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.tck.AbstractNetworkTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -18,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class NetworkTest extends AbstractNetworkTest {
+public class NetworkTest {
 
     @Test
     public void testBusBreakerComponent() {
@@ -58,25 +57,5 @@ public class NetworkTest extends AbstractNetworkTest {
         assertEquals(1, network.getBusView().getSynchronousComponents().size());
         assertNotNull(network.getBusView().getBus("VL1_0"));
         assertNotNull(network.getBusView().getBus("VL2_0"));
-    }
-
-    @Override
-    public void testWith() {
-        // Cannot be done with persistence store as concern ony "Default" implementation
-    }
-
-    @Override
-    public void testStreams() {
-        // FIXME no way to have same order when gettting connectables from a voltage level?
-    }
-
-    @Override
-    public void testNetwork1() {
-        // FIXME cannot compare CalulatedBus by identity
-    }
-
-    @Override
-    public void testScadaNetwork() {
-        // FIXME delayed validation to support
     }
 }

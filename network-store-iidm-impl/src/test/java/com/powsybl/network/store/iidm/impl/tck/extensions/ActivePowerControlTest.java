@@ -1,20 +1,19 @@
 /**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network.store.iidm.impl;
+package com.powsybl.network.store.iidm.impl.tck.extensions;
 
-import com.powsybl.iidm.network.tck.extensions.AbstractStandbyAutomatonTest;
+import com.powsybl.iidm.network.tck.extensions.AbstractActivePowerControlTest;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
-
+public class ActivePowerControlTest extends AbstractActivePowerControlTest {
     @Override
     public void variantsCloneTest() {
-        // we do not support variants in extensions
+        // FIXME
     }
 }
