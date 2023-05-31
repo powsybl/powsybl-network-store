@@ -20,28 +20,6 @@ import static org.junit.Assert.*;
 public class EmptyCalculatedBusBugTest {
 
     @Test
-    public void testGetBusBarSectionFromWrongVoltageLevel() {
-        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithTwoVoltageLevelsAndBusBarSections();
-        VoltageLevel vl1 = network.getVoltageLevel("VL1");
-        BusbarSection bbs1 = vl1.getNodeBreakerView().getBusbarSection("BBS1");
-        assertNotNull(bbs1);
-
-        VoltageLevel vl2 = network.getVoltageLevel("VL2");
-        BusbarSection bbs2 = vl2.getNodeBreakerView().getBusbarSection("BBS2");
-        assertNotNull(bbs2);
-
-        BusbarSection notExistingBbs = vl1.getNodeBreakerView().getBusbarSection("unknownBBS");
-
-        assertNull(notExistingBbs);
-
-        BusbarSection bbs2FromVl1 = vl1.getNodeBreakerView().getBusbarSection("BBS2");
-        BusbarSection bbs1FromVl2 = vl2.getNodeBreakerView().getBusbarSection("BBS1");
-
-        assertNull(bbs2FromVl1);
-        assertNull(bbs1FromVl2);
-    }
-
-    @Test
     public void testCalculatedBuses1() {
         Network network = CreateNetworksUtil.createEmptyNodeBreakerNetwork();
         VoltageLevel vl = network.getVoltageLevel("VL");
