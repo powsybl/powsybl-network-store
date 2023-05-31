@@ -48,7 +48,7 @@ public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
     }
 
     @Test
-    void testTraversalOrder() {
+    public void testTraversalOrder() {
         Network network = FictitiousSwitchFactory.create();
         List<Pair<String, Integer>> visited = getVisitedList(network.getGenerator("CB").getTerminal(), s -> TraverseResult.CONTINUE);
         assertEquals(List.of(Pair.of("CB", 0), Pair.of("O", 0), Pair.of("P", 0), Pair.of("CF", 0),
