@@ -8,11 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.tck.AbstractNodeBreakerTest;
 import org.junit.Test;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import static org.junit.Assert.*;
 
@@ -23,22 +19,34 @@ public class NodeBreakerTerminalTest {
 
     @Test
     public void connectDisconnectRemove() {
-        Network network;
-        try {
-            Method createNetwork = AbstractNodeBreakerTest.class.getDeclaredMethod("createNetwork");
-            createNetwork.setAccessible(true);
-            network = (Network) createNetwork.invoke(this);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new PowsyblException(e);
-        }
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        vl1.newLoad()
+                .setId("LOAD")
+                .setNode(10)
+                .setP0(1)
+                .setQ0(1)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("BREAKER")
+                .setNode1(10)
+                .setNode2(11)
+                .setOpen(true)
+                .add();
+        vl1.getNodeBreakerView().newDisconnector()
+                .setId("DISCONNECTOR")
+                .setNode1(0)
+                .setNode2(11)
+                .setOpen(false)
+                .add();
 
-        VoltageLevel.NodeBreakerView topo = network.getVoltageLevel("VL").getNodeBreakerView();
-        Load l = network.getLoad("L");
+        VoltageLevel.NodeBreakerView topo = vl1.getNodeBreakerView();
+        Load l = network.getLoad("LOAD");
         Generator g = network.getGenerator("G");
 
         // generator is connected, load is disconnected
-        assertTrue(topo.getOptionalTerminal(2).isPresent());
-        assertTrue(topo.getOptionalTerminal(3).isPresent());
+        assertTrue(topo.getOptionalTerminal(4).isPresent());
+        assertTrue(topo.getOptionalTerminal(10).isPresent());
         assertNotNull(g.getTerminal().getBusView().getBus());
         assertNull(l.getTerminal().getBusView().getBus());
         assertTrue(g.getTerminal().isConnected());
@@ -48,15 +56,15 @@ public class NodeBreakerTerminalTest {
         assertTrue(l.getTerminal().connect());
 
         // check load is connected
-        assertTrue(topo.getOptionalTerminal(2).isPresent());
+        assertTrue(topo.getOptionalTerminal(10).isPresent());
         assertNotNull(l.getTerminal().getBusView().getBus());
         assertTrue(l.getTerminal().isConnected());
 
         // disconnect the generator
-        g.getTerminal().disconnect();
+        assertTrue(g.getTerminal().disconnect());
 
         // check generator is disconnected
-        assertTrue(topo.getOptionalTerminal(3).isPresent());
+        assertTrue(topo.getOptionalTerminal(4).isPresent());
         assertNull(g.getTerminal().getBusView().getBus());
         assertFalse(g.getTerminal().isConnected());
     }
