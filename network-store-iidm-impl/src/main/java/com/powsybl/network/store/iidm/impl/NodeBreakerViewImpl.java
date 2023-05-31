@@ -101,7 +101,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public BusbarSection getBusbarSection(String id) {
         checkBusBreakerTopology();
         BusbarSection bbs = index.getBusbarSection(id).orElse(null);
-        if (bbs != null && bbs.getTerminal().getVoltageLevel() != this.voltageLevel) {
+        if (bbs != null && bbs.getTerminal().getVoltageLevel().getId() != this.voltageLevel.getId()) {
             return null;
         }
         return bbs;
