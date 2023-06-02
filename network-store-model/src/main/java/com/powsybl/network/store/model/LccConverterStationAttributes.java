@@ -15,6 +15,7 @@ import java.util.Set;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
+@EqualsAndHashCode(callSuper = false)
 @Data
 @ToString(callSuper = true)
 @NoArgsConstructor

@@ -338,7 +338,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         if (isNodeBeakerTopologyKind()) {
             return this.getBusView().getBus() != null;
         } else {
-            return (attributes.getBus() != null) && attributes.getBus().equals(attributes.getConnectableBus());
+            return attributes.getBus() != null && attributes.getBus().equals(attributes.getConnectableBus());
         }
     }
 

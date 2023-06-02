@@ -16,6 +16,7 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@EqualsAndHashCode(callSuper = false)
 @Data
 @ToString(callSuper = true)
 @NoArgsConstructor
