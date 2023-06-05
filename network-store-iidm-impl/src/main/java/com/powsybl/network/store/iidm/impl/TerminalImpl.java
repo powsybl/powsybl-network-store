@@ -19,21 +19,22 @@ import org.jgrapht.graph.Pseudograph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Validable {
+public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal, Validable {
 
     private static final Set<IdentifiableType> CONNECTABLE_WITH_SIDES_TYPES = Set.of(IdentifiableType.LINE, IdentifiableType.TWO_WINDINGS_TRANSFORMER, IdentifiableType.THREE_WINDINGS_TRANSFORMER);
 
     private final NetworkObjectIndex index;
 
-    private final U attributes;
+    private final Connectable<?> connectable;
 
-    private final Connectable connectable;
+    private final Function<Resource<U>, InjectionAttributes> attributesGetter;
 
     private final TerminalNodeBreakerViewImpl<U> nodeBreakerView;
 
@@ -41,17 +42,13 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     private final TerminalBusViewImpl<U> busView;
 
-    public TerminalImpl(NetworkObjectIndex index, U attributes, Connectable connectable) {
+    public TerminalImpl(NetworkObjectIndex index, Connectable<?> connectable, Function<Resource<U>, InjectionAttributes> attributesGetter) {
         this.index = index;
-        this.attributes = attributes;
         this.connectable = connectable;
-        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, attributes, connectable);
-        busBreakerView = new TerminalBusBreakerViewImpl<>(index, attributes, connectable);
-        busView = new TerminalBusViewImpl<>(index, attributes, connectable);
-    }
-
-    static <U extends InjectionAttributes> TerminalImpl<U> create(NetworkObjectIndex index, U attributes, Connectable connectable) {
-        return new TerminalImpl<>(index, attributes, connectable);
+        this.attributesGetter = attributesGetter;
+        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, connectable, attributesGetter);
+        busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter);
+        busView = new TerminalBusViewImpl<>(index, connectable, attributesGetter);
     }
 
     private TopologyKind getTopologyKind() {
@@ -82,21 +79,33 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     @Override
-    public Connectable getConnectable() {
+    public Connectable<?> getConnectable() {
         return connectable;
+    }
+
+    private AbstractIdentifiableImpl<?, U> getAbstractIdentifiable() {
+        return (AbstractIdentifiableImpl<?, U>) connectable;
+    }
+
+    private InjectionAttributes getAttributes(Resource<U> r) {
+        return attributesGetter.apply(r);
+    }
+
+    private InjectionAttributes getAttributes() {
+        return getAttributes(getAbstractIdentifiable().getResource());
     }
 
     @Override
     public VoltageLevelImpl getVoltageLevel() {
-        if (((AbstractIdentifiableImpl) connectable).getOptionalResource().isEmpty()) {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
             return null;
         }
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new);
+        return index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(AssertionError::new);
     }
 
     @Override
     public double getP() {
-        return attributes.getP();
+        return getAttributes().getP();
     }
 
     @Override
@@ -104,14 +113,13 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, "cannot set active power on a busbar section");
         }
-        attributes.setP(p);
-        index.updateResource(attributes.getResource(), AttributeFilter.SV);
+        getAbstractIdentifiable().updateResource(r -> getAttributes().setP(p), AttributeFilter.SV);
         return this;
     }
 
     @Override
     public double getQ() {
-        return attributes.getQ();
+        return getAttributes().getQ();
     }
 
     @Override
@@ -119,8 +127,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, "cannot set reactive power on a busbar section");
         }
-        attributes.setQ(q);
-        index.updateResource(attributes.getResource(), AttributeFilter.SV);
+        getAbstractIdentifiable().updateResource(r -> getAttributes().setQ(q), AttributeFilter.SV);
         return this;
     }
 
@@ -133,7 +140,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
+        return index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
     }
 
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
@@ -168,7 +175,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         Graph<Integer, Edge> filteredGraph = filterSwitches(graph, isOpenDisconnector.negate().or(isOpenFictitiousBreaker.negate()));
 
         Set<String> closedSwitches = new HashSet<>();
-        BreadthFirstIterator<Integer, Edge> it = new BreadthFirstIterator<>(filteredGraph, attributes.getNode());
+        BreadthFirstIterator<Integer, Edge> it = new BreadthFirstIterator<>(filteredGraph, getAttributes().getNode());
         while (it.hasNext()) {
             int node = it.next();
             if (busbarSectionNodes.contains(node)) {
@@ -190,9 +197,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             }
         }
 
-        closedSwitches.stream().forEach(switchId ->
-                index.notifyUpdate(index.getSwitch(switchId).get(), "open", true, false)
-        );
+        closedSwitches.forEach(switchId -> index.notifyUpdate(index.getSwitch(switchId).orElseThrow(), "open", true, false));
 
         return done;
     }
@@ -208,13 +213,16 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                 done = true;
             }
         } else { // TopologyKind.BUS_BREAKER
+            var attributes = getAttributes();
             if (attributes.getBus() == null) {
-                attributes.setBus(attributes.getConnectableBus());
-                index.updateResource(attributes.getResource());
-                // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
-                if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
-                    index.notifyUpdate(getConnectable(), "bus", null, attributes.getConnectableBus());
-                }
+                getAbstractIdentifiable().updateResource(r -> {
+                    var a = getAttributes(r);
+                    a.setBus(a.getConnectableBus());
+                    // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
+                    if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
+                        index.notifyUpdate(getConnectable(), "bus", null, a.getConnectableBus());
+                    }
+                });
                 done = true;
             }
         }
@@ -275,7 +283,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             // so that we can open the minimal number of breaker to disconnect the terminal
             MinimumSTCutAlgorithm<Integer, Edge> minCutAlgo = new EdmondsKarpMFImpl<>(breakerOnlyGraph);
             for (int busbarSectionNode : busbarSectionNodes) {
-                int aggregatedNode = nodeToAggregatedNode.get(attributes.getNode());
+                int aggregatedNode = nodeToAggregatedNode.get(getAttributes().getNode());
                 int busbarSectionAggregatedNode = nodeToAggregatedNode.get(busbarSectionNode);
                 // if that terminal is connected to a busbar section through disconnectors only or that terminal is a busbar section
                 // so there is no way to disconnect the terminal
@@ -294,9 +302,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                 }
             }
 
-            openedSwitches.stream().forEach(switchId ->
-                    index.notifyUpdate(index.getSwitch(switchId).get(), "open", false, true)
-            );
+            openedSwitches.forEach(switchId -> index.notifyUpdate(index.getSwitch(switchId).orElseThrow(), "open", false, true));
         }
 
         return done;
@@ -313,13 +319,16 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                 done = true;
             }
         } else { // TopologyKind.BUS_BREAKER
+            var attributes = getAttributes();
             if (attributes.getBus() != null) {
-                attributes.setBus(null);
-                index.updateResource(attributes.getResource());
-                // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
-                if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
-                    index.notifyUpdate(getConnectable(), "bus", attributes.getConnectableBus(), null);
-                }
+                getAbstractIdentifiable().updateResource(r -> {
+                    var a = getAttributes(r);
+                    a.setBus(null);
+                    // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
+                    if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
+                        index.notifyUpdate(getConnectable(), "bus", a.getConnectableBus(), null);
+                    }
+                });
                 done = true;
             }
         }
@@ -338,6 +347,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         if (isNodeBeakerTopologyKind()) {
             return this.getBusView().getBus() != null;
         } else {
+            var attributes = getAttributes();
             return (attributes.getBus() != null) && attributes.getBus().equals(attributes.getConnectableBus());
         }
     }
@@ -350,7 +360,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     @Override
     public void traverse(Terminal.TopologyTraverser traverser) {
         Set<Terminal> traversedTerminals = new HashSet<>();
-        if (((AbstractIdentifiableImpl) connectable).getOptionalResource().isEmpty()) {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
             throw new PowsyblException("Associated equipment is removed");
         }
 
@@ -361,7 +371,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
         // Other sides
         for (Terminal otherSideTerminal : getOtherSideTerminals()) {
-            if (!((TerminalImpl<U>) otherSideTerminal).traverse(traverser, traversedTerminals)) {
+            if (!((TerminalImpl<?>) otherSideTerminal).traverse(traverser, traversedTerminals)) {
                 return;
             }
         }
@@ -373,7 +383,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         }
 
         traversedTerminals.add(this);
-        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(IllegalStateException::new);
         boolean connected = voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER || isConnected();
         TraverseResult result = traverser.traverse(this, connected);
         if (result != TraverseResult.CONTINUE) {
@@ -422,6 +432,6 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     public String getVoltageLevelId() {
-        return attributes.getVoltageLevelId();
+        return getAttributes().getVoltageLevelId();
     }
 }

@@ -23,11 +23,11 @@ import java.util.List;
  */
 public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, BusbarSectionAttributes> implements BusbarSection {
 
-    protected final TerminalImpl<BusbarSectionToInjectionAdapter> terminal;
+    protected final TerminalImpl<BusbarSectionAttributes> terminal;
 
     public BusbarSectionImpl(NetworkObjectIndex index, Resource<BusbarSectionAttributes> resource) {
         super(index, resource);
-        terminal = TerminalImpl.create(index, new BusbarSectionToInjectionAdapter(resource.getAttributes()), this);
+        terminal = new TerminalImpl<>(index, this, r -> new BusbarSectionToInjectionAdapter(r.getAttributes()));
     }
 
     static BusbarSectionImpl create(NetworkObjectIndex index, Resource<BusbarSectionAttributes> resource) {
@@ -48,7 +48,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         index.notifyAfterRemoval(resource.getId());
     }
 
-    public TerminalImpl<BusbarSectionToInjectionAdapter> getTerminal() {
+    public TerminalImpl<BusbarSectionAttributes> getTerminal() {
         return terminal;
     }
 

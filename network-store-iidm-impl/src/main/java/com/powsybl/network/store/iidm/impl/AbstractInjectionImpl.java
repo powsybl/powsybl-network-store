@@ -21,13 +21,13 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractIdentifiableImpl<I, D> {
+public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractIdentifiableImpl<I, D> implements Injection<I> {
 
     protected final TerminalImpl<D> terminal;
 
     protected AbstractInjectionImpl(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
-        terminal = TerminalImpl.create(index, resource.getAttributes(), getInjection());
+        terminal = new TerminalImpl<>(index, this, Resource::getAttributes);
     }
 
     protected abstract I getInjection();
