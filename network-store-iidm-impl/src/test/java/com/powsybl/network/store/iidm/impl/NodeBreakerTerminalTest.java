@@ -19,15 +19,17 @@ import static org.junit.Assert.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
+public class NodeBreakerTerminalTest {
 
     @Test
     public void connectDisconnectRemove() {
+        var test = new AbstractNodeBreakerTest() {
+        };
         Network network;
         try {
             Method createNetwork = AbstractNodeBreakerTest.class.getDeclaredMethod("createNetwork");
             createNetwork.setAccessible(true);
-            network = (Network) createNetwork.invoke(this);
+            network = (Network) createNetwork.invoke(test);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new PowsyblException(e);
         }
@@ -203,10 +205,5 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
         assertTrue(assertThrows(PowsyblException.class, () -> {
             bbs1tbbv.setConnectableBus("FOO");
         }).getMessage().contains("Not supported in a node breaker topology"));
-    }
-
-    @Override
-    public void testCalculatedBus() {
-        // FIXME
     }
 }
