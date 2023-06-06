@@ -8,28 +8,39 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.BusView {
+class TerminalBusViewImpl<U extends IdentifiableAttributes> implements Terminal.BusView {
 
     private final NetworkObjectIndex index;
 
-    private final U attributes;
-    private final Connectable connectable;
+    private final Connectable<?> connectable;
 
-    TerminalBusViewImpl(NetworkObjectIndex index, U attributes, Connectable connectable) {
+    private final Function<Resource<U>, InjectionAttributes> attributesGetter;
+
+    TerminalBusViewImpl(NetworkObjectIndex index, Connectable<?> connectable, Function<Resource<U>, InjectionAttributes> attributesGetter) {
         this.index = Objects.requireNonNull(index);
-        this.attributes = attributes;
         this.connectable = connectable;
+        this.attributesGetter = attributesGetter;
+    }
+
+    private AbstractIdentifiableImpl<?, U> getAbstractIdentifiable() {
+        return (AbstractIdentifiableImpl<?, U>) connectable;
+    }
+
+    private InjectionAttributes getAttributes() {
+        return attributesGetter.apply(getAbstractIdentifiable().getResource());
     }
 
     private boolean isNodeBeakerTopologyKind() {
@@ -41,10 +52,11 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
+        return index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
     }
 
     private Bus calculateBus() {
+        var attributes = getAttributes();
         return isNodeBeakerTopologyKind() ?
                 NodeBreakerTopology.INSTANCE.calculateBus(index, getVoltageLevelResource(), attributes.getNode(), true) :
                 BusBreakerTopology.INSTANCE.calculateBus(index, getVoltageLevelResource(), attributes.getBus(), true);
@@ -57,10 +69,11 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
 
     @Override
     public Bus getConnectableBus() {
-        if (((AbstractIdentifiableImpl) connectable).getOptionalResource().isEmpty()) {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
             return null;
         }
 
+        var attributes = getAttributes();
         VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
         if (isBusBeakerTopologyKind()) { // Merged bus
             return voltageLevel.getBusView().getMergedBus(attributes.getConnectableBus());
@@ -70,7 +83,7 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
     }
 
     private Bus findConnectableBus() {
-        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(IllegalStateException::new);
 
         final Bus[] foundBus = {getBus()};
 
@@ -97,7 +110,7 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
             }
         };
 
-        voltageLevel.getNodeBreakerView().getTerminal(attributes.getNode()).traverse(topologyTraverser);
+        voltageLevel.getNodeBreakerView().getTerminal(getAttributes().getNode()).traverse(topologyTraverser);
         if (foundBus[0] != null) {
             return foundBus[0];
         }

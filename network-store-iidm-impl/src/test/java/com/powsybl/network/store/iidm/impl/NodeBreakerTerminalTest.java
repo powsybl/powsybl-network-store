@@ -19,26 +19,16 @@ public class NodeBreakerTerminalTest {
 
     @Test
     public void connectDisconnectRemove() {
-        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
-        VoltageLevel vl1 = network.getVoltageLevel("VL1");
-        vl1.newLoad()
-                .setId("LOAD")
-                .setNode(10)
-                .setP0(1)
-                .setQ0(1)
-                .add();
-        vl1.getNodeBreakerView().newBreaker()
-                .setId("BREAKER")
-                .setNode1(10)
-                .setNode2(11)
-                .setOpen(true)
-                .add();
-        vl1.getNodeBreakerView().newDisconnector()
-                .setId("DISCONNECTOR")
-                .setNode1(0)
-                .setNode2(11)
-                .setOpen(false)
-                .add();
+        var test = new AbstractNodeBreakerTest() {
+        };
+        Network network;
+        try {
+            Method createNetwork = AbstractNodeBreakerTest.class.getDeclaredMethod("createNetwork");
+            createNetwork.setAccessible(true);
+            network = (Network) createNetwork.invoke(test);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new PowsyblException(e);
+        }
 
         VoltageLevel.NodeBreakerView topo = vl1.getNodeBreakerView();
         Load l = network.getLoad("LOAD");
