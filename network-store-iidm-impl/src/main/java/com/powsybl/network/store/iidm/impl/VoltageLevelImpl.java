@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -274,6 +275,16 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
+    }
+
+    @Override
     public VscConverterStationAdder newVscConverterStation() {
         return new VscConverterStationAdderImpl(getResource(), index);
     }
@@ -413,12 +424,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @SuppressWarnings("unchecked")
     public <T extends Connectable> List<T> getConnectables(Class<T> clazz) {
         var resource = getResource();
-        if (clazz == Branch.class) {
-            return (List<T>) ImmutableList.<Branch>builder()
-                    .addAll(index.getTwoWindingsTransformers(resource.getId()))
-                    .addAll(index.getLines(resource.getId()))
-                    .build();
-        } else if (clazz == Generator.class) {
+        if (clazz == Generator.class) {
             return (List<T>) getGenerators();
         } else if (clazz == Battery.class) {
             return (List<T>) getBatteries();

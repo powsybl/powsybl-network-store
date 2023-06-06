@@ -245,6 +245,16 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     }
 
     @Override
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream().filter(danglingLineFilter.getPredicate());
+    }
+
+    @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
         return getStaticVarCompensatorStream().collect(Collectors.toList());
     }

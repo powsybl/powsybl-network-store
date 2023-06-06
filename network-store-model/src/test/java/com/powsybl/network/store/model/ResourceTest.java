@@ -372,7 +372,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void danglingLine() {
+    public void danglingLine() throws JsonProcessingException {
         DanglingLineGenerationAttributes danglingLineGenerationAttributes = DanglingLineGenerationAttributes
                 .builder()
                 .minP(100)
@@ -399,6 +399,7 @@ public class ResourceTest {
                 .generation(danglingLineGenerationAttributes)
                 .ucteXnodeCode("XN1")
                 .bus("bus1")
+                .parentId("idTieLineParent")
                 .build();
 
         Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder()
@@ -427,9 +428,17 @@ public class ResourceTest {
         assertEquals(20, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMaxQ(), 0);
         assertEquals("XN1", resourceDanglingLine.getAttributes().getUcteXnodeCode());
         assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
+        assertEquals("idTieLineParent", resourceDanglingLine.getAttributes().getParentId());
 
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JodaModule());
+        String json = objectMapper.writeValueAsString(resourceDanglingLine);
+
+        Resource<DanglingLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<DanglingLineAttributes>>() { });
+        assertNotNull(resource2);
     }
 
     @Test

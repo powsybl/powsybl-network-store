@@ -966,16 +966,24 @@ public class NetworkObjectIndex {
     }
 
     public Branch<?> getBranch(String branchId) {
+        //FIXME strange structure ?
         // first try in the line cache, then in 2 windings transformer cache, then load from server
         if (lineCache.isLoaded(branchId)) {
             return lineCache.getOne(branchId).orElse(null);
         } else if (twoWindingsTransformerCache.isLoaded(branchId)) {
             return twoWindingsTransformerCache.getOne(branchId).orElse(null);
+        } else if (tieLineCache.isLoaded(branchId)) {
+            return tieLineCache.getOne(branchId).orElse(null);
         } else {
-            return lineCache.getOne(branchId)
+            Branch<?> b = lineCache.getOne(branchId)
                     .map(Branch.class::cast)
                     .orElseGet(() -> twoWindingsTransformerCache.getOne(branchId)
                             .orElse(null));
+            if (b == null) {
+                return tieLineCache.getOne(branchId).orElse(null);
+            } else {
+                return b;
+            }
         }
     }
 

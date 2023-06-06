@@ -6,13 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -220,7 +216,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public boolean isMerged() {
+    public boolean isPaired() {
         return getTieLine().isPresent();
     }
 
@@ -427,55 +423,6 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public <E extends Extension<DanglingLine>> void addExtension(Class<? super E> type, E extension) {
-        if (type == Xnode.class) {
-            Xnode xnode = (Xnode) extension;
-            setUcteXnodeCode(xnode.getCode());
-        }
-        super.addExtension(type, extension);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <E extends Extension<DanglingLine>> E getExtension(Class<? super E> type) {
-        if (type == Xnode.class) {
-            return (E) createXnodeExtension();
-        }
-        return super.getExtension(type);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <E extends Extension<DanglingLine>> E getExtensionByName(String name) {
-        if (name.equals("xnode")) {
-            return (E) createXnodeExtension();
-        }
-        return super.getExtensionByName(name);
-    }
-
-    private <E extends Extension<DanglingLine>> E createXnodeExtension() {
-        E extension = null;
-        var resource = getResource();
-        DanglingLineImpl dl = index.getDanglingLine(resource.getId())
-                .orElseThrow(() -> new PowsyblException("DanglingLine " + resource.getId() + " doesn't exist"));
-        String xNodeCode = resource.getAttributes().getUcteXnodeCode();
-        if (xNodeCode != null) {
-            extension = (E) new XnodeImpl(dl);
-        }
-        return extension;
-    }
-
-    @Override
-    public <E extends Extension<DanglingLine>> Collection<E> getExtensions() {
-        Collection<E> extensions = super.getExtensions();
-        E extension = createXnodeExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        return extensions;
-    }
-
-    @Override
     public Boundary getBoundary() {
         return boundary;
     }
@@ -489,7 +436,6 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         } else {
             parentId = null;
         }
-        resource.getAttributes().setParentId(parentId);
         updateResource(res -> res.getAttributes().setParentId(parentId));
         notifyUpdate("parentId", oldValue, parentId);
     }
@@ -502,6 +448,10 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     public Optional<TieLine> getTieLine() {
         var resource = getResource();
         String tieLineId = resource.getAttributes().getParentId();
-        return index.getTieLine(tieLineId).flatMap(Optional::of);
+        if (tieLineId == null) {
+            return Optional.empty();
+        } else {
+            return index.getTieLine(tieLineId).flatMap(Optional::of);
+        }
     }
 }

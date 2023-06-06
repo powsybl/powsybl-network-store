@@ -16,7 +16,7 @@ class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getV() {
-        if (!parent.isMerged() && valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return danglingLineData.getBoundaryBusU();
         }
@@ -27,7 +27,7 @@ class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getAngle() {
-        if (!parent.isMerged() && valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
         }
@@ -38,7 +38,7 @@ class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getP() {
-        if (!parent.isMerged() && valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
             return -parent.getP0();
         }
         Terminal t = parent.getTerminal();
@@ -48,7 +48,7 @@ class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getQ() {
-        if (!parent.isMerged() && valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
             return -parent.getQ0();
         }
         Terminal t = parent.getTerminal();

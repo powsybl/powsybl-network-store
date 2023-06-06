@@ -393,8 +393,18 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    }
+
+    @Override
     public List<DanglingLine> getDanglingLines() {
         return index.getDanglingLines();
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return index.getDanglingLines().stream().filter(danglingLineFilter.getPredicate());
     }
 
     @Override
@@ -676,6 +686,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return ImmutableList.<Branch>builder()
                 .addAll(index.getLines())
                 .addAll(index.getTwoWindingsTransformers())
+                .addAll(index.getTieLines())
                 .build();
     }
 

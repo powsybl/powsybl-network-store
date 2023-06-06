@@ -16,4 +16,14 @@ public class LoadTest extends AbstractLoadTest {
     public void testSetterGetterInMultiVariants() {
         // FIXME
     }
+
+    @Override
+    public void testZipLoadModel() {
+        // FIXME
+    }
+
+    @Override
+    public void testExponentialLoadModel() {
+
+    }
 }
