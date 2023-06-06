@@ -8,7 +8,11 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.tck.AbstractNodeBreakerTest;
 import org.junit.Test;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import static org.junit.Assert.*;
 
@@ -30,13 +34,13 @@ public class NodeBreakerTerminalTest {
             throw new PowsyblException(e);
         }
 
-        VoltageLevel.NodeBreakerView topo = vl1.getNodeBreakerView();
-        Load l = network.getLoad("LOAD");
+        VoltageLevel.NodeBreakerView topo = network.getVoltageLevel("VL").getNodeBreakerView();
+        Load l = network.getLoad("L");
         Generator g = network.getGenerator("G");
 
         // generator is connected, load is disconnected
-        assertTrue(topo.getOptionalTerminal(4).isPresent());
-        assertTrue(topo.getOptionalTerminal(10).isPresent());
+        assertTrue(topo.getOptionalTerminal(2).isPresent());
+        assertTrue(topo.getOptionalTerminal(3).isPresent());
         assertNotNull(g.getTerminal().getBusView().getBus());
         assertNull(l.getTerminal().getBusView().getBus());
         assertTrue(g.getTerminal().isConnected());
@@ -46,15 +50,15 @@ public class NodeBreakerTerminalTest {
         assertTrue(l.getTerminal().connect());
 
         // check load is connected
-        assertTrue(topo.getOptionalTerminal(10).isPresent());
+        assertTrue(topo.getOptionalTerminal(2).isPresent());
         assertNotNull(l.getTerminal().getBusView().getBus());
         assertTrue(l.getTerminal().isConnected());
 
         // disconnect the generator
-        assertTrue(g.getTerminal().disconnect());
+        g.getTerminal().disconnect();
 
         // check generator is disconnected
-        assertTrue(topo.getOptionalTerminal(4).isPresent());
+        assertTrue(topo.getOptionalTerminal(3).isPresent());
         assertNull(g.getTerminal().getBusView().getBus());
         assertFalse(g.getTerminal().isConnected());
     }
