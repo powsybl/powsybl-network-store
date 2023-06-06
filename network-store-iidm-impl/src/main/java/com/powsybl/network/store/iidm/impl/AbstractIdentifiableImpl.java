@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -39,8 +40,12 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public void updateResource(Consumer<Resource<D>> modifier) {
+        updateResource(modifier, null);
+    }
+
+    public void updateResource(Consumer<Resource<D>> modifier, AttributeFilter attributeFilter) {
         modifier.accept(resource);
-        index.updateResource(resource);
+        index.updateResource(resource, attributeFilter);
     }
 
     public Resource<D> getNullableResource() {

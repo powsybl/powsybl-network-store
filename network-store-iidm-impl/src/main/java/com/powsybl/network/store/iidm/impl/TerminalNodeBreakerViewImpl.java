@@ -11,29 +11,41 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TerminalNodeBreakerViewImpl<U extends InjectionAttributes> implements Terminal.NodeBreakerView {
+class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements Terminal.NodeBreakerView {
 
     private final NetworkObjectIndex index;
 
-    private final U attributes;
-    private final Connectable connectable;
+    private final Connectable<?> connectable;
 
-    TerminalNodeBreakerViewImpl(NetworkObjectIndex index, U attributes, Connectable connectable) {
+    private final Function<Resource<U>, InjectionAttributes> attributesGetter;
+
+    TerminalNodeBreakerViewImpl(NetworkObjectIndex index, Connectable<?> connectable, Function<Resource<U>, InjectionAttributes> attributesGetter) {
         this.index = Objects.requireNonNull(index);
-        this.attributes = attributes;
         this.connectable = connectable;
+        this.attributesGetter = attributesGetter;
+    }
+
+    private AbstractIdentifiableImpl<?, U> getAbstractIdentifiable() {
+        return (AbstractIdentifiableImpl<?, U>) connectable;
+    }
+
+    private InjectionAttributes getAttributes() {
+        return attributesGetter.apply(getAbstractIdentifiable().getResource());
     }
 
     @Override
     public int getNode() {
-        Integer node = attributes.getNode();
+        Integer node = getAttributes().getNode();
         if (node == null) {
             throw new PowsyblException("Not supported in a bus breaker topology");
         }
@@ -43,9 +55,10 @@ class TerminalNodeBreakerViewImpl<U extends InjectionAttributes> implements Term
     @Override
     public void moveConnectable(int node, String voltageLevelId) {
         Objects.requireNonNull(voltageLevelId);
-        if (((AbstractIdentifiableImpl) connectable).getOptionalResource().isEmpty()) {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
             throw new PowsyblException("Cannot modify removed equipment");
         }
+        var attributes = getAttributes();
         VoltageLevelImpl voltageLevel = index.getVoltageLevel(voltageLevelId)
                 .orElseThrow(() -> new PowsyblException("Voltage level '" + voltageLevelId + "' not found"));
         if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {

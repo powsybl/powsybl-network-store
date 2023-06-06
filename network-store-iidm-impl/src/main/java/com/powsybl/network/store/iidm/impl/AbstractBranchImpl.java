@@ -25,14 +25,14 @@ import java.util.*;
 public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U>
         implements Branch<T>, LimitsOwner<Branch.Side> {
 
-    private final TerminalImpl<BranchToInjectionAttributesAdapter> terminal1;
+    private final TerminalImpl<U> terminal1;
 
-    private final TerminalImpl<BranchToInjectionAttributesAdapter> terminal2;
+    private final TerminalImpl<U> terminal2;
 
     protected AbstractBranchImpl(NetworkObjectIndex index, Resource<U> resource) {
         super(index, resource);
-        terminal1 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(this, resource.getAttributes(), true), getBranch());
-        terminal2 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(this, resource.getAttributes(), false), getBranch());
+        terminal1 = new TerminalImpl<>(index, this, r -> new BranchToInjectionAttributesAdapter(this, r.getAttributes(), true));
+        terminal2 = new TerminalImpl<>(index, this, r -> new BranchToInjectionAttributesAdapter(this, r.getAttributes(), false));
     }
 
     protected abstract T getBranch();
@@ -43,12 +43,12 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     @Override
-    public TerminalImpl<BranchToInjectionAttributesAdapter> getTerminal1() {
+    public TerminalImpl<U> getTerminal1() {
         return terminal1;
     }
 
     @Override
-    public TerminalImpl<BranchToInjectionAttributesAdapter> getTerminal2() {
+    public TerminalImpl<U> getTerminal2() {
         return terminal2;
     }
 

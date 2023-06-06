@@ -1017,10 +1017,6 @@ public class NetworkObjectIndex {
         return getIdentifiable(network.getIdFromAlias(id)) != null;
     }
 
-    <T extends IdentifiableAttributes> void updateResource(Resource<T> resource) {
-        updateResource(resource, null);
-    }
-
     @SuppressWarnings("unchecked")
     <T extends IdentifiableAttributes> void updateResource(Resource<T> resource, AttributeFilter attributeFilter) {
         switch (resource.getType()) {

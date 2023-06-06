@@ -23,11 +23,13 @@ public class NodeBreakerTerminalTest {
 
     @Test
     public void connectDisconnectRemove() {
+        var test = new AbstractNodeBreakerTest() {
+        };
         Network network;
         try {
             Method createNetwork = AbstractNodeBreakerTest.class.getDeclaredMethod("createNetwork");
             createNetwork.setAccessible(true);
-            network = (Network) createNetwork.invoke(this);
+            network = (Network) createNetwork.invoke(test);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new PowsyblException(e);
         }

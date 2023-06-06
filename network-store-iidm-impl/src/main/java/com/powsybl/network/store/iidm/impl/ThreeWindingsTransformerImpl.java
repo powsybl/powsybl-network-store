@@ -26,11 +26,11 @@ import java.util.function.Function;
  */
 public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer {
 
-    private final TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> terminal1;
+    private final TerminalImpl<ThreeWindingsTransformerAttributes> terminal1;
 
-    private final TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> terminal2;
+    private final TerminalImpl<ThreeWindingsTransformerAttributes> terminal2;
 
-    private final TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> terminal3;
+    private final TerminalImpl<ThreeWindingsTransformerAttributes> terminal3;
 
     private final LegImpl leg1;
 
@@ -61,7 +61,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> getTerminal() {
+        public TerminalImpl<ThreeWindingsTransformerAttributes> getTerminal() {
             var attributes = getLegAttributes();
             if (attributes.getLegNumber() == 1) {
                 return transformer.terminal1;
@@ -320,9 +320,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         leg2 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg2, index);
         leg3 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg3, index);
 
-        terminal1 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg1, resource.getAttributes(), Side.ONE), this);
-        terminal2 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg2, resource.getAttributes(), Side.TWO), this);
-        terminal3 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg3, resource.getAttributes(), Side.THREE), this);
+        terminal1 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg1, r.getAttributes(), Side.ONE));
+        terminal2 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg2, r.getAttributes(), Side.TWO));
+        terminal3 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg3, r.getAttributes(), Side.THREE));
     }
 
     static ThreeWindingsTransformerImpl create(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
