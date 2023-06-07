@@ -15,8 +15,8 @@ import com.powsybl.network.store.model.*;
 
 public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> implements TieLineAdder {
 
-    String danglingLine1;
-    String danglingLine2;
+    private String danglingLine1;
+    private String danglingLine2;
 
     public TieLineAdderImpl(NetworkObjectIndex index) {
         super(index);
@@ -48,8 +48,8 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
                 .attributes(TieLineAttributes.builder()
-                        .half1Id(dl1.getId())
-                        .half2Id(dl2.getId())
+                        .danglingLine1Id(dl1.getId())
+                        .danglingLine2Id(dl2.getId())
                         .build()).build();
         getIndex().createTieLine(resource);
         TieLineImpl tieLine = new TieLineImpl(getIndex(), resource);

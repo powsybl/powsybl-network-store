@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.TieLineUtil;
@@ -23,18 +22,8 @@ import java.util.function.Supplier;
 
 public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttributes> implements TieLine {
 
-    private final String danglingLineHalf1;
-
-    private final String danglingLineHalf2;
-
-    private final Map<Class<?>, Extension<TieLine>> extensions = new HashMap<>();
-
-    private final Map<String, Extension<TieLine>> extensionsByName = new HashMap<>();
-
     public TieLineImpl(NetworkObjectIndex index, Resource<TieLineAttributes> resource) {
         super(index, resource);
-        danglingLineHalf1 = resource.getAttributes().getHalf1Id();
-        danglingLineHalf2 = resource.getAttributes().getHalf2Id();
     }
 
     @Override
@@ -44,17 +33,17 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public DanglingLineImpl getDanglingLine1() {
-        return index.getDanglingLine(danglingLineHalf1).orElse(null);
+        return index.getDanglingLine(getResource().getAttributes().getDanglingLine1Id()).orElseThrow();
     }
 
     @Override
     public DanglingLineImpl getDanglingLine2() {
-        return index.getDanglingLine(danglingLineHalf2).orElse(null);
+        return index.getDanglingLine(getResource().getAttributes().getDanglingLine2Id()).orElseThrow();
     }
 
     @Override
     public DanglingLine getDanglingLine(Branch.Side side) {
-        if (Branch.Side.ONE.equals(side)) {
+        if (Branch.Side.ONE == side) {
             return getDanglingLine1();
         } else {
             return getDanglingLine2();
@@ -62,113 +51,34 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public DanglingLine getDanglingLine(String s) {
-        if (s.equals(getDanglingLine1().getId())) {
+    public DanglingLine getDanglingLine(String voltageLevelId) {
+        Objects.requireNonNull(voltageLevelId);
+        if (voltageLevelId.equals(getDanglingLine1().getTerminal().getVoltageLevelId())) {
             return getDanglingLine1();
-        } else if (s.equals(getDanglingLine2().getId())) {
+        } else if (voltageLevelId.equals(getDanglingLine2().getTerminal().getVoltageLevelId())) {
             return getDanglingLine2();
         } else {
-            throw new PowsyblException("Unknown dangling line :" + s);
+            throw new PowsyblException("Unknown dangling line :" + voltageLevelId);
         }
     }
 
     @Override
     public void remove() {
         var resource = getResource();
-        Optional<DanglingLineImpl> dl1 = index.getDanglingLine(danglingLineHalf1);
-        Optional<DanglingLineImpl> dl2 = index.getDanglingLine(danglingLineHalf2);
-
-        dl1.ifPresent(DanglingLineImpl::removeTieLine);
-        dl2.ifPresent(DanglingLineImpl::removeTieLine);
 
         index.notifyBeforeRemoval(this);
+
+        getDanglingLine1().removeTieLine();
+        getDanglingLine2().removeTieLine();
         index.removeTieLine(resource.getId());
+
         index.notifyAfterRemoval(resource.getId());
-    }
-
-    @Override
-    public boolean hasProperty() {
-        return false;
-    }
-
-    @Override
-    public boolean hasProperty(String s) {
-        return false;
-    }
-
-    @Override
-    public String getProperty(String s) {
-        return null;
-    }
-
-    @Override
-    public String getProperty(String s, String s1) {
-        return null;
-    }
-
-    @Override
-    public String setProperty(String s, String s1) {
-        return null;
-    }
-
-    @Override
-    public boolean removeProperty(String s) {
-        return false;
-    }
-
-    @Override
-    public Set<String> getPropertyNames() {
-        return null;
-    }
-
-    @Override
-    public <E extends Extension<TieLine>> void addExtension(Class<? super E> aClass, E e) {
-        Objects.requireNonNull(aClass);
-        Objects.requireNonNull(e);
-        e.setExtendable(this);
-        extensions.put(aClass, e);
-        extensionsByName.put(e.getName(), e);
-    }
-
-    @Override
-    public <E extends Extension<TieLine>> E getExtension(Class<? super E> aClass) {
-        Objects.requireNonNull(aClass);
-        return (E) extensions.get(aClass);
-    }
-
-    @Override
-    public <E extends Extension<TieLine>> E getExtensionByName(String name) {
-        Objects.requireNonNull(name);
-        return (E) extensionsByName.get(name);
-    }
-
-    @Override
-    public <E extends Extension<TieLine>> boolean removeExtension(Class<E> aClass) {
-        boolean removed = false;
-
-        E extension = getExtension(aClass);
-        if (extension != null) {
-            extensions.remove(aClass);
-            extensionsByName.remove(extension.getName());
-            extension.setExtendable(null);
-            removed = true;
-        }
-
-        return removed;
-    }
-
-    @Override
-    public Collection<Extension<TieLine>> getExtensions() {
-        return extensionsByName.values();
     }
 
     @Override
     public double getR() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
-        if (dl1 == null || dl2 == null) {
-            throw new PowsyblException("Cannot get R for TieLine " + getId() + " dangling line is null.");
-        }
         return TieLineUtil.getR(dl1, dl2);
     }
 
@@ -176,9 +86,6 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getX() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
-        if (dl1 == null || dl2 == null) {
-            throw new PowsyblException("Cannot get X for TieLine " + getId() + " dangling line is null.");
-        }
         return TieLineUtil.getX(dl1, dl2);
     }
 
@@ -186,9 +93,6 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getG1() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
-        if (dl1 == null || dl2 == null) {
-            throw new PowsyblException("Cannot get G1 for TieLine " + getId() + " dangling line is null.");
-        }
         return TieLineUtil.getG1(dl1, dl2);
     }
 
@@ -196,9 +100,6 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getG2() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
-        if (dl1 == null || dl2 == null) {
-            throw new PowsyblException("Cannot get G2 for TieLine " + getId() + " dangling line is null.");
-        }
         return TieLineUtil.getG2(dl1, dl2);
     }
 
@@ -206,9 +107,6 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getB1() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
-        if (dl1 == null || dl2 == null) {
-            throw new PowsyblException("Cannot get B1 for TieLine " + getId() + " dangling line is null.");
-        }
         return TieLineUtil.getB1(dl1, dl2);
     }
 
@@ -216,9 +114,6 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     public double getB2() {
         DanglingLine dl1 = getDanglingLine1();
         DanglingLine dl2 = getDanglingLine2();
-        if (dl1 == null || dl2 == null) {
-            throw new PowsyblException("Cannot get B2 for TieLine " + getId() + " dangling line is null.");
-        }
         return TieLineUtil.getB2(dl1, dl2);
     }
 
@@ -238,7 +133,8 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public Terminal getTerminal(Side side) {
-        if (Side.ONE.equals(side)) {
+        Objects.requireNonNull(side);
+        if (Side.ONE == side) {
             return getDanglingLine1().getTerminal();
         } else {
             return getDanglingLine2().getTerminal();

@@ -399,7 +399,7 @@ public class ResourceTest {
                 .generation(danglingLineGenerationAttributes)
                 .ucteXnodeCode("XN1")
                 .bus("bus1")
-                .parentId("idTieLineParent")
+                .tieLineId("idTieLineParent")
                 .build();
 
         Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder()
@@ -428,7 +428,7 @@ public class ResourceTest {
         assertEquals(20, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMaxQ(), 0);
         assertEquals("XN1", resourceDanglingLine.getAttributes().getUcteXnodeCode());
         assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
-        assertEquals("idTieLineParent", resourceDanglingLine.getAttributes().getParentId());
+        assertEquals("idTieLineParent", resourceDanglingLine.getAttributes().getTieLineId());
 
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
@@ -447,8 +447,8 @@ public class ResourceTest {
                 .builder()
                 .name("tieLine1")
                 .fictitious(false)
-                .half1Id("half1")
-                .half2Id("half2")
+                .danglingLine1Id("half1")
+                .danglingLine2Id("half2")
                 .build();
 
         Resource<TieLineAttributes> resourceTieLine = Resource.tieLineBuilder()

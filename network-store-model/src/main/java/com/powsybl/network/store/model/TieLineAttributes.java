@@ -14,11 +14,11 @@ import java.util.Set;
 @Schema(description = "Tie line attributes")
 public class TieLineAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
-    @Schema(description = "Tie line half1 id")
-    private String half1Id;
+    @Schema(description = "Dangling line side 1 ID")
+    private String danglingLine1Id;
 
-    @Schema(description = "Tie line half2 id")
-    private String half2Id;
+    @Schema(description = "Dangling line side 2 ID")
+    private String danglingLine2Id;
 
     @Schema(description = "Tie line name")
     private String name;

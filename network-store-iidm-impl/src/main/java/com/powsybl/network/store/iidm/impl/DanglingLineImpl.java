@@ -350,7 +350,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public AbstractIdentifiableImpl getIdentifiable() {
+    public AbstractIdentifiableImpl<?, ?> getIdentifiable() {
         return this;
     }
 
@@ -427,17 +427,13 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         return boundary;
     }
 
-    void setTieLine(TieLineImpl parent) {
+    void setTieLine(TieLineImpl tieLine) {
         var resource = getResource();
-        String oldValue = resource.getAttributes().getParentId();
-        String parentId;
-        if (parent != null) {
-            parentId = parent.getId();
-        } else {
-            parentId = null;
-        }
-        updateResource(res -> res.getAttributes().setParentId(parentId));
-        notifyUpdate("parentId", oldValue, parentId);
+        String oldValue = resource.getAttributes().getTieLineId();
+        String tieLineId = tieLine != null ? tieLine.getId() : null;
+        updateResource(res -> res.getAttributes().setTieLineId(tieLineId));
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        notifyUpdate("tieLineId", oldValue, tieLineId);
     }
 
     void removeTieLine() {
@@ -447,11 +443,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     public Optional<TieLine> getTieLine() {
         var resource = getResource();
-        String tieLineId = resource.getAttributes().getParentId();
-        if (tieLineId == null) {
-            return Optional.empty();
-        } else {
-            return index.getTieLine(tieLineId).flatMap(Optional::of);
-        }
+        return Optional.ofNullable(resource.getAttributes().getTieLineId())
+                .flatMap(index::getTieLine);
     }
 }
