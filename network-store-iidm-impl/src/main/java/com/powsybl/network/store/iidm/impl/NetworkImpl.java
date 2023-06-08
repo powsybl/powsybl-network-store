@@ -829,6 +829,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                             graph.addEdge(bus, converterStation.getHvdcLine(), new Object());
                         }
                     }
+
+                    @Override
+                    public void visitDanglingLine(DanglingLine danglingLine) {
+                        if (danglingLine.isPaired()) {
+                            TieLine tieLine = danglingLine.getTieLine().orElseThrow();
+                            graph.addVertex(tieLine);
+                            graph.addEdge(bus, tieLine, new Object());
+                        }
+                    }
                 });
             }
 
