@@ -16,7 +16,9 @@ import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 import org.junit.Test;
 
+import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -166,6 +168,23 @@ public class LineTest {
         assertEquals(0, tieLine.getG2(), 1e-3);
         assertEquals(0, tieLine.getB1(), 1e-3);
         assertEquals(0, tieLine.getB2(), 1e-3);
+
+        assertEquals(10, network.getDanglingLineCount());
+        VoltageLevel vl1 = network.getVoltageLevel("469df5f7-058f-4451-a998-57a48e8a56fe");
+        assertEquals(3, vl1.getDanglingLineCount());
+
+        List<DanglingLine> dls = vl1.getDanglingLineStream().collect(Collectors.toList());
+        assertEquals(3, dls.size());
+        assertEquals(3, vl1.getDanglingLineStream(DanglingLineFilter.ALL).collect(Collectors.toList()).size());
+        assertEquals(3, vl1.getDanglingLineStream(DanglingLineFilter.PAIRED).collect(Collectors.toList()).size());
+
+        VoltageLevel vl2 = network.getVoltageLevel("c1d5bfde8f8011e08e4d00247eb1f55e");
+        assertEquals(3, vl2.getDanglingLineCount());
+
+        List<DanglingLine> dls2 = vl2.getDanglingLineStream().collect(Collectors.toList());
+        assertEquals(3, dls2.size());
+        assertEquals(3, vl2.getDanglingLineStream(DanglingLineFilter.ALL).collect(Collectors.toList()).size());
+        assertEquals(3, vl2.getDanglingLineStream(DanglingLineFilter.PAIRED).collect(Collectors.toList()).size());
 
         tieLine.remove();
 

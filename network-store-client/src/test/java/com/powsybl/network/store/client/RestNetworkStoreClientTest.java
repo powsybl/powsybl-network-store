@@ -229,10 +229,6 @@ public class RestNetworkStoreClientTest {
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/tie-lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(tieLineJson, MediaType.APPLICATION_JSON));
-
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false"))
-                .andExpect(method(PUT))
-                .andRespond(withSuccess());
     }
 
     @Test
