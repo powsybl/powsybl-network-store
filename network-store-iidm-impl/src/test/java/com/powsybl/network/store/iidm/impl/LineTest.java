@@ -180,6 +180,21 @@ public class LineTest {
         assertEquals(Branch.Side.ONE, tieLine.getSide(dl1.getTerminal()));
         assertEquals(Branch.Side.TWO, tieLine.getSide(dl2.getTerminal()));
 
+        tieLine.remove();
+
+        assertNull(network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
+    }
+
+    @Test
+    public void testTieLineLimits() {
+
+        Network network = Importer.find("CGMES")
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+        TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
+
+        DanglingLine dl1 = tieLine.getDanglingLine1();
+        DanglingLine dl2 = tieLine.getDanglingLine2();
+
         assertNotNull(tieLine.getNullableCurrentLimits1());
         assertNotNull(tieLine.getNullableCurrentLimits2());
         assertNull(tieLine.getNullableApparentPowerLimits1());
@@ -277,10 +292,6 @@ public class LineTest {
                 .add();
         assertNotNull(apparentpowerlimits2);
         assertEquals(1, tieLine.getApparentPowerLimits2().get().getTemporaryLimits().size());
-
-        tieLine.remove();
-
-        assertNull(network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
 
     }
 }

@@ -30,11 +30,6 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     }
 
     @Override
-    public boolean isTieLine() {
-        return false;
-    }
-
-    @Override
     public double getR() {
         return getResource().getAttributes().getR();
     }

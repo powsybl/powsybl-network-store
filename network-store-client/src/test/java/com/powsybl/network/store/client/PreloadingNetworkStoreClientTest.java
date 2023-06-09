@@ -681,14 +681,14 @@ public class PreloadingNetworkStoreClientTest {
         // First time tie line retrieval by Id
         Resource<TieLineAttributes> tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
         assertNotNull(tieLineAttributesResource);
-        assertEquals(tieLineAttributesResource.getAttributes().getDanglingLine1Id(), "dl1");
+        assertEquals("dl1", tieLineAttributesResource.getAttributes().getDanglingLine1Id());
 
         tieLineAttributesResource.getAttributes().setDanglingLine1Id("dll1");
 
         // Second time tie line retrieval by Id
         tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
         assertNotNull(tieLineAttributesResource);
-        assertEquals(tieLineAttributesResource.getAttributes().getDanglingLine1Id(), "dll1");
+        assertEquals("dll1", tieLineAttributesResource.getAttributes().getDanglingLine1Id());
 
         server.verify();
     }
