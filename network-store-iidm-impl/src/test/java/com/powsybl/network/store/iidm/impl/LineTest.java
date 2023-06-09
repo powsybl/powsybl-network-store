@@ -278,7 +278,6 @@ public class LineTest {
         assertNotNull(apparentpowerlimits2);
         assertEquals(1, tieLine.getApparentPowerLimits2().get().getTemporaryLimits().size());
 
-
         tieLine.remove();
 
         assertNull(network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
