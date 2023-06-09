@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.junit.Before;
@@ -656,6 +657,39 @@ public class PreloadingNetworkStoreClientTest {
         danglingLineAttributesResource = cachedClient.getDanglingLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
         assertNotNull(danglingLineAttributesResource);
         assertEquals(60., danglingLineAttributesResource.getAttributes().getQ0(), 0.001);
+
+        server.verify();
+    }
+
+    @Test
+    public void testTieLineCache() throws IOException {
+        // Two successive tie line retrievals, only the first should send a REST request, the second uses the cache
+        Resource<TieLineAttributes> tieLine = Resource.tieLineBuilder()
+                .id("tieLine1")
+                .attributes(TieLineAttributes.builder()
+                        .name("tieLine1")
+                        .danglingLine1Id("dl1")
+                        .danglingLine2Id("dl2")
+                        .build())
+                .build();
+
+        String tieLineJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(tieLine)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/tie-lines"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(tieLineJson, MediaType.APPLICATION_JSON));
+
+        // First time tie line retrieval by Id
+        Resource<TieLineAttributes> tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
+        assertNotNull(tieLineAttributesResource);
+        assertEquals(tieLineAttributesResource.getAttributes().getDanglingLine1Id(), "dl1");
+
+        tieLineAttributesResource.getAttributes().setDanglingLine1Id("dll1");
+
+        // Second time tie line retrieval by Id
+        tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
+        assertNotNull(tieLineAttributesResource);
+        assertEquals(tieLineAttributesResource.getAttributes().getDanglingLine1Id(),"dll1");
 
         server.verify();
     }
