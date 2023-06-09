@@ -9,6 +9,8 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
+import java.util.Objects;
+
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
@@ -43,6 +45,16 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
 
         DanglingLineImpl dl1 = index.getDanglingLine(danglingLine1).orElseThrow(() -> new ValidationException(this, danglingLine1 + " are not dangling lines in the network"));
         DanglingLineImpl dl2 = index.getDanglingLine(danglingLine2).orElseThrow(() -> new ValidationException(this, danglingLine2 + " are not dangling lines in the network"));
+
+        if (dl1 == dl2) {
+            throw new ValidationException(this, "danglingLine1 and danglingLine2 are identical (" + dl1.getId() + ")");
+        }
+        if (dl1.getTieLine().isPresent() || dl2.getTieLine().isPresent()) {
+            throw new ValidationException(this, "danglingLine1 (" + danglingLine1 + ") and/or danglingLine2 (" + danglingLine2 + ") already has a tie line");
+        }
+        if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null && !Objects.equals(dl1.getUcteXnodeCode(), dl2.getUcteXnodeCode())) {
+            throw new ValidationException(this, "ucteXnodeCode is not consistent");
+        }
 
         Resource<TieLineAttributes> resource = Resource.tieLineBuilder()
                 .id(id)

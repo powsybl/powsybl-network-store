@@ -156,6 +156,8 @@ public class LineTest {
         assertEquals(dl1.getId(), tieLine.getDanglingLine(Branch.Side.ONE).getId());
         assertEquals(dl2.getId(), tieLine.getDanglingLine(Branch.Side.TWO).getId());
         assertEquals(dl1.getId(), tieLine.getDanglingLine(dl1.getTerminal().getVoltageLevel().getId()).getId());
+        assertEquals(dl2.getId(), tieLine.getDanglingLine(dl2.getTerminal().getVoltageLevel().getId()).getId());
+        assertNull(tieLine.getDanglingLine("null"));
 
         assertEquals(0.84, tieLine.getR(), 1e-3);
         assertEquals(12.6, tieLine.getX(), 1e-3);
@@ -173,9 +175,17 @@ public class LineTest {
         assertSame(tieLine.getTerminal(Branch.Side.ONE), dl1.getTerminal());
         assertSame(tieLine.getTerminal(Branch.Side.TWO), dl2.getTerminal());
 
+        assertSame(tieLine.getTerminal(dl1.getTerminal().getVoltageLevel().getId()), dl1.getTerminal());
+
         assertEquals(Branch.Side.ONE, tieLine.getSide(dl1.getTerminal()));
         assertEquals(Branch.Side.TWO, tieLine.getSide(dl2.getTerminal()));
 
+        assertNotNull(tieLine.getNullableCurrentLimits1());
+        assertNotNull(tieLine.getNullableCurrentLimits2());
+        assertNull(tieLine.getNullableApparentPowerLimits1());
+        assertNull(tieLine.getNullableApparentPowerLimits2());
+        assertNotNull(tieLine.getActivePowerLimits1());
+        assertNotNull(tieLine.getActivePowerLimits2());
         assertEquals(tieLine.getCurrentLimits1().isPresent(), dl1.getCurrentLimits().isPresent());
         assertEquals(tieLine.getActivePowerLimits1().isPresent(), dl1.getActivePowerLimits().isPresent());
         assertEquals(tieLine.getApparentPowerLimits1().isPresent(), dl1.getApparentPowerLimits().isPresent());
@@ -190,6 +200,13 @@ public class LineTest {
         assertEquals(tieLine.getApparentPowerLimits(Branch.Side.TWO).isPresent(), dl2.getApparentPowerLimits().isPresent());
         assertEquals(tieLine.getOperationalLimits1().size(), dl1.getOperationalLimits().size());
         assertEquals(tieLine.getOperationalLimits2().size(), dl2.getOperationalLimits().size());
+
+        assertFalse(tieLine.isOverloaded());
+        assertFalse(tieLine.isOverloaded(1.0f));
+
+        tieLine.remove();
+
+        assertNull(network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
 
     }
 }

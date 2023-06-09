@@ -58,7 +58,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         } else if (voltageLevelId.equals(getDanglingLine2().getTerminal().getVoltageLevelId())) {
             return getDanglingLine2();
         } else {
-            throw new PowsyblException("Unknown dangling line :" + voltageLevelId);
+            return null;
         }
     }
 
