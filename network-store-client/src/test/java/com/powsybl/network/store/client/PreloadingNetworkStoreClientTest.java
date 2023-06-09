@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TieLine;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.junit.Before;
@@ -689,7 +688,7 @@ public class PreloadingNetworkStoreClientTest {
         // Second time tie line retrieval by Id
         tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
         assertNotNull(tieLineAttributesResource);
-        assertEquals(tieLineAttributesResource.getAttributes().getDanglingLine1Id(),"dll1");
+        assertEquals(tieLineAttributesResource.getAttributes().getDanglingLine1Id(), "dll1");
 
         server.verify();
     }
