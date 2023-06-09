@@ -690,6 +690,11 @@ public class PreloadingNetworkStoreClientTest {
         assertNotNull(tieLineAttributesResource);
         assertEquals("dll1", tieLineAttributesResource.getAttributes().getDanglingLine1Id());
 
+        // Remove component
+        assertEquals(1, cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        cachedClient.removeTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("tieLine1"));
+        assertEquals(0, cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
         server.verify();
     }
 

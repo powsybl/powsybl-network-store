@@ -814,13 +814,13 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     @Override
     public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
         ensureCached(ResourceType.TIE_LINE, networkUuid, variantNum);
-        delegate.removeDanglingLines(networkUuid, variantNum, tieLinesId);
+        delegate.removeTieLines(networkUuid, variantNum, tieLinesId);
     }
 
     @Override
     public void updateTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources, AttributeFilter attributeFilter) {
         for (Resource<TieLineAttributes> tieLineResource : tieLineResources) {
-            ensureCached(ResourceType.DANGLING_LINE, networkUuid, tieLineResource.getVariantNum());
+            ensureCached(ResourceType.TIE_LINE, networkUuid, tieLineResource.getVariantNum());
         }
         delegate.updateTieLines(networkUuid, tieLineResources, attributeFilter);
     }
