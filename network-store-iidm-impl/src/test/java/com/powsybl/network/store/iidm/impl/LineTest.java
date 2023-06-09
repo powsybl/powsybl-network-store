@@ -204,6 +204,81 @@ public class LineTest {
         assertFalse(tieLine.isOverloaded());
         assertFalse(tieLine.isOverloaded(1.0f));
 
+        assertEquals(Integer.MAX_VALUE, tieLine.getOverloadDuration());
+
+        //Test current limit overriding
+        assertEquals(2, tieLine.getCurrentLimits1().get().getTemporaryLimits().size());
+        CurrentLimits currentlimits1 = tieLine.newCurrentLimits1()
+                .beginTemporaryLimit()
+                .setName("dummy")
+                .setValue(10.0)
+                .setAcceptableDuration(1)
+                .endTemporaryLimit()
+                .add();
+        assertNotNull(currentlimits1);
+        assertEquals(1, tieLine.getCurrentLimits1().get().getTemporaryLimits().size());
+
+        assertEquals(2, tieLine.getCurrentLimits2().get().getTemporaryLimits().size());
+        CurrentLimits currentlimit2 = tieLine.newCurrentLimits2()
+                .beginTemporaryLimit()
+                .setName("dummy2")
+                .setValue(10.0)
+                .setAcceptableDuration(1)
+                .endTemporaryLimit()
+                .add();
+        assertNotNull(currentlimit2);
+        assertEquals(1, tieLine.getCurrentLimits2().get().getTemporaryLimits().size());
+
+        //Test active power limit overriding
+        assertNull(tieLine.getNullableActivePowerLimits1());
+        assertTrue(tieLine.getActivePowerLimits1().isEmpty());
+        ActivePowerLimits activepowerlimits1 = tieLine.newActivePowerLimits1()
+                .beginTemporaryLimit()
+                .setName("dummy")
+                .setValue(10.0)
+                .setAcceptableDuration(1)
+                .endTemporaryLimit()
+                .add();
+        assertNotNull(activepowerlimits1);
+        assertEquals(1, tieLine.getActivePowerLimits1().get().getTemporaryLimits().size());
+
+        assertNull(tieLine.getNullableActivePowerLimits2());
+        assertTrue(tieLine.getActivePowerLimits2().isEmpty());
+        ActivePowerLimits activepowerlimits2 = tieLine.newActivePowerLimits2()
+                .beginTemporaryLimit()
+                .setName("dummy")
+                .setValue(10.0)
+                .setAcceptableDuration(1)
+                .endTemporaryLimit()
+                .add();
+        assertNotNull(activepowerlimits2);
+        assertEquals(1, tieLine.getActivePowerLimits2().get().getTemporaryLimits().size());
+
+        //Test apparent power limit overriding
+
+        assertTrue(tieLine.getApparentPowerLimits1().isEmpty());
+        ApparentPowerLimits apparentpowerlimits1 = tieLine.newApparentPowerLimits1()
+                .beginTemporaryLimit()
+                .setName("dummy")
+                .setValue(10.0)
+                .setAcceptableDuration(1)
+                .endTemporaryLimit()
+                .add();
+        assertNotNull(apparentpowerlimits1);
+        assertEquals(1, tieLine.getApparentPowerLimits1().get().getTemporaryLimits().size());
+
+        assertTrue(tieLine.getApparentPowerLimits2().isEmpty());
+        ApparentPowerLimits apparentpowerlimits2 = tieLine.newApparentPowerLimits2()
+                .beginTemporaryLimit()
+                .setName("dummy")
+                .setValue(10.0)
+                .setAcceptableDuration(1)
+                .endTemporaryLimit()
+                .add();
+        assertNotNull(apparentpowerlimits2);
+        assertEquals(1, tieLine.getApparentPowerLimits2().get().getTemporaryLimits().size());
+
+
         tieLine.remove();
 
         assertNull(network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
