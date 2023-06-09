@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
@@ -17,6 +18,8 @@ import org.junit.Test;
 import java.util.TreeMap;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -138,5 +141,55 @@ public class LineTest {
         assertEquals(ConnectablePosition.Direction.TOP, l3.getExtension(ConnectablePosition.class).getFeeder2().getDirection());
         assertEquals(0, (int) l3.getExtension(ConnectablePosition.class).getFeeder2().getOrder().orElseThrow());
         assertNull(l3.getExtension(ConnectablePosition.class).getFeeder1());
+    }
+
+    @Test
+    public void testTieLine() {
+        Network network = Importer.find("CGMES")
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+        TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
+        assertEquals("TN_Border_GY11", tieLine.getUcteXnodeCode());
+        DanglingLine dl1 = tieLine.getDanglingLine1();
+        DanglingLine dl2 = tieLine.getDanglingLine2();
+        assertNotNull(dl1);
+        assertNotNull(dl2);
+        assertEquals(dl1.getId(), tieLine.getDanglingLine(Branch.Side.ONE).getId());
+        assertEquals(dl2.getId(), tieLine.getDanglingLine(Branch.Side.TWO).getId());
+        assertEquals(dl1.getId(), tieLine.getDanglingLine(dl1.getTerminal().getVoltageLevel().getId()).getId());
+
+        assertEquals(0.84, tieLine.getR(), 1e-3);
+        assertEquals(12.6, tieLine.getX(), 1e-3);
+        assertEquals(0., tieLine.getG1(), 1e-3);
+        assertEquals(0, tieLine.getG2(), 1e-3);
+        assertEquals(0, tieLine.getB1(), 1e-3);
+        assertEquals(0, tieLine.getB2(), 1e-3);
+
+        assertNotNull(tieLine.getTerminal1());
+        assertSame(tieLine.getTerminal1(), dl1.getTerminal());
+
+        assertNotNull(tieLine.getTerminal2());
+        assertSame(tieLine.getTerminal2(), dl2.getTerminal());
+
+        assertSame(tieLine.getTerminal(Branch.Side.ONE), dl1.getTerminal());
+        assertSame(tieLine.getTerminal(Branch.Side.TWO), dl2.getTerminal());
+
+        assertEquals(Branch.Side.ONE, tieLine.getSide(dl1.getTerminal()));
+        assertEquals(Branch.Side.TWO, tieLine.getSide(dl2.getTerminal()));
+
+        assertEquals(tieLine.getCurrentLimits1().isPresent(), dl1.getCurrentLimits().isPresent());
+        assertEquals(tieLine.getActivePowerLimits1().isPresent(), dl1.getActivePowerLimits().isPresent());
+        assertEquals(tieLine.getApparentPowerLimits1().isPresent(), dl1.getApparentPowerLimits().isPresent());
+        assertEquals(tieLine.getCurrentLimits2().isPresent(), dl2.getCurrentLimits().isPresent());
+        assertEquals(tieLine.getActivePowerLimits2().isPresent(), dl2.getActivePowerLimits().isPresent());
+        assertEquals(tieLine.getApparentPowerLimits2().isPresent(), dl2.getApparentPowerLimits().isPresent());
+        assertEquals(tieLine.getCurrentLimits(Branch.Side.ONE).isPresent(), dl1.getCurrentLimits().isPresent());
+        assertEquals(tieLine.getActivePowerLimits(Branch.Side.ONE).isPresent(), dl1.getActivePowerLimits().isPresent());
+        assertEquals(tieLine.getApparentPowerLimits(Branch.Side.ONE).isPresent(), dl1.getApparentPowerLimits().isPresent());
+        assertEquals(tieLine.getCurrentLimits(Branch.Side.TWO).isPresent(), dl2.getCurrentLimits().isPresent());
+        assertEquals(tieLine.getActivePowerLimits(Branch.Side.TWO).isPresent(), dl2.getActivePowerLimits().isPresent());
+        assertEquals(tieLine.getApparentPowerLimits(Branch.Side.TWO).isPresent(), dl2.getApparentPowerLimits().isPresent());
+        assertEquals(tieLine.getOperationalLimits1().size(), dl1.getOperationalLimits().size());
+        assertEquals(tieLine.getOperationalLimits2().size(), dl2.getOperationalLimits().size());
+
     }
 }
