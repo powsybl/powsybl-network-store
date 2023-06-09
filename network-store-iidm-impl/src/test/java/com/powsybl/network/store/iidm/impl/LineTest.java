@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -175,16 +176,29 @@ public class LineTest {
 
         List<DanglingLine> dls = vl1.getDanglingLineStream().collect(Collectors.toList());
         assertEquals(3, dls.size());
-        assertEquals(3, vl1.getDanglingLineStream(DanglingLineFilter.ALL).collect(Collectors.toList()).size());
-        assertEquals(3, vl1.getDanglingLineStream(DanglingLineFilter.PAIRED).collect(Collectors.toList()).size());
+        assertEquals(3, (int) vl1.getDanglingLineStream(DanglingLineFilter.ALL).count());
+        assertEquals(3, (int) vl1.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
 
         VoltageLevel vl2 = network.getVoltageLevel("c1d5bfde8f8011e08e4d00247eb1f55e");
         assertEquals(3, vl2.getDanglingLineCount());
 
         List<DanglingLine> dls2 = vl2.getDanglingLineStream().collect(Collectors.toList());
         assertEquals(3, dls2.size());
-        assertEquals(3, vl2.getDanglingLineStream(DanglingLineFilter.ALL).collect(Collectors.toList()).size());
-        assertEquals(3, vl2.getDanglingLineStream(DanglingLineFilter.PAIRED).collect(Collectors.toList()).size());
+        assertEquals(3, Iterables.size(vl2.getDanglingLines(DanglingLineFilter.ALL)));
+        assertEquals(3, (int) vl2.getDanglingLineStream(DanglingLineFilter.ALL).count());
+        assertEquals(3, (int) vl2.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
+
+        Bus configuredBus = network.getBusBreakerView().getBus("795a117d-7caf-4fc2-a8d9-dc8f4cf2344a");
+        assertEquals(2, (int) configuredBus.getDanglingLineStream().count());
+        assertEquals(2, Iterables.size(configuredBus.getDanglingLines(DanglingLineFilter.ALL)));
+        assertEquals(2, (int) configuredBus.getDanglingLineStream(DanglingLineFilter.ALL).count());
+        assertEquals(2, (int) configuredBus.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
+
+        Bus calculatedBus = network.getBusView().getBus("c1d5bfea8f8011e08e4d00247eb1f55e_0");
+        assertEquals(2, (int) calculatedBus.getDanglingLineStream().count());
+        assertEquals(2, Iterables.size(calculatedBus.getDanglingLines(DanglingLineFilter.ALL)));
+        assertEquals(2, (int) calculatedBus.getDanglingLineStream(DanglingLineFilter.ALL).count());
+        assertEquals(2, (int) calculatedBus.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
 
         tieLine.remove();
 

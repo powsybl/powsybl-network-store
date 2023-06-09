@@ -6,7 +6,13 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.tck.AbstractLoadTest;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,8 +28,12 @@ public class LoadTest extends AbstractLoadTest {
         // FIXME
     }
 
+    @Test
     @Override
     public void testExponentialLoadModel() {
-
+        // FIXME
+        Network network = FictitiousSwitchFactory.create();
+        VoltageLevel voltageLevel = network.getVoltageLevel("C");
+        assertNull(voltageLevel.newLoad().newExponentialModel().setNp(0.0).setNq(0.0).add());
     }
 }
