@@ -6,10 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.DanglingLineAdder;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
 /**
@@ -156,12 +153,17 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
     @Override
     public DanglingLine add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         checkNodeBus();
+
+        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
+        ValidationUtil.checkR(this, p0);
 
         Resource<DanglingLineAttributes> resource = Resource.danglingLineBuilder()
                 .id(id)
