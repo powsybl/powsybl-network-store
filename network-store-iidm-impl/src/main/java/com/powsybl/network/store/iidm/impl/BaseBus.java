@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -28,6 +29,16 @@ public interface BaseBus extends Bus {
     @Override
     default void visitConnectedOrConnectableEquipments(TopologyVisitor topologyVisitor) {
         visitEquipments(getAllTerminals(), topologyVisitor);
+    }
+
+    @Override
+    default Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    }
+
+    @Override
+    default Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream().filter(danglingLineFilter.getPredicate());
     }
 
     @Override

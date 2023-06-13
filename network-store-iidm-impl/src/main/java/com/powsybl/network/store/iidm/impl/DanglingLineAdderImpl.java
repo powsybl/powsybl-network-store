@@ -153,7 +153,6 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
     @Override
     public DanglingLine add() {
-        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         checkNodeBus();
 
@@ -163,7 +162,6 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
-        ValidationUtil.checkR(this, p0);
 
         Resource<DanglingLineAttributes> resource = Resource.danglingLineBuilder()
                 .id(id)
