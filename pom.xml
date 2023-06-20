@@ -54,7 +54,7 @@
         <equalsverifier.version>3.10</equalsverifier.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <powsybl-dependencies.version>2023.2.1</powsybl-dependencies.version>
-        <powsybl-ws-commons.version>1.3.0</powsybl-ws-commons.version>
+        <powsybl-ws-commons.version>1.5.0</powsybl-ws-commons.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
