@@ -21,9 +21,4 @@ public class LineTest extends AbstractLineTest {
     public void testRemoveAcLine() {
         // FIXME
     }
-
-    @Override
-    public void testTieLineAdder() {
-        // FIXME
-    }
 }

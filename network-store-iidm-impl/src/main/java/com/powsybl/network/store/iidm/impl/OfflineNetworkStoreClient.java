@@ -570,6 +570,31 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void createTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources) {
+        // nothing to do
+    }
+
+    @Override
+    public List<Resource<TieLineAttributes>> getTieLines(UUID networkUuid, int variantNum) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Optional<Resource<TieLineAttributes>> getTieLine(UUID networkUuid, int variantNum, String tieLineId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
+        // nothing to do
+    }
+
+    @Override
+    public void updateTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources, AttributeFilter attributeFilter) {
+        // nothing to do
+    }
+
+    @Override
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         return Optional.empty();
     }

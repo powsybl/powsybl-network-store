@@ -6,15 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.entsoe.util.MergedXnode;
-import com.powsybl.entsoe.util.MergedXnodeImpl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LineAttributes;
-import com.powsybl.network.store.model.MergedXnodeAttributes;
 import com.powsybl.network.store.model.Resource;
-
-import java.util.Collection;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,11 +27,6 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     @Override
     protected Line getBranch() {
         return this;
-    }
-
-    @Override
-    public boolean isTieLine() {
-        return false;
     }
 
     @Override
@@ -136,73 +125,6 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
             index.notifyUpdate(this, "b2", oldValue, b2);
         }
         return this;
-    }
-
-    @Override
-    public <E extends Extension<Line>> void addExtension(Class<? super E> type, E extension) {
-        if (type == MergedXnode.class) {
-            MergedXnode mergedXnode = (MergedXnode) extension;
-            updateResource(res -> {
-                MergedXnodeAttributes attributes = MergedXnodeAttributes.builder()
-                        .code(mergedXnode.getCode())
-                        .rdp(mergedXnode.getRdp())
-                        .xdp(mergedXnode.getXdp())
-                        .xnodeP1(mergedXnode.getXnodeP1())
-                        .xnodeP2(mergedXnode.getXnodeP2())
-                        .xnodeQ1(mergedXnode.getXnodeQ1())
-                        .xnodeQ2(mergedXnode.getXnodeQ2())
-                        .line1Name(mergedXnode.getLine1Name())
-                        .line2Name(mergedXnode.getLine2Name())
-                        .build();
-                res.getAttributes().setMergedXnode(attributes);
-            });
-        }
-        super.addExtension(type, extension);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <E extends Extension<Line>> E getExtension(Class<? super E> type) {
-        if (type == MergedXnode.class) {
-            return (E) createMergedXnode();
-        }
-        return super.getExtension(type);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <E extends Extension<Line>> E getExtensionByName(String name) {
-        if (name.equals("mergedXnode")) {
-            return (E) createMergedXnode();
-        }
-        return super.getExtensionByName(name);
-    }
-
-    private MergedXnode createMergedXnode() {
-        var resource = getResource();
-        if (resource.getAttributes().getMergedXnode() != null) {
-            return new MergedXnodeImpl(this,
-                    resource.getAttributes().getMergedXnode().getRdp(),
-                    resource.getAttributes().getMergedXnode().getXdp(),
-                    resource.getAttributes().getMergedXnode().getXnodeP1(),
-                    resource.getAttributes().getMergedXnode().getXnodeQ1(),
-                    resource.getAttributes().getMergedXnode().getXnodeP2(),
-                    resource.getAttributes().getMergedXnode().getXnodeQ2(),
-                    resource.getAttributes().getMergedXnode().getLine1Name(),
-                    resource.getAttributes().getMergedXnode().getLine2Name(),
-                    resource.getAttributes().getMergedXnode().getCode());
-        }
-        return null;
-    }
-
-    @Override
-    public <E extends Extension<Line>> Collection<E> getExtensions() {
-        Collection<E> extensions = super.getExtensions();
-        MergedXnode extension = createMergedXnode();
-        if (extension != null) {
-            extensions.add((E) extension);
-        }
-        return extensions;
     }
 
     @Override

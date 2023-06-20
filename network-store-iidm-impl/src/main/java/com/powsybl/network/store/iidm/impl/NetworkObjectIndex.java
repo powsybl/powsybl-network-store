@@ -264,6 +264,8 @@ public class NetworkObjectIndex {
 
     private final ObjectCache<Line, LineImpl, LineAttributes> lineCache;
 
+    private final ObjectCache<TieLine, TieLineImpl, TieLineAttributes> tieLineCache;
+
     private final ObjectCache<HvdcLine, HvdcLineImpl, HvdcLineAttributes> hvdcLineCache;
 
     private final ObjectCache<DanglingLine, DanglingLineImpl, DanglingLineAttributes> danglingLineCache;
@@ -376,6 +378,12 @@ public class NetworkObjectIndex {
             () -> storeClient.getConfiguredBuses(network.getUuid(), workingVariantNum),
             id -> storeClient.removeConfiguredBuses(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> ConfiguredBusImpl.create(NetworkObjectIndex.this, resource));
+        tieLineCache = new ObjectCache<>(resource -> storeClient.createTieLines(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getTieLine(network.getUuid(), workingVariantNum, id),
+            null,
+            () -> storeClient.getTieLines(network.getUuid(), workingVariantNum),
+            id -> storeClient.removeTieLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            resource -> TieLineImpl.create(NetworkObjectIndex.this, resource));
 
         objectCachesByResourceType.put(ResourceType.SUBSTATION, substationCache);
         objectCachesByResourceType.put(ResourceType.VOLTAGE_LEVEL, voltageLevelCache);
@@ -394,6 +402,7 @@ public class NetworkObjectIndex {
         objectCachesByResourceType.put(ResourceType.HVDC_LINE, hvdcLineCache);
         objectCachesByResourceType.put(ResourceType.DANGLING_LINE, danglingLineCache);
         objectCachesByResourceType.put(ResourceType.CONFIGURED_BUS, configuredBusCache);
+        objectCachesByResourceType.put(ResourceType.TIE_LINE, tieLineCache);
     }
 
     public NetworkStoreClient getStoreClient() {
@@ -733,7 +742,7 @@ public class NetworkObjectIndex {
     // line
 
     private LineImpl createLineOrTieLine(Resource<LineAttributes> resource) {
-        return resource.getAttributes().getMergedXnode() != null ? new TieLineImpl(this, resource) : new LineImpl(this, resource);
+        return new LineImpl(this, resource);
     }
 
     Optional<LineImpl> getLine(String id) {
@@ -754,6 +763,22 @@ public class NetworkObjectIndex {
 
     public void removeLine(String lineId) {
         lineCache.remove(lineId);
+    }
+
+    Optional<TieLineImpl> getTieLine(String id) {
+        return tieLineCache.getOne(id);
+    }
+
+    List<TieLine> getTieLines() {
+        return tieLineCache.getAll().collect(Collectors.toList());
+    }
+
+    TieLineImpl createTieLine(Resource<TieLineAttributes> resource) {
+        return tieLineCache.create(resource);
+    }
+
+    public void removeTieLine(String tieLineId) {
+        tieLineCache.remove(tieLineId);
     }
 
 
@@ -941,16 +966,24 @@ public class NetworkObjectIndex {
     }
 
     public Branch<?> getBranch(String branchId) {
+        //FIXME strange structure ?
         // first try in the line cache, then in 2 windings transformer cache, then load from server
         if (lineCache.isLoaded(branchId)) {
             return lineCache.getOne(branchId).orElse(null);
         } else if (twoWindingsTransformerCache.isLoaded(branchId)) {
             return twoWindingsTransformerCache.getOne(branchId).orElse(null);
+        } else if (tieLineCache.isLoaded(branchId)) {
+            return tieLineCache.getOne(branchId).orElse(null);
         } else {
-            return lineCache.getOne(branchId)
+            Branch<?> b = lineCache.getOne(branchId)
                     .map(Branch.class::cast)
                     .orElseGet(() -> twoWindingsTransformerCache.getOne(branchId)
                             .orElse(null));
+            if (b == null) {
+                return tieLineCache.getOne(branchId).orElse(null);
+            } else {
+                return b;
+            }
         }
     }
 
@@ -1074,6 +1107,9 @@ public class NetworkObjectIndex {
             case CONFIGURED_BUS:
                 updateConfiguredBusResource((Resource<ConfiguredBusAttributes>) resource, attributeFilter);
                 break;
+            case TIE_LINE:
+                updateTieLineResource((Resource<TieLineAttributes>) resource, attributeFilter);
+                break;
             default:
                 throw new IllegalStateException("Unknown resource type: " + resource.getType());
         }
@@ -1113,6 +1149,10 @@ public class NetworkObjectIndex {
 
     void updateDanglingLineResource(Resource<DanglingLineAttributes> resource, AttributeFilter attributeFilter) {
         storeClient.updateDanglingLines(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    }
+
+    void updateTieLineResource(Resource<TieLineAttributes> resource, AttributeFilter attributeFilter) {
+        storeClient.updateTieLines(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
     void updateGeneratorResource(Resource<GeneratorAttributes> resource, AttributeFilter attributeFilter) {

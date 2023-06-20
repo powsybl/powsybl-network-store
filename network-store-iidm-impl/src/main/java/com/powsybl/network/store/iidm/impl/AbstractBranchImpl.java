@@ -22,8 +22,8 @@ import java.util.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U>
-        implements Branch<T>, LimitsOwner<Branch.Side> {
+public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U>
+        implements Branch<T>, Connectable<T>, LimitsOwner<Branch.Side> {
 
     private final TerminalImpl<U> terminal1;
 
@@ -441,7 +441,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         E extension = null;
         String branchStatus = getResource().getAttributes().getBranchStatus();
         if (branchStatus != null) {
-            extension = (E) new BranchStatusImpl(this);
+            extension = (E) new BranchStatusImpl(getBranch());
         }
         return extension;
     }

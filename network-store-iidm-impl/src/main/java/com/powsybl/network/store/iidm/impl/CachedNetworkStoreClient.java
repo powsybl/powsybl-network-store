@@ -113,6 +113,11 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate::getVoltageLevelConfiguredBuses,
         delegate::getConfiguredBuses));
 
+    private final NetworkCollectionIndex<CollectionCache<TieLineAttributes>> tieLinesCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+            delegate::getTieLine,
+            null,
+            delegate::getTieLines));
+
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = new EnumMap<>(ResourceType.class);
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCaches = new EnumMap<>(ResourceType.class);
@@ -138,6 +143,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         networkContainersCaches.putAll(voltageLevelContainersCaches);
         networkContainersCaches.put(ResourceType.SUBSTATION, substationsCache);
         networkContainersCaches.put(ResourceType.VOLTAGE_LEVEL, voltageLevelsCache);
+        networkContainersCaches.put(ResourceType.TIE_LINE, tieLinesCache);
     }
 
     @Override
@@ -237,6 +243,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         cloneCollection(staticVarCompensatorCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(hvdcLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(danglingLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(tieLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(configuredBusesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(substationsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(voltageLevelsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
@@ -840,6 +847,38 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
         delegate.removeDanglingLines(networkUuid, variantNum, danglingLinesId);
         danglingLinesCache.getCollection(networkUuid, variantNum).removeResources(danglingLinesId);
+    }
+
+    @Override
+    public void createTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources) {
+        delegate.createTieLines(networkUuid, tieLineResources);
+        for (Resource<TieLineAttributes> tieLineResource : tieLineResources) {
+            tieLinesCache.getCollection(networkUuid, tieLineResource.getVariantNum()).createResource(tieLineResource);
+        }
+    }
+
+    @Override
+    public List<Resource<TieLineAttributes>> getTieLines(UUID networkUuid, int variantNum) {
+        return tieLinesCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<TieLineAttributes>> getTieLine(UUID networkUuid, int variantNum, String tieLineId) {
+        return tieLinesCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, tieLineId);
+    }
+
+    @Override
+    public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
+        delegate.removeTieLines(networkUuid, variantNum, tieLinesId);
+        tieLinesCache.getCollection(networkUuid, variantNum).removeResources(tieLinesId);
+    }
+
+    @Override
+    public void updateTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources, AttributeFilter attributeFilter) {
+        delegate.updateTieLines(networkUuid, tieLineResources, attributeFilter);
+        for (Resource<TieLineAttributes> tieLineResource : tieLineResources) {
+            tieLinesCache.getCollection(networkUuid, tieLineResource.getVariantNum()).updateResource(tieLineResource);
+        }
     }
 
     @Override

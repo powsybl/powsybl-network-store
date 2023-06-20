@@ -79,4 +79,66 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
     protected String getTypeDescription() {
         return ResourceType.LOAD.getDescription();
     }
+
+    @Override
+    public ZipLoadModelAdder newZipModel() {
+        //FIXME Dummy zip load model adder
+        return new ZipLoadModelAdder() {
+            @Override
+            public ZipLoadModelAdder setC0p(double v) {
+                return this;
+            }
+
+            @Override
+            public ZipLoadModelAdder setC1p(double v) {
+                return this;
+            }
+
+            @Override
+            public ZipLoadModelAdder setC2p(double v) {
+                return this;
+            }
+
+            @Override
+            public ZipLoadModelAdder setC0q(double v) {
+                return this;
+            }
+
+            @Override
+            public ZipLoadModelAdder setC1q(double v) {
+                return this;
+            }
+
+            @Override
+            public ZipLoadModelAdder setC2q(double v) {
+                return this;
+            }
+
+            @Override
+            public LoadAdder add() {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public ExponentialLoadModelAdder newExponentialModel() {
+        //FIXME Dummy exponential load model adder
+        return new ExponentialLoadModelAdder() {
+            @Override
+            public ExponentialLoadModelAdder setNp(double v) {
+                return this;
+            }
+
+            @Override
+            public ExponentialLoadModelAdder setNq(double v) {
+                return this;
+            }
+
+            @Override
+            public LoadAdder add() {
+                return null;
+            }
+        };
+    }
 }

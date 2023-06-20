@@ -749,6 +749,31 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void createTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources) {
+        create("tie line", "/networks/{networkUuid}/tie-lines", tieLineResources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<TieLineAttributes>> getTieLines(UUID networkUuid, int variantNum) {
+        return getAll("tie line", "/networks/{networkUuid}/{variantNum}/tie-lines", networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<TieLineAttributes>> getTieLine(UUID networkUuid, int variantNum, String tieLineId) {
+        return get("tie line", "/networks/{networkUuid}/{variantNum}/tie-lines/{tieLineId}", networkUuid, variantNum, tieLineId);
+    }
+
+    @Override
+    public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
+        removeAll("/networks/{networkUuid}/{variantNum}/tie-lines/{tieLineId}", networkUuid, variantNum, tieLinesId);
+    }
+
+    @Override
+    public void updateTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources, AttributeFilter attributeFilter) {
+        updateAll("tie line", "/networks/{networkUuid}/tie-lines", tieLineResources, attributeFilter, networkUuid);
+    }
+
+    @Override
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         return get("identifiable", "/networks/{networkUuid}/{variantNum}/identifiables/{id}", networkUuid, variantNum, id);
     }

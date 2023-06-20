@@ -213,6 +213,22 @@ public class RestNetworkStoreClientTest {
         server.expect(requestTo(Matchers.matchesPattern("/networks/.*/" + Resource.INITIAL_VARIANT_NUM)))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n2)), MediaType.APPLICATION_JSON));
+
+        //Tie line
+        Resource<TieLineAttributes> tieLine = Resource.tieLineBuilder()
+                .id("tieLine1")
+                .attributes(TieLineAttributes.builder()
+                        .name("tieLine1")
+                        .danglingLine1Id("dl1")
+                        .danglingLine2Id("dl2")
+                        .build())
+                .build();
+
+        String tieLineJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(tieLine)));
+
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/tie-lines"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(tieLineJson, MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -269,6 +285,16 @@ public class RestNetworkStoreClientTest {
             UUID clonedNetworkUuid = service.getNetworkUuid(clonedNetwork);
 
             assertNotNull(clonedNetworkUuid);
+
+            //Tie lines
+            List<TieLine> tieLines = network.getTieLineStream().collect(Collectors.toList());
+            assertEquals(1, tieLines.size());
+
+            tieLines.get(0).setName("tieLine2");
+
+            tieLines = network.getTieLineStream().collect(Collectors.toList());
+            assertEquals(1, tieLines.size());
+            assertEquals("tieLine2", tieLines.get(0).getNameOrId());
         }
     }
 }

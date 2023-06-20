@@ -65,8 +65,8 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
             return ((DanglingLine) terminal.getConnectable()).getBoundary();
         } else if (terminal.getConnectable() instanceof TieLine) {
             TieLine tieLine = (TieLine) terminal.getConnectable();
-            Branch.Side side = terminal == tieLine.getTerminal1() ? Branch.Side.ONE : Branch.Side.TWO;
-            return tieLine.getHalf(side).getBoundary();
+            Branch.Side side = terminal == tieLine.getDanglingLine1().getTerminal() ? Branch.Side.ONE : Branch.Side.TWO;
+            return tieLine.getDanglingLine(side).getBoundary();
         } else {
             throw new IllegalStateException("Unexpected boundary component: " + terminal.getConnectable().getType());
         }
@@ -91,12 +91,11 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
     }
 
     public static Terminal getBoundaryTerminal(Boundary boundary) {
-        if (boundary.getConnectable() instanceof DanglingLine) {
-            return ((DanglingLine) boundary.getConnectable()).getTerminal();
-        } else if (boundary.getConnectable() instanceof TieLine) {
-            return ((TieLine) boundary.getConnectable()).getTerminal(boundary.getSide());
+        Terminal t = boundary.getDanglingLine().getTerminal();
+        if (t != null) {
+            return t;
         } else {
-            throw new IllegalStateException("Unexpected boundary component: " + boundary.getConnectable().getType());
+            throw new IllegalStateException("Terminal of the dangling line linked to the boundary is null");
         }
     }
 

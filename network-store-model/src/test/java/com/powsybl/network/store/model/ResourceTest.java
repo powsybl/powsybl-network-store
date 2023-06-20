@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
@@ -371,7 +372,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void danglingLine() {
+    public void danglingLine() throws JsonProcessingException {
         DanglingLineGenerationAttributes danglingLineGenerationAttributes = DanglingLineGenerationAttributes
                 .builder()
                 .minP(100)
@@ -398,6 +399,7 @@ public class ResourceTest {
                 .generation(danglingLineGenerationAttributes)
                 .ucteXnodeCode("XN1")
                 .bus("bus1")
+                .tieLineId("idTieLineParent")
                 .build();
 
         Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder()
@@ -426,9 +428,40 @@ public class ResourceTest {
         assertEquals(20, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMaxQ(), 0);
         assertEquals("XN1", resourceDanglingLine.getAttributes().getUcteXnodeCode());
         assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
+        assertEquals("idTieLineParent", resourceDanglingLine.getAttributes().getTieLineId());
 
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JodaModule());
+        String json = objectMapper.writeValueAsString(resourceDanglingLine);
+
+        Resource<DanglingLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<DanglingLineAttributes>>() { });
+        assertNotNull(resource2);
+    }
+
+    @Test
+    public void tieLine() throws JsonProcessingException {
+        TieLineAttributes tieLineAttributes = TieLineAttributes
+                .builder()
+                .name("tieLine1")
+                .fictitious(false)
+                .danglingLine1Id("half1")
+                .danglingLine2Id("half2")
+                .build();
+
+        Resource<TieLineAttributes> resourceTieLine = Resource.tieLineBuilder()
+                .id("dl1")
+                .attributes(tieLineAttributes)
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JodaModule());
+        String json = objectMapper.writeValueAsString(resourceTieLine);
+
+        Resource<TieLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<TieLineAttributes>>() { });
+        assertNotNull(resource2);
     }
 
     @Test

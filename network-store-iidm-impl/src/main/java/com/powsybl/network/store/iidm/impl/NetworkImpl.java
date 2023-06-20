@@ -393,8 +393,18 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    }
+
+    @Override
     public List<DanglingLine> getDanglingLines() {
         return index.getDanglingLines();
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return index.getDanglingLines().stream().filter(danglingLineFilter.getPredicate());
     }
 
     @Override
@@ -542,6 +552,26 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
+    public Iterable<TieLine> getTieLines() {
+        return index.getTieLines();
+    }
+
+    @Override
+    public Stream<TieLine> getTieLineStream() {
+        return index.getTieLines().stream();
+    }
+
+    @Override
+    public int getTieLineCount() {
+        return index.getTieLines().size();
+    }
+
+    @Override
+    public TieLine getTieLine(String s) {
+        return index.getTieLine(getIdFromAlias(s)).orElse(null);
+    }
+
+    @Override
     public TieLineAdder newTieLine() {
         return new TieLineAdderImpl(index);
     }
@@ -656,6 +686,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return ImmutableList.<Branch>builder()
                 .addAll(index.getLines())
                 .addAll(index.getTwoWindingsTransformers())
+                .addAll(index.getTieLines())
                 .build();
     }
 
@@ -796,6 +827,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                         if (componentType == ComponentType.CONNECTED) {
                             graph.addVertex(converterStation.getHvdcLine());
                             graph.addEdge(bus, converterStation.getHvdcLine(), new Object());
+                        }
+                    }
+
+                    @Override
+                    public void visitDanglingLine(DanglingLine danglingLine) {
+                        if (danglingLine.isPaired()) {
+                            TieLine tieLine = danglingLine.getTieLine().orElseThrow();
+                            graph.addVertex(tieLine);
+                            graph.addEdge(bus, tieLine, new Object());
                         }
                     }
                 });

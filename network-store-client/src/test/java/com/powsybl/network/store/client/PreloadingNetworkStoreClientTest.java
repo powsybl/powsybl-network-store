@@ -661,6 +661,44 @@ public class PreloadingNetworkStoreClientTest {
     }
 
     @Test
+    public void testTieLineCache() throws IOException {
+        // Two successive tie line retrievals, only the first should send a REST request, the second uses the cache
+        Resource<TieLineAttributes> tieLine = Resource.tieLineBuilder()
+                .id("tieLine1")
+                .attributes(TieLineAttributes.builder()
+                        .name("tieLine1")
+                        .danglingLine1Id("dl1")
+                        .danglingLine2Id("dl2")
+                        .build())
+                .build();
+
+        String tieLineJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(tieLine)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/tie-lines"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(tieLineJson, MediaType.APPLICATION_JSON));
+
+        // First time tie line retrieval by Id
+        Resource<TieLineAttributes> tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
+        assertNotNull(tieLineAttributesResource);
+        assertEquals("dl1", tieLineAttributesResource.getAttributes().getDanglingLine1Id());
+
+        tieLineAttributesResource.getAttributes().setDanglingLine1Id("dll1");
+
+        // Second time tie line retrieval by Id
+        tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
+        assertNotNull(tieLineAttributesResource);
+        assertEquals("dll1", tieLineAttributesResource.getAttributes().getDanglingLine1Id());
+
+        // Remove component
+        assertEquals(1, cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        cachedClient.removeTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("tieLine1"));
+        assertEquals(0, cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        server.verify();
+    }
+
+    @Test
     public void testConfiguredBusCache() throws IOException {
         // Two successive configured bus retrievals, only the first should send a REST request, the second uses the cache
         Resource<ConfiguredBusAttributes> configuredBus = Resource.configuredBusBuilder()

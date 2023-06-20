@@ -13,7 +13,6 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Importer;
-import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.network.store.client.util.ExecutorUtil;
@@ -130,7 +129,7 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Network importNetwork(Path file, Reporter report) {
-        return importNetwork(Importers.createDataSource(file), null, LocalComputationManager.getDefault(), null, report);
+        return importNetwork(DataSource.fromPath(file), null, LocalComputationManager.getDefault(), null, report);
     }
 
     public Network importNetwork(Path file, Properties parameters) {
@@ -138,7 +137,7 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Network importNetwork(Path file, PreloadingStrategy preloadingStrategy, Properties parameters) {
-        DataSource dataSource = Importers.createDataSource(file);
+        DataSource dataSource = DataSource.fromPath(file);
         return importNetwork(dataSource, preloadingStrategy, LocalComputationManager.getDefault(), parameters);
     }
 

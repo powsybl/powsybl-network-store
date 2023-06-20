@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.network.store.iidm.impl.extensions.LoadDetailImpl;
 import com.powsybl.network.store.model.LoadAttributes;
@@ -18,6 +15,7 @@ import com.powsybl.network.store.model.LoadDetailAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -86,6 +84,11 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
             index.notifyUpdate(this, "q0", variantId, oldValue, q0);
         }
         return this;
+    }
+
+    @Override
+    public Optional<LoadModel> getModel() {
+        return Optional.empty();
     }
 
     @Override

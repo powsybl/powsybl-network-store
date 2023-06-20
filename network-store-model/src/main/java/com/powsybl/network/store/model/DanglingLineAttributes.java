@@ -98,6 +98,9 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @Schema(description = "Active power limits")
     private LimitsAttributes activePowerLimits;
 
+    @Schema(description = "Tie line ID in case of a paired dangling line")
+    private String tieLineId;
+
     @Override
     @JsonIgnore
     public List<Integer> getSideList() {

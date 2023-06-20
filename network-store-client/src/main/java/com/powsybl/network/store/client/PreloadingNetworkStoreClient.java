@@ -45,7 +45,8 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.THREE_WINDINGS_TRANSFORMER,
         ResourceType.LINE,
         ResourceType.HVDC_LINE,
-        ResourceType.DANGLING_LINE
+        ResourceType.DANGLING_LINE,
+        ResourceType.TIE_LINE
     );
 
     private final boolean allCollectionsNeededForBusView;
@@ -114,6 +115,9 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
                 break;
             case CONFIGURED_BUS:
                 delegate.getConfiguredBuses(networkUuid, variantNum);
+                break;
+            case TIE_LINE:
+                delegate.getTieLines(networkUuid, variantNum);
                 break;
             default:
                 break;
@@ -785,6 +789,40 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
         ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
         delegate.removeDanglingLines(networkUuid, variantNum, danglingLinesId);
+    }
+
+    @Override
+    public void createTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources) {
+        for (Resource<TieLineAttributes> tieLineResource : tieLineResources) {
+            ensureCached(ResourceType.TIE_LINE, networkUuid, tieLineResource.getVariantNum());
+        }
+        delegate.createTieLines(networkUuid, tieLineResources);
+    }
+
+    @Override
+    public List<Resource<TieLineAttributes>> getTieLines(UUID networkUuid, int variantNum) {
+        ensureCached(ResourceType.TIE_LINE, networkUuid, variantNum);
+        return delegate.getTieLines(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<TieLineAttributes>> getTieLine(UUID networkUuid, int variantNum, String tieLineId) {
+        ensureCached(ResourceType.TIE_LINE, networkUuid, variantNum);
+        return delegate.getTieLine(networkUuid, variantNum, tieLineId);
+    }
+
+    @Override
+    public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
+        ensureCached(ResourceType.TIE_LINE, networkUuid, variantNum);
+        delegate.removeTieLines(networkUuid, variantNum, tieLinesId);
+    }
+
+    @Override
+    public void updateTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources, AttributeFilter attributeFilter) {
+        for (Resource<TieLineAttributes> tieLineResource : tieLineResources) {
+            ensureCached(ResourceType.TIE_LINE, networkUuid, tieLineResource.getVariantNum());
+        }
+        delegate.updateTieLines(networkUuid, tieLineResources, attributeFilter);
     }
 
     @Override
