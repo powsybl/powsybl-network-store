@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -204,14 +205,14 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         }
     }
 
-    boolean traverseFromTerminal(Terminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    boolean traverseFromTerminal(Terminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals, TraversalType traversalType) {
         checkNodeBreakerTopology();
         Objects.requireNonNull(traverser);
 
-        return traverseFromBus(terminal.getBusBreakerView().getBus(), traverser, traversedTerminals, new HashSet<>());
+        return traverseFromBus(terminal.getBusBreakerView().getBus(), traverser, traversedTerminals, new HashSet<>(), traversalType);
     }
 
-    private boolean traverseFromBus(Bus bus, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals, Set<Bus> traversedBuses) {
+    private boolean traverseFromBus(Bus bus, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals, Set<Bus> traversedBuses, TraversalType traversalType) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(traverser);
 
@@ -232,7 +233,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
             } else if (result == TraverseResult.CONTINUE) {
                 Set<Terminal> otherSideTerminals = ((TerminalImpl) terminal).getOtherSideTerminals();
                 for (Terminal otherSideTerminal : otherSideTerminals) {
-                    if (!((TerminalImpl) otherSideTerminal).traverse(traverser, traversedTerminals)) {
+                    if (!((TerminalImpl) otherSideTerminal).traverse(traverser, traversedTerminals, traversalType)) {
                         return false;
                     }
                 }
@@ -248,7 +249,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
                 return false;
             } else if (result == TraverseResult.CONTINUE) {
                 Bus otherBus = getOtherBus(s.getId(), bus.getId());
-                if (!traverseFromBus(otherBus, traverser, traversedTerminals, traversedBuses)) {
+                if (!traverseFromBus(otherBus, traverser, traversedTerminals, traversedBuses, traversalType)) {
                     return false;
                 }
             }
