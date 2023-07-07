@@ -114,8 +114,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public void remove() {
-        //TODO
-        throw new UnsupportedOperationException("TODO");
+        attributesGetter.apply(getTransformer().getResource().getAttributes()).setRatioTapChangerAttributes(null);
     }
 
     protected String getTapChangerAttribute() {
