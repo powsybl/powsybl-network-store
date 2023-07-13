@@ -47,7 +47,6 @@
     </developers>
 
     <properties>
-        <lombok.version>1.18.24</lombok.version>
         <springboot.version>2.7.3</springboot.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <powsybl-dependencies.version>2023.2.1</powsybl-dependencies.version>
@@ -94,17 +93,21 @@
                 <version>${powsybl-ws-commons.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <!-- Annotation processors dependencies -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <pluginManagement>
