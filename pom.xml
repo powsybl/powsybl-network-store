@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     Copyright (c) 2019, RTE (http://www.rte-france.com)
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -15,7 +13,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>11</version>
+        <version>12</version>
         <relativePath/>
     </parent>
 
@@ -49,9 +47,7 @@
     </developers>
 
     <properties>
-        <lombok.version>1.18.24</lombok.version>
         <springboot.version>2.7.3</springboot.version>
-        <equalsverifier.version>3.10</equalsverifier.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <powsybl-dependencies.version>2023.2.1</powsybl-dependencies.version>
         <powsybl-ws-commons.version>1.5.0</powsybl-ws-commons.version>
@@ -92,19 +88,9 @@
 
             <!-- project specific dependencies (also overrides imports, but separate for clarity) -->
             <dependency>
-                <groupId>nl.jqno.equalsverifier</groupId>
-                <artifactId>equalsverifier</artifactId>
-                <version>${equalsverifier.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-ws-commons</artifactId>
                 <version>${powsybl-ws-commons.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -113,6 +99,15 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <!-- Annotation processors dependencies -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <pluginManagement>
