@@ -227,6 +227,20 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
+        public void setPhaseTapChanger(PhaseTapChangerAttributes attributes) {
+            PhaseTapChangerAttributes oldValue = getLegAttributes().getPhaseTapChangerAttributes();
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setPhaseTapChangerAttributes(attributes));
+            index.notifyUpdate(transformer, "phaseTapChanger", oldValue, attributes);
+        }
+
+        @Override
+        public void setRatioTapChanger(RatioTapChangerAttributes attributes) {
+            RatioTapChangerAttributes oldValue = getLegAttributes().getRatioTapChangerAttributes();
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatioTapChangerAttributes(attributes));
+            index.notifyUpdate(transformer, "ratioTapChanger", oldValue, attributes);
+        }
+
+        @Override
         public PhaseTapChanger getPhaseTapChanger() {
             return getLegAttributes().getPhaseTapChangerAttributes() != null
                     ? new PhaseTapChangerImpl(this, index, attributes -> legGetter.apply((ThreeWindingsTransformerAttributes) attributes))
