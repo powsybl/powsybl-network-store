@@ -106,7 +106,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public void remove() {
-        attributesGetter.apply(getTransformer().getResource().getAttributes()).setPhaseTapChangerAttributes(null);
+        parent.setPhaseTapChanger(null);
     }
 
     protected String getTapChangerAttribute() {
