@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Validable;
+import com.powsybl.network.store.model.PhaseTapChangerAttributes;
+import com.powsybl.network.store.model.RatioTapChangerAttributes;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -41,4 +43,8 @@ public interface TapChangerParent extends Validable {
     PhaseTapChanger getPhaseTapChanger();
 
     RatioTapChanger getRatioTapChanger();
+
+    void setPhaseTapChanger(PhaseTapChangerAttributes attributes);
+
+    void setRatioTapChanger(RatioTapChangerAttributes attributes);
 }
