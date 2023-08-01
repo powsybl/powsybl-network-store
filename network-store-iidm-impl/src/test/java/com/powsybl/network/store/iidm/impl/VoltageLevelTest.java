@@ -61,27 +61,27 @@ public class VoltageLevelTest {
         assertNotNull(network.getVoltageLevel("VL").getNodeBreakerView().getBusbarSection("idBBS"));
 
         BusbarSectionPositionAdder busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class);
-        assertEquals("Busbar index has to be greater or equals to zero",
-            assertThrows(IllegalArgumentException.class, busbarSectionPositionAdder::add).getMessage());
+        assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
+            assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
 
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(0);
-        assertEquals("Busbar index has to be greater or equals to zero",
-            assertThrows(IllegalArgumentException.class, busbarSectionPositionAdder::add).getMessage());
+        assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
+            assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
 
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withSectionIndex(0);
-        assertEquals("Busbar index has to be greater or equals to zero",
-            assertThrows(IllegalArgumentException.class, busbarSectionPositionAdder::add).getMessage());
+        assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
+            assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
 
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(-1).withSectionIndex(0);
-        assertEquals("Busbar index has to be greater or equals to zero",
-            assertThrows(IllegalArgumentException.class, busbarSectionPositionAdder::add).getMessage());
+        assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
+            assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
 
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(0).withSectionIndex(-1);
-        assertEquals("Busbar index has to be greater or equals to zero",
-            assertThrows(IllegalArgumentException.class, busbarSectionPositionAdder::add).getMessage());
+        assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
+            assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
 
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(-1).withSectionIndex(-1);
-        assertEquals("Busbar index has to be greater or equals to zero",
-            assertThrows(IllegalArgumentException.class, busbarSectionPositionAdder::add).getMessage());
+        assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
+            assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
     }
 }
