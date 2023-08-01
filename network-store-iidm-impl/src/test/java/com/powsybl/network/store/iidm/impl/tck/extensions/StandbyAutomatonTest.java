@@ -23,7 +23,7 @@ public class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
     }
 
     @Test
-    public void testStandbyAutomatonCheckVoltageConfig() {
+    public void testStandbyAutomatonChecks() {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S")
@@ -64,34 +64,8 @@ public class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
 
         standbyAutomatonAdder = svc.newExtension(StandbyAutomatonAdder.class).withLowVoltageThreshold(Double.NaN);
         assertEquals("Static var compensator 'SVC': lowVoltageThreshold is invalid", assertThrows(ValidationException.class, standbyAutomatonAdder::add).getMessage());
-    }
 
-    @Test
-    public void testStandbyAutomatonCheckB0() {
-
-        Network network = Network.create("test", "test");
-        Substation s = network.newSubstation()
-                .setId("S")
-                .setCountry(Country.FR)
-                .add();
-        VoltageLevel vl = s.newVoltageLevel()
-                .setId("VL")
-                .setNominalV(400.0)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        vl.getBusBreakerView().newBus()
-                .setId("BUS")
-                .add();
-        StaticVarCompensator svc = vl.newStaticVarCompensator()
-                .setId("SVC")
-                .setConnectableBus("BUS")
-                .setBmin(12.2)
-                .setBmax(32.2)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetpoint(23.8)
-                .add();
-
-        StandbyAutomatonAdder standbyAutomatonAdder = svc.newExtension(StandbyAutomatonAdder.class)
+        standbyAutomatonAdder = svc.newExtension(StandbyAutomatonAdder.class)
                 .withHighVoltageSetpoint(21.3)
                 .withLowVoltageSetpoint(1.7)
                 .withHighVoltageThreshold(10.0)
