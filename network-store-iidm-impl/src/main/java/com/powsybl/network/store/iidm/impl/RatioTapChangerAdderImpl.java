@@ -197,7 +197,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         if (tapChangerParentAttributes.getPhaseTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
-        tapChangerParentAttributes.setRatioTapChangerAttributes(ratioTapChangerAttributes);
+
+        tapChangerParent.setRatioTapChanger(ratioTapChangerAttributes);
 
         return new RatioTapChangerImpl(tapChangerParent, index, attributesGetter);
     }
