@@ -15,20 +15,37 @@ import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
 import com.powsybl.network.store.model.Resource;
 
+import java.util.Objects;
+
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
 public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> implements BusbarSectionPosition {
 
-    public BusbarSectionPositionImpl(BusbarSectionImpl busbarSectionImpl) {
-        super(busbarSectionImpl);
-        checkIndex(busbarSectionImpl, getBusbarIndex());
-        checkIndex(busbarSectionImpl, getSectionIndex());
+    private enum BusbarSectionType {
+        BUSBAR("Busbar"),
+        SECTION("Section");
+
+        final String description;
+
+        BusbarSectionType(String description) {
+            this.description = Objects.requireNonNull(description);
+        }
+
+        String getDescription() {
+            return description;
+        }
     }
 
-    private static int checkIndex(Validable validable, int index) {
+    public BusbarSectionPositionImpl(BusbarSectionImpl busbarSectionImpl) {
+        super(busbarSectionImpl);
+        checkIndex(busbarSectionImpl, getBusbarIndex(), BusbarSectionType.BUSBAR);
+        checkIndex(busbarSectionImpl, getSectionIndex(), BusbarSectionType.SECTION);
+    }
+
+    private static int checkIndex(Validable validable, int index, BusbarSectionType type) {
         if (index < 0) {
-            throw new ValidationException(validable, "Busbar index has to be greater or equals to zero");
+            throw new ValidationException(validable, type.getDescription() + " index has to be greater or equals to zero");
         }
         return index;
     }
@@ -52,7 +69,7 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
 
     @Override
     public BusbarSectionPosition setBusbarIndex(int busbarIndex) {
-        getBusbarSection().updateResource(res -> getPositionAttributes(res).setBusbarIndex(checkIndex(getBusbarSection(), busbarIndex)));
+        getBusbarSection().updateResource(res -> getPositionAttributes(res).setBusbarIndex(checkIndex(getBusbarSection(), busbarIndex, BusbarSectionType.BUSBAR)));
         return this;
     }
 
@@ -63,7 +80,7 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
 
     @Override
     public BusbarSectionPosition setSectionIndex(int sectionIndex) {
-        getBusbarSection().updateResource(res -> getPositionAttributes(res).setSectionIndex(checkIndex(getBusbarSection(), sectionIndex)));
+        getBusbarSection().updateResource(res -> getPositionAttributes(res).setSectionIndex(checkIndex(getBusbarSection(), sectionIndex, BusbarSectionType.SECTION)));
         return this;
     }
 }

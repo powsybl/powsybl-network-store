@@ -65,7 +65,7 @@ public class VoltageLevelTest {
             assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
 
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(0);
-        assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
+        assertEquals("Busbar section 'idBBS': Section index has to be greater or equals to zero",
             assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
 
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withSectionIndex(0);
@@ -77,7 +77,7 @@ public class VoltageLevelTest {
             assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
 
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(0).withSectionIndex(-1);
-        assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
+        assertEquals("Busbar section 'idBBS': Section index has to be greater or equals to zero",
             assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
 
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(-1).withSectionIndex(-1);
