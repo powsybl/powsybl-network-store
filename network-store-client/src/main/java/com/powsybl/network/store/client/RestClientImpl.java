@@ -6,12 +6,15 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -37,9 +40,20 @@ public class RestClientImpl implements RestClient {
     }
 
     public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
-        return new RestTemplateBuilder()
-                .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
+        return new RestTemplateBuilder(restTemplate1 -> restTemplate1.setMessageConverters(List.of(createMapping()))).uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
                         .path(NetworkStoreApi.VERSION)));
+    }
+
+    private static ObjectMapper createObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JodaModule());
+        return objectMapper;
+    }
+
+    private static MappingJackson2HttpMessageConverter createMapping() {
+        var converter = new MappingJackson2HttpMessageConverter();
+        converter.setObjectMapper(createObjectMapper());
+        return converter;
     }
 
     private <T extends IdentifiableAttributes> ResponseEntity<TopLevelDocument<T>> getDocument(String url, Object... uriVariables) {
@@ -59,8 +73,8 @@ public class RestClientImpl implements RestClient {
         return body;
     }
 
-    private static PowsyblException createHttpException(String url, String method, HttpStatus httpStatus) {
-        return new PowsyblException("Fail to " + method + " at " + url + ", status: " + httpStatus);
+    private static PowsyblException createHttpException(String url, String method, HttpStatusCode httpStatusCode) {
+        return new PowsyblException("Fail to " + method + " at " + url + ", status: " + httpStatusCode);
     }
 
     @Override

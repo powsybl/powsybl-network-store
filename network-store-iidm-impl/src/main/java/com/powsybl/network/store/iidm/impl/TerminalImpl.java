@@ -348,7 +348,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             return this.getBusView().getBus() != null;
         } else {
             var attributes = getAttributes();
-            return (attributes.getBus() != null) && attributes.getBus().equals(attributes.getConnectableBus());
+            return attributes.getBus() != null && attributes.getBus().equals(attributes.getConnectableBus());
         }
     }
 
