@@ -8,6 +8,8 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
@@ -20,13 +22,13 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
 
     public BusbarSectionPositionImpl(BusbarSectionImpl busbarSectionImpl) {
         super(busbarSectionImpl);
-        checkIndex(getBusbarIndex());
-        checkIndex(getSectionIndex());
+        checkIndex(busbarSectionImpl, getBusbarIndex(), "Busbar");
+        checkIndex(busbarSectionImpl, getSectionIndex(), "Section");
     }
 
-    private static int checkIndex(int index) {
+    private static int checkIndex(Validable validable, int index, String equipmentTypeLabel) {
         if (index < 0) {
-            throw new IllegalArgumentException("Busbar index has to be greater or equals to zero");
+            throw new ValidationException(validable, equipmentTypeLabel + " index has to be greater or equals to zero");
         }
         return index;
     }
@@ -50,7 +52,7 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
 
     @Override
     public BusbarSectionPosition setBusbarIndex(int busbarIndex) {
-        getBusbarSection().updateResource(res -> getPositionAttributes(res).setBusbarIndex(checkIndex(busbarIndex)));
+        getBusbarSection().updateResource(res -> getPositionAttributes(res).setBusbarIndex(checkIndex(getBusbarSection(), busbarIndex, "Busbar")));
         return this;
     }
 
@@ -61,7 +63,7 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
 
     @Override
     public BusbarSectionPosition setSectionIndex(int sectionIndex) {
-        getBusbarSection().updateResource(res -> getPositionAttributes(res).setSectionIndex(checkIndex(sectionIndex)));
+        getBusbarSection().updateResource(res -> getPositionAttributes(res).setSectionIndex(checkIndex(getBusbarSection(), sectionIndex, "Section")));
         return this;
     }
 }

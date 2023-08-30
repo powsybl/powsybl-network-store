@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.TwoWindingsTransformerPhaseAngleClockImpl;
+import com.powsybl.network.store.model.PhaseTapChangerAttributes;
+import com.powsybl.network.store.model.RatioTapChangerAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerParentAttributes;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
@@ -60,6 +62,20 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public PhaseTapChangerAdder newPhaseTapChanger() {
         return new PhaseTapChangerAdderImpl(this, index, TapChangerParentAttributes.class::cast);
+    }
+
+    @Override
+    public void setPhaseTapChanger(PhaseTapChangerAttributes attributes) {
+        PhaseTapChangerAttributes oldValue = getResource().getAttributes().getPhaseTapChangerAttributes();
+        updateResource(res -> res.getAttributes().setPhaseTapChangerAttributes(attributes));
+        index.notifyUpdate(this, "phaseTapChanger", oldValue, attributes);
+    }
+
+    @Override
+    public void setRatioTapChanger(RatioTapChangerAttributes attributes) {
+        RatioTapChangerAttributes oldValue = getResource().getAttributes().getRatioTapChangerAttributes();
+        updateResource(res -> res.getAttributes().setRatioTapChangerAttributes(attributes));
+        index.notifyUpdate(this, "ratioTapChanger", oldValue, attributes);
     }
 
     @Override

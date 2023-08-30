@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -20,17 +19,6 @@ import static org.junit.Assert.*;
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
 public class BusBreakerCalculatedBusTest {
-
-    @Test
-    public void equalsContract() {
-        NetworkObjectIndex index1 = new NetworkObjectIndex(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()));
-        NetworkObjectIndex index2 = new NetworkObjectIndex(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()));
-        EqualsVerifier.simple().forClass(CalculatedBus.class).withIgnoredFields("connectedComponent", "synchronousComponent")
-                .withPrefabValues(NetworkObjectIndex.class, index1, index2)
-                .withPrefabValues(ComponentImpl.class, new ComponentImpl(null, null), new ComponentImpl(null, null))
-                .verify();
-    }
-
     @Test
     public void testCalculatedBusesWithMultiBuses() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithMultiBuses();

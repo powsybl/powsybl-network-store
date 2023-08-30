@@ -36,7 +36,7 @@ public class StandbyAutomatonAdderImpl extends AbstractExtensionAdder<StaticVarC
 
     @Override
     protected StandbyAutomaton createExtension(StaticVarCompensator svc) {
-        var attributes = StandbyAutomatonImpl.createAttributes(b0, standby,
+        var attributes = StandbyAutomatonImpl.createAttributes((StaticVarCompensatorImpl) svc, b0, standby,
                 lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold);
         ((StaticVarCompensatorImpl) svc).updateResource(res -> res.getAttributes().setStandbyAutomaton(attributes));
         return new StandbyAutomatonImpl(svc);
