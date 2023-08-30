@@ -39,17 +39,7 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     }
 
     @Override
-    public void testMergeSameId() {
-        // FIXME
-    }
-
-    @Override
     public void test() {
-        // FIXME
-    }
-
-    @Override
-    public void xnodeNonCompatible() {
         // FIXME
     }
 
