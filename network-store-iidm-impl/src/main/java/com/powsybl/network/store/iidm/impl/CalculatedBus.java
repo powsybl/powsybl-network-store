@@ -74,11 +74,6 @@ public final class CalculatedBus implements BaseBus {
     }
 
     @Override
-    public String getName() {
-        return getNameOrId();
-    }
-
-    @Override
     public String getNameOrId() {
         return name != null ? name : id;
     }
