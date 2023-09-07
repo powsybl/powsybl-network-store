@@ -8,6 +8,8 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.network.store.iidm.impl.StaticVarCompensatorImpl;
 import com.powsybl.network.store.model.Resource;
@@ -23,29 +25,29 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StandbyAutomatonImpl.class);
 
-    private static double checkB0(double b0) {
+    private static double checkB0(Validable validable, double b0) {
         if (Double.isNaN(b0)) {
-            throw new IllegalArgumentException("b0 is invalid");
+            throw new ValidationException(validable, "b0 is invalid");
         }
         return b0;
     }
 
-    private static void checkVoltageConfig(double lowVoltageSetpoint, double highVoltageSetpoint,
+    private static void checkVoltageConfig(Validable validable, double lowVoltageSetpoint, double highVoltageSetpoint,
                                            double lowVoltageThreshold, double highVoltageThreshold) {
         if (Double.isNaN(lowVoltageSetpoint)) {
-            throw new IllegalArgumentException("lowVoltageSetpoint is invalid");
+            throw new ValidationException(validable, "lowVoltageSetpoint is invalid");
         }
         if (Double.isNaN(highVoltageSetpoint)) {
-            throw new IllegalArgumentException("highVoltageSetpoint is invalid");
+            throw new ValidationException(validable, "highVoltageSetpoint is invalid");
         }
         if (Double.isNaN(lowVoltageThreshold)) {
-            throw new IllegalArgumentException("lowVoltageThreshold is invalid");
+            throw new ValidationException(validable, "lowVoltageThreshold is invalid");
         }
         if (Double.isNaN(highVoltageThreshold)) {
-            throw new IllegalArgumentException("highVoltageThreshold is invalid");
+            throw new ValidationException(validable, "highVoltageThreshold is invalid");
         }
         if (lowVoltageThreshold >= highVoltageThreshold) {
-            throw new IllegalArgumentException("Inconsistent low (" + lowVoltageThreshold + ") and high (" + highVoltageThreshold + ") voltage thresholds");
+            throw new ValidationException(validable, "Inconsistent low (" + lowVoltageThreshold + ") and high (" + highVoltageThreshold + ") voltage thresholds");
         }
         if (lowVoltageSetpoint < lowVoltageThreshold) {
             LOGGER.warn("Invalid low voltage setpoint {} < threshold {}", lowVoltageSetpoint, lowVoltageThreshold);
@@ -55,19 +57,10 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
         }
     }
 
-    public static StandbyAutomatonAttributes createAttributes(StandbyAutomaton standbyAutomaton) {
-        return createAttributes(standbyAutomaton.getB0(),
-                                standbyAutomaton.isStandby(),
-                                standbyAutomaton.getLowVoltageSetpoint(),
-                                standbyAutomaton.getHighVoltageSetpoint(),
-                                standbyAutomaton.getLowVoltageThreshold(),
-                                standbyAutomaton.getHighVoltageThreshold());
-    }
-
-    public static StandbyAutomatonAttributes createAttributes(double b0, boolean standby, double lowVoltageSetpoint, double highVoltageSetpoint,
+    public static StandbyAutomatonAttributes createAttributes(Validable validable, double b0, boolean standby, double lowVoltageSetpoint, double highVoltageSetpoint,
                                                               double lowVoltageThreshold, double highVoltageThreshold) {
-        checkVoltageConfig(lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold);
-        checkB0(b0);
+        checkVoltageConfig(validable, lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold);
+        checkB0(validable, b0);
         return StandbyAutomatonAttributes.builder()
                 .b0(b0)
                 .standby(standby)
@@ -112,7 +105,7 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
 
     @Override
     public StandbyAutomatonImpl setB0(double b0) {
-        getSvc().updateResource(res -> getAttributes(res).setB0(checkB0(b0)));
+        getSvc().updateResource(res -> getAttributes(res).setB0(checkB0(getSvc(), b0)));
         return this;
     }
 
@@ -123,7 +116,7 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
 
     @Override
     public StandbyAutomatonImpl setHighVoltageSetpoint(double highVoltageSetpoint) {
-        checkVoltageConfig(getLowVoltageSetpoint(), highVoltageSetpoint, getLowVoltageThreshold(), getHighVoltageThreshold());
+        checkVoltageConfig(getSvc(), getLowVoltageSetpoint(), highVoltageSetpoint, getLowVoltageThreshold(), getHighVoltageThreshold());
         getSvc().updateResource(res -> getAttributes(res).setHighVoltageSetpoint(highVoltageSetpoint));
         return this;
     }
@@ -135,7 +128,7 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
 
     @Override
     public StandbyAutomatonImpl setHighVoltageThreshold(double highVoltageThreshold) {
-        checkVoltageConfig(getLowVoltageSetpoint(), getHighVoltageSetpoint(), getLowVoltageThreshold(), highVoltageThreshold);
+        checkVoltageConfig(getSvc(), getLowVoltageSetpoint(), getHighVoltageSetpoint(), getLowVoltageThreshold(), highVoltageThreshold);
         getSvc().updateResource(res -> getAttributes(res).setHighVoltageThreshold(highVoltageThreshold));
         return this;
     }
@@ -147,7 +140,7 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
 
     @Override
     public StandbyAutomatonImpl setLowVoltageSetpoint(double lowVoltageSetpoint) {
-        checkVoltageConfig(lowVoltageSetpoint, getHighVoltageSetpoint(), getLowVoltageThreshold(), getHighVoltageThreshold());
+        checkVoltageConfig(getSvc(), lowVoltageSetpoint, getHighVoltageSetpoint(), getLowVoltageThreshold(), getHighVoltageThreshold());
         getSvc().updateResource(res -> getAttributes(res).setLowVoltageSetpoint(lowVoltageSetpoint));
         return this;
     }
@@ -159,7 +152,7 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
 
     @Override
     public StandbyAutomatonImpl setLowVoltageThreshold(double lowVoltageThreshold) {
-        checkVoltageConfig(getLowVoltageSetpoint(), getHighVoltageSetpoint(), lowVoltageThreshold, getHighVoltageThreshold());
+        checkVoltageConfig(getSvc(), getLowVoltageSetpoint(), getHighVoltageSetpoint(), lowVoltageThreshold, getHighVoltageThreshold());
         getSvc().updateResource(res -> getAttributes(res).setLowVoltageThreshold(lowVoltageThreshold));
         return this;
     }
