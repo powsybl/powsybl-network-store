@@ -174,7 +174,6 @@ public class NetworkStoreService implements AutoCloseable {
         }
         Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
         if (flush) {
-
             flush(network);
         }
         return network;
