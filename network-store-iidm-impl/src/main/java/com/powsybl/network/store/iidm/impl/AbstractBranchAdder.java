@@ -91,7 +91,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     private String getConnectionBus1() {
         if (bus1 != null) {
-            if ((connectableBus1 != null) && (!bus1.equals(connectableBus1))) {
+            if (!bus1.equals(connectableBus1)) {
                 throw new ValidationException(this, "connection bus 1 is different to connectable bus 1");
             }
             return bus1;
@@ -172,7 +172,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     private String getConnectionBus2() {
         if (bus2 != null) {
-            if ((connectableBus2 != null) && (!bus2.equals(connectableBus2))) {
+            if (connectableBus2 != null && !bus2.equals(connectableBus2)) {
                 throw new ValidationException(this, "connection bus 2 is different to connectable bus 2");
             }
             return bus2;

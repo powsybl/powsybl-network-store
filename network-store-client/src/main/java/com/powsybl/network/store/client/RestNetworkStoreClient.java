@@ -8,6 +8,7 @@
 package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
@@ -46,6 +47,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     public RestNetworkStoreClient(RestClient restClient, ObjectMapper objectMapper) {
         this.restClient = Objects.requireNonNull(restClient);
         this.objectMapper = Objects.requireNonNull(objectMapper);
+        objectMapper.registerModule(new JodaModule());
+
     }
 
     // network
@@ -234,7 +237,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources, AttributeFilter attributeFilter) {
-        updateAll("substation", "/networks/{networkUuid}/substations/", substationResources, attributeFilter, networkUuid);
+        updateAll("substation", "/networks/{networkUuid}/substations", substationResources, attributeFilter, networkUuid);
     }
 
     public void removeSubstations(UUID networkUuid, int variantNum, List<String> substationsId) {

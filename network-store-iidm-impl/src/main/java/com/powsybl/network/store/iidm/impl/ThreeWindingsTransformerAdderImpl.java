@@ -136,7 +136,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         private String getConnectionBus() {
             if (bus != null) {
-                if ((connectableBus != null) && (!bus.equals(connectableBus))) {
+                if (connectableBus != null && !bus.equals(connectableBus)) {
                     throw new ValidationException(this, "connection bus leg " + legNumber + " is different to connectable bus");
                 }
                 return bus;

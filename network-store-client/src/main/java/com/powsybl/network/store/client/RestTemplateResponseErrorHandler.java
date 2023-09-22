@@ -19,9 +19,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
-import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -29,16 +26,16 @@ public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
 
     @Override
     public boolean hasError(ClientHttpResponse response) throws IOException {
-        return response.getStatusCode().series() == CLIENT_ERROR
-                || response.getStatusCode().series() == SERVER_ERROR;
+        return response.getStatusCode().is4xxClientError()
+                || response.getStatusCode().is5xxServerError();
     }
 
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
-        if (response.getStatusCode().series() == HttpStatus.Series.SERVER_ERROR) {
+        if (response.getStatusCode().is5xxServerError()) {
             throw new HttpServerErrorException(response.getStatusCode(), response.getStatusText(),
                     response.getBody().readAllBytes(), StandardCharsets.UTF_8);
-        } else if (response.getStatusCode().series() == HttpStatus.Series.CLIENT_ERROR) {
+        } else if (response.getStatusCode().is4xxClientError()) {
             if (response.getStatusCode() != HttpStatus.NOT_FOUND) {
                 throw new HttpClientErrorException(response.getStatusCode(), response.getStatusText(),
                         response.getBody().readAllBytes(), StandardCharsets.UTF_8);
