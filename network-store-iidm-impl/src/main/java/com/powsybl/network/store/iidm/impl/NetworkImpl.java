@@ -771,7 +771,58 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
-        return index.getIdentifiables().stream().filter(clazz::isInstance).map(clazz::cast);
+        Objects.requireNonNull(clazz);
+        if (clazz == BusbarSection.class) {
+            return getBusbarSectionStream().map(c -> (C) c);
+        } else if (clazz == Generator.class) {
+            return getGeneratorStream().map(c -> (C) c);
+        } else if (clazz == Line.class) {
+            return getLineStream().map(c -> (C) c);
+        } else if (clazz == TwoWindingsTransformer.class) {
+            return getTwoWindingsTransformerStream().map(c -> (C) c);
+        } else if (clazz == ThreeWindingsTransformer.class) {
+            return getThreeWindingsTransformerStream().map(c -> (C) c);
+        } else if (clazz == Battery.class) {
+            return getBatteryStream().map(c -> (C) c);
+        } else if (clazz == DanglingLine.class) {
+            return getDanglingLineStream().map(c -> (C) c);
+        } else if (clazz == LccConverterStation.class) {
+            return getLccConverterStationStream().map(c -> (C) c);
+        } else if (clazz == VscConverterStation.class) {
+            return getVscConverterStationStream().map(c -> (C) c);
+        } else if (clazz == Load.class) {
+            return getLoadStream().map(c -> (C) c);
+        } else if (clazz == ShuntCompensator.class) {
+            return getShuntCompensatorStream().map(c -> (C) c);
+        } else if (clazz == StaticVarCompensator.class) {
+            return getStaticVarCompensatorStream().map(c -> (C) c);
+        } else {
+            Stream<C> s = null;
+            for (Class<?> connectableClass : List.of(BusbarSection.class,
+                                                     Generator.class,
+                                                     Line.class,
+                                                     TwoWindingsTransformer.class,
+                                                     ThreeWindingsTransformer.class,
+                                                     Battery.class,
+                                                     DanglingLine.class,
+                                                     LccConverterStation.class,
+                                                     VscConverterStation.class,
+                                                     Load.class,
+                                                     ShuntCompensator.class,
+                                                     StaticVarCompensator.class)) {
+                if (clazz.isAssignableFrom(connectableClass)) {
+                    if (s == null) {
+                        s = getConnectableStream((Class<C>) connectableClass);
+                    } else {
+                        s = Stream.concat(s, getConnectableStream((Class<C>) connectableClass));
+                    }
+                }
+            }
+            if (s == null) {
+                s = Stream.empty();
+            }
+            return s;
+        }
     }
 
     @Override
