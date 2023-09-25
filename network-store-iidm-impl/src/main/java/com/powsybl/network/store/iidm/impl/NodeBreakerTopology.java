@@ -94,8 +94,8 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
         EquipmentCount<Integer> equipmentCount = new EquipmentCount<>();
         equipmentCount.count(nodesOrBusesConnected, verticesByNodeOrBus);
         return !isBusView ? !nodesOrBusesConnected.isEmpty() :
-                (equipmentCount.busbarSectionCount >= 1 && equipmentCount.feederCount >= 1)
-                        || (equipmentCount.branchCount >= 1 && equipmentCount.feederCount >= 2);
+                equipmentCount.busbarSectionCount >= 1 && equipmentCount.feederCount >= 1
+                        || equipmentCount.branchCount >= 1 && equipmentCount.feederCount >= 2;
     }
 
     @Override

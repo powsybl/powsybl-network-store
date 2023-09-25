@@ -23,7 +23,7 @@ public final class VoltageLevelUtil {
             if (MULTIPLE_TERMINALS_CONNECTABLE_TYPES.contains(type)) {
                 // Reject lines, 2WT and 3WT
                 throw new AssertionError("The voltage level '" + voltageLevel.getId() + "' cannot be removed because of a remaining " + type);
-            } else if ((type == IdentifiableType.HVDC_CONVERTER_STATION) && (network.getHvdcLine((HvdcConverterStation<?>) connectable) != null)) {
+            } else if (type == IdentifiableType.HVDC_CONVERTER_STATION && network.getHvdcLine((HvdcConverterStation<?>) connectable) != null) {
                 // Reject all converter stations connected to a HVDC line
                 throw new AssertionError("The voltage level '" + voltageLevel.getId() + "' cannot be removed because of a remaining HVDC line");
             }

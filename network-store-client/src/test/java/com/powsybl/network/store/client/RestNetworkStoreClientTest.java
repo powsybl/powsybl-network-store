@@ -8,6 +8,7 @@
 package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -68,6 +69,7 @@ public class RestNetworkStoreClientTest {
 
     @Before
     public void setUp() throws IOException {
+        objectMapper.registerModule(new JodaModule());
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
                 .attributes(NetworkAttributes.builder()
