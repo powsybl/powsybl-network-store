@@ -797,7 +797,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         } else if (clazz == StaticVarCompensator.class) {
             return getStaticVarCompensatorStream().map(c -> (C) c);
         } else {
-            Stream<C> s = null;
+            Stream<C> s = Stream.empty();
             for (Class<?> connectableClass : List.of(BusbarSection.class,
                                                      Generator.class,
                                                      Line.class,
@@ -811,15 +811,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                                                      ShuntCompensator.class,
                                                      StaticVarCompensator.class)) {
                 if (clazz.isAssignableFrom(connectableClass)) {
-                    if (s == null) {
-                        s = getConnectableStream((Class<C>) connectableClass);
-                    } else {
-                        s = Stream.concat(s, getConnectableStream((Class<C>) connectableClass));
-                    }
+                    s = Stream.concat(s, getConnectableStream((Class<C>) connectableClass));
                 }
-            }
-            if (s == null) {
-                s = Stream.empty();
             }
             return s;
         }
