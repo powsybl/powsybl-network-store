@@ -19,8 +19,8 @@ import com.powsybl.iidm.network.ReactiveLimitsKind;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ReactiveCapabilityCurveAttributes.class, name = "ReactiveCapabilityCurve"),
-        @JsonSubTypes.Type(value = MinMaxReactiveLimitsAttributes.class, name = "MinMaxReactiveLimits")
+    @JsonSubTypes.Type(value = ReactiveCapabilityCurveAttributes.class, name = "ReactiveCapabilityCurve"),
+    @JsonSubTypes.Type(value = MinMaxReactiveLimitsAttributes.class, name = "MinMaxReactiveLimits")
 })
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public interface ReactiveLimitsAttributes {

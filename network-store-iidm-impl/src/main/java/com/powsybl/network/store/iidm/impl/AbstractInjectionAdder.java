@@ -100,7 +100,7 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
 
     private String getConnectionBus() {
         if (bus != null) {
-            if ((connectableBus != null) && (!bus.equals(connectableBus))) {
+            if (connectableBus != null && !bus.equals(connectableBus)) {
                 throw new ValidationException(this, "connection bus is different to connectable bus");
             }
             return bus;
