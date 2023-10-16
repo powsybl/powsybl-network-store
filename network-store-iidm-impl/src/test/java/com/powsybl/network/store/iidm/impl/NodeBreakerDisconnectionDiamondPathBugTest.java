@@ -18,13 +18,14 @@ import static org.junit.Assert.assertTrue;
 public class NodeBreakerDisconnectionDiamondPathBugTest {
 
     /**
-     *     L
-     *     |
-     *  ---1---
-     *  |     |
-     * BR1   BR2
-     *  |     |
-     *  ---0--- BBS1
+     *     L                         LA
+     *     |                         |
+     *  ---1---                      4
+     *  |     |                      |
+     * BR1   BR2                    BR4
+     *  |     |                      |
+     *  ---0---   -----BR3-----   ---3---
+     *   BBS1                      BBS2
      */
     private Network createNetwork() {
         Network network = Network.create("test", "test");
@@ -40,6 +41,28 @@ public class NodeBreakerDisconnectionDiamondPathBugTest {
         vl.getNodeBreakerView().newBusbarSection()
                 .setId("BBS1")
                 .setNode(0)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection()
+                .setId("BBS2")
+                .setNode(3)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("BR3")
+                .setNode1(0)
+                .setNode2(3)
+                .setOpen(false)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("BR4")
+                .setNode1(3)
+                .setNode2(4)
+                .setOpen(false)
+                .add();
+        vl.newLoad()
+                .setId("LA")
+                .setNode(4)
+                .setP0(1)
+                .setQ0(1)
                 .add();
         vl.newLoad()
                 .setId("L")
@@ -69,13 +92,14 @@ public class NodeBreakerDisconnectionDiamondPathBugTest {
      *     |      |
      *  -------   |
      *  |     |   D1
-     * BR1   D2   |
-     *  |     |   |
-     *  ---1---   |
-     *     |      |
-     *    BR2     |
-     *     |      |
-     *  ---0------- BBS1
+     * BR1   D2   |                      LA
+     *  |     |   |                      |
+     *  ---1---   |                      4
+     *     |      |                      |
+     *    BR2     |                     BR4
+     *     |      |                      |
+     *  ---0-------   -----BR3-----   ---3---
+     *    BBS1                         BBS2
      */
     private Network createNetwork2() {
         Network network = Network.create("test", "test");
@@ -91,6 +115,28 @@ public class NodeBreakerDisconnectionDiamondPathBugTest {
         vl.getNodeBreakerView().newBusbarSection()
                 .setId("BBS1")
                 .setNode(0)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection()
+                .setId("BBS2")
+                .setNode(3)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("BR3")
+                .setNode1(0)
+                .setNode2(3)
+                .setOpen(false)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("BR4")
+                .setNode1(3)
+                .setNode2(4)
+                .setOpen(false)
+                .add();
+        vl.newLoad()
+                .setId("LA")
+                .setNode(4)
+                .setP0(1)
+                .setQ0(1)
                 .add();
         vl.newLoad()
                 .setId("L")
@@ -128,18 +174,26 @@ public class NodeBreakerDisconnectionDiamondPathBugTest {
     @Test
     public void testDisconnect() {
         Network network = createNetwork();
+        Switch s = network.getSwitch("BR3");
+        assertFalse(s.isOpen());
         Load l = network.getLoad("L");
+        assertTrue(l.getTerminal().isConnected());
         assertTrue(l.getTerminal().isConnected());
         assertTrue(l.getTerminal().disconnect());
         assertFalse(l.getTerminal().isConnected());
+        assertFalse(l.getTerminal().isConnected());
+        assertFalse(s.isOpen());
     }
 
     @Test
     public void testDisconnect2() {
         Network network = createNetwork2();
+        Switch s = network.getSwitch("BR3");
+        assertFalse(s.isOpen());
         Load l = network.getLoad("L");
         assertTrue(l.getTerminal().isConnected());
         assertFalse(l.getTerminal().disconnect());
+        assertFalse(s.isOpen());
         assertTrue(l.getTerminal().isConnected()); // because of D1 which is not openable
     }
 }
