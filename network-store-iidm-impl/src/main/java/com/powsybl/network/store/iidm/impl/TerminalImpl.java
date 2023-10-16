@@ -266,15 +266,12 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                 aggregatedNodeCount++;
             }
             for (Edge edge : graph.edgeSet()) {
-                if (edge.getBiConnectable() instanceof SwitchAttributes) {
-                    SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
-                    if (isSwitchOpenable.test(switchAttributes)) {
-                        int node1 = graph.getEdgeSource(edge);
-                        int node2 = graph.getEdgeTarget(edge);
-                        int aggregatedNode1 = nodeToAggregatedNode.get(node1);
-                        int aggregatedNode2 = nodeToAggregatedNode.get(node2);
-                        breakerOnlyGraph.addEdge(aggregatedNode1, aggregatedNode2, edge);
-                    }
+                if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes && isSwitchOpenable.test(switchAttributes)) {
+                    int node1 = graph.getEdgeSource(edge);
+                    int node2 = graph.getEdgeTarget(edge);
+                    int aggregatedNode1 = nodeToAggregatedNode.get(node1);
+                    int aggregatedNode2 = nodeToAggregatedNode.get(node2);
+                    breakerOnlyGraph.addEdge(aggregatedNode1, aggregatedNode2, edge);
                 }
             }
 
@@ -292,8 +289,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                 }
                 minCutAlgo.calculateMinCut(aggregatedNode, busbarSectionAggregatedNode);
                 for (Edge edge : minCutAlgo.getCutEdges()) {
-                    if (edge.getBiConnectable() instanceof SwitchAttributes) {
-                        SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
+                    if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
                         switchAttributes.setOpen(true);
                         index.updateSwitchResource(switchAttributes.getResource());
                         openedSwitches.add(switchAttributes.getResource().getId());
