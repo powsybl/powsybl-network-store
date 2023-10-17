@@ -213,6 +213,124 @@ public class NodeBreakerDisconnectionDiamondPathBugTest {
         return network;
     }
 
+    /**
+     * <pre>
+     *     Load        Line    2WT
+     *       |          |       |
+     *   ----2---       3       4
+     *   |      |       |       |
+     *  BR2    BR3     BR4     BR5
+     *   |      |       |       |
+     *   -----------1------------
+     *              |
+     *             BR1
+     *              |
+     *   -----------0------------
+     *            BBS1</pre>
+     */
+    private Network createNetwork4() {
+        Network network = Network.create("test", "test");
+        Substation s = network.newSubstation()
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = s.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.getNodeBreakerView().newBusbarSection()
+                .setId("BBS1")
+                .setNode(0)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("BR1")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(false)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("BR2")
+                .setNode1(1)
+                .setNode2(2)
+                .setOpen(false)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("BR3")
+                .setNode1(1)
+                .setNode2(2)
+                .setOpen(false)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("BR4")
+                .setNode1(1)
+                .setNode2(3)
+                .setOpen(false)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("BR5")
+                .setNode1(1)
+                .setNode2(4)
+                .setOpen(false)
+                .add();
+        vl1.newLoad()
+                .setId("Load")
+                .setNode(2)
+                .setP0(1)
+                .setQ0(1)
+                .add();
+
+        VoltageLevel vl2 = s.newVoltageLevel()
+                .setId("VL2")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+                .setId("BBS2")
+                .setNode(0)
+                .add();
+        vl2.getNodeBreakerView().newBreaker()
+                .setId("BR6")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(false)
+                .add();
+        vl2.getNodeBreakerView().newBreaker()
+                .setId("BR7")
+                .setNode1(0)
+                .setNode2(2)
+                .setOpen(false)
+                .add();
+
+        s.newTwoWindingsTransformer()
+                .setId("2WT")
+                .setVoltageLevel1(vl1.getId())
+                .setNode1(4)
+                .setVoltageLevel2(vl2.getId())
+                .setNode2(2)
+                .setR(250)
+                .setX(100)
+                .setG(52)
+                .setB(12)
+                .setRatedU1(405)
+                .setRatedU2(405)
+                .add();
+        network.newLine()
+                .setId("Line")
+                .setVoltageLevel1(vl1.getId())
+                .setNode1(3)
+                .setVoltageLevel2(vl2.getId())
+                .setNode2(1)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .add();
+        return network;
+    }
+
     @Test
     public void testDisconnect() {
         Network network = createNetwork();
@@ -241,5 +359,32 @@ public class NodeBreakerDisconnectionDiamondPathBugTest {
         assertFalse(l1.getTerminal().disconnect());
         assertFalse(s.isOpen());
         assertTrue(l1.getTerminal().isConnected()); // because of D1 which is not openable
+    }
+
+    @Test
+    public void testDisconnect4() {
+        Network network = createNetwork4();
+        Switch s1 = network.getSwitch("BR1");
+        Switch s2 = network.getSwitch("BR2");
+        Switch s3 = network.getSwitch("BR3");
+        Switch s4 = network.getSwitch("BR4");
+        Switch s5 = network.getSwitch("BR5");
+
+        assertFalse(s1.isOpen());
+        assertFalse(s2.isOpen());
+        assertFalse(s3.isOpen());
+        assertFalse(s4.isOpen());
+        assertFalse(s5.isOpen());
+
+        Load l1 = network.getLoad("Load");
+        assertTrue(l1.getTerminal().isConnected());
+        assertTrue(l1.getTerminal().disconnect());
+        assertTrue(l1.getTerminal().isConnected()); // because of D1 which is not openable
+
+        assertTrue(s1.isOpen());
+        assertFalse(s2.isOpen());
+        assertFalse(s3.isOpen());
+        assertTrue(s4.isOpen());
+        assertTrue(s5.isOpen());
     }
 }
