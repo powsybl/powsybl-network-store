@@ -146,7 +146,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
         return index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream().map(resource -> resource.getAttributes().getNode())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private static Graph<Integer, Edge> filterSwitches(Graph<Integer, Edge> graph, Predicate<SwitchAttributes> filter) {
@@ -242,11 +242,15 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         // create a graph with only closed switches
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, false, true);
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
+        Integer bbs0 = busbarSectionNodes.iterator().next();
+        for (Integer busbarSectionNode : busbarSectionNodes) {
+            graph.addEdge(bbs0, busbarSectionNode, new Edge(new InternalConnectionAttributes(bbs0, busbarSectionNode)));
+        }
 
         // inspect connectivity of graph without its non fictitious breakers to check if disconnection is possible
         Predicate<SwitchAttributes> isSwitchOpenable = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER && !switchAttributes.isFictitious() && !switchAttributes.isOpen();
-        ConnectivityInspector<Integer, Edge> connectivityInspector
-                = new ConnectivityInspector<>(filterSwitches(graph, isSwitchOpenable.negate()));
+        Graph<Integer, Edge> noOpenableSwitchGraph = filterSwitches(graph, isSwitchOpenable.negate());
+        ConnectivityInspector<Integer, Edge> connectivityInspector = new ConnectivityInspector<>(noOpenableSwitchGraph);
 
         List<Set<Integer>> connectedSets = connectivityInspector.connectedSets();
         if (connectedSets.size() == 1) {
@@ -273,21 +277,19 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             // so that we can open the minimal number of breaker to disconnect the terminal
             MinimumSTCutAlgorithm<Set<Integer>, Edge> minCutAlgo = new EdmondsKarpMFImpl<>(breakerOnlyGraph);
             Set<Integer> aggregatedNode = connectivityInspector.connectedSetOf(getAttributes().getNode());
-            for (int busbarSectionNode : busbarSectionNodes) {
-                Set<Integer> busbarSectionAggregatedNode = connectivityInspector.connectedSetOf(busbarSectionNode);
-                // if that terminal is connected to a busbar section through disconnectors only or that terminal is a busbar section
-                // so there is no way to disconnect the terminal
-                if (aggregatedNode == busbarSectionAggregatedNode) {
-                    continue;
-                }
-                minCutAlgo.calculateMinCut(aggregatedNode, busbarSectionAggregatedNode);
-                for (Edge edge : minCutAlgo.getCutEdges()) {
-                    if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
-                        switchAttributes.setOpen(true);
-                        index.updateSwitchResource(switchAttributes.getResource());
-                        openedSwitches.add(switchAttributes.getResource().getId());
-                        done = true;
-                    }
+            Set<Integer> busbarSectionAggregatedNode = connectivityInspector.connectedSetOf(bbs0);
+            // if that terminal is connected to a busbar section through disconnectors only or that terminal is a busbar section
+            // so there is no way to disconnect the terminal
+            if (aggregatedNode == busbarSectionAggregatedNode) {
+                return false;
+            }
+            minCutAlgo.calculateMinCut(aggregatedNode, busbarSectionAggregatedNode);
+            for (Edge edge : minCutAlgo.getCutEdges()) {
+                if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
+                    switchAttributes.setOpen(true);
+                    index.updateSwitchResource(switchAttributes.getResource());
+                    openedSwitches.add(switchAttributes.getResource().getId());
+                    done = true;
                 }
             }
 
