@@ -254,7 +254,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             // so there is no way to disconnect the terminal
         } else {
             // build the graph between connected sets where the edges are openable switches
-            Graph<Set<Integer>, SwitchAttributes> breakerOnlyGraph = new Pseudograph<>(SwitchAttributes.class);
+            Graph<Set<Integer>, Edge> breakerOnlyGraph = new Pseudograph<>(Edge.class);
             for (Set<Integer> connectedSet : connectedSets) {
                 breakerOnlyGraph.addVertex(connectedSet);
             }
@@ -264,14 +264,14 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                     int node2 = graph.getEdgeTarget(edge);
                     Set<Integer> aggregatedNode1 = connectivityInspector.connectedSetOf(node1);
                     Set<Integer> aggregatedNode2 = connectivityInspector.connectedSetOf(node2);
-                    breakerOnlyGraph.addEdge(aggregatedNode1, aggregatedNode2, switchAttributes);
+                    breakerOnlyGraph.addEdge(aggregatedNode1, aggregatedNode2, edge);
                 }
             }
 
             Set<String> openedSwitches = new HashSet<>();
             // find minimal cuts from terminal to each of the busbar section in the aggregated breaker only graph
             // so that we can open the minimal number of breaker to disconnect the terminal
-            MinimumSTCutAlgorithm<Set<Integer>, SwitchAttributes> minCutAlgo = new EdmondsKarpMFImpl<>(breakerOnlyGraph);
+            MinimumSTCutAlgorithm<Set<Integer>, Edge> minCutAlgo = new EdmondsKarpMFImpl<>(breakerOnlyGraph);
             Set<Integer> aggregatedNode = connectivityInspector.connectedSetOf(getAttributes().getNode());
             for (int busbarSectionNode : busbarSectionNodes) {
                 Set<Integer> busbarSectionAggregatedNode = connectivityInspector.connectedSetOf(busbarSectionNode);
@@ -281,11 +281,13 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                     continue;
                 }
                 minCutAlgo.calculateMinCut(aggregatedNode, busbarSectionAggregatedNode);
-                for (SwitchAttributes switchAttributes : minCutAlgo.getCutEdges()) {
-                    switchAttributes.setOpen(true);
-                    index.updateSwitchResource(switchAttributes.getResource());
-                    openedSwitches.add(switchAttributes.getResource().getId());
-                    done = true;
+                for (Edge edge : minCutAlgo.getCutEdges()) {
+                    if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
+                        switchAttributes.setOpen(true);
+                        index.updateSwitchResource(switchAttributes.getResource());
+                        openedSwitches.add(switchAttributes.getResource().getId());
+                        done = true;
+                    }
                 }
             }
 
