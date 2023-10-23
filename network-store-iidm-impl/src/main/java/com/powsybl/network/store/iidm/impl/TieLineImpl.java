@@ -27,8 +27,8 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public String getUcteXnodeCode() {
-        return Optional.ofNullable(getDanglingLine1().getUcteXnodeCode()).orElseGet(() -> getDanglingLine2().getUcteXnodeCode());
+    public String getPairingKey() {
+        return Optional.ofNullable(getDanglingLine1().getPairingKey()).orElseGet(() -> getDanglingLine2().getPairingKey());
     }
 
     @Override
@@ -64,9 +64,19 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public void remove() {
+        remove(false);
+    }
+
+    @Override
+    public void remove(boolean updateDanglingLines) {
         var resource = getResource();
 
         index.notifyBeforeRemoval(this);
+
+        if (updateDanglingLines) {
+            updateDanglingLine(getDanglingLine1());
+            updateDanglingLine(getDanglingLine2());
+        }
 
         getDanglingLine1().removeTieLine();
         getDanglingLine2().removeTieLine();
@@ -398,5 +408,23 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);
+    }
+
+    private static void updateDanglingLine(DanglingLine danglingLine) {
+        // Only update if we have values
+        if (!Double.isNaN(danglingLine.getBoundary().getP())) {
+            danglingLine.setP0(-danglingLine.getBoundary().getP());
+            if (danglingLine.getGeneration() != null) {
+                // We do not reset regulation if we only have computed a dc load flow
+                danglingLine.getGeneration().setTargetP(0.0);
+            }
+        }
+        if (!Double.isNaN(danglingLine.getBoundary().getQ())) {
+            danglingLine.setQ0(-danglingLine.getBoundary().getQ());
+            if (danglingLine.getGeneration() != null) {
+                // If q values are available a complete ac load flow has been computed, we reset regulation
+                danglingLine.getGeneration().setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
+            }
+        }
     }
 }

@@ -30,6 +30,8 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
 
     private double netInterchange = Double.NaN;
 
+    private double pTolerance = Double.NaN;
+
     CgmesControlAreaAdderImpl(NetworkImpl network) {
         this.network = Objects.requireNonNull(network);
     }
@@ -59,11 +61,17 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
     }
 
     @Override
+    public CgmesControlAreaAdder setPTolerance(double pTolerance) {
+        this.pTolerance = pTolerance;
+        return this;
+    }
+
+    @Override
     public CgmesControlAreaImpl add() {
         if (id == null) {
             throw new PowsyblException("Undefined ID for CGMES control area");
         }
-        CgmesControlAreaAttributes attributes = new CgmesControlAreaAttributes(id, name, energyIdentificationCodeEic, new ArrayList<>(), new ArrayList<>(), netInterchange);
+        CgmesControlAreaAttributes attributes = new CgmesControlAreaAttributes(id, name, energyIdentificationCodeEic, new ArrayList<>(), new ArrayList<>(), netInterchange, pTolerance);
         List<CgmesControlAreaAttributes> controlAreas = network.getResource().getAttributes().getCgmesControlAreas().getControlAreas();
         int index = controlAreas.size();
         controlAreas.add(attributes);

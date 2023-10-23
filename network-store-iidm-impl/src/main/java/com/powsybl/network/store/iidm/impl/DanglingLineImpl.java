@@ -328,17 +328,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public String getUcteXnodeCode() {
+    public String getPairingKey() {
         return getResource().getAttributes().getUcteXnodeCode();
-    }
-
-    public DanglingLine setUcteXnodeCode(String ucteXnodeCode) {
-        String oldValue = getResource().getAttributes().getUcteXnodeCode();
-        if (!Objects.equals(ucteXnodeCode, oldValue)) {
-            updateResource(res -> res.getAttributes().setUcteXnodeCode(ucteXnodeCode));
-            notifyUpdate("ucteXnodeCode", oldValue, ucteXnodeCode);
-        }
-        return this;
     }
 
     @Override

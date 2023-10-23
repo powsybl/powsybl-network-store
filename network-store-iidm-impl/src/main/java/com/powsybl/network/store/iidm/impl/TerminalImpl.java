@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
@@ -359,25 +360,29 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     @Override
     public void traverse(Terminal.TopologyTraverser traverser) {
+        traverse(traverser, TraversalType.DEPTH_FIRST);
+    }
+
+    @Override
+    public void traverse(Terminal.TopologyTraverser traverser, TraversalType traversalType) {
         Set<Terminal> traversedTerminals = new HashSet<>();
         if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
             throw new PowsyblException("Associated equipment is removed");
         }
 
-        // One side
-        if (!traverse(traverser, traversedTerminals)) {
+        if (!traverse(traverser, traversedTerminals, traversalType)) {
             return;
         }
 
         // Other sides
         for (Terminal otherSideTerminal : getOtherSideTerminals()) {
-            if (!((TerminalImpl<?>) otherSideTerminal).traverse(traverser, traversedTerminals)) {
+            if (!((TerminalImpl<?>) otherSideTerminal).traverse(traverser, traversedTerminals, traversalType)) {
                 return;
             }
         }
     }
 
-    boolean traverse(Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    boolean traverse(Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals, TraversalType traversalType) {
         if (traversedTerminals.contains(this)) {
             return true;
         }
@@ -393,9 +398,9 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         TopologyKind topologyKind = getTopologyKind();
         switch (topologyKind) {
             case NODE_BREAKER:
-                return ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
+                return ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals, traversalType);
             case BUS_BREAKER:
-                return ((BusBreakerViewImpl) voltageLevel.getBusBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
+                return ((BusBreakerViewImpl) voltageLevel.getBusBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals, traversalType);
             default:
                 throw new IllegalStateException("Unknown topology kind: " + topologyKind);
         }

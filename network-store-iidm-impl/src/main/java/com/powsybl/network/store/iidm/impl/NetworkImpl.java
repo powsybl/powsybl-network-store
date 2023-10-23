@@ -110,6 +110,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
 
         @Override
+        public int getBusCount() {
+            return (int) getBusStream().count();
+        }
+
+        @Override
         public Iterable<Switch> getSwitches() {
             return getSwitchStream().collect(Collectors.toList());
         }
@@ -721,16 +726,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        return new TwoWindingsTransformerAdderImpl(index, null);
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return new ThreeWindingsTransformerAdderImpl(index, null);
-    }
-
-    @Override
     public BusBreakerView getBusBreakerView() {
         return busBreakerView;
     }
@@ -741,13 +736,51 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public void merge(Network other) {
+    public VoltageAngleLimitAdder newVoltageAngleLimit() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    //TODO implement
+    @Override
+    public Iterable<VoltageAngleLimit> getVoltageAngleLimits() {
+        return new ArrayList<>();
+    }
+
+    //TODO implement
+    @Override
+    public Stream<VoltageAngleLimit> getVoltageAngleLimitsStream() {
+        return Stream.empty();
+    }
+
+    //TODO implement
+    @Override
+    public VoltageAngleLimit getVoltageAngleLimit(String s) {
+        return null;
+    }
+
+    @Override
+    public Network createSubnetwork(String s, String s1, String s2) {
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
-    public void merge(Network... others) {
+    public Network detach() {
         throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public boolean isDetachable() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public Set<Identifiable<?>> getBoundaryElements() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public boolean isBoundaryElement(Identifiable<?> identifiable) {
+        return false;
     }
 
     @Override

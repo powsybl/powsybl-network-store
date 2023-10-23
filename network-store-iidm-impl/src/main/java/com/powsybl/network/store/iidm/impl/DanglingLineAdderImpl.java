@@ -141,8 +141,8 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
     }
 
     @Override
-    public DanglingLineAdder setUcteXnodeCode(String ucteXNodeCode) {
-        this.ucteXNodeCode = ucteXNodeCode;
+    public DanglingLineAdder setPairingKey(String pairingKey) {
+        this.ucteXNodeCode = pairingKey;
         return this;
     }
 
