@@ -19,8 +19,8 @@ import com.powsybl.iidm.network.ShuntCompensatorModelType;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ShuntCompensatorLinearModelAttributes.class, name = "LinearModel"),
-        @JsonSubTypes.Type(value = ShuntCompensatorNonLinearModelAttributes.class, name = "NonLinearModel")
+    @JsonSubTypes.Type(value = ShuntCompensatorLinearModelAttributes.class, name = "LinearModel"),
+    @JsonSubTypes.Type(value = ShuntCompensatorNonLinearModelAttributes.class, name = "NonLinearModel")
 })
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public interface ShuntCompensatorModelAttributes {
