@@ -176,7 +176,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public LoadAdder newLoad() {
-        return new LoadAdderImpl(getResource(), index);
+        return new LoadAdderImpl(getResource(), index, getResource().getParentNetwork());
     }
 
     @Override
@@ -196,7 +196,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public GeneratorAdder newGenerator() {
-        return new GeneratorAdderImpl(getResource(), index);
+        return new GeneratorAdderImpl(getResource(), index, getResource().getParentNetwork());
     }
 
     @Override
@@ -216,7 +216,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public BatteryAdder newBattery() {
-        return new BatteryAdderImpl(getResource(), index);
+        return new BatteryAdderImpl(getResource(), index, getResource().getParentNetwork());
     }
 
     @Override
@@ -236,7 +236,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public ShuntCompensatorAdder newShuntCompensator() {
-        return new ShuntCompensatorAdderImpl(getResource(), index);
+        return new ShuntCompensatorAdderImpl(getResource(), index, getResource().getParentNetwork());
     }
 
     @Override
@@ -256,7 +256,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public DanglingLineAdder newDanglingLine() {
-        return new DanglingLineAdderImpl(getResource(), index);
+        return new DanglingLineAdderImpl(getResource(), index, getResource().getParentNetwork());
     }
 
     @Override
@@ -286,7 +286,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public VscConverterStationAdder newVscConverterStation() {
-        return new VscConverterStationAdderImpl(getResource(), index);
+        return new VscConverterStationAdderImpl(getResource(), index, getResource().getParentNetwork());
     }
 
     @Override
@@ -306,7 +306,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public LccConverterStationAdder newLccConverterStation() {
-        return new LccConverterStationAdderImpl(getResource(), index);
+        return new LccConverterStationAdderImpl(getResource(), index, getResource().getParentNetwork());
     }
 
     @Override
@@ -326,7 +326,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public StaticVarCompensatorAdder newStaticVarCompensator() {
-        return new StaticVarCompensatorAdderImpl(getResource(), index);
+        return new StaticVarCompensatorAdderImpl(getResource(), index, getResource().getParentNetwork());
     }
 
     @Override

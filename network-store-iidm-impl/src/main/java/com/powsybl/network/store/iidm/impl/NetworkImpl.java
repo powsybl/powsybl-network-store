@@ -7,12 +7,15 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.primitives.Ints;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.extensions.BaseVoltageMapping;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
 import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
@@ -30,6 +33,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.util.TieLineUtil.*;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
@@ -111,7 +115,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public int getBusCount() {
-            return (int) getBusStream().count();
+            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getBusCount()).sum();
         }
 
         @Override
@@ -737,50 +741,182 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
-        throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("Voltage angle limit are not supported in this implementation");
     }
 
     //TODO implement
     @Override
     public Iterable<VoltageAngleLimit> getVoltageAngleLimits() {
-        return new ArrayList<>();
+        throw new UnsupportedOperationException("Voltage angle limit are not supported in this implementation");
     }
 
-    //TODO implement
     @Override
     public Stream<VoltageAngleLimit> getVoltageAngleLimitsStream() {
-        return Stream.empty();
+        throw new UnsupportedOperationException("Voltage angle limit are not supported in this implementation");
     }
 
-    //TODO implement
     @Override
     public VoltageAngleLimit getVoltageAngleLimit(String s) {
-        return null;
+        throw new UnsupportedOperationException("Voltage angle limit are not supported in this implementation");
     }
 
     @Override
-    public Network createSubnetwork(String s, String s1, String s2) {
+    public Collection<Network> getSubnetworks() {
+        return index.getSubnetworks();
+    }
+
+    @Override
+    public Network getSubnetwork(String id) {
+        return index.getSubnetwork(id).orElse(null);
+    }
+
+    @Override
+    public Network createSubnetwork(String subnetworkId, String name, String sourceFormat) {
+        Resource<SubnetworkAttributes> resourceSubNetwork = Resource.subnetwokBuilder()
+                .id(subnetworkId)
+                .parentNetwork(this.getId())
+                .attributes(SubnetworkAttributes.builder()
+                        .uuid(UUID.randomUUID())
+                        .build())
+                .build();
+        return index.createSubnetwork(resourceSubNetwork);
+    }
+
+    private static void checkIndependentNetwork(Network network) {
+        if (network instanceof SubnetworkImpl) {
+            throw new IllegalArgumentException("The network " + network.getId() + " is already a subnetwork");
+        }
+        if (!network.getSubnetworks().isEmpty()) {
+            throw new IllegalArgumentException("The network " + network.getId() + " already contains subnetworks: not supported");
+        }
+    }
+
+    class DanglingLinePair {
+        String id;
+        String name;
+        String dl1Id;
+        String dl2Id;
+        Map<String, String> aliases;
+        Properties properties = new Properties();
+    }
+
+    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
+        if (dl1 != null) {
+            if (dl1.getPairingKey() != null) {
+                dl1byXnodeCode.get(dl1.getPairingKey()).remove(dl1);
+            }
+            DanglingLinePair l = new DanglingLinePair();
+            l.id = buildMergedId(dl1.getId(), dl2.getId());
+            l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
+            l.dl1Id = dl1.getId();
+            l.dl2Id = dl2.getId();
+            l.aliases = new HashMap<>();
+            // No need to merge properties or aliases because we keep the original dangling lines after merge
+            danglingLinePairs.add(l);
+
+            /*if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
+                ((DanglingLineImpl) dl1).replaceId(l.dl1Id + "_1");
+                ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
+                l.dl1Id = dl1.getId();
+                l.dl2Id = dl2.getId();
+            }*/
+        }
+    }
+
+    private void replaceDanglingLineByTieLine(List<DanglingLinePair> lines) {
+        for (DanglingLinePair danglingLinePair : lines) {
+            TieLine l = newTieLine()
+                    .setId(danglingLinePair.id)
+                    .setEnsureIdUnicity(true)
+                    .setName(danglingLinePair.name)
+                    .setDanglingLine1(danglingLinePair.dl1Id)
+                    .setDanglingLine2(danglingLinePair.dl2Id)
+                    .add();
+            danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+            danglingLinePair.aliases.forEach((alias, type) -> {
+                if (type.isEmpty()) {
+                    l.addAlias(alias);
+                } else {
+                    l.addAlias(alias, type);
+                }
+            });
+        }
+    }
+
+    private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {
+        // Handles the case of creating a subnetwork for itself without duplicating the id
+        String idSubNetwork = parent != original ? original.getId() : Identifiables.getUniqueId(original.getId(), parent.getIndex()::contains);
+        parent.createSubnetwork(idSubNetwork, "", original.getSourceFormat());
+    }
+
+    static Network merge(String id, String name, Network... networks) {
+        if (networks == null || networks.length < 2) {
+            throw new IllegalArgumentException("At least 2 networks are expected");
+        }
+        NetworkImpl mergedNetwork = (NetworkImpl) Network.create(id, networks[0].getSourceFormat());
+        for (Network other : networks) {
+            mergedNetwork.merge(other);
+        }
+
+        return mergedNetwork;
+    }
+
+    private void merge(Network other) {
+        checkIndependentNetwork(other);
+        NetworkImpl otherNetwork = (NetworkImpl) other;
+
+        // this check must not be done on the number of variants but on the size
+        // of the internal variant array because the network can have only
+        // one variant but an internal array with a size greater than one and
+        // some re-usable variants
+        if (getVariantManager().getVariantIds().size() != 1 || otherNetwork.getVariantManager().getVariantIds().size() != 1) {
+            throw new PowsyblException("Merging of multi-variants network is not supported");
+        }
+
+        // try to find dangling lines couples
+        List<DanglingLinePair> lines = new ArrayList<>();
+        Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
+
+        for (DanglingLine dl1 : getDanglingLines(DanglingLineFilter.ALL)) {
+            if (dl1.getPairingKey() != null) {
+                dl1byXnodeCode.computeIfAbsent(dl1.getPairingKey(), k -> new ArrayList<>()).add(dl1);
+            }
+        }
+        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
+            findAndAssociateDanglingLines(dl2, dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
+        }
+
+        // create a subnetwork for the other network
+        createSubnetwork(this, otherNetwork);
+
+        // merge the indexes
+        index.merge(otherNetwork.index);
+
+        replaceDanglingLineByTieLine(lines);
+    }
+
+    public void merge(Network... others) {
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Network detach() {
-        throw new UnsupportedOperationException("TODO");
+        throw new IllegalStateException("This network is already detached.");
     }
 
     @Override
     public boolean isDetachable() {
-        throw new UnsupportedOperationException("TODO");
+        return false;
     }
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
-        return new HashSet<>();
+        return getDanglingLineStream(DanglingLineFilter.UNPAIRED).collect(Collectors.toSet());
     }
 
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        return false;
+        return identifiable.getType() == IdentifiableType.DANGLING_LINE && !((DanglingLine) identifiable).isPaired();
     }
 
     @Override

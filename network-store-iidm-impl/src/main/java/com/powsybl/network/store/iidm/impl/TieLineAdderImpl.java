@@ -21,7 +21,11 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
     private String danglingLine2;
 
     public TieLineAdderImpl(NetworkObjectIndex index) {
-        super(index);
+        this(index, index.getNetwork().getId());
+    }
+
+    public TieLineAdderImpl(NetworkObjectIndex index, String parentNetwork) {
+        super(index, parentNetwork);
     }
 
     @Override
@@ -59,9 +63,11 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
         Resource<TieLineAttributes> resource = Resource.tieLineBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(TieLineAttributes.builder()
                         .danglingLine1Id(dl1.getId())
                         .danglingLine2Id(dl2.getId())
+                        .name(getName())
                         .build()).build();
         getIndex().createTieLine(resource);
         TieLineImpl tieLine = new TieLineImpl(getIndex(), resource);

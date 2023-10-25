@@ -20,8 +20,8 @@ abstract class AbstractSwitchAdder<T extends AbstractSwitchAdder<T>> extends Abs
 
     private boolean open = false;
 
-    AbstractSwitchAdder(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(index);
+    AbstractSwitchAdder(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, String parentNetwork) {
+        super(index, parentNetwork);
         this.voltageLevelResource = voltageLevelResource;
     }
 

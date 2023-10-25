@@ -595,6 +595,28 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void createSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subNetworkAttributes) {
+    }
+
+    @Override
+    public List<Resource<SubnetworkAttributes>> getSubnetworks(UUID networkUuid, int variantNum) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Optional<Resource<SubnetworkAttributes>> getSubnetwork(UUID networkUuid, int variantNum, String subnetworkId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void removeSubnetworks(UUID networkUuid, int variantNum, List<String> subnetworkIds) {
+    }
+
+    @Override
+    public void updateSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subnetworkResources, AttributeFilter attributeFilter) {
+    }
+
+    @Override
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         return Optional.empty();
     }

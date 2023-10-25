@@ -29,6 +29,10 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @Schema(description = "Variant ID")
     private String variantId;
 
+    //TODO MAP subnetwork ICI
+    @Schema(description = "Subnetworks IDs")
+    private Set<String> subNetworksIds;
+
     @Schema(description = "Network name")
     private String name;
 

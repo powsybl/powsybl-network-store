@@ -28,7 +28,7 @@ class SwitchAdderNodeBreakerImpl extends AbstractSwitchAdder<SwitchAdderNodeBrea
     private boolean retained = false;
 
     SwitchAdderNodeBreakerImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, SwitchKind kind) {
-        super(voltageLevelResource, index);
+        super(voltageLevelResource, index, voltageLevelResource.getParentNetwork());
         this.kind = kind;
     }
 
@@ -77,6 +77,7 @@ class SwitchAdderNodeBreakerImpl extends AbstractSwitchAdder<SwitchAdderNodeBrea
         Resource<SwitchAttributes> resource = Resource.switchBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

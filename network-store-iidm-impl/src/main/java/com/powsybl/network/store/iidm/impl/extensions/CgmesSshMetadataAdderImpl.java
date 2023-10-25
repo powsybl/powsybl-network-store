@@ -23,7 +23,6 @@ import java.util.List;
 public class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSshMetadata> implements CgmesSshMetadataAdder {
 
     private String id;
-
     private String description;
 
     private int sshVersion;

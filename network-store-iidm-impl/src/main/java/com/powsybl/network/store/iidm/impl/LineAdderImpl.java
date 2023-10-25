@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -31,7 +32,11 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
     private double b2 = 0;
 
     LineAdderImpl(NetworkObjectIndex index) {
-        super(index);
+        this(index, index.getNetwork().getId());
+    }
+
+    LineAdderImpl(NetworkObjectIndex index, String parentNetwork) {
+        super(index, parentNetwork);
     }
 
     @Override
@@ -85,9 +90,25 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         ValidationUtil.checkB1(this, b1);
         ValidationUtil.checkB2(this, b2);
 
+        VoltageLevelImpl vl1 = index.getVoltageLevel(getVoltageLevelId1()).orElse(null);
+        VoltageLevelImpl vl2 = index.getVoltageLevel(getVoltageLevelId2()).orElse(null);
+        SubnetworkImpl subnetwork = index.getSubnetwork(getParentNetwork()).orElse(null);
+
+        if (subnetwork != null && vl1 != null && vl2 != null && (!subnetwork.getId().equals(vl1.getResource().getParentNetwork()) || !subnetwork.getId().equals(vl2.getResource().getParentNetwork()))) {
+            throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
+                    subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+        }
+
+        //TODO for all connectable...
+        String parent = getParentNetwork();
+        if (vl1 != null && vl2 != null && vl1.getResource().getParentNetwork().equals(vl2.getResource().getParentNetwork())) {
+            parent = vl1.getResource().getParentNetwork();
+        }
+
         Resource<LineAttributes> resource = Resource.lineBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(parent)
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1(getVoltageLevelId1())
                         .voltageLevelId2(getVoltageLevelId2())

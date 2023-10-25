@@ -21,7 +21,7 @@ public class ConfiguredBusAdderImpl extends AbstractIdentifiableAdder<Configured
     private final Resource<VoltageLevelAttributes> voltageLevelResource;
 
     ConfiguredBusAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(index);
+        super(index, voltageLevelResource.getParentNetwork());
         this.voltageLevelResource = voltageLevelResource;
     }
 
@@ -32,6 +32,7 @@ public class ConfiguredBusAdderImpl extends AbstractIdentifiableAdder<Configured
         Resource<ConfiguredBusAttributes> resource = Resource.configuredBusBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(ConfiguredBusAttributes.builder()
                         .name(getName())
                         .fictitious(isFictitious())

@@ -43,6 +43,9 @@ public class Resource<T extends Attributes> implements Validable {
     @Schema(description = "Resource ID", required = true)
     private String id;
 
+    @Schema(description = "Resource Parent Network id", required = true)
+    private String parentNetwork;
+
     @Schema(description = "Variant number", required = true)
     private int variantNum;
 
@@ -61,12 +64,12 @@ public class Resource<T extends Attributes> implements Validable {
 
     public Resource<Attributes> filterAttributes(AttributeFilter filter) {
         Objects.requireNonNull(filter);
-        return new Resource<>(type, id, variantNum, filter, ((IdentifiableAttributes) attributes).filter(filter));
+        return new Resource<>(type, id, parentNetwork, variantNum, filter, ((IdentifiableAttributes) attributes).filter(filter));
     }
 
-    public static <T extends Attributes> Resource<T> create(ResourceType type, String id, int variantNum, AttributeFilter filter, T attributes) {
+    public static <T extends Attributes> Resource<T> create(ResourceType type, String id, String parentNetwork, int variantNum, AttributeFilter filter, T attributes) {
         Objects.requireNonNull(attributes);
-        Resource<T> resource = new Resource<>(type, id, variantNum, filter, attributes);
+        Resource<T> resource = new Resource<>(type, id, parentNetwork, variantNum, filter, attributes);
         attributes.setResource(resource);
         return resource;
     }
@@ -76,6 +79,8 @@ public class Resource<T extends Attributes> implements Validable {
         private final ResourceType type;
 
         private String id;
+
+        private String parentNetwork;
 
         private int variantNum = INITIAL_VARIANT_NUM;
 
@@ -87,6 +92,11 @@ public class Resource<T extends Attributes> implements Validable {
 
         public Builder<T> id(String id) {
             this.id = Objects.requireNonNull(id);
+            return this;
+        }
+
+        public Builder<T> parentNetwork(String parentNetwork) {
+            this.parentNetwork = parentNetwork;
             return this;
         }
 
@@ -110,7 +120,7 @@ public class Resource<T extends Attributes> implements Validable {
             if (attributes == null) {
                 throw new IllegalStateException("attributes is not set");
             }
-            Resource<T> resource = new Resource<>(type, id, variantNum, null, attributes);
+            Resource<T> resource = new Resource<>(type, id, parentNetwork, variantNum, null, attributes);
             attributes.setResource(resource);
             return resource;
         }
@@ -118,6 +128,10 @@ public class Resource<T extends Attributes> implements Validable {
 
     public static Builder<NetworkAttributes> networkBuilder() {
         return new Builder<>(ResourceType.NETWORK);
+    }
+
+    public static Builder<SubnetworkAttributes> subnetwokBuilder() {
+        return new Builder<>(ResourceType.SUBNETWORK);
     }
 
     public static Builder<SubstationAttributes> substationBuilder() {

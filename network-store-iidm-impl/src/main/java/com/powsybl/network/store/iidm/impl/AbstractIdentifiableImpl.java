@@ -275,6 +275,16 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return index.getNetwork();
     }
 
+    @Override
+    public Network getParentNetwork() {
+        String parentId = getResource().getParentNetwork();
+        if (parentId == null || index.getNetwork().getId().equals(parentId)) {
+            return index.getNetwork();
+        } else {
+            return index.getSubnetwork(parentId).orElse(null);
+        }
+    }
+
     protected void invalidateCalculatedBuses(List<? extends Terminal> terminals) {
         terminals.stream().map(Terminal::getVoltageLevel).filter(Objects::nonNull).map(VoltageLevel::getId)
             .forEach(id -> index.getVoltageLevel(id).ifPresent(VoltageLevelImpl::invalidateCalculatedBuses));

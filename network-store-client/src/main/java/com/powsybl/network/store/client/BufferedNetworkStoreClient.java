@@ -128,6 +128,11 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             delegate::updateTieLines,
             delegate::removeTieLines));
 
+    private final NetworkCollectionIndex<CollectionBuffer<SubnetworkAttributes>> subnetworkResourcesToFlush
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createSubnetworks,
+            delegate::updateSubnetworks,
+            delegate::removeSubnetworks));
+
     private final List<NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = List.of(
             networkResourcesToFlush,
             substationResourcesToFlush,
@@ -147,7 +152,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             threeWindingsTransformerResourcesToFlush,
             lineResourcesToFlush,
             busResourcesToFlush,
-            tieLineResourcesToFlush);
+            tieLineResourcesToFlush,
+            subnetworkResourcesToFlush);
 
     private final ExecutorService executorService;
 
@@ -530,6 +536,25 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     @Override
     public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
         tieLineResourcesToFlush.getCollection(networkUuid, variantNum).remove(tieLinesId);
+    }
+
+    @Override
+    public void createSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subNetworkAttributes) {
+        for (Resource<SubnetworkAttributes> subnetworkResource : subNetworkAttributes) {
+            subnetworkResourcesToFlush.getCollection(networkUuid, subnetworkResource.getVariantNum()).create(subnetworkResource);
+        }
+    }
+
+    @Override
+    public void updateSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subnetworkResources, AttributeFilter attributeFilter) {
+        for (Resource<SubnetworkAttributes> subnetworkResource : subnetworkResources) {
+            subnetworkResourcesToFlush.getCollection(networkUuid, subnetworkResource.getVariantNum()).update(subnetworkResource, attributeFilter);
+        }
+    }
+
+    @Override
+    public void removeSubnetworks(UUID networkUuid, int variantNum, List<String> subnetworkIds) {
+        subnetworkResourcesToFlush.getCollection(networkUuid, variantNum).remove(subnetworkIds);
     }
 
     @Override

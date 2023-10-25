@@ -24,7 +24,7 @@ class SwitchAdderBusBreakerImpl extends AbstractSwitchAdder<SwitchAdderBusBreake
     private String bus2;
 
     SwitchAdderBusBreakerImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(voltageLevelResource, index);
+        super(voltageLevelResource, index, voltageLevelResource.getParentNetwork());
     }
 
     @Override
@@ -52,6 +52,7 @@ class SwitchAdderBusBreakerImpl extends AbstractSwitchAdder<SwitchAdderBusBreake
         Resource<SwitchAttributes> resource = Resource.switchBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

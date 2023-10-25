@@ -28,7 +28,7 @@ public class ConfiguredBusBugTest {
         Network network = EurostagTutorialExample1Factory.create(new NetworkFactoryImpl());
         List<String> ids = network.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toList());
         assertEquals(List.of("P1", "P2", "VLGEN", "VLHV1", "VLHV2", "VLLOAD", "GEN", "LOAD", "NGEN_NHV1", "NHV2_NLOAD",
-                "NHV1_NHV2_1", "NHV1_NHV2_2", "NGEN", "NHV1", "NHV2", "NLOAD"), ids);
+                "NHV1_NHV2_1", "NHV1_NHV2_2", "NGEN", "NHV1", "NHV2", "NLOAD", "sim1"), ids);
         assertNotNull(network.getIdentifiable("NGEN"));
 
         ids = network.getIdentifiables().stream().filter(i -> i instanceof Bus).map(Identifiable::getId).collect(Collectors.toList());

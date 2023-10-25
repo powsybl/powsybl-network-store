@@ -594,32 +594,36 @@ final class CreateNetworksUtil {
     }
 
     static Network createBusBreakerNetworkWithOneBus() {
-        Network network = Network.create("test", "test");
+        return createBusBreakerNetworkWithOneBus("");
+    }
+
+    static Network createBusBreakerNetworkWithOneBus(String networkSuffix) {
+        Network network = Network.create("test" + networkSuffix, "test");
         Substation s = network.newSubstation()
-                .setId("S")
+                .setId("S" + networkSuffix)
                 .setCountry(Country.FR)
                 .setCountry(Country.FR)
-                .setTso("TSO1")
-                .setGeographicalTags("region1")
+                .setTso("TSO1" + networkSuffix)
+                .setGeographicalTags("region1" + networkSuffix)
                 .add();
         VoltageLevel vl1 = s.newVoltageLevel()
-                .setId("VL1")
+                .setId("VL1" + networkSuffix)
                 .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl1.getBusBreakerView().newBus()
-                .setId("B1")
+                .setId("B1" + networkSuffix)
                 .add();
         vl1.newLoad()
-                .setId("LD1")
-                .setConnectableBus("B1")
-                .setBus("B1")
+                .setId("LD1" + networkSuffix)
+                .setConnectableBus("B1" + networkSuffix)
+                .setBus("B1" + networkSuffix)
                 .setP0(1.0)
                 .setQ0(1.0)
                 .add();
         vl1.newGenerator()
-                .setId("G")
-                .setBus("B1")
+                .setId("G" + networkSuffix)
+                .setBus("B1" + networkSuffix)
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
@@ -631,21 +635,47 @@ final class CreateNetworksUtil {
     }
 
     static Network createBusBreakerNetworkWithTwoBuses() {
-        Network network = createBusBreakerNetworkWithOneBus();
-        VoltageLevel vl1 = network.getVoltageLevel("VL1");
-        network.getVoltageLevel("VL1").getBusBreakerView().newBus()
-                .setId("B2")
+        return createBusBreakerNetworkWithTwoBuses("");
+    }
+    static Network createBusBreakerNetworkWithTwoBuses(String networkSuffix) {
+        Network network = createBusBreakerNetworkWithOneBus(networkSuffix);
+        VoltageLevel vl1 = network.getVoltageLevel("VL1" + networkSuffix);
+        network.getVoltageLevel("VL1" + networkSuffix).getBusBreakerView().newBus()
+                .setId("B2" + networkSuffix)
                 .add();
         vl1.getBusBreakerView().newSwitch()
-                .setId("BR1")
-                .setBus1("B2")
-                .setBus2("B1")
+                .setId("BR1" + networkSuffix)
+                .setBus1("B2" +  networkSuffix)
+                .setBus2("B1" + networkSuffix)
                 .setOpen(false)
                 .add();
         vl1.newLoad()
-                .setId("LD2")
-                .setConnectableBus("B2")
-                .setBus("B2")
+                .setId("LD2" + networkSuffix)
+                .setConnectableBus("B2" + networkSuffix)
+                .setBus("B2" + networkSuffix)
+                .setP0(1.0)
+                .setQ0(1.0)
+                .add();
+
+        return network;
+    }
+
+    static Network createBusBreakerNetworkWithMultiBuses(String networkSuffix) {
+        Network network = createBusBreakerNetworkWithTwoBuses(networkSuffix);
+        VoltageLevel vl1 = network.getVoltageLevel("VL1" + networkSuffix);
+        network.getVoltageLevel("VL1" + networkSuffix).getBusBreakerView().newBus()
+                .setId("B3" + networkSuffix)
+                .add();
+        vl1.getBusBreakerView().newSwitch()
+                .setId("BR2" + networkSuffix)
+                .setBus1("B3" + networkSuffix)
+                .setBus2("B2" + networkSuffix)
+                .setOpen(false)
+                .add();
+        vl1.newLoad()
+                .setId("LD3" + networkSuffix)
+                .setConnectableBus("B3" + networkSuffix)
+                .setBus("B3" + networkSuffix)
                 .setP0(1.0)
                 .setQ0(1.0)
                 .add();
@@ -654,30 +684,11 @@ final class CreateNetworksUtil {
     }
 
     static Network createBusBreakerNetworkWithMultiBuses() {
-        Network network = createBusBreakerNetworkWithTwoBuses();
-        VoltageLevel vl1 = network.getVoltageLevel("VL1");
-        network.getVoltageLevel("VL1").getBusBreakerView().newBus()
-                .setId("B3")
-                .add();
-        vl1.getBusBreakerView().newSwitch()
-                .setId("BR2")
-                .setBus1("B3")
-                .setBus2("B2")
-                .setOpen(false)
-                .add();
-        vl1.newLoad()
-                .setId("LD3")
-                .setConnectableBus("B3")
-                .setBus("B3")
-                .setP0(1.0)
-                .setQ0(1.0)
-                .add();
-
-        return network;
+        return createBusBreakerNetworkWithMultiBuses("");
     }
 
     static Network createBusBreakerNetworkWithLine() {
-        Network network = createBusBreakerNetworkWithMultiBuses();
+        Network network = createBusBreakerNetworkWithMultiBuses("");
         Substation s = network.getSubstation("S");
 
         VoltageLevel vl2 = s.newVoltageLevel()
@@ -704,6 +715,45 @@ final class CreateNetworksUtil {
                 .setBus1("B1")
                 .setVoltageLevel2("VL2")
                 .setBus2("B21")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .add();
+
+        return network;
+    }
+
+    static Network createBusBreakerNetworkWithLine(String networkSuffix) {
+        Network network = createBusBreakerNetworkWithMultiBuses(networkSuffix);
+        Substation s = network.getSubstation("S" + networkSuffix);
+
+        VoltageLevel vl2 = s.newVoltageLevel()
+                .setId("VL2" + networkSuffix)
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl2.getBusBreakerView().newBus()
+                .setId("B21" + networkSuffix)
+                .add();
+        vl2.newGenerator()
+                .setId("G2" +  networkSuffix)
+                .setBus("B21" + networkSuffix)
+                .setMaxP(100.0)
+                .setMinP(50.0)
+                .setTargetP(100.0)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
+                .add();
+
+        network.newLine()
+                .setId("L1" + networkSuffix)
+                .setVoltageLevel1("VL1" + networkSuffix)
+                .setBus1("B1" + networkSuffix)
+                .setVoltageLevel2("VL2" + networkSuffix)
+                .setBus2("B21" + networkSuffix)
                 .setR(1.0)
                 .setX(1.0)
                 .setG1(0.0)

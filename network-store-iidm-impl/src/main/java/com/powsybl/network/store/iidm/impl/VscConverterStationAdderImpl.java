@@ -23,8 +23,8 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
 
     private double voltageSetPoint = Double.NaN;
 
-    VscConverterStationAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(voltageLevelResource, index);
+    VscConverterStationAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, String parentNetwork) {
+        super(voltageLevelResource, index, parentNetwork);
     }
 
     @Override
@@ -54,6 +54,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(VscConverterStationAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

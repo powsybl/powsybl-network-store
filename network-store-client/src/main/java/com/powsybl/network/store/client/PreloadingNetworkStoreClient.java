@@ -864,4 +864,38 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid, variantNum);
         delegate.removeConfiguredBuses(networkUuid, variantNum, configuredBusesId);
     }
+
+    @Override
+    public void createSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subNetworkAttributes) {
+        for (Resource<SubnetworkAttributes> subNetworkResource : subNetworkAttributes) {
+            ensureCached(ResourceType.SUBNETWORK, networkUuid, subNetworkResource.getVariantNum());
+        }
+        delegate.createSubnetworks(networkUuid, subNetworkAttributes);
+    }
+
+    @Override
+    public List<Resource<SubnetworkAttributes>> getSubnetworks(UUID networkUuid, int variantNum) {
+        ensureCached(ResourceType.SUBNETWORK, networkUuid, variantNum);
+        return delegate.getSubnetworks(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<SubnetworkAttributes>> getSubnetwork(UUID networkUuid, int variantNum, String subnetworkId) {
+        ensureCached(ResourceType.SUBNETWORK, networkUuid, variantNum);
+        return delegate.getSubnetwork(networkUuid, variantNum, subnetworkId);
+    }
+
+    @Override
+    public void removeSubnetworks(UUID networkUuid, int variantNum, List<String> subnetworkIds) {
+        ensureCached(ResourceType.SUBNETWORK, networkUuid, variantNum);
+        delegate.removeTieLines(networkUuid, variantNum, subnetworkIds);
+    }
+
+    @Override
+    public void updateSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subnetworkResources, AttributeFilter attributeFilter) {
+        for (Resource<SubnetworkAttributes> subnetworkResource : subnetworkResources) {
+            ensureCached(ResourceType.SUBNETWORK, networkUuid, subnetworkResource.getVariantNum());
+        }
+        delegate.updateSubnetworks(networkUuid, subnetworkResources, attributeFilter);
+    }
 }
