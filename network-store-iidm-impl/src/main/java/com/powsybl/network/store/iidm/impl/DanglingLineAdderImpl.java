@@ -96,7 +96,7 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
     private double b = Double.NaN;
 
-    private String ucteXNodeCode = null;
+    private String pairingKey = null;
 
     private DanglingLineGenerationAttributes generation;
 
@@ -142,7 +142,7 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
     @Override
     public DanglingLineAdder setPairingKey(String pairingKey) {
-        this.ucteXNodeCode = pairingKey;
+        this.pairingKey = pairingKey;
         return this;
     }
 
@@ -180,7 +180,7 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
                         .g(g)
                         .b(b)
                         .generation(generation)
-                        .ucteXnodeCode(ucteXNodeCode)
+                        .pairingKey(pairingKey)
                         .build())
                 .build();
         DanglingLineImpl danglingLine = getIndex().createDanglingLine(resource);
