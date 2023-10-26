@@ -79,27 +79,27 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
         //FIXME
     }
 
-    @Test
+    @Override
     public void testMerge3Networks() {
         // FIXME
     }
 
-    @Test
+    @Override
     public void failMergeDanglingLinesWithSameId() {
         // FIXME
     }
 
-    @Test
+    @Override
     public void testValidationLevelWhenMerging2Eq() {
         // FIXME
     }
 
-    @Test
+    @Override
     public void testValidationLevelWhenMergingEqAndSsh() {
         // FIXME
     }
 
-    @Test
+    @Override
     public void testValidationLevelWhenMerging2Ssh() {
         // FIXME
     }
@@ -129,27 +129,27 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
         // FIXME
     }
 
-    @Test
+    @Override
     public void testListeners() {
         // FIXME
     }
 
-    @Test
+    @Override
     public void dontCreateATieLineWithAlreadyMergedDanglingLinesInMergedNetwork() {
         // FIXME
     }
 
-    @Test
+    @Override
     public void dontCreateATieLineWithAlreadyMergedDanglingLinesInMergingNetwork() {
         // FIXME
     }
 
-    @Test
+    @Override
     public void multipleConnectedDanglingLinesInMergedNetwork() {
         // FIXME
     }
 
-    @Test
+    @Override
     public void multipleConnectedDanglingLinesWithSamePairingKey() {
        // FIXME
     }
