@@ -69,8 +69,8 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @Schema(description = "Generation")
     private DanglingLineGenerationAttributes generation;
 
-    @Schema(description = "UCTE XNode code")
-    private String ucteXnodeCode;
+    @Schema(description = "Pairing key")
+    private String pairingKey;
 
     @Schema(description = "Current limits")
     private LimitsAttributes currentLimits;

@@ -397,7 +397,7 @@ public class ResourceTest {
                 .g(3)
                 .b(4)
                 .generation(danglingLineGenerationAttributes)
-                .ucteXnodeCode("XN1")
+                .pairingKey("XN1")
                 .bus("bus1")
                 .tieLineId("idTieLineParent")
                 .build();
@@ -426,7 +426,7 @@ public class ResourceTest {
         assertEquals(ReactiveLimitsKind.MIN_MAX, resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits().getKind());
         assertEquals(10, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMinQ(), 0);
         assertEquals(20, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMaxQ(), 0);
-        assertEquals("XN1", resourceDanglingLine.getAttributes().getUcteXnodeCode());
+        assertEquals("XN1", resourceDanglingLine.getAttributes().getPairingKey());
         assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
         assertEquals("idTieLineParent", resourceDanglingLine.getAttributes().getTieLineId());
 

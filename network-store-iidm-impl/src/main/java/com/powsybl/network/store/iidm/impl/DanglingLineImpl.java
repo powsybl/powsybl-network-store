@@ -329,7 +329,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public String getPairingKey() {
-        return getResource().getAttributes().getUcteXnodeCode();
+        return getResource().getAttributes().getPairingKey();
     }
 
     @Override

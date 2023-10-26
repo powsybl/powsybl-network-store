@@ -370,6 +370,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             throw new PowsyblException("Associated equipment is removed");
         }
 
+        // One side
         if (!traverse(traverser, traversedTerminals, traversalType)) {
             return;
         }
