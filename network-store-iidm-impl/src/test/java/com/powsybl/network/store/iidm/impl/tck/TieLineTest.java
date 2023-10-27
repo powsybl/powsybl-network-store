@@ -5,14 +5,13 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.tck.AbstractTieLineTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TieLineTest extends AbstractTieLineTest {
-    /* Temporary fix for upgrade to PowSyBl 2023.3. 
-    * In order for this test to pass in the network-store, we need to get the dangling line from the network 
+    /* Temporary fix for upgrade to PowSyBl 2023.3.
+    * In order for this test to pass in the network-store, we need to get the dangling line from the network
     * directly and not from the line because the line is removed when we evaluate the assertion.
     * line1.getDanglingLine1() is replaced by eurostagNetwork.getDanglingLine(danglingLine11Id) where the id is
     * stored before the line deletion. */
