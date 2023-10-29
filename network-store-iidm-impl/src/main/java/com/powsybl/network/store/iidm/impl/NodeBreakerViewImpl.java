@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
@@ -115,7 +116,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource(), true, true);
         Set<Integer> done = new HashSet<>();
         for (int node : nodes) {
-            if (!traverseFromNode(graph, node, traverser, done)) {
+            if (!traverseFromNode(graph, node, TraversalType.DEPTH_FIRST, traverser, done)) {
                 break;
             }
         }
@@ -125,44 +126,110 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public void traverse(int node, VoltageLevel.NodeBreakerView.TopologyTraverser traverser) {
         Objects.requireNonNull(traverser);
         checkBusBreakerTopology();
-        traverseFromNode(node, traverser);
+        traverseFromNode(node, TraversalType.DEPTH_FIRST, traverser);
     }
 
-    boolean traverseFromNode(int node, VoltageLevel.NodeBreakerView.TopologyTraverser traverser) {
+    boolean traverseFromNode(int node, TraversalType traversalType, VoltageLevel.NodeBreakerView.TopologyTraverser traverser) {
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource(), true, true);
         Set<Integer> done = new HashSet<>();
-        return traverseFromNode(graph, node, traverser, done);
+        return traverseFromNode(graph, node, traversalType, traverser, done);
     }
 
-    private boolean traverseFromNode(Graph<Integer, Edge> graph, int node, VoltageLevel.NodeBreakerView.TopologyTraverser traverser,
+    private boolean traverseFromNode(Graph<Integer, Edge> graph, int node, TraversalType traversalType, VoltageLevel.NodeBreakerView.TopologyTraverser traverser,
                                      Set<Integer> done) {
-        if (done.contains(node)) {
-            return true;
-        }
-        done.add(node);
+        if (traversalType == TraversalType.DEPTH_FIRST) {   // traversal by depth first
+            if (done.contains(node)) {
+                return true;
+            }
+            done.add(node);
 
-        for (Edge edge : graph.edgesOf(node)) {
-            NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
-            int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
-            TraverseResult result;
-            if (done.contains(nextNode)) {
-                continue;
-            }
-            if (biConnectable instanceof SwitchAttributes) {
-                result = traverseSwitch(traverser, biConnectable, node, nextNode);
-            } else if (biConnectable instanceof InternalConnectionAttributes) {
-                result = traverser.traverse(node, null, nextNode);
-            } else {
-                throw new AssertionError();
-            }
-            if (result == TraverseResult.CONTINUE) {
-                if (!traverseFromNode(graph, nextNode, traverser, done)) {
+            for (Edge edge : graph.edgesOf(node)) {
+                NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
+                int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
+                TraverseResult result;
+                if (done.contains(nextNode)) {
+                    continue;
+                }
+                if (biConnectable instanceof SwitchAttributes) {
+                    result = traverseSwitch(traverser, biConnectable, node, nextNode);
+                } else if (biConnectable instanceof InternalConnectionAttributes) {
+                    result = traverser.traverse(node, null, nextNode);
+                } else {
+                    throw new AssertionError();
+                }
+                if (result == TraverseResult.CONTINUE) {
+                    if (!traverseFromNode(graph, nextNode, traversalType, traverser, done)) {
+                        return false;
+                    }
+                } else if (result == TraverseResult.TERMINATE_TRAVERSER) {
                     return false;
                 }
-            } else if (result == TraverseResult.TERMINATE_TRAVERSER) {
-                return false;
             }
+        } else {   // traversal by breadth first
+            boolean keepGoing = true;
+            Set<Edge> encounteredEdges = new HashSet<>();
+
+            LinkedList<Integer> vertexToTraverse = new LinkedList<>();
+            vertexToTraverse.offer(node);
+            while (!vertexToTraverse.isEmpty()) {
+                int firstV = vertexToTraverse.getFirst();
+                vertexToTraverse.poll();
+                if (done.contains(firstV)) {
+                    continue;
+                }
+                done.add(firstV);
+
+                Set<Edge> adjacentEdges = graph.edgesOf(firstV);
+
+                for (Edge edge : adjacentEdges) {
+                    if (encounteredEdges.contains(edge)) {
+                        continue;
+                    }
+                    encounteredEdges.add(edge);
+
+                    NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
+                    int node1 = biConnectable.getNode1();
+                    int node2 = biConnectable.getNode2();
+
+                    TraverseResult traverserResult;
+                    if (!done.contains(node1)) {
+                        if (biConnectable instanceof SwitchAttributes) {
+                            traverserResult = traverseSwitch(traverser, biConnectable, node2, node1);
+                        } else if (biConnectable instanceof InternalConnectionAttributes) {
+                            traverserResult = traverser.traverse(node2, null, node1);
+                        } else {
+                            throw new AssertionError();
+                        }
+                        if (traverserResult == TraverseResult.CONTINUE) {
+                            vertexToTraverse.offer(node1);
+                        } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
+                            keepGoing = false;
+                        }
+                    } else if (!done.contains(node2)) {
+                        if (biConnectable instanceof SwitchAttributes) {
+                            traverserResult = traverseSwitch(traverser, biConnectable, node1, node2);
+                        } else if (biConnectable instanceof InternalConnectionAttributes) {
+                            traverserResult = traverser.traverse(node1, null, node2);
+                        } else {
+                            throw new AssertionError();
+                        }
+                        if (traverserResult == TraverseResult.CONTINUE) {
+                            vertexToTraverse.offer(node2);
+                        } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
+                            keepGoing = false;
+                        }
+                    }
+                    if (!keepGoing) {
+                        break;
+                    }
+                }
+                if (!keepGoing) {
+                    break;
+                }
+            }
+            return keepGoing;
         }
+
         return true;
     }
 
@@ -175,12 +242,12 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     /**
      * This is the method called when we traverse the topology stating from a terminal.
      */
-    boolean traverseFromTerminal(Terminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    boolean traverseFromTerminal(Terminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals, TraversalType traversalType) {
         checkBusBreakerTopology();
         Objects.requireNonNull(traverser);
 
         List<Terminal> nexTerminals = new ArrayList<>();
-        if (!traverseFromNode(terminal.getNodeBreakerView().getNode(), (node1, sw, node2) -> {
+        if (!traverseFromNode(terminal.getNodeBreakerView().getNode(), traversalType, (node1, sw, node2) -> {
             if (sw != null) {
                 TraverseResult result = traverser.traverse(sw);
                 if (result != TraverseResult.CONTINUE) {
@@ -204,7 +271,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         }
 
         for (Terminal nextTerminal : nexTerminals) {
-            if (!((TerminalImpl<?>) nextTerminal).traverse(traverser, traversedTerminals)) {
+            if (!((TerminalImpl<?>) nextTerminal).traverse(traverser, traversedTerminals, traversalType)) {
                 return false;
             }
         }
