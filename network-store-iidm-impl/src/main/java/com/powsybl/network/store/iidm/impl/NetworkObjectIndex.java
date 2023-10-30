@@ -1367,7 +1367,7 @@ public class NetworkObjectIndex {
         for (var generatorResource : other.generatorCache.allResourcesGetter.get()) {
             this.createGenerator(generatorResource);
         }
-        for (var batteryResource: other.batteryCache.allResourcesGetter.get()) {
+        for (var batteryResource : other.batteryCache.allResourcesGetter.get()) {
             this.createBattery(batteryResource);
         }
         for (var shuntResource : other.shuntCompensatorCache.allResourcesGetter.get()) {

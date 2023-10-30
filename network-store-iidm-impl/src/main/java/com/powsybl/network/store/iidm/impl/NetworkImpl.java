@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import com.google.common.primitives.Ints;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;

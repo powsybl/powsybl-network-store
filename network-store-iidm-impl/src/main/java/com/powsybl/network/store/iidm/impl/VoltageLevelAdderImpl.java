@@ -41,7 +41,6 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         this.substationResource = substationResource;
     }
 
-
     @Override
     public VoltageLevelAdder setNominalV(double nominalV) {
         this.nominalV = nominalV;

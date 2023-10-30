@@ -637,6 +637,7 @@ final class CreateNetworksUtil {
     static Network createBusBreakerNetworkWithTwoBuses() {
         return createBusBreakerNetworkWithTwoBuses("");
     }
+
     static Network createBusBreakerNetworkWithTwoBuses(String networkSuffix) {
         Network network = createBusBreakerNetworkWithOneBus(networkSuffix);
         VoltageLevel vl1 = network.getVoltageLevel("VL1" + networkSuffix);
@@ -645,7 +646,7 @@ final class CreateNetworksUtil {
                 .add();
         vl1.getBusBreakerView().newSwitch()
                 .setId("BR1" + networkSuffix)
-                .setBus1("B2" +  networkSuffix)
+                .setBus1("B2" + networkSuffix)
                 .setBus2("B1" + networkSuffix)
                 .setOpen(false)
                 .add();
@@ -739,7 +740,7 @@ final class CreateNetworksUtil {
                 .setId("B21" + networkSuffix)
                 .add();
         vl2.newGenerator()
-                .setId("G2" +  networkSuffix)
+                .setId("G2" + networkSuffix)
                 .setBus("B21" + networkSuffix)
                 .setMaxP(100.0)
                 .setMinP(50.0)

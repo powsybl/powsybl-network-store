@@ -1,6 +1,5 @@
 package com.powsybl.network.store.iidm.impl;
 
-import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;

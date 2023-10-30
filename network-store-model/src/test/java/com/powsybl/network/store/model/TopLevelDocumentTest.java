@@ -34,7 +34,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(resource);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"parentNetwork\":null,\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resource, document2.getData().get(0));
@@ -51,7 +51,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(ImmutableList.of(resource, resource));
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}},{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"parentNetwork\":null,\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}},{\"type\":\"SUBSTATION\",\"id\":\"S\",\"parentNetwork\":null,\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(2, document2.getData().size());
@@ -85,7 +85,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(resourceGenerator);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"variantNum\":0,\"attributes\":{\"voltageLevelId\":\"vl1\",\"name\":\"name\",\"fictitious\":false,\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\",\"minP\":2.0,\"maxP\":1.0,\"voltageRegulatorOn\":false,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"}}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"parentNetwork\":null,\"variantNum\":0,\"attributes\":{\"voltageLevelId\":\"vl1\",\"name\":\"name\",\"fictitious\":false,\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\",\"minP\":2.0,\"maxP\":1.0,\"voltageRegulatorOn\":false,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"}}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resourceGenerator, document2.getData().get(0));

@@ -8,7 +8,6 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.network.store.model.*;
-import org.openxmlformats.schemas.drawingml.x2006.chart.STHoleSizeUByte;
 
 import java.util.List;
 import java.util.Optional;

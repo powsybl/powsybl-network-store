@@ -63,7 +63,7 @@ public class SubnetworkImpl extends AbstractNetwork<SubnetworkAttributes> {
 
     @Override
     public int getVoltageLevelCount() {
-        return (int)getVoltageLevelStream().count();
+        return (int) getVoltageLevelStream().count();
     }
 
     @Override
@@ -531,13 +531,13 @@ public class SubnetworkImpl extends AbstractNetwork<SubnetworkAttributes> {
 
         // Move the substations and voltageLevels to the new network
         //ref.setRef(new RefObj<>(null));
-        for(Substation substation : getSubstations()) {
+        for (Substation substation : getSubstations()) {
             SubstationImpl impl = (SubstationImpl) substation;
             Resource< SubstationAttributes> attributes = impl.getResource();
             detachedNetwork.index.createSubstation(attributes);
             index.removeSubstation(attributes.getId());
         }
-        for(VoltageLevel vl : getVoltageLevels()) {
+        for (VoltageLevel vl : getVoltageLevels()) {
             VoltageLevelImpl impl = (VoltageLevelImpl) vl;
             Resource<VoltageLevelAttributes> attributes = impl.getResource();
             detachedNetwork.index.createVoltageLevel(attributes);
