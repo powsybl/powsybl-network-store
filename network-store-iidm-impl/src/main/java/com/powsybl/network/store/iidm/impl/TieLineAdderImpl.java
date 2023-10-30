@@ -52,8 +52,8 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
         if (dl1.getTieLine().isPresent() || dl2.getTieLine().isPresent()) {
             throw new ValidationException(this, "danglingLine1 (" + danglingLine1 + ") and/or danglingLine2 (" + danglingLine2 + ") already has a tie line");
         }
-        if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null && !Objects.equals(dl1.getUcteXnodeCode(), dl2.getUcteXnodeCode())) {
-            throw new ValidationException(this, "ucteXnodeCode is not consistent");
+        if (dl1.getPairingKey() != null && dl2.getPairingKey() != null && !Objects.equals(dl1.getPairingKey(), dl2.getPairingKey())) {
+            throw new ValidationException(this, "pairingKey is not consistent");
         }
 
         Resource<TieLineAttributes> resource = Resource.tieLineBuilder()

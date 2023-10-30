@@ -23,6 +23,9 @@ import java.util.List;
 @Schema(description = "CGMES SSH metadata attributes")
 public class CgmesSshMetadataAttributes {
 
+    @Schema(description = "Id")
+    private String id;
+
     @Schema(description = "Description")
     private String description;
 

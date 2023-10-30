@@ -152,7 +152,7 @@ public class LineTest {
         Network network = Importer.find("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
-        assertEquals("TN_Border_GY11", tieLine.getUcteXnodeCode());
+        assertEquals("TN_Border_GY11", tieLine.getPairingKey());
         DanglingLine dl1 = tieLine.getDanglingLine1();
         DanglingLine dl2 = tieLine.getDanglingLine2();
         assertNotNull(dl1);
@@ -180,7 +180,7 @@ public class LineTest {
         Network network = Importer.find("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
-        assertEquals("TN_Border_GY11", tieLine.getUcteXnodeCode());
+        assertEquals("TN_Border_GY11", tieLine.getPairingKey());
 
         assertEquals(10, network.getDanglingLineCount());
         VoltageLevel vl1 = network.getVoltageLevel("469df5f7-058f-4451-a998-57a48e8a56fe");
@@ -218,7 +218,7 @@ public class LineTest {
         Network network = Importer.find("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
-        assertEquals("TN_Border_GY11", tieLine.getUcteXnodeCode());
+        assertEquals("TN_Border_GY11", tieLine.getPairingKey());
         DanglingLine dl1 = tieLine.getDanglingLine1();
         DanglingLine dl2 = tieLine.getDanglingLine2();
 

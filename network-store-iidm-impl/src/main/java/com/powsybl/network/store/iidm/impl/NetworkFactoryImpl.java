@@ -51,4 +51,14 @@ public class NetworkFactoryImpl implements NetworkFactory {
         storeClient.createNetworks(Collections.singletonList(resource));
         return NetworkImpl.create(storeClient, resource);
     }
+
+    @Override
+    public Network merge(String id, Network... networks) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public Network merge(Network... networks) {
+        throw new UnsupportedOperationException("TODO");
+    }
 }

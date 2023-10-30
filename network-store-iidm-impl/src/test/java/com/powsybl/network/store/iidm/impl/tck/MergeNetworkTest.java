@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractMergeNetworkTest;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -39,17 +40,7 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     }
 
     @Override
-    public void testMergeSameId() {
-        // FIXME
-    }
-
-    @Override
     public void test() {
-        // FIXME
-    }
-
-    @Override
-    public void xnodeNonCompatible() {
         // FIXME
     }
 
@@ -66,5 +57,100 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     @Override
     public void checkMergingSameFormat() {
         // FIXME
+    }
+
+    @Override
+    public void testMergeAndDetach() {
+        // FIXME
+    }
+
+    @Override
+    public void testMergeAndDetachWithExtensions() {
+        // FIXME
+    }
+
+    @Override
+    public void failDetachWithALineBetween2Subnetworks() {
+        //FIXME
+    }
+
+    @Override
+    public void failDetachIfMultiVariants() {
+        //FIXME
+    }
+
+    @Override
+    public void testMerge3Networks() {
+        // FIXME
+    }
+
+    @Override
+    public void failMergeDanglingLinesWithSameId() {
+        // FIXME
+    }
+
+    @Override
+    public void testValidationLevelWhenMerging2Eq() {
+        // FIXME
+    }
+
+    @Override
+    public void testValidationLevelWhenMergingEqAndSsh() {
+        // FIXME
+    }
+
+    @Override
+    public void testValidationLevelWhenMerging2Ssh() {
+        // FIXME
+    }
+
+    @Test
+    void failMergeOnlyOneNetwork() {
+        // FIXME
+    }
+
+    @Test
+    void failMergeOnSubnetworks() {
+        // FIXME
+    }
+
+    @Test
+    void failMergeSubnetworks() {
+        // FIXME
+    }
+
+    @Test
+    void failMergeContainingSubnetworks() {
+        // FIXME
+    }
+
+    @Test
+    void testNoEmptyAdditionalSubnetworkIsCreated() {
+        // FIXME
+    }
+
+    @Override
+    public void testListeners() {
+        // FIXME
+    }
+
+    @Override
+    public void dontCreateATieLineWithAlreadyMergedDanglingLinesInMergedNetwork() {
+        // FIXME
+    }
+
+    @Override
+    public void dontCreateATieLineWithAlreadyMergedDanglingLinesInMergingNetwork() {
+        // FIXME
+    }
+
+    @Override
+    public void multipleConnectedDanglingLinesInMergedNetwork() {
+        // FIXME
+    }
+
+    @Override
+    public void multipleConnectedDanglingLinesWithSamePairingKey() {
+       // FIXME
     }
 }

@@ -27,8 +27,8 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public String getUcteXnodeCode() {
-        return Optional.ofNullable(getDanglingLine1().getUcteXnodeCode()).orElseGet(() -> getDanglingLine2().getUcteXnodeCode());
+    public String getPairingKey() {
+        return Optional.ofNullable(getDanglingLine1().getPairingKey()).orElseGet(() -> getDanglingLine2().getPairingKey());
     }
 
     @Override
@@ -64,9 +64,18 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public void remove() {
+        remove(false);
+    }
+
+    @Override
+    public void remove(boolean updateDanglingLines) {
         var resource = getResource();
 
         index.notifyBeforeRemoval(this);
+
+        if (updateDanglingLines) {
+            // TODO implement
+        }
 
         getDanglingLine1().removeTieLine();
         getDanglingLine2().removeTieLine();

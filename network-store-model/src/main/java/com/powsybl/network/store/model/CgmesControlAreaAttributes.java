@@ -44,4 +44,7 @@ public class CgmesControlAreaAttributes {
 
     @Schema(description = "Net interchange")
     private double netInterchange;
+
+    @Schema(description = "pTolerance")
+    private double pTolerance;
 }
