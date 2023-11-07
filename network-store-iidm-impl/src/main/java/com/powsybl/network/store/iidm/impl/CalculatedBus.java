@@ -105,7 +105,7 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public String setProperty(String key, String value) {
-        throw new UnsupportedOperationException("Setting a property on a calculated bus is not authorized");
+        return null;
     }
 
     @Override
