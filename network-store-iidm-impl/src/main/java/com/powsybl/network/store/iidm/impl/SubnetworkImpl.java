@@ -509,8 +509,6 @@ public class SubnetworkImpl extends AbstractNetwork<SubnetworkAttributes> {
         Set<Identifiable<?>> boundaryElements = getBoundaryElements();
         checkDetachable(boundaryElements, true);
 
-        long start = System.currentTimeMillis();
-
         // Remove tie-lines
         boundaryElements.stream()
                 .filter(DanglingLine.class::isInstance)
@@ -522,15 +520,6 @@ public class SubnetworkImpl extends AbstractNetwork<SubnetworkAttributes> {
         // Create a new NetworkImpl and transfer the extensions to it
         NetworkImpl detachedNetwork = (NetworkImpl) Network.create(getId(), getSourceFormat());
 
-        // TODO
-        //transferExtensions(this, detachedNetwork);
-
-        // Memorize the network identifiables/voltageAngleLimits before moving references (to use them latter)
-        //Collection<Identifiable<?>> identifiables = getIdentifiables();
-        //Iterable<VoltageAngleLimit> vals = getVoltageAngleLimits();
-
-        // Move the substations and voltageLevels to the new network
-        //ref.setRef(new RefObj<>(null));
         for (Substation substation : getSubstations()) {
             SubstationImpl impl = (SubstationImpl) substation;
             Resource< SubstationAttributes> attributes = impl.getResource();
@@ -553,22 +542,9 @@ public class SubnetworkImpl extends AbstractNetwork<SubnetworkAttributes> {
                 detachedNetwork.index.createResource(resource);
             }
         }
-        /*for (VoltageAngleLimit val : vals) {
-            previousRootNetwork.getVoltageAngleLimitsIndex().remove(val.getId());
-            detachedNetwork.getVoltageAngleLimitsIndex().put(val.getId(), val);
-        }*/
 
         // Remove the old subnetwork from the subnetworks list of the current parent network
         index.removeSubnetwork(this.getId());
-
-        // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
-        // as their network elements (generators, PSTs, ...). It is unlikely that those terminals and their elements
-        // are in different subnetworks but nothing prevents it. For now, we ignore this case, but it may be necessary
-        // to handle it later. If so, note that there are 2 possible cases:
-        // - the element is in the subnetwork to detach and its regulating or phase/ratio regulation terminal is not
-        // - the terminal is in the subnetwork, but not its element (this is trickier)
-
-        //LOGGER.info("Detaching of {} done in {} ms", id, System.currentTimeMillis() - start);
         return detachedNetwork;
     }
 
