@@ -8,9 +8,13 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.util.Identifiables;
+
+import java.util.Arrays;
+import java.util.function.Predicate;
 
 /**
  *
@@ -114,5 +118,25 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
     @Override
     public String getMessageHeader() {
         return getTypeDescription() + " '" + id + "': ";
+    }
+
+    protected static String computeParentNetwork(Network network, VoltageLevelImpl... voltageLevels) {
+        if (voltageLevels.length == 0) {
+            return network.getId();
+        }
+        // We support only one level of subnetworks.
+        // Thus, if the subnetworkIds of all the voltageLevels are the same (and not null), the ref is the one of
+        // the subnetwork. Else, it is the root network's one.
+        String subnetworkId = voltageLevels[0].getResource().getParentNetwork();
+        if (subnetworkId == null) {
+            return network.getId();
+        }
+        boolean existDifferentSubnetworkId = Arrays.stream(voltageLevels, 1, voltageLevels.length)
+                .map(vl -> vl.getResource().getParentNetwork())
+                .anyMatch(Predicate.not(subnetworkId::equals));
+        if (existDifferentSubnetworkId) {
+            return network.getId();
+        }
+        return voltageLevels[0].getResource().getParentNetwork();
     }
 }

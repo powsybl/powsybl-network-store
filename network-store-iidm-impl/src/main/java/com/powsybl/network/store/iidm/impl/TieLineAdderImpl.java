@@ -60,10 +60,11 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
             throw new ValidationException(this, "pairingKey is not consistent");
         }
 
+        String parent = computeParentNetwork(index.getNetwork(), dl1.getTerminal().getVoltageLevel(), dl2.getTerminal().getVoltageLevel());
         Resource<TieLineAttributes> resource = Resource.tieLineBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
-                .parentNetwork(getParentNetwork())
+                .parentNetwork(parent)
                 .attributes(TieLineAttributes.builder()
                         .danglingLine1Id(dl1.getId())
                         .danglingLine2Id(dl2.getId())

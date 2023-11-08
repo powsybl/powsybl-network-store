@@ -99,12 +99,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
                     subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
         }
 
-        //TODO for all connectable...
-        String parent = getParentNetwork();
-        if (vl1 != null && vl2 != null && vl1.getResource().getParentNetwork().equals(vl2.getResource().getParentNetwork())) {
-            parent = vl1.getResource().getParentNetwork();
-        }
-
+        String parent = computeParentNetwork(index.getNetwork(), vl1, vl2);
         Resource<LineAttributes> resource = Resource.lineBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
