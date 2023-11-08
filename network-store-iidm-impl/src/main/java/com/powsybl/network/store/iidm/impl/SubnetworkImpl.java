@@ -6,6 +6,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
+import org.joda.time.DateTime;
 
 import java.util.*;
 import java.util.function.Function;
@@ -17,6 +18,31 @@ public class SubnetworkImpl extends AbstractNetwork<SubnetworkAttributes> {
 
     SubnetworkImpl(NetworkObjectIndex index, Resource<SubnetworkAttributes> resource) {
         super(index, resource);
+    }
+
+    @Override
+    public DateTime getCaseDate() {
+        return index.getNetwork().getCaseDate();
+    }
+
+    @Override
+    public Network setCaseDate(DateTime dateTime) {
+        return this;
+    }
+
+    @Override
+    public int getForecastDistance() {
+        return 0;
+    }
+
+    @Override
+    public Network setForecastDistance(int i) {
+        return this;
+    }
+
+    @Override
+    public String getSourceFormat() {
+        return null;
     }
 
     private boolean contains(Identifiable<?> identifiable) {

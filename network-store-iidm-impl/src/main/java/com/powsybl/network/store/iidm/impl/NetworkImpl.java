@@ -40,11 +40,8 @@ import static java.util.stream.Collectors.toCollection;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttributes> implements Network, Validable {
+public class NetworkImpl extends AbstractNetwork<NetworkAttributes> implements Network, Validable {
 
-    private final BusBreakerView busBreakerView = new BusBreakerViewImpl();
-
-    private final BusView busView = new BusViewImpl();
 
     private final List<NetworkListener> listeners = new ArrayList<>();
 
@@ -260,29 +257,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public int getSubstationCount() {
         return index.getSubstations().size();
-    }
-
-    @Override
-    public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
-        return getSubstations(Optional.ofNullable(country).map(Country::getName).orElse(null), tsoId, geographicalTags);
-    }
-
-    @Override
-    public Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags) {
-        return getSubstationStream().filter(substation -> {
-            if (country != null && !country.equals(substation.getCountry().map(Country::getName).orElse(""))) {
-                return false;
-            }
-            if (tsoId != null && !tsoId.equals(substation.getTso())) {
-                return false;
-            }
-            for (String tag : geographicalTags) {
-                if (!substation.getGeographicalTags().contains(tag)) {
-                    return false;
-                }
-            }
-            return true;
-        }).collect(Collectors.toList());
     }
 
     @Override
@@ -726,16 +700,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public VoltageLevelAdder newVoltageLevel() {
         return new VoltageLevelAdderImpl(index, null);
-    }
-
-    @Override
-    public BusBreakerView getBusBreakerView() {
-        return busBreakerView;
-    }
-
-    @Override
-    public BusView getBusView() {
-        return busView;
     }
 
     @Override

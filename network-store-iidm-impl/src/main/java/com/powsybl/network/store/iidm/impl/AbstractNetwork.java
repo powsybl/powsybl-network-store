@@ -25,31 +25,6 @@ public abstract class AbstractNetwork<D extends IdentifiableAttributes> extends 
     }
 
     @Override
-    public DateTime getCaseDate() {
-        return index.getNetwork().getCaseDate();
-    }
-
-    @Override
-    public Network setCaseDate(DateTime dateTime) {
-        return null;
-    }
-
-    @Override
-    public int getForecastDistance() {
-        return 0;
-    }
-
-    @Override
-    public Network setForecastDistance(int i) {
-        return null;
-    }
-
-    @Override
-    public String getSourceFormat() {
-        return null;
-    }
-
-    @Override
     public Iterable<Substation> getSubstations() {
         return getSubstationStream().toList();
     }
