@@ -25,10 +25,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double maxP = Double.NaN;
 
-    BatteryAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(voltageLevelResource, index, index.getNetwork().getId());
-    }
-
     BatteryAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, String parentNetwork) {
         super(voltageLevelResource, index, parentNetwork);
     }

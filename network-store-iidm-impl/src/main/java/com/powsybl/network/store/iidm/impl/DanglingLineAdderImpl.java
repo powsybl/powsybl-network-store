@@ -100,9 +100,6 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
     private DanglingLineGenerationAttributes generation;
 
-    DanglingLineAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(voltageLevelResource, index, index.getNetwork().getId());
-    }
 
     DanglingLineAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, String parentNetwork) {
         super(voltageLevelResource, index, parentNetwork);

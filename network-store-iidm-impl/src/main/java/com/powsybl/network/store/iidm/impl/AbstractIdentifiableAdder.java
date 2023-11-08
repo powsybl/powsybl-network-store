@@ -28,7 +28,7 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
 
     private boolean fictitious = false;
 
-    private String parentNetwork;
+    private final String parentNetwork;
 
     AbstractIdentifiableAdder(NetworkObjectIndex index, String parentNetwork) {
         this.index = index;
@@ -79,11 +79,6 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
 
     protected String getParentNetwork() {
         return parentNetwork;
-    }
-
-    public T setParentNetwork(String parentNetwork) {
-        this.parentNetwork = parentNetwork;
-        return (T) this;
     }
 
     protected String checkAndGetUniqueId() {
