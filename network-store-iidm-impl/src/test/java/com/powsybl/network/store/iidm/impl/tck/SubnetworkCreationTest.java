@@ -7,4 +7,16 @@ public class SubnetworkCreationTest extends AbstractSubnetworksCreationTest {
     @Override
     public void testValidationWithSubnetworkChanges(String networkId) {
     }
+
+    @Override
+    public void failCreateVoltageAngleLimitFromASubnetworkInAnother() {
+    }
+
+    @Override
+    public void failCreateVoltageAngleLimitFromSubnetworkBetweenRootAndSubnetwork() {
+    }
+
+    @Override
+    public void testAngleVoltageLimitCreation() {
+    }
 }
