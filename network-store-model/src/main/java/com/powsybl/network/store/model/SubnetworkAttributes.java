@@ -18,53 +18,19 @@ public class SubnetworkAttributes extends AbstractAttributes implements Identifi
     @Schema(description = "Subnetwork UUID", required = true)
     private UUID uuid;
 
-    @Override
-    public String getName() {
-        return null;
-    }
+    @Schema(description = "Sub network name")
+    private String name;
 
-    @Override
-    public void setName(String name) {
+    @Schema(description = "Properties")
+    private Map<String, String> properties;
 
-    }
+    @Builder.Default
+    @Schema(description = "fictitious")
+    private boolean fictitious = false;
 
-    @Override
-    public Map<String, String> getProperties() {
-        return null;
-    }
+    @Schema(description = "Aliases without type")
+    private Set<String> aliasesWithoutType;
 
-    @Override
-    public void setProperties(Map<String, String> properties) {
-
-    }
-
-    @Override
-    public boolean isFictitious() {
-        return false;
-    }
-
-    @Override
-    public void setFictitious(boolean fictitious) {
-
-    }
-
-    @Override
-    public Set<String> getAliasesWithoutType() {
-        return null;
-    }
-
-    @Override
-    public void setAliasesWithoutType(Set<String> aliasesWithoutType) {
-
-    }
-
-    @Override
-    public Map<String, String> getAliasByType() {
-        return null;
-    }
-
-    @Override
-    public void setAliasByType(Map<String, String> aliasByType) {
-
-    }
+    @Schema(description = "Alias by type")
+    private Map<String, String> aliasByType;
 }
