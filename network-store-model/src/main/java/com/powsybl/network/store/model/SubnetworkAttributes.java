@@ -15,7 +15,7 @@ import java.util.UUID;
 @Schema(description = "Sub network attributes")
 public class SubnetworkAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
-    @Schema(description = "Subnetwork UUID", required = true)
+    @Schema(description = "Subnetwork UUID")
     private UUID uuid;
 
     @Schema(description = "Sub network name")

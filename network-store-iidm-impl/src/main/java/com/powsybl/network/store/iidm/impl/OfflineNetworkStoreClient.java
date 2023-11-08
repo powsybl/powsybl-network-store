@@ -596,6 +596,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subNetworkAttributes) {
+        // nothing to do
     }
 
     @Override
@@ -610,10 +611,12 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeSubnetworks(UUID networkUuid, int variantNum, List<String> subnetworkIds) {
+        // nothing to do
     }
 
     @Override
     public void updateSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subnetworkResources, AttributeFilter attributeFilter) {
+        // nothing to do
     }
 
     @Override

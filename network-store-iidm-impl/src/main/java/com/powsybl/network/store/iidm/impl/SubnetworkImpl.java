@@ -46,15 +46,11 @@ public class SubnetworkImpl extends AbstractNetwork<SubnetworkAttributes> {
     }
 
     private boolean contains(Identifiable<?> identifiable) {
-        AbstractIdentifiableImpl abstractIdentifiable = (AbstractIdentifiableImpl) identifiable;
+        AbstractIdentifiableImpl<?, ?> abstractIdentifiable = (AbstractIdentifiableImpl<?, ?>) identifiable;
         if (abstractIdentifiable.getType().equals(IdentifiableType.NETWORK) && abstractIdentifiable != this) {
             return false;
         }
-        if (abstractIdentifiable.getResource().getParentNetwork() == null) {
-            System.out.println("Null parent");
-        }
-        return abstractIdentifiable == this ||
-                abstractIdentifiable != null && abstractIdentifiable.getResource().getParentNetwork().equals(this.getId());
+        return abstractIdentifiable == this || abstractIdentifiable.getResource().getParentNetwork().equals(this.getId());
     }
 
     static SubnetworkImpl createSubnetwork(NetworkObjectIndex index, Resource<SubnetworkAttributes> resource) {
@@ -597,14 +593,6 @@ public class SubnetworkImpl extends AbstractNetwork<SubnetworkAttributes> {
             }
             return false;
         }
-        // TODO implement when voltage angle limit are there
-        /*if (getNetwork().getVoltageAngleLimitsStream().anyMatch(this::isBoundary)) {
-            if (throwsException) {
-                throw new PowsyblException("VoltageAngleLimits prevent the subnetwork to be detached: "
-                        + getNetwork().getVoltageAngleLimitsStream().filter(this::isBoundary).map(VoltageAngleLimit::getId).collect(Collectors.joining(", ")));
-            }
-            return false;
-        }*/
         return true;
     }
 

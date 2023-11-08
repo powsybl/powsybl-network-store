@@ -142,6 +142,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                         break;
                     case "parentNetwork":
                         parentNetwork = parser.nextTextValue();
+                        break;
                     default:
                         break;
                 }

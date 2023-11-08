@@ -43,7 +43,7 @@ public class Resource<T extends Attributes> implements Validable {
     @Schema(description = "Resource ID", required = true)
     private String id;
 
-    @Schema(description = "Resource Parent Network id", required = true)
+    @Schema(description = "Resource Parent Network id")
     private String parentNetwork;
 
     @Schema(description = "Variant number", required = true)
