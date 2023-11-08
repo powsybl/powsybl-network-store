@@ -777,28 +777,28 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void createSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subNetworkAttributes) {
-
+    public void createSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subNetworkResources) {
+        create("Subnetwork", "/networks/{networkUuid}/subnetworks", subNetworkResources, networkUuid);
     }
 
     @Override
     public List<Resource<SubnetworkAttributes>> getSubnetworks(UUID networkUuid, int variantNum) {
-        return null;
+        return getAll("Subnetwork", "/networks/{networkUuid}/{variantNum}/subnetworks", networkUuid, variantNum);
     }
 
     @Override
     public Optional<Resource<SubnetworkAttributes>> getSubnetwork(UUID networkUuid, int variantNum, String subnetworkId) {
-        return Optional.empty();
+        return get("Subnetwork", "/networks/{networkUuid}/{variantNum}/subnetworks/{subnetworkId}", networkUuid, variantNum, subnetworkId);
     }
 
     @Override
     public void removeSubnetworks(UUID networkUuid, int variantNum, List<String> subnetworkIds) {
-
+        removeAll("/networks/{networkUuid}/{variantNum}/subnetworks/{subnetworkId}", networkUuid, variantNum, subnetworkIds);
     }
 
     @Override
     public void updateSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subnetworkResources, AttributeFilter attributeFilter) {
-
+        updateAll("Subnetwork", "/networks/{networkUuid}/subnetworks", subnetworkResources, attributeFilter, networkUuid);
     }
 
     @Override
