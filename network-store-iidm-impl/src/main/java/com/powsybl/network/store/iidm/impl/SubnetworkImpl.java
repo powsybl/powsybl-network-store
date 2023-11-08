@@ -3,7 +3,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
@@ -651,72 +650,7 @@ public class SubnetworkImpl extends AbstractNetwork<SubnetworkAttributes> {
 
     @Override
     public ContainerType getContainerType() {
-        return null;
-    }
-
-    @Override
-    public boolean hasProperty() {
-        return false;
-    }
-
-    @Override
-    public boolean hasProperty(String s) {
-        return false;
-    }
-
-    @Override
-    public String getProperty(String s) {
-        return null;
-    }
-
-    @Override
-    public String getProperty(String s, String s1) {
-        return null;
-    }
-
-    @Override
-    public String setProperty(String s, String s1) {
-        return null;
-    }
-
-    @Override
-    public boolean removeProperty(String s) {
-        return false;
-    }
-
-    @Override
-    public Set<String> getPropertyNames() {
-        return null;
-    }
-
-    @Override
-    public <E extends Extension<Network>> void addExtension(Class<? super E> aClass, E e) {
-
-    }
-
-    @Override
-    public <E extends Extension<Network>> E getExtension(Class<? super E> aClass) {
-        return null;
-    }
-
-    @Override
-    public <E extends Extension<Network>> E getExtensionByName(String s) {
-        return null;
-    }
-
-    @Override
-    public <E extends Extension<Network>> boolean removeExtension(Class<E> aClass) {
-        return false;
-    }
-
-    @Override
-    public <E extends Extension<Network>> Collection<E> getExtensions() {
-        return null;
-    }
-
-    @Override
-    public String getMessageHeader() {
-        return null;
+        return ContainerType.NETWORK;
     }
 
     @Override
