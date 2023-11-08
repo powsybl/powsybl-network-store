@@ -231,6 +231,19 @@ public class RestNetworkStoreClientTest {
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/tie-lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(tieLineJson, MediaType.APPLICATION_JSON));
+
+        //Subnetwork
+        Resource<SubnetworkAttributes> subnetwork = Resource.subnetwokBuilder()
+                .id("Subnetwork1")
+                .attributes(SubnetworkAttributes.builder()
+                        .name("Subnetwork1").build())
+                .build();
+
+        String subnetworkJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(subnetwork)));
+
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/subnetworks"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(subnetworkJson, MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -297,6 +310,17 @@ public class RestNetworkStoreClientTest {
             tieLines = network.getTieLineStream().collect(Collectors.toList());
             assertEquals(1, tieLines.size());
             assertEquals("tieLine2", tieLines.get(0).getNameOrId());
+
+            //Subnetworks
+            //Tie lines
+            List<Network> subnetworks = network.getSubnetworks().stream().toList();
+            assertEquals(1, subnetworks.size());
+
+            subnetworks.get(0).setName("Subnetwork2");
+
+            subnetworks = network.getSubnetworks().stream().toList();
+            assertEquals(1, subnetworks.size());
+            assertEquals("Subnetwork2", subnetworks.get(0).getNameOrId());
         }
     }
 }
