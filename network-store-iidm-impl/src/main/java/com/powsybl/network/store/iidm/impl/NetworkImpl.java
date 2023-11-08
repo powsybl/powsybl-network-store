@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
@@ -28,15 +27,10 @@ import org.jgrapht.graph.Pseudograph;
 import org.joda.time.DateTime;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.util.TieLineUtil.*;
-import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -94,78 +88,6 @@ public class NetworkImpl extends AbstractNetwork<NetworkAttributes> implements N
     public String getIdFromAlias(String alias) {
         Objects.requireNonNull(alias);
         return getIdByAlias().get(alias) == null ? alias : getIdByAlias().get(alias);
-    }
-
-    class BusBreakerViewImpl implements BusBreakerView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return getBusStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
-        }
-
-        @Override
-        public int getBusCount() {
-            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getBusCount()).sum();
-        }
-
-        @Override
-        public Iterable<Switch> getSwitches() {
-            return getSwitchStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Switch> getSwitchStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
-        }
-
-        @Override
-        public int getSwitchCount() {
-            return (int) getSwitchStream().count();
-        }
-
-        @Override
-        public Bus getBus(String id) {
-            Optional<Bus> busInBusBreakerTopo = index.getConfiguredBus(id).map(Function.identity()); // start search in BB topo
-            return busInBusBreakerTopo.or(() -> getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id)) // fallback to search in NB topo
-                                                                       .filter(Objects::nonNull)
-                                                                       .findFirst())
-                    .orElse(null);
-        }
-    }
-
-    class BusViewImpl implements Network.BusView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return getBusStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
-        }
-
-        @Override
-        public Bus getBus(String id) {
-            return getBusStream().filter(b -> b.getId().equals(id)).findFirst().orElse(null);
-        }
-
-        @Override
-        public Collection<Component> getConnectedComponents() {
-            return getBusStream().map(Bus::getConnectedComponent)
-                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Component::getNum))), ArrayList::new));
-        }
-
-        @Override
-        public Collection<Component> getSynchronousComponents() {
-            return getBusStream().map(Bus::getSynchronousComponent)
-                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Component::getNum))), ArrayList::new));
-        }
     }
 
     public NetworkObjectIndex getIndex() {
@@ -903,26 +825,6 @@ public class NetworkImpl extends AbstractNetwork<NetworkAttributes> implements N
     @Override
     public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
         return index.getIdentifiables().stream().filter(clazz::isInstance).map(clazz::cast);
-    }
-
-    @Override
-    public <C extends Connectable> int getConnectableCount(Class<C> clazz) {
-        return Ints.checkedCast(getConnectableStream(clazz).count());
-    }
-
-    @Override
-    public Iterable<Connectable> getConnectables() {
-        return getConnectables(Connectable.class);
-    }
-
-    @Override
-    public Stream<Connectable> getConnectableStream() {
-        return getConnectableStream(Connectable.class);
-    }
-
-    @Override
-    public int getConnectableCount() {
-        return Ints.checkedCast(getConnectableStream().count());
     }
 
     private void update(ComponentType componentType, boolean isBusView) {
