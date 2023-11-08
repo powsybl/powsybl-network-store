@@ -119,6 +119,9 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             case TIE_LINE:
                 delegate.getTieLines(networkUuid, variantNum);
                 break;
+            case SUBNETWORK:
+                delegate.getSubnetworks(networkUuid, variantNum);
+                break;
             default:
                 break;
         }
@@ -888,7 +891,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     @Override
     public void removeSubnetworks(UUID networkUuid, int variantNum, List<String> subnetworkIds) {
         ensureCached(ResourceType.SUBNETWORK, networkUuid, variantNum);
-        delegate.removeTieLines(networkUuid, variantNum, subnetworkIds);
+        delegate.removeSubnetworks(networkUuid, variantNum, subnetworkIds);
     }
 
     @Override
