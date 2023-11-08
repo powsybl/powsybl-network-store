@@ -3,7 +3,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
-import org.joda.time.DateTime;
 
 import java.util.*;
 import java.util.function.Function;

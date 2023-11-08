@@ -42,7 +42,6 @@ import static java.util.stream.Collectors.toCollection;
  */
 public class NetworkImpl extends AbstractNetwork<NetworkAttributes> implements Network, Validable {
 
-
     private final List<NetworkListener> listeners = new ArrayList<>();
 
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
