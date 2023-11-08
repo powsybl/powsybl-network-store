@@ -778,17 +778,17 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subNetworkResources) {
-        create("Subnetwork", "/networks/{networkUuid}/subnetworks", subNetworkResources, networkUuid);
+        create("subnetwork", "/networks/{networkUuid}/subnetworks", subNetworkResources, networkUuid);
     }
 
     @Override
     public List<Resource<SubnetworkAttributes>> getSubnetworks(UUID networkUuid, int variantNum) {
-        return getAll("Subnetwork", "/networks/{networkUuid}/{variantNum}/subnetworks", networkUuid, variantNum);
+        return getAll("subnetwork", "/networks/{networkUuid}/{variantNum}/subnetworks", networkUuid, variantNum);
     }
 
     @Override
     public Optional<Resource<SubnetworkAttributes>> getSubnetwork(UUID networkUuid, int variantNum, String subnetworkId) {
-        return get("Subnetwork", "/networks/{networkUuid}/{variantNum}/subnetworks/{subnetworkId}", networkUuid, variantNum, subnetworkId);
+        return get("subnetwork", "/networks/{networkUuid}/{variantNum}/subnetworks/{subnetworkId}", networkUuid, variantNum, subnetworkId);
     }
 
     @Override
@@ -798,7 +798,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subnetworkResources, AttributeFilter attributeFilter) {
-        updateAll("Subnetwork", "/networks/{networkUuid}/subnetworks", subnetworkResources, attributeFilter, networkUuid);
+        updateAll("subnetwork", "/networks/{networkUuid}/subnetworks", subnetworkResources, attributeFilter, networkUuid);
     }
 
     @Override
