@@ -451,6 +451,7 @@ public class NetworkObjectIndex {
         hvdcLineCache.setResourcesToObjects();
         danglingLineCache.setResourcesToObjects();
         configuredBusCache.setResourcesToObjects();
+        subnetworkCache.setResourcesToObjects();
     }
 
     void notifyCreation(Identifiable<?> identifiable) {

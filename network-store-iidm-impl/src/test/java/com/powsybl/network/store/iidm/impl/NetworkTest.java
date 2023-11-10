@@ -10,6 +10,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -104,5 +105,17 @@ public class NetworkTest {
         Network detachedN2 = subN2.detach();
         assertEquals(1, detachedN2.getLineCount());
         assertEquals(1, mergedNetwork.getSubnetworks().size());
+    }
+
+    @Test
+    public void subnetworkWithVariant() {
+        Network n1 = CreateNetworksUtil.createBusBreakerNetworkWithLine("_n1");
+        assertEquals(2, n1.getGeneratorCount());
+        n1.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v");
+        n1.getVariantManager().setWorkingVariant("v");
+        Network subnetwork = n1.createSubnetwork("subNetwork1", "subNetwork1", "");
+        assertEquals(1, n1.getSubnetworks().size());
+        n1.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(0, n1.getSubnetworks().size());
     }
 }

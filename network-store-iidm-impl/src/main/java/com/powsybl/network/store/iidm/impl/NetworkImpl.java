@@ -658,6 +658,7 @@ public class NetworkImpl extends AbstractNetwork<NetworkAttributes> implements N
     public Network createSubnetwork(String subnetworkId, String name, String sourceFormat) {
         Resource<SubnetworkAttributes> resourceSubNetwork = Resource.subnetwokBuilder()
                 .id(subnetworkId)
+                .variantNum(index.getWorkingVariantNum())
                 .parentNetwork(this.getId())
                 .attributes(SubnetworkAttributes.builder()
                         .uuid(UUID.randomUUID())
