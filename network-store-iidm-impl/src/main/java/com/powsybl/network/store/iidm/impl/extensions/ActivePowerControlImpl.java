@@ -27,7 +27,12 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public void setParticipate(boolean participate) {
-        getInjection().updateResource(res -> res.getAttributes().getActivePowerControl().setParticipate(participate));
+        boolean oldValue = getInjection().getResource().getAttributes().getActivePowerControl().isParticipate();
+        if (oldValue != participate) {
+            getInjection().updateResource(res -> res.getAttributes().getActivePowerControl().setParticipate(participate));
+            String variantId = getInjection().getNetwork().getVariantManager().getWorkingVariantId();
+            getInjection().getNetwork().getIndex().notifyUpdate(getInjection(), "participate", variantId, oldValue, participate);
+        }
     }
 
     @Override
@@ -37,7 +42,12 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public void setDroop(double droop) {
-        getInjection().updateResource(res -> res.getAttributes().getActivePowerControl().setDroop(droop));
+        double oldValue = getInjection().getResource().getAttributes().getActivePowerControl().getDroop();
+        if (oldValue != droop) {
+            getInjection().updateResource(res -> res.getAttributes().getActivePowerControl().setDroop(droop));
+            String variantId = getInjection().getNetwork().getVariantManager().getWorkingVariantId();
+            getInjection().getNetwork().getIndex().notifyUpdate(getInjection(), "droop", variantId, oldValue, droop);
+        }
     }
 
     @Override
