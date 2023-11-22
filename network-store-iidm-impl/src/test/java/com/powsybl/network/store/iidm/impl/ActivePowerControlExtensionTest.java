@@ -55,6 +55,7 @@ public class ActivePowerControlExtensionTest {
         public void onVariantRemoved(String variantId) {
             // Not tested here
         }
+
         public int getNbUpdatedEquipments() {
             return nbUpdatedEquipments;
         }
