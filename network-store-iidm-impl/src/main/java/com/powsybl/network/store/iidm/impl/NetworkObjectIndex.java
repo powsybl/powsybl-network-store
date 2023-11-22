@@ -485,7 +485,7 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+    public void notifyUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : network.getListeners()) {
                 try {
