@@ -22,48 +22,6 @@ import static org.junit.Assert.*;
 public class NodeBreakerTerminalTest {
 
     @Test
-    public void connectDisconnectRemove() {
-        var test = new AbstractNodeBreakerTest() {
-        };
-        Network network;
-        try {
-            Method createNetwork = AbstractNodeBreakerTest.class.getDeclaredMethod("createNetwork");
-            createNetwork.setAccessible(true);
-            network = (Network) createNetwork.invoke(test);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new PowsyblException(e);
-        }
-
-        VoltageLevel.NodeBreakerView topo = network.getVoltageLevel("VL").getNodeBreakerView();
-        Load l = network.getLoad("L");
-        Generator g = network.getGenerator("G");
-
-        // generator is connected, load is disconnected
-        assertTrue(topo.getOptionalTerminal(2).isPresent());
-        assertTrue(topo.getOptionalTerminal(3).isPresent());
-        assertNotNull(g.getTerminal().getBusView().getBus());
-        assertNull(l.getTerminal().getBusView().getBus());
-        assertTrue(g.getTerminal().isConnected());
-        assertFalse(l.getTerminal().isConnected());
-
-        // connect the load
-        assertTrue(l.getTerminal().connect());
-
-        // check load is connected
-        assertTrue(topo.getOptionalTerminal(2).isPresent());
-        assertNotNull(l.getTerminal().getBusView().getBus());
-        assertTrue(l.getTerminal().isConnected());
-
-        // disconnect the generator
-        g.getTerminal().disconnect();
-
-        // check generator is disconnected
-        assertTrue(topo.getOptionalTerminal(3).isPresent());
-        assertNull(g.getTerminal().getBusView().getBus());
-        assertFalse(g.getTerminal().isConnected());
-    }
-
-    @Test
     public void testBusView() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");

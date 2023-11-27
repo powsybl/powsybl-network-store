@@ -291,7 +291,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
      * @param switchesToOpen set of switches to be opened
      * @return true if the path has been opened, else false
      */
-    boolean identifySwitchToOpenPath(GraphPath<Integer, Edge> path, Predicate<? super Switch> isSwitchOpenable, Set<SwitchAttributes> switchesToOpen) {
+    boolean identifySwitchToOpenPath(GraphPath<Integer, Edge> path, Predicate<? super Switch> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
         for (Edge edge : path.getEdgeList()) {
             if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
                 // Get the switch behind the switchAttributes
@@ -299,7 +299,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
                 // Test if the switch can be opened according to the predicate
                 if (sw.isPresent() && isSwitchOpenable.test(sw.get())) {
-                    switchesToOpen.add(switchAttributes);
+                    switchesToOpen.add(sw.get());
                     return true;
                 }
             }
@@ -322,7 +322,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         List<GraphPath<Integer, Edge>> allPaths = allDirectedPaths.getAllPaths(Set.of(node), busbarSectionNodes, true, null);
 
         // Set of switches that are to be opened
-        Set<SwitchAttributes> switchesToOpen = new HashSet<>(allPaths.size());
+        Set<SwitchImpl> switchesToOpen = new HashSet<>(allPaths.size());
 
         // Each path is visited and for each, the first openable switch found is added in the set of switches to open
         for (GraphPath<Integer, Edge> path : allPaths) {
@@ -335,10 +335,10 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
         // The switches are now opened
         Set<String> openedSwitches = new HashSet<>();
-        switchesToOpen.forEach(switchAttributes -> {
-            switchAttributes.setOpen(true);
-            index.updateSwitchResource(switchAttributes.getResource());
-            openedSwitches.add(switchAttributes.getResource().getId());
+        switchesToOpen.forEach(switchImpl -> {
+            switchImpl.setOpen(true);
+            index.updateSwitchResource(switchImpl.getResource());
+            openedSwitches.add(switchImpl.getResource().getId());
         });
 
         // Notify update
