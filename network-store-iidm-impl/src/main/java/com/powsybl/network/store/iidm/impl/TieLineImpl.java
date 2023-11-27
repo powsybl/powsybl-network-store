@@ -42,8 +42,8 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public DanglingLine getDanglingLine(Branch.Side side) {
-        if (Branch.Side.ONE == side) {
+    public DanglingLine getDanglingLine(TwoSides side) {
+        if (TwoSides.ONE == side) {
             return getDanglingLine1();
         } else {
             return getDanglingLine2();
@@ -141,9 +141,9 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public Terminal getTerminal(Side side) {
+    public Terminal getTerminal(TwoSides side) {
         Objects.requireNonNull(side);
-        if (Side.ONE == side) {
+        if (TwoSides.ONE == side) {
             return getDanglingLine1().getTerminal();
         } else {
             return getDanglingLine2().getTerminal();
@@ -155,7 +155,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         return getTerminal(voltageLevelId, getTerminal1(), getTerminal2());
     }
 
-    public Side getSide(Terminal terminal) {
+    public TwoSides getSide(Terminal terminal) {
         return getSide(terminal, getTerminal1(), getTerminal2());
     }
 
@@ -260,17 +260,17 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public Optional<CurrentLimits> getCurrentLimits(Side side) {
+    public Optional<CurrentLimits> getCurrentLimits(TwoSides side) {
         return getFromSide(side, this::getCurrentLimits1, this::getCurrentLimits2);
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits(Side side) {
+    public Optional<ActivePowerLimits> getActivePowerLimits(TwoSides side) {
         return getFromSide(side, this::getActivePowerLimits1, this::getActivePowerLimits2);
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits(Side side) {
+    public Optional<ApparentPowerLimits> getApparentPowerLimits(TwoSides side) {
         return getFromSide(side, this::getApparentPowerLimits1, this::getApparentPowerLimits2);
     }
 
@@ -290,20 +290,20 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public boolean checkPermanentLimit(Side side, float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, float limitReduction, LimitType type) {
         return getFromSide(side,
             () -> checkPermanentLimit1(limitReduction, type),
             () -> checkPermanentLimit2(limitReduction, type));
     }
 
     @Override
-    public boolean checkPermanentLimit(Side side, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, LimitType type) {
         return checkPermanentLimit(side, 1f, type);
     }
 
     @Override
     public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -313,7 +313,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
@@ -322,34 +322,34 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, float limitReduction, LimitType type) {
         return getFromSide(side,
             () -> checkTemporaryLimits1(limitReduction, type),
             () -> checkTemporaryLimits2(limitReduction, type));
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits(Side side, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, LimitType type) {
         return checkTemporaryLimits(side, 1f, type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits1(LimitType type) {
+    public Overload checkTemporaryLimits1(LimitType type) {
         return checkTemporaryLimits1(1f, type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
-    public Branch.Overload checkTemporaryLimits2(LimitType type) {
+    public Overload checkTemporaryLimits2(LimitType type) {
         return checkTemporaryLimits2(1f, type);
     }
 
@@ -382,28 +382,28 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         }
     }
 
-    public static Branch.Side getSide(Terminal terminal, Terminal terminal1, Terminal terminal2) {
+    public static TwoSides getSide(Terminal terminal, Terminal terminal1, Terminal terminal2) {
         Objects.requireNonNull(terminal);
         if (terminal1 == terminal) {
-            return Branch.Side.ONE;
+            return TwoSides.ONE;
         } else if (terminal2 == terminal) {
-            return Branch.Side.TWO;
+            return TwoSides.TWO;
         } else {
             throw new IllegalStateException("The terminal is not connected to this branch");
         }
     }
 
-    static <T> T getFromSide(Branch.Side side, Supplier<T> getter1, Supplier<T> getter2) {
+    static <T> T getFromSide(TwoSides side, Supplier<T> getter1, Supplier<T> getter2) {
         Objects.requireNonNull(side);
-        if (side == Branch.Side.ONE) {
+        if (side == TwoSides.ONE) {
             return getter1.get();
-        } else if (side == Branch.Side.TWO) {
+        } else if (side == TwoSides.TWO) {
             return getter2.get();
         }
         throw new IllegalStateException("Unexpected side: " + side);
     }
 
-    static int getOverloadDuration(Branch.Overload o1, Branch.Overload o2) {
+    static int getOverloadDuration(Overload o1, Overload o2) {
         int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);

@@ -212,9 +212,9 @@ public final class CalculatedBus implements BaseBus {
                     switch (c.getType()) {
                         case LINE:
                         case TWO_WINDINGS_TRANSFORMER:
-                            return ((AbstractBranchImpl) c).getTerminal(Branch.Side.valueOf(v.getSide()));
+                            return ((AbstractBranchImpl) c).getTerminal(TwoSides.valueOf(v.getSide()));
                         case THREE_WINDINGS_TRANSFORMER:
-                            return ((ThreeWindingsTransformerImpl) c).getTerminal(ThreeWindingsTransformer.Side.valueOf(v.getSide()));
+                            return ((ThreeWindingsTransformerImpl) c).getTerminal(ThreeSides.valueOf(v.getSide()));
                         default:
                             return c.getTerminals().get(0);
                     }

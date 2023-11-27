@@ -12,9 +12,8 @@ import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.cgmes.extensions.BaseVoltageMapping;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
-import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
@@ -23,8 +22,8 @@ import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
-import org.joda.time.DateTime;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -44,6 +43,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     private final BusView busView = new BusViewImpl();
 
     private final List<NetworkListener> listeners = new ArrayList<>();
+
+    private AbstractReporterContext reporterContext;
 
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
@@ -188,12 +189,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public DateTime getCaseDate() {
+    public ZonedDateTime getCaseDate() {
         return getResource().getAttributes().getCaseDate();
     }
 
     @Override
-    public Network setCaseDate(DateTime date) {
+    public Network setCaseDate(ZonedDateTime date) {
         ValidationUtil.checkCaseDate(this, date);
         updateResource(res -> res.getAttributes().setCaseDate(date));
         return this;
@@ -219,6 +220,16 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public VariantManagerImpl getVariantManager() {
         return new VariantManagerImpl(index);
+    }
+
+    @Override
+    public void allowReporterContextMultiThreadAccess(boolean allow) {
+        this.reporterContext = Networks.allowReporterContextMultiThreadAccess(this.reporterContext, allow);
+    }
+
+    @Override
+    public ReporterContext getReporterContext() {
+        return this.reporterContext;
     }
 
     // country
@@ -838,19 +849,19 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                 bus.visitConnectedEquipments(new DefaultTopologyVisitor() {
 
                     @Override
-                    public void visitLine(Line line, Branch.Side side) {
+                    public void visitLine(Line line, TwoSides side) {
                         graph.addVertex(line);
                         graph.addEdge(bus, line, new Object());
                     }
 
                     @Override
-                    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
                         graph.addVertex(transformer);
                         graph.addEdge(bus, transformer, new Object());
                     }
 
                     @Override
-                    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
                         graph.addVertex(transformer);
                         graph.addEdge(bus, transformer, new Object());
                     }

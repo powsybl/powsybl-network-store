@@ -23,7 +23,7 @@ import java.util.*;
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U>
-        implements Branch<T>, Connectable<T>, LimitsOwner<Branch.Side> {
+        implements Branch<T>, Connectable<T>, LimitsOwner<TwoSides> {
 
     private final TerminalImpl<U> terminal1;
 
@@ -53,7 +53,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public Terminal getTerminal(Branch.Side side) {
+    public Terminal getTerminal(TwoSides side) {
         switch (side) {
             case ONE:
                 return terminal1;
@@ -77,11 +77,11 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public Branch.Side getSide(Terminal terminal) {
+    public TwoSides getSide(Terminal terminal) {
         if (terminal == terminal1) {
-            return Branch.Side.ONE;
+            return TwoSides.ONE;
         } else if (terminal == terminal2) {
-            return Branch.Side.TWO;
+            return TwoSides.TWO;
         } else {
             throw new AssertionError();
         }
@@ -96,15 +96,15 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public void setCurrentLimits(Branch.Side side, LimitsAttributes currentLimits) {
+    public void setCurrentLimits(TwoSides side, LimitsAttributes currentLimits) {
         var resource = getResource();
-        if (side == Branch.Side.ONE) {
+        if (side == TwoSides.ONE) {
             LimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits1();
             if (currentLimits != oldCurrentLimits) {
                 updateResource(res -> res.getAttributes().setCurrentLimits1(currentLimits));
                 index.notifyUpdate(this, "currentLimits1", oldCurrentLimits, currentLimits);
             }
-        } else if (side == Branch.Side.TWO) {
+        } else if (side == TwoSides.TWO) {
             LimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits2();
             if (currentLimits != oldCurrentLimits) {
                 updateResource(res -> res.getAttributes().setCurrentLimits2(currentLimits));
@@ -120,38 +120,34 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return new CurrentLimitsAdderImpl<>(Branch.Side.ONE, this);
+        return new CurrentLimitsAdderImpl<>(TwoSides.ONE, this);
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return new CurrentLimitsAdderImpl<>(Branch.Side.TWO, this);
+        return new CurrentLimitsAdderImpl<>(TwoSides.TWO, this);
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return new ApparentPowerLimitsAdderImpl<>(Branch.Side.ONE, this);
+        return new ApparentPowerLimitsAdderImpl<>(TwoSides.ONE, this);
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return new ApparentPowerLimitsAdderImpl<>(Side.TWO, this);
+        return new ApparentPowerLimitsAdderImpl<>(TwoSides.TWO, this);
     }
 
     @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits(Side side) {
-        switch (side) {
-            case ONE:
-                return getNullableApparentPowerLimits1();
-            case TWO:
-                return getNullableApparentPowerLimits2();
-            default:
-                throw new IllegalStateException();
-        }
+    public ApparentPowerLimits getNullableApparentPowerLimits(TwoSides side) {
+        return switch (side) {
+            case ONE -> getNullableApparentPowerLimits1();
+            case TWO -> getNullableApparentPowerLimits2();
+        };
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits(Side side) {
+    public Optional<ApparentPowerLimits> getApparentPowerLimits(TwoSides side) {
         return Optional.ofNullable(getNullableApparentPowerLimits(side));
     }
 
@@ -182,15 +178,15 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public void setApparentPowerLimits(Branch.Side side, LimitsAttributes apparentPowerLimitsAttributes) {
+    public void setApparentPowerLimits(TwoSides side, LimitsAttributes apparentPowerLimitsAttributes) {
         var resource = getResource();
-        if (side == Branch.Side.ONE) {
+        if (side == TwoSides.ONE) {
             LimitsAttributes oldApparentPowerLimits = resource.getAttributes().getApparentPowerLimits1();
             if (apparentPowerLimitsAttributes != oldApparentPowerLimits) {
                 updateResource(res -> res.getAttributes().setApparentPowerLimits1(apparentPowerLimitsAttributes));
                 index.notifyUpdate(this, "apparentPowerLimits1", oldApparentPowerLimits, apparentPowerLimitsAttributes);
             }
-        } else if (side == Branch.Side.TWO) {
+        } else if (side == TwoSides.TWO) {
             LimitsAttributes oldApparentPowerLimits = resource.getAttributes().getApparentPowerLimits2();
             if (apparentPowerLimitsAttributes != oldApparentPowerLimits) {
                 updateResource(res -> res.getAttributes().setApparentPowerLimits2(apparentPowerLimitsAttributes));
@@ -201,28 +197,24 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return new ActivePowerLimitsAdderImpl<>(Branch.Side.ONE, this);
+        return new ActivePowerLimitsAdderImpl<>(TwoSides.ONE, this);
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return new ActivePowerLimitsAdderImpl<>(Side.TWO, this);
+        return new ActivePowerLimitsAdderImpl<>(TwoSides.TWO, this);
     }
 
     @Override
-    public ActivePowerLimits getNullableActivePowerLimits(Side side) {
-        switch (side) {
-            case ONE:
-                return getNullableActivePowerLimits1();
-            case TWO:
-                return getNullableActivePowerLimits2();
-            default:
-                throw new IllegalStateException();
-        }
+    public ActivePowerLimits getNullableActivePowerLimits(TwoSides side) {
+        return switch (side) {
+            case ONE -> getNullableActivePowerLimits1();
+            case TWO -> getNullableActivePowerLimits2();
+        };
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits(Side side) {
+    public Optional<ActivePowerLimits> getActivePowerLimits(TwoSides side) {
         return Optional.ofNullable(getNullableActivePowerLimits(side));
     }
 
@@ -253,15 +245,15 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public void setActivePowerLimits(Branch.Side side, LimitsAttributes activePowerLimitsAttributes) {
+    public void setActivePowerLimits(TwoSides side, LimitsAttributes activePowerLimitsAttributes) {
         var resource = getResource();
-        if (side == Branch.Side.ONE) {
+        if (side == TwoSides.ONE) {
             LimitsAttributes oldActivePowerLimits = resource.getAttributes().getActivePowerLimits1();
             if (activePowerLimitsAttributes != oldActivePowerLimits) {
                 updateResource(res -> res.getAttributes().setActivePowerLimits1(activePowerLimitsAttributes));
                 index.notifyUpdate(this, "apparentPowerLimits1", oldActivePowerLimits, activePowerLimitsAttributes);
             }
-        } else if (side == Branch.Side.TWO) {
+        } else if (side == TwoSides.TWO) {
             LimitsAttributes oldActivePowerLimits = resource.getAttributes().getActivePowerLimits2();
             if (activePowerLimitsAttributes != oldActivePowerLimits) {
                 updateResource(res -> res.getAttributes().setActivePowerLimits2(activePowerLimitsAttributes));
@@ -271,19 +263,15 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public CurrentLimits getNullableCurrentLimits(Side side) {
-        switch (side) {
-            case ONE:
-                return getNullableCurrentLimits1();
-            case TWO:
-                return getNullableCurrentLimits2();
-            default:
-                throw new IllegalStateException();
-        }
+    public CurrentLimits getNullableCurrentLimits(TwoSides side) {
+        return switch (side) {
+            case ONE -> getNullableCurrentLimits1();
+            case TWO -> getNullableCurrentLimits2();
+        };
     }
 
     @Override
-    public Optional<CurrentLimits> getCurrentLimits(Branch.Side side) {
+    public Optional<CurrentLimits> getCurrentLimits(TwoSides side) {
         return Optional.ofNullable(getNullableCurrentLimits(side));
     }
 
@@ -325,34 +313,30 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public int getOverloadDuration() {
-        Branch.Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
-        Branch.Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
+        Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
+        Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
         int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);
     }
 
     @Override
-    public Overload checkTemporaryLimits(Side side, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, LimitType type) {
         return this.checkTemporaryLimits(side, 1.0F, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, float limitReduction, LimitType type) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return this.checkTemporaryLimits1(limitReduction, type);
-            case TWO:
-                return this.checkTemporaryLimits2(limitReduction, type);
-            default:
-                throw new AssertionError();
-        }
+        return switch (side) {
+            case ONE -> this.checkTemporaryLimits1(limitReduction, type);
+            case TWO -> this.checkTemporaryLimits2(limitReduction, type);
+        };
     }
 
     @Override
     public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, this.getValueForLimit(this.getTerminal1(), type), type);
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReduction, this.getValueForLimit(this.getTerminal1(), type), type);
     }
 
     @Override
@@ -362,7 +346,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, this.getValueForLimit(this.getTerminal2(), type), type);
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReduction, this.getValueForLimit(this.getTerminal2(), type), type);
     }
 
     @Override
@@ -371,28 +355,22 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public boolean checkPermanentLimit(Side side, float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, float limitReduction, LimitType type) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return checkPermanentLimit1(limitReduction, type);
-
-            case TWO:
-                return checkPermanentLimit2(limitReduction, type);
-
-            default:
-                throw new AssertionError();
-        }
+        return switch (side) {
+            case ONE -> checkPermanentLimit1(limitReduction, type);
+            case TWO -> checkPermanentLimit2(limitReduction, type);
+        };
     }
 
     @Override
-    public boolean checkPermanentLimit(Side side, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, LimitType type) {
         return checkPermanentLimit(side, 1f, type);
     }
 
     @Override
     public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -402,7 +380,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
@@ -411,17 +389,13 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     public double getValueForLimit(Terminal t, LimitType type) {
-        switch (type) {
-            case ACTIVE_POWER:
-                return t.getP();
-            case APPARENT_POWER:
-                return Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
-            case CURRENT:
-                return t.getI();
-            case VOLTAGE:
-            default:
+        return switch (type) {
+            case ACTIVE_POWER -> t.getP();
+            case APPARENT_POWER -> Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
+            case CURRENT -> t.getI();
+            default ->
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
-        }
+        };
     }
 
     private <E extends Extension<T>> E createConnectablePositionExtension() {

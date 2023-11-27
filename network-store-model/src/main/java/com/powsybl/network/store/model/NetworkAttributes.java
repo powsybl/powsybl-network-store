@@ -8,9 +8,11 @@ package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.joda.time.DateTime;
 
-import java.util.*;
+import java.time.ZonedDateTime;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -50,7 +52,7 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
 
     @Schema(description = "Network date", required = true)
     @Builder.Default
-    private DateTime caseDate = new DateTime();
+    private ZonedDateTime caseDate = ZonedDateTime.now();
 
     @Schema(description = "Forecast distance")
     @Builder.Default

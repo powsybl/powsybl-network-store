@@ -8,14 +8,16 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -32,17 +34,19 @@ public class ResourceTest {
         Resource<NetworkAttributes> resource = Resource.networkBuilder().id("foo")
                 .attributes(NetworkAttributes.builder()
                         .uuid(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"))
-                        .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JodaModule());
+        ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         String json = objectMapper.writeValueAsString(resource);
         assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"variantNum\":0,\"attributes\":{\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"fictitious\":false,\"caseDate\":1420070400000,\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}}", json);
         Resource<NetworkAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<NetworkAttributes>>() { });
         assertNotNull(resource2);
         assertEquals("foo", resource2.getId());
-        assertEquals(DateTime.parse("2015-01-01T00:00:00.000Z"), resource2.getAttributes().getCaseDate());
+        assertEquals(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"), resource2.getAttributes().getCaseDate());
         assertEquals(0, resource2.getAttributes().getForecastDistance());
         assertNull(resource2.getAttributes().getSourceFormat());
     }
@@ -434,7 +438,7 @@ public class ResourceTest {
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
 
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JodaModule());
+        objectMapper.registerModule(new JavaTimeModule());
         String json = objectMapper.writeValueAsString(resourceDanglingLine);
 
         Resource<DanglingLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<DanglingLineAttributes>>() { });
@@ -457,7 +461,7 @@ public class ResourceTest {
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JodaModule());
+        objectMapper.registerModule(new JavaTimeModule());
         String json = objectMapper.writeValueAsString(resourceTieLine);
 
         Resource<TieLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<TieLineAttributes>>() { });

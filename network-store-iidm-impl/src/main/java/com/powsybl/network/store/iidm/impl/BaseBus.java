@@ -119,8 +119,8 @@ public interface BaseBus extends Bus {
 
                 case LINE:
                     Line line = (Line) connectable;
-                    visitor.visitLine(line, line.getTerminal1() == terminal ? Branch.Side.ONE
-                            : Branch.Side.TWO);
+                    visitor.visitLine(line, line.getTerminal1() == terminal ? TwoSides.ONE
+                            : TwoSides.TWO);
                     break;
 
                 case GENERATOR:
@@ -139,19 +139,19 @@ public interface BaseBus extends Bus {
                     TwoWindingsTransformer twt = (TwoWindingsTransformer) connectable;
                     visitor.visitTwoWindingsTransformer(twt,
                             twt.getTerminal1() == terminal
-                                    ? Branch.Side.ONE
-                                    : Branch.Side.TWO);
+                                    ? TwoSides.ONE
+                                    : TwoSides.TWO);
                     break;
 
                 case THREE_WINDINGS_TRANSFORMER:
                     ThreeWindingsTransformer thwt = (ThreeWindingsTransformer) connectable;
-                    ThreeWindingsTransformer.Side side;
+                    ThreeSides side;
                     if (thwt.getLeg1().getTerminal() == terminal) {
-                        side = ThreeWindingsTransformer.Side.ONE;
+                        side = ThreeSides.ONE;
                     } else if (thwt.getLeg2().getTerminal() == terminal) {
-                        side = ThreeWindingsTransformer.Side.TWO;
+                        side = ThreeSides.TWO;
                     } else {
-                        side = ThreeWindingsTransformer.Side.THREE;
+                        side = ThreeSides.THREE;
                     }
                     visitor.visitThreeWindingsTransformer(thwt, side);
                     break;

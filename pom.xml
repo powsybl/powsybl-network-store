@@ -50,6 +50,7 @@
         <springboot.version>3.1.2</springboot.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <powsybl-dependencies.version>2023.3.2</powsybl-dependencies.version>
+        <powsybl-core.version>6.1.0-SNAPSHOT</powsybl-core.version>
         <powsybl-ws-commons.version>1.7.0</powsybl-ws-commons.version>
         <slf4j.version>2.0.4</slf4j.version>
         <logback.version>1.4.5</logback.version>
@@ -70,6 +71,13 @@
     <dependencyManagement>
         <dependencies>
             <!-- overrides of imports -->
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-core</artifactId>
+                <version>${powsybl-core.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 
             <!-- imports -->
             <dependency>

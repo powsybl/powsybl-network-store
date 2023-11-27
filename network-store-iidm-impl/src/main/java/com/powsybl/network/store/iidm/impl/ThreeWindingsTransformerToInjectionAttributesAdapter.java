@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.network.store.model.*;
 
 import java.util.Map;
@@ -22,9 +22,9 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
 
     private final ThreeWindingsTransformerAttributes attributes;
 
-    private final ThreeWindingsTransformer.Side side;
+    private final ThreeSides side;
 
-    public ThreeWindingsTransformerToInjectionAttributesAdapter(ThreeWindingsTransformerImpl.LegImpl leg, ThreeWindingsTransformerAttributes attributes, ThreeWindingsTransformer.Side side) {
+    public ThreeWindingsTransformerToInjectionAttributesAdapter(ThreeWindingsTransformerImpl.LegImpl leg, ThreeWindingsTransformerAttributes attributes, ThreeSides side) {
         this.leg = Objects.requireNonNull(leg);
         this.attributes = attributes;
         this.side = side;

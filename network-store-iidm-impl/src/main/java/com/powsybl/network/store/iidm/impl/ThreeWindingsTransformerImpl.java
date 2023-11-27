@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BranchStatus;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
@@ -63,15 +64,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public TerminalImpl<ThreeWindingsTransformerAttributes> getTerminal() {
             var attributes = getLegAttributes();
-            if (attributes.getLegNumber() == 1) {
-                return transformer.terminal1;
-            } else if (attributes.getLegNumber() == 2) {
-                return transformer.terminal2;
-            } else if (attributes.getLegNumber() == 3) {
-                return transformer.terminal3;
-            } else {
-                throw new AssertionError();
-            }
+            return switch (attributes.getLegNumber()) {
+                case 1 -> transformer.terminal1;
+                case 2 -> transformer.terminal2;
+                case 3 -> transformer.terminal3;
+                default -> throw new AssertionError();
+            };
         }
 
         @Override
@@ -291,6 +289,16 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
+        public ThreeSides getSide() {
+            return ThreeSides.valueOf(getLegAttributes().getLegNumber());
+        }
+
+        @Override
+        public Optional<? extends LoadingLimits> getLimits(LimitType limitType) {
+            return Optional.empty();
+        }
+
+        @Override
         public String getMessageHeader() {
             return "3 windings transformer leg" + getLegAttributes().getLegNumber() + " '" + transformer.getId() + "': ";
         }
@@ -334,9 +342,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         leg2 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg2, index);
         leg3 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg3, index);
 
-        terminal1 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg1, r.getAttributes(), Side.ONE));
-        terminal2 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg2, r.getAttributes(), Side.TWO));
-        terminal3 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg3, r.getAttributes(), Side.THREE));
+        terminal1 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg1, r.getAttributes(), ThreeSides.ONE));
+        terminal2 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg2, r.getAttributes(), ThreeSides.TWO));
+        terminal3 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg3, r.getAttributes(), ThreeSides.THREE));
     }
 
     static ThreeWindingsTransformerImpl create(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
@@ -344,32 +352,25 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public Terminal getTerminal(Side side) {
-        switch (side) {
-            case ONE:
-                return leg1.getTerminal();
-
-            case TWO:
-                return leg2.getTerminal();
-
-            case THREE:
-                return leg3.getTerminal();
-
-            default:
-                throw new AssertionError();
-        }
+    public Terminal getTerminal(ThreeSides side) {
+        return switch (side) {
+            case ONE -> leg1.getTerminal();
+            case TWO -> leg2.getTerminal();
+            case THREE -> leg3.getTerminal();
+            default -> throw new AssertionError();
+        };
     }
 
     @Override
-    public Side getSide(Terminal terminal) {
+    public ThreeSides getSide(Terminal terminal) {
         Objects.requireNonNull(terminal);
 
         if (leg1.getTerminal() == terminal) {
-            return Side.ONE;
+            return ThreeSides.ONE;
         } else if (leg2.getTerminal() == terminal) {
-            return Side.TWO;
+            return ThreeSides.TWO;
         } else if (leg3.getTerminal() == terminal) {
-            return Side.THREE;
+            return ThreeSides.THREE;
         } else {
             throw new AssertionError("The terminal is not connected to this three windings transformer");
         }
@@ -398,6 +399,109 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     @Override
     public double getRatedU0() {
         return getResource().getAttributes().getRatedU0();
+    }
+
+    @Override
+    public boolean isOverloaded() {
+        return isOverloaded(1.0f);
+    }
+
+    @Override
+    public boolean isOverloaded(float limitReduction) {
+        return checkPermanentLimit1(limitReduction, LimitType.CURRENT)
+            || checkPermanentLimit2(limitReduction, LimitType.CURRENT)
+            || checkPermanentLimit3(limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
+    public int getOverloadDuration() {
+        Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
+        Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
+        Overload o3 = checkTemporaryLimits3(LimitType.CURRENT);
+        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        int duration3 = o3 != null ? o3.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        return Math.min(Math.min(duration1, duration2), duration3);
+    }
+
+    @Override
+    public boolean checkPermanentLimit(ThreeSides side, float limitReduction, LimitType limitType) {
+        return LimitViolationUtils.checkPermanentLimit(this, side, limitReduction, limitType);
+    }
+
+    @Override
+    public boolean checkPermanentLimit(ThreeSides side, LimitType limitType) {
+        return checkPermanentLimit(side, 1f, limitType);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(float limitReduction, LimitType limitType) {
+        return checkPermanentLimit(ThreeSides.ONE, limitReduction, limitType);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(LimitType type) {
+        return checkPermanentLimit1(1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
+        return checkPermanentLimit(ThreeSides.TWO, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(LimitType type) {
+        return checkPermanentLimit2(1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit3(float limitReduction, LimitType type) {
+        return checkPermanentLimit(ThreeSides.THREE, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit3(LimitType type) {
+        return checkPermanentLimit3(1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits(ThreeSides side, float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, side, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits(ThreeSides side, LimitType type) {
+        return checkTemporaryLimits(side, 1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.ONE, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits1(LimitType type) {
+        return checkTemporaryLimits1(1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.TWO, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2(LimitType type) {
+        return checkTemporaryLimits2(1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits3(float limitReduction, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.THREE, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits3(LimitType type) {
+        return checkTemporaryLimits3(1f, type);
     }
 
     @Override

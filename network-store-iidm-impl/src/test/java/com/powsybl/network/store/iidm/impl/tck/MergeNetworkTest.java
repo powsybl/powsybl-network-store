@@ -105,27 +105,27 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     }
 
     @Test
-    void failMergeOnlyOneNetwork() {
+    public void failMergeOnlyOneNetwork() {
         // FIXME
     }
 
     @Test
-    void failMergeOnSubnetworks() {
+    public void failMergeOnSubnetworks() {
         // FIXME
     }
 
     @Test
-    void failMergeSubnetworks() {
+    public void failMergeSubnetworks() {
         // FIXME
     }
 
     @Test
-    void failMergeContainingSubnetworks() {
+    public void failMergeContainingSubnetworks() {
         // FIXME
     }
 
     @Test
-    void testNoEmptyAdditionalSubnetworkIsCreated() {
+    public void testNoEmptyAdditionalSubnetworkIsCreated() {
         // FIXME
     }
 
