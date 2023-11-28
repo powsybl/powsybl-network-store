@@ -100,5 +100,11 @@ public class ActivePowerControlExtensionTest {
         apc.setParticipate(false);
         assertEquals(false, apc.isParticipate());
         assertEquals(2, listener.getNbUpdatedEquipments());
+
+        // test update of droop and participate with same old value and check notification
+        apc.setDroop(0.2);
+        assertEquals(2, listener.getNbUpdatedEquipments());
+        apc.setParticipate(false);
+        assertEquals(2, listener.getNbUpdatedEquipments());
     }
 }
