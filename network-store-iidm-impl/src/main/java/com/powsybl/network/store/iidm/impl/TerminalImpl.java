@@ -254,6 +254,10 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                     getAbstractIdentifiable().updateResource(r -> {
                         var a = getAttributes(r);
                         a.setBus(a.getConnectableBus());
+
+                        // Notification to the listeners
+                        index.notifyUpdate(getConnectable(), "connected", index.getNetwork().getVariantManager().getWorkingVariantId(), false, true);
+
                         // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
                         if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
                             index.notifyUpdate(getConnectable(), "bus", null, a.getConnectableBus());
@@ -286,9 +290,10 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     /**
      * Add the first openable switch in the given path to the set of switches to open
-     * @param path the path to open
+     *
+     * @param path             the path to open
      * @param isSwitchOpenable predicate used to know if a switch can be opened
-     * @param switchesToOpen set of switches to be opened
+     * @param switchesToOpen   set of switches to be opened
      * @return true if the path has been opened, else false
      */
     boolean identifySwitchToOpenPath(GraphPath<Integer, Edge> path, Predicate<? super Switch> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
@@ -361,9 +366,13 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             } else { // TopologyKind.BUS_BREAKER
                 var attributes = getAttributes();
                 if (attributes.getBus() != null) {
-                    getAbstractIdentifiable().updateResource(r -> {
-                        var a = getAttributes(r);
+                    getAbstractIdentifiable().updateResource(resource -> {
+                        var a = getAttributes(resource);
                         a.setBus(null);
+
+                        // Notification to the listeners
+                        index.notifyUpdate(getConnectable(), "connected", index.getNetwork().getVariantManager().getWorkingVariantId(), true, false);
+
                         // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
                         if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
                             index.notifyUpdate(getConnectable(), "bus", a.getConnectableBus(), null);
@@ -448,20 +457,18 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         }
 
         TopologyKind topologyKind = getTopologyKind();
-        switch (topologyKind) {
-            case NODE_BREAKER:
-                return ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals, traversalType);
-            case BUS_BREAKER:
-                return ((BusBreakerViewImpl) voltageLevel.getBusBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals, traversalType);
-            default:
-                throw new IllegalStateException("Unknown topology kind: " + topologyKind);
-        }
+        return switch (topologyKind) {
+            case NODE_BREAKER ->
+                ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals, traversalType);
+            case BUS_BREAKER ->
+                ((BusBreakerViewImpl) voltageLevel.getBusBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals, traversalType);
+            default -> throw new IllegalStateException("Unknown topology kind: " + topologyKind);
+        };
     }
 
     Set<Terminal> getOtherSideTerminals() {
         Set<Terminal> otherTerminals = new HashSet<>();
-        if (getConnectable() instanceof Branch) {
-            Branch<?> branch = (Branch<?>) getConnectable();
+        if (getConnectable() instanceof Branch<?> branch) {
             if (branch.getTerminal1() == this) {
                 otherTerminals.add(branch.getTerminal2());
             } else if (branch.getTerminal2() == this) {
@@ -469,8 +476,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             } else {
                 throw new AssertionError();
             }
-        } else if (getConnectable() instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer ttc = (ThreeWindingsTransformer) getConnectable();
+        } else if (getConnectable() instanceof ThreeWindingsTransformer ttc) {
             if (ttc.getLeg1().getTerminal() == this) {
                 otherTerminals.add(ttc.getLeg2().getTerminal());
                 otherTerminals.add(ttc.getLeg3().getTerminal());

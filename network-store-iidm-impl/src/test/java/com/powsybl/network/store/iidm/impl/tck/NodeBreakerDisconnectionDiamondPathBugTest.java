@@ -6,12 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tck.AbstractNodeBreakerDisconnectionDiamondPathBugTest;
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
