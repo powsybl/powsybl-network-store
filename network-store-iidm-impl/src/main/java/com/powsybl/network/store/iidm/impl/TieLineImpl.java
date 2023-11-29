@@ -354,17 +354,13 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     public double getValueForLimit(Terminal t, LimitType type) {
-        switch (type) {
-            case ACTIVE_POWER:
-                return t.getP();
-            case APPARENT_POWER:
-                return Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
-            case CURRENT:
-                return t.getI();
-            case VOLTAGE:
-            default:
+        return switch (type) {
+            case ACTIVE_POWER -> t.getP();
+            case APPARENT_POWER -> Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
+            case CURRENT -> t.getI();
+            default ->
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
-        }
+        };
     }
 
     static Terminal getTerminal(String voltageLevelId, Terminal terminal1, Terminal terminal2) {

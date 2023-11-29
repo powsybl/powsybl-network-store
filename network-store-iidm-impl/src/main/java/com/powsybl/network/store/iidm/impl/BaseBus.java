@@ -50,25 +50,15 @@ public interface BaseBus extends Bus {
         for (Terminal terminal : getConnectedTerminals()) {
             Connectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
-                case BUSBAR_SECTION:
-                case SHUNT_COMPENSATOR:
-                case STATIC_VAR_COMPENSATOR:
-                case LINE:
-                case TWO_WINDINGS_TRANSFORMER:
-                case THREE_WINDINGS_TRANSFORMER:
-                case DANGLING_LINE:
-                    // skip
-                    break;
-                case GENERATOR:
-                case BATTERY:
-                case LOAD:
-                case HVDC_CONVERTER_STATION:
+                case BUSBAR_SECTION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, DANGLING_LINE -> {
+                    // Do nothing
+                }
+                case GENERATOR, BATTERY, LOAD, HVDC_CONVERTER_STATION -> {
                     if (!Double.isNaN(terminal.getP())) {
                         p += terminal.getP();
                     }
-                    break;
-                default:
-                    throw new AssertionError();
+                }
+                default -> throw new AssertionError();
             }
         }
         return p;
@@ -83,25 +73,15 @@ public interface BaseBus extends Bus {
         for (Terminal terminal : getConnectedTerminals()) {
             Connectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
-                case BUSBAR_SECTION:
-                case LINE:
-                case TWO_WINDINGS_TRANSFORMER:
-                case THREE_WINDINGS_TRANSFORMER:
-                case DANGLING_LINE:
-                    // skip
-                    break;
-                case GENERATOR:
-                case BATTERY:
-                case LOAD:
-                case SHUNT_COMPENSATOR:
-                case STATIC_VAR_COMPENSATOR:
-                case HVDC_CONVERTER_STATION:
+                case BUSBAR_SECTION, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, DANGLING_LINE -> {
+                    // Do nothing
+                }
+                case GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, HVDC_CONVERTER_STATION -> {
                     if (!Double.isNaN(terminal.getQ())) {
                         q += terminal.getQ();
                     }
-                    break;
-                default:
-                    throw new AssertionError();
+                }
+                default -> throw new AssertionError();
             }
         }
         return q;
@@ -113,37 +93,23 @@ public interface BaseBus extends Bus {
         for (Terminal terminal : terminals) {
             Connectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
-                case BUSBAR_SECTION:
-                    visitor.visitBusbarSection((BusbarSection) connectable);
-                    break;
-
-                case LINE:
+                case BUSBAR_SECTION -> visitor.visitBusbarSection((BusbarSection) connectable);
+                case LINE -> {
                     Line line = (Line) connectable;
                     visitor.visitLine(line, line.getTerminal1() == terminal ? TwoSides.ONE
-                            : TwoSides.TWO);
-                    break;
-
-                case GENERATOR:
-                    visitor.visitGenerator((Generator) connectable);
-                    break;
-
-                case BATTERY:
-                    visitor.visitBattery((Battery) connectable);
-                    break;
-
-                case SHUNT_COMPENSATOR:
-                    visitor.visitShuntCompensator((ShuntCompensator) connectable);
-                    break;
-
-                case TWO_WINDINGS_TRANSFORMER:
+                        : TwoSides.TWO);
+                }
+                case GENERATOR -> visitor.visitGenerator((Generator) connectable);
+                case BATTERY -> visitor.visitBattery((Battery) connectable);
+                case SHUNT_COMPENSATOR -> visitor.visitShuntCompensator((ShuntCompensator) connectable);
+                case TWO_WINDINGS_TRANSFORMER -> {
                     TwoWindingsTransformer twt = (TwoWindingsTransformer) connectable;
                     visitor.visitTwoWindingsTransformer(twt,
-                            twt.getTerminal1() == terminal
-                                    ? TwoSides.ONE
-                                    : TwoSides.TWO);
-                    break;
-
-                case THREE_WINDINGS_TRANSFORMER:
+                        twt.getTerminal1() == terminal
+                            ? TwoSides.ONE
+                            : TwoSides.TWO);
+                }
+                case THREE_WINDINGS_TRANSFORMER -> {
                     ThreeWindingsTransformer thwt = (ThreeWindingsTransformer) connectable;
                     ThreeSides side;
                     if (thwt.getLeg1().getTerminal() == terminal) {
@@ -154,26 +120,12 @@ public interface BaseBus extends Bus {
                         side = ThreeSides.THREE;
                     }
                     visitor.visitThreeWindingsTransformer(thwt, side);
-                    break;
-
-                case LOAD:
-                    visitor.visitLoad((Load) connectable);
-                    break;
-
-                case DANGLING_LINE:
-                    visitor.visitDanglingLine((DanglingLine) connectable);
-                    break;
-
-                case STATIC_VAR_COMPENSATOR:
-                    visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
-                    break;
-
-                case HVDC_CONVERTER_STATION:
-                    visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
-                    break;
-
-                default:
-                    throw new AssertionError();
+                }
+                case LOAD -> visitor.visitLoad((Load) connectable);
+                case DANGLING_LINE -> visitor.visitDanglingLine((DanglingLine) connectable);
+                case STATIC_VAR_COMPENSATOR -> visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
+                case HVDC_CONVERTER_STATION -> visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
+                default -> throw new AssertionError();
             }
         }
     }

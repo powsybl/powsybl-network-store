@@ -35,16 +35,12 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     }
 
     private LegAttributes getLegAttributes() {
-        switch (side) {
-            case ONE:
-                return attributes.getLeg1();
-            case TWO:
-                return attributes.getLeg2();
-            case THREE:
-                return attributes.getLeg3();
-            default:
-                throw createUnknownSideException();
-        }
+        return switch (side) {
+            case ONE -> attributes.getLeg1();
+            case TWO -> attributes.getLeg2();
+            case THREE -> attributes.getLeg3();
+            default -> throw createUnknownSideException();
+        };
     }
 
     @Override
@@ -121,94 +117,61 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
 
     @Override
     public double getP() {
-        switch (side) {
-            case ONE:
-                return attributes.getP1();
-            case TWO:
-                return attributes.getP2();
-            case THREE:
-                return attributes.getP3();
-            default:
-                throw createUnknownSideException();
-        }
+        return switch (side) {
+            case ONE -> attributes.getP1();
+            case TWO -> attributes.getP2();
+            case THREE -> attributes.getP3();
+            default -> throw createUnknownSideException();
+        };
     }
 
     @Override
     public void setP(double p) {
         switch (side) {
-            case ONE:
-                attributes.setP1(p);
-                break;
-            case TWO:
-                attributes.setP2(p);
-                break;
-            case THREE:
-                attributes.setP3(p);
-                break;
-            default:
-                throw createUnknownSideException();
+            case ONE -> attributes.setP1(p);
+            case TWO -> attributes.setP2(p);
+            case THREE -> attributes.setP3(p);
+            default -> throw createUnknownSideException();
         }
     }
 
     @Override
     public double getQ() {
-        switch (side) {
-            case ONE:
-                return attributes.getQ1();
-            case TWO:
-                return attributes.getQ2();
-            case THREE:
-                return attributes.getQ3();
-            default:
-                throw createUnknownSideException();
-        }
+        return switch (side) {
+            case ONE -> attributes.getQ1();
+            case TWO -> attributes.getQ2();
+            case THREE -> attributes.getQ3();
+            default -> throw createUnknownSideException();
+        };
     }
 
     @Override
     public void setQ(double q) {
         switch (side) {
-            case ONE:
-                attributes.setQ1(q);
-                break;
-            case TWO:
-                attributes.setQ2(q);
-                break;
-            case THREE:
-                attributes.setQ3(q);
-                break;
-            default:
-                throw createUnknownSideException();
+            case ONE -> attributes.setQ1(q);
+            case TWO -> attributes.setQ2(q);
+            case THREE -> attributes.setQ3(q);
+            default -> throw createUnknownSideException();
         }
     }
 
     @Override
     public ConnectablePositionAttributes getPosition() {
-        switch (side) {
-            case ONE:
-                return attributes.getPosition1();
-            case TWO:
-                return attributes.getPosition2();
-            case THREE:
-                return attributes.getPosition3();
-            default:
-                throw createUnknownSideException();
-        }
+        return switch (side) {
+            case ONE -> attributes.getPosition1();
+            case TWO -> attributes.getPosition2();
+            case THREE -> attributes.getPosition3();
+            default -> throw createUnknownSideException();
+        };
     }
 
     @Override
     public void setPosition(ConnectablePositionAttributes position) {
         switch (side) {
-            case ONE:
-                attributes.setPosition1(position);
-                break;
-            case TWO:
-                attributes.setPosition2(position);
-                break;
-            case THREE:
-                attributes.setPosition3(position);
-                break;
-            default:
-                throw createUnknownSideException();
+            case ONE -> attributes.setPosition1(position);
+            case TWO -> attributes.setPosition2(position);
+            case THREE -> attributes.setPosition3(position);
+            default -> throw createUnknownSideException();
         }
     }
 

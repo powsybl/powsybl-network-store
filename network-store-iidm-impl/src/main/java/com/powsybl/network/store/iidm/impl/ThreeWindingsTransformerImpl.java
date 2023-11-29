@@ -357,7 +357,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             case ONE -> leg1.getTerminal();
             case TWO -> leg2.getTerminal();
             case THREE -> leg3.getTerminal();
-            default -> throw new AssertionError();
         };
     }
 

@@ -54,14 +54,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public Terminal getTerminal(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return terminal1;
-            case TWO:
-                return terminal2;
-            default:
-                throw new UnsupportedOperationException();
-        }
+        return switch (side) {
+            case ONE -> terminal1;
+            case TWO -> terminal2;
+        };
     }
 
     @Override

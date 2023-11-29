@@ -475,7 +475,6 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                 ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals, traversalType);
             case BUS_BREAKER ->
                 ((BusBreakerViewImpl) voltageLevel.getBusBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals, traversalType);
-            default -> throw new IllegalStateException("Unknown topology kind: " + topologyKind);
         };
     }
 
