@@ -418,7 +418,6 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return done;
     }
 
-
     /**
      * Disconnect the terminal, using by default the {@link SwitchPredicates} IS_CLOSED_BREAKER.<br/>
      * Depends on the working variant.
