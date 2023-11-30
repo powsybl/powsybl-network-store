@@ -293,7 +293,6 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     /**
      * Try to connect the terminal, using by default the {@link SwitchPredicates} IS_NONFICTIONAL_BREAKER.<br/>
      * Depends on the working variant.
-     * @param isTypeSwitchToOperate Predicate telling if a switch is considered operable. Examples of predicates are available in the class {@link SwitchPredicates}
      * @return true if terminal has been connected, false otherwise
      * @see VariantManager
      */
