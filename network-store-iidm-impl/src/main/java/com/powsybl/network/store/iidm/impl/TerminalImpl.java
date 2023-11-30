@@ -15,7 +15,6 @@ import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AllDirectedPaths;
-import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.AsWeightedGraph;
 
 import java.util.*;
