@@ -52,7 +52,7 @@
         <powsybl-dependencies.version>2023.3.2</powsybl-dependencies.version>
         <powsybl-ws-commons.version>1.7.0</powsybl-ws-commons.version>
         <slf4j.version>2.0.4</slf4j.version>
-        <logback.version>1.4.5</logback.version>
+        <logback.version>1.4.12</logback.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../network-store-client-distributiont/target/site/jacoco-aggregate/jacoco.xml,
