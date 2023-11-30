@@ -149,18 +149,6 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             .collect(Collectors.toSet());
     }
 
-    private static Graph<Integer, Edge> filterSwitches(Graph<Integer, Edge> graph, Predicate<SwitchAttributes> filter) {
-        return new AsSubgraph<>(graph, null, graph.edgeSet()
-            .stream()
-            .filter(edge -> {
-                if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
-                    return filter.test(switchAttributes);
-                }
-                return true;
-            })
-            .collect(Collectors.toSet()));
-    }
-
     private double computeEdgeWeight(Edge edge, Predicate<Switch> openOperableSwitch) {
         if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
             // Get the switch behind the switchAttributes
