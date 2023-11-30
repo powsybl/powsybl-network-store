@@ -237,6 +237,13 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return done;
     }
 
+    /**
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isTypeSwitchToOperate Predicate telling if a switch is considered operable. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
         boolean done = false;
@@ -283,6 +290,13 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return done;
     }
 
+    /**
+     * Try to connect the terminal, using by default the {@link SwitchPredicates} IS_NONFICTIONAL_BREAKER.<br/>
+     * Depends on the working variant.
+     * @param isTypeSwitchToOperate Predicate telling if a switch is considered operable. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
     @Override
     public boolean connect() {
         return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
@@ -352,6 +366,13 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return true;
     }
 
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isSwitchOpenable Predicate telling if a switch is considered openable. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         boolean done = false;
@@ -398,6 +419,13 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return done;
     }
 
+
+    /**
+     * Disconnect the terminal, using by default the {@link SwitchPredicates} IS_CLOSED_BREAKER.<br/>
+     * Depends on the working variant.
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
     @Override
     public boolean disconnect() {
         return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
