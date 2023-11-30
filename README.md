@@ -41,12 +41,12 @@ In your preferred IDE, create a project with following dependencies:
 <dependency>
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-network-store-client</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.7.0</version>
 </dependency>
 <dependency>
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-iidm-test</artifactId>
-    <version>5.1.1</version>
+    <version>6.0.2</version>
 </dependency>
 ```
 
