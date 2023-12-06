@@ -133,7 +133,7 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     private LimitsAttributes activePowerLimits2;
 
     @Schema(description = "Branch status")
-    private String branchStatus;
+    private String operatingStatus;
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;

@@ -9,11 +9,11 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.BranchStatus;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
-import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
+import com.powsybl.network.store.iidm.impl.extensions.OperatingStatusImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
@@ -544,12 +544,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         return extension;
     }
 
-    private <E extends Extension<ThreeWindingsTransformer>> E createBranchStatusExtension() {
+    private <E extends Extension<ThreeWindingsTransformer>> E createOperatingStatusExtension() {
         E extension = null;
         var resource = getResource();
-        String branchStatus = resource.getAttributes().getBranchStatus();
-        if (branchStatus != null) {
-            extension = (E) new BranchStatusImpl(this);
+        String operatingStatus = resource.getAttributes().getOperatingStatus();
+        if (operatingStatus != null) {
+            extension = (E) new OperatingStatusImpl(this);
         }
         return extension;
     }
@@ -561,8 +561,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = createConnectablePositionExtension();
         } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
             extension = createPhaseAngleClock();
-        } else if (type == BranchStatus.class) {
-            extension = createBranchStatusExtension();
+        } else if (type == OperatingStatus.class) {
+            extension = createOperatingStatusExtension();
         } else if (type == CgmesTapChangers.class) {
             extension = createCgmesTapChangers();
         } else {
@@ -578,8 +578,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = createConnectablePositionExtension();
         } else if (name.equals(ThreeWindingsTransformerPhaseAngleClock.NAME)) {
             extension = createPhaseAngleClock();
-        } else if (name.equals(BranchStatus.NAME)) {
-            extension = createBranchStatusExtension();
+        } else if (name.equals(OperatingStatus.NAME)) {
+            extension = createOperatingStatusExtension();
         } else if (name.equals(CgmesTapChangers.NAME)) {
             extension = createCgmesTapChangers();
         } else {
@@ -600,7 +600,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         if (extension != null) {
             result.add(extension);
         }
-        extension = createBranchStatusExtension();
+        extension = createOperatingStatusExtension();
         if (extension != null) {
             result.add(extension);
         }

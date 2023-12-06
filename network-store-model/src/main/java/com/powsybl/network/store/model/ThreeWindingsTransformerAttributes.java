@@ -25,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder, BranchStatusHolder {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder, OperatingStatusHolder {
 
     @Schema(description = "3 windings transformer name")
     private String name;
@@ -92,7 +92,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     private ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock;
 
     @Schema(description = "Branch status")
-    private String branchStatus;
+    private String operatingStatus;
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;

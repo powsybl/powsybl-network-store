@@ -9,14 +9,14 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.extensions.BranchStatus;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class BranchStatusAdderImplProvider<C extends Connectable<C>> implements
-        ExtensionAdderProvider<C, BranchStatus<C>, BranchStatusAdderImpl<C>> {
+public class OperatingStatusAdderImplProvider<C extends Connectable<C>> implements
+        ExtensionAdderProvider<C, OperatingStatus<C>, OperatingStatusAdderImpl<C>> {
 
     @Override
     public String getImplementationName() {
@@ -24,13 +24,13 @@ public class BranchStatusAdderImplProvider<C extends Connectable<C>> implements
     }
 
     @Override
-    public Class<BranchStatusAdderImpl> getAdderClass() {
-        return BranchStatusAdderImpl.class;
+    public Class<OperatingStatusAdderImpl> getAdderClass() {
+        return OperatingStatusAdderImpl.class;
     }
 
     @Override
-    public BranchStatusAdderImpl<C> newAdder(C connectable) {
-        return new BranchStatusAdderImpl<>(connectable);
+    public OperatingStatusAdderImpl<C> newAdder(C connectable) {
+        return new OperatingStatusAdderImpl<>(connectable);
     }
 
 }

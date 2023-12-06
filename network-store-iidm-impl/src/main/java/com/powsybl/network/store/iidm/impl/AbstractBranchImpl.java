@@ -8,10 +8,10 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.BranchStatus;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
-import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
+import com.powsybl.network.store.iidm.impl.extensions.OperatingStatusImpl;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -411,11 +411,11 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         return extension;
     }
 
-    private <E extends Extension<T>> E createBranchStatusExtension() {
+    private <E extends Extension<T>> E createOperatingStatusExtension() {
         E extension = null;
-        String branchStatus = getResource().getAttributes().getBranchStatus();
-        if (branchStatus != null) {
-            extension = (E) new BranchStatusImpl(getBranch());
+        String operatingStatus = getResource().getAttributes().getOperatingStatus();
+        if (operatingStatus != null) {
+            extension = (E) new OperatingStatusImpl(getBranch());
         }
         return extension;
     }
@@ -425,8 +425,8 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         E extension;
         if (type == ConnectablePosition.class) {
             extension = createConnectablePositionExtension();
-        } else if (type == BranchStatus.class) {
-            extension = createBranchStatusExtension();
+        } else if (type == OperatingStatus.class) {
+            extension = createOperatingStatusExtension();
         } else {
             extension = super.getExtension(type);
         }
@@ -438,8 +438,8 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         E extension;
         if (name.equals("position")) {
             extension = createConnectablePositionExtension();
-        } else if (name.equals("branchStatus")) {
-            extension = createBranchStatusExtension();
+        } else if (name.equals("operatingStatus")) {
+            extension = createOperatingStatusExtension();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -453,7 +453,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         if (extension != null) {
             extensions.add(extension);
         }
-        extension = createBranchStatusExtension();
+        extension = createOperatingStatusExtension();
         if (extension != null) {
             extensions.add(extension);
         }
