@@ -594,6 +594,19 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         return extension;
     }
 
+    @Override
+    public <E extends Extension<VoltageLevel>> boolean removeExtension(Class<E> type) {
+        if (type == SlackTerminal.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getSlackTerminal() != null) {
+                resource.getAttributes().setSlackTerminal(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
     public Terminal getTerminal(TerminalRefAttributes tra) {
         return TerminalRefUtils.getTerminal(index, tra);
     }
