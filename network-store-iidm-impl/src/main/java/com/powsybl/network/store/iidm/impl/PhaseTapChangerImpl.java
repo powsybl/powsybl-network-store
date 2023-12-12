@@ -66,7 +66,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     public PhaseTapChangerImpl setRegulating(boolean regulating) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(), parent.getNetwork(), true);
 
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
+        Set<TapChanger<?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating, true);
 
@@ -98,6 +98,11 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     }
 
     @Override
+    public PhaseTapChangerStepsReplacer stepsReplacer() {
+        return new PhaseTapChangerStepsReplacerImpl(this);
+    }
+
+    @Override
     public PhaseTapChangerStep getCurrentStep() {
         var attributes = getAttributes();
         int tapPositionIndex = attributes.getTapPosition() - attributes.getLowTapPosition();
@@ -116,5 +121,12 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     @Override
     public String getMessageHeader() {
         return "phaseTapChanger '" + parent.getTransformer().getId() + "': ";
+    }
+
+    public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
+        AbstractTapChanger.validateStep(step, parent);
+        if (Double.isNaN(step.getAlpha())) {
+            throw new ValidationException(parent, "step alpha is not set");
+        }
     }
 }

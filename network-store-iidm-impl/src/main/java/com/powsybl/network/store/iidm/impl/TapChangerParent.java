@@ -27,8 +27,8 @@ public interface TapChangerParent extends Validable {
 
     String getTapChangerAttribute();
 
-    default Set<TapChanger<?, ?>> getAllTapChangers() {
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
+    default Set<TapChanger<?, ?, ?>> getAllTapChangers() {
+        Set<TapChanger<?, ?, ?>> tapChangers = new HashSet<>();
         RatioTapChanger ratioTapChanger = getRatioTapChanger();
         if (ratioTapChanger != null) {
             tapChangers.add(ratioTapChanger);
