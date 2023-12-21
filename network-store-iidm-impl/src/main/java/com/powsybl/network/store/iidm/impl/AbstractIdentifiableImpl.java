@@ -220,7 +220,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     public String getProperty(String key, String defaultValue) {
         Map<String, String> properties = getResource().getAttributes().getProperties();
-        return properties != null ? properties.getOrDefault(key, defaultValue) : null;
+        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
     }
 
     public Set<String> getPropertyNames() {
