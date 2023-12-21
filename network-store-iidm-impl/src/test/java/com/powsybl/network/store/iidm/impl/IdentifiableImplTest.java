@@ -22,5 +22,7 @@ class IdentifiableImplTest {
         Network network = EurostagTutorialExample1Factory.create();
         var gen = network.getGenerator("GEN");
         assertEquals("def", gen.getProperty("foo", "def"));
+        gen.setProperty("bar", "aaa");
+        assertEquals("def", gen.getProperty("foo", "def")); // properties now exists but there is still no value for foo
     }
 }
