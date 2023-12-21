@@ -33,7 +33,7 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
     }
 
     private CgmesControlAreaAttributes getAttributes(Resource<NetworkAttributes> resource) {
-        return network.getResource().getAttributes().getCgmesControlAreas().getControlAreas().get(index);
+        return resource.getAttributes().getCgmesControlAreas().getControlAreas().get(index);
     }
 
     private CgmesControlAreaAttributes getAttributes() {
@@ -86,6 +86,11 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
     }
 
     @Override
+    public void setNetInterchange(double netInterchange) {
+        network.updateResource(res -> getAttributes(res).setNetInterchange(netInterchange));
+    }
+
+    @Override
     public void add(Terminal terminal) {
         network.updateResource(res -> getAttributes(res).getTerminals().add(TerminalRefUtils.getTerminalRefAttributes(terminal)));
     }
@@ -103,5 +108,15 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
     public void add(Boundary boundary) {
         Terminal terminal = getBoundaryTerminal(boundary);
         network.updateResource(res -> getAttributes(res).getBoundaries().add(TerminalRefUtils.getTerminalRefAttributes(terminal)));
+    }
+
+    @Override
+    public double getPTolerance() {
+        return getAttributes().getPTolerance();
+    }
+
+    @Override
+    public void setPTolerance(double pTolerance) {
+        network.updateResource(res -> getAttributes(res).setPTolerance(pTolerance));
     }
 }
