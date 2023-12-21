@@ -23,9 +23,6 @@ class CgmesTapChangersTest {
     @Test
     void test() {
         Network network = Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
-        for (TwoWindingsTransformer t : network.getTwoWindingsTransformers()) {
-            System.out.println(t.getId());
-        }
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957");
         CgmesTapChangers<TwoWindingsTransformer> cgmesTapChangers = twt.getExtension(CgmesTapChangers.class);
         assertNotNull(cgmesTapChangers.getTapChanger("83cc66dd-8d93-4a2c-8103-f1f5a9cf7e2e"));
