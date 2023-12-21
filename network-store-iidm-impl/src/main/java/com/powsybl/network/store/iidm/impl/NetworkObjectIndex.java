@@ -29,6 +29,8 @@ public class NetworkObjectIndex {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkObjectIndex.class);
 
+    private static final int MAX_GET_IDENTIFIABLE_CALL_COUNT = 10;
+
     private final NetworkStoreClient storeClient;
 
     private NetworkImpl network;
@@ -987,6 +989,8 @@ public class NetworkObjectIndex {
         }
     }
 
+    private Set<String> identifiablesIds;
+
     @SuppressWarnings("unchecked")
     public Identifiable<?> getIdentifiable(String id) {
         Objects.requireNonNull(id);
@@ -1000,6 +1004,15 @@ public class NetworkObjectIndex {
             if (objectCache.isLoaded(id)) {
                 return (Identifiable<?>) objectCache.getOne(id).orElse(null);
             }
+        }
+
+        if (identifiablesIds == null && storeClient.getIdentifiableCallCount(network.getUuid(), workingVariantNum) > MAX_GET_IDENTIFIABLE_CALL_COUNT) {
+            identifiablesIds = new HashSet<>();
+            identifiablesIds.addAll(storeClient.getIdentifiablesIds(network.getUuid(), workingVariantNum));
+        }
+
+        if (identifiablesIds != null && !identifiablesIds.contains(id)) {
+            return null;
         }
 
         // load resource

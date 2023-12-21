@@ -15,6 +15,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -39,6 +41,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private final RestClient restClient;
 
     private final ObjectMapper objectMapper;
+
+    private final Map<Pair<UUID, Integer>, MutableInt> getIdentifiableCallCount = new HashMap<>();
 
     public RestNetworkStoreClient(RestClient restClient) {
         this(restClient, new ObjectMapper());
@@ -778,7 +782,25 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
-        return get("identifiable", "/networks/{networkUuid}/{variantNum}/identifiables/{id}", networkUuid, variantNum, id);
+        Optional<Resource<IdentifiableAttributes>> resource = get("identifiable", "/networks/{networkUuid}/{variantNum}/identifiables/{id}", networkUuid, variantNum, id);
+        getIdentifiableCallCount.computeIfAbsent(Pair.of(networkUuid, variantNum), k -> new MutableInt())
+                .increment();
+        return resource;
+    }
+
+    @Override
+    public int getIdentifiableCallCount(UUID networkUuid, int variantNum) {
+        return getIdentifiableCallCount.getOrDefault(Pair.of(networkUuid, variantNum), new MutableInt()).getValue();
+    }
+
+    @Override
+    public List<String> getIdentifiablesIds(UUID networkUuid, int variantNum) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        List<String> identifiablesIds = restClient.get("/networks/{networkUuid}/{variantNum}/identifiables-ids", new ParameterizedTypeReference<>() {
+        }, networkUuid, variantNum);
+        stopwatch.stop();
+        LOGGER.info("Get identifiables IDs ({}) loaded in {} ms", identifiablesIds.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        return identifiablesIds;
     }
 
     @Override

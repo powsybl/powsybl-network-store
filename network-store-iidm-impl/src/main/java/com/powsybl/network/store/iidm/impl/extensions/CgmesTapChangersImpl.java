@@ -50,7 +50,7 @@ public class CgmesTapChangersImpl<C extends Connectable<C>> extends AbstractExte
                 .stream()
                 .filter(tc -> tc.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new PowsyblException("CGMES tap change '" + id + "' not found"));
+                .orElse(null);
     }
 
     @Override
