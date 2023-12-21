@@ -104,7 +104,7 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
 
     @Override
     public double getP() {
-        throw new AssertionError();
+        return 0;
     }
 
     @Override
@@ -114,7 +114,7 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
 
     @Override
     public double getQ() {
-        throw new AssertionError();
+        return 0;
     }
 
     @Override
