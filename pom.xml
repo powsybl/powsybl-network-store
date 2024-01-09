@@ -55,7 +55,7 @@
         <logback.version>1.4.5</logback.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
-            ../../network-store-client-distributiont/target/site/jacoco-aggregate/jacoco.xml,
+            ../../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
