@@ -147,7 +147,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
         return index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream().map(resource -> resource.getAttributes().getNode())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private static Graph<Integer, Edge> filterSwitches(Graph<Integer, Edge> graph, Predicate<SwitchAttributes> filter) {
@@ -243,63 +243,54 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         // create a graph with only closed switches
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, false, true);
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
+        Integer bbs0 = busbarSectionNodes.iterator().next();
+        for (Integer busbarSectionNode : busbarSectionNodes) {
+            graph.addEdge(bbs0, busbarSectionNode, new Edge(new InternalConnectionAttributes(bbs0, busbarSectionNode)));
+        }
 
         // inspect connectivity of graph without its non fictitious breakers to check if disconnection is possible
         Predicate<SwitchAttributes> isSwitchOpenable = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER && !switchAttributes.isFictitious() && !switchAttributes.isOpen();
-        ConnectivityInspector<Integer, Edge> connectivityInspector
-                = new ConnectivityInspector<>(filterSwitches(graph, isSwitchOpenable.negate()));
+        Graph<Integer, Edge> noOpenableSwitchGraph = filterSwitches(graph, isSwitchOpenable.negate());
+        ConnectivityInspector<Integer, Edge> connectivityInspector = new ConnectivityInspector<>(noOpenableSwitchGraph);
 
         List<Set<Integer>> connectedSets = connectivityInspector.connectedSets();
         if (connectedSets.size() == 1) {
-            // it means that terminal is connected to a busbar section through disconnectors only
+            // it means that terminal is connected to a busbar section through non-openable switches only
             // so there is no way to disconnect the terminal
         } else {
-            // build an aggregated graph where we only keep breakers
-            int aggregatedNodeCount = 0;
-            Graph<Integer, Edge> breakerOnlyGraph = new Pseudograph<>(Edge.class);
-            Map<Integer, Integer> nodeToAggregatedNode = new HashMap<>();
-
+            // build the graph between connected sets where the edges are openable switches
+            Graph<Set<Integer>, Edge> breakerOnlyGraph = new Pseudograph<>(Edge.class);
             for (Set<Integer> connectedSet : connectedSets) {
-                breakerOnlyGraph.addVertex(aggregatedNodeCount);
-                for (int node : connectedSet) {
-                    nodeToAggregatedNode.put(node, aggregatedNodeCount);
-                }
-                aggregatedNodeCount++;
+                breakerOnlyGraph.addVertex(connectedSet);
             }
             for (Edge edge : graph.edgeSet()) {
-                if (edge.getBiConnectable() instanceof SwitchAttributes) {
-                    SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
-                    if (isSwitchOpenable.test(switchAttributes)) {
-                        int node1 = graph.getEdgeSource(edge);
-                        int node2 = graph.getEdgeTarget(edge);
-                        int aggregatedNode1 = nodeToAggregatedNode.get(node1);
-                        int aggregatedNode2 = nodeToAggregatedNode.get(node2);
-                        breakerOnlyGraph.addEdge(aggregatedNode1, aggregatedNode2, edge);
-                    }
+                if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes && isSwitchOpenable.test(switchAttributes)) {
+                    int node1 = graph.getEdgeSource(edge);
+                    int node2 = graph.getEdgeTarget(edge);
+                    Set<Integer> aggregatedNode1 = connectivityInspector.connectedSetOf(node1);
+                    Set<Integer> aggregatedNode2 = connectivityInspector.connectedSetOf(node2);
+                    breakerOnlyGraph.addEdge(aggregatedNode1, aggregatedNode2, edge);
                 }
             }
 
             Set<String> openedSwitches = new HashSet<>();
             // find minimal cuts from terminal to each of the busbar section in the aggregated breaker only graph
             // so that we can open the minimal number of breaker to disconnect the terminal
-            MinimumSTCutAlgorithm<Integer, Edge> minCutAlgo = new EdmondsKarpMFImpl<>(breakerOnlyGraph);
-            for (int busbarSectionNode : busbarSectionNodes) {
-                int aggregatedNode = nodeToAggregatedNode.get(getAttributes().getNode());
-                int busbarSectionAggregatedNode = nodeToAggregatedNode.get(busbarSectionNode);
-                // if that terminal is connected to a busbar section through disconnectors only or that terminal is a busbar section
-                // so there is no way to disconnect the terminal
-                if (aggregatedNode == busbarSectionAggregatedNode) {
-                    continue;
-                }
-                minCutAlgo.calculateMinCut(aggregatedNode, busbarSectionAggregatedNode);
-                for (Edge edge : minCutAlgo.getCutEdges()) {
-                    if (edge.getBiConnectable() instanceof SwitchAttributes) {
-                        SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
-                        switchAttributes.setOpen(true);
-                        index.updateSwitchResource(switchAttributes.getResource());
-                        openedSwitches.add(switchAttributes.getResource().getId());
-                        done = true;
-                    }
+            MinimumSTCutAlgorithm<Set<Integer>, Edge> minCutAlgo = new EdmondsKarpMFImpl<>(breakerOnlyGraph);
+            Set<Integer> aggregatedNode = connectivityInspector.connectedSetOf(getAttributes().getNode());
+            Set<Integer> busbarSectionAggregatedNode = connectivityInspector.connectedSetOf(bbs0);
+            // if that terminal is connected to a busbar section through disconnectors only or that terminal is a busbar section
+            // so there is no way to disconnect the terminal
+            if (aggregatedNode == busbarSectionAggregatedNode) {
+                return false;
+            }
+            minCutAlgo.calculateMinCut(aggregatedNode, busbarSectionAggregatedNode);
+            for (Edge edge : minCutAlgo.getCutEdges()) {
+                if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
+                    switchAttributes.setOpen(true);
+                    index.updateSwitchResource(switchAttributes.getResource());
+                    openedSwitches.add(switchAttributes.getResource().getId());
+                    done = true;
                 }
             }
 
