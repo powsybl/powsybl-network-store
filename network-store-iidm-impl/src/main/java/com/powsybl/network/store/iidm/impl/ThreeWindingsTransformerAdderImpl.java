@@ -244,7 +244,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
     private LegAttributes leg3;
 
     ThreeWindingsTransformerAdderImpl(NetworkObjectIndex index, SubstationImpl substation) {
-        super(index);
+        super(index, substation.getResource().getParentNetwork());
         this.substation = substation;
     }
 
@@ -315,6 +315,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
         Resource<ThreeWindingsTransformerAttributes> resource = Resource.threeWindingsTransformerBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name(getName())
                         .fictitious(isFictitious())

@@ -26,8 +26,8 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
 
     private Terminal regulatingTerminal;
 
-    StaticVarCompensatorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(voltageLevelResource, index);
+    StaticVarCompensatorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, String parentNetwork) {
+        super(voltageLevelResource, index, parentNetwork);
     }
 
     @Override
@@ -80,6 +80,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
         Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(StaticVarCompensatorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

@@ -118,6 +118,11 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             null,
             delegate::getTieLines));
 
+    private final NetworkCollectionIndex<CollectionCache<SubnetworkAttributes>> subnetworkCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+            delegate::getSubnetwork,
+            null,
+            delegate::getSubnetworks));
+
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = new EnumMap<>(ResourceType.class);
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCaches = new EnumMap<>(ResourceType.class);
@@ -144,6 +149,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         networkContainersCaches.put(ResourceType.SUBSTATION, substationsCache);
         networkContainersCaches.put(ResourceType.VOLTAGE_LEVEL, voltageLevelsCache);
         networkContainersCaches.put(ResourceType.TIE_LINE, tieLinesCache);
+        networkContainersCaches.put(ResourceType.SUBNETWORK, subnetworkCache);
     }
 
     @Override
@@ -247,6 +253,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         cloneCollection(configuredBusesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(substationsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(voltageLevelsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(subnetworkCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(networksCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
             networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
 
@@ -916,6 +923,38 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId) {
         delegate.removeConfiguredBuses(networkUuid, variantNum, busesId);
         configuredBusesCache.getCollection(networkUuid, variantNum).removeResources(busesId);
+    }
+
+    @Override
+    public void createSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subNetworkAttributes) {
+        delegate.createSubnetworks(networkUuid, subNetworkAttributes);
+        for (Resource<SubnetworkAttributes> subnetworkResource : subNetworkAttributes) {
+            subnetworkCache.getCollection(networkUuid, subnetworkResource.getVariantNum()).createResource(subnetworkResource);
+        }
+    }
+
+    @Override
+    public List<Resource<SubnetworkAttributes>> getSubnetworks(UUID networkUuid, int variantNum) {
+        return subnetworkCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<SubnetworkAttributes>> getSubnetwork(UUID networkUuid, int variantNum, String subnetworkId) {
+        return subnetworkCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, subnetworkId);
+    }
+
+    @Override
+    public void removeSubnetworks(UUID networkUuid, int variantNum, List<String> subnetworkIds) {
+        delegate.removeSubnetworks(networkUuid, variantNum, subnetworkIds);
+        subnetworkCache.getCollection(networkUuid, variantNum).removeResources(subnetworkIds);
+    }
+
+    @Override
+    public void updateSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subnetworkResources, AttributeFilter attributeFilter) {
+        delegate.updateSubnetworks(networkUuid, subnetworkResources, attributeFilter);
+        for (Resource<SubnetworkAttributes> subnetworkResource : subnetworkResources) {
+            subnetworkCache.getCollection(networkUuid, subnetworkResource.getVariantNum()).updateResource(subnetworkResource);
+        }
     }
 
     @SuppressWarnings("unchecked")

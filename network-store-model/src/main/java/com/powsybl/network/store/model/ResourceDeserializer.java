@@ -65,6 +65,8 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     return ConfiguredBusAttributes.class;
                 case TIE_LINE:
                     return TieLineAttributes.class;
+                case SUBNETWORK:
+                    return SubnetworkAttributes.class;
                 default:
                     throw new IllegalStateException("Unknown resource type: " + type);
             }
@@ -115,6 +117,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         int variantNum = -1;
         Attributes attributes = null;
         AttributeFilter filter = null;
+        String parentNetwork = null;
 
         JsonToken token;
         while ((token = parser.nextToken()) != null) {
@@ -137,6 +140,9 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                         parser.nextValue();
                         attributes = parser.readValueAs(getTypeClass(type, filter));
                         break;
+                    case "parentNetwork":
+                        parentNetwork = parser.nextTextValue();
+                        break;
                     default:
                         break;
                 }
@@ -145,6 +151,6 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
             }
         }
 
-        return Resource.create(type, id, variantNum, filter, attributes);
+        return Resource.create(type, id, parentNetwork, variantNum, filter, attributes);
     }
 }

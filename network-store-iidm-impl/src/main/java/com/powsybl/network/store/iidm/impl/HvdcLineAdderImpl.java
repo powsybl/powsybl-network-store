@@ -32,7 +32,11 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
     private String converterStationId2;
 
     public HvdcLineAdderImpl(NetworkObjectIndex index) {
-        super(index);
+        this(index, index.getNetwork().getId());
+    }
+
+    public HvdcLineAdderImpl(NetworkObjectIndex index, String parentNetwork) {
+        super(index, parentNetwork);
     }
 
     @Override
@@ -97,6 +101,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         Resource<HvdcLineAttributes> resource = Resource.hvdcLineBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(HvdcLineAttributes.builder()
                         .name(getName())
                         .fictitious(isFictitious())

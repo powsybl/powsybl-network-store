@@ -23,7 +23,7 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
     private Integer node;
 
     BusbarSectionAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(index);
+        super(index, voltageLevelResource.getParentNetwork());
         this.voltageLevelResource = voltageLevelResource;
     }
 
@@ -40,6 +40,7 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
         Resource<BusbarSectionAttributes> resource = Resource.busbarSectionBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(BusbarSectionAttributes.builder()
                                                    .voltageLevelId(voltageLevelResource.getId())
                                                    .name(getName())

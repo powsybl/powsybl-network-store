@@ -7,12 +7,13 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.primitives.Ints;
+import com.google.common.collect.Lists;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.extensions.BaseVoltageMapping;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
 import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
@@ -26,22 +27,14 @@ import org.jgrapht.graph.Pseudograph;
 import org.joda.time.DateTime;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
-
+import static com.powsybl.iidm.network.util.TieLineUtil.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttributes> implements Network, Validable {
-
-    private final BusBreakerView busBreakerView = new BusBreakerViewImpl();
-
-    private final BusView busView = new BusViewImpl();
+public class NetworkImpl extends AbstractNetwork<NetworkAttributes> implements Network, Validable {
 
     private final List<NetworkListener> listeners = new ArrayList<>();
 
@@ -95,78 +88,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     public String getIdFromAlias(String alias) {
         Objects.requireNonNull(alias);
         return getIdByAlias().get(alias) == null ? alias : getIdByAlias().get(alias);
-    }
-
-    class BusBreakerViewImpl implements BusBreakerView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return getBusStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
-        }
-
-        @Override
-        public int getBusCount() {
-            return (int) getBusStream().count();
-        }
-
-        @Override
-        public Iterable<Switch> getSwitches() {
-            return getSwitchStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Switch> getSwitchStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
-        }
-
-        @Override
-        public int getSwitchCount() {
-            return (int) getSwitchStream().count();
-        }
-
-        @Override
-        public Bus getBus(String id) {
-            Optional<Bus> busInBusBreakerTopo = index.getConfiguredBus(id).map(Function.identity()); // start search in BB topo
-            return busInBusBreakerTopo.or(() -> getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id)) // fallback to search in NB topo
-                                                                       .filter(Objects::nonNull)
-                                                                       .findFirst())
-                    .orElse(null);
-        }
-    }
-
-    class BusViewImpl implements Network.BusView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return getBusStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
-        }
-
-        @Override
-        public Bus getBus(String id) {
-            return getBusStream().filter(b -> b.getId().equals(id)).findFirst().orElse(null);
-        }
-
-        @Override
-        public Collection<Component> getConnectedComponents() {
-            return getBusStream().map(Bus::getConnectedComponent)
-                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Component::getNum))), ArrayList::new));
-        }
-
-        @Override
-        public Collection<Component> getSynchronousComponents() {
-            return getBusStream().map(Bus::getSynchronousComponent)
-                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Component::getNum))), ArrayList::new));
-        }
     }
 
     public NetworkObjectIndex getIndex() {
@@ -257,29 +178,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public int getSubstationCount() {
         return index.getSubstations().size();
-    }
-
-    @Override
-    public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
-        return getSubstations(Optional.ofNullable(country).map(Country::getName).orElse(null), tsoId, geographicalTags);
-    }
-
-    @Override
-    public Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags) {
-        return getSubstationStream().filter(substation -> {
-            if (country != null && !country.equals(substation.getCountry().map(Country::getName).orElse(""))) {
-                return false;
-            }
-            if (tsoId != null && !tsoId.equals(substation.getTso())) {
-                return false;
-            }
-            for (String tag : geographicalTags) {
-                if (!substation.getGeographicalTags().contains(tag)) {
-                    return false;
-                }
-            }
-            return true;
-        }).collect(Collectors.toList());
     }
 
     @Override
@@ -726,61 +624,184 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public BusBreakerView getBusBreakerView() {
-        return busBreakerView;
-    }
-
-    @Override
-    public BusView getBusView() {
-        return busView;
-    }
-
-    @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
-        throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("Voltage angle limit are not supported in this implementation");
     }
 
     //TODO implement
     @Override
     public Iterable<VoltageAngleLimit> getVoltageAngleLimits() {
-        return new ArrayList<>();
+        throw new UnsupportedOperationException("Voltage angle limit are not supported in this implementation");
     }
 
-    //TODO implement
     @Override
     public Stream<VoltageAngleLimit> getVoltageAngleLimitsStream() {
-        return Stream.empty();
+        throw new UnsupportedOperationException("Voltage angle limit are not supported in this implementation");
     }
 
-    //TODO implement
     @Override
     public VoltageAngleLimit getVoltageAngleLimit(String s) {
-        return null;
+        throw new UnsupportedOperationException("Voltage angle limit are not supported in this implementation");
     }
 
     @Override
-    public Network createSubnetwork(String s, String s1, String s2) {
+    public Collection<Network> getSubnetworks() {
+        return index.getSubnetworks();
+    }
+
+    @Override
+    public Network getSubnetwork(String id) {
+        return index.getSubnetwork(id).orElse(null);
+    }
+
+    @Override
+    public Network createSubnetwork(String subnetworkId, String name, String sourceFormat) {
+        Resource<SubnetworkAttributes> resourceSubNetwork = Resource.subnetwokBuilder()
+                .id(subnetworkId)
+                .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(this.getId())
+                .attributes(SubnetworkAttributes.builder()
+                        .uuid(UUID.randomUUID())
+                        .build())
+                .build();
+        return index.createSubnetwork(resourceSubNetwork);
+    }
+
+    private static void checkIndependentNetwork(Network network) {
+        if (network instanceof SubnetworkImpl) {
+            throw new IllegalArgumentException("The network " + network.getId() + " is already a subnetwork");
+        }
+        if (!network.getSubnetworks().isEmpty()) {
+            throw new IllegalArgumentException("The network " + network.getId() + " already contains subnetworks: not supported");
+        }
+    }
+
+    class DanglingLinePair {
+        String id;
+        String name;
+        String dl1Id;
+        String dl2Id;
+        Map<String, String> aliases;
+        Properties properties = new Properties();
+    }
+
+    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
+        if (dl1 != null) {
+            if (dl1.getPairingKey() != null) {
+                dl1byXnodeCode.get(dl1.getPairingKey()).remove(dl1);
+            }
+            DanglingLinePair l = new DanglingLinePair();
+            l.id = buildMergedId(dl1.getId(), dl2.getId());
+            l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
+            l.dl1Id = dl1.getId();
+            l.dl2Id = dl2.getId();
+            l.aliases = new HashMap<>();
+            // No need to merge properties or aliases because we keep the original dangling lines after merge
+            danglingLinePairs.add(l);
+
+            /*if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
+                ((DanglingLineImpl) dl1).replaceId(l.dl1Id + "_1");
+                ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
+                l.dl1Id = dl1.getId();
+                l.dl2Id = dl2.getId();
+            }*/
+        }
+    }
+
+    private void replaceDanglingLineByTieLine(List<DanglingLinePair> lines) {
+        for (DanglingLinePair danglingLinePair : lines) {
+            TieLine l = newTieLine()
+                    .setId(danglingLinePair.id)
+                    .setEnsureIdUnicity(true)
+                    .setName(danglingLinePair.name)
+                    .setDanglingLine1(danglingLinePair.dl1Id)
+                    .setDanglingLine2(danglingLinePair.dl2Id)
+                    .add();
+            danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+            danglingLinePair.aliases.forEach((alias, type) -> {
+                if (type.isEmpty()) {
+                    l.addAlias(alias);
+                } else {
+                    l.addAlias(alias, type);
+                }
+            });
+        }
+    }
+
+    private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {
+        // Handles the case of creating a subnetwork for itself without duplicating the id
+        String idSubNetwork = parent != original ? original.getId() : Identifiables.getUniqueId(original.getId(), parent.getIndex()::contains);
+        parent.createSubnetwork(idSubNetwork, "", original.getSourceFormat());
+    }
+
+    static Network merge(String id, String name, Network... networks) {
+        if (networks == null || networks.length < 2) {
+            throw new IllegalArgumentException("At least 2 networks are expected");
+        }
+        NetworkImpl mergedNetwork = (NetworkImpl) Network.create(id, networks[0].getSourceFormat());
+        for (Network other : networks) {
+            mergedNetwork.merge(other);
+        }
+
+        return mergedNetwork;
+    }
+
+    private void merge(Network other) {
+        checkIndependentNetwork(other);
+        NetworkImpl otherNetwork = (NetworkImpl) other;
+
+        // this check must not be done on the number of variants but on the size
+        // of the internal variant array because the network can have only
+        // one variant but an internal array with a size greater than one and
+        // some re-usable variants
+        if (getVariantManager().getVariantIds().size() != 1 || otherNetwork.getVariantManager().getVariantIds().size() != 1) {
+            throw new PowsyblException("Merging of multi-variants network is not supported");
+        }
+
+        // try to find dangling lines couples
+        List<DanglingLinePair> lines = new ArrayList<>();
+        Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
+
+        for (DanglingLine dl1 : getDanglingLines(DanglingLineFilter.ALL)) {
+            if (dl1.getPairingKey() != null) {
+                dl1byXnodeCode.computeIfAbsent(dl1.getPairingKey(), k -> new ArrayList<>()).add(dl1);
+            }
+        }
+        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
+            findAndAssociateDanglingLines(dl2, dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
+        }
+
+        // create a subnetwork for the other network
+        createSubnetwork(this, otherNetwork);
+
+        // merge the indexes
+        index.merge(otherNetwork.index);
+
+        replaceDanglingLineByTieLine(lines);
+    }
+
+    public void merge(Network... others) {
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Network detach() {
-        throw new UnsupportedOperationException("TODO");
+        throw new IllegalStateException("This network is already detached.");
     }
 
     @Override
     public boolean isDetachable() {
-        throw new UnsupportedOperationException("TODO");
+        return false;
     }
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
-        return new HashSet<>();
+        return getDanglingLineStream(DanglingLineFilter.UNPAIRED).collect(Collectors.toSet());
     }
 
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        return false;
+        return identifiable.getType() == IdentifiableType.DANGLING_LINE && !((DanglingLine) identifiable).isPaired();
     }
 
     @Override
@@ -805,26 +826,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
         return index.getIdentifiables().stream().filter(clazz::isInstance).map(clazz::cast);
-    }
-
-    @Override
-    public <C extends Connectable> int getConnectableCount(Class<C> clazz) {
-        return Ints.checkedCast(getConnectableStream(clazz).count());
-    }
-
-    @Override
-    public Iterable<Connectable> getConnectables() {
-        return getConnectables(Connectable.class);
-    }
-
-    @Override
-    public Stream<Connectable> getConnectableStream() {
-        return getConnectableStream(Connectable.class);
-    }
-
-    @Override
-    public int getConnectableCount() {
-        return Ints.checkedCast(getConnectableStream().count());
     }
 
     private void update(ComponentType componentType, boolean isBusView) {

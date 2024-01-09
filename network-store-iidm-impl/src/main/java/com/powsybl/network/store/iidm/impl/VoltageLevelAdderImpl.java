@@ -33,7 +33,11 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
     private TopologyKind topologyKind;
 
     VoltageLevelAdderImpl(NetworkObjectIndex index, Resource<SubstationAttributes> substationResource) {
-        super(index);
+        this(index, substationResource, index.getNetwork().getId());
+    }
+
+    VoltageLevelAdderImpl(NetworkObjectIndex index, Resource<SubstationAttributes> substationResource, String parentNetwork) {
+        super(index, parentNetwork);
         this.substationResource = substationResource;
     }
 
@@ -77,6 +81,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         Resource<VoltageLevelAttributes> voltageLevelResource = Resource.voltageLevelBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(VoltageLevelAttributes.builder()
                                                   .substationId(substationResource != null ? substationResource.getId() : null)
                                                   .name(getName())

@@ -272,6 +272,8 @@ public class NetworkObjectIndex {
 
     private final ObjectCache<Bus, ConfiguredBusImpl, ConfiguredBusAttributes> configuredBusCache;
 
+    private final ObjectCache<Network, SubnetworkImpl, SubnetworkAttributes> subnetworkCache;
+
     private final Map<ResourceType, ObjectCache> objectCachesByResourceType = new EnumMap<>(ResourceType.class);
 
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
@@ -385,6 +387,13 @@ public class NetworkObjectIndex {
             id -> storeClient.removeTieLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> TieLineImpl.create(NetworkObjectIndex.this, resource));
 
+        subnetworkCache = new ObjectCache<>(resource -> storeClient.createSubnetworks(network.getUuid(), Collections.singletonList(resource)),
+                id -> storeClient.getSubnetwork(network.getUuid(), workingVariantNum, id),
+                null,
+                () -> storeClient.getSubnetworks(network.getUuid(), workingVariantNum),
+                id -> storeClient.removeSubnetworks(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+                resource -> SubnetworkImpl.createSubnetwork(NetworkObjectIndex.this, resource));
+
         objectCachesByResourceType.put(ResourceType.SUBSTATION, substationCache);
         objectCachesByResourceType.put(ResourceType.VOLTAGE_LEVEL, voltageLevelCache);
         objectCachesByResourceType.put(ResourceType.GENERATOR, generatorCache);
@@ -403,6 +412,7 @@ public class NetworkObjectIndex {
         objectCachesByResourceType.put(ResourceType.DANGLING_LINE, danglingLineCache);
         objectCachesByResourceType.put(ResourceType.CONFIGURED_BUS, configuredBusCache);
         objectCachesByResourceType.put(ResourceType.TIE_LINE, tieLineCache);
+        objectCachesByResourceType.put(ResourceType.SUBNETWORK, subnetworkCache);
     }
 
     public NetworkStoreClient getStoreClient() {
@@ -441,6 +451,7 @@ public class NetworkObjectIndex {
         hvdcLineCache.setResourcesToObjects();
         danglingLineCache.setResourcesToObjects();
         configuredBusCache.setResourcesToObjects();
+        subnetworkCache.setResourcesToObjects();
     }
 
     void notifyCreation(Identifiable<?> identifiable) {
@@ -781,6 +792,22 @@ public class NetworkObjectIndex {
         tieLineCache.remove(tieLineId);
     }
 
+    Optional<SubnetworkImpl> getSubnetwork(String id) {
+        return subnetworkCache.getOne(id);
+    }
+
+    List<Network> getSubnetworks() {
+        return subnetworkCache.getAll().collect(Collectors.toList());
+    }
+
+    SubnetworkImpl createSubnetwork(Resource<SubnetworkAttributes> resource) {
+        return subnetworkCache.create(resource);
+    }
+
+    public void removeSubnetwork(String subnetworkId) {
+        subnetworkCache.remove(subnetworkId);
+    }
+
 
     // shunt compensator
 
@@ -933,6 +960,9 @@ public class NetworkObjectIndex {
                 .addAll(getHvdcLines())
                 .addAll(getDanglingLines())
                 .addAll(getConfiguredBuses())
+                .addAll(getSubnetworks())
+                .addAll(getTieLines())
+                .add(getNetwork())
                 .build();
     }
 
@@ -1110,6 +1140,131 @@ public class NetworkObjectIndex {
             case TIE_LINE:
                 updateTieLineResource((Resource<TieLineAttributes>) resource, attributeFilter);
                 break;
+            case SUBNETWORK:
+                updateSubnetworkResource((Resource<SubnetworkAttributes>) resource, attributeFilter);
+                break;
+            default:
+                throw new IllegalStateException("Unknown resource type: " + resource.getType());
+        }
+    }
+
+    <T extends IdentifiableAttributes> void removeResource(Resource<T> resource) {
+        switch (resource.getType()) {
+            case SUBSTATION:
+                removeSubstation(resource.getId());
+                break;
+            case VOLTAGE_LEVEL:
+                removeVoltageLevel(resource.getId());
+                break;
+            case LOAD:
+                removeLoad(resource.getId());
+                break;
+            case GENERATOR:
+                removeGenerator(resource.getId());
+                break;
+            case BATTERY:
+                removeBattery(resource.getId());
+                break;
+            case SHUNT_COMPENSATOR:
+                removeShuntCompensator(resource.getId());
+                break;
+            case VSC_CONVERTER_STATION:
+                removeVscConverterStation(resource.getId());
+                break;
+            case LCC_CONVERTER_STATION:
+                removeLccConverterStation(resource.getId());
+                break;
+            case STATIC_VAR_COMPENSATOR:
+                removeStaticVarCompensator(resource.getId());
+                break;
+            case BUSBAR_SECTION:
+                removeBusBarSection(resource.getId());
+                break;
+            case SWITCH:
+                removeSwitch(resource.getId());
+                break;
+            case TWO_WINDINGS_TRANSFORMER:
+                removeTwoWindingsTransformer(resource.getId());
+                break;
+            case THREE_WINDINGS_TRANSFORMER:
+                removeThreeWindingsTransformer(resource.getId());
+                break;
+            case LINE:
+                removeLine(resource.getId());
+                break;
+            case HVDC_LINE:
+                removeHvdcLine(resource.getId());
+                break;
+            case DANGLING_LINE:
+                removeDanglingLine(resource.getId());
+                break;
+            case CONFIGURED_BUS:
+                removeConfiguredBus(resource.getId());
+                break;
+            case TIE_LINE:
+                removeTieLine(resource.getId());
+                break;
+            default:
+                throw new IllegalStateException("Unknown resource type: " + resource.getType());
+        }
+    }
+
+    <T extends IdentifiableAttributes> void createResource(Resource<T> resource) {
+        switch (resource.getType()) {
+            case SUBSTATION:
+                createSubstation((Resource<SubstationAttributes>) resource);
+                break;
+            case VOLTAGE_LEVEL:
+                createVoltageLevel((Resource<VoltageLevelAttributes>) resource);
+                break;
+            case LOAD:
+                createLoad((Resource<LoadAttributes>) resource);
+                break;
+            case GENERATOR:
+                createGenerator((Resource<GeneratorAttributes>) resource);
+                break;
+            case BATTERY:
+                createBattery((Resource<BatteryAttributes>) resource);
+                break;
+            case SHUNT_COMPENSATOR:
+                createShuntCompensator((Resource<ShuntCompensatorAttributes>) resource);
+                break;
+            case VSC_CONVERTER_STATION:
+                createVscConverterStation((Resource<VscConverterStationAttributes>) resource);
+                break;
+            case LCC_CONVERTER_STATION:
+                createLccConverterStation((Resource<LccConverterStationAttributes>) resource);
+                break;
+            case STATIC_VAR_COMPENSATOR:
+                createStaticVarCompensator((Resource<StaticVarCompensatorAttributes>) resource);
+                break;
+            case BUSBAR_SECTION:
+                createBusbarSection((Resource<BusbarSectionAttributes>) resource);
+                break;
+            case SWITCH:
+                createSwitch((Resource<SwitchAttributes>) resource);
+                break;
+            case TWO_WINDINGS_TRANSFORMER:
+                createTwoWindingsTransformer((Resource<TwoWindingsTransformerAttributes>) resource);
+                break;
+            case THREE_WINDINGS_TRANSFORMER:
+                createThreeWindingsTransformer((Resource<ThreeWindingsTransformerAttributes>) resource);
+                break;
+            case LINE:
+                createLine((Resource<LineAttributes>) resource);
+                break;
+            case HVDC_LINE:
+                createHvdcLine((Resource<HvdcLineAttributes>) resource);
+                break;
+            case DANGLING_LINE:
+                createDanglingLine((Resource<DanglingLineAttributes>) resource);
+                break;
+            case CONFIGURED_BUS:
+                createConfiguredBus((Resource<ConfiguredBusAttributes>) resource);
+                break;
+            case TIE_LINE:
+                createTieLine((Resource<TieLineAttributes>) resource);
+                break;
             default:
                 throw new IllegalStateException("Unknown resource type: " + resource.getType());
         }
@@ -1197,5 +1352,67 @@ public class NetworkObjectIndex {
 
     void updateBusbarSectionResource(Resource<BusbarSectionAttributes> resource, AttributeFilter attributeFilter) {
         storeClient.updateBusbarSections(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    }
+
+    void updateSubnetworkResource(Resource<SubnetworkAttributes> resource, AttributeFilter attributeFilter) {
+        storeClient.updateSubnetworks(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    }
+
+    void merge(NetworkObjectIndex other) {
+        for (var substationResource : other.substationCache.allResourcesGetter.get()) {
+            this.createSubstation(substationResource);
+        }
+        for (var voltageLevelResource : other.voltageLevelCache.allResourcesGetter.get()) {
+            this.createVoltageLevel(voltageLevelResource);
+        }
+        for (var generatorResource : other.generatorCache.allResourcesGetter.get()) {
+            this.createGenerator(generatorResource);
+        }
+        for (var batteryResource : other.batteryCache.allResourcesGetter.get()) {
+            this.createBattery(batteryResource);
+        }
+        for (var shuntResource : other.shuntCompensatorCache.allResourcesGetter.get()) {
+            this.createShuntCompensator(shuntResource);
+        }
+        for (var vscConverterResource : other.vscConverterStationCache.allResourcesGetter.get()) {
+            this.createVscConverterStation(vscConverterResource);
+        }
+        for (var lccConverterResource : other.lccConverterStationCache.allResourcesGetter.get()) {
+            this.createLccConverterStation(lccConverterResource);
+        }
+        for (var staticVarCompensatorResource : other.staticVarCompensatorCache.allResourcesGetter.get()) {
+            this.createStaticVarCompensator(staticVarCompensatorResource);
+        }
+        for (var loadResource : other.loadCache.allResourcesGetter.get()) {
+            this.createLoad(loadResource);
+        }
+        for (var busBarSectionResource : other.busbarSectionCache.allResourcesGetter.get()) {
+            this.createBusbarSection(busBarSectionResource);
+        }
+        for (var switchResource : other.switchCache.allResourcesGetter.get()) {
+            this.createSwitch(switchResource);
+        }
+        for (var twoWindingsTransformerResource : other.twoWindingsTransformerCache.allResourcesGetter.get()) {
+            this.createTwoWindingsTransformer(twoWindingsTransformerResource);
+        }
+        for (var threeWindingsTransformerResource : other.threeWindingsTransformerCache.allResourcesGetter.get()) {
+            this.createThreeWindingsTransformer(threeWindingsTransformerResource);
+        }
+        for (var lineResource : other.lineCache.allResourcesGetter.get()) {
+            this.createLine(lineResource);
+        }
+        for (var tieLineResource : other.tieLineCache.allResourcesGetter.get()) {
+            this.createTieLine(tieLineResource);
+        }
+        for (var hvdcResource : other.hvdcLineCache.allResourcesGetter.get()) {
+            this.createHvdcLine(hvdcResource);
+        }
+        for (var danglingLineResources : other.danglingLineCache.allResourcesGetter.get()) {
+            this.createDanglingLine(danglingLineResources);
+        }
+        for (var configuredBusResource : other.configuredBusCache.allResourcesGetter.get()) {
+            this.createConfiguredBus(configuredBusResource);
+        }
+
     }
 }

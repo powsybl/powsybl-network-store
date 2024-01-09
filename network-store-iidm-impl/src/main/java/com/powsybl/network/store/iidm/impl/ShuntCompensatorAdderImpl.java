@@ -144,8 +144,8 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
         }
     }
 
-    ShuntCompensatorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(voltageLevelResource, index);
+    ShuntCompensatorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, String parentNetwork) {
+        super(voltageLevelResource, index, parentNetwork);
     }
 
     @Override
@@ -213,6 +213,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
         Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(ShuntCompensatorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

@@ -25,8 +25,8 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
 
     private String connectableBus;
 
-    public AbstractInjectionAdder(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(index);
+    public AbstractInjectionAdder(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, String parentNetwork) {
+        super(index, parentNetwork);
         this.voltageLevelResource = voltageLevelResource;
     }
 

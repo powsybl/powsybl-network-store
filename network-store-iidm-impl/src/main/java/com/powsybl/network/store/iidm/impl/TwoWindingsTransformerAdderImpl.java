@@ -33,7 +33,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     private double ratedS = Double.NaN;
 
     TwoWindingsTransformerAdderImpl(NetworkObjectIndex index, SubstationImpl substation) {
-        super(index);
+        super(index, substation.getResource().getParentNetwork());
         this.substation = substation;
     }
 
@@ -116,6 +116,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         Resource<TwoWindingsTransformerAttributes> resource = Resource.twoWindingsTransformerBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(TwoWindingsTransformerAttributes.builder()
                         .voltageLevelId1(getVoltageLevelId1())
                         .voltageLevelId2(getVoltageLevelId2())

@@ -28,7 +28,11 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
     private final Set<String> geographicalTags = new LinkedHashSet<>();
 
     SubstationAdderImpl(NetworkObjectIndex index) {
-        super(index);
+        super(index, index.getNetwork().getId());
+    }
+
+    SubstationAdderImpl(NetworkObjectIndex index, String parentNetwork) {
+        super(index, parentNetwork);
     }
 
     @Override
@@ -60,6 +64,7 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
 
         Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id(id)
+                .parentNetwork(getParentNetwork())
                 .variantNum(index.getWorkingVariantNum())
                 .attributes(SubstationAttributes.builder()
                                                 .name(getName())

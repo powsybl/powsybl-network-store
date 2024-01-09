@@ -733,4 +733,39 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(0, cachedClient.getConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         server.verify();
     }
+
+    @Test
+    public void testSubnetworkCache() throws IOException {
+        // Two successive tie line retrievals, only the first should send a REST request, the second uses the cache
+        Resource<SubnetworkAttributes> subnetwork = Resource.subnetwokBuilder()
+                .id("Subnetwork1")
+                .attributes(SubnetworkAttributes.builder()
+                        .name("Subnetwork1").build())
+                .build();
+
+        String subnetworkJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(subnetwork)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/subnetworks"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(subnetworkJson, MediaType.APPLICATION_JSON));
+
+        // First time subnetwork retrieval by Id
+        Resource<SubnetworkAttributes> subnetworkAttributesResource = cachedClient.getSubnetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, "Subnetwork1").orElse(null);
+        assertNotNull(subnetworkAttributesResource);
+        assertEquals("Subnetwork1", subnetworkAttributesResource.getAttributes().getName());
+
+        subnetworkAttributesResource.getAttributes().setName("SubnetworkN1");
+
+        // Second time subnetwork retrieval by Id
+        subnetworkAttributesResource = cachedClient.getSubnetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, "Subnetwork1").orElse(null);
+        assertNotNull(subnetworkAttributesResource);
+        assertEquals("SubnetworkN1", subnetworkAttributesResource.getAttributes().getName());
+
+        // Remove component
+        assertEquals(1, cachedClient.getSubnetworks(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        cachedClient.removeSubnetworks(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("Subnetwork1"));
+        assertEquals(0, cachedClient.getSubnetworks(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        server.verify();
+    }
 }

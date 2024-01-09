@@ -23,8 +23,8 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
 
     private double q0 = Double.NaN;
 
-    LoadAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(voltageLevelResource, index);
+    LoadAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, String parentNetwork) {
+        super(voltageLevelResource, index, parentNetwork);
     }
 
     @Override
@@ -58,6 +58,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
         Resource<LoadAttributes> resource = Resource.loadBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(LoadAttributes.builder()
                                           .voltageLevelId(getVoltageLevelResource().getId())
                                           .name(getName())

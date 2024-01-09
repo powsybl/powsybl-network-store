@@ -777,6 +777,31 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void createSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subNetworkResources) {
+        create("subnetwork", "/networks/{networkUuid}/subnetworks", subNetworkResources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<SubnetworkAttributes>> getSubnetworks(UUID networkUuid, int variantNum) {
+        return getAll("subnetwork", "/networks/{networkUuid}/{variantNum}/subnetworks", networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<SubnetworkAttributes>> getSubnetwork(UUID networkUuid, int variantNum, String subnetworkId) {
+        return get("subnetwork", "/networks/{networkUuid}/{variantNum}/subnetworks/{subnetworkId}", networkUuid, variantNum, subnetworkId);
+    }
+
+    @Override
+    public void removeSubnetworks(UUID networkUuid, int variantNum, List<String> subnetworkIds) {
+        removeAll("/networks/{networkUuid}/{variantNum}/subnetworks/{subnetworkId}", networkUuid, variantNum, subnetworkIds);
+    }
+
+    @Override
+    public void updateSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subnetworkResources, AttributeFilter attributeFilter) {
+        updateAll("subnetwork", "/networks/{networkUuid}/subnetworks", subnetworkResources, attributeFilter, networkUuid);
+    }
+
+    @Override
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         return get("identifiable", "/networks/{networkUuid}/{variantNum}/identifiables/{id}", networkUuid, variantNum, id);
     }

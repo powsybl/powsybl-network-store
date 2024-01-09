@@ -13,10 +13,9 @@ import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.joda.time.DateTime;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -42,6 +41,7 @@ public class NetworkFactoryImpl implements NetworkFactory {
                 .variantNum(Resource.INITIAL_VARIANT_NUM)
                 .attributes(NetworkAttributes.builder()
                                              .uuid(networkUuid)
+                                             .subNetworksIds(new HashSet<>())
                                              .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
                                              .caseDate(DateTime.now())
                                              .forecastDistance(0)
@@ -54,11 +54,14 @@ public class NetworkFactoryImpl implements NetworkFactory {
 
     @Override
     public Network merge(String id, Network... networks) {
-        throw new UnsupportedOperationException("TODO");
+        return NetworkImpl.merge(id, id, networks);
     }
 
     @Override
     public Network merge(Network... networks) {
-        throw new UnsupportedOperationException("TODO");
+        String id = Arrays.stream(Objects.requireNonNull(networks))
+                .map(Network::getId)
+                .collect(Collectors.joining("+"));
+        return merge(id, networks);
     }
 }

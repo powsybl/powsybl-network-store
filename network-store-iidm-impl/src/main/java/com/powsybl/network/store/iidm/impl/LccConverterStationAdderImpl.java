@@ -21,8 +21,8 @@ public class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAd
 
     private float powerFactor = Float.NaN;
 
-    LccConverterStationAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(voltageLevelResource, index);
+    LccConverterStationAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, String parentNetwork) {
+        super(voltageLevelResource, index, parentNetwork);
     }
 
     @Override
@@ -40,6 +40,7 @@ public class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         Resource<LccConverterStationAttributes> resource = Resource.lccConverterStationBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
+                .parentNetwork(getParentNetwork())
                 .attributes(LccConverterStationAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

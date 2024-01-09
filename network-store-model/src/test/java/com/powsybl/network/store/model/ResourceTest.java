@@ -38,7 +38,7 @@ public class ResourceTest {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JodaModule());
         String json = objectMapper.writeValueAsString(resource);
-        assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"variantNum\":0,\"attributes\":{\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"fictitious\":false,\"caseDate\":1420070400000,\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}}", json);
+        assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"parentNetwork\":null,\"variantNum\":0,\"attributes\":{\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"fictitious\":false,\"caseDate\":1420070400000,\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}}", json);
         Resource<NetworkAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<NetworkAttributes>>() { });
         assertNotNull(resource2);
         assertEquals("foo", resource2.getId());
@@ -61,7 +61,7 @@ public class ResourceTest {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(resource);
 
-        String jsonRef = "{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"name\":\"SS\",\"fictitious\":false,\"country\":\"FR\",\"tso\":\"RTE\"}}";
+        String jsonRef = "{\"type\":\"SUBSTATION\",\"id\":\"S\",\"parentNetwork\":null,\"variantNum\":0,\"attributes\":{\"name\":\"SS\",\"fictitious\":false,\"country\":\"FR\",\"tso\":\"RTE\"}}";
         assertEquals(jsonRef, json);
 
         Resource<SubstationAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<SubstationAttributes>>() { });

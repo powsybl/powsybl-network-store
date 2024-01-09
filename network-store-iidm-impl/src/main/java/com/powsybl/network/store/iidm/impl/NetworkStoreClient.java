@@ -276,7 +276,6 @@ public interface NetworkStoreClient {
     void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId);
 
     // Tie Lines
-
     void createTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources);
 
     List<Resource<TieLineAttributes>> getTieLines(UUID networkUuid, int variantNum);
@@ -286,6 +285,16 @@ public interface NetworkStoreClient {
     void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId);
 
     void updateTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources, AttributeFilter attributeFilter);
+
+    void createSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subNetworkAttributes);
+
+    List<Resource<SubnetworkAttributes>> getSubnetworks(UUID networkUuid, int variantNum);
+
+    Optional<Resource<SubnetworkAttributes>> getSubnetwork(UUID networkUuid, int variantNum, String subnetworkId);
+
+    void removeSubnetworks(UUID networkUuid, int variantNum, List<String> subnetworkIds);
+
+    void updateSubnetworks(UUID networkUuid, List<Resource<SubnetworkAttributes>> subnetworkResources, AttributeFilter attributeFilter);
 
     Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
 

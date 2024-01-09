@@ -78,7 +78,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return new VoltageLevelAdderImpl(index, getResource());
+        return new VoltageLevelAdderImpl(index, getResource(), getResource().getParentNetwork());
     }
 
     @Override

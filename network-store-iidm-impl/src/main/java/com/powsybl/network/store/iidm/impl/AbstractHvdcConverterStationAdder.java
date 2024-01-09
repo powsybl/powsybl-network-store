@@ -17,8 +17,8 @@ public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcCo
 
     private float lossFactor = Float.NaN;
 
-    AbstractHvdcConverterStationAdder(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        super(voltageLevelResource, index);
+    AbstractHvdcConverterStationAdder(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index, String parentNetwork) {
+        super(voltageLevelResource, index, parentNetwork);
     }
 
     public float getLossFactor() {

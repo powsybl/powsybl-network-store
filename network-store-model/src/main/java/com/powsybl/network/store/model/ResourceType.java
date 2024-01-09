@@ -13,6 +13,7 @@ import java.util.Objects;
  */
 public enum ResourceType {
     NETWORK("Network"),
+    SUBNETWORK("Subnetwork"),
     SUBSTATION("Substation"),
     VOLTAGE_LEVEL("Voltage level"),
     LOAD("Load"),

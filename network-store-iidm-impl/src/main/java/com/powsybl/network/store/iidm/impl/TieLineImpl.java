@@ -74,7 +74,8 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         index.notifyBeforeRemoval(this);
 
         if (updateDanglingLines) {
-            // TODO implement
+            updateDanglingLine(getDanglingLine1());
+            updateDanglingLine(getDanglingLine2());
         }
 
         getDanglingLine1().removeTieLine();
@@ -82,6 +83,24 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         index.removeTieLine(resource.getId());
 
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    private static void updateDanglingLine(DanglingLine danglingLine) {
+        // Only update if we have values
+        if (!Double.isNaN(danglingLine.getBoundary().getP())) {
+            danglingLine.setP0(-danglingLine.getBoundary().getP());
+            if (danglingLine.getGeneration() != null) {
+                // We do not reset regulation if we only have computed a dc load flow
+                danglingLine.getGeneration().setTargetP(0.0);
+            }
+        }
+        if (!Double.isNaN(danglingLine.getBoundary().getQ())) {
+            danglingLine.setQ0(-danglingLine.getBoundary().getQ());
+            if (danglingLine.getGeneration() != null) {
+                // If q values are available a complete ac load flow has been computed, we reset regulation
+                danglingLine.getGeneration().setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
+            }
+        }
     }
 
     @Override
