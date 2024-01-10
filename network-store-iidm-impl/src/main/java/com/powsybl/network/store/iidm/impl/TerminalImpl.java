@@ -149,14 +149,18 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     private double computeEdgeWeight(Edge edge, Predicate<Switch> openOperableSwitch) {
+        return isSwitchOperableAndPresent(edge, openOperableSwitch) ? 1d : 0d;
+    }
+
+    private boolean isSwitchOperableAndPresent(Edge edge, Predicate<Switch> openOperableSwitch) {
         if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
             // Get the switch behind the switchAttributes
             Optional<SwitchImpl> sw = index.getSwitch(switchAttributes.getResource().getId());
 
             // THe weight is 1 if the switch is operable and open, else 0
-            return sw.isPresent() && openOperableSwitch.test(sw.get()) ? 1d : 0d;
+            return sw.isPresent() && openOperableSwitch.test(sw.get());
         } else {
-            return 0d;
+            return false;
         }
     }
 
@@ -197,17 +201,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
             // close all open operable switches on the path
             shortestPath.getEdgeList().stream()
-                .filter(edge -> {
-                    if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
-                        // Get the switch behind the switchAttributes
-                        Optional<SwitchImpl> sw = index.getSwitch(switchAttributes.getResource().getId());
-
-                        // The weight is 1 if the switch is operable and open, else 0
-                        return sw.isPresent() && openOperableSwitch.test(sw.get());
-                    } else {
-                        return false;
-                    }
-                })
+                .filter(edge -> isSwitchOperableAndPresent(edge, openOperableSwitch))
                 .forEach(edge -> {
                     if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
                         switchAttributes.setOpen(false);
