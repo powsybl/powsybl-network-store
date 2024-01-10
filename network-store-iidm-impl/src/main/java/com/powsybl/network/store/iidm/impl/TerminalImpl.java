@@ -202,7 +202,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                         // Get the switch behind the switchAttributes
                         Optional<SwitchImpl> sw = index.getSwitch(switchAttributes.getResource().getId());
 
-                        // THe weight is 1 if the switch is operable and open, else 0
+                        // The weight is 1 if the switch is operable and open, else 0
                         return sw.isPresent() && openOperableSwitch.test(sw.get());
                     } else {
                         return false;
