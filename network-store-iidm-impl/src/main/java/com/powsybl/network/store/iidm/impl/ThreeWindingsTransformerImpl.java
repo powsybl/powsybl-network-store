@@ -424,18 +424,18 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public boolean checkPermanentLimit(ThreeSides side, float limitReduction, LimitType limitType) {
-        return LimitViolationUtils.checkPermanentLimit(this, side, limitReduction, limitType);
+    public boolean checkPermanentLimit(ThreeSides side, float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, side, limitReduction, type);
     }
 
     @Override
-    public boolean checkPermanentLimit(ThreeSides side, LimitType limitType) {
-        return checkPermanentLimit(side, 1f, limitType);
+    public boolean checkPermanentLimit(ThreeSides side, LimitType type) {
+        return checkPermanentLimit(side, 1f, type);
     }
 
     @Override
-    public boolean checkPermanentLimit1(float limitReduction, LimitType limitType) {
-        return checkPermanentLimit(ThreeSides.ONE, limitReduction, limitType);
+    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
+        return checkPermanentLimit(ThreeSides.ONE, limitReduction, type);
     }
 
     @Override
