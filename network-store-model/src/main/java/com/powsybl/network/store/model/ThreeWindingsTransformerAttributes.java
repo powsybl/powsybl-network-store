@@ -91,7 +91,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @Schema(description = "Phase angle clock for leg 2 and 3")
     private ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock;
 
-    @Schema(description = "Branch status")
+    @Schema(description = "Operating status")
     private String operatingStatus;
 
     @Schema(description = "CGMES tap changer attributes list")
