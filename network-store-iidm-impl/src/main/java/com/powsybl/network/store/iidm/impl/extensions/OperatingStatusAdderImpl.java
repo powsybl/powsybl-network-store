@@ -31,7 +31,7 @@ public class OperatingStatusAdderImpl<C extends Connectable<C>>
     protected OperatingStatus<C> createExtension(C extendable) {
         ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> {
             if (!(res.getAttributes() instanceof OperatingStatusHolder)) {
-                throw new IllegalStateException("Not a branch status holder");
+                throw new IllegalStateException("Not an operating status holder");
             }
             ((OperatingStatusHolder) res.getAttributes()).setOperatingStatus(status.name());
         });
