@@ -48,6 +48,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
+        this.reporterContext = new SimpleReporterContext();
         index.setNetwork(this);
     }
 
