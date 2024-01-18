@@ -8,7 +8,6 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.PhaseTapChangerStepsReplacer;
-import com.powsybl.iidm.network.PhaseTapChangerStepsReplacerStepAdder;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 
 /**
@@ -16,7 +15,7 @@ import com.powsybl.network.store.model.TapChangerStepAttributes;
  */
 public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsReplacer<PhaseTapChangerStepsReplacerImpl> implements PhaseTapChangerStepsReplacer {
 
-    class StepAdderImpl implements PhaseTapChangerStepsReplacerStepAdder {
+    class StepAdderImpl implements PhaseTapChangerStepsReplacer.StepAdder {
 
         private double alpha = Double.NaN;
 
@@ -31,37 +30,37 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
         private double b = 0.0;
 
         @Override
-        public PhaseTapChangerStepsReplacerStepAdder setAlpha(double alpha) {
+        public PhaseTapChangerStepsReplacer.StepAdder setAlpha(double alpha) {
             this.alpha = alpha;
             return this;
         }
 
         @Override
-        public PhaseTapChangerStepsReplacerStepAdder setRho(double rho) {
+        public PhaseTapChangerStepsReplacer.StepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public PhaseTapChangerStepsReplacerStepAdder setR(double r) {
+        public PhaseTapChangerStepsReplacer.StepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public PhaseTapChangerStepsReplacerStepAdder setX(double x) {
+        public PhaseTapChangerStepsReplacer.StepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public PhaseTapChangerStepsReplacerStepAdder setG(double g) {
+        public PhaseTapChangerStepsReplacer.StepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public PhaseTapChangerStepsReplacerStepAdder setB(double b) {
+        public PhaseTapChangerStepsReplacer.StepAdder setB(double b) {
             this.b = b;
             return this;
         }
@@ -88,7 +87,7 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
     }
 
     @Override
-    public PhaseTapChangerStepsReplacerStepAdder beginStep() {
+    public PhaseTapChangerStepsReplacer.StepAdder beginStep() {
         return new StepAdderImpl();
     }
 }

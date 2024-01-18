@@ -34,7 +34,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private double targetV = Double.NaN;
 
-    class StepAdderImpl implements RatioTapChangerAdderStepAdder {
+    class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
 
         private double rho = Double.NaN;
 
@@ -47,31 +47,31 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         private double b = 0;
 
         @Override
-        public RatioTapChangerAdderStepAdder setRho(double rho) {
+        public RatioTapChangerAdder.StepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public RatioTapChangerAdderStepAdder setR(double r) {
+        public RatioTapChangerAdder.StepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public RatioTapChangerAdderStepAdder setX(double x) {
+        public RatioTapChangerAdder.StepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public RatioTapChangerAdderStepAdder setG(double g) {
+        public RatioTapChangerAdder.StepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public RatioTapChangerAdderStepAdder setB(double b) {
+        public RatioTapChangerAdder.StepAdder setB(double b) {
             this.b = b;
             return this;
         }
@@ -135,7 +135,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
     }
 
     @Override
-    public RatioTapChangerAdderStepAdder beginStep() {
+    public RatioTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();
     }
 
@@ -161,7 +161,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, targetV, index.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
 
-        Set<TapChanger<?, ?, ?>> tapChangers = new HashSet<>();
+        Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
         tapChangers.addAll(tapChangerParent.getAllTapChangers());
         tapChangers.remove(tapChangerParent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, true);
