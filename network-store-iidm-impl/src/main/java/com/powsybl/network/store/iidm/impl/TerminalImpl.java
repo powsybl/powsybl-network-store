@@ -112,7 +112,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     @Override
     public Terminal setP(double p) {
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
-            throw new ValidationException(this, "cannot set active power on a busbar section");
+            throw new ValidationException(this, " cannot set active power on a busbar section");
         }
         getAbstractIdentifiable().updateResource(r -> getAttributes().setP(p), AttributeFilter.SV);
         return this;
@@ -126,7 +126,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     @Override
     public Terminal setQ(double q) {
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
-            throw new ValidationException(this, "cannot set reactive power on a busbar section");
+            throw new ValidationException(this, " cannot set reactive power on a busbar section");
         }
         getAbstractIdentifiable().updateResource(r -> getAttributes().setQ(q), AttributeFilter.SV);
         return this;
