@@ -7,6 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,9 @@ public class RestClientImpl implements RestClient {
     }
 
     private static ObjectMapper createObjectMapper() {
-        return new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper;
     }
 
     private static MappingJackson2HttpMessageConverter createMapping() {
