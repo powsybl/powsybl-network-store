@@ -191,7 +191,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         List<GraphPath<Integer, Edge>> allPaths = allDirectedPaths.getAllPaths(Set.of(node), busbarSectionNodes, true, null);
 
         // Sort the paths by weight then by length
-        allPaths.sort(Comparator.comparingDouble((GraphPath<Integer, Edge> path) -> path.getWeight()).thenComparingInt(GraphPath::getLength));
+        allPaths.sort(Comparator.comparingDouble(GraphPath<Integer, Edge>::getWeight).thenComparingInt(GraphPath::getLength));
 
         // Close the shortest path
         Set<String> closedSwitches = new HashSet<>();
