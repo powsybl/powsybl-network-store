@@ -7,7 +7,7 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
 import com.powsybl.network.store.model.OperatingStatusHolder;
@@ -18,7 +18,7 @@ import com.powsybl.network.store.model.OperatingStatusHolder;
 public class OperatingStatusImpl<I extends Identifiable<I>> extends AbstractExtension<I> implements OperatingStatus<I> {
 
     public OperatingStatusImpl(I identifiable) {
-        super(connectable);
+        super(identifiable);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class OperatingStatusImpl<I extends Identifiable<I>> extends AbstractExte
     }
 
     @Override
-    public OperatingStatus<C> setStatus(Status status) {
+    public OperatingStatus<I> setStatus(Status status) {
         ((AbstractIdentifiableImpl<?, ?>) getExtendable()).updateResource(res -> ((OperatingStatusHolder) res.getAttributes()).setOperatingStatus(status.name()));
         return this;
     }

@@ -7,7 +7,7 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
-import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
@@ -24,22 +24,22 @@ public class OperatingStatusAdderImpl<I extends Identifiable<I>>
     private OperatingStatus.Status status = OperatingStatus.Status.IN_OPERATION;
 
     protected OperatingStatusAdderImpl(I identifiable) {
-        super(extendable);
+        super(identifiable);
     }
 
     @Override
     protected OperatingStatus<I> createExtension(I identifiable) {
-        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> {
+        ((AbstractIdentifiableImpl<?, ?>) identifiable).updateResource(res -> {
             if (!(res.getAttributes() instanceof OperatingStatusHolder)) {
                 throw new IllegalStateException("Not an operating status holder");
             }
             ((OperatingStatusHolder) res.getAttributes()).setOperatingStatus(status.name());
         });
-        return new OperatingStatusImpl<>(extendable);
+        return new OperatingStatusImpl<>(identifiable);
     }
 
     @Override
-    public OperatingStatusAdder<C> withStatus(OperatingStatus.Status status) {
+    public OperatingStatusAdder<I> withStatus(OperatingStatus.Status status) {
         this.status = Objects.requireNonNull(status);
         return this;
     }
