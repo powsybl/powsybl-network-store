@@ -6,9 +6,14 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
+import com.powsybl.network.store.iidm.impl.extensions.OperatingStatusImpl;
 import com.powsybl.network.store.model.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -436,5 +441,48 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         var resource = getResource();
         return Optional.ofNullable(resource.getAttributes().getTieLineId())
                 .flatMap(index::getTieLine);
+    }
+
+    private <E extends Extension<DanglingLine>> E createOperatingStatusExtension() {
+        E extension = null;
+        var resource = getResource();
+        String operatingStatus = resource.getAttributes().getOperatingStatus();
+        if (operatingStatus != null) {
+            extension = (E) new OperatingStatusImpl<>(this);
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<DanglingLine>> E getExtension(Class<? super E> type) {
+        E extension;
+        if (type == OperatingStatus.class) {
+            extension = createOperatingStatusExtension();
+        } else {
+            extension = super.getExtension(type);
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<DanglingLine>> E getExtensionByName(String name) {
+        E extension;
+        if (name.equals(OperatingStatus.NAME)) {
+            extension = createOperatingStatusExtension();
+        } else {
+            extension = super.getExtensionByName(name);
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<DanglingLine>> Collection<E> getExtensions() {
+        Collection<E> superExtensions = super.getExtensions();
+        Collection<E> result = new ArrayList<>(superExtensions);
+        E extension = createOperatingStatusExtension();
+        if (extension != null) {
+            result.add(extension);
+        }
+        return result;
     }
 }

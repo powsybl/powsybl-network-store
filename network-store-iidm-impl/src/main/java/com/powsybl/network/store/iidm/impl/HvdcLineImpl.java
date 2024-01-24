@@ -13,8 +13,10 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.network.store.iidm.impl.extensions.HvdcAngleDroopActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.HvdcOperatorActivePowerRangeImpl;
+import com.powsybl.network.store.iidm.impl.extensions.OperatingStatusImpl;
 import com.powsybl.network.store.model.HvdcAngleDroopActivePowerControlAttributes;
 import com.powsybl.network.store.model.HvdcLineAttributes;
 import com.powsybl.network.store.model.HvdcOperatorActivePowerRangeAttributes;
@@ -158,6 +160,10 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         if (extension != null) {
             extensions.add(extension);
         }
+        extension = createOperatingStatusExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
         return extensions;
     }
 
@@ -168,6 +174,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
             return createHvdcAngleDroopActivePowerControl();
         } else if (type == HvdcOperatorActivePowerRange.class) {
             return createHvdcOperatorActivePowerRange();
+        } else if (type == OperatingStatus.class) {
+            return createOperatingStatusExtension();
         }
         return super.getExtension(type);
     }
@@ -179,6 +187,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
             return createHvdcAngleDroopActivePowerControl();
         } else if (name.equals("hvdcOperatorActivePowerRange")) {
             return createHvdcOperatorActivePowerRange();
+        } else if (name.equals(OperatingStatus.NAME)) {
+            return createOperatingStatusExtension();
         }
         return super.getExtensionByName(name);
     }
@@ -199,6 +209,16 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         HvdcOperatorActivePowerRangeAttributes attributes = resource.getAttributes().getHvdcOperatorActivePowerRange();
         if (attributes != null) {
             extension = (E) new HvdcOperatorActivePowerRangeImpl(this);
+        }
+        return extension;
+    }
+
+    private <E extends Extension<HvdcLine>> E createOperatingStatusExtension() {
+        E extension = null;
+        var resource = getResource();
+        String operatingStatus = resource.getAttributes().getOperatingStatus();
+        if (operatingStatus != null) {
+            extension = (E) new OperatingStatusImpl<>(this);
         }
         return extension;
     }

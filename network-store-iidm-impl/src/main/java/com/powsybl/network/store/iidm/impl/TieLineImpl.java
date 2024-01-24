@@ -7,13 +7,19 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.TieLineUtil;
+import com.powsybl.network.store.iidm.impl.extensions.OperatingStatusImpl;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TieLineAttributes;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -403,5 +409,48 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);
+    }
+
+    private <E extends Extension<TieLine>> E createOperatingStatusExtension() {
+        E extension = null;
+        var resource = getResource();
+        String operatingStatus = resource.getAttributes().getOperatingStatus();
+        if (operatingStatus != null) {
+            extension = (E) new OperatingStatusImpl<>(this);
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<TieLine>> E getExtension(Class<? super E> type) {
+        E extension;
+        if (type == OperatingStatus.class) {
+            extension = createOperatingStatusExtension();
+        } else {
+            extension = super.getExtension(type);
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<TieLine>> E getExtensionByName(String name) {
+        E extension;
+        if (name.equals(OperatingStatus.NAME)) {
+            extension = createOperatingStatusExtension();
+        } else {
+            extension = super.getExtensionByName(name);
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<TieLine>> Collection<E> getExtensions() {
+        Collection<E> superExtensions = super.getExtensions();
+        Collection<E> result = new ArrayList<>(superExtensions);
+        E extension = createOperatingStatusExtension();
+        if (extension != null) {
+            result.add(extension);
+        }
+        return result;
     }
 }
