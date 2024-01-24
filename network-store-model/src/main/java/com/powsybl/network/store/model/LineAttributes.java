@@ -123,6 +123,6 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @Schema(description = "Active power limit side 2")
     private LimitsAttributes activePowerLimits2;
 
-    @Schema(description = "Branch status")
+    @Schema(description = "Operating status")
     private String operatingStatus;
 }
