@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class OperatingStatusAdderImpl<C extends Connectable<C>>
+public class OperatingStatusAdderImpl<I extends Identifiable<I>>
         extends AbstractExtensionAdder<C, OperatingStatus<C>> implements OperatingStatusAdder<C> {
 
     private OperatingStatus.Status status = OperatingStatus.Status.IN_OPERATION;
