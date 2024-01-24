@@ -19,16 +19,16 @@ import java.util.Objects;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 public class OperatingStatusAdderImpl<I extends Identifiable<I>>
-        extends AbstractExtensionAdder<C, OperatingStatus<C>> implements OperatingStatusAdder<C> {
+        extends AbstractExtensionAdder<I, OperatingStatus<I>> implements OperatingStatusAdder<I> {
 
     private OperatingStatus.Status status = OperatingStatus.Status.IN_OPERATION;
 
-    protected OperatingStatusAdderImpl(C extendable) {
+    protected OperatingStatusAdderImpl(I identifiable) {
         super(extendable);
     }
 
     @Override
-    protected OperatingStatus<C> createExtension(C extendable) {
+    protected OperatingStatus<I> createExtension(I identifiable) {
         ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> {
             if (!(res.getAttributes() instanceof OperatingStatusHolder)) {
                 throw new IllegalStateException("Not an operating status holder");

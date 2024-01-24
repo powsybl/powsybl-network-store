@@ -15,8 +15,8 @@ import com.powsybl.iidm.network.extensions.OperatingStatus;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class OperatingStatusAdderImplProvider<C extends Connectable<C>> implements
-        ExtensionAdderProvider<C, OperatingStatus<C>, OperatingStatusAdderImpl<C>> {
+public class OperatingStatusAdderImplProvider<I extends Identifiable<I>> implements
+        ExtensionAdderProvider<I, OperatingStatus<I>, OperatingStatusAdderImpl<I>> {
 
     @Override
     public String getImplementationName() {
@@ -29,8 +29,8 @@ public class OperatingStatusAdderImplProvider<C extends Connectable<C>> implemen
     }
 
     @Override
-    public OperatingStatusAdderImpl<C> newAdder(C connectable) {
-        return new OperatingStatusAdderImpl<>(connectable);
+    public OperatingStatusAdderImpl<C> newAdder(I identifiable) {
+        return new OperatingStatusAdderImpl<>(identifiable);
     }
 
 }

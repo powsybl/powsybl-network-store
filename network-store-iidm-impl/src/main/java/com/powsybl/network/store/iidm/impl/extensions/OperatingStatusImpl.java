@@ -15,9 +15,9 @@ import com.powsybl.network.store.model.OperatingStatusHolder;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class OperatingStatusImpl<C extends Connectable<C>> extends AbstractExtension<C> implements OperatingStatus<C> {
+public class OperatingStatusImpl<I extends Identifiable<I>> extends AbstractExtension<I> implements OperatingStatus<I> {
 
-    public OperatingStatusImpl(C connectable) {
+    public OperatingStatusImpl(I identifiable) {
         super(connectable);
     }
 
