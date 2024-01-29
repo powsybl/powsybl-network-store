@@ -7,29 +7,29 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.extensions.BranchStatus;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
-import com.powsybl.network.store.model.BranchStatusHolder;
+import com.powsybl.network.store.model.OperatingStatusHolder;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class BranchStatusImpl<C extends Connectable<C>> extends AbstractExtension<C> implements BranchStatus<C> {
+public class OperatingStatusImpl<I extends Identifiable<I>> extends AbstractExtension<I> implements OperatingStatus<I> {
 
-    public BranchStatusImpl(C connectable) {
-        super(connectable);
+    public OperatingStatusImpl(I identifiable) {
+        super(identifiable);
     }
 
     @Override
     public Status getStatus() {
         var resource = ((AbstractIdentifiableImpl<?, ?>) getExtendable()).getResource();
-        return Status.valueOf(((BranchStatusHolder) resource.getAttributes()).getBranchStatus());
+        return Status.valueOf(((OperatingStatusHolder) resource.getAttributes()).getOperatingStatus());
     }
 
     @Override
-    public BranchStatus<C> setStatus(Status status) {
-        ((AbstractIdentifiableImpl<?, ?>) getExtendable()).updateResource(res -> ((BranchStatusHolder) res.getAttributes()).setBranchStatus(status.name()));
+    public OperatingStatus<I> setStatus(Status status) {
+        ((AbstractIdentifiableImpl<?, ?>) getExtendable()).updateResource(res -> ((OperatingStatusHolder) res.getAttributes()).setOperatingStatus(status.name()));
         return this;
     }
 }

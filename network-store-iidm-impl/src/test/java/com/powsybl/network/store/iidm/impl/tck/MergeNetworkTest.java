@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractMergeNetworkTest;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -104,28 +103,28 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
         // FIXME
     }
 
-    @Test
-    void failMergeOnlyOneNetwork() {
+    @Override
+    public void failMergeOnlyOneNetwork() {
         // FIXME
     }
 
-    @Test
-    void failMergeOnSubnetworks() {
+    @Override
+    public void failMergeOnSubnetworks() {
         // FIXME
     }
 
-    @Test
-    void failMergeSubnetworks() {
+    @Override
+    public void failMergeSubnetworks() {
         // FIXME
     }
 
-    @Test
-    void failMergeContainingSubnetworks() {
+    @Override
+    public void failMergeContainingSubnetworks() {
         // FIXME
     }
 
-    @Test
-    void testNoEmptyAdditionalSubnetworkIsCreated() {
+    @Override
+    public void testNoEmptyAdditionalSubnetworkIsCreated() {
         // FIXME
     }
 
