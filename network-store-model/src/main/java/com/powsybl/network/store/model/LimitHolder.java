@@ -22,19 +22,12 @@ public interface LimitHolder {
     String EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE = "Unknown temporary limit type";
 
     default LimitsAttributes getLimits(LimitType type, int side) {
-        switch (type) {
-            case CURRENT:
-                return getCurrentLimits(side);
-
-            case APPARENT_POWER:
-                return getApparentPowerLimits(side);
-
-            case ACTIVE_POWER:
-                return getActivePowerLimits(side);
-
-            default:
-                throw new IllegalArgumentException(EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE);
-        }
+        return switch (type) {
+            case CURRENT -> getCurrentLimits(side);
+            case APPARENT_POWER -> getApparentPowerLimits(side);
+            case ACTIVE_POWER -> getActivePowerLimits(side);
+            default -> throw new IllegalArgumentException(EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE);
+        };
     }
 
     LimitsAttributes getCurrentLimits(int side);
@@ -45,20 +38,10 @@ public interface LimitHolder {
 
     default void setLimits(LimitType type, int side, LimitsAttributes limits) {
         switch (type) {
-            case CURRENT:
-                setCurrentLimits(side, limits);
-                break;
-
-            case APPARENT_POWER:
-                setApparentPowerLimits(side, limits);
-                break;
-
-            case ACTIVE_POWER:
-                setActivePowerLimits(side, limits);
-                break;
-
-            default:
-                throw new IllegalArgumentException(EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE);
+            case CURRENT -> setCurrentLimits(side, limits);
+            case APPARENT_POWER -> setApparentPowerLimits(side, limits);
+            case ACTIVE_POWER -> setActivePowerLimits(side, limits);
+            default -> throw new IllegalArgumentException(EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE);
         }
     }
 

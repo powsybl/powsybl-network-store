@@ -67,6 +67,6 @@ public class BoundaryTest {
         assertEquals(430.1, boundary2.getV(), EPS1);
         assertEquals(0.1, boundary2.getAngle(), EPS2);
         //assertSame(tieLine.getDanglingLine2(), boundary2.getConnectable());
-        //assertEquals(Branch.Side.TWO, boundary2.getSide());
+        //assertEquals(TwoSides.TWO, boundary2.getSide());
     }
 }

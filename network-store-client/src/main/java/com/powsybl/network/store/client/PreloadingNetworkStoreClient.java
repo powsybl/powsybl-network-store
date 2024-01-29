@@ -65,62 +65,27 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private void loadToCache(ResourceType resourceType, UUID networkUuid, int variantNum) {
         switch (resourceType) {
-            case SUBSTATION:
-                delegate.getSubstations(networkUuid, variantNum);
-                break;
-            case VOLTAGE_LEVEL:
-                delegate.getVoltageLevels(networkUuid, variantNum);
-                break;
-            case LOAD:
-                delegate.getLoads(networkUuid, variantNum);
-                break;
-            case GENERATOR:
-                delegate.getGenerators(networkUuid, variantNum);
-                break;
-            case BATTERY:
-                delegate.getBatteries(networkUuid, variantNum);
-                break;
-            case SHUNT_COMPENSATOR:
-                delegate.getShuntCompensators(networkUuid, variantNum);
-                break;
-            case VSC_CONVERTER_STATION:
-                delegate.getVscConverterStations(networkUuid, variantNum);
-                break;
-            case LCC_CONVERTER_STATION:
-                delegate.getLccConverterStations(networkUuid, variantNum);
-                break;
-            case STATIC_VAR_COMPENSATOR:
-                delegate.getStaticVarCompensators(networkUuid, variantNum);
-                break;
-            case BUSBAR_SECTION:
-                delegate.getBusbarSections(networkUuid, variantNum);
-                break;
-            case SWITCH:
-                delegate.getSwitches(networkUuid, variantNum);
-                break;
-            case TWO_WINDINGS_TRANSFORMER:
-                delegate.getTwoWindingsTransformers(networkUuid, variantNum);
-                break;
-            case THREE_WINDINGS_TRANSFORMER:
-                delegate.getThreeWindingsTransformers(networkUuid, variantNum);
-                break;
-            case LINE:
-                delegate.getLines(networkUuid, variantNum);
-                break;
-            case HVDC_LINE:
-                delegate.getHvdcLines(networkUuid, variantNum);
-                break;
-            case DANGLING_LINE:
-                delegate.getDanglingLines(networkUuid, variantNum);
-                break;
-            case CONFIGURED_BUS:
-                delegate.getConfiguredBuses(networkUuid, variantNum);
-                break;
-            case TIE_LINE:
-                delegate.getTieLines(networkUuid, variantNum);
-                break;
-            default:
-                break;
+            case SUBSTATION -> delegate.getSubstations(networkUuid, variantNum);
+            case VOLTAGE_LEVEL -> delegate.getVoltageLevels(networkUuid, variantNum);
+            case LOAD -> delegate.getLoads(networkUuid, variantNum);
+            case GENERATOR -> delegate.getGenerators(networkUuid, variantNum);
+            case BATTERY -> delegate.getBatteries(networkUuid, variantNum);
+            case SHUNT_COMPENSATOR -> delegate.getShuntCompensators(networkUuid, variantNum);
+            case VSC_CONVERTER_STATION -> delegate.getVscConverterStations(networkUuid, variantNum);
+            case LCC_CONVERTER_STATION -> delegate.getLccConverterStations(networkUuid, variantNum);
+            case STATIC_VAR_COMPENSATOR -> delegate.getStaticVarCompensators(networkUuid, variantNum);
+            case BUSBAR_SECTION -> delegate.getBusbarSections(networkUuid, variantNum);
+            case SWITCH -> delegate.getSwitches(networkUuid, variantNum);
+            case TWO_WINDINGS_TRANSFORMER -> delegate.getTwoWindingsTransformers(networkUuid, variantNum);
+            case THREE_WINDINGS_TRANSFORMER -> delegate.getThreeWindingsTransformers(networkUuid, variantNum);
+            case LINE -> delegate.getLines(networkUuid, variantNum);
+            case HVDC_LINE -> delegate.getHvdcLines(networkUuid, variantNum);
+            case DANGLING_LINE -> delegate.getDanglingLines(networkUuid, variantNum);
+            case CONFIGURED_BUS -> delegate.getConfiguredBuses(networkUuid, variantNum);
+            case TIE_LINE -> delegate.getTieLines(networkUuid, variantNum);
+            default -> {
+                // Do nothing
+            }
         }
     }
 

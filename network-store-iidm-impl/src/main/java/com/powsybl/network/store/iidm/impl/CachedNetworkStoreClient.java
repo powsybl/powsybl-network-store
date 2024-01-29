@@ -6,8 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
 
@@ -225,8 +227,10 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
 
-        var objectMapper = JsonUtil.createObjectMapper();
-        objectMapper.registerModule(new JodaModule());
+        var objectMapper = JsonUtil.createObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
 
         // clone each collection and re-assign variant number and id
         cloneCollection(switchesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
