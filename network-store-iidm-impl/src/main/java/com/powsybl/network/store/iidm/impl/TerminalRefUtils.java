@@ -27,10 +27,10 @@ public final class TerminalRefUtils {
         if (identifiable instanceof Injection) {
             return ((Injection<?>) identifiable).getTerminal();
         } else if (identifiable instanceof Branch) {
-            return ((Branch<?>) identifiable).getTerminal(Branch.Side.valueOf(side));
+            return ((Branch<?>) identifiable).getTerminal(TwoSides.valueOf(side));
         } else if (identifiable instanceof ThreeWindingsTransformer) {
             ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
-            return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
+            return twt.getTerminal(ThreeSides.valueOf(side));
         } else {
             throw new AssertionError("Unexpected Identifiable instance: " + identifiable.getClass());
         }

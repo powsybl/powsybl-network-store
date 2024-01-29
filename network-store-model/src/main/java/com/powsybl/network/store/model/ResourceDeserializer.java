@@ -26,82 +26,43 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
     private static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
         Objects.requireNonNull(type);
         if (filter == null) {
-            switch (type) {
-                case NETWORK:
-                    return NetworkAttributes.class;
-                case SUBSTATION:
-                    return SubstationAttributes.class;
-                case VOLTAGE_LEVEL:
-                    return VoltageLevelAttributes.class;
-                case LOAD:
-                    return LoadAttributes.class;
-                case GENERATOR:
-                    return GeneratorAttributes.class;
-                case BATTERY:
-                    return BatteryAttributes.class;
-                case VSC_CONVERTER_STATION:
-                    return VscConverterStationAttributes.class;
-                case LCC_CONVERTER_STATION:
-                    return LccConverterStationAttributes.class;
-                case SHUNT_COMPENSATOR:
-                    return ShuntCompensatorAttributes.class;
-                case STATIC_VAR_COMPENSATOR:
-                    return StaticVarCompensatorAttributes.class;
-                case BUSBAR_SECTION:
-                    return BusbarSectionAttributes.class;
-                case SWITCH:
-                    return SwitchAttributes.class;
-                case TWO_WINDINGS_TRANSFORMER:
-                    return TwoWindingsTransformerAttributes.class;
-                case THREE_WINDINGS_TRANSFORMER:
-                    return ThreeWindingsTransformerAttributes.class;
-                case LINE:
-                    return LineAttributes.class;
-                case HVDC_LINE:
-                    return HvdcLineAttributes.class;
-                case DANGLING_LINE:
-                    return DanglingLineAttributes.class;
-                case CONFIGURED_BUS:
-                    return ConfiguredBusAttributes.class;
-                case TIE_LINE:
-                    return TieLineAttributes.class;
-                default:
-                    throw new IllegalStateException("Unknown resource type: " + type);
-            }
+            return switch (type) {
+                case NETWORK -> NetworkAttributes.class;
+                case SUBSTATION -> SubstationAttributes.class;
+                case VOLTAGE_LEVEL -> VoltageLevelAttributes.class;
+                case LOAD -> LoadAttributes.class;
+                case GENERATOR -> GeneratorAttributes.class;
+                case BATTERY -> BatteryAttributes.class;
+                case VSC_CONVERTER_STATION -> VscConverterStationAttributes.class;
+                case LCC_CONVERTER_STATION -> LccConverterStationAttributes.class;
+                case SHUNT_COMPENSATOR -> ShuntCompensatorAttributes.class;
+                case STATIC_VAR_COMPENSATOR -> StaticVarCompensatorAttributes.class;
+                case BUSBAR_SECTION -> BusbarSectionAttributes.class;
+                case SWITCH -> SwitchAttributes.class;
+                case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerAttributes.class;
+                case THREE_WINDINGS_TRANSFORMER -> ThreeWindingsTransformerAttributes.class;
+                case LINE -> LineAttributes.class;
+                case HVDC_LINE -> HvdcLineAttributes.class;
+                case DANGLING_LINE -> DanglingLineAttributes.class;
+                case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
+                case TIE_LINE -> TieLineAttributes.class;
+            };
         } else {
             if (filter == AttributeFilter.SV) {
-                switch (type) {
-                    case NETWORK:
-                        return NetworkAttributes.class;
-                    case SUBSTATION:
-                        return SubstationAttributes.class;
-                    case VOLTAGE_LEVEL:
-                        return VoltageLevelSvAttributes.class;
-                    case LOAD:
-                    case GENERATOR:
-                    case BATTERY:
-                    case VSC_CONVERTER_STATION:
-                    case LCC_CONVERTER_STATION:
-                    case SHUNT_COMPENSATOR:
-                    case STATIC_VAR_COMPENSATOR:
-                    case DANGLING_LINE:
-                        return InjectionSvAttributes.class;
-                    case BUSBAR_SECTION:
-                        return BusbarSectionAttributes.class;
-                    case SWITCH:
-                        return SwitchAttributes.class;
-                    case TWO_WINDINGS_TRANSFORMER:
-                    case LINE:
-                        return BranchSvAttributes.class;
-                    case THREE_WINDINGS_TRANSFORMER:
-                        return ThreeWindingsTransformerSvAttributes.class;
-                    case HVDC_LINE:
-                        return HvdcLineAttributes.class;
-                    case CONFIGURED_BUS:
-                        return ConfiguredBusAttributes.class;
-                    default:
-                        throw new IllegalStateException("Unknown resource type: " + type);
-                }
+                return switch (type) {
+                    case NETWORK -> NetworkAttributes.class;
+                    case SUBSTATION -> SubstationAttributes.class;
+                    case VOLTAGE_LEVEL -> VoltageLevelSvAttributes.class;
+                    case LOAD, GENERATOR, BATTERY, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, DANGLING_LINE ->
+                        InjectionSvAttributes.class;
+                    case BUSBAR_SECTION -> BusbarSectionAttributes.class;
+                    case SWITCH -> SwitchAttributes.class;
+                    case TWO_WINDINGS_TRANSFORMER, LINE -> BranchSvAttributes.class;
+                    case THREE_WINDINGS_TRANSFORMER -> ThreeWindingsTransformerSvAttributes.class;
+                    case HVDC_LINE -> HvdcLineAttributes.class;
+                    case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
+                    default -> throw new IllegalStateException("Unknown resource type: " + type);
+                };
             } else {
                 throw new IllegalStateException("Unknown attribute filter: " + filter);
             }
@@ -121,24 +82,17 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
             if (token == JsonToken.FIELD_NAME) {
                 String fieldName = parser.getCurrentName();
                 switch (fieldName) {
-                    case "type":
-                        type = ResourceType.valueOf(parser.nextTextValue());
-                        break;
-                    case "id":
-                        id = parser.nextTextValue();
-                        break;
-                    case "variantNum":
-                        variantNum = parser.nextIntValue(-1);
-                        break;
-                    case "filter":
-                        filter = AttributeFilter.valueOf(parser.nextTextValue());
-                        break;
-                    case "attributes":
+                    case "type" -> type = ResourceType.valueOf(parser.nextTextValue());
+                    case "id" -> id = parser.nextTextValue();
+                    case "variantNum" -> variantNum = parser.nextIntValue(-1);
+                    case "filter" -> filter = AttributeFilter.valueOf(parser.nextTextValue());
+                    case "attributes" -> {
                         parser.nextValue();
                         attributes = parser.readValueAs(getTypeClass(type, filter));
-                        break;
-                    default:
-                        break;
+                    }
+                    default -> {
+                        // Do nothing
+                    }
                 }
             } else if (token == JsonToken.END_OBJECT) {
                 break;

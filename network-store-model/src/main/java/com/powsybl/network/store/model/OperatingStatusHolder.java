@@ -9,9 +9,9 @@ package com.powsybl.network.store.model;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BranchStatusHolder {
+public interface OperatingStatusHolder {
 
-    String getBranchStatus();
+    String getOperatingStatus();
 
-    void setBranchStatus(String branchStatus);
+    void setOperatingStatus(String operatingStatus);
 }

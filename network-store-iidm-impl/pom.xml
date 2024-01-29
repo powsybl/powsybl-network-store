@@ -28,6 +28,10 @@
 
         <!-- compile scope -->
         <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-entsoe-util</artifactId>
         </dependency>

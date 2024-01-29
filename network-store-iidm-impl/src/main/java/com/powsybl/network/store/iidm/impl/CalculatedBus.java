@@ -209,15 +209,13 @@ public final class CalculatedBus implements BaseBus {
         return getAttributes().getVertices().stream()
                 .map(v -> {
                     Connectable<?> c = index.getConnectable(v.getId(), v.getConnectableType());
-                    switch (c.getType()) {
-                        case LINE:
-                        case TWO_WINDINGS_TRANSFORMER:
-                            return ((AbstractBranchImpl) c).getTerminal(Branch.Side.valueOf(v.getSide()));
-                        case THREE_WINDINGS_TRANSFORMER:
-                            return ((ThreeWindingsTransformerImpl) c).getTerminal(ThreeWindingsTransformer.Side.valueOf(v.getSide()));
-                        default:
-                            return c.getTerminals().get(0);
-                    }
+                    return switch (c.getType()) {
+                        case LINE, TWO_WINDINGS_TRANSFORMER ->
+                            ((AbstractBranchImpl<?, ?>) c).getTerminal(TwoSides.valueOf(v.getSide()));
+                        case THREE_WINDINGS_TRANSFORMER ->
+                            ((ThreeWindingsTransformerImpl) c).getTerminal(ThreeSides.valueOf(v.getSide()));
+                        default -> c.getTerminals().get(0);
+                    };
                 })
                 .collect(Collectors.toList());
     }

@@ -9,7 +9,8 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -122,6 +123,6 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @Schema(description = "Active power limit side 2")
     private LimitsAttributes activePowerLimits2;
 
-    @Schema(description = "Branch status")
-    private String branchStatus;
+    @Schema(description = "Operating status")
+    private String operatingStatus;
 }
