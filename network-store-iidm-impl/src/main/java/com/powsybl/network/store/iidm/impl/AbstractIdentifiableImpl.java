@@ -7,11 +7,20 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.*;
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.commons.extensions.ExtensionAdderProvider;
+import com.powsybl.commons.extensions.ExtensionAdderProviders;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.network.store.iidm.impl.extensions.OperatingStatusImpl;
 import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.IdentifiableAttributes;
+import com.powsybl.network.store.model.OperatingStatusHolder;
 import com.powsybl.network.store.model.Resource;
 import org.apache.commons.lang3.mutable.MutableObject;
 
@@ -285,11 +294,19 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
-        return null;
+        E extension = null;
+        if (type == OperatingStatus.class) {
+            extension = createOperatingStatusExtension();
+        }
+        return extension;
     }
 
     public <E extends Extension<I>> E getExtensionByName(String name) {
-        return null;
+        E extension = null;
+        if (name.equals(OperatingStatus.NAME)) {
+            extension = createOperatingStatusExtension();
+        }
+        return extension;
     }
 
     public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
@@ -297,7 +314,23 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        return new ArrayList<>();
+        Collection<E> extensions = new ArrayList<>();
+        E extension = createOperatingStatusExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
+    }
+
+    private <E extends Extension<I>> E createOperatingStatusExtension() {
+        E extension = null;
+        if (resource.getAttributes() instanceof OperatingStatusHolder operatingStatusHolder) {
+            String operatingStatus = operatingStatusHolder.getOperatingStatus();
+            if (operatingStatus != null) {
+                extension = (E) new OperatingStatusImpl<>((I) this);
+            }
+        }
+        return extension;
     }
 
     @Override

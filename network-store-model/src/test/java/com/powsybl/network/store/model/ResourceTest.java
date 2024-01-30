@@ -404,6 +404,7 @@ public class ResourceTest {
                 .pairingKey("XN1")
                 .bus("bus1")
                 .tieLineId("idTieLineParent")
+                .operatingStatus("IN_OPERATION")
                 .build();
 
         Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder()
@@ -433,6 +434,7 @@ public class ResourceTest {
         assertEquals("XN1", resourceDanglingLine.getAttributes().getPairingKey());
         assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
         assertEquals("idTieLineParent", resourceDanglingLine.getAttributes().getTieLineId());
+        assertEquals("IN_OPERATION", resourceDanglingLine.getAttributes().getOperatingStatus());
 
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
@@ -453,12 +455,15 @@ public class ResourceTest {
                 .fictitious(false)
                 .danglingLine1Id("half1")
                 .danglingLine2Id("half2")
+                .operatingStatus("IN_OPERATION")
                 .build();
 
         Resource<TieLineAttributes> resourceTieLine = Resource.tieLineBuilder()
                 .id("dl1")
                 .attributes(tieLineAttributes)
                 .build();
+
+        assertEquals("IN_OPERATION", resourceTieLine.getAttributes().getOperatingStatus());
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
