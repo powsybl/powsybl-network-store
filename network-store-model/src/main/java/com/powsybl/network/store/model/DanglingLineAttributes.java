@@ -24,7 +24,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Dangling line attributes")
-public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes, LimitHolder {
+public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes, LimitHolder, OperatingStatusHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -100,6 +100,9 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Schema(description = "Tie line ID in case of a paired dangling line")
     private String tieLineId;
+
+    @Schema(description = "Operating status")
+    private String operatingStatus;
 
     @Override
     @JsonIgnore
