@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
@@ -31,7 +32,7 @@ public class OperatingStatusAdderImpl<I extends Identifiable<I>>
     protected OperatingStatus<I> createExtension(I identifiable) {
         ((AbstractIdentifiableImpl<?, ?>) identifiable).updateResource(res -> {
             if (!(res.getAttributes() instanceof OperatingStatusHolder)) {
-                throw new IllegalStateException("Not an operating status holder");
+                throw new PowsyblException("Operating status extension is not allowed on identifiable type: " + identifiable.getType());
             }
             ((OperatingStatusHolder) res.getAttributes()).setOperatingStatus(status.name());
         });
