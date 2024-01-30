@@ -314,12 +314,12 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        Collection<E> result = new ArrayList<>();
+        Collection<E> extensions = new ArrayList<>();
         E extension = createOperatingStatusExtension();
         if (extension != null) {
-            result.add(extension);
+            extensions.add(extension);
         }
-        return result;
+        return extensions;
     }
 
     private <E extends Extension<I>> E createOperatingStatusExtension() {
