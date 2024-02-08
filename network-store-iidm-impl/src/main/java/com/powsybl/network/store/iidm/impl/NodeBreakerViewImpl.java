@@ -258,20 +258,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                 }
             }
 
-            Terminal terminalNode2 = getTerminal(node2);
-            if (terminalNode2 != null) {
-                if (traversedTerminals.contains(terminalNode2)) {
-                    return TraverseResult.TERMINATE_PATH;
-                }
-                traversedTerminals.add(terminalNode2);
-                TraverseResult result = traverser.traverse(terminalNode2, true);
-                if (result != TraverseResult.CONTINUE) {
-                    return result;
-                }
-                nexTerminals.addAll(((TerminalImpl<?>) terminalNode2).getOtherSideTerminals());
-            }
-
-            return TraverseResult.CONTINUE;
+            return traverseTerminal(getTerminal(node2), traverser, traversedTerminals, nexTerminals);
         })) {
             return false;
         }
@@ -283,6 +270,22 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         }
 
         return true;
+    }
+
+    private TraverseResult traverseTerminal(Terminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals, List<Terminal> nexTerminals) {
+        if (terminal != null) {
+            if (traversedTerminals.contains(terminal)) {
+                return TraverseResult.TERMINATE_PATH;
+            }
+            traversedTerminals.add(terminal);
+            TraverseResult result = traverser.traverse(terminal, true);
+            if (result != TraverseResult.CONTINUE) {
+                return result;
+            }
+            nexTerminals.addAll(((TerminalImpl<?>) terminal).getOtherSideTerminals());
+        }
+
+        return TraverseResult.CONTINUE;
     }
 
     @Override
