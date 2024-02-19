@@ -34,7 +34,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private double targetV = Double.NaN;
 
-    class StepAdderImpl implements StepAdder {
+    class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
 
         private double rho = Double.NaN;
 
@@ -47,53 +47,37 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         private double b = 0;
 
         @Override
-        public StepAdder setRho(double rho) {
+        public RatioTapChangerAdder.StepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public StepAdder setR(double r) {
+        public RatioTapChangerAdder.StepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public StepAdder setX(double x) {
+        public RatioTapChangerAdder.StepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public StepAdder setG(double g) {
+        public RatioTapChangerAdder.StepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public StepAdder setB(double b) {
+        public RatioTapChangerAdder.StepAdder setB(double b) {
             this.b = b;
             return this;
         }
 
         @Override
         public RatioTapChangerAdder endStep() {
-            if (Double.isNaN(rho)) {
-                throw new ValidationException(tapChangerParent, "step rho is not set");
-            }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(tapChangerParent, "step r is not set");
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(tapChangerParent, "step x is not set");
-            }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(tapChangerParent, "step g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(tapChangerParent, "step b is not set");
-            }
-
             TapChangerStepAttributes ratioTapChangerStepAttributes = TapChangerStepAttributes.builder()
                     .b(b)
                     .g(g)
@@ -101,6 +85,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                     .rho(rho)
                     .x(x)
                     .build();
+            RatioTapChangerImpl.validateStep(ratioTapChangerStepAttributes, tapChangerParent);
             steps.add(ratioTapChangerStepAttributes);
             return RatioTapChangerAdderImpl.this;
         }
@@ -150,7 +135,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
     }
 
     @Override
-    public StepAdder beginStep() {
+    public RatioTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();
     }
 
@@ -176,7 +161,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, targetV, index.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
 
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
+        Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
         tapChangers.addAll(tapChangerParent.getAllTapChangers());
         tapChangers.remove(tapChangerParent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, true);
