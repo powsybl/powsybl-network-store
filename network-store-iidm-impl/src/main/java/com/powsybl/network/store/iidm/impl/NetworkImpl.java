@@ -1051,4 +1051,52 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
         return extension;
     }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystems'");
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystemStream'");
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystemCount'");
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystem'");
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getGrounds'");
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getGroundStream'");
+    }
+
+    @Override
+    public int getGroundCount() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getGroundCount'");
+    }
+
+    @Override
+    public Ground getGround(String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getGround'");
+    }
 }

@@ -191,7 +191,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, regulatingTerminal, index.getNetwork(), true);
         ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
 
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
+        Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
         tapChangers.addAll(tapChangerParent.getAllTapChangers());
         tapChangers.remove(tapChangerParent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, true);

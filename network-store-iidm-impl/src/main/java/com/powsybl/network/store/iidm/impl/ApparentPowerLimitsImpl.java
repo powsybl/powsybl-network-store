@@ -23,5 +23,11 @@ public class ApparentPowerLimitsImpl extends AbstractLoadingLimits<ApparentPower
     public LimitType getLimitType() {
         return LimitType.APPARENT_POWER;
     }
+
+    @Override
+    public void remove() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'remove'");
+    }
 }
 

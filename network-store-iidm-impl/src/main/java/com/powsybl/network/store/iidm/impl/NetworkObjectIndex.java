@@ -270,6 +270,8 @@ public class NetworkObjectIndex {
 
     private final ObjectCache<DanglingLine, DanglingLineImpl, DanglingLineAttributes> danglingLineCache;
 
+    private final ObjectCache<Ground, GroundImpl, InjectionAttributes> groundCache;
+
     private final ObjectCache<Bus, ConfiguredBusImpl, ConfiguredBusAttributes> configuredBusCache;
 
     private final Map<ResourceType, ObjectCache> objectCachesByResourceType = new EnumMap<>(ResourceType.class);
@@ -372,6 +374,12 @@ public class NetworkObjectIndex {
             () -> storeClient.getDanglingLines(network.getUuid(), workingVariantNum),
             id -> storeClient.removeDanglingLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> DanglingLineImpl.create(NetworkObjectIndex.this, resource));
+        groundCache = new ObjectCache<>(resource -> storeClient.createGrounds(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getGround(network.getUuid(), workingVariantNum, id),
+            voltageLevelId -> storeClient.getVoltageLevelGrounds(network.getUuid(), workingVariantNum, voltageLevelId),
+            () -> storeClient.getGrounds(network.getUuid(), workingVariantNum),
+            id -> storeClient.removeGrounds(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            resource -> GroundImpl.create(NetworkObjectIndex.this, resource));
         configuredBusCache = new ObjectCache<>(resource -> storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(resource)),
             id -> storeClient.getConfiguredBus(network.getUuid(), workingVariantNum, id),
             voltageLevelId -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), workingVariantNum, voltageLevelId),
@@ -401,6 +409,7 @@ public class NetworkObjectIndex {
         objectCachesByResourceType.put(ResourceType.LINE, lineCache);
         objectCachesByResourceType.put(ResourceType.HVDC_LINE, hvdcLineCache);
         objectCachesByResourceType.put(ResourceType.DANGLING_LINE, danglingLineCache);
+        objectCachesByResourceType.put(ResourceType.GROUND, groundCache);
         objectCachesByResourceType.put(ResourceType.CONFIGURED_BUS, configuredBusCache);
         objectCachesByResourceType.put(ResourceType.TIE_LINE, tieLineCache);
     }
@@ -440,6 +449,7 @@ public class NetworkObjectIndex {
         lineCache.setResourcesToObjects();
         hvdcLineCache.setResourcesToObjects();
         danglingLineCache.setResourcesToObjects();
+        groundCache.setResourcesToObjects();
         configuredBusCache.setResourcesToObjects();
     }
 
@@ -914,6 +924,24 @@ public class NetworkObjectIndex {
         return danglingLineCache.create(resource);
     }
 
+    // Ground
+
+    Optional<GroundImpl> getGround(String id) {
+        return groundCache.getOne(id);
+    }
+
+    List<Ground> getGrounds() {
+        return groundCache.getAll().collect(Collectors.toList());
+    }
+
+    List<Ground> getGrounds(String voltageLevelId) {
+        return groundCache.getSome(voltageLevelId).collect(Collectors.toList());
+    }
+
+    public GroundImpl createGround(Resource<InjectionAttributes> resource) {
+        return groundCache.create(resource);
+    }
+
     public Collection<Identifiable<?>> getIdentifiables() {
         return ImmutableList.<Identifiable<?>>builder()
                 .addAll(getSubstations())
@@ -932,6 +960,7 @@ public class NetworkObjectIndex {
                 .addAll(getLines())
                 .addAll(getHvdcLines())
                 .addAll(getDanglingLines())
+                .addAll(getGrounds())
                 .addAll(getConfiguredBuses())
                 .build();
     }
@@ -947,6 +976,7 @@ public class NetworkObjectIndex {
             case LOAD -> getLoad(connectableId).orElse(null);
             case SHUNT_COMPENSATOR -> getShuntCompensator(connectableId).orElse(null);
             case DANGLING_LINE -> getDanglingLine(connectableId).orElse(null);
+            case GROUND -> getGround(connectableId).orElse(null);
             case STATIC_VAR_COMPENSATOR -> getStaticVarCompensator(connectableId).orElse(null);
             case HVDC_CONVERTER_STATION -> getHvdcConverterStation(connectableId).orElse(null);
             default -> throw new IllegalStateException("Unexpected connectable type:" + connectableType);
@@ -1058,6 +1088,7 @@ public class NetworkObjectIndex {
             case LINE -> updateLineResource((Resource<LineAttributes>) resource, attributeFilter);
             case HVDC_LINE -> updateHvdcLineResource((Resource<HvdcLineAttributes>) resource, attributeFilter);
             case DANGLING_LINE -> updateDanglingLineResource((Resource<DanglingLineAttributes>) resource, attributeFilter);
+            case GROUND -> updateGroundResource((Resource<InjectionAttributes>) resource, attributeFilter);
             case CONFIGURED_BUS -> updateConfiguredBusResource((Resource<ConfiguredBusAttributes>) resource, attributeFilter);
             case TIE_LINE -> updateTieLineResource((Resource<TieLineAttributes>) resource, attributeFilter);
             default -> throw new IllegalStateException("Unknown resource type: " + resource.getType());
@@ -1098,6 +1129,10 @@ public class NetworkObjectIndex {
 
     void updateDanglingLineResource(Resource<DanglingLineAttributes> resource, AttributeFilter attributeFilter) {
         storeClient.updateDanglingLines(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    }
+
+    void updateGroundResource(Resource<InjectionAttributes> resource, AttributeFilter attributeFilter) {
+        storeClient.updateGrounds(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
     void updateTieLineResource(Resource<TieLineAttributes> resource, AttributeFilter attributeFilter) {

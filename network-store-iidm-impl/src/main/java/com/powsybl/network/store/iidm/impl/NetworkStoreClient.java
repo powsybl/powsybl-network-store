@@ -93,6 +93,8 @@ public interface NetworkStoreClient {
 
     List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId);
 
+    List<Resource<InjectionAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum, String voltageLevelId);
+
     List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, int variantNum, String voltageLevelId);
 
     // switch
@@ -262,6 +264,18 @@ public interface NetworkStoreClient {
     void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId);
 
     void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter);
+
+    // Ground
+
+    void createGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources);
+
+    List<Resource<InjectionAttributes>> getGrounds(UUID networkUuid, int variantNum);
+
+    Optional<Resource<InjectionAttributes>> getGround(UUID networkUuid, int variantNum, String groundId);
+
+    void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId);
+
+    void updateGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources, AttributeFilter attributeFilter);
 
     // Bus
 

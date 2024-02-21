@@ -9,6 +9,7 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -106,22 +107,17 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @Schema(description = "mergedXnode extension for tie lines")
     private MergedXnodeAttributes mergedXnode;
 
-    private LimitsAttributes currentLimits1;
+    @Schema(description = "OperationalLimitGroup1")
+    private List<OperationalLimitGroupAttributes> operationalLimitsGroups1;
 
-    @Schema(description = "Current limits side 2")
-    private LimitsAttributes currentLimits2;
+    @Schema(description = "selected OperationalLimitGroupId1")
+    private String selectedOperationalLimitsGroupId1;
 
-    @Schema(description = "Apparent power limit side 1")
-    private LimitsAttributes apparentPowerLimits1;
+    @Schema(description = "OperationalLimitGroup2")
+    private List<OperationalLimitGroupAttributes> operationalLimitsGroups2;
 
-    @Schema(description = "Apparent power limit side 2")
-    private LimitsAttributes apparentPowerLimits2;
-
-    @Schema(description = "Active power limit side 1")
-    private LimitsAttributes activePowerLimits1;
-
-    @Schema(description = "Active power limit side 2")
-    private LimitsAttributes activePowerLimits2;
+    @Schema(description = "selected OperationalLimitGroupId2")
+    private String selectedOperationalLimitsGroupId2;
 
     @Schema(description = "Operating status")
     private String operatingStatus;

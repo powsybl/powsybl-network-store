@@ -66,7 +66,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     public PhaseTapChangerImpl setRegulating(boolean regulating) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(), parent.getNetwork(), true);
 
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
+        Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating, true);
 
@@ -116,5 +116,11 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     @Override
     public String getMessageHeader() {
         return "phaseTapChanger '" + parent.getTransformer().getId() + "': ";
+    }
+
+    @Override
+    public PhaseTapChangerStepsReplacer stepsReplacer() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'stepsReplacer'");
     }
 }

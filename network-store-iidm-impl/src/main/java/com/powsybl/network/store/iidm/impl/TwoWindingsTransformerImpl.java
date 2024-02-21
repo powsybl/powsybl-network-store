@@ -22,6 +22,7 @@ import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttr
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -287,5 +288,29 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
             extension = (E) new CgmesTapChangersImpl(this);
         }
         return extension;
+    }
+
+    @Override
+    public boolean connect() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'connect'");
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'connect'");
+    }
+
+    @Override
+    public boolean disconnect() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
     }
 }

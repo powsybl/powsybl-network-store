@@ -23,5 +23,11 @@ public class ActivePowerLimitsImpl extends AbstractLoadingLimits<ActivePowerLimi
     public LimitType getLimitType() {
         return LimitType.ACTIVE_POWER;
     }
+
+    @Override
+    public void remove() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'remove'");
+    }
 }
 

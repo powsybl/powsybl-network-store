@@ -805,4 +805,36 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     public void flush(UUID networkUuid) {
         // nothing to do
     }
+
+    @Override
+    public List<Resource<InjectionAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
+            String voltageLevelId) {
+        return getAll("ground", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/grounds", networkUuid, variantNum, voltageLevelId);
+    }
+
+    @Override
+    public void createGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources) {
+        create("ground", "/networks/{networkUuid}/grounds", groundResources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<InjectionAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+        return getAll("ground", "/networks/{networkUuid}/{variantNum}/grounds", networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<InjectionAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+        return get("ground", "/networks/{networkUuid}/{variantNum}/grounds/{groundId}", networkUuid, variantNum, groundId);
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        removeAll("/networks/{networkUuid}/{variantNum}/grounds/{groundId}", networkUuid, variantNum, groundsId);
+    }
+
+    @Override
+    public void updateGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources,
+            AttributeFilter attributeFilter) {
+        updateAll("ground", "/networks/{networkUuid}/grounds", groundResources, attributeFilter, networkUuid);
+    }
 }

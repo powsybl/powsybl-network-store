@@ -7,14 +7,17 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.network.store.iidm.impl.AbstractLoadingLimits.TemporaryLimitImpl;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
@@ -127,7 +130,8 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     @Override
     public L add() {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
+        Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toList());
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd);
         checkTemporaryLimits();
 
         LimitsAttributes attributes = LimitsAttributes.builder()

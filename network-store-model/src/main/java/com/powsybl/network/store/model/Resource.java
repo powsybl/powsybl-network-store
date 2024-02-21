@@ -188,6 +188,10 @@ public class Resource<T extends Attributes> implements Validable {
         return new Builder<>(ResourceType.DANGLING_LINE);
     }
 
+    public static Builder<InjectionAttributes> groundBuilder() {
+        return new Builder<>(ResourceType.GROUND);
+    }
+
     public static Builder<ConfiguredBusAttributes> configuredBusBuilder() {
         return new Builder<>(ResourceType.CONFIGURED_BUS);
     }

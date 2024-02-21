@@ -503,4 +503,10 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     public String getVoltageLevelId() {
         return getAttributes().getVoltageLevelId();
     }
+
+    @Override
+    public ThreeSides getSide() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getSide'");
+    }
 }

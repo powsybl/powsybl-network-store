@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -18,6 +19,7 @@ import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Properties;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -43,14 +45,14 @@ public class LineTest {
         assertFalse(l1.isOverloaded());
 
         l1.getTerminal1().setP(400);
-        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes(40, null));
+        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes(40, null), "DEFAULT");
         assertTrue(l1.getNullableCurrentLimits1().getTemporaryLimits().isEmpty());
         assertTrue(l1.isOverloaded());
 
         TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
         temporaryLimits.put(5, TemporaryLimitAttributes.builder().name("TempLimit5").value(1000).acceptableDuration(5).fictitious(false).build());
-        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes(40, temporaryLimits));
-        l1.setCurrentLimits(TwoSides.TWO, new LimitsAttributes(40, temporaryLimits));
+        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes(40, temporaryLimits), "DEFAULT");
+        l1.setCurrentLimits(TwoSides.TWO, new LimitsAttributes(40, temporaryLimits), "DEFAULT");
         assertEquals(5, l1.getOverloadDuration());
 
         assertTrue(l1.checkPermanentLimit(TwoSides.ONE, LimitType.CURRENT));
@@ -149,8 +151,10 @@ public class LineTest {
 
     @Test
     public void testTieLine() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
-                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
         assertEquals("TN_Border_GY11", tieLine.getPairingKey());
         DanglingLine dl1 = tieLine.getDanglingLine1();
@@ -177,8 +181,10 @@ public class LineTest {
 
     @Test
     public void testDanglingLines() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
-                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
         assertEquals("TN_Border_GY11", tieLine.getPairingKey());
 
@@ -215,8 +221,10 @@ public class LineTest {
 
     @Test
     public void testTieLineTerminals() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
-                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
         assertEquals("TN_Border_GY11", tieLine.getPairingKey());
         DanglingLine dl1 = tieLine.getDanglingLine1();
@@ -248,9 +256,10 @@ public class LineTest {
 
     @Test
     public void testTieLineLimits() {
-
+        Properties properties = new Properties();
+        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
-                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
 
         DanglingLine dl1 = tieLine.getDanglingLine1();
@@ -274,8 +283,8 @@ public class LineTest {
         assertEquals(tieLine.getCurrentLimits(TwoSides.TWO).isPresent(), dl2.getCurrentLimits().isPresent());
         assertEquals(tieLine.getActivePowerLimits(TwoSides.TWO).isPresent(), dl2.getActivePowerLimits().isPresent());
         assertEquals(tieLine.getApparentPowerLimits(TwoSides.TWO).isPresent(), dl2.getApparentPowerLimits().isPresent());
-        assertEquals(tieLine.getOperationalLimits1().size(), dl1.getOperationalLimits().size());
-        assertEquals(tieLine.getOperationalLimits2().size(), dl2.getOperationalLimits().size());
+        assertEquals(tieLine.getOperationalLimitsGroups1().size(), dl1.getOperationalLimitsGroups().size());
+        assertEquals(tieLine.getOperationalLimitsGroups2().size(), dl2.getOperationalLimitsGroups().size());
 
         assertFalse(tieLine.isOverloaded());
         assertFalse(tieLine.isOverloaded(1.0f));
@@ -286,13 +295,16 @@ public class LineTest {
 
     @Test
     public void testTieLineLimitsCreation() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
-                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
 
         //Test current limit overriding
         assertEquals(2, tieLine.getCurrentLimits1().get().getTemporaryLimits().size());
         CurrentLimits currentlimits1 = tieLine.newCurrentLimits1()
+                .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy")
                 .setValue(10.0)
@@ -304,6 +316,7 @@ public class LineTest {
 
         assertEquals(2, tieLine.getCurrentLimits2().get().getTemporaryLimits().size());
         CurrentLimits currentlimit2 = tieLine.newCurrentLimits2()
+                .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy2")
                 .setValue(10.0)
@@ -317,6 +330,7 @@ public class LineTest {
         assertNull(tieLine.getNullableActivePowerLimits1());
         assertTrue(tieLine.getActivePowerLimits1().isEmpty());
         ActivePowerLimits activepowerlimits1 = tieLine.newActivePowerLimits1()
+                .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy")
                 .setValue(10.0)
@@ -329,6 +343,7 @@ public class LineTest {
         assertNull(tieLine.getNullableActivePowerLimits2());
         assertTrue(tieLine.getActivePowerLimits2().isEmpty());
         ActivePowerLimits activepowerlimits2 = tieLine.newActivePowerLimits2()
+                .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy")
                 .setValue(10.0)
@@ -342,6 +357,7 @@ public class LineTest {
 
         assertTrue(tieLine.getApparentPowerLimits1().isEmpty());
         ApparentPowerLimits apparentpowerlimits1 = tieLine.newApparentPowerLimits1()
+                .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy")
                 .setValue(10.0)
@@ -353,6 +369,7 @@ public class LineTest {
 
         assertTrue(tieLine.getApparentPowerLimits2().isEmpty());
         ApparentPowerLimits apparentpowerlimits2 = tieLine.newApparentPowerLimits2()
+                .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy")
                 .setValue(10.0)
@@ -365,9 +382,10 @@ public class LineTest {
 
     @Test
     public void testTieLineLimitsCheck() {
-
+        Properties properties = new Properties();
+        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
-                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
         tieLine.getCurrentLimits1().get().getPermanentLimit();
 

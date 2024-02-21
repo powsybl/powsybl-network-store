@@ -237,4 +237,28 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         index.removeSubstation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
     }
+
+    @Override
+    public OverloadManagementSystemAdder newOverloadManagementSystem() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'newOverloadManagementSystem'");
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystems'");
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystemStream'");
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystemCount'");
+    }
 }

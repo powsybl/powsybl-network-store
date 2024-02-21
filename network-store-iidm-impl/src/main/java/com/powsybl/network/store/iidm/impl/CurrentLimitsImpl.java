@@ -23,4 +23,10 @@ public class CurrentLimitsImpl extends AbstractLoadingLimits<CurrentLimitsImpl> 
     public LimitType getLimitType() {
         return LimitType.CURRENT;
     }
+
+    @Override
+    public void remove() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'remove'");
+    }
 }

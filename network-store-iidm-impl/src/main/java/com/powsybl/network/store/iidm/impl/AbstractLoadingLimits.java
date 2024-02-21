@@ -21,11 +21,11 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractLoadingLimits<T extends LoadingLimits> implements LoadingLimits {
 
-    private static final class TemporaryLimitImpl implements LoadingLimits.TemporaryLimit {
+    public static final class TemporaryLimitImpl implements LoadingLimits.TemporaryLimit {
 
         private final TemporaryLimitAttributes attributes;
 
-        private TemporaryLimitImpl(TemporaryLimitAttributes attributes) {
+        public TemporaryLimitImpl(TemporaryLimitAttributes attributes) {
             this.attributes = attributes;
         }
 
@@ -66,7 +66,7 @@ public abstract class AbstractLoadingLimits<T extends LoadingLimits> implements 
 
     @Override
     public T setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getTemporaryLimits());
         attributes.setPermanentLimit(permanentLimit);
         return (T) this;
     }

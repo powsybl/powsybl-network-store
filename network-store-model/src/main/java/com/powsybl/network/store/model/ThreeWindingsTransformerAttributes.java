@@ -25,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder, OperatingStatusHolder {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, OperatingStatusHolder {
 
     @Schema(description = "3 windings transformer name")
     private String name;
@@ -107,12 +107,6 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
                 .build();
     }
 
-    @Override
-    @JsonIgnore
-    public List<Integer> getSideList() {
-        return List.of(1, 2, 3);
-    }
-
     @JsonIgnore
     public LegAttributes getLeg(int side) {
         if (side == 1) {
@@ -124,36 +118,6 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         } else {
             throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
         }
-    }
-
-    @Override
-    public LimitsAttributes getCurrentLimits(int side) {
-        return getLeg(side).getCurrentLimitsAttributes();
-    }
-
-    @Override
-    public LimitsAttributes getApparentPowerLimits(int side) {
-        return getLeg(side).getApparentPowerLimitsAttributes();
-    }
-
-    @Override
-    public LimitsAttributes getActivePowerLimits(int side) {
-        return getLeg(side).getActivePowerLimitsAttributes();
-    }
-
-    @Override
-    public void setCurrentLimits(int side, LimitsAttributes limits) {
-        getLeg(side).setCurrentLimitsAttributes(limits);
-    }
-
-    @Override
-    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
-        getLeg(side).setApparentPowerLimitsAttributes(limits);
-    }
-
-    @Override
-    public void setActivePowerLimits(int side, LimitsAttributes limits) {
-        getLeg(side).setActivePowerLimitsAttributes(limits);
     }
 
     @JsonIgnore

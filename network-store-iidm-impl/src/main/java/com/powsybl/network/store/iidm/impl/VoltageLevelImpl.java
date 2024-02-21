@@ -535,6 +535,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
         }
+        for (Ground ground : index.getGrounds(resource.getId())) {
+            visitor.visitGround(ground);
+        }
     }
 
     private <E extends Extension<VoltageLevel>> void addIfNotNull(Collection<E> list, E extension) {
@@ -642,5 +645,25 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 getNodeBreakerView().removeSwitch(s.getId());
             });
         }
+    }
+
+    @Override
+    public GroundAdder newGround() {
+        return new GroundAdderImpl(getResource(), index);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return getGroundStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return getConnectableStream(Ground.class);
+    }
+
+    @Override
+    public int getGroundCount() {
+        return getConnectableCount(Ground.class);
     }
 }

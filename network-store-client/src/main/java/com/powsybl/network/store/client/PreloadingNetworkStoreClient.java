@@ -11,7 +11,6 @@ import com.powsybl.network.store.client.util.ExecutorUtil;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
-import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
+public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PreloadingNetworkStoreClient.class);
 
@@ -828,5 +827,110 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> configuredBusesId) {
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid, variantNum);
         delegate.removeConfiguredBuses(networkUuid, variantNum, configuredBusesId);
+    }
+
+    @Override
+    public List<NetworkInfos> getNetworksInfos() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getNetworksInfos'");
+    }
+
+    @Override
+    public void createNetworks(List<Resource<NetworkAttributes>> networkResources) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createNetworks'");
+    }
+
+    @Override
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getVariantsInfos'");
+    }
+
+    @Override
+    public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getNetwork'");
+    }
+
+    @Override
+    public void updateNetworks(List<Resource<NetworkAttributes>> networkResources, AttributeFilter attributeFilter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateNetworks'");
+    }
+
+    @Override
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'cloneNetwork'");
+    }
+
+    @Override
+    public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'cloneNetwork'");
+    }
+
+    @Override
+    public void cloneNetwork(UUID networkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'cloneNetwork'");
+    }
+
+    @Override
+    public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources,
+            AttributeFilter attributeFilter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateVoltageLevels'");
+    }
+
+    @Override
+    public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getIdentifiable'");
+    }
+
+    @Override
+    public void flush(UUID networkUuid) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'flush'");
+    }
+
+    @Override
+    public List<Resource<InjectionAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
+            String voltageLevelId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getVoltageLevelGrounds'");
+    }
+
+    @Override
+    public void createGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createGrounds'");
+    }
+
+    @Override
+    public List<Resource<InjectionAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getGrounds'");
+    }
+
+    @Override
+    public Optional<Resource<InjectionAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getGround'");
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'removeGrounds'");
+    }
+
+    @Override
+    public void updateGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources,
+            AttributeFilter attributeFilter) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateGrounds'");
     }
 }
