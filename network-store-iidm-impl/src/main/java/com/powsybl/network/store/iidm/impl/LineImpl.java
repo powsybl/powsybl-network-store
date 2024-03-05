@@ -141,26 +141,22 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public boolean connect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
+        return getTerminal1().connect() && getTerminal2().connect();
     }
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
+        return getTerminal1().connect(isTypeSwitchToOperate) && getTerminal2().connect(isTypeSwitchToOperate);
     }
 
     @Override
     public boolean disconnect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
+        return getTerminal1().disconnect() && getTerminal2().disconnect();
     }
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
+        return getTerminal1().disconnect(isSwitchOpenable) && getTerminal2().disconnect(isSwitchOpenable);
     }
 
 }

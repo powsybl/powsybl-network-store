@@ -23,10 +23,10 @@ class GroundAdderImpl extends AbstractInjectionAdder<GroundAdderImpl> implements
         String id = checkAndGetUniqueId();
         checkNodeBus();
 
-        Resource<InjectionAttributes> resource = Resource.groundBuilder()
+        Resource<GroundAttributes> resource = Resource.groundBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
-                .attributes(GeneratorAttributes.builder()
+                .attributes(GroundAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
                         .fictitious(isFictitious())

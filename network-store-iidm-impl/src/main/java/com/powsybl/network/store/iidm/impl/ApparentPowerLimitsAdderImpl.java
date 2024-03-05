@@ -20,8 +20,8 @@ public class ApparentPowerLimitsAdderImpl<S, O extends LimitsOwner<S>>
         extends AbstractLoadingLimitsAdderImpl<S, O, ApparentPowerLimits, ApparentPowerLimitsAdder>
         implements ApparentPowerLimitsAdder {
 
-    ApparentPowerLimitsAdderImpl(S side, O owner) {
-        super(side, owner);
+    ApparentPowerLimitsAdderImpl(S side, O owner, String operationalGroupId) {
+        super(side, owner, operationalGroupId);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ApparentPowerLimitsAdderImpl<S, O extends LimitsOwner<S>>
 
     @Override
     protected ApparentPowerLimitsImpl createAndSetLimit(LimitsAttributes attributes) {
-        owner.setApparentPowerLimits(side, attributes, null);
+        owner.setApparentPowerLimits(side, attributes, operationalGroupId);
         return new ApparentPowerLimitsImpl(owner, attributes);
     }
 
@@ -50,7 +50,7 @@ public class ApparentPowerLimitsAdderImpl<S, O extends LimitsOwner<S>>
                 .filter(t -> t.getName().equals(name))
                 .findFirst()
                 .orElse(null);
-        return tl != null ? tl.getAcceptableDuration() : 0;
+        return tl != null ? tl.getAcceptableDuration() : Integer.MAX_VALUE;
     }
 
     @Override

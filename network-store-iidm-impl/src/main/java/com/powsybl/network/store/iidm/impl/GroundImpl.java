@@ -6,23 +6,20 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import java.util.function.Predicate;
-
 import com.powsybl.iidm.network.Ground;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.GroundAttributes;
 import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
-class GroundImpl extends AbstractInjectionImpl<Ground, InjectionAttributes> implements Ground {
+class GroundImpl extends AbstractInjectionImpl<Ground, GroundAttributes> implements Ground {
 
-    public GroundImpl(NetworkObjectIndex index, Resource<InjectionAttributes> resource) {
+    public GroundImpl(NetworkObjectIndex index, Resource<GroundAttributes> resource) {
         super(index, resource);
     }
 
-    static GroundImpl create(NetworkObjectIndex index, Resource<InjectionAttributes> resource) {
+    static GroundImpl create(NetworkObjectIndex index, Resource<GroundAttributes> resource) {
         return new GroundImpl(index, resource);
     }
 
@@ -32,32 +29,8 @@ class GroundImpl extends AbstractInjectionImpl<Ground, InjectionAttributes> impl
         index.notifyBeforeRemoval(this);
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
-        //index.removeGround(resource.getId());
+        index.removeGround(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-    }
-
-    @Override
-    public boolean connect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
-    }
-
-    @Override
-    public boolean disconnect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
     }
 
     @Override

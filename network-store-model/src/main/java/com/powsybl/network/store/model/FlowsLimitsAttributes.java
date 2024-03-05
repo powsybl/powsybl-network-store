@@ -6,25 +6,29 @@
  */
 package com.powsybl.network.store.model;
 
-import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 public interface FlowsLimitsAttributes {
 
-    List<OperationalLimitGroupAttributes> getOperationalLimitsGroups();
+    Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups();
 
     String getSelectedOperationalLimitsGroupId();
 
-    default OperationalLimitGroupAttributes getOperationalLimitsGroup(String id) {
-        return getOperationalLimitsGroups() != null ? getOperationalLimitsGroups().stream()
-                .filter(group -> group.getId().equals(id))
-                .findFirst()
-                .orElse(null) : null;
+    default OperationalLimitsGroupAttributes getOperationalLimitsGroup(String id) {
+        return getOperationalLimitsGroups() != null ? getOperationalLimitsGroups().get(id) : null;
     }
 
-    default OperationalLimitGroupAttributes getSelectedOperationalLimitsGroup() {
+    default OperationalLimitsGroupAttributes getOrCreateOperationalLimitsGroup(String id) {
+        return getOperationalLimitsGroups().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null, null));
+    }
+
+    @JsonIgnore
+    default OperationalLimitsGroupAttributes getSelectedOperationalLimitsGroup() {
         return getOperationalLimitsGroup(getSelectedOperationalLimitsGroupId());
     }
 

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient {
+public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
 
     private final Map<UUID, List<VariantInfos>> variantsInfosByNetworkUuid = new HashMap<>();
 

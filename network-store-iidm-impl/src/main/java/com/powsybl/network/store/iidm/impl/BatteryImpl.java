@@ -14,7 +14,6 @@ import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
-import java.util.function.Predicate;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -196,29 +195,5 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         invalidateCalculatedBuses(getTerminals());
         index.removeBattery(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-    }
-
-    @Override
-    public boolean connect() {
-        this.connect();
-        return true;
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        this.connect(isTypeSwitchToOperate);
-        return true;
-    }
-
-    @Override
-    public boolean disconnect() {
-        this.disconnect();
-        return true;
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        this.disconnect(isSwitchOpenable);
-        return true;
     }
 }

@@ -45,14 +45,14 @@ public class LineTest {
         assertFalse(l1.isOverloaded());
 
         l1.getTerminal1().setP(400);
-        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes(40, null), "DEFAULT");
+        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes("DEFAULT", 40, null), "DEFAULT");
         assertTrue(l1.getNullableCurrentLimits1().getTemporaryLimits().isEmpty());
         assertTrue(l1.isOverloaded());
 
         TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
         temporaryLimits.put(5, TemporaryLimitAttributes.builder().name("TempLimit5").value(1000).acceptableDuration(5).fictitious(false).build());
-        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes(40, temporaryLimits), "DEFAULT");
-        l1.setCurrentLimits(TwoSides.TWO, new LimitsAttributes(40, temporaryLimits), "DEFAULT");
+        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes("DEFAULT", 40, temporaryLimits), "DEFAULT");
+        l1.setCurrentLimits(TwoSides.TWO, new LimitsAttributes("DEFAULT", 40, temporaryLimits), "DEFAULT");
         assertEquals(5, l1.getOverloadDuration());
 
         assertTrue(l1.checkPermanentLimit(TwoSides.ONE, LimitType.CURRENT));

@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,7 +24,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "operational limit group attributes")
-public class OperationalLimitGroupAttributes {
+public class OperationalLimitsGroupAttributes {
+
     @Schema(description = "Id")
     private String id;
 
@@ -35,4 +37,8 @@ public class OperationalLimitGroupAttributes {
 
     @Schema(description = "Active power limits")
     private LimitsAttributes activePowerLimits;
+
+    @JsonIgnore
+    @Schema(description = "group side")
+    private Integer side;
 }

@@ -7,34 +7,38 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.powsybl.iidm.network.LimitType;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.TreeMap;
-
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Charly Boutier <charly.boutier at rte-france.com>
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "limits attributes")
-public class LimitsAttributes {
+@Schema(description = "Permanent limit attributes")
+public class PermanentLimitAttributes {
 
     @JsonIgnore
-    @Schema(description = "Operational limits group Id")
+    @Schema(description = "Operational limits group Id", required = true)
     private String operationalLimitsGroupId;
 
-    @Schema(description = "Permanent limit in A")
-    private double permanentLimit;
+    @JsonIgnore
+    @Schema(description = "Permanent limit side", required = true)
+    private Integer side;
 
-    @Schema(description = "List of temporary limits")
-    private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
+    @JsonIgnore
+    @Schema(description = "Permanent limit type", required = true)
+    private LimitType limitType;
+
+    @Schema(description = "Permanent limit value")
+    private double value;
 
 }

@@ -114,16 +114,18 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @Schema(description = "Phase angle clock")
     private TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes;
 
-    @Schema(description = "OperationalLimitGroup1")
-    private List<OperationalLimitGroupAttributes> operationalLimitsGroups1;
+    @Schema(description = "OperationalLimitsGroup1")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups1 = new HashMap<>();
 
-    @Schema(description = "selected OperationalLimitGroupId1")
+    @Schema(description = "selected OperationalLimitsGroupId1")
     private String selectedOperationalLimitsGroupId1;
 
-    @Schema(description = "OperationalLimitGroup2")
-    private List<OperationalLimitGroupAttributes> operationalLimitsGroups2;
+    @Schema(description = "OperationalLimitsGroup2")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups2 = new HashMap<>();
 
-    @Schema(description = "selected OperationalLimitGroupId2")
+    @Schema(description = "selected OperationalLimitsGroupId2")
     private String selectedOperationalLimitsGroupId2;
 
     @Schema(description = "Operating status")
@@ -131,4 +133,15 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
+
+    @Override
+    public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
+        if (side == 1) {
+            return operationalLimitsGroups1;
+        } else if (side == 2) {
+            return operationalLimitsGroups2;
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
 }

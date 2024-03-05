@@ -19,8 +19,8 @@ import com.powsybl.network.store.model.TemporaryLimitAttributes;
 class CurrentLimitsAdderImpl<S, O extends LimitsOwner<S>>
         extends AbstractLoadingLimitsAdderImpl<S, O, CurrentLimits, CurrentLimitsAdder> implements CurrentLimitsAdder {
 
-    CurrentLimitsAdderImpl(S side, O owner) {
-        super(side, owner);
+    CurrentLimitsAdderImpl(S side, O owner, String operationalGroupId) {
+        super(side, owner, operationalGroupId);
     }
 
     @Override
@@ -30,7 +30,7 @@ class CurrentLimitsAdderImpl<S, O extends LimitsOwner<S>>
 
     @Override
     protected CurrentLimitsImpl createAndSetLimit(LimitsAttributes attributes) {
-        owner.setCurrentLimits(side, attributes, null);
+        owner.setCurrentLimits(side, attributes, operationalGroupId);
         return new CurrentLimitsImpl(owner, attributes);
     }
 
@@ -49,7 +49,7 @@ class CurrentLimitsAdderImpl<S, O extends LimitsOwner<S>>
                 .filter(t -> t.getName().equals(name))
                 .findFirst()
                 .orElse(null);
-        return tl != null ? tl.getAcceptableDuration() : 0;
+        return tl != null ? tl.getAcceptableDuration() : Integer.MAX_VALUE;
     }
 
     @Override

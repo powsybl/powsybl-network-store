@@ -205,19 +205,33 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
                     : null;
         }
 
+        private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
+
+        private String getSelectedGroupId() {
+            return getLegAttributes().getSelectedOperationalLimitsGroupId() != null
+                    ? getLegAttributes().getSelectedOperationalLimitsGroupId()
+                    : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+        }
+
+        private void updateSelectedOperationalLimitsGroupIdIfNull(String id) {
+            if (getLegAttributes().getSelectedOperationalLimitsGroupId() == null) {
+                getLegAttributes().setSelectedOperationalLimitsGroupId(id);
+            }
+        }
+
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
-            return new CurrentLimitsAdderImpl<>(null, this);
+            return new CurrentLimitsAdderImpl<>(null, this, getSelectedGroupId());
         }
 
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
-            return new ApparentPowerLimitsAdderImpl<>(null, this);
+            return new ApparentPowerLimitsAdderImpl<>(null, this, getSelectedGroupId());
         }
 
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
-            return new ActivePowerLimitsAdderImpl<>(null, this);
+            return new ActivePowerLimitsAdderImpl<>(null, this, getSelectedGroupId());
         }
 
         @Override
@@ -260,14 +274,10 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public void setCurrentLimits(Void side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
-            var attributes = getLegAttributes();
-            var operationalLimitsGroup = attributes.getOperationalLimitsGroup(operationalLimitsGroupId);
-            if (operationalLimitsGroup == null) {
-                attributes.setOperationalLimitsGroups(List.of(new OperationalLimitGroupAttributes("DEFAULT", currentLimits, null, null)));
-                attributes.setSelectedOperationalLimitsGroupId("DEFAULT");
-            }
+            var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOperationalLimitsGroup("DEFAULT").setCurrentLimits(currentLimits));
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(currentLimits));
+            updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
             notifyUpdate("currentLimits", oldValue, currentLimits);
         }
 
@@ -278,19 +288,19 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public void setApparentPowerLimits(Void side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId) {
-            var attributes = getLegAttributes();
-            var operationalLimitsGroup = attributes.getOperationalLimitsGroup(operationalLimitsGroupId);
+            var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes));
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes));
+            updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
             notifyUpdate("apparentLimits", oldValue, apparentPowerLimitsAttributes);
         }
 
         @Override
         public void setActivePowerLimits(Void side, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId) {
-            var attributes = getLegAttributes();
-            var operationalLimitsGroup = attributes.getOperationalLimitsGroup(operationalLimitsGroupId);
+            var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes));
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes));
+            updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
             notifyUpdate("activePowerLimits", oldValue, activePowerLimitsAttributes);
         }
 
@@ -358,8 +368,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
-            return getLegAttributes().getOperationalLimitsGroups().stream()
-                    .map(group -> new OperationalLimitGroupImpl<>(this, null, group))
+            return getLegAttributes().getOperationalLimitsGroups().values().stream()
+                    .map(group -> new OperationalLimitsGroupImpl<>(this, null, group))
                     .collect(Collectors.toList());
         }
 
@@ -383,10 +393,10 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
             var resource = getLegAttributes();
-            var group = OperationalLimitGroupAttributes.builder().id(id).build();
+            var group = OperationalLimitsGroupAttributes.builder().id(id).build();
             group.setId(id);
-            resource.getOperationalLimitsGroups().add(group);
-            return new OperationalLimitGroupImpl<>(this, null, group);
+            resource.getOperationalLimitsGroups().put(id, group);
+            return new OperationalLimitsGroupImpl<>(this, null, group);
         }
 
         @Override
@@ -401,7 +411,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public void removeOperationalLimitsGroup(String id) {
             var resource = getLegAttributes();
-            resource.getOperationalLimitsGroups().removeIf(group -> group.getId().equals(id));
+            resource.getOperationalLimitsGroups().remove(id);
             if (id.equals(resource.getSelectedOperationalLimitsGroupId())) {
                 resource.setSelectedOperationalLimitsGroupId(null);
             }
@@ -695,25 +705,21 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public boolean connect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
+        return terminal1.connect() && terminal2.connect() && terminal3.connect();
     }
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
+        return terminal1.connect(isTypeSwitchToOperate) && terminal2.connect(isTypeSwitchToOperate) && terminal3.connect(isTypeSwitchToOperate);
     }
 
     @Override
     public boolean disconnect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
+        return terminal1.disconnect() && terminal2.disconnect() && terminal3.disconnect();
     }
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
+        return terminal1.disconnect(isSwitchOpenable) && terminal2.disconnect(isSwitchOpenable) && terminal3.disconnect(isSwitchOpenable);
     }
 }

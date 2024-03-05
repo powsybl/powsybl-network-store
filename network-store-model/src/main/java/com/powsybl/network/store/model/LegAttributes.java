@@ -6,7 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -66,8 +67,10 @@ public class LegAttributes implements TapChangerParentAttributes, FlowsLimitsAtt
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
     @Schema(description = "OperationalLimitGroup")
-    private List<OperationalLimitGroupAttributes> operationalLimitsGroups;
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups = new HashMap<>();
 
     @Schema(description = "selected OperationalLimitGroupId")
-    private String selectedOperationalLimitsGroupId;
+    @Builder.Default
+    private String selectedOperationalLimitsGroupId = "DEFAULT";
 }

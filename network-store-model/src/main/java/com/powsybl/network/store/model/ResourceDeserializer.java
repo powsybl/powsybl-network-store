@@ -44,7 +44,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                 case LINE -> LineAttributes.class;
                 case HVDC_LINE -> HvdcLineAttributes.class;
                 case DANGLING_LINE -> DanglingLineAttributes.class;
-                case GROUND -> InjectionAttributes.class;
+                case GROUND -> GroundAttributes.class;
                 case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
                 case TIE_LINE -> TieLineAttributes.class;
             };

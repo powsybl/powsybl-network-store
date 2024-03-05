@@ -909,23 +909,23 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
-    public List<Resource<InjectionAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
+    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
             String voltageLevelId) {
         return delegate.getVoltageLevelGrounds(networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
-    public void createGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources) {
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
         delegate.createGrounds(networkUuid, groundResources);
     }
 
     @Override
-    public List<Resource<InjectionAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
         return delegate.getGrounds(networkUuid, variantNum);
     }
 
     @Override
-    public Optional<Resource<InjectionAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
         return delegate.getGround(networkUuid, variantNum, groundId);
     }
 
@@ -935,7 +935,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
-    public void updateGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources,
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources,
             AttributeFilter attributeFilter) {
         delegate.updateGrounds(networkUuid, groundResources, attributeFilter);
     }

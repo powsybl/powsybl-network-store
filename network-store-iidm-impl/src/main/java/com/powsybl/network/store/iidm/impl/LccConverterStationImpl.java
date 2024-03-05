@@ -6,11 +6,8 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import java.util.function.Predicate;
-
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LccConverterStationAttributes;
@@ -84,29 +81,5 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         invalidateCalculatedBuses(getTerminals());
         index.removeLccConverterStation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-    }
-
-    @Override
-    public boolean connect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
-    }
-
-    @Override
-    public boolean disconnect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
     }
 }

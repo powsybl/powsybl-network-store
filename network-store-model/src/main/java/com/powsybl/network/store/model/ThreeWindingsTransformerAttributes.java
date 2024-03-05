@@ -25,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, OperatingStatusHolder {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder, OperatingStatusHolder {
 
     @Schema(description = "3 windings transformer name")
     private String name;
@@ -107,6 +107,12 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
                 .build();
     }
 
+    @Override
+    @JsonIgnore
+    public List<Integer> getSideList() {
+        return List.of(1, 2, 3);
+    }
+
     @JsonIgnore
     public LegAttributes getLeg(int side) {
         if (side == 1) {
@@ -118,6 +124,41 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         } else {
             throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
         }
+    }
+
+    @Override
+    public LimitsAttributes getCurrentLimits(int side, String groupId) {
+        return getLeg(side).getOrCreateOperationalLimitsGroup(groupId).getCurrentLimits();
+    }
+
+    @Override
+    public LimitsAttributes getApparentPowerLimits(int side, String groupId) {
+        return getLeg(side).getOrCreateOperationalLimitsGroup(groupId).getApparentPowerLimits();
+    }
+
+    @Override
+    public LimitsAttributes getActivePowerLimits(int side, String groupId) {
+        return getLeg(side).getOrCreateOperationalLimitsGroup(groupId).getActivePowerLimits();
+    }
+
+    @Override
+    public void setCurrentLimits(int side, LimitsAttributes limits, String groupId) {
+        getLeg(side).getOrCreateOperationalLimitsGroup(groupId).setCurrentLimits(limits);
+    }
+
+    @Override
+    public void setApparentPowerLimits(int side, LimitsAttributes limits, String groupId) {
+        getLeg(side).getOrCreateOperationalLimitsGroup(groupId).setApparentPowerLimits(limits);
+    }
+
+    @Override
+    public void setActivePowerLimits(int side, LimitsAttributes limits, String groupId) {
+        getLeg(side).getOrCreateOperationalLimitsGroup(groupId).setActivePowerLimits(limits);
+    }
+
+    @Override
+    public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
+        return getLeg(side).getOperationalLimitsGroups();
     }
 
     @JsonIgnore

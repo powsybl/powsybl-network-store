@@ -17,20 +17,20 @@ import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.Validable;
-import com.powsybl.network.store.model.OperationalLimitGroupAttributes;
+import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
-public class OperationalLimitGroupImpl<S> implements OperationalLimitsGroup, Validable {
+public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Validable {
 
     private final LimitsOwner<S> owner;
 
     protected final S side;
 
-    private final OperationalLimitGroupAttributes attributes;
+    private final OperationalLimitsGroupAttributes attributes;
 
-    protected OperationalLimitGroupImpl(LimitsOwner<S> owner, S side, OperationalLimitGroupAttributes attributes) {
+    protected OperationalLimitsGroupImpl(LimitsOwner<S> owner, S side, OperationalLimitsGroupAttributes attributes) {
         this.owner = Objects.requireNonNull(owner);
         this.side = side;
         this.attributes = Objects.requireNonNull(attributes);
@@ -58,17 +58,17 @@ public class OperationalLimitGroupImpl<S> implements OperationalLimitsGroup, Val
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return new CurrentLimitsAdderImpl<>(side, owner);
+        return new CurrentLimitsAdderImpl<>(side, owner, getId());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return new ActivePowerLimitsAdderImpl<>(side, owner);
+        return new ActivePowerLimitsAdderImpl<>(side, owner, getId());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return new ApparentPowerLimitsAdderImpl<>(side, owner);
+        return new ApparentPowerLimitsAdderImpl<>(side, owner, getId());
     }
 
     @Override
@@ -105,8 +105,7 @@ public class OperationalLimitGroupImpl<S> implements OperationalLimitsGroup, Val
 
     @Override
     public String getMessageHeader() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMessageHeader'");
+        return "Operational limits group " + getId();
     }
 
 }

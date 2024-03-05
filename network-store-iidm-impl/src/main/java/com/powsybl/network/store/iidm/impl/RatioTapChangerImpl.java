@@ -61,7 +61,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChanger setLoadTapChangingCapabilities(boolean status) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), status, getRegulationTerminal(), getRegulationMode(), getTargetV(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), status, getRegulationTerminal(), getRegulationMode(), getRegulationValue(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         boolean oldValue = getAttributes().isLoadTapChangingCapabilities();
         if (status != oldValue) {
             getTransformer().updateResource(res -> getAttributes(res).setLoadTapChangingCapabilities(status));

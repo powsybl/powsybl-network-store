@@ -9,7 +9,7 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -107,18 +107,31 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @Schema(description = "mergedXnode extension for tie lines")
     private MergedXnodeAttributes mergedXnode;
 
-    @Schema(description = "OperationalLimitGroup1")
-    private List<OperationalLimitGroupAttributes> operationalLimitsGroups1;
+    @Schema(description = "OperationalLimitsGroup1")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups1 = new HashMap<>();
 
-    @Schema(description = "selected OperationalLimitGroupId1")
+    @Schema(description = "selected OperationalLimitsGroupId1")
     private String selectedOperationalLimitsGroupId1;
 
-    @Schema(description = "OperationalLimitGroup2")
-    private List<OperationalLimitGroupAttributes> operationalLimitsGroups2;
+    @Schema(description = "OperationalLimitsGroup2")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups2 = new HashMap<>();
 
-    @Schema(description = "selected OperationalLimitGroupId2")
+    @Schema(description = "selected OperationalLimitsGroupId2")
     private String selectedOperationalLimitsGroupId2;
 
     @Schema(description = "Operating status")
     private String operatingStatus;
+
+    @Override
+    public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
+        if (side == 1) {
+            return operationalLimitsGroups1;
+        } else if (side == 2) {
+            return operationalLimitsGroups2;
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
 }

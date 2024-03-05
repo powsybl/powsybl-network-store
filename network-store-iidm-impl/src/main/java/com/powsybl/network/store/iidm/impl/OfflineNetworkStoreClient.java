@@ -605,23 +605,23 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<InjectionAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
+    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
             String voltageLevelId) {
         return Collections.emptyList();
     }
 
     @Override
-    public void createGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources) {
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
         // nothing to do
     }
 
     @Override
-    public List<Resource<InjectionAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
         return Collections.emptyList();
     }
 
     @Override
-    public Optional<Resource<InjectionAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
         return Optional.empty();
     }
 
@@ -631,7 +631,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources,
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources,
             AttributeFilter attributeFilter) {
         // nothing to do
     }

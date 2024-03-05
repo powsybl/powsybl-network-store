@@ -15,7 +15,6 @@ import com.powsybl.network.store.iidm.impl.extensions.VoltagePerReactivePowerCon
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
-import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -196,29 +195,5 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         invalidateCalculatedBuses(getTerminals());
         index.removeStaticVarCompensator(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-    }
-
-    @Override
-    public boolean connect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
-    }
-
-    @Override
-    public boolean disconnect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
     }
 }

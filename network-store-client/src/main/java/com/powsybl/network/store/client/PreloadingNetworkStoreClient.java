@@ -897,26 +897,26 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public List<Resource<InjectionAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
+    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
             String voltageLevelId) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getVoltageLevelGrounds'");
     }
 
     @Override
-    public void createGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources) {
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'createGrounds'");
     }
 
     @Override
-    public List<Resource<InjectionAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getGrounds'");
     }
 
     @Override
-    public Optional<Resource<InjectionAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getGround'");
     }
@@ -928,7 +928,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void updateGrounds(UUID networkUuid, List<Resource<InjectionAttributes>> groundResources,
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources,
             AttributeFilter attributeFilter) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'updateGrounds'");

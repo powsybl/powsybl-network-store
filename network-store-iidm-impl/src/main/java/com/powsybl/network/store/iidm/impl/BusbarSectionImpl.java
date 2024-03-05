@@ -108,25 +108,21 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public boolean connect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
+        return getTerminal().connect();
     }
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'connect'");
+        return getTerminal().connect(isTypeSwitchToOperate);
     }
 
     @Override
     public boolean disconnect() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
+        return getTerminal().disconnect();
     }
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'disconnect'");
+        return getTerminal().disconnect(isSwitchOpenable);
     }
 }

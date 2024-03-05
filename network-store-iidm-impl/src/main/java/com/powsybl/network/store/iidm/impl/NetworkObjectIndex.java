@@ -270,7 +270,7 @@ public class NetworkObjectIndex {
 
     private final ObjectCache<DanglingLine, DanglingLineImpl, DanglingLineAttributes> danglingLineCache;
 
-    private final ObjectCache<Ground, GroundImpl, InjectionAttributes> groundCache;
+    private final ObjectCache<Ground, GroundImpl, GroundAttributes> groundCache;
 
     private final ObjectCache<Bus, ConfiguredBusImpl, ConfiguredBusAttributes> configuredBusCache;
 
@@ -938,8 +938,12 @@ public class NetworkObjectIndex {
         return groundCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    public GroundImpl createGround(Resource<InjectionAttributes> resource) {
+    public GroundImpl createGround(Resource<GroundAttributes> resource) {
         return groundCache.create(resource);
+    }
+
+    public void removeGround(String groundId) {
+        groundCache.remove(groundId);
     }
 
     public Collection<Identifiable<?>> getIdentifiables() {
@@ -1088,7 +1092,7 @@ public class NetworkObjectIndex {
             case LINE -> updateLineResource((Resource<LineAttributes>) resource, attributeFilter);
             case HVDC_LINE -> updateHvdcLineResource((Resource<HvdcLineAttributes>) resource, attributeFilter);
             case DANGLING_LINE -> updateDanglingLineResource((Resource<DanglingLineAttributes>) resource, attributeFilter);
-            case GROUND -> updateGroundResource((Resource<InjectionAttributes>) resource, attributeFilter);
+            case GROUND -> updateGroundResource((Resource<GroundAttributes>) resource, attributeFilter);
             case CONFIGURED_BUS -> updateConfiguredBusResource((Resource<ConfiguredBusAttributes>) resource, attributeFilter);
             case TIE_LINE -> updateTieLineResource((Resource<TieLineAttributes>) resource, attributeFilter);
             default -> throw new IllegalStateException("Unknown resource type: " + resource.getType());
@@ -1131,7 +1135,7 @@ public class NetworkObjectIndex {
         storeClient.updateDanglingLines(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
-    void updateGroundResource(Resource<InjectionAttributes> resource, AttributeFilter attributeFilter) {
+    void updateGroundResource(Resource<GroundAttributes> resource, AttributeFilter attributeFilter) {
         storeClient.updateGrounds(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 

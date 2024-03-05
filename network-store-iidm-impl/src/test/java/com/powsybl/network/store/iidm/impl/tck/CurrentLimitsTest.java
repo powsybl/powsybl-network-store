@@ -41,9 +41,4 @@ public class CurrentLimitsTest extends AbstractCurrentLimitsTest {
     public void testSetterGetter() {
         // FIXME
     }
-
-    @Override
-    public void testAdderGetTemporaryLimitAcceptableDuration() {
-        // FIXME
-    }
 }

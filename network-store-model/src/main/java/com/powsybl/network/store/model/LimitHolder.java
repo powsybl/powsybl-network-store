@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.LimitType;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Charly Boutier <charly.boutier at rte-france.com>
@@ -21,59 +21,77 @@ public interface LimitHolder {
     String EXCEPTION_UNKNOWN_SIDE = "Unknown side";
     String EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE = "Unknown temporary limit type";
 
-    default LimitsAttributes getLimits(LimitType type, int side) {
+    default LimitsAttributes getLimits(LimitType type, int side, String operationalLimitsGroupId) {
         return switch (type) {
-            case CURRENT -> getCurrentLimits(side);
-            case APPARENT_POWER -> getApparentPowerLimits(side);
-            case ACTIVE_POWER -> getActivePowerLimits(side);
+            case CURRENT -> getCurrentLimits(side, operationalLimitsGroupId);
+            case APPARENT_POWER -> getApparentPowerLimits(side, operationalLimitsGroupId);
+            case ACTIVE_POWER -> getActivePowerLimits(side, operationalLimitsGroupId);
             default -> throw new IllegalArgumentException(EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE);
         };
     }
 
-    LimitsAttributes getCurrentLimits(int side);
+    LimitsAttributes getCurrentLimits(int side, String operationalLimitsGroupId);
 
-    LimitsAttributes getApparentPowerLimits(int side);
+    LimitsAttributes getApparentPowerLimits(int side, String operationalLimitsGroupId);
 
-    LimitsAttributes getActivePowerLimits(int side);
+    LimitsAttributes getActivePowerLimits(int side, String operationalLimitsGroupId);
 
-    default void setLimits(LimitType type, int side, LimitsAttributes limits) {
+    default void setLimits(LimitType type, int side, LimitsAttributes limits, String operationalLimitsGroupId) {
         switch (type) {
-            case CURRENT -> setCurrentLimits(side, limits);
-            case APPARENT_POWER -> setApparentPowerLimits(side, limits);
-            case ACTIVE_POWER -> setActivePowerLimits(side, limits);
+            case CURRENT -> setCurrentLimits(side, limits, operationalLimitsGroupId);
+            case APPARENT_POWER -> setApparentPowerLimits(side, limits, operationalLimitsGroupId);
+            case ACTIVE_POWER -> setActivePowerLimits(side, limits, operationalLimitsGroupId);
             default -> throw new IllegalArgumentException(EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE);
         }
     }
 
-    void setCurrentLimits(int side, LimitsAttributes limits);
+    Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side);
 
-    void setApparentPowerLimits(int side, LimitsAttributes limits);
+    void setCurrentLimits(int side, LimitsAttributes limits, String operationalLimitsGroupId);
 
-    void setActivePowerLimits(int side, LimitsAttributes limits);
+    void setApparentPowerLimits(int side, LimitsAttributes limits, String operationalLimitsGroupId);
+
+    void setActivePowerLimits(int side, LimitsAttributes limits, String operationalLimitsGroupId);
 
     @JsonIgnore
     List<Integer> getSideList();
 
-    default List<TemporaryLimitAttributes> getTemporaryLimitsByTypeAndSide(LimitType type, int side) {
-        LimitsAttributes limits = getLimits(type, side);
-        if (limits != null && limits.getTemporaryLimits() != null) {
-            List<TemporaryLimitAttributes> temporaryLimits = new ArrayList<>(limits.getTemporaryLimits().values());
-            temporaryLimits.forEach(e -> {
-                e.setSide(side);
-                e.setLimitType(type);
-            });
-            return temporaryLimits;
+    default void fillLimitsInfosByTypeAndSide(LimitsInfos result, LimitType type, int side) {
+        Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups = getOperationalLimitsGroups(side);
+        if (operationalLimitsGroups != null) {
+            for (Map.Entry<String, OperationalLimitsGroupAttributes> entry : operationalLimitsGroups.entrySet()) {
+                LimitsAttributes limits = getLimits(type, side, entry.getKey());
+                if (limits != null) {
+                    if (limits.getTemporaryLimits() != null) {
+                        List<TemporaryLimitAttributes> temporaryLimits = new ArrayList<>(
+                                limits.getTemporaryLimits().values());
+                        temporaryLimits.forEach(e -> {
+                            e.setSide(side);
+                            e.setLimitType(type);
+                            e.setOperationalLimitsGroupId(entry.getKey());
+                        });
+                        result.getTemporaryLimits().addAll(temporaryLimits);
+                    }
+                    if (limits.getPermanentLimit() != Double.NaN) {
+                        result.getPermanentLimits().add(PermanentLimitAttributes.builder()
+                                .side(side)
+                                .limitType(type)
+                                .value(limits.getPermanentLimit())
+                                .operationalLimitsGroupId(entry.getKey())
+                                .build());
+                    }
+                }
+            }
         }
-        return Collections.emptyList();
     }
 
     @JsonIgnore
-    default List<TemporaryLimitAttributes> getAllTemporaryLimits() {
-        List<TemporaryLimitAttributes> result = new ArrayList<>();
+    default LimitsInfos getAllLimitsInfos() {
+        LimitsInfos result = new LimitsInfos();
         for (Integer side : getSideList()) {
-            result.addAll(getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, side));
-            result.addAll(getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, side));
-            result.addAll(getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, side));
+            fillLimitsInfosByTypeAndSide(result, LimitType.CURRENT, side);
+            fillLimitsInfosByTypeAndSide(result, LimitType.ACTIVE_POWER, side);
+            fillLimitsInfosByTypeAndSide(result, LimitType.APPARENT_POWER, side);
         }
         return result;
     }

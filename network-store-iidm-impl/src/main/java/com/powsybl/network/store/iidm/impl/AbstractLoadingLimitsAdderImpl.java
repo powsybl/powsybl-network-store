@@ -38,13 +38,16 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     protected final S side;
 
+    protected final String operationalGroupId;
+
     protected double permanentLimit = Double.NaN;
 
     protected TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
 
-    protected AbstractLoadingLimitsAdderImpl(S side, O owner) {
+    protected AbstractLoadingLimitsAdderImpl(S side, O owner, String operationalGroupId) {
         this.owner = owner;
         this.side = side;
+        this.operationalGroupId = operationalGroupId;
     }
 
     @Override

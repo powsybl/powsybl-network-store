@@ -188,7 +188,7 @@ public class Resource<T extends Attributes> implements Validable {
         return new Builder<>(ResourceType.DANGLING_LINE);
     }
 
-    public static Builder<InjectionAttributes> groundBuilder() {
+    public static Builder<GroundAttributes> groundBuilder() {
         return new Builder<>(ResourceType.GROUND);
     }
 
