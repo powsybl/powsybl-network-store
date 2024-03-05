@@ -43,17 +43,17 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits() {
-        return Optional.ofNullable(attributes.getCurrentLimits() != null ? new CurrentLimitsImpl(owner, attributes.getCurrentLimits()) : null);
+        return Optional.ofNullable(attributes.getCurrentLimits() != null ? new CurrentLimitsImpl<>(owner, side, getId(), attributes.getCurrentLimits()) : null);
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits() {
-        return Optional.ofNullable(attributes.getActivePowerLimits() != null ? new ActivePowerLimitsImpl(owner, attributes.getActivePowerLimits()) : null);
+        return Optional.ofNullable(attributes.getActivePowerLimits() != null ? new ActivePowerLimitsImpl<>(owner, side, getId(), attributes.getActivePowerLimits()) : null);
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits() {
-        return Optional.ofNullable(attributes.getApparentPowerLimits() != null ? new ApparentPowerLimitsImpl(owner, attributes.getApparentPowerLimits()) : null);
+        return Optional.ofNullable(attributes.getApparentPowerLimits() != null ? new ApparentPowerLimitsImpl<>(owner, side, getId(), attributes.getApparentPowerLimits()) : null);
     }
 
     @Override

@@ -117,6 +117,17 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
 
     void setSelectedOperationalLimitsGroupId2(String id);
 
+    @Override
+    default Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
+        if (side == 1) {
+            return getOperationalLimitsGroups1();
+        } else if (side == 2) {
+            return getOperationalLimitsGroups2();
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
+
     @JsonIgnore
     default Set<String> getContainerIds() {
         return ImmutableSet.<String>builder()

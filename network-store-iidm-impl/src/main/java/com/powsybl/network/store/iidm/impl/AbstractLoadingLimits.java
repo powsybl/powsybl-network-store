@@ -16,10 +16,12 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.formula.functions.T;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractLoadingLimits<T extends LoadingLimits> implements LoadingLimits {
+public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T extends LoadingLimits> implements LoadingLimits {
 
     public static final class TemporaryLimitImpl implements LoadingLimits.TemporaryLimit {
 
@@ -50,12 +52,18 @@ public abstract class AbstractLoadingLimits<T extends LoadingLimits> implements 
         }
     }
 
-    private final LimitsOwner<?> owner;
-
     private final LimitsAttributes attributes;
 
-    protected AbstractLoadingLimits(LimitsOwner<?> owner, LimitsAttributes attributes) {
+    protected final O owner;
+
+    protected final S side;
+
+    protected final String operationalGroupId;
+
+    protected AbstractLoadingLimits(O owner, S side, String operationalGroupId, LimitsAttributes attributes) {
         this.owner = Objects.requireNonNull(owner);
+        this.side = side;
+        this.operationalGroupId = operationalGroupId;
         this.attributes = Objects.requireNonNull(attributes);
     }
 

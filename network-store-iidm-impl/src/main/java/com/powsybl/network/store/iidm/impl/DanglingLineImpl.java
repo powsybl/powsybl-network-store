@@ -363,7 +363,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         var selectedOperationalLimitsGroupId = attributes.getSelectedOperationalLimitsGroupId();
         var operationalLimitsGroup = attributes.getOperationalLimitsGroup(selectedOperationalLimitsGroupId);
         return operationalLimitsGroup != null && operationalLimitsGroup.getCurrentLimits() != null
-                ? new CurrentLimitsImpl(this, operationalLimitsGroup.getCurrentLimits())
+                ? new CurrentLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getCurrentLimits())
                 : null;
     }
 
@@ -378,7 +378,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         var selectedOperationalLimitsGroupId = attributes.getSelectedOperationalLimitsGroupId();
         var operationalLimitsGroup = attributes.getOperationalLimitsGroup(selectedOperationalLimitsGroupId);
         return operationalLimitsGroup != null && operationalLimitsGroup.getActivePowerLimits() != null
-                ? new ActivePowerLimitsImpl(this, operationalLimitsGroup.getActivePowerLimits())
+                ? new ActivePowerLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getActivePowerLimits())
                 : null;
     }
 
@@ -393,7 +393,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         var selectedOperationalLimitsGroupId = attributes.getSelectedOperationalLimitsGroupId();
         var operationalLimitsGroup = attributes.getOperationalLimitsGroup(selectedOperationalLimitsGroupId);
         return operationalLimitsGroup != null && operationalLimitsGroup.getApparentPowerLimits() != null
-                ? new ApparentPowerLimitsImpl(this, operationalLimitsGroup.getApparentPowerLimits())
+                ? new ApparentPowerLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getApparentPowerLimits())
                 : null;
     }
 

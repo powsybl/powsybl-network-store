@@ -6,12 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import java.util.Collection;
-
 import com.powsybl.iidm.network.ActivePowerLimits;
 import com.powsybl.iidm.network.ActivePowerLimitsAdder;
 import com.powsybl.network.store.model.LimitsAttributes;
-import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -30,51 +27,8 @@ public class ActivePowerLimitsAdderImpl<S, O extends LimitsOwner<S>>
     }
 
     @Override
-    protected ActivePowerLimitsImpl createAndSetLimit(LimitsAttributes attributes) {
+    protected ActivePowerLimitsImpl<S, O> createAndSetLimit(LimitsAttributes attributes) {
         owner.setActivePowerLimits(side, attributes, operationalGroupId);
-        return new ActivePowerLimitsImpl(owner, attributes);
-    }
-
-    @Override
-    public double getTemporaryLimitValue(String name) {
-        TemporaryLimitAttributes tl = getTemporaryLimits().values().stream()
-                .filter(t -> t.getName().equals(name))
-                .findFirst()
-                .orElse(null);
-        return tl != null ? tl.getValue() : Double.NaN;
-    }
-
-    @Override
-    public int getTemporaryLimitAcceptableDuration(String name) {
-        TemporaryLimitAttributes tl = getTemporaryLimits().values().stream()
-                .filter(t -> t.getName().equals(name))
-                .findFirst()
-                .orElse(null);
-        return tl != null ? tl.getAcceptableDuration() : Integer.MAX_VALUE;
-    }
-
-    @Override
-    public double getLowestTemporaryLimitValue() {
-        return getTemporaryLimits().values().stream()
-                .mapToDouble(TemporaryLimitAttributes::getValue)
-                .min()
-                .orElse(Double.NaN);
-    }
-
-    @Override
-    public Collection<String> getTemporaryLimitNames() {
-        return getTemporaryLimits().values().stream()
-                .map(TemporaryLimitAttributes::getName)
-                .toList();
-    }
-
-    @Override
-    public void removeTemporaryLimit(String name) {
-        getTemporaryLimits().values().removeIf(t -> t.getName().equals(name));
-    }
-
-    @Override
-    public String getOwnerId() {
-        return getOwner().getIdentifiable().getId();
+        return new ActivePowerLimitsImpl<>(owner, side, operationalGroupId, attributes);
     }
 }

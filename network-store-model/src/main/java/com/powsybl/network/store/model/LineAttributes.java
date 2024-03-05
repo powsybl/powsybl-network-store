@@ -124,14 +124,4 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @Schema(description = "Operating status")
     private String operatingStatus;
 
-    @Override
-    public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
-        if (side == 1) {
-            return operationalLimitsGroups1;
-        } else if (side == 2) {
-            return operationalLimitsGroups2;
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
 }

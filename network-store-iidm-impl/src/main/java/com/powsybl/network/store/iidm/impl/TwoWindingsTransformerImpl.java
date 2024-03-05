@@ -22,7 +22,6 @@ import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttr
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -290,23 +289,4 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         return extension;
     }
 
-    @Override
-    public boolean connect() {
-        return getTerminal1().connect() && getTerminal2().connect();
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        return getTerminal1().connect(isTypeSwitchToOperate) && getTerminal2().connect(isTypeSwitchToOperate);
-    }
-
-    @Override
-    public boolean disconnect() {
-        return getTerminal1().disconnect() && getTerminal2().disconnect();
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        return getTerminal1().disconnect(isSwitchOpenable) && getTerminal2().disconnect(isSwitchOpenable);
-    }
 }

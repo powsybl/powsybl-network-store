@@ -16,6 +16,7 @@ import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -166,7 +167,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var selectedOperationalLimitsGroupId1 = attributes.getSelectedOperationalLimitsGroupId1();
         var group = attributes.getOperationalLimitsGroup1(selectedOperationalLimitsGroupId1);
         return group != null && group.getApparentPowerLimits() != null
-                ? new ApparentPowerLimitsImpl(this, group.getApparentPowerLimits())
+                ? new ApparentPowerLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getApparentPowerLimits())
                 : null;
     }
 
@@ -181,7 +182,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var selectedOperationalLimitsGroupId2 = attributes.getSelectedOperationalLimitsGroupId2();
         var group = attributes.getOperationalLimitsGroup2(selectedOperationalLimitsGroupId2);
         return group != null && group.getApparentPowerLimits() != null
-                ? new ApparentPowerLimitsImpl(this, group.getApparentPowerLimits())
+                ? new ApparentPowerLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getApparentPowerLimits())
                 : null;
     }
 
@@ -241,7 +242,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var selectedOperationalLimitsGroupId1 = attributes.getSelectedOperationalLimitsGroupId1();
         var group = attributes.getOperationalLimitsGroup1(selectedOperationalLimitsGroupId1);
         return group != null && group.getActivePowerLimits() != null
-                ? new ActivePowerLimitsImpl(this, group.getActivePowerLimits())
+                ? new ActivePowerLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getActivePowerLimits())
                 : null;
     }
 
@@ -256,7 +257,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var selectedOperationalLimitsGroupId2 = attributes.getSelectedOperationalLimitsGroupId2();
         var group = attributes.getOperationalLimitsGroup2(selectedOperationalLimitsGroupId2);
         return group != null && group.getActivePowerLimits() != null
-                ? new ActivePowerLimitsImpl(this, group.getActivePowerLimits())
+                ? new ActivePowerLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getActivePowerLimits())
                 : null;
     }
 
@@ -315,7 +316,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var selectedOperationalLimitsGroupId1 = attributes.getSelectedOperationalLimitsGroupId1();
         var group = attributes.getOperationalLimitsGroup1(selectedOperationalLimitsGroupId1);
         return group != null && group.getCurrentLimits() != null
-                ? new CurrentLimitsImpl(this, group.getCurrentLimits())
+                ? new CurrentLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getCurrentLimits())
                 : null;
     }
 
@@ -330,7 +331,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var selectedOperationalLimitsGroupId1 = attributes.getSelectedOperationalLimitsGroupId2();
         var group = attributes.getOperationalLimitsGroup2(selectedOperationalLimitsGroupId1);
         return group != null && group.getCurrentLimits() != null
-                ? new CurrentLimitsImpl(this, group.getCurrentLimits())
+                ? new CurrentLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getCurrentLimits())
                 : null;
     }
 
@@ -603,5 +604,25 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             extensions.add(extension);
         }
         return extensions;
+    }
+
+    @Override
+    public boolean connect() {
+        return getTerminal1().connect() && getTerminal2().connect();
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        return getTerminal1().connect(isTypeSwitchToOperate) && getTerminal2().connect(isTypeSwitchToOperate);
+    }
+
+    @Override
+    public boolean disconnect() {
+        return getTerminal1().disconnect() && getTerminal2().disconnect();
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        return getTerminal1().disconnect(isSwitchOpenable) && getTerminal2().disconnect(isSwitchOpenable);
     }
 }

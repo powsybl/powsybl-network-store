@@ -73,6 +73,49 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
     }
 
     @Override
+    public double getTemporaryLimitValue(String name) {
+        TemporaryLimitAttributes tl = getTemporaryLimits().values().stream()
+                .filter(t -> t.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+        return tl != null ? tl.getValue() : Double.NaN;
+    }
+
+    @Override
+    public int getTemporaryLimitAcceptableDuration(String name) {
+        TemporaryLimitAttributes tl = getTemporaryLimits().values().stream()
+                .filter(t -> t.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+        return tl != null ? tl.getAcceptableDuration() : Integer.MAX_VALUE;
+    }
+
+    @Override
+    public double getLowestTemporaryLimitValue() {
+        return getTemporaryLimits().values().stream()
+                .mapToDouble(TemporaryLimitAttributes::getValue)
+                .min()
+                .orElse(Double.NaN);
+    }
+
+    @Override
+    public Collection<String> getTemporaryLimitNames() {
+        return getTemporaryLimits().values().stream()
+                .map(TemporaryLimitAttributes::getName)
+                .toList();
+    }
+
+    @Override
+    public void removeTemporaryLimit(String name) {
+        getTemporaryLimits().values().removeIf(t -> t.getName().equals(name));
+    }
+
+    @Override
+    public String getOwnerId() {
+        return getOwner().getIdentifiable().getId();
+    }
+
+    @Override
     public boolean hasTemporaryLimits() {
         return temporaryLimits != null && !temporaryLimits.isEmpty();
     }
