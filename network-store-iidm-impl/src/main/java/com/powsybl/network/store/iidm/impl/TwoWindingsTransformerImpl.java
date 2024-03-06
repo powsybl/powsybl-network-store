@@ -288,5 +288,4 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         }
         return extension;
     }
-
 }

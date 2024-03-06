@@ -246,19 +246,19 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystems'");
+        // FIXME : implement this method
+        return Collections.emptyList();
     }
 
     @Override
     public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystemStream'");
+        // FIXME : implement this method
+        return Stream.empty();
     }
 
     @Override
     public int getOverloadManagementSystemCount() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystemCount'");
+        // FIXME : implement this method
+        return 0;
     }
 }

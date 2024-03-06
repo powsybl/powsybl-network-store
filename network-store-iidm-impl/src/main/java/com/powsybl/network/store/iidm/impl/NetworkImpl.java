@@ -1054,49 +1054,45 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystems'");
+        // FIXME: implement
+        return Collections.emptyList();
     }
 
     @Override
     public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystemStream'");
+        // FIXME: implement
+        return Stream.empty();
     }
 
     @Override
     public int getOverloadManagementSystemCount() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystemCount'");
+        // FIXME: implement
+        return 0;
     }
 
     @Override
     public OverloadManagementSystem getOverloadManagementSystem(String id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOverloadManagementSystem'");
+        // FIXME: implement
+        return null;
     }
 
     @Override
     public Iterable<Ground> getGrounds() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getGrounds'");
+        return index.getGrounds();
     }
 
     @Override
     public Stream<Ground> getGroundStream() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getGroundStream'");
+        return index.getGrounds().stream();
     }
 
     @Override
     public int getGroundCount() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getGroundCount'");
+        return index.getGrounds().size();
     }
 
     @Override
     public Ground getGround(String id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getGround'");
+        return index.getGround(getIdFromAlias(id)).orElse(null);
     }
 }

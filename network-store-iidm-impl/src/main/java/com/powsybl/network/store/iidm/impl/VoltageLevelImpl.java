@@ -457,6 +457,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             } else {
                 throw new PowsyblException("No BusbarSection in a bus breaker topology");
             }
+        } else if (clazz == Ground.class) {
+            return (List<T>) index.getGrounds(resource.getId());
         }
         throw new UnsupportedOperationException("TODO");
     }
