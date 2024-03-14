@@ -276,8 +276,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         public void setCurrentLimits(Void side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
             var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(currentLimits));
             updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(currentLimits));
             notifyUpdate("currentLimits", oldValue, currentLimits);
         }
 
@@ -290,8 +290,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         public void setApparentPowerLimits(Void side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId) {
             var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes));
             updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes));
             notifyUpdate("apparentLimits", oldValue, apparentPowerLimitsAttributes);
         }
 
@@ -299,8 +299,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         public void setActivePowerLimits(Void side, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId) {
             var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes));
             updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes));
             notifyUpdate("activePowerLimits", oldValue, activePowerLimitsAttributes);
         }
 
@@ -394,7 +394,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
             var resource = getLegAttributes();
             var group = OperationalLimitsGroupAttributes.builder().id(id).build();
-            group.setId(id);
             resource.getOperationalLimitsGroups().put(id, group);
             return new OperationalLimitsGroupImpl<>(this, null, group);
         }

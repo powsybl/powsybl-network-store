@@ -36,4 +36,18 @@ public class TwoWindingsTransformerTest {
         twtWithPhaseTapChanger.getPhaseTapChanger().remove();
         assertNull(twtWithPhaseTapChanger.getPhaseTapChanger());
     }
+
+    @Test
+    public void testRatioTapChangerRegulationValueAndMode() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        Network network = Importer.find("CGMES")
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
+        RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
+        ratioTapChanger.setRegulationValue(1.1);
+        assertEquals(1.1, ratioTapChanger.getRegulationValue(), 0.0);
+        ratioTapChanger.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+    }
 }
