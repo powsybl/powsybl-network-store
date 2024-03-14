@@ -20,7 +20,7 @@ public interface FlowsLimitsAttributes {
     String getSelectedOperationalLimitsGroupId();
 
     default OperationalLimitsGroupAttributes getOperationalLimitsGroup(String id) {
-        return getOperationalLimitsGroups() != null ? getOperationalLimitsGroups().get(id) : null;
+        return getOperationalLimitsGroups().get(id);
     }
 
     default OperationalLimitsGroupAttributes getOrCreateOperationalLimitsGroup(String id) {

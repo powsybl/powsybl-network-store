@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Ground;
 import com.powsybl.network.store.model.GroundAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -31,6 +32,15 @@ class GroundImpl extends AbstractInjectionImpl<Ground, GroundAttributes> impleme
         invalidateCalculatedBuses(getTerminals());
         index.removeGround(resource.getId());
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        if (fictitious) {
+            throw new PowsyblException("The ground cannot be fictitious.");
+        } else {
+            getResource().getAttributes().setFictitious(false);
+        }
     }
 
     @Override

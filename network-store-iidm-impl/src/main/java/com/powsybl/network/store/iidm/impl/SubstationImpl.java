@@ -240,8 +240,8 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public OverloadManagementSystemAdder newOverloadManagementSystem() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'newOverloadManagementSystem'");
+        // FIXME : implement this method
+        return null;
     }
 
     @Override

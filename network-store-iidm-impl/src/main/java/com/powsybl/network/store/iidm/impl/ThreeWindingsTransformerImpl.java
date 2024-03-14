@@ -167,9 +167,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public CurrentLimits getNullableCurrentLimits() {
-            var attributes = getLegAttributes();
-            var selectedOperationalLimitsGroupId = attributes.getSelectedOperationalLimitsGroupId();
-            var operationalLimitsGroup = attributes.getOperationalLimitsGroup(selectedOperationalLimitsGroupId);
+            var operationalLimitsGroup = getLegAttributes().getSelectedOperationalLimitsGroup();
             return operationalLimitsGroup != null && operationalLimitsGroup.getCurrentLimits() != null
                     ? new CurrentLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getCurrentLimits())
                     : null;
@@ -182,9 +180,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public ApparentPowerLimits getNullableApparentPowerLimits() {
-            var attributes = getLegAttributes();
-            var selectedOperationalLimitsGroupId = attributes.getSelectedOperationalLimitsGroupId();
-            var operationalLimitsGroup = attributes.getOperationalLimitsGroup(selectedOperationalLimitsGroupId);
+            var operationalLimitsGroup = getLegAttributes().getSelectedOperationalLimitsGroup();
             return operationalLimitsGroup != null && operationalLimitsGroup.getApparentPowerLimits() != null
                     ? new ApparentPowerLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getApparentPowerLimits())
                     : null;
@@ -197,9 +193,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public ActivePowerLimits getNullableActivePowerLimits() {
-            var attributes = getLegAttributes();
-            var selectedOperationalLimitsGroupId = attributes.getSelectedOperationalLimitsGroupId();
-            var operationalLimitsGroup = attributes.getOperationalLimitsGroup(selectedOperationalLimitsGroupId);
+            var operationalLimitsGroup = getLegAttributes().getSelectedOperationalLimitsGroup();
             return operationalLimitsGroup != null && operationalLimitsGroup.getActivePowerLimits() != null
                     ? new ActivePowerLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getActivePowerLimits())
                     : null;
@@ -375,7 +369,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Optional<String> getSelectedOperationalLimitsGroupId() {
-            return Optional.of(getLegAttributes().getSelectedOperationalLimitsGroupId());
+            return Optional.ofNullable(getLegAttributes().getSelectedOperationalLimitsGroupId());
         }
 
         @Override

@@ -163,9 +163,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits1() {
-        var attributes = getResource().getAttributes();
-        var selectedOperationalLimitsGroupId1 = attributes.getSelectedOperationalLimitsGroupId1();
-        var group = attributes.getOperationalLimitsGroup1(selectedOperationalLimitsGroupId1);
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup1();
         return group != null && group.getApparentPowerLimits() != null
                 ? new ApparentPowerLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getApparentPowerLimits())
                 : null;
@@ -178,9 +176,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits2() {
-        var attributes = getResource().getAttributes();
-        var selectedOperationalLimitsGroupId2 = attributes.getSelectedOperationalLimitsGroupId2();
-        var group = attributes.getOperationalLimitsGroup2(selectedOperationalLimitsGroupId2);
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup2();
         return group != null && group.getApparentPowerLimits() != null
                 ? new ApparentPowerLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getApparentPowerLimits())
                 : null;
@@ -238,9 +234,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits1() {
-        var attributes = getResource().getAttributes();
-        var selectedOperationalLimitsGroupId1 = attributes.getSelectedOperationalLimitsGroupId1();
-        var group = attributes.getOperationalLimitsGroup1(selectedOperationalLimitsGroupId1);
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup1();
         return group != null && group.getActivePowerLimits() != null
                 ? new ActivePowerLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getActivePowerLimits())
                 : null;
@@ -253,9 +247,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits2() {
-        var attributes = getResource().getAttributes();
-        var selectedOperationalLimitsGroupId2 = attributes.getSelectedOperationalLimitsGroupId2();
-        var group = attributes.getOperationalLimitsGroup2(selectedOperationalLimitsGroupId2);
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup2();
         return group != null && group.getActivePowerLimits() != null
                 ? new ActivePowerLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getActivePowerLimits())
                 : null;
@@ -312,9 +304,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public CurrentLimits getNullableCurrentLimits1() {
-        var attributes = getResource().getAttributes();
-        var selectedOperationalLimitsGroupId1 = attributes.getSelectedOperationalLimitsGroupId1();
-        var group = attributes.getOperationalLimitsGroup1(selectedOperationalLimitsGroupId1);
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup1();
         return group != null && group.getCurrentLimits() != null
                 ? new CurrentLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getCurrentLimits())
                 : null;
@@ -327,9 +317,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public CurrentLimits getNullableCurrentLimits2() {
-        var attributes = getResource().getAttributes();
-        var selectedOperationalLimitsGroupId1 = attributes.getSelectedOperationalLimitsGroupId2();
-        var group = attributes.getOperationalLimitsGroup2(selectedOperationalLimitsGroupId1);
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup2();
         return group != null && group.getCurrentLimits() != null
                 ? new CurrentLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getCurrentLimits())
                 : null;
@@ -342,9 +330,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
-        return getResource().getAttributes().getOperationalLimitsGroups1() != null ? getResource().getAttributes().getOperationalLimitsGroups1().values().stream()
+        return getResource().getAttributes().getOperationalLimitsGroups1().values().stream()
                 .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, group))
-                .collect(Collectors.toList()) : Collections.emptyList();
+                .collect(Collectors.toList());
     }
 
     @Override

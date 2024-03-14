@@ -82,7 +82,7 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     void setOperationalLimitsGroups1(Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups);
 
     default OperationalLimitsGroupAttributes getOperationalLimitsGroup1(String id) {
-        return getOperationalLimitsGroups1() != null ? getOperationalLimitsGroups1().get(id) : null;
+        return getOperationalLimitsGroups1().get(id);
     }
 
     default OperationalLimitsGroupAttributes getOrCreateOperationalLimitsGroup1(String id) {
@@ -107,7 +107,7 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     void setOperationalLimitsGroups2(Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups);
 
     default OperationalLimitsGroupAttributes getOperationalLimitsGroup2(String id) {
-        return getOperationalLimitsGroups2() != null ? getOperationalLimitsGroups2().get(id) : null;
+        return getOperationalLimitsGroups2().get(id);
     }
 
     @JsonIgnore

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -409,5 +410,13 @@ public class LineTest {
         assertFalse(tieLine.checkPermanentLimit(TwoSides.TWO, 2.0f, LimitType.APPARENT_POWER));
         assertFalse(tieLine.checkPermanentLimit(TwoSides.ONE, LimitType.APPARENT_POWER));
         assertFalse(tieLine.checkPermanentLimit(TwoSides.TWO, LimitType.APPARENT_POWER));
+    }
+
+    @Test
+    public void testConnectDisconnect() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        Line l1 = network.getLine("L1");
+        assertTrue(l1.connect());
+        assertTrue(l1.disconnect());
     }
 }

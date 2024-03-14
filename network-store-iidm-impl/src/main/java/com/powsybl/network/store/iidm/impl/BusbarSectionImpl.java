@@ -108,21 +108,21 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public boolean connect() {
-        return getTerminal().connect();
+        return terminal.connect();
     }
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        return getTerminal().connect(isTypeSwitchToOperate);
+        return terminal.connect(isTypeSwitchToOperate);
     }
 
     @Override
     public boolean disconnect() {
-        return getTerminal().disconnect();
+        return terminal.disconnect();
     }
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        return getTerminal().disconnect(isSwitchOpenable);
+        return terminal.disconnect(isSwitchOpenable);
     }
 }

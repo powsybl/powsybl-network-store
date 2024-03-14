@@ -21,6 +21,9 @@ public class LimitHolderTest {
     TreeMap<Integer, TemporaryLimitAttributes> tempLimitsA;
     TreeMap<Integer, TemporaryLimitAttributes> tempLimitsB;
     TreeMap<Integer, TemporaryLimitAttributes> tempLimitsC;
+    LimitsAttributes limitsAttributesA;
+    LimitsAttributes limitsAttributesB;
+    LimitsAttributes limitsAttributesC;
 
     @Before
     public void setUp() {
@@ -34,11 +37,17 @@ public class LimitHolderTest {
                 .value(75)
                 .build());
 
+        limitsAttributesA = new LimitsAttributes();
+        limitsAttributesA.setTemporaryLimits(tempLimitsA);
+
         tempLimitsB = new TreeMap<>();
         tempLimitsB.put(60, TemporaryLimitAttributes.builder()
                 .acceptableDuration(60)
                 .value(600)
                 .build());
+
+        limitsAttributesB = new LimitsAttributes();
+        limitsAttributesB.setTemporaryLimits(tempLimitsB);
 
         tempLimitsC = new TreeMap<>();
         tempLimitsC.put(5000, TemporaryLimitAttributes.builder()
@@ -53,6 +62,180 @@ public class LimitHolderTest {
                 .acceptableDuration(25000)
                 .value(7)
                 .build());
+
+        limitsAttributesC = new LimitsAttributes();
+        limitsAttributesC.setTemporaryLimits(tempLimitsC);
+    }
+
+    @Test
+    public void branchLimitsTest() {
+        LineAttributes line = new LineAttributes();
+        assertNull(line.getCurrentLimits(1, "group1"));
+        assertNull(line.getCurrentLimits(2, "group2"));
+        try {
+            line.getCurrentLimits(3, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setCurrentLimits(1, limitsAttributesA, "group1");
+        line.setCurrentLimits(2, limitsAttributesB, "group2");
+        try {
+            line.setCurrentLimits(3, limitsAttributesC, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getCurrentLimits(1, "group1"));
+        assertEquals(limitsAttributesB, line.getCurrentLimits(2, "group2"));
+
+        assertNull(line.getApparentPowerLimits(1, "group3"));
+        assertNull(line.getApparentPowerLimits(2, "group3"));
+        try {
+            line.getApparentPowerLimits(3, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setApparentPowerLimits(1, limitsAttributesA, "group1");
+        line.setApparentPowerLimits(2, limitsAttributesB, "group2");
+        try {
+            line.setApparentPowerLimits(3, limitsAttributesC, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getApparentPowerLimits(1, "group1"));
+        assertEquals(limitsAttributesB, line.getApparentPowerLimits(2, "group2"));
+
+        assertNull(line.getActivePowerLimits(1, "group3"));
+        assertNull(line.getActivePowerLimits(2, "group3"));
+        try {
+            line.getActivePowerLimits(3, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setActivePowerLimits(1, limitsAttributesA, "group1");
+        line.setActivePowerLimits(2, limitsAttributesB, "group2");
+        try {
+            line.setActivePowerLimits(3, limitsAttributesC, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getActivePowerLimits(1, "group1"));
+        assertEquals(limitsAttributesB, line.getActivePowerLimits(2, "group2"));
+
+    }
+
+    @Test
+    public void danglingLineLimitsTest() {
+        DanglingLineAttributes line = new DanglingLineAttributes();
+        assertNull(line.getCurrentLimits(1, "group1"));
+        try {
+            line.getCurrentLimits(2, "group2");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setCurrentLimits(1, limitsAttributesA, "group1");
+        try {
+            line.setCurrentLimits(2, limitsAttributesB, "group2");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getCurrentLimits(1, "group1"));
+
+        assertNull(line.getApparentPowerLimits(1, "group3"));
+        try {
+            line.getApparentPowerLimits(2, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setApparentPowerLimits(1, limitsAttributesA, "group1");
+        try {
+            line.setApparentPowerLimits(2, limitsAttributesB, "group2");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getApparentPowerLimits(1, "group1"));
+
+        assertNull(line.getActivePowerLimits(1, "group3"));
+        try {
+            line.getActivePowerLimits(2, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setActivePowerLimits(1, limitsAttributesA, "group1");
+        try {
+            line.setActivePowerLimits(2, limitsAttributesB, "group2");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getActivePowerLimits(1, "group1"));
+    }
+
+    @Test
+    public void threeWindingsTransformerLimitsTest() {
+        ThreeWindingsTransformerAttributes transformer = new ThreeWindingsTransformerAttributes();
+        transformer.setLeg1(LegAttributes.builder().build());
+        try {
+            transformer.getCurrentLimits(4, "group4");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+
+        transformer.setCurrentLimits(1, limitsAttributesA, "group1");
+        assertEquals(limitsAttributesA, transformer.getCurrentLimits(1, "group1"));
+
+        transformer.setActivePowerLimits(1, limitsAttributesA, "group1");
+        assertEquals(limitsAttributesA, transformer.getActivePowerLimits(1, "group1"));
+
+        transformer.setApparentPowerLimits(1, limitsAttributesA, "group1");
+        assertEquals(limitsAttributesA, transformer.getApparentPowerLimits(1, "group1"));
+    }
+
+    @Test
+    public void operationalLimitsGroupTest() {
+        LineAttributes line = new LineAttributes();
+        line.setCurrentLimits(1, limitsAttributesA, "group1");
+        line.setCurrentLimits(2, limitsAttributesB, "group2");
+        assertNotNull(line.getOperationalLimitsGroups(1));
+        assertNotNull(line.getOperationalLimitsGroups(2));
+        try {
+            line.getOperationalLimitsGroups(3);
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+
+        DanglingLineAttributes danglingLine = new DanglingLineAttributes();
+        danglingLine.setCurrentLimits(1, limitsAttributesA, "group1");
+        assertNotNull(danglingLine.getOperationalLimitsGroups(1));
+        try {
+            danglingLine.getOperationalLimitsGroups(2);
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+
+        ThreeWindingsTransformerAttributes transformer = new ThreeWindingsTransformerAttributes();
+        transformer.setLeg1(LegAttributes.builder().build());
+        transformer.setCurrentLimits(1, limitsAttributesA, "group1");
+        assertNotNull(transformer.getOperationalLimitsGroups(1));
+        try {
+            transformer.getOperationalLimitsGroups(4);
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
     }
 
     @Test

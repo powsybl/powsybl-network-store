@@ -42,6 +42,6 @@ class GroundAdderImpl extends AbstractInjectionAdder<GroundAdderImpl> implements
 
     @Override
     protected String getTypeDescription() {
-        return ResourceType.GENERATOR.getDescription();
+        return ResourceType.GROUND.getDescription();
     }
 }

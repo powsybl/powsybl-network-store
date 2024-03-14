@@ -133,5 +133,4 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
-
 }
