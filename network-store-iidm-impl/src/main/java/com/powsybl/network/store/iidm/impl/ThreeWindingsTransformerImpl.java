@@ -200,6 +200,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
+        private static final String SELECTED_OPERATIONAL_LIMITS_GROUP_ID = ".selectedOperationalLimitsGroupId";
 
         private String getSelectedGroupId() {
             return getLegAttributes().getSelectedOperationalLimitsGroupId() != null
@@ -398,7 +399,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             String oldValue = resource.getSelectedOperationalLimitsGroupId();
             if (!id.equals(oldValue)) {
                 transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(id));
-                index.notifyUpdate(transformer, getLegAttribute() + ".selectedOperationalLimitsGroupId", oldValue, id);
+                index.notifyUpdate(transformer, getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, id);
             }
         }
 
@@ -410,7 +411,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             if (id.equals(resource.getSelectedOperationalLimitsGroupId())) {
                 resource.setSelectedOperationalLimitsGroupId(null);
-                index.notifyUpdate(transformer, getLegAttribute() + ".selectedOperationalLimitsGroupId", id, null);
+                index.notifyUpdate(transformer, getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, null);
             }
             transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOperationalLimitsGroups().remove(id));
         }
@@ -421,7 +422,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             String oldValue = resource.getSelectedOperationalLimitsGroupId();
             if (oldValue != null) {
                 transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(null));
-                index.notifyUpdate(transformer, getLegAttribute() + ".selectedOperationalLimitsGroupId", oldValue, null);
+                index.notifyUpdate(transformer, getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
             }
         }
     }

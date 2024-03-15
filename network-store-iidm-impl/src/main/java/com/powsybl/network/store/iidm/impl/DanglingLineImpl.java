@@ -184,6 +184,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
+    private static final String SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "selectedOperationalLimitsGroupId";
 
     private final DanglingLineBoundaryImpl boundary;
 
@@ -498,7 +499,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
         if (!id.equals(oldValue)) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(id));
-            index.notifyUpdate(this, "selectedOperationalLimitsGroupId", oldValue, id);
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, id);
         }
     }
 
@@ -510,7 +511,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
         if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId())) {
             resource.getAttributes().setSelectedOperationalLimitsGroupId(null);
-            index.notifyUpdate(this, "selectedOperationalLimitsGroupId", id, null);
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, null);
         }
         updateResource(res -> res.getAttributes().getOperationalLimitsGroups().remove(id));
     }
@@ -521,7 +522,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
         if (oldValue != null) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(null));
-            index.notifyUpdate(this, "selectedOperationalLimitsGroupId", oldValue, null);
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
         }
     }
 }

@@ -21,7 +21,7 @@ import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl.LegImpl;
 class OperationalLimitsTest {
 
     @Test
-    void lineOperationalLimitsTest() {
+    void lineOperationalLimits1Test() {
         Network network = CreateNetworksUtil.createBusBreakerNetwokWithMultipleEquipments();
         LineImpl l1 = (LineImpl) network.getLine("LINE1");
         l1.cancelSelectedOperationalLimitsGroup1();
@@ -59,7 +59,12 @@ class OperationalLimitsTest {
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getApparentPowerLimits1().get().getPermanentLimit());
         assertNotNull(l1.getSelectedOperationalLimitsGroup1());
+    }
 
+    @Test
+        void lineOperationalLimits2Test() {
+        Network network = CreateNetworksUtil.createBusBreakerNetwokWithMultipleEquipments();
+        LineImpl l1 = (LineImpl) network.getLine("LINE1");
         assertEquals(Optional.empty(), l1.getOperationalLimitsGroup2("group2"));
         l1.cancelSelectedOperationalLimitsGroup2();
 
