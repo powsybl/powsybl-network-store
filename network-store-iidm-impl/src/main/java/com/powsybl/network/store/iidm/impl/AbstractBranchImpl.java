@@ -373,10 +373,15 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public void removeOperationalLimitsGroup1(String id) {
         var resource = getResource();
-        resource.getAttributes().getOperationalLimitsGroups1().remove(id);
+        if (resource.getAttributes().getOperationalLimitsGroups1().get(id) == null) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        }
+
         if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId1())) {
             resource.getAttributes().setSelectedOperationalLimitsGroupId1(null);
+            index.notifyUpdate(this, "selectedOperationalLimitsGroupId1", id, null);
         }
+        updateResource(res -> res.getAttributes().getOperationalLimitsGroups1().remove(id));
     }
 
     @Override
@@ -434,10 +439,15 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public void removeOperationalLimitsGroup2(String id) {
         var resource = getResource();
-        resource.getAttributes().getOperationalLimitsGroups2().remove(id);
+        if (resource.getAttributes().getOperationalLimitsGroups2().get(id) == null) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        }
         if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId2())) {
             resource.getAttributes().setSelectedOperationalLimitsGroupId2(null);
+            index.notifyUpdate(this, "selectedOperationalLimitsGroupId2", id, null);
         }
+        updateResource(res -> res.getAttributes().getOperationalLimitsGroups2().remove(id));
+
     }
 
     @Override

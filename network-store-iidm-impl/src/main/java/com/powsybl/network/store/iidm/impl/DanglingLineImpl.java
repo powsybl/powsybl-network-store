@@ -498,17 +498,21 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
         if (!id.equals(oldValue)) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(id));
-            index.notifyUpdate(this, "selectedOperationalLimitsGroupId1", oldValue, id);
+            index.notifyUpdate(this, "selectedOperationalLimitsGroupId", oldValue, id);
         }
     }
 
     @Override
     public void removeOperationalLimitsGroup(String id) {
         var resource = getResource();
-        resource.getAttributes().getOperationalLimitsGroups().remove(id);
+        if (resource.getAttributes().getOperationalLimitsGroups().get(id) == null) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        }
         if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId())) {
             resource.getAttributes().setSelectedOperationalLimitsGroupId(null);
+            index.notifyUpdate(this, "selectedOperationalLimitsGroupId", id, null);
         }
+        updateResource(res -> res.getAttributes().getOperationalLimitsGroups().remove(id));
     }
 
     @Override
@@ -517,7 +521,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
         if (oldValue != null) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(null));
-            index.notifyUpdate(this, "selectedOperationalLimitsGroupId1", oldValue, null);
+            index.notifyUpdate(this, "selectedOperationalLimitsGroupId", oldValue, null);
         }
     }
 }

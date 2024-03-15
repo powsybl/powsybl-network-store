@@ -398,16 +398,21 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             String oldValue = resource.getSelectedOperationalLimitsGroupId();
             if (!id.equals(oldValue)) {
                 transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(id));
+                index.notifyUpdate(transformer, getLegAttribute() + ".selectedOperationalLimitsGroupId", oldValue, id);
             }
         }
 
         @Override
         public void removeOperationalLimitsGroup(String id) {
             var resource = getLegAttributes();
-            resource.getOperationalLimitsGroups().remove(id);
+            if (resource.getOperationalLimitsGroups().get(id) == null) {
+                throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+            }
             if (id.equals(resource.getSelectedOperationalLimitsGroupId())) {
                 resource.setSelectedOperationalLimitsGroupId(null);
+                index.notifyUpdate(transformer, getLegAttribute() + ".selectedOperationalLimitsGroupId", id, null);
             }
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOperationalLimitsGroups().remove(id));
         }
 
         @Override
@@ -416,6 +421,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             String oldValue = resource.getSelectedOperationalLimitsGroupId();
             if (oldValue != null) {
                 transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(null));
+                index.notifyUpdate(transformer, getLegAttribute() + ".selectedOperationalLimitsGroupId", oldValue, null);
             }
         }
     }
