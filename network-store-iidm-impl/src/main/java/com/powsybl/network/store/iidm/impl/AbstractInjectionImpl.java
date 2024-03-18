@@ -6,14 +6,11 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,48 +37,48 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         return terminal;
     }
 
-    public <E extends Extension<I>> E createConnectablePositionExtension() {
-        E extension = null;
-        var resource = getResource();
-        if (resource.getAttributes().getPosition() != null) {
-            return (E) new ConnectablePositionImpl<>(getInjection(),
-                connectable -> ((AbstractInjectionImpl<?, ?>) connectable).getResource().getAttributes().getPosition(),
-                null,
-                null,
-                null);
-        }
-        return extension;
-    }
-
-    @Override
-    public <E extends Extension<I>> E getExtension(Class<? super E> type) {
-        E extension;
-        if (type == ConnectablePosition.class) {
-            extension = createConnectablePositionExtension();
-        } else {
-            extension = super.getExtension(type);
-        }
-        return extension;
-    }
-
-    @Override
-    public <E extends Extension<I>> E getExtensionByName(String name) {
-        E extension;
-        if (name.equals("position")) {
-            extension = createConnectablePositionExtension();
-        } else {
-            extension = super.getExtensionByName(name);
-        }
-        return extension;
-    }
-
-    @Override
-    public <E extends Extension<I>> Collection<E> getExtensions() {
-        Collection<E> extensions = super.getExtensions();
-        E extension = createConnectablePositionExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        return extensions;
-    }
+//    public <E extends Extension<I>> E createConnectablePositionExtension() {
+//        E extension = null;
+//        var resource = getResource();
+//        if (resource.getAttributes().getPosition() != null) {
+//            return (E) new ConnectablePositionImpl<>(getInjection(),
+//                connectable -> ((AbstractInjectionImpl<?, ?>) connectable).getResource().getAttributes().getPosition(),
+//                null,
+//                null,
+//                null);
+//        }
+//        return extension;
+//    }
+//
+//    @Override
+//    public <E extends Extension<I>> E getExtension(Class<? super E> type) {
+//        E extension;
+//        if (type == ConnectablePosition.class) {
+//            extension = createConnectablePositionExtension();
+//        } else {
+//            extension = super.getExtension(type);
+//        }
+//        return extension;
+//    }
+//
+//    @Override
+//    public <E extends Extension<I>> E getExtensionByName(String name) {
+//        E extension;
+//        if (name.equals("position")) {
+//            extension = createConnectablePositionExtension();
+//        } else {
+//            extension = super.getExtensionByName(name);
+//        }
+//        return extension;
+//    }
+//
+//    @Override
+//    public <E extends Extension<I>> Collection<E> getExtensions() {
+//        Collection<E> extensions = super.getExtensions();
+//        E extension = createConnectablePositionExtension();
+//        if (extension != null) {
+//            extensions.add(extension);
+//        }
+//        return extensions;
+//    }
 }

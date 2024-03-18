@@ -11,7 +11,10 @@ import com.powsybl.iidm.network.SwitchKind;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -63,6 +66,10 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
     @Builder.Default
     @Schema(description = "Switch fictitious status")
     private boolean fictitious = false;
+
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
     @Override
     @JsonIgnore

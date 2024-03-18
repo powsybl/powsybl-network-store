@@ -7,7 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.BranchAttributes;
+import com.powsybl.network.store.model.ExtensionAttributes;
+import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
 
 import java.util.Map;
 import java.util.Objects;
@@ -156,29 +159,19 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
         }
     }
 
-    @Override
-    public ConnectablePositionAttributes getPosition() {
-        return side1 ? attributes.getPosition1() : attributes.getPosition2();
-    }
-
-    @Override
-    public void setPosition(ConnectablePositionAttributes position) {
-        if (side1) {
-            attributes.setPosition1(position);
-        } else {
-            attributes.setPosition2(position);
-        }
-    }
-
-    @Override
-    public ActivePowerControlAttributes getActivePowerControl() {
-        return null;
-    }
-
-    @Override
-    public void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
-        //empty on purpose, it cannot have an activePowerControl
-    }
+//    @Override
+//    public ConnectablePositionAttributes getPosition() {
+//        return side1 ? attributes.getPosition1() : attributes.getPosition2();
+//    }
+//
+//    @Override
+//    public void setPosition(ConnectablePositionAttributes position) {
+//        if (side1) {
+//            attributes.setPosition1(position);
+//        } else {
+//            attributes.setPosition2(position);
+//        }
+//    }
 
     @Override
     public boolean isFictitious() {
@@ -210,4 +203,13 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
         attributes.setAliasByType(aliasByType);
     }
 
+    @Override
+    public Map<String, ExtensionAttributes> getExtensionAttributes() {
+        return attributes.getExtensionAttributes();
+    }
+
+    @Override
+    public void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes) {
+        attributes.setExtensionAttributes(extensionAttributes);
+    }
 }

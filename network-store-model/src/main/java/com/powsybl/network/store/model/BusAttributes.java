@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,4 +44,8 @@ public class BusAttributes extends AbstractAttributes implements IdentifiableAtt
 
     @Schema(description = "Alias by type")
     private Map<String, String> aliasByType;
+
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

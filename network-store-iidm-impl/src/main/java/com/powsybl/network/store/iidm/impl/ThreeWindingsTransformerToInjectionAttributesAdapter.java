@@ -155,25 +155,25 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
         }
     }
 
-    @Override
-    public ConnectablePositionAttributes getPosition() {
-        return switch (side) {
-            case ONE -> attributes.getPosition1();
-            case TWO -> attributes.getPosition2();
-            case THREE -> attributes.getPosition3();
-            default -> throw createUnknownSideException();
-        };
-    }
-
-    @Override
-    public void setPosition(ConnectablePositionAttributes position) {
-        switch (side) {
-            case ONE -> attributes.setPosition1(position);
-            case TWO -> attributes.setPosition2(position);
-            case THREE -> attributes.setPosition3(position);
-            default -> throw createUnknownSideException();
-        }
-    }
+//    @Override
+//    public ConnectablePositionAttributes getPosition() {
+//        return switch (side) {
+//            case ONE -> attributes.getPosition1();
+//            case TWO -> attributes.getPosition2();
+//            case THREE -> attributes.getPosition3();
+//            default -> throw createUnknownSideException();
+//        };
+//    }
+//
+//    @Override
+//    public void setPosition(ConnectablePositionAttributes position) {
+//        switch (side) {
+//            case ONE -> attributes.setPosition1(position);
+//            case TWO -> attributes.setPosition2(position);
+//            case THREE -> attributes.setPosition3(position);
+//            default -> throw createUnknownSideException();
+//        }
+//    }
 
     @Override
     public boolean isFictitious() {
@@ -203,5 +203,15 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     @Override
     public void setAliasByType(Map<String, String> aliasByType) {
         attributes.setAliasByType(aliasByType);
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getExtensionAttributes() {
+        return attributes.getExtensionAttributes();
+    }
+
+    @Override
+    public void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes) {
+        attributes.setExtensionAttributes(extensionAttributes);
     }
 }

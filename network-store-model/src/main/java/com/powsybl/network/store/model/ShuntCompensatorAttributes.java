@@ -9,6 +9,7 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -79,4 +80,8 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
 
     @Schema(description = "targetDeadband")
     private double targetDeadband;
+
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

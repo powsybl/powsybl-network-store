@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -23,11 +24,22 @@ import lombok.NoArgsConstructor;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Connectable position attributes")
-public class ConnectablePositionAttributes {
+public class ConnectablePositionAttributes implements ExtensionAttributes {
 
     private String label;
 
     private Integer order;
 
     private ConnectablePosition.Direction direction;
+
+    @Override
+    public String toJson() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.writeValueAsString(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

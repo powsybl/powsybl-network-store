@@ -10,8 +10,5 @@ package com.powsybl.network.store.model;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface OperatingStatusHolder {
-
-    String getOperatingStatus();
-
-    void setOperatingStatus(String operatingStatus);
+// Is it still useful? To keep to identify equipments supporting operating status or hardcode a list as in powsybl core
 }

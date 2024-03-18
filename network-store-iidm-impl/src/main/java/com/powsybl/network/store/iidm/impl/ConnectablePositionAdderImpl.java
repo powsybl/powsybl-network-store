@@ -59,7 +59,7 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
     private ConnectablePositionImpl<C> createInjectionExtension(C extendable) {
         if (feederAdder != null) {
             ((AbstractInjectionImpl<?, ?>) extendable).updateResource(res -> {
-                res.getAttributes().setPosition(ConnectablePositionAttributes.builder()
+                res.getAttributes().getExtensionAttributes().put(ConnectablePosition.NAME, ConnectablePositionAttributes.builder()
                         .label(feederAdder.name)
                         .order(feederAdder.order)
                         .direction(feederAdder.direction)
@@ -67,7 +67,7 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
             });
         }
         return new ConnectablePositionImpl<>(extendable,
-            connectable -> ((AbstractInjectionImpl<?, ?>) connectable).getResource().getAttributes().getPosition(),
+            connectable -> (ConnectablePositionAttributes) ((AbstractInjectionImpl<?, ?>) connectable).getResource().getAttributes().getExtensionAttributes().get(ConnectablePosition.NAME),
             null,
             null,
             null);

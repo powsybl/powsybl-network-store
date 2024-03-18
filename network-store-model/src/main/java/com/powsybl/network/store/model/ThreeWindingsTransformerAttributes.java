@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,6 +97,10 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
+
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
     @Override
     @JsonIgnore
