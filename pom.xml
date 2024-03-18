@@ -49,7 +49,7 @@
     <properties>
         <springboot.version>3.1.2</springboot.version>
         <powsybl-dependencies.version>2024.0.3</powsybl-dependencies.version>
-        <powsybl-ws-commons.version>1.9.0-SNAPSHOT</powsybl-ws-commons.version>
+        <powsybl-ws-commons.version>1.9.0</powsybl-ws-commons.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
