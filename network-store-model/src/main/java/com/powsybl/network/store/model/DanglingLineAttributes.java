@@ -25,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Dangling line attributes")
-public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes, LimitHolder, OperatingStatusHolder {
+public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes, LimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;

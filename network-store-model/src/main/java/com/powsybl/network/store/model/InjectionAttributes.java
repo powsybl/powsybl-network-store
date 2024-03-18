@@ -41,6 +41,10 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained {
 
     void setQ(double q);
 
+    ConnectablePositionAttributes getPosition();
+
+    void setPosition(ConnectablePositionAttributes position);
+
     @JsonIgnore
     default Set<String> getContainerIds() {
         return Collections.singleton(getVoltageLevelId());

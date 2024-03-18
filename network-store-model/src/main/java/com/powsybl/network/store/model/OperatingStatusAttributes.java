@@ -22,7 +22,7 @@ public class OperatingStatusAttributes implements ExtensionAttributes {
     public String toJson() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.writeValueAsString(new ActivePowerControlAttributes());
+            return mapper.writeValueAsString(this);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

@@ -12,13 +12,11 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public class ActivePowerControlExtensionTest {
 
@@ -111,24 +109,5 @@ public class ActivePowerControlExtensionTest {
         assertEquals(2, listener.getNbUpdatedEquipments());
         apc.setParticipate(false);
         assertEquals(2, listener.getNbUpdatedEquipments());
-
-        battery.newExtension(ConnectablePositionAdder.class)
-                .newFeeder()
-                .withOrder(10)
-                .withDirection(ConnectablePosition.Direction.TOP)
-                .add()
-                .add();
-
-        ConnectablePosition connectablePosition = battery.getExtension(ConnectablePosition.class);
-        assertNotNull(connectablePosition);
-        assertEquals(2, battery.getExtensions().size());
-        assertNotNull(connectablePosition);
-        assertNotNull(connectablePosition.getFeeder());
-        assertNull(connectablePosition.getFeeder1());
-        assertNull(connectablePosition.getFeeder2());
-        assertNull(connectablePosition.getFeeder3());
-        assertEquals(10, (int) connectablePosition.getFeeder().getOrder().orElse(-1));
-        assertEquals(ConnectablePosition.Direction.TOP, connectablePosition.getFeeder().getDirection());
-
     }
 }

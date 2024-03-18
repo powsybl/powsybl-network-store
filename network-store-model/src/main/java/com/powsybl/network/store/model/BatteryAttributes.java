@@ -72,11 +72,14 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
     @Builder.Default
     private double q = Double.NaN;
 
+    @Schema(description = "Connectable position (for substation diagram)")
+    private ConnectablePositionAttributes position;
+
     @Schema(description = "reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
     @Schema(description = "Extension attributes")
     @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>(); // should we initialize like this??
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
 }

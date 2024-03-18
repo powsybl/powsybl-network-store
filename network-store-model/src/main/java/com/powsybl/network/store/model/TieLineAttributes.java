@@ -13,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Tie line attributes")
-public class TieLineAttributes extends AbstractAttributes implements IdentifiableAttributes, OperatingStatusHolder {
+public class TieLineAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
     @Schema(description = "Dangling line side 1 ID")
     private String danglingLine1Id;

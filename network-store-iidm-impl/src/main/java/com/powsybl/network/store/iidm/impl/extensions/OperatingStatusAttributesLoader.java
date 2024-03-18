@@ -10,7 +10,7 @@ import com.powsybl.network.store.model.ExtensionAttributesLoader;
 public class OperatingStatusAttributesLoader<I extends Identifiable<I>> implements ExtensionAttributesLoader<I> {
     @Override
     public Extension<I> load(I identifiable) {
-        return new OperatingStatusImpl<>(identifiable); // code that was in the createExtension()
+        return new OperatingStatusImpl<>(identifiable);
     }
 
     @Override

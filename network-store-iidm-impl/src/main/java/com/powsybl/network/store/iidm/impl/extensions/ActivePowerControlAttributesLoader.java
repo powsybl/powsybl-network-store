@@ -10,7 +10,7 @@ import com.powsybl.network.store.model.ExtensionAttributesLoader;
 public class ActivePowerControlAttributesLoader<I extends Injection<I>> implements ExtensionAttributesLoader<I> {
     @Override
     public Extension<I> load(I injection) {
-        return new ActivePowerControlImpl<>(injection); // code that was in the createExtension()
+        return new ActivePowerControlImpl<>(injection);
     }
 
     @Override

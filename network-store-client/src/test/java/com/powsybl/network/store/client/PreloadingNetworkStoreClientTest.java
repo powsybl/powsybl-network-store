@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.junit.Before;
@@ -240,10 +239,6 @@ public class PreloadingNetworkStoreClientTest {
 
         // First time battery retrieval by Id
         Resource<BatteryAttributes> batteryAttributesResource = cachedClient.getBattery(networkUuid, Resource.INITIAL_VARIANT_NUM, "b1").orElse(null);
-        batteryAttributesResource.getAttributes().getExtensionAttributes().put(ActivePowerControl.NAME, new ActivePowerControlAttributes(true, 10, 0));
-        ActivePowerControlAttributes test = (ActivePowerControlAttributes) (batteryAttributesResource.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME));
-        String toJson = test.toJson();
-        String toString = test.toString();
         assertNotNull(batteryAttributesResource);
         assertEquals(250., batteryAttributesResource.getAttributes().getP(), 0.001);
         assertEquals(120, batteryAttributesResource.getAttributes().getQ(), 0.001);

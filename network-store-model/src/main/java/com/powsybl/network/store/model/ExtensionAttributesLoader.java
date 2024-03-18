@@ -5,7 +5,7 @@ import com.powsybl.commons.extensions.Extension;
 
 public interface ExtensionAttributesLoader<E extends Extendable> {
 
-    Extension load(E extendable);
+    Extension<E> load(E extendable);
 
     String getName();
 

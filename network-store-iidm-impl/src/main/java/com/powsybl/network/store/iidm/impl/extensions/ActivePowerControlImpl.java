@@ -16,14 +16,18 @@ import com.powsybl.network.store.model.ActivePowerControlAttributes;
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExtension<I> implements ActivePowerControl<I> {
+
     public ActivePowerControlImpl(I injection) {
         super(injection);
     }
 
+    private ActivePowerControlAttributes getActivePowerControlAttributes() {
+        return (ActivePowerControlAttributes) getInjection().getResource().getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME);
+    }
+
     @Override
     public boolean isParticipate() {
-        ActivePowerControlAttributes activePowerControlAttributes = (ActivePowerControlAttributes) getInjection().getResource().getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME);
-        return activePowerControlAttributes.isParticipate();
+        return getActivePowerControlAttributes().isParticipate();
     }
 
     @Override
@@ -39,14 +43,12 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public double getDroop() {
-        ActivePowerControlAttributes activePowerControlAttributes = (ActivePowerControlAttributes) getInjection().getResource().getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME);
-        return activePowerControlAttributes.getDroop();
+        return getActivePowerControlAttributes().getDroop();
     }
 
     @Override
     public void setDroop(double droop) {
-        ActivePowerControlAttributes activePowerControlAttributes = (ActivePowerControlAttributes) getInjection().getResource().getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME);
-        double oldValue = activePowerControlAttributes.getDroop();
+        double oldValue = getActivePowerControlAttributes().getDroop();
         if (oldValue != droop) {
             getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setDroop(droop));
             String variantId = getInjection().getNetwork().getVariantManager().getWorkingVariantId();
@@ -56,8 +58,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public double getParticipationFactor() {
-        ActivePowerControlAttributes activePowerControlAttributes = (ActivePowerControlAttributes) getInjection().getResource().getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME);
-        return activePowerControlAttributes.getParticipationFactor();
+        return getActivePowerControlAttributes().getParticipationFactor();
     }
 
     @Override
