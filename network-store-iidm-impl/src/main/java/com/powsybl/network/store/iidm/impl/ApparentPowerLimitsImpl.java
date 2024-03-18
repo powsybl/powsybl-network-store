@@ -13,15 +13,20 @@ import com.powsybl.network.store.model.LimitsAttributes;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class ApparentPowerLimitsImpl extends AbstractLoadingLimits<ApparentPowerLimitsImpl> implements ApparentPowerLimits {
+public class ApparentPowerLimitsImpl<S, O extends LimitsOwner<S>> extends AbstractLoadingLimits<S, O, ApparentPowerLimitsImpl<S, O>> implements ApparentPowerLimits {
 
-    public ApparentPowerLimitsImpl(LimitsOwner<?> owner, LimitsAttributes attributes) {
-        super(owner, attributes);
+    public ApparentPowerLimitsImpl(O owner, S side, String operationalGroupId, LimitsAttributes attributes) {
+        super(owner, side, operationalGroupId, attributes);
     }
 
     @Override
     public LimitType getLimitType() {
         return LimitType.APPARENT_POWER;
+    }
+
+    @Override
+    public void remove() {
+        owner.setApparentPowerLimits(side, null, operationalGroupId);
     }
 }
 

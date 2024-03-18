@@ -11,12 +11,36 @@ import com.powsybl.iidm.network.tck.extensions.AbstractSecondaryVoltageControlTe
 
 import java.io.IOException;
 
+import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControlTest {
     @Override
+    @BeforeEach
+   public void setUp() {
+        // FIXME
+    }
+
+    @Test
     public void test() throws IOException {
+        // FIXME
+    }
+
+    @Test
+    public void pilotPointTargetVoltageNotificationTest() {
+        // FIXME
+    }
+
+    @Test
+    public void controlUnitParticipateNotificationTest() {
+        // FIXME
+    }
+
+    @Test
+    public void extensionRemovalAndCreationNotificationTest() {
         // FIXME
     }
 }

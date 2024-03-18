@@ -13,14 +13,19 @@ import com.powsybl.network.store.model.LimitsAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CurrentLimitsImpl extends AbstractLoadingLimits<CurrentLimitsImpl> implements CurrentLimits {
+public class CurrentLimitsImpl<S, O extends LimitsOwner<S>> extends AbstractLoadingLimits<S, O, CurrentLimitsImpl<S, O>> implements CurrentLimits {
 
-    public CurrentLimitsImpl(LimitsOwner<?> owner, LimitsAttributes attributes) {
-        super(owner, attributes);
+    public CurrentLimitsImpl(O owner, S side, String operationalGroupId, LimitsAttributes attributes) {
+        super(owner, side, operationalGroupId, attributes);
     }
 
     @Override
     public LimitType getLimitType() {
         return LimitType.CURRENT;
+    }
+
+    @Override
+    public void remove() {
+        owner.setCurrentLimits(side, null, operationalGroupId);
     }
 }

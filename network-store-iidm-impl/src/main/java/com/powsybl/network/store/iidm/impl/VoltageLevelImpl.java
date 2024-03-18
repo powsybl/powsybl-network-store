@@ -457,6 +457,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             } else {
                 throw new PowsyblException("No BusbarSection in a bus breaker topology");
             }
+        } else if (clazz == Ground.class) {
+            return (List<T>) index.getGrounds(resource.getId());
         }
         throw new UnsupportedOperationException("TODO");
     }
@@ -534,6 +536,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         }
         for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
+        }
+        for (Ground ground : index.getGrounds(resource.getId())) {
+            visitor.visitGround(ground);
         }
     }
 
@@ -642,5 +647,25 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 getNodeBreakerView().removeSwitch(s.getId());
             });
         }
+    }
+
+    @Override
+    public GroundAdder newGround() {
+        return new GroundAdderImpl(getResource(), index);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return getGroundStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return getConnectableStream(Ground.class);
+    }
+
+    @Override
+    public int getGroundCount() {
+        return getConnectableCount(Ground.class);
     }
 }

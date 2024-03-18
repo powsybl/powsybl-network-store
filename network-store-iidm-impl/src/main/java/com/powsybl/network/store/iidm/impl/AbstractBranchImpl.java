@@ -12,9 +12,12 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.LimitsAttributes;
+import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,6 +35,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         terminal1 = new TerminalImpl<>(index, this, r -> new BranchToInjectionAttributesAdapter(this, r.getAttributes(), true));
         terminal2 = new TerminalImpl<>(index, this, r -> new BranchToInjectionAttributesAdapter(this, r.getAttributes(), false));
     }
+
+    private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
+    private static final String SELECTED_OPERATIONAL_LIMITS_GROUP_ID1 = "selectedOperationalLimitsGroupId1";
+    private static final String SELECTED_OPERATIONAL_LIMITS_GROUP_ID2 = "selectedOperationalLimitsGroupId2";
 
     protected abstract T getBranch();
 
@@ -89,19 +96,30 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         }
     }
 
+    private String getSelectedOperationalLimitsGroupId(TwoSides side) {
+        return switch (side) {
+            case ONE -> getResource().getAttributes().getSelectedOperationalLimitsGroupId1() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId1() : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+            case TWO -> getResource().getAttributes().getSelectedOperationalLimitsGroupId2() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId2() : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+        };
+    }
+
     @Override
-    public void setCurrentLimits(TwoSides side, LimitsAttributes currentLimits) {
-        var resource = getResource();
+    public void setCurrentLimits(TwoSides side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
+        var attributes = getResource().getAttributes();
         if (side == TwoSides.ONE) {
-            LimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits1();
+            var operationalLimitsGroup = attributes.getOperationalLimitsGroup1(operationalLimitsGroupId);
+            var oldCurrentLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
             if (currentLimits != oldCurrentLimits) {
-                updateResource(res -> res.getAttributes().setCurrentLimits1(currentLimits));
+                updateSelectedOperationalLimitsGroupIdIfNull(side, operationalLimitsGroupId);
+                updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup1(operationalLimitsGroupId).setCurrentLimits(currentLimits));
                 index.notifyUpdate(this, "currentLimits1", oldCurrentLimits, currentLimits);
             }
         } else if (side == TwoSides.TWO) {
-            LimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits2();
+            var operationalLimitsGroup = attributes.getOperationalLimitsGroup2(operationalLimitsGroupId);
+            var oldCurrentLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
             if (currentLimits != oldCurrentLimits) {
-                updateResource(res -> res.getAttributes().setCurrentLimits2(currentLimits));
+                updateSelectedOperationalLimitsGroupIdIfNull(side, operationalLimitsGroupId);
+                updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup2(operationalLimitsGroupId).setCurrentLimits(currentLimits));
                 index.notifyUpdate(this, "currentLimits2", oldCurrentLimits, currentLimits);
             }
         }
@@ -114,22 +132,22 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return new CurrentLimitsAdderImpl<>(TwoSides.ONE, this);
+        return new CurrentLimitsAdderImpl<>(TwoSides.ONE, this, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return new CurrentLimitsAdderImpl<>(TwoSides.TWO, this);
+        return new CurrentLimitsAdderImpl<>(TwoSides.TWO, this, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return new ApparentPowerLimitsAdderImpl<>(TwoSides.ONE, this);
+        return new ApparentPowerLimitsAdderImpl<>(TwoSides.ONE, this, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return new ApparentPowerLimitsAdderImpl<>(TwoSides.TWO, this);
+        return new ApparentPowerLimitsAdderImpl<>(TwoSides.TWO, this, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
     }
 
     @Override
@@ -147,9 +165,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits1() {
-        var resource = getResource();
-        return resource.getAttributes().getApparentPowerLimits1() != null
-                ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits1())
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup1();
+        return group != null && group.getApparentPowerLimits() != null
+                ? new ApparentPowerLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getApparentPowerLimits())
                 : null;
     }
 
@@ -160,9 +178,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits2() {
-        var resource = getResource();
-        return resource.getAttributes().getApparentPowerLimits2() != null
-                ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits2())
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup2();
+        return group != null && group.getApparentPowerLimits() != null
+                ? new ApparentPowerLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getApparentPowerLimits())
                 : null;
     }
 
@@ -172,18 +190,22 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public void setApparentPowerLimits(TwoSides side, LimitsAttributes apparentPowerLimitsAttributes) {
-        var resource = getResource();
+    public void setApparentPowerLimits(TwoSides side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId) {
+        var attributes = getResource().getAttributes();
         if (side == TwoSides.ONE) {
-            LimitsAttributes oldApparentPowerLimits = resource.getAttributes().getApparentPowerLimits1();
+            var operationalLimitsGroup = attributes.getOperationalLimitsGroup1(operationalLimitsGroupId);
+            var oldApparentPowerLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
             if (apparentPowerLimitsAttributes != oldApparentPowerLimits) {
-                updateResource(res -> res.getAttributes().setApparentPowerLimits1(apparentPowerLimitsAttributes));
+                updateSelectedOperationalLimitsGroupIdIfNull(side, operationalLimitsGroupId);
+                updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup1(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes));
                 index.notifyUpdate(this, "apparentPowerLimits1", oldApparentPowerLimits, apparentPowerLimitsAttributes);
             }
         } else if (side == TwoSides.TWO) {
-            LimitsAttributes oldApparentPowerLimits = resource.getAttributes().getApparentPowerLimits2();
+            var operationalLimitsGroup = attributes.getOperationalLimitsGroup2(operationalLimitsGroupId);
+            var oldApparentPowerLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
             if (apparentPowerLimitsAttributes != oldApparentPowerLimits) {
-                updateResource(res -> res.getAttributes().setApparentPowerLimits2(apparentPowerLimitsAttributes));
+                updateSelectedOperationalLimitsGroupIdIfNull(side, operationalLimitsGroupId);
+                updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup2(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes));
                 index.notifyUpdate(this, "apparentPowerLimits2", oldApparentPowerLimits, apparentPowerLimitsAttributes);
             }
         }
@@ -191,12 +213,12 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return new ActivePowerLimitsAdderImpl<>(TwoSides.ONE, this);
+        return new ActivePowerLimitsAdderImpl<>(TwoSides.ONE, this, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return new ActivePowerLimitsAdderImpl<>(TwoSides.TWO, this);
+        return new ActivePowerLimitsAdderImpl<>(TwoSides.TWO, this, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
     }
 
     @Override
@@ -214,9 +236,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits1() {
-        var resource = getResource();
-        return resource.getAttributes().getActivePowerLimits1() != null
-                ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits1())
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup1();
+        return group != null && group.getActivePowerLimits() != null
+                ? new ActivePowerLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getActivePowerLimits())
                 : null;
     }
 
@@ -227,9 +249,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits2() {
-        var resource = getResource();
-        return resource.getAttributes().getActivePowerLimits2() != null
-                ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits2())
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup2();
+        return group != null && group.getActivePowerLimits() != null
+                ? new ActivePowerLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getActivePowerLimits())
                 : null;
     }
 
@@ -238,20 +260,33 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         return Optional.ofNullable(getNullableActivePowerLimits2());
     }
 
-    @Override
-    public void setActivePowerLimits(TwoSides side, LimitsAttributes activePowerLimitsAttributes) {
+    private void updateSelectedOperationalLimitsGroupIdIfNull(TwoSides side, String id) {
         var resource = getResource();
+        if (side == TwoSides.ONE && resource.getAttributes().getSelectedOperationalLimitsGroupId1() == null) {
+            resource.getAttributes().setSelectedOperationalLimitsGroupId1(id);
+        } else if (side == TwoSides.TWO && resource.getAttributes().getSelectedOperationalLimitsGroupId2() == null) {
+            resource.getAttributes().setSelectedOperationalLimitsGroupId2(id);
+        }
+    }
+
+    @Override
+    public void setActivePowerLimits(TwoSides side, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId) {
+        var attributes = getResource().getAttributes();
         if (side == TwoSides.ONE) {
-            LimitsAttributes oldActivePowerLimits = resource.getAttributes().getActivePowerLimits1();
+            var operationalLimitsGroup = attributes.getOperationalLimitsGroup1(operationalLimitsGroupId);
+            var oldActivePowerLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
             if (activePowerLimitsAttributes != oldActivePowerLimits) {
-                updateResource(res -> res.getAttributes().setActivePowerLimits1(activePowerLimitsAttributes));
-                index.notifyUpdate(this, "apparentPowerLimits1", oldActivePowerLimits, activePowerLimitsAttributes);
+                updateSelectedOperationalLimitsGroupIdIfNull(side, operationalLimitsGroupId);
+                updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup1(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes));
+                index.notifyUpdate(this, "activePowerLimits1", oldActivePowerLimits, activePowerLimitsAttributes);
             }
         } else if (side == TwoSides.TWO) {
-            LimitsAttributes oldActivePowerLimits = resource.getAttributes().getActivePowerLimits2();
+            var operationalLimitsGroup = attributes.getOperationalLimitsGroup2(operationalLimitsGroupId);
+            var oldActivePowerLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
             if (activePowerLimitsAttributes != oldActivePowerLimits) {
-                updateResource(res -> res.getAttributes().setActivePowerLimits2(activePowerLimitsAttributes));
-                index.notifyUpdate(this, "apparentPowerLimits2", oldActivePowerLimits, activePowerLimitsAttributes);
+                updateSelectedOperationalLimitsGroupIdIfNull(side, operationalLimitsGroupId);
+                updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup2(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes));
+                index.notifyUpdate(this, "activePowerLimits2", oldActivePowerLimits, activePowerLimitsAttributes);
             }
         }
     }
@@ -271,9 +306,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public CurrentLimits getNullableCurrentLimits1() {
-        var resource = getResource();
-        return resource.getAttributes().getCurrentLimits1() != null
-                ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits1())
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup1();
+        return group != null && group.getCurrentLimits() != null
+                ? new CurrentLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getCurrentLimits())
                 : null;
     }
 
@@ -284,15 +319,147 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public CurrentLimits getNullableCurrentLimits2() {
-        var resource = getResource();
-        return resource.getAttributes().getCurrentLimits2() != null
-                ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits2())
+        var group = getResource().getAttributes().getSelectedOperationalLimitsGroup2();
+        return group != null && group.getCurrentLimits() != null
+                ? new CurrentLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getCurrentLimits())
                 : null;
     }
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits2() {
         return Optional.ofNullable(getNullableCurrentLimits2());
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
+        return getResource().getAttributes().getOperationalLimitsGroups1().values().stream()
+                .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, group))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<String> getSelectedOperationalLimitsGroupId1() {
+        return Optional.ofNullable(getResource().getAttributes().getSelectedOperationalLimitsGroupId1());
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id) {
+        return getOperationalLimitsGroups1().stream()
+                .filter(group -> group.getId().equals(id))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1() {
+        return getSelectedOperationalLimitsGroupId1().flatMap(this::getOperationalLimitsGroup1);
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
+        var resource = getResource();
+        var group = OperationalLimitsGroupAttributes.builder().id(id).build();
+        resource.getAttributes().getOperationalLimitsGroups1().put(id, group);
+        return new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, group);
+    }
+
+    @Override
+    public void setSelectedOperationalLimitsGroup1(String id) {
+        var resource = getResource();
+        String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId1();
+        if (!id.equals(oldValue)) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId1(id));
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, oldValue, id);
+        }
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup1(String id) {
+        var resource = getResource();
+        if (resource.getAttributes().getOperationalLimitsGroups1().get(id) == null) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        }
+
+        if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId1())) {
+            resource.getAttributes().setSelectedOperationalLimitsGroupId1(null);
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, id, null);
+        }
+        updateResource(res -> res.getAttributes().getOperationalLimitsGroups1().remove(id));
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup1() {
+        var resource = getResource();
+        String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId1();
+        if (oldValue != null) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId1(null));
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, oldValue, null);
+        }
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
+        return getResource().getAttributes().getOperationalLimitsGroups2().values().stream()
+                .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, group))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<String> getSelectedOperationalLimitsGroupId2() {
+        return Optional.ofNullable(getResource().getAttributes().getSelectedOperationalLimitsGroupId2());
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id) {
+        return getOperationalLimitsGroups2().stream()
+                .filter(group -> group.getId().equals(id))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2() {
+        return getSelectedOperationalLimitsGroupId2().flatMap(this::getOperationalLimitsGroup2);
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup2(String id) {
+        var resource = getResource();
+        var group = OperationalLimitsGroupAttributes.builder().id(id).build();
+        resource.getAttributes().getOperationalLimitsGroups2().put(id, group);
+        return new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, group);
+    }
+
+    @Override
+    public void setSelectedOperationalLimitsGroup2(String id) {
+        var resource = getResource();
+        String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId2();
+        if (!id.equals(oldValue)) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId2(id));
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, oldValue, id);
+        }
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup2(String id) {
+        var resource = getResource();
+        if (resource.getAttributes().getOperationalLimitsGroups2().get(id) == null) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        }
+        if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId2())) {
+            resource.getAttributes().setSelectedOperationalLimitsGroupId2(null);
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, id, null);
+        }
+        updateResource(res -> res.getAttributes().getOperationalLimitsGroups2().remove(id));
+
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup2() {
+        var resource = getResource();
+        String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId2();
+        if (oldValue != null) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId2(null));
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, oldValue, null);
+        }
     }
 
     @Override
@@ -435,5 +602,25 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             extensions.add(extension);
         }
         return extensions;
+    }
+
+    @Override
+    public boolean connect() {
+        return getTerminal1().connect() && getTerminal2().connect();
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        return getTerminal1().connect(isTypeSwitchToOperate) && getTerminal2().connect(isTypeSwitchToOperate);
+    }
+
+    @Override
+    public boolean disconnect() {
+        return getTerminal1().disconnect() && getTerminal2().disconnect();
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        return getTerminal1().disconnect(isSwitchOpenable) && getTerminal2().disconnect(isSwitchOpenable);
     }
 }

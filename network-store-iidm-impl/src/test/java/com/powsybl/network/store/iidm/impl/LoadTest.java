@@ -15,6 +15,7 @@ import org.junit.Test;
 import static com.powsybl.network.store.iidm.impl.CreateNetworksUtil.createNodeBreakerNetworkWithLine;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -38,5 +39,13 @@ public class LoadTest {
         assertNull(load.getExtension(ConnectablePosition.class).getFeeder1());
         assertNull(load.getExtension(ConnectablePosition.class).getFeeder2());
         assertNull(load.getExtension(ConnectablePosition.class).getFeeder3());
+    }
+
+    @Test
+    public void testConnectDisconnect() {
+        Network network = createNodeBreakerNetworkWithLine();
+        Load load = network.getLoad("LD");
+        assertTrue(load.connect());
+        assertTrue(load.disconnect());
     }
 }

@@ -53,6 +53,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private static final String STR_DANGLING_LINE = "dangling line";
     private static final String STR_HVDC_LINE = "hvdc line";
     private static final String STR_TIE_LINE = "tie line";
+    private static final String STR_GROUND = "ground";
 
     private final RestClient restClient;
 
@@ -804,5 +805,37 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void flush(UUID networkUuid) {
         // nothing to do
+    }
+
+    @Override
+    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
+            String voltageLevelId) {
+        return getAll(STR_GROUND, "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/grounds", networkUuid, variantNum, voltageLevelId);
+    }
+
+    @Override
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
+        create(STR_GROUND, "/networks/{networkUuid}/grounds", groundResources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+        return getAll(STR_GROUND, "/networks/{networkUuid}/{variantNum}/grounds", networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+        return get(STR_GROUND, "/networks/{networkUuid}/{variantNum}/grounds/{groundId}", networkUuid, variantNum, groundId);
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        removeAll("/networks/{networkUuid}/{variantNum}/grounds/{groundId}", networkUuid, variantNum, groundsId);
+    }
+
+    @Override
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources,
+            AttributeFilter attributeFilter) {
+        updateAll(STR_GROUND, "/networks/{networkUuid}/grounds", groundResources, attributeFilter, networkUuid);
     }
 }

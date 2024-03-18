@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Dangling line attributes")
-public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes, LimitHolder, OperatingStatusHolder {
+public class DanglingLineAttributes extends AbstractAttributes implements FlowsLimitsAttributes, InjectionAttributes, LimitHolder, OperatingStatusHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -72,8 +73,12 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @Schema(description = "Pairing key")
     private String pairingKey;
 
-    @Schema(description = "Current limits")
-    private LimitsAttributes currentLimits;
+    @Schema(description = "OperationalLimitGroup")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups = new HashMap<>();
+
+    @Schema(description = "selected OperationalLimitsGroupId")
+    private String selectedOperationalLimitsGroupId;
 
     @Schema(description = "Active power in MW")
     @Builder.Default
@@ -92,12 +97,6 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @Schema(description = "Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @Schema(description = "apparent power limits")
-    private LimitsAttributes apparentPowerLimits;
-
-    @Schema(description = "Active power limits")
-    private LimitsAttributes activePowerLimits;
-
     @Schema(description = "Tie line ID in case of a paired dangling line")
     private String tieLineId;
 
@@ -111,51 +110,60 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     }
 
     @Override
-    public LimitsAttributes getCurrentLimits(int side) {
+    public LimitsAttributes getCurrentLimits(int side, String groupId) {
         if (side == 1) {
-            return currentLimits;
+            return getOrCreateOperationalLimitsGroup(groupId).getCurrentLimits();
         }
         throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
-    public LimitsAttributes getApparentPowerLimits(int side) {
+    public LimitsAttributes getApparentPowerLimits(int side, String groupId) {
         if (side == 1) {
-            return apparentPowerLimits;
+            return getOrCreateOperationalLimitsGroup(groupId).getApparentPowerLimits();
         }
         throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
-    public LimitsAttributes getActivePowerLimits(int side) {
+    public LimitsAttributes getActivePowerLimits(int side, String groupId) {
         if (side == 1) {
-            return activePowerLimits;
+            return getOrCreateOperationalLimitsGroup(groupId).getActivePowerLimits();
         }
         throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
-    public void setCurrentLimits(int side, LimitsAttributes limits) {
+    public void setCurrentLimits(int side, LimitsAttributes limits, String groupId) {
         if (side == 1) {
-            setCurrentLimits(limits);
+            getOrCreateOperationalLimitsGroup(groupId).setCurrentLimits(limits);
         } else {
             throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
 
     @Override
-    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
+    public void setApparentPowerLimits(int side, LimitsAttributes limits, String groupId) {
         if (side == 1) {
-            setApparentPowerLimits(limits);
+            getOrCreateOperationalLimitsGroup(groupId).setApparentPowerLimits(limits);
         } else {
             throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
 
     @Override
-    public void setActivePowerLimits(int side, LimitsAttributes limits) {
+    public void setActivePowerLimits(int side, LimitsAttributes limits, String groupId) {
         if (side == 1) {
-            setActivePowerLimits(limits);
+            getOrCreateOperationalLimitsGroup(groupId).setActivePowerLimits(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
+
+    @Override
+    public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
+        if (side == 1) {
+            return operationalLimitsGroups;
         } else {
             throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }

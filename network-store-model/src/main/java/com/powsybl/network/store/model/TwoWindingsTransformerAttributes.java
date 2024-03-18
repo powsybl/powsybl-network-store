@@ -111,26 +111,22 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @Schema(description = "Ratio tap changer")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
-    @Schema(description = "Current limits side 1")
-    private LimitsAttributes currentLimits1;
-
-    @Schema(description = "Current limits side 2")
-    private LimitsAttributes currentLimits2;
-
     @Schema(description = "Phase angle clock")
     private TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes;
 
-    @Schema(description = "Apparent power limit side 1")
-    private LimitsAttributes apparentPowerLimits1;
+    @Schema(description = "OperationalLimitsGroup1")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups1 = new HashMap<>();
 
-    @Schema(description = "Apparent power limit side 2")
-    private LimitsAttributes apparentPowerLimits2;
+    @Schema(description = "selected OperationalLimitsGroupId1")
+    private String selectedOperationalLimitsGroupId1;
 
-    @Schema(description = "Active power limit side 1")
-    private LimitsAttributes activePowerLimits1;
+    @Schema(description = "OperationalLimitsGroup2")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups2 = new HashMap<>();
 
-    @Schema(description = "Active power limit side 2")
-    private LimitsAttributes activePowerLimits2;
+    @Schema(description = "selected OperationalLimitsGroupId2")
+    private String selectedOperationalLimitsGroupId2;
 
     @Schema(description = "Operating status")
     private String operatingStatus;

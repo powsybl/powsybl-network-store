@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
@@ -182,6 +183,37 @@ public class VariantTest {
 
         public int getNbRemovedVariant() {
             return nbRemovedVariant;
+        }
+
+        @Override
+        public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue,
+                Object newValue) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
+        }
+
+        @Override
+        public void onExtensionCreation(Extension<?> extension) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionCreation'");
+        }
+
+        @Override
+        public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionAfterRemoval'");
+        }
+
+        @Override
+        public void onExtensionBeforeRemoval(Extension<?> extension) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionBeforeRemoval'");
+        }
+
+        @Override
+        public void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionUpdate'");
         }
     }
 }

@@ -14,11 +14,11 @@ import com.powsybl.network.store.model.LimitsAttributes;
  */
 public interface LimitsOwner<SIDE> extends Validable {
 
-    void setCurrentLimits(SIDE side, LimitsAttributes currentLimits);
+    void setCurrentLimits(SIDE side, LimitsAttributes currentLimits, String operationalLimitsGroupId);
 
-    void setActivePowerLimits(SIDE side, LimitsAttributes activePowerLimitsAttributes);
+    void setActivePowerLimits(SIDE side, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId);
 
-    void setApparentPowerLimits(SIDE side, LimitsAttributes apparentPowerLimitsAttributes);
+    void setApparentPowerLimits(SIDE side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId);
 
     AbstractIdentifiableImpl getIdentifiable();
 }
