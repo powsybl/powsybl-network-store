@@ -5,10 +5,10 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
-import com.powsybl.network.store.model.ExtensionAttributesLoader;
+import com.powsybl.network.store.model.ExtensionLoader;
 
-@AutoService(ExtensionAttributesLoader.class)
-public class GeneratorStartupAttributesLoader implements ExtensionAttributesLoader<Generator> {
+@AutoService(ExtensionLoader.class)
+public class GeneratorStartupLoader implements ExtensionLoader<Generator> {
     @Override
     public Extension<Generator> load(Generator generator) {
         return new GeneratorStartupImpl((GeneratorImpl) generator);

@@ -4,10 +4,10 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.network.store.model.ExtensionAttributesLoader;
+import com.powsybl.network.store.model.ExtensionLoader;
 
-@AutoService(ExtensionAttributesLoader.class)
-public class ActivePowerControlAttributesLoader<I extends Injection<I>> implements ExtensionAttributesLoader<I> {
+@AutoService(ExtensionLoader.class)
+public class ActivePowerControlLoader<I extends Injection<I>> implements ExtensionLoader<I> {
     @Override
     public Extension<I> load(I injection) {
         return new ActivePowerControlImpl<>(injection);

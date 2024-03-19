@@ -16,12 +16,16 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.AttributeFilter;
+import com.powsybl.network.store.model.ExtensionLoaders;
+import com.powsybl.network.store.model.IdentifiableAttributes;
+import com.powsybl.network.store.model.Resource;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -290,36 +294,33 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
-        List<ExtensionAttributesLoader> loaders = ExtensionAttributesLoaders.getExtensionAttributesLoaders();
-        return resource.getAttributes().getExtensionAttributes().entrySet().stream()
-                .flatMap(entry -> loaders.stream()
-                        .filter(loader -> loader.getName().equals(entry.getKey()))
-                        .filter(loader -> type == loader.getType())
-                        .map(loader -> (E) loader.load(this)))
+        return resource.getAttributes().getExtensionAttributes().keySet().stream()
+                .flatMap(key -> (Stream<E>) getExtensionsFromLoaders(type, key))
                 .findFirst().orElse(null);
     }
 
     public <E extends Extension<I>> E getExtensionByName(String name) {
-        List<ExtensionAttributesLoader> loaders = ExtensionAttributesLoaders.getExtensionAttributesLoaders();
-        return resource.getAttributes().getExtensionAttributes().entrySet().stream()
-                .filter(entry -> entry.getKey().equals(name))
-                .flatMap(entry -> loaders.stream()
-                        .filter(loader -> loader.getName().equals(entry.getKey()))
-                        .map(loader -> (E) loader.load(this)))
+        return resource.getAttributes().getExtensionAttributes().keySet().stream()
+                .filter(key -> key.equals(name))
+                .flatMap(key -> (Stream<E>) getExtensionsFromLoaders(null, key))
                 .findFirst().orElse(null);
+    }
+
+    public <E extends Extension<I>> Collection<E> getExtensions() {
+        return resource.getAttributes().getExtensionAttributes().keySet().stream()
+                .flatMap(key -> (Stream<E>) getExtensionsFromLoaders(null, key))
+                .collect(Collectors.toList());
+    }
+
+    private <E extends Extension<I>> Stream<E> getExtensionsFromLoaders(Class<? super E> type, String name) {
+        return ExtensionLoaders.getExtensionLoaders().stream()
+                .filter(loader -> loader.getName().equals(name))
+                .filter(loader -> type == null || type == loader.getType())
+                .map(loader -> (E) loader.load(this));
     }
 
     public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
         throw new UnsupportedOperationException("TODO");
-    }
-
-    public <E extends Extension<I>> Collection<E> getExtensions() {
-        List<ExtensionAttributesLoader> loaders = ExtensionAttributesLoaders.getExtensionAttributesLoaders();
-        return resource.getAttributes().getExtensionAttributes().entrySet().stream()
-                .flatMap(entry -> loaders.stream()
-                        .filter(loader -> loader.getName().equals(entry.getKey()))
-                        .map(loader -> (E) loader.load(this)))
-                .collect(Collectors.toList());
     }
 
     @Override
