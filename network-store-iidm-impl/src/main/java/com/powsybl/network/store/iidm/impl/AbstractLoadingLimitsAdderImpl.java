@@ -7,14 +7,17 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.network.store.iidm.impl.AbstractLoadingLimits.TemporaryLimitImpl;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
@@ -35,13 +38,16 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     protected final S side;
 
+    protected final String operationalGroupId;
+
     protected double permanentLimit = Double.NaN;
 
     protected TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
 
-    protected AbstractLoadingLimitsAdderImpl(S side, O owner) {
+    protected AbstractLoadingLimitsAdderImpl(S side, O owner, String operationalGroupId) {
         this.owner = owner;
         this.side = side;
+        this.operationalGroupId = operationalGroupId;
     }
 
     @Override
@@ -64,6 +70,49 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
         TemporaryLimitAttributes tl = getTemporaryLimits().get(acceptableDuration);
         return tl != null ? tl.getValue() : Double.NaN;
 
+    }
+
+    @Override
+    public double getTemporaryLimitValue(String name) {
+        TemporaryLimitAttributes tl = getTemporaryLimits().values().stream()
+                .filter(t -> t.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+        return tl != null ? tl.getValue() : Double.NaN;
+    }
+
+    @Override
+    public int getTemporaryLimitAcceptableDuration(String name) {
+        TemporaryLimitAttributes tl = getTemporaryLimits().values().stream()
+                .filter(t -> t.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+        return tl != null ? tl.getAcceptableDuration() : Integer.MAX_VALUE;
+    }
+
+    @Override
+    public double getLowestTemporaryLimitValue() {
+        return getTemporaryLimits().values().stream()
+                .mapToDouble(TemporaryLimitAttributes::getValue)
+                .min()
+                .orElse(Double.NaN);
+    }
+
+    @Override
+    public Collection<String> getTemporaryLimitNames() {
+        return getTemporaryLimits().values().stream()
+                .map(TemporaryLimitAttributes::getName)
+                .toList();
+    }
+
+    @Override
+    public void removeTemporaryLimit(String name) {
+        getTemporaryLimits().values().removeIf(t -> t.getName().equals(name));
+    }
+
+    @Override
+    public String getOwnerId() {
+        return getOwner().getIdentifiable().getId();
     }
 
     @Override
@@ -127,7 +176,8 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     @Override
     public L add() {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
+        Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toList());
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd);
         checkTemporaryLimits();
 
         LimitsAttributes attributes = LimitsAttributes.builder()

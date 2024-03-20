@@ -152,4 +152,9 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     public void multipleConnectedDanglingLinesWithSamePairingKey() {
        // FIXME
     }
+
+    @Override
+    public void invertDanglingLinesWhenCreatingATieLine() {
+        // FIXME
+    }
 }

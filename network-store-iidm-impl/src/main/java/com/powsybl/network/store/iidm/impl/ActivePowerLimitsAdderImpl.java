@@ -17,8 +17,8 @@ public class ActivePowerLimitsAdderImpl<S, O extends LimitsOwner<S>>
         extends AbstractLoadingLimitsAdderImpl<S, O, ActivePowerLimits, ActivePowerLimitsAdder>
         implements ActivePowerLimitsAdder {
 
-    ActivePowerLimitsAdderImpl(S side, O owner) {
-        super(side, owner);
+    ActivePowerLimitsAdderImpl(S side, O owner, String operationalGroupId) {
+        super(side, owner, operationalGroupId);
     }
 
     @Override
@@ -27,8 +27,8 @@ public class ActivePowerLimitsAdderImpl<S, O extends LimitsOwner<S>>
     }
 
     @Override
-    protected ActivePowerLimitsImpl createAndSetLimit(LimitsAttributes attributes) {
-        owner.setActivePowerLimits(side, attributes);
-        return new ActivePowerLimitsImpl(owner, attributes);
+    protected ActivePowerLimitsImpl<S, O> createAndSetLimit(LimitsAttributes attributes) {
+        owner.setActivePowerLimits(side, attributes, operationalGroupId);
+        return new ActivePowerLimitsImpl<>(owner, side, operationalGroupId, attributes);
     }
 }

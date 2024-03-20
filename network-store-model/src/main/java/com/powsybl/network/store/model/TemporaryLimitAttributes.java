@@ -34,6 +34,10 @@ public class TemporaryLimitAttributes implements Comparable<TemporaryLimitAttrib
     @Schema(description = "Temporary limit type", required = true)
     private LimitType limitType;
 
+    @JsonIgnore
+    @Schema(description = "Temporary limit group Id")
+    private String operationalLimitsGroupId;
+
     @Schema(description = "Temporary limit name")
     private String name;
 

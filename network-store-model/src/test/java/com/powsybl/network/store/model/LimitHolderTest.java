@@ -9,8 +9,6 @@ package com.powsybl.network.store.model;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.powsybl.iidm.network.LimitType;
-
 import java.util.TreeMap;
 
 import static org.junit.Assert.*;
@@ -23,6 +21,9 @@ public class LimitHolderTest {
     TreeMap<Integer, TemporaryLimitAttributes> tempLimitsA;
     TreeMap<Integer, TemporaryLimitAttributes> tempLimitsB;
     TreeMap<Integer, TemporaryLimitAttributes> tempLimitsC;
+    LimitsAttributes limitsAttributesA;
+    LimitsAttributes limitsAttributesB;
+    LimitsAttributes limitsAttributesC;
 
     @Before
     public void setUp() {
@@ -36,11 +37,17 @@ public class LimitHolderTest {
                 .value(75)
                 .build());
 
+        limitsAttributesA = new LimitsAttributes();
+        limitsAttributesA.setTemporaryLimits(tempLimitsA);
+
         tempLimitsB = new TreeMap<>();
         tempLimitsB.put(60, TemporaryLimitAttributes.builder()
                 .acceptableDuration(60)
                 .value(600)
                 .build());
+
+        limitsAttributesB = new LimitsAttributes();
+        limitsAttributesB.setTemporaryLimits(tempLimitsB);
 
         tempLimitsC = new TreeMap<>();
         tempLimitsC.put(5000, TemporaryLimitAttributes.builder()
@@ -55,227 +62,179 @@ public class LimitHolderTest {
                 .acceptableDuration(25000)
                 .value(7)
                 .build());
+
+        limitsAttributesC = new LimitsAttributes();
+        limitsAttributesC.setTemporaryLimits(tempLimitsC);
     }
 
     @Test
-    public void getAllTemporaryLimitsTest() {
+    public void branchLimitsTest() {
         LineAttributes line = new LineAttributes();
-        line.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        line.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        line.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        line.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        line.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        line.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
+        assertNull(line.getCurrentLimits(1, "group1"));
+        assertNull(line.getCurrentLimits(2, "group2"));
+        try {
+            line.getCurrentLimits(3, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setCurrentLimits(1, limitsAttributesA, "group1");
+        line.setCurrentLimits(2, limitsAttributesB, "group2");
+        try {
+            line.setCurrentLimits(3, limitsAttributesC, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getCurrentLimits(1, "group1"));
+        assertEquals(limitsAttributesB, line.getCurrentLimits(2, "group2"));
 
-        ThreeWindingsTransformerAttributes threeWindingTransformer = ThreeWindingsTransformerAttributes.builder()
-                .leg1(new LegAttributes())
-                .leg2(new LegAttributes())
-                .leg3(new LegAttributes()).build();
-        threeWindingTransformer.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        threeWindingTransformer.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
-        threeWindingTransformer.setLimits(LimitType.CURRENT, 3, LimitsAttributes.builder().permanentLimit(100000).temporaryLimits(tempLimitsC).build());
-        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 3, LimitsAttributes.builder().permanentLimit(200000).build());
-        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 3, LimitsAttributes.builder().permanentLimit(300000).build());
+        assertNull(line.getApparentPowerLimits(1, "group3"));
+        assertNull(line.getApparentPowerLimits(2, "group3"));
+        try {
+            line.getApparentPowerLimits(3, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setApparentPowerLimits(1, limitsAttributesA, "group1");
+        line.setApparentPowerLimits(2, limitsAttributesB, "group2");
+        try {
+            line.setApparentPowerLimits(3, limitsAttributesC, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getApparentPowerLimits(1, "group1"));
+        assertEquals(limitsAttributesB, line.getApparentPowerLimits(2, "group2"));
+
+        assertNull(line.getActivePowerLimits(1, "group3"));
+        assertNull(line.getActivePowerLimits(2, "group3"));
+        try {
+            line.getActivePowerLimits(3, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setActivePowerLimits(1, limitsAttributesA, "group1");
+        line.setActivePowerLimits(2, limitsAttributesB, "group2");
+        try {
+            line.setActivePowerLimits(3, limitsAttributesC, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getActivePowerLimits(1, "group1"));
+        assertEquals(limitsAttributesB, line.getActivePowerLimits(2, "group2"));
+
+    }
+
+    @Test
+    public void danglingLineLimitsTest() {
+        DanglingLineAttributes line = new DanglingLineAttributes();
+        assertNull(line.getCurrentLimits(1, "group1"));
+        try {
+            line.getCurrentLimits(2, "group2");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setCurrentLimits(1, limitsAttributesA, "group1");
+        try {
+            line.setCurrentLimits(2, limitsAttributesB, "group2");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getCurrentLimits(1, "group1"));
+
+        assertNull(line.getApparentPowerLimits(1, "group3"));
+        try {
+            line.getApparentPowerLimits(2, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setApparentPowerLimits(1, limitsAttributesA, "group1");
+        try {
+            line.setApparentPowerLimits(2, limitsAttributesB, "group2");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getApparentPowerLimits(1, "group1"));
+
+        assertNull(line.getActivePowerLimits(1, "group3"));
+        try {
+            line.getActivePowerLimits(2, "group3");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        line.setActivePowerLimits(1, limitsAttributesA, "group1");
+        try {
+            line.setActivePowerLimits(2, limitsAttributesB, "group2");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+        assertEquals(limitsAttributesA, line.getActivePowerLimits(1, "group1"));
+    }
+
+    @Test
+    public void threeWindingsTransformerLimitsTest() {
+        ThreeWindingsTransformerAttributes transformer = new ThreeWindingsTransformerAttributes();
+        transformer.setLeg1(LegAttributes.builder().build());
+        try {
+            transformer.getCurrentLimits(4, "group4");
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
+
+        transformer.setCurrentLimits(1, limitsAttributesA, "group1");
+        assertEquals(limitsAttributesA, transformer.getCurrentLimits(1, "group1"));
+
+        transformer.setActivePowerLimits(1, limitsAttributesA, "group1");
+        assertEquals(limitsAttributesA, transformer.getActivePowerLimits(1, "group1"));
+
+        transformer.setApparentPowerLimits(1, limitsAttributesA, "group1");
+        assertEquals(limitsAttributesA, transformer.getApparentPowerLimits(1, "group1"));
+    }
+
+    @Test
+    public void operationalLimitsGroupTest() {
+        LineAttributes line = new LineAttributes();
+        line.setCurrentLimits(1, limitsAttributesA, "group1");
+        line.setCurrentLimits(2, limitsAttributesB, "group2");
+        assertNotNull(line.getOperationalLimitsGroups(1));
+        assertNotNull(line.getOperationalLimitsGroups(2));
+        try {
+            line.getOperationalLimitsGroups(3);
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
+        }
 
         DanglingLineAttributes danglingLine = new DanglingLineAttributes();
-
-        assertEquals(3, line.getAllTemporaryLimits().size());
-        assertEquals(6, threeWindingTransformer.getAllTemporaryLimits().size());
-        assertEquals(0, danglingLine.getAllTemporaryLimits().size());
-    }
-
-    @Test
-    public void getTemporaryLimitsByTypeAndSideTest() {
-        LineAttributes line = new LineAttributes();
-        line.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        line.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        line.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        line.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        line.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        line.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
-
-        ThreeWindingsTransformerAttributes threeWindingTransformer = ThreeWindingsTransformerAttributes.builder()
-                .leg1(new LegAttributes())
-                .leg2(new LegAttributes())
-                .leg3(new LegAttributes()).build();
-        threeWindingTransformer.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).temporaryLimits(tempLimitsA).build());
-        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        threeWindingTransformer.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
-        threeWindingTransformer.setLimits(LimitType.CURRENT, 3, LimitsAttributes.builder().permanentLimit(100000).temporaryLimits(tempLimitsC).build());
-        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 3, LimitsAttributes.builder().permanentLimit(200000).temporaryLimits(tempLimitsB).build());
-        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 3, LimitsAttributes.builder().permanentLimit(300000).temporaryLimits(tempLimitsA).build());
-
-        DanglingLineAttributes danglingLine = new DanglingLineAttributes();
-
-        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 1).size());
-        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, 1).size());
-        assertEquals(2, line.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 1).size());
-        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 2).size());
-        assertEquals(1, line.getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, 2).size());
-        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 2).size());
-
-        assertEquals(2, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 1).size());
-        assertEquals(0, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, 1).size());
-        assertEquals(2, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 1).size());
-        assertEquals(0, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 2).size());
-        assertEquals(1, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, 2).size());
-        assertEquals(0, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 2).size());
-        assertEquals(3, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 3).size());
-        assertEquals(1, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, 3).size());
-        assertEquals(2, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 3).size());
-
-        assertEquals(0, danglingLine.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 1).size());
-
-        assertEquals(LimitType.ACTIVE_POWER, line.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 1).get(0).getLimitType());
-        assertEquals(1, line.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 1).get(0).getSide().intValue());
-
-        assertEquals(LimitType.CURRENT, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 3).get(2).getLimitType());
-        assertEquals(3, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 3).get(2).getSide().intValue());
-    }
-
-    @Test
-    public void getterSetterLimitsDanglingLineTest() {
-
-        DanglingLineAttributes danglingLine = new DanglingLineAttributes();
-        danglingLine.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        danglingLine.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        danglingLine.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-
-        assertEquals(100, danglingLine.getLimits(LimitType.CURRENT, 1).getPermanentLimit(), 0.001);
-        assertEquals(200, danglingLine.getLimits(LimitType.APPARENT_POWER, 1).getPermanentLimit(), 0.001);
-        assertEquals(300, danglingLine.getLimits(LimitType.ACTIVE_POWER, 1).getPermanentLimit(), 0.001);
-        assertEquals(2, danglingLine.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().size());
-        assertEquals(75, danglingLine.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().get(150).getValue(), 0.001);
+        danglingLine.setCurrentLimits(1, limitsAttributesA, "group1");
+        assertNotNull(danglingLine.getOperationalLimitsGroups(1));
         try {
-            danglingLine.getLimits(LimitType.CURRENT, 2);
-            fail();
-        } catch (IllegalArgumentException ignored) {
+            danglingLine.getOperationalLimitsGroups(2);
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
         }
+
+        ThreeWindingsTransformerAttributes transformer = new ThreeWindingsTransformerAttributes();
+        transformer.setLeg1(LegAttributes.builder().build());
+        transformer.setCurrentLimits(1, limitsAttributesA, "group1");
+        assertNotNull(transformer.getOperationalLimitsGroups(1));
         try {
-            danglingLine.setLimits(LimitType.APPARENT_POWER, 2, null);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-    }
-
-    @Test
-    public void getterSetterLimitsLineTest() {
-
-        LineAttributes line = new LineAttributes();
-        line.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        line.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        line.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        line.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        line.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        line.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
-
-        assertEquals(100, line.getLimits(LimitType.CURRENT, 1).getPermanentLimit(), 0.001);
-        assertEquals(200, line.getLimits(LimitType.APPARENT_POWER, 1).getPermanentLimit(), 0.001);
-        assertEquals(300, line.getLimits(LimitType.ACTIVE_POWER, 1).getPermanentLimit(), 0.001);
-        assertEquals(2, line.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().size());
-        assertEquals(75, line.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().get(150).getValue(), 0.001);
-
-        assertEquals(1000, line.getLimits(LimitType.CURRENT, 2).getPermanentLimit(), 0.001);
-        assertEquals(2000, line.getLimits(LimitType.APPARENT_POWER, 2).getPermanentLimit(), 0.001);
-        assertEquals(3000, line.getLimits(LimitType.ACTIVE_POWER, 2).getPermanentLimit(), 0.001);
-        assertEquals(1, line.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().size());
-        assertEquals(600, line.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().get(60).getValue(), 0.001);
-        try {
-            line.getLimits(LimitType.CURRENT, 3);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            line.setLimits(LimitType.APPARENT_POWER, 3, null);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-    }
-
-    @Test
-    public void getterSetterLimitsTwoWindingsTransformerTest() {
-
-        TwoWindingsTransformerAttributes twoWindingTransformer = new TwoWindingsTransformerAttributes();
-        twoWindingTransformer.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        twoWindingTransformer.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        twoWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        twoWindingTransformer.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        twoWindingTransformer.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        twoWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
-
-        assertEquals(100, twoWindingTransformer.getLimits(LimitType.CURRENT, 1).getPermanentLimit(), 0.001);
-        assertEquals(200, twoWindingTransformer.getLimits(LimitType.APPARENT_POWER, 1).getPermanentLimit(), 0.001);
-        assertEquals(300, twoWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getPermanentLimit(), 0.001);
-        assertEquals(2, twoWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().size());
-        assertEquals(75, twoWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().get(150).getValue(), 0.001);
-
-        assertEquals(1000, twoWindingTransformer.getLimits(LimitType.CURRENT, 2).getPermanentLimit(), 0.001);
-        assertEquals(2000, twoWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getPermanentLimit(), 0.001);
-        assertEquals(3000, twoWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 2).getPermanentLimit(), 0.001);
-        assertEquals(1, twoWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().size());
-        assertEquals(600, twoWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().get(60).getValue(), 0.001);
-        try {
-            twoWindingTransformer.getLimits(LimitType.CURRENT, 3);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            twoWindingTransformer.setLimits(LimitType.APPARENT_POWER, 3, null);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-    }
-
-    @Test
-    public void getterSetterLimitsThreeWindingsTransformerTest() {
-
-        ThreeWindingsTransformerAttributes threeWindingTransformer = ThreeWindingsTransformerAttributes.builder()
-                .leg1(new LegAttributes())
-                .leg2(new LegAttributes())
-                .leg3(new LegAttributes()).build();
-        threeWindingTransformer.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        threeWindingTransformer.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
-        threeWindingTransformer.setLimits(LimitType.CURRENT, 3, LimitsAttributes.builder().permanentLimit(100000).temporaryLimits(tempLimitsC).build());
-        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 3, LimitsAttributes.builder().permanentLimit(200000).build());
-        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 3, LimitsAttributes.builder().permanentLimit(300000).build());
-
-        assertEquals(100, threeWindingTransformer.getLimits(LimitType.CURRENT, 1).getPermanentLimit(), 0.001);
-        assertEquals(200, threeWindingTransformer.getLimits(LimitType.APPARENT_POWER, 1).getPermanentLimit(), 0.001);
-        assertEquals(300, threeWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getPermanentLimit(), 0.001);
-        assertEquals(2, threeWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().size());
-        assertEquals(75, threeWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().get(150).getValue(), 0.001);
-
-        assertEquals(1000, threeWindingTransformer.getLimits(LimitType.CURRENT, 2).getPermanentLimit(), 0.001);
-        assertEquals(2000, threeWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getPermanentLimit(), 0.001);
-        assertEquals(3000, threeWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 2).getPermanentLimit(), 0.001);
-        assertEquals(1, threeWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().size());
-        assertEquals(600, threeWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().get(60).getValue(), 0.001);
-
-        assertEquals(100000, threeWindingTransformer.getLimits(LimitType.CURRENT, 3).getPermanentLimit(), 0.001);
-        assertEquals(200000, threeWindingTransformer.getLimits(LimitType.APPARENT_POWER, 3).getPermanentLimit(), 0.001);
-        assertEquals(300000, threeWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 3).getPermanentLimit(), 0.001);
-        assertEquals(3, threeWindingTransformer.getLimits(LimitType.CURRENT, 3).getTemporaryLimits().size());
-        assertEquals(7, threeWindingTransformer.getLimits(LimitType.CURRENT, 3).getTemporaryLimits().get(25000).getValue(), 0.001);
-        try {
-            threeWindingTransformer.getLimits(LimitType.CURRENT, 4);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 4, null);
-            fail();
-        } catch (IllegalArgumentException ignored) {
+            transformer.getOperationalLimitsGroups(4);
+            fail("Should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Unknown side", e.getMessage());
         }
     }
 

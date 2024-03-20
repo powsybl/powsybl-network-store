@@ -6,6 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -22,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Three windings transformer leg attributes")
-public class LegAttributes implements TapChangerParentAttributes {
+public class LegAttributes implements TapChangerParentAttributes, FlowsLimitsAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -63,12 +66,11 @@ public class LegAttributes implements TapChangerParentAttributes {
     @Schema(description = "RatioTapChangerAttributes")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
-    @Schema(description = "currentLimitsAttributes")
-    private LimitsAttributes currentLimitsAttributes;
+    @Schema(description = "OperationalLimitGroup")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups = new HashMap<>();
 
-    @Schema(description = "apparent power limits")
-    private LimitsAttributes apparentPowerLimitsAttributes;
-
-    @Schema(description = "active power limits")
-    private LimitsAttributes activePowerLimitsAttributes;
+    @Schema(description = "selected OperationalLimitGroupId")
+    @Builder.Default
+    private String selectedOperationalLimitsGroupId = "DEFAULT";
 }

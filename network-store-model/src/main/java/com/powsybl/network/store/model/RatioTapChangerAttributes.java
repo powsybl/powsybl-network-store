@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
+import com.powsybl.iidm.network.RatioTapChanger;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +27,9 @@ public class RatioTapChangerAttributes extends TapChangerAttributes {
     @Schema(description = "loadTapChangingCapabilities")
     private boolean loadTapChangingCapabilities;
 
-    @Schema(description = "targetV")
-    private double targetV;
+    @Schema(description = "regulationValue")
+    private double regulationValue;
+
+    @Schema(description = "regulationMode")
+    private RatioTapChanger.RegulationMode regulationMode;
 }

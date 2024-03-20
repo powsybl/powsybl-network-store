@@ -125,6 +125,7 @@ public interface BaseBus extends Bus {
                 case DANGLING_LINE -> visitor.visitDanglingLine((DanglingLine) connectable);
                 case STATIC_VAR_COMPENSATOR -> visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
                 case HVDC_CONVERTER_STATION -> visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
+                case GROUND -> visitor.visitGround((Ground) connectable);
                 default -> throw new AssertionError();
             }
         }

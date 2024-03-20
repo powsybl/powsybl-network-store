@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
@@ -16,6 +17,7 @@ import com.powsybl.network.store.model.Resource;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -102,5 +104,25 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     @Override
     public double getAngle() {
         return getTerminal().isConnected() ? getTerminal().getBusView().getBus().getAngle() : Double.NaN;
+    }
+
+    @Override
+    public boolean connect() {
+        return terminal.connect();
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        return terminal.connect(isTypeSwitchToOperate);
+    }
+
+    @Override
+    public boolean disconnect() {
+        return terminal.disconnect();
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        return terminal.disconnect(isSwitchOpenable);
     }
 }

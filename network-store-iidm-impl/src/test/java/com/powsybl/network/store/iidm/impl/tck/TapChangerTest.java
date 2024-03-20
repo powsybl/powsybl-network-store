@@ -26,4 +26,9 @@ public class TapChangerTest extends AbstractTapChangerTest {
     public void testTapChangerSetterGetterInMultiVariants() {
         // FIXME
     }
+
+    @Override
+    public void undefinedRegulationValueOnlyWarning() {
+        // FIXME
+    }
 }

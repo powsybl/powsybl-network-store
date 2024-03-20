@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import org.junit.Test;
@@ -61,6 +62,30 @@ public class ActivePowerControlExtensionTest {
 
         public int getNbUpdatedEquipments() {
             return nbUpdatedEquipments;
+        }
+
+        @Override
+        public void onExtensionCreation(Extension<?> extension) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionCreation'");
+        }
+
+        @Override
+        public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionAfterRemoval'");
+        }
+
+        @Override
+        public void onExtensionBeforeRemoval(Extension<?> extension) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionBeforeRemoval'");
+        }
+
+        @Override
+        public void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionUpdate'");
         }
     }
 

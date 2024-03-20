@@ -237,4 +237,28 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         index.removeSubstation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
     }
+
+    @Override
+    public OverloadManagementSystemAdder newOverloadManagementSystem() {
+        // FIXME : implement this method
+        return null;
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        // FIXME : implement this method
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        // FIXME : implement this method
+        return Stream.empty();
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        // FIXME : implement this method
+        return 0;
+    }
 }

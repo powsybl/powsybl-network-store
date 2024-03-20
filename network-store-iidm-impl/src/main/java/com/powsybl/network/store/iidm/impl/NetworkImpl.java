@@ -1051,4 +1051,48 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
         return extension;
     }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        // FIXME: implement
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        // FIXME: implement
+        return Stream.empty();
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        // FIXME: implement
+        return 0;
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return index.getGrounds();
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return index.getGrounds().stream();
+    }
+
+    @Override
+    public int getGroundCount() {
+        return index.getGrounds().size();
+    }
+
+    @Override
+    public Ground getGround(String id) {
+        return index.getGround(getIdFromAlias(id)).orElse(null);
+    }
 }
