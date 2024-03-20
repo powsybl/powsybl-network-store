@@ -131,9 +131,6 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @Schema(description = "selected OperationalLimitsGroupId2")
     private String selectedOperationalLimitsGroupId2;
 
-    @Schema(description = "Operating status")
-    private String operatingStatus;
-
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
 

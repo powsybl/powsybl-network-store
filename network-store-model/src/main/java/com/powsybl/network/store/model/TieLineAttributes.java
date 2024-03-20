@@ -37,9 +37,6 @@ public class TieLineAttributes extends AbstractAttributes implements Identifiabl
     @Schema(description = "Alias by type")
     private Map<String, String> aliasByType;
 
-    @Schema(description = "Operating status")
-    private String operatingStatus;
-
     @Schema(description = "Extension attributes")
     @Builder.Default
     private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();

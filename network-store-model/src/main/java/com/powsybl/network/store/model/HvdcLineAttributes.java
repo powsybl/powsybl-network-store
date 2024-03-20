@@ -68,9 +68,6 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
     @Schema(description = "Hvdc operator active power range")
     private HvdcOperatorActivePowerRangeAttributes hvdcOperatorActivePowerRange;
 
-    @Schema(description = "Operating status")
-    private String operatingStatus;
-
     @Schema(description = "Extension attributes")
     @Builder.Default
     private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();

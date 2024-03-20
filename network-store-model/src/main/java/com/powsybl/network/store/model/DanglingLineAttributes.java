@@ -100,9 +100,6 @@ public class DanglingLineAttributes extends AbstractAttributes implements FlowsL
     @Schema(description = "Tie line ID in case of a paired dangling line")
     private String tieLineId;
 
-    @Schema(description = "Operating status")
-    private String operatingStatus;
-
     @Schema(description = "Extension attributes")
     @Builder.Default
     private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();

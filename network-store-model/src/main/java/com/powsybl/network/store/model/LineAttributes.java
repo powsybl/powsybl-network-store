@@ -121,9 +121,6 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @Schema(description = "selected OperationalLimitsGroupId2")
     private String selectedOperationalLimitsGroupId2;
 
-    @Schema(description = "Operating status")
-    private String operatingStatus;
-
     @Schema(description = "Extension attributes")
     @Builder.Default
     private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
