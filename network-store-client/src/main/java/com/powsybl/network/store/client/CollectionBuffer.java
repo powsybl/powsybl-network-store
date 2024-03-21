@@ -56,7 +56,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
 
     private final Map<String, ResourceAndFilter<T>> updateResources = new LinkedHashMap<>();
 
-    private final Set<String> removeResources = new HashSet<>();
+    private final Set<String> removeResourcesIds = new HashSet<>();
 
     public CollectionBuffer(BiConsumer<UUID, List<Resource<T>>> createFct,
                             TriConsumer<UUID, List<Resource<T>>, AttributeFilter> updateFct,
@@ -99,7 +99,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
         for (String resourceId : resourceIds) {
             // remove directly from the creation buffer if possible, otherwise remove from the server"
             if (createResources.remove(resourceId) == null) {
-                removeResources.add(resourceId);
+                removeResourcesIds.add(resourceId);
 
                 // no need to update the resource on server side if we remove it just after
                 updateResources.remove(resourceId);
@@ -108,8 +108,8 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
     }
 
     void flush(UUID networkUuid, int variantNum) {
-        if (removeFct != null && !removeResources.isEmpty()) {
-            removeFct.accept(networkUuid, variantNum, new ArrayList<>(removeResources));
+        if (removeFct != null && !removeResourcesIds.isEmpty()) {
+            removeFct.accept(networkUuid, variantNum, new ArrayList<>(removeResourcesIds));
         }
         if (!createResources.isEmpty()) {
             createFct.accept(networkUuid, new ArrayList<>(createResources.values()));
@@ -132,7 +132,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
         }
         createResources.clear();
         updateResources.clear();
-        removeResources.clear();
+        removeResourcesIds.clear();
     }
 
     /**
@@ -154,8 +154,16 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
         for (Resource<T> clonedResource : clonedUpdateResources) {
             clonedBuffer.updateResources.put(clonedResource.getId(), new ResourceAndFilter<>(clonedResource, null));
         }
-        clonedBuffer.removeResources.addAll(removeResources);
+        clonedBuffer.removeResourcesIds.addAll(removeResourcesIds);
 
         return clonedBuffer;
+    }
+
+    public Set<String> getCreateResourcesIds() {
+        return createResources.keySet();
+    }
+
+    public Set<String> getRemoveResourcesIds() {
+        return removeResourcesIds;
     }
 }

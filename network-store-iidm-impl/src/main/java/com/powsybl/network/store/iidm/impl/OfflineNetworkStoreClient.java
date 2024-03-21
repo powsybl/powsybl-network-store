@@ -600,6 +600,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public int getIdentifiableCallCount(UUID networkUuid, int variantNum) {
+        return 0;
+    }
+
+    @Override
+    public List<String> getIdentifiablesIds(UUID networkUuid, int variantNum) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void flush(UUID networkUuid) {
         // nothing to do
     }
