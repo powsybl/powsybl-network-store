@@ -7,7 +7,7 @@ import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.network.store.model.ExtensionLoader;
 
 @AutoService(ExtensionLoader.class)
-public class OperatingStatusLoader<I extends Identifiable<I>> implements ExtensionLoader<I> {
+public class OperatingStatusLoader<I extends Identifiable<I>> implements ExtensionLoader<I, OperatingStatus<I>> {
     @Override
     public Extension<I> load(I identifiable) {
         return new OperatingStatusImpl<>(identifiable);
@@ -19,7 +19,7 @@ public class OperatingStatusLoader<I extends Identifiable<I>> implements Extensi
     }
 
     @Override
-    public Class<?> getType() {
+    public Class<OperatingStatus> getType() {
         return OperatingStatus.class;
     }
 }

@@ -25,7 +25,6 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -295,28 +294,21 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
         return resource.getAttributes().getExtensionAttributes().keySet().stream()
-                .flatMap(key -> (Stream<E>) getExtensionsFromLoaders(type, key))
+                .map(name -> (E) ExtensionLoaders.findLoader(type, name).load(this))
                 .findFirst().orElse(null);
     }
 
     public <E extends Extension<I>> E getExtensionByName(String name) {
-        return resource.getAttributes().getExtensionAttributes().keySet().stream()
-                .filter(key -> key.equals(name))
-                .flatMap(key -> (Stream<E>) getExtensionsFromLoaders(null, key))
-                .findFirst().orElse(null);
+        if (resource.getAttributes().getExtensionAttributes().containsKey(name)) {
+            return (E) ExtensionLoaders.findLoader(name).load(this);
+        }
+        return null;
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
         return resource.getAttributes().getExtensionAttributes().keySet().stream()
-                .flatMap(key -> (Stream<E>) getExtensionsFromLoaders(null, key))
+                .map(name -> (E) ExtensionLoaders.findLoader(name).load(this))
                 .collect(Collectors.toList());
-    }
-
-    private <E extends Extension<I>> Stream<E> getExtensionsFromLoaders(Class<? super E> type, String name) {
-        return ExtensionLoaders.getExtensionLoaders().stream()
-                .filter(loader -> loader.getName().equals(name))
-                .filter(loader -> type == null || type == loader.getType())
-                .map(loader -> (E) loader.load(this));
     }
 
     public <E extends Extension<I>> boolean removeExtension(Class<E> type) {

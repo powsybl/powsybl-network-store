@@ -7,7 +7,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.network.store.model.ExtensionLoader;
 
 @AutoService(ExtensionLoader.class)
-public class ActivePowerControlLoader<I extends Injection<I>> implements ExtensionLoader<I> {
+public class ActivePowerControlLoader<I extends Injection<I>> implements ExtensionLoader<I, ActivePowerControl<I>> {
     @Override
     public Extension<I> load(I injection) {
         return new ActivePowerControlImpl<>(injection);
@@ -19,7 +19,7 @@ public class ActivePowerControlLoader<I extends Injection<I>> implements Extensi
     }
 
     @Override
-    public Class<?> getType() {
+    public Class<ActivePowerControl> getType() {
         return ActivePowerControl.class;
     }
 }

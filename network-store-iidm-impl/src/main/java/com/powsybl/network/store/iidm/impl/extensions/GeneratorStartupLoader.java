@@ -8,7 +8,7 @@ import com.powsybl.network.store.iidm.impl.GeneratorImpl;
 import com.powsybl.network.store.model.ExtensionLoader;
 
 @AutoService(ExtensionLoader.class)
-public class GeneratorStartupLoader implements ExtensionLoader<Generator> {
+public class GeneratorStartupLoader implements ExtensionLoader<Generator, GeneratorStartup> {
     @Override
     public Extension<Generator> load(Generator generator) {
         return new GeneratorStartupImpl((GeneratorImpl) generator);
@@ -20,7 +20,7 @@ public class GeneratorStartupLoader implements ExtensionLoader<Generator> {
     }
 
     @Override
-    public Class<?> getType() {
+    public Class<GeneratorStartup> getType() {
         return GeneratorStartup.class;
     }
 }

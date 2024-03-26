@@ -3,11 +3,11 @@ package com.powsybl.network.store.model;
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
 
-public interface ExtensionLoader<E extends Extendable> {
+public interface ExtensionLoader<T extends Extendable, E extends Extension<T>> {
 
-    Extension<E> load(E extendable);
+    Extension<T> load(T extendable);
 
     String getName();
 
-    Class<?> getType();
+    Class<? super E> getType();
 }
