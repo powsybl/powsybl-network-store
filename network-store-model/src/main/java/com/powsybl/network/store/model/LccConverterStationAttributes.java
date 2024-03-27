@@ -8,10 +8,7 @@ package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -20,28 +17,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "LCC converter station attributes")
-public class LccConverterStationAttributes extends AbstractAttributes implements InjectionAttributes {
+public class LccConverterStationAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "LCC converter station name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
@@ -69,8 +50,4 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
-
-    @Schema(description = "Extension attributes")
-    @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

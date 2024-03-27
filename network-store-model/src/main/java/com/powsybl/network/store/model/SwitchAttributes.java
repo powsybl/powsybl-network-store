@@ -9,11 +9,13 @@ package com.powsybl.network.store.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.SwitchKind;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,24 +25,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Switch attributes")
-public class SwitchAttributes extends AbstractAttributes implements ConnectableAttributes, Contained, NodeBreakerBiConnectable {
+public class SwitchAttributes extends AbstractIdentifiableAttributes implements ConnectableAttributes, Contained, NodeBreakerBiConnectable {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "Switch name")
-    private String name;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Switch kind")
     private SwitchKind kind;
@@ -62,14 +52,6 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
 
     @Schema(description = "Switch retained status")
     private boolean retained;
-
-    @Builder.Default
-    @Schema(description = "Switch fictitious status")
-    private boolean fictitious = false;
-
-    @Schema(description = "Extension attributes")
-    @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
     @Override
     @JsonIgnore

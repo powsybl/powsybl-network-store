@@ -9,13 +9,11 @@ package com.powsybl.network.store.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -24,38 +22,18 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Busbar section attributes")
-public class BusbarSectionAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
+public class BusbarSectionAttributes extends AbstractIdentifiableAttributes implements Contained {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "Busbar section name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "Busbar section fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private int node;
 
     @Schema(description = "Busbar section position (for substation diagram)")
     private BusbarSectionPositionAttributes position;
-
-    @Schema(description = "Extension attributes")
-    @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
     @Override
     @JsonIgnore

@@ -11,8 +11,8 @@ import com.google.common.collect.ImmutableSet;
 import com.powsybl.commons.PowsyblException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,25 +24,9 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder {
-
-    @Schema(description = "3 windings transformer name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
+public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttributes implements Contained, TransformerAttributes, LimitHolder {
 
     @Schema(description = "Side 1 active power in MW")
     @Builder.Default
@@ -94,10 +78,6 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
-
-    @Schema(description = "Extension attributes")
-    @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
     @Override
     @JsonIgnore

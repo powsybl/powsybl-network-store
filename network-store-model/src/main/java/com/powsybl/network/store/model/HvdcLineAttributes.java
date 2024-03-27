@@ -8,11 +8,11 @@ package com.powsybl.network.store.model;
 
 import com.powsybl.iidm.network.HvdcLine;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,25 +21,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "HVDC line attributes")
-public class HvdcLineAttributes extends AbstractAttributes implements IdentifiableAttributes {
+public class HvdcLineAttributes extends AbstractIdentifiableAttributes {
 
     @Schema(description = "HVDC line name")
     private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Resistance")
     private double r;
@@ -67,8 +54,4 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
 
     @Schema(description = "Hvdc operator active power range")
     private HvdcOperatorActivePowerRangeAttributes hvdcOperatorActivePowerRange;
-
-    @Schema(description = "Extension attributes")
-    @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }
