@@ -33,4 +33,5 @@ public class GeneratorStartupAttributes implements ExtensionAttributes {
     private double plannedOutageRate;
 
     private double forcedOutageRate;
+
 }
