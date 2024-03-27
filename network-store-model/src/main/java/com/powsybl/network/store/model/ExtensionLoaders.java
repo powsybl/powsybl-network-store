@@ -29,6 +29,10 @@ public final class ExtensionLoaders {
         return findLoader(s -> s.getName() != null && name.equals(s.getName()), name);
     }
 
+    public static <K extends ExtensionAttributes> ExtensionLoader findLoaderByAttributes(Class<? super K> type) {
+        return findLoader(s -> type.isAssignableFrom(s.getAttributesType()), type.getSimpleName());
+    }
+
     private static ExtensionLoader findLoader(
             Predicate<ExtensionLoader> typeFilter, String typeName) {
 

@@ -305,14 +305,14 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return null;
     }
 
+    public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
     public <E extends Extension<I>> Collection<E> getExtensions() {
         return resource.getAttributes().getExtensionAttributes().keySet().stream()
                 .map(name -> (E) ExtensionLoaders.findLoader(name).load(this))
                 .collect(Collectors.toList());
-    }
-
-    public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
-        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
