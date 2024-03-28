@@ -26,7 +26,7 @@ public class GeneratorStartupLoader implements ExtensionLoader<Generator, Genera
     }
 
     @Override
-    public Class<? super GeneratorStartupAttributes> getAttributesType() {
+    public Class<GeneratorStartupAttributes> getAttributesType() {
         return GeneratorStartupAttributes.class;
     }
 }

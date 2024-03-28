@@ -25,7 +25,7 @@ public class OperatingStatusLoader<I extends Identifiable<I>> implements Extensi
     }
 
     @Override
-    public Class<? super OperatingStatusAttributes> getAttributesType() {
+    public Class<OperatingStatusAttributes> getAttributesType() {
         return OperatingStatusAttributes.class;
     }
 }
