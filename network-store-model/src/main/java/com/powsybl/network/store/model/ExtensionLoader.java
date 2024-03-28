@@ -20,5 +20,5 @@ public interface ExtensionLoader<T extends Extendable<T>, E extends Extension<T>
 
     Class<? super E> getType();
 
-    Class<? extends ExtensionAttributes > getAttributesType();
+    Class<? super K> getAttributesType();
 }

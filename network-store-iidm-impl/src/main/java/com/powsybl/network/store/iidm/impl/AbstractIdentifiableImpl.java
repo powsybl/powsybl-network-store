@@ -294,7 +294,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
         return resource.getAttributes().getExtensionAttributes().keySet().stream()
-                .map(name -> (E) ExtensionLoaders.findLoader(type, name).load(this))
+                .map(ExtensionLoaders::findLoader)
+                .filter(loader -> type.isAssignableFrom(loader.getType()))
+                .map(loader -> (E) loader.load(this))
                 .findFirst().orElse(null);
     }
 
