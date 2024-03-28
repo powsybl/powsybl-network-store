@@ -3,6 +3,7 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Tie line attributes")
-public class TieLineAttributes extends AbstractAttributes implements IdentifiableAttributes, OperatingStatusHolder {
+public class TieLineAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
     @Schema(description = "Dangling line side 1 ID")
     private String danglingLine1Id;
@@ -36,6 +37,7 @@ public class TieLineAttributes extends AbstractAttributes implements Identifiabl
     @Schema(description = "Alias by type")
     private Map<String, String> aliasByType;
 
-    @Schema(description = "Operating status")
-    private String operatingStatus;
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

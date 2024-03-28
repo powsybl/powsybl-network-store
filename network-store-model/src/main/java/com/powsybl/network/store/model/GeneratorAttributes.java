@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.EnergySource;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -90,9 +91,6 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @Schema(description = "reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
-    @Schema(description = "Active power control")
-    private ActivePowerControlAttributes activePowerControl;
-
     @Schema(description = "regulatingTerminal")
     private TerminalRefAttributes regulatingTerminal;
 
@@ -105,9 +103,10 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @Schema(description = "Entsoe category attributes")
     private GeneratorEntsoeCategoryAttributes entsoeCategoryAttributes;
 
-    @Schema(description = "Generator Startup attributes attributes")
-    private GeneratorStartupAttributes generatorStartupAttributes;
-
     @Schema(description = "Generator short circuit attributes")
     private GeneratorShortCircuitAttributes generatorShortCircuitAttributes;
+
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

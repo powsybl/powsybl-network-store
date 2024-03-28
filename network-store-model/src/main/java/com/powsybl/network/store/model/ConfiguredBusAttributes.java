@@ -10,7 +10,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -50,6 +53,10 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
 
     @Schema(description = "Properties")
     private Map<String, String> properties;
+
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
     @Override
     @JsonIgnore

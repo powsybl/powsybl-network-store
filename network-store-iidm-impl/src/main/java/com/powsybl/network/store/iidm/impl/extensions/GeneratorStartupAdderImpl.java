@@ -35,7 +35,7 @@ public class GeneratorStartupAdderImpl extends AbstractExtensionAdder<Generator,
     @Override
     protected GeneratorStartup createExtension(Generator generator) {
         var attributes = new GeneratorStartupAttributes(plannedActivePowerSetpoint, startupCost, marginalCost, plannedOutageRate, forcedOutageRate);
-        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setGeneratorStartupAttributes(attributes));
+        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().getExtensionAttributes().put(GeneratorStartup.NAME, attributes));
         return new GeneratorStartupImpl((GeneratorImpl) generator);
     }
 

@@ -40,4 +40,8 @@ public interface IdentifiableAttributes extends Attributes {
     default Attributes filter(AttributeFilter filter) {
         return this;
     }
+
+    Map<String, ExtensionAttributes> getExtensionAttributes();
+
+    void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes);
 }

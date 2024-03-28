@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.HvdcLine;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "HVDC line attributes")
-public class HvdcLineAttributes extends AbstractAttributes implements IdentifiableAttributes, OperatingStatusHolder {
+public class HvdcLineAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
     @Schema(description = "HVDC line name")
     private String name;
@@ -67,6 +68,7 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
     @Schema(description = "Hvdc operator active power range")
     private HvdcOperatorActivePowerRangeAttributes hvdcOperatorActivePowerRange;
 
-    @Schema(description = "Operating status")
-    private String operatingStatus;
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

@@ -133,16 +133,6 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     }
 
     @Override
-    public ActivePowerControlAttributes getActivePowerControl() {
-        return null;
-    }
-
-    @Override
-    public void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
-        //empty on purpose, it cannot have an activePowerControl
-    }
-
-    @Override
     public Set<String> getAliasesWithoutType() {
         return attributes.getAliasesWithoutType();
     }
@@ -160,5 +150,15 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     @Override
     public void setAliasByType(Map<String, String> aliasByType) {
         attributes.setAliasByType(aliasByType);
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getExtensionAttributes() {
+        return attributes.getExtensionAttributes();
+    }
+
+    @Override
+    public void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes) {
+        attributes.setExtensionAttributes(extensionAttributes);
     }
 }

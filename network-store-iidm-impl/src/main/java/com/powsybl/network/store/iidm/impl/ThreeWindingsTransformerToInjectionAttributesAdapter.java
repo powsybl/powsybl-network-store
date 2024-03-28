@@ -204,4 +204,14 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     public void setAliasByType(Map<String, String> aliasByType) {
         attributes.setAliasByType(aliasByType);
     }
+
+    @Override
+    public Map<String, ExtensionAttributes> getExtensionAttributes() {
+        return attributes.getExtensionAttributes();
+    }
+
+    @Override
+    public void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes) {
+        attributes.setExtensionAttributes(extensionAttributes);
+    }
 }

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -84,4 +85,7 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @Schema(description = "Base voltage mapping")
     private BaseVoltageMappingAttributes baseVoltageMapping;
 
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

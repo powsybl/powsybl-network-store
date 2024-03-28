@@ -84,6 +84,10 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @Schema(description = "Identifiable short circuit attributes")
     private IdentifiableShortCircuitAttributes identifiableShortCircuitAttributes;
 
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
+
     @Builder.Default
     @Schema(description = "Calculated buses validity")
     private boolean calculatedBusesValid = false;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,7 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
 @Data
 @NoArgsConstructor
@@ -22,11 +22,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Schema(description = "Active power control attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ActivePowerControlAttributes implements ExtensionAttributes {
+public class OperatingStatusAttributes implements ExtensionAttributes {
 
-    private boolean participate;
-
-    private double droop;
-
-    private double participationFactor;
+    private String operatingStatus;
 }

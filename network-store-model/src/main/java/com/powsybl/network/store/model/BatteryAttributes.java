@@ -9,6 +9,7 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -77,7 +78,8 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
     @Schema(description = "reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
-    @Schema(description = "activePowerControl")
-    private ActivePowerControlAttributes activePowerControl;
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
 }

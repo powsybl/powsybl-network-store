@@ -171,16 +171,6 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
-    public ActivePowerControlAttributes getActivePowerControl() {
-        return null;
-    }
-
-    @Override
-    public void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
-        //empty on purpose, it cannot have an activePowerControl
-    }
-
-    @Override
     public boolean isFictitious() {
         return attributes.isFictitious();
     }
@@ -210,4 +200,13 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
         attributes.setAliasByType(aliasByType);
     }
 
+    @Override
+    public Map<String, ExtensionAttributes> getExtensionAttributes() {
+        return attributes.getExtensionAttributes();
+    }
+
+    @Override
+    public void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes) {
+        attributes.setExtensionAttributes(extensionAttributes);
+    }
 }

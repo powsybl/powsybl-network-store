@@ -38,7 +38,7 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
                     .participate(participate)
                     .participationFactor(participationFactor)
                     .build();
-            ((AbstractInjectionImpl<?, ?>) injection).updateResource(res -> res.getAttributes().setActivePowerControl(attributes));
+            ((AbstractInjectionImpl<?, ?>) injection).updateResource(res -> res.getAttributes().getExtensionAttributes().put(ActivePowerControl.NAME, attributes));
             return new ActivePowerControlImpl<>(injection);
         } else {
             throw new UnsupportedOperationException("Cannot set ActivePowerControl on this kind of component");

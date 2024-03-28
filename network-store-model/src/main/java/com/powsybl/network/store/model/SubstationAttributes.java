@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,4 +54,8 @@ public class SubstationAttributes extends AbstractAttributes implements Identifi
 
     @Schema(description = "Entsoe area the substation belongs to")
     private EntsoeAreaAttributes entsoeArea;
+
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

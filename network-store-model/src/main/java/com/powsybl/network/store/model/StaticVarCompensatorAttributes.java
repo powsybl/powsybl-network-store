@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,4 +87,8 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
 
     @Schema(description = "Standby automaton")
     private StandbyAutomatonAttributes standbyAutomaton;
+
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

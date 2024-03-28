@@ -9,17 +9,13 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
-import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
-import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorEntsoeCategoryImpl;
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorShortCircuitImpl;
-import com.powsybl.network.store.iidm.impl.extensions.GeneratorStartupImpl;
 import com.powsybl.network.store.iidm.impl.extensions.RemoteReactivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
@@ -247,16 +243,6 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         return new MinMaxReactiveLimitsAdderImpl<>(this);
     }
 
-    private <E extends Extension<Generator>> E createActivePowerControlExtension() {
-        E extension = null;
-        var resource = getResource();
-        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
-        if (attributes != null) {
-            extension = (E) new ActivePowerControlImpl<>(getInjection());
-        }
-        return extension;
-    }
-
     private <E extends Extension<Generator>> E createCoordinatedReactiveControlExtension() {
         E extension = null;
         var resource = getResource();
@@ -273,16 +259,6 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         RemoteReactivePowerControlAttributes attributes = resource.getAttributes().getRemoteReactivePowerControl();
         if (attributes != null) {
             extension = (E) new RemoteReactivePowerControlImpl((GeneratorImpl) getInjection());
-        }
-        return extension;
-    }
-
-    private <E extends Extension<Generator>> E createGeneratorStartupExtension() {
-        E extension = null;
-        var resource = getResource();
-        GeneratorStartupAttributes attributes = resource.getAttributes().getGeneratorStartupAttributes();
-        if (attributes != null) {
-            extension = (E) new GeneratorStartupImpl((GeneratorImpl) getInjection());
         }
         return extension;
     }
@@ -310,16 +286,12 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public <E extends Extension<Generator>> E getExtension(Class<? super E> type) {
         E extension = super.getExtension(type);
-        if (type == ActivePowerControl.class) {
-            extension = createActivePowerControlExtension();
-        } else if (type == CoordinatedReactiveControl.class) {
+        if (type == CoordinatedReactiveControl.class) {
             extension = createCoordinatedReactiveControlExtension();
         } else if (type == GeneratorEntsoeCategory.class) {
             extension = createEntsoeCategoryExtension();
         } else if (type == RemoteReactivePowerControl.class) {
             extension = createRemoteReactivePowerControlExtension();
-        } else if (type == GeneratorStartup.class) {
-            extension = createGeneratorStartupExtension();
         } else if (type == GeneratorShortCircuit.class) {
             extension = createGeneratorShortCircuitExtension();
         }
@@ -329,16 +301,12 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public <E extends Extension<Generator>> E getExtensionByName(String name) {
         E extension = super.getExtensionByName(name);
-        if (name.equals("activePowerControl")) {
-            extension = createActivePowerControlExtension();
-        } else if (name.equals("coordinatedReactiveControl")) {
+        if (name.equals("coordinatedReactiveControl")) {
             extension = createCoordinatedReactiveControlExtension();
         } else if (name.equals("entsoeCategory")) {
             extension = createEntsoeCategoryExtension();
         } else if (name.equals("remoteReactivePowerControl")) {
             extension = createRemoteReactivePowerControlExtension();
-        } else if (name.equals("startup")) {
-            extension = createGeneratorStartupExtension();
         } else if (name.equals("generatorShortCircuit")) {
             extension = createGeneratorShortCircuitExtension();
         }
@@ -354,11 +322,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public <E extends Extension<Generator>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
-        addIfNotNull(extensions, createActivePowerControlExtension());
         addIfNotNull(extensions, createCoordinatedReactiveControlExtension());
         addIfNotNull(extensions, createEntsoeCategoryExtension());
         addIfNotNull(extensions, createRemoteReactivePowerControlExtension());
-        addIfNotNull(extensions, createGeneratorStartupExtension());
         addIfNotNull(extensions, createGeneratorShortCircuitExtension());
         return extensions;
     }

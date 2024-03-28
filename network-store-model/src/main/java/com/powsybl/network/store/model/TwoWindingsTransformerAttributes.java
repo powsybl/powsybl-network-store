@@ -9,7 +9,10 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -128,9 +131,10 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @Schema(description = "selected OperationalLimitsGroupId2")
     private String selectedOperationalLimitsGroupId2;
 
-    @Schema(description = "Operating status")
-    private String operatingStatus;
-
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
+
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +26,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder, OperatingStatusHolder {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder {
 
     @Schema(description = "3 windings transformer name")
     private String name;
@@ -91,11 +92,12 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @Schema(description = "Phase angle clock for leg 2 and 3")
     private ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock;
 
-    @Schema(description = "Operating status")
-    private String operatingStatus;
-
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
+
+    @Schema(description = "Extension attributes")
+    @Builder.Default
+    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
     @Override
     @JsonIgnore
