@@ -8,11 +8,10 @@ package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.ZonedDateTime;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -22,31 +21,15 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Network attributes")
-public class NetworkAttributes extends AbstractAttributes implements IdentifiableAttributes {
+public class NetworkAttributes extends AbstractIdentifiableAttributes {
 
     @Schema(description = "Network UUID", required = true)
     private UUID uuid;
 
     @Schema(description = "Variant ID")
     private String variantId;
-
-    @Schema(description = "Network name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Id by alias")
     private Map<String, String> idByAlias;
@@ -84,8 +67,4 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
 
     @Schema(description = "Base voltage mapping")
     private BaseVoltageMappingAttributes baseVoltageMapping;
-
-    @Schema(description = "Extension attributes")
-    @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

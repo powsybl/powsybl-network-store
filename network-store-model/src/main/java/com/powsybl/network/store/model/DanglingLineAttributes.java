@@ -9,11 +9,11 @@ package com.powsybl.network.store.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -23,28 +23,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Dangling line attributes")
-public class DanglingLineAttributes extends AbstractAttributes implements FlowsLimitsAttributes, InjectionAttributes, LimitHolder {
+public class DanglingLineAttributes extends AbstractIdentifiableAttributes implements FlowsLimitsAttributes, InjectionAttributes, LimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "Dangling line name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
@@ -99,10 +83,6 @@ public class DanglingLineAttributes extends AbstractAttributes implements FlowsL
 
     @Schema(description = "Tie line ID in case of a paired dangling line")
     private String tieLineId;
-
-    @Schema(description = "Extension attributes")
-    @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
     @Override
     @JsonIgnore

@@ -9,10 +9,7 @@ package com.powsybl.network.store.model;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,28 +18,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Static var compensator attributes")
-public class StaticVarCompensatorAttributes extends AbstractAttributes implements InjectionAttributes {
+public class StaticVarCompensatorAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "Static var compensator name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
@@ -87,8 +68,4 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
 
     @Schema(description = "Standby automaton")
     private StandbyAutomatonAttributes standbyAutomaton;
-
-    @Schema(description = "Extension attributes")
-    @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

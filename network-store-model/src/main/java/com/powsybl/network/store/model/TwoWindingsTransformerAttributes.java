@@ -8,11 +8,11 @@ package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,31 +21,15 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "2 windings transformer attributes")
-public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes {
+public class TwoWindingsTransformerAttributes extends AbstractIdentifiableAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes {
 
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
 
     @Schema(description = "Side 2 voltage level ID")
     private String voltageLevelId2;
-
-    @Schema(description = "2 windings transformer name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Side 1 connection node in node/breaker topology")
     private Integer node1;
@@ -133,8 +117,4 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
-
-    @Schema(description = "Extension attributes")
-    @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }
