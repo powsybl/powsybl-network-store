@@ -7,8 +7,6 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.Extendable;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +24,6 @@ public final class ExtensionLoaders {
     private static final ServiceLoaderCache<ExtensionLoader> EXTENSION_LOADERS = new ServiceLoaderCache<>(ExtensionLoader.class);
 
     private ExtensionLoaders() {
-    }
-
-    public static <O extends Extendable<O>, E extends Extension<O>> ExtensionLoader findLoader(Class<? super E> type, String name) {
-        return findLoader(s -> s.getName() != null
-                && name.equals(s.getName())
-                && type.isAssignableFrom(s.getType()), type.getSimpleName());
     }
 
     public static ExtensionLoader findLoader(String name) {
