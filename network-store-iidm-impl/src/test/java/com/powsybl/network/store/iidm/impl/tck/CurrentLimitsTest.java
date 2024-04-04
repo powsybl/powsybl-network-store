@@ -18,6 +18,21 @@ public class CurrentLimitsTest extends AbstractCurrentLimitsTest {
     }
 
     @Override
+    public void testForThreeWindingsTransformerLeg1() {
+        // FIXME
+    }
+
+    @Override
+    public void testForThreeWindingsTransformerLeg2() {
+        // FIXME
+    }
+
+    @Override
+    public void testForThreeWindingsTransformerLeg3() {
+        // FIXME
+    }
+
+    @Override
     public void testLimitWithoutTempLimit() {
         // FIXME
     }

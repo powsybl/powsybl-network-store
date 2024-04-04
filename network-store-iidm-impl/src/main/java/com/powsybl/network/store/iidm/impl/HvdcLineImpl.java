@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
@@ -57,15 +58,11 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     }
 
     @Override
-    public HvdcConverterStation<?> getConverterStation(Side side) {
-        switch (side) {
-            case ONE:
-                return getConverterStation1();
-            case TWO:
-                return getConverterStation2();
-            default:
-                throw new IllegalStateException("Unknown side: " + side);
-        }
+    public HvdcConverterStation<?> getConverterStation(TwoSides side) {
+        return switch (side) {
+            case ONE -> getConverterStation1();
+            case TWO -> getConverterStation2();
+        };
     }
 
     @Override

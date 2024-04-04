@@ -73,7 +73,7 @@ final class CreateNetworksUtil {
 
     static void connectAllTerminalsVoltageLevel(VoltageLevel vl) {
         vl.getConnectableStream()
-                .map(c -> c.getTerminals())
+                .map(Connectable::getTerminals)
                 .flatMap(List<Terminal>::stream)
                 .filter(t -> t.getVoltageLevel().getId().equals(vl.getId()))
                 .forEach(Terminal::connect);
@@ -81,7 +81,7 @@ final class CreateNetworksUtil {
 
     static void disconnectAllTerminalsVoltageLevel(VoltageLevel vl) {
         vl.getConnectableStream()
-                .map(c -> c.getTerminals())
+                .map(Connectable::getTerminals)
                 .flatMap(List<Terminal>::stream)
                 .filter(t -> t.getVoltageLevel().getId().equals(vl.getId()))
                 .forEach(Terminal::disconnect);
@@ -96,17 +96,17 @@ final class CreateNetworksUtil {
             }
 
             @Override
-            public void visitLine(Line line, Branch.Side side) {
+            public void visitLine(Line line, TwoSides side) {
                 visited.add(line.getId());
             }
 
             @Override
-            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
                 visited.add(transformer.getId());
             }
 
             @Override
-            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
                 visited.add(transformer.getId());
             }
 
@@ -426,10 +426,10 @@ final class CreateNetworksUtil {
                 .setRatedU2(90)
                 .add();
 
-        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).setP(375);
-        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).setP(225);
-        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).setQ(48);
-        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).setQ(28);
+        twoWindingsTransformer.getTerminal(TwoSides.ONE).setP(375);
+        twoWindingsTransformer.getTerminal(TwoSides.TWO).setP(225);
+        twoWindingsTransformer.getTerminal(TwoSides.ONE).setQ(48);
+        twoWindingsTransformer.getTerminal(TwoSides.TWO).setQ(28);
 
         ThreeWindingsTransformerAdder threeWindingsTransformerAdder = s2.newThreeWindingsTransformer();
 
@@ -465,12 +465,12 @@ final class CreateNetworksUtil {
                 .setName("Three windings transformer 1")
                 .setRatedU0(234)
                 .add();
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).setP(375);
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).setP(225);
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).setP(200);
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).setQ(48);
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).setQ(28);
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).setQ(18);
+        threeWindingsTransformer.getTerminal(ThreeSides.ONE).setP(375);
+        threeWindingsTransformer.getTerminal(ThreeSides.TWO).setP(225);
+        threeWindingsTransformer.getTerminal(ThreeSides.THREE).setP(200);
+        threeWindingsTransformer.getTerminal(ThreeSides.ONE).setQ(48);
+        threeWindingsTransformer.getTerminal(ThreeSides.TWO).setQ(28);
+        threeWindingsTransformer.getTerminal(ThreeSides.THREE).setQ(18);
 
         threeWindingsTransformer.getLeg1().newPhaseTapChanger()
                 .setLowTapPosition(0)
@@ -478,7 +478,7 @@ final class CreateNetworksUtil {
                 .setRegulating(true)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(25)
-                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE))
+                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeSides.ONE))
                 .setTargetDeadband(22)
                 .beginStep()
                 .setAlpha(-10)
@@ -509,7 +509,7 @@ final class CreateNetworksUtil {
                 .setLowTapPosition(0)
                 .setTapPosition(0)
                 .setRegulating(false)
-                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE))
+                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeSides.ONE))
                 .setTargetDeadband(22)
                 .setTargetV(220)
                 .beginStep()
@@ -982,6 +982,18 @@ final class CreateNetworksUtil {
         BatteryImpl battery = (BatteryImpl) network.getBattery("battery");
         battery.getResource().getAttributes().setConnectableBus("BUS1");
 
+        return network;
+    }
+
+    static Network createDummyNodeBreakerWithTieLineNetwork() {
+        Network network = Network.create("test", "test");
+        Substation s1 = network.newSubstation().setId("S1").add();
+        Substation s2 = network.newSubstation().setId("S2").add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        DanglingLine dl1 = vl1.newDanglingLine().setId("DL1").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        DanglingLine dl2 = vl2.newDanglingLine().setId("DL2").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        network.newTieLine().setId("TL").setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId()).add();
         return network;
     }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.RatioTapChanger.RegulationMode;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,9 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private boolean loadTapChangingCapabilities = false;
 
-    private double targetV = Double.NaN;
+    private double regulationValue = Double.NaN;
+
+    private RatioTapChanger.RegulationMode regulationMode;
 
     class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
 
@@ -123,12 +126,6 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
     }
 
     @Override
-    public RatioTapChangerAdder setTargetV(double targetV) {
-        this.targetV = targetV;
-        return this;
-    }
-
-    @Override
     public RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
         this.targetDeadband = targetDeadband;
         return this;
@@ -158,7 +155,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, targetV, index.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, regulationMode, regulationValue, index.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
@@ -174,7 +171,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .tapPosition(tapPosition)
                 .regulating(regulating)
                 .targetDeadband(targetDeadband)
-                .targetV(targetV)
+                .regulationMode(regulationMode)
+                .regulationValue(regulationValue)
                 .steps(steps)
                 .regulatingTerminal(terminalRefAttributes)
                 .build();
@@ -186,5 +184,26 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         tapChangerParent.setRatioTapChanger(ratioTapChangerAttributes);
 
         return new RatioTapChangerImpl(tapChangerParent, index, attributesGetter);
+    }
+
+    @Override
+    public RatioTapChangerAdder setRegulationMode(RegulationMode regulationMode) {
+        this.regulationMode = regulationMode;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setRegulationValue(double regulationValue) {
+        this.regulationValue = regulationValue;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setTargetV(double targetV) {
+        setRegulationValue(targetV);
+        if (!Double.isNaN(targetV)) {
+            setRegulationMode(RegulationMode.VOLTAGE);
+        }
+        return this;
     }
 }

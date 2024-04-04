@@ -29,6 +29,7 @@ public enum ResourceType {
     LINE("AC Line"),
     HVDC_LINE("HVDC line"),
     DANGLING_LINE("Dangling line"),
+    GROUND("Ground"),
     CONFIGURED_BUS("Configured bus"),
     TIE_LINE("Tie line");
 

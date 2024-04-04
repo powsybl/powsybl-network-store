@@ -7,10 +7,13 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Properties;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -19,8 +22,10 @@ public class TwoWindingsTransformerTest {
 
     @Test
     public void testTapChangerRemoval() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
-                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         //test remove RatioTapChanger
         TwoWindingsTransformer twtWithRatioTapChanger = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
         twtWithRatioTapChanger.getRatioTapChanger().remove();

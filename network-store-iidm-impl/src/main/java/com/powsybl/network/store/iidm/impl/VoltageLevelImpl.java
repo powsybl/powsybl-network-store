@@ -457,6 +457,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             } else {
                 throw new PowsyblException("No BusbarSection in a bus breaker topology");
             }
+        } else if (clazz == Ground.class) {
+            return (List<T>) index.getGrounds(resource.getId());
         }
         throw new UnsupportedOperationException("TODO");
     }
@@ -506,34 +508,37 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             visitor.visitHvdcConverterStation(station);
         }
         for (TwoWindingsTransformer twt : index.getTwoWindingsTransformers(resource.getId())) {
-            if (twt.getTerminal(Branch.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitTwoWindingsTransformer(twt, Branch.Side.ONE);
+            if (twt.getTerminal(TwoSides.ONE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitTwoWindingsTransformer(twt, TwoSides.ONE);
             }
-            if (twt.getTerminal(Branch.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitTwoWindingsTransformer(twt, Branch.Side.TWO);
+            if (twt.getTerminal(TwoSides.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitTwoWindingsTransformer(twt, TwoSides.TWO);
             }
         }
         for (ThreeWindingsTransformer twt : index.getThreeWindingsTransformers(resource.getId())) {
-            if (twt.getTerminal(ThreeWindingsTransformer.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitThreeWindingsTransformer(twt, ThreeWindingsTransformer.Side.ONE);
+            if (twt.getTerminal(ThreeSides.ONE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitThreeWindingsTransformer(twt, ThreeSides.ONE);
             }
-            if (twt.getTerminal(ThreeWindingsTransformer.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitThreeWindingsTransformer(twt, ThreeWindingsTransformer.Side.TWO);
+            if (twt.getTerminal(ThreeSides.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitThreeWindingsTransformer(twt, ThreeSides.TWO);
             }
-            if (twt.getTerminal(ThreeWindingsTransformer.Side.THREE).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitThreeWindingsTransformer(twt, ThreeWindingsTransformer.Side.THREE);
+            if (twt.getTerminal(ThreeSides.THREE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitThreeWindingsTransformer(twt, ThreeSides.THREE);
             }
         }
         for (Line line : index.getLines(resource.getId())) {
-            if (line.getTerminal(Branch.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitLine(line, Branch.Side.ONE);
+            if (line.getTerminal(TwoSides.ONE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitLine(line, TwoSides.ONE);
             }
-            if (line.getTerminal(Branch.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitLine(line, Branch.Side.TWO);
+            if (line.getTerminal(TwoSides.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitLine(line, TwoSides.TWO);
             }
         }
         for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
+        }
+        for (Ground ground : index.getGrounds(resource.getId())) {
+            visitor.visitGround(ground);
         }
     }
 
@@ -642,5 +647,25 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 getNodeBreakerView().removeSwitch(s.getId());
             });
         }
+    }
+
+    @Override
+    public GroundAdder newGround() {
+        return new GroundAdderImpl(getResource(), index);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return getGroundStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return getConnectableStream(Ground.class);
+    }
+
+    @Override
+    public int getGroundCount() {
+        return getConnectableCount(Ground.class);
     }
 }

@@ -18,7 +18,7 @@
     </parent>
 
     <artifactId>powsybl-network-store-client-parent</artifactId>
-    <version>1.8.0-SNAPSHOT</version>
+    <version>1.10.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
     <name>Network store client parent</name>
@@ -48,11 +48,8 @@
 
     <properties>
         <springboot.version>3.1.2</springboot.version>
-        <commons-lang3.version>3.9</commons-lang3.version>
-        <powsybl-dependencies.version>2023.3.2</powsybl-dependencies.version>
-        <powsybl-ws-commons.version>1.7.0</powsybl-ws-commons.version>
-        <slf4j.version>2.0.4</slf4j.version>
-        <logback.version>1.4.5</logback.version>
+        <powsybl-dependencies.version>2024.0.3</powsybl-dependencies.version>
+        <powsybl-ws-commons.version>1.9.0</powsybl-ws-commons.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
@@ -73,35 +70,18 @@
 
             <!-- imports -->
             <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-dependencies</artifactId>
-                <version>${powsybl-dependencies.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${springboot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-            <!-- Force compatible version with springboot 3 that is otherwise set by powsybl -->
             <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-dependencies</artifactId>
+                <version>${powsybl-dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- project specific dependencies (also overrides imports, but separate for clarity) -->
@@ -110,22 +90,8 @@
                 <artifactId>powsybl-ws-commons</artifactId>
                 <version>${powsybl-ws-commons.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <!-- Annotation processors dependencies -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
 
     <build>
         <pluginManagement>

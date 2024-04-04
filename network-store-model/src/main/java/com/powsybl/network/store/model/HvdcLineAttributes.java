@@ -22,7 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "HVDC line attributes")
-public class HvdcLineAttributes extends AbstractAttributes implements IdentifiableAttributes {
+public class HvdcLineAttributes extends AbstractAttributes implements IdentifiableAttributes, OperatingStatusHolder {
 
     @Schema(description = "HVDC line name")
     private String name;
@@ -66,4 +66,7 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
 
     @Schema(description = "Hvdc operator active power range")
     private HvdcOperatorActivePowerRangeAttributes hvdcOperatorActivePowerRange;
+
+    @Schema(description = "Operating status")
+    private String operatingStatus;
 }
