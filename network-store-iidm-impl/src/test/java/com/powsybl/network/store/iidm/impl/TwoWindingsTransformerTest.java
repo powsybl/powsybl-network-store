@@ -18,10 +18,10 @@ import java.util.Properties;
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
-public class TwoWindingsTransformerTest {
+class TwoWindingsTransformerTest {
 
     @Test
-    public void testTapChangerRemoval() {
+    void testTapChangerRemoval() {
         Network network = createNetwork();
 
         //test remove RatioTapChanger
@@ -36,7 +36,7 @@ public class TwoWindingsTransformerTest {
     }
 
     @Test
-    public void testTapChangerStepsReplacement() {
+    void testTapChangerStepsReplacement() {
         Network network = createNetwork();
 
         // Test ratio tap changer steps replacement
