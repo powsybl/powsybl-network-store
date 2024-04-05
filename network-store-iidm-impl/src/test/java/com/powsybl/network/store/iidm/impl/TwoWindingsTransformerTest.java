@@ -22,10 +22,8 @@ public class TwoWindingsTransformerTest {
 
     @Test
     public void testTapChangerRemoval() {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-        Network network = Importer.find("CGMES")
-                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
+        Network network = createNetwork();
+
         //test remove RatioTapChanger
         TwoWindingsTransformer twtWithRatioTapChanger = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
         twtWithRatioTapChanger.getRatioTapChanger().remove();
@@ -39,8 +37,7 @@ public class TwoWindingsTransformerTest {
 
     @Test
     public void testTapChangerStepsReplacement() {
-        Network network = Importer.find("CGMES")
-            .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+        Network network = createNetwork();
 
         // Test ratio tap changer steps replacement
         RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
@@ -101,5 +98,12 @@ public class TwoWindingsTransformerTest {
         assertEquals(3.0, phaseTapChanger.getStep(phaseLowTapPosition).getB());
         assertEquals(2.0, phaseTapChanger.getStep(phaseLowTapPosition).getAlpha());
         assertEquals(1.0, phaseTapChanger.getStep(phaseLowTapPosition).getRho());
+    }
+
+    private Network createNetwork() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        return Importer.find("CGMES")
+            .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
     }
 }
