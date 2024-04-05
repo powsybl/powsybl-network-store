@@ -19,12 +19,12 @@ public class LoaderTest {
     @Test
     public void testLoaderNotFound() {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoader("unknown"));
-        assertEquals(exception.getMessage(), "ExtensionLoader not found");
+        assertEquals("ExtensionLoader not found", exception.getMessage());
     }
 
     @Test
     public void testDuplicatedLoader() {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoader("loader"));
-        assertEquals(exception.getMessage(), "Multiple ExtensionLoaders configuration providers found");
+        assertEquals("Multiple ExtensionLoaders configuration providers found", exception.getMessage());
     }
 }
