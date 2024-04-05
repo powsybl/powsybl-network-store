@@ -123,12 +123,6 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         return "phaseTapChanger '" + parent.getTransformer().getId() + "': ";
     }
 
-    @Override
-    public PhaseTapChangerStepsReplacer stepsReplacer() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stepsReplacer'");
-    }
-
     public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
         AbstractTapChanger.validateStep(step, parent);
         if (Double.isNaN(step.getAlpha())) {

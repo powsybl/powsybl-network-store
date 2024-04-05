@@ -129,12 +129,6 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
-    public RatioTapChangerStepsReplacer stepsReplacer() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stepsReplacer'");
-    }
-
-    @Override
     public RegulationMode getRegulationMode() {
         return getAttributes().getRegulationMode();
     }
