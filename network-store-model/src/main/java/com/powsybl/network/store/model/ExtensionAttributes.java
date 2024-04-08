@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
  */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        property = "@type"
+        property = "extensionName"
 )
 @JsonTypeIdResolver(ExtensionAttributesIdResolver.class)
 public interface ExtensionAttributes {

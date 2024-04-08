@@ -24,7 +24,7 @@ public class AttributesTest {
         GeneratorStartupAttributes generatorStartupAttributes = new GeneratorStartupAttributes(0.5, 10, 5, 3, 5);
         ObjectMapper mapper = new ObjectMapper();
         String serialized = mapper.writeValueAsString(generatorStartupAttributes);
-        assertEquals("{\"@type\":\"startup\",\"plannedActivePowerSetpoint\":0.5,\"startupCost\":10.0,\"marginalCost\":5.0,\"plannedOutageRate\":3.0,\"forcedOutageRate\":5.0}", serialized);
+        assertEquals("{\"extensionName\":\"startup\",\"plannedActivePowerSetpoint\":0.5,\"startupCost\":10.0,\"marginalCost\":5.0,\"plannedOutageRate\":3.0,\"forcedOutageRate\":5.0}", serialized);
     }
 
     @Test
