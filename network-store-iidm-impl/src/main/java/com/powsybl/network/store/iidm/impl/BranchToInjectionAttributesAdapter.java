@@ -7,57 +7,24 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.BranchAttributes;
+import com.powsybl.network.store.model.ConnectablePositionAttributes;
 
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
+public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<BranchAttributes> {
 
     private final AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch;
-
-    private final BranchAttributes attributes;
 
     private final boolean side1;
 
     public BranchToInjectionAttributesAdapter(AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch, BranchAttributes attributes, boolean side1) {
+        super(attributes);
         this.branch = Objects.requireNonNull(branch);
-        this.attributes = attributes;
         this.side1 = side1;
-    }
-
-    @Override
-    public Resource getResource() {
-        return attributes.getResource();
-    }
-
-    @Override
-    public void setResource(Resource resource) {
-        attributes.setResource(resource);
-    }
-
-    @Override
-    public String getName() {
-        return attributes.getName();
-    }
-
-    @Override
-    public void setName(String name) {
-        attributes.setName(name);
-    }
-
-    @Override
-    public Map<String, String> getProperties() {
-        return attributes.getProperties();
-    }
-
-    @Override
-    public void setProperties(Map<String, String> properties) {
-        attributes.setProperties(properties);
     }
 
     @Override
@@ -168,45 +135,5 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
         } else {
             attributes.setPosition2(position);
         }
-    }
-
-    @Override
-    public boolean isFictitious() {
-        return attributes.isFictitious();
-    }
-
-    @Override
-    public void setFictitious(boolean fictitious) {
-        attributes.setFictitious(fictitious);
-    }
-
-    @Override
-    public Set<String> getAliasesWithoutType() {
-        return attributes.getAliasesWithoutType();
-    }
-
-    @Override
-    public void setAliasesWithoutType(Set<String> aliasesWithoutType) {
-        attributes.setAliasesWithoutType(aliasesWithoutType);
-    }
-
-    @Override
-    public Map<String, String> getAliasByType() {
-        return attributes.getAliasByType();
-    }
-
-    @Override
-    public void setAliasByType(Map<String, String> aliasByType) {
-        attributes.setAliasByType(aliasByType);
-    }
-
-    @Override
-    public Map<String, ExtensionAttributes> getExtensionAttributes() {
-        return attributes.getExtensionAttributes();
-    }
-
-    @Override
-    public void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes) {
-        attributes.setExtensionAttributes(extensionAttributes);
     }
 }

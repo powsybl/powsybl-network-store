@@ -7,26 +7,24 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.ConnectablePositionAttributes;
+import com.powsybl.network.store.model.LegAttributes;
+import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
 
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ThreeWindingsTransformerToInjectionAttributesAdapter implements InjectionAttributes {
+public class ThreeWindingsTransformerToInjectionAttributesAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<ThreeWindingsTransformerAttributes> {
 
     private final ThreeWindingsTransformerImpl.LegImpl leg;
-
-    private final ThreeWindingsTransformerAttributes attributes;
 
     private final ThreeSides side;
 
     public ThreeWindingsTransformerToInjectionAttributesAdapter(ThreeWindingsTransformerImpl.LegImpl leg, ThreeWindingsTransformerAttributes attributes, ThreeSides side) {
+        super(attributes);
         this.leg = Objects.requireNonNull(leg);
-        this.attributes = attributes;
         this.side = side;
     }
 
@@ -41,36 +39,6 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
             case THREE -> attributes.getLeg3();
             default -> throw createUnknownSideException();
         };
-    }
-
-    @Override
-    public Resource getResource() {
-        return attributes.getResource();
-    }
-
-    @Override
-    public void setResource(Resource resource) {
-        attributes.setResource(resource);
-    }
-
-    @Override
-    public String getName() {
-        return attributes.getName();
-    }
-
-    @Override
-    public void setName(String name) {
-        attributes.setName(name);
-    }
-
-    @Override
-    public Map<String, String> getProperties() {
-        return attributes.getProperties();
-    }
-
-    @Override
-    public void setProperties(Map<String, String> properties) {
-        attributes.setProperties(properties);
     }
 
     @Override
@@ -173,45 +141,5 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
             case THREE -> attributes.setPosition3(position);
             default -> throw createUnknownSideException();
         }
-    }
-
-    @Override
-    public boolean isFictitious() {
-        return attributes.isFictitious();
-    }
-
-    @Override
-    public void setFictitious(boolean fictitious) {
-        attributes.setFictitious(fictitious);
-    }
-
-    @Override
-    public Set<String> getAliasesWithoutType() {
-        return attributes.getAliasesWithoutType();
-    }
-
-    @Override
-    public void setAliasesWithoutType(Set<String> aliasesWothoutType) {
-        attributes.setAliasesWithoutType(aliasesWothoutType);
-    }
-
-    @Override
-    public Map<String, String> getAliasByType() {
-        return attributes.getAliasByType();
-    }
-
-    @Override
-    public void setAliasByType(Map<String, String> aliasByType) {
-        attributes.setAliasByType(aliasByType);
-    }
-
-    @Override
-    public Map<String, ExtensionAttributes> getExtensionAttributes() {
-        return attributes.getExtensionAttributes();
-    }
-
-    @Override
-    public void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes) {
-        attributes.setExtensionAttributes(extensionAttributes);
     }
 }
