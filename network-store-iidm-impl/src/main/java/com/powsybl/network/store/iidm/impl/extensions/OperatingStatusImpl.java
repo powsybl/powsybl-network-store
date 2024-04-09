@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
-import com.powsybl.network.store.model.OperatingStatusHolder;
+import com.powsybl.network.store.model.OperatingStatusAttributes;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -24,12 +24,12 @@ public class OperatingStatusImpl<I extends Identifiable<I>> extends AbstractExte
     @Override
     public Status getStatus() {
         var resource = ((AbstractIdentifiableImpl<?, ?>) getExtendable()).getResource();
-        return Status.valueOf(((OperatingStatusHolder) resource.getAttributes()).getOperatingStatus());
+        return Status.valueOf(((OperatingStatusAttributes) (resource.getAttributes().getExtensionAttributes().get(OperatingStatus.NAME))).getOperatingStatus());
     }
 
     @Override
     public OperatingStatus<I> setStatus(Status status) {
-        ((AbstractIdentifiableImpl<?, ?>) getExtendable()).updateResource(res -> ((OperatingStatusHolder) res.getAttributes()).setOperatingStatus(status.name()));
+        ((AbstractIdentifiableImpl<?, ?>) getExtendable()).updateResource(res -> ((OperatingStatusAttributes) res.getAttributes().getExtensionAttributes().get(OperatingStatus.NAME)).setOperatingStatus(status.name()));
         return this;
     }
 }

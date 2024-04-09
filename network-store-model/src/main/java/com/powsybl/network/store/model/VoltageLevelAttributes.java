@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyKind;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.*;
 
@@ -21,28 +22,12 @@ import java.util.*;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Voltage level attributes")
-public class VoltageLevelAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
+public class VoltageLevelAttributes extends AbstractIdentifiableAttributes implements Contained {
 
     @Schema(description = "Substation ID")
     private String substationId;
-
-    @Schema(description = "Voltage level name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Nominal voltage in kV")
     private double nominalV;

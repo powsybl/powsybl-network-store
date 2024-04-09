@@ -9,11 +9,10 @@ package com.powsybl.network.store.model;
 import com.powsybl.iidm.network.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -22,25 +21,9 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Substation attributes")
-public class SubstationAttributes extends AbstractAttributes implements IdentifiableAttributes {
-
-    @Schema(description = "Substation name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
+public class SubstationAttributes extends AbstractIdentifiableAttributes {
 
     @Schema(description = "Country where the susbstation is")
     private Country country;

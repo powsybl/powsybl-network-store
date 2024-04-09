@@ -7,13 +7,8 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.model.*;
-
-import java.util.Collection;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -103,44 +98,6 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         }
         return this;
 
-    }
-
-    private <E extends Extension<Battery>> E createActivePowerControlExtension() {
-        E extension = null;
-        var resource = getResource();
-        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
-        if (attributes != null) {
-            extension = (E) new ActivePowerControlImpl<>(getInjection());
-        }
-        return extension;
-    }
-
-    @Override
-    public <E extends Extension<Battery>> E getExtension(Class<? super E> type) {
-        E extension = super.getExtension(type);
-        if (type == ActivePowerControl.class) {
-            extension = createActivePowerControlExtension();
-        }
-        return extension;
-    }
-
-    @Override
-    public <E extends Extension<Battery>> E getExtensionByName(String name) {
-        E extension = super.getExtensionByName(name);
-        if (name.equals("activePowerControl")) {
-            extension = createActivePowerControlExtension();
-        }
-        return extension;
-    }
-
-    @Override
-    public <E extends Extension<Battery>> Collection<E> getExtensions() {
-        Collection<E> extensions = super.getExtensions();
-        E extension = createActivePowerControlExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        return extensions;
     }
 
     @Override
