@@ -98,6 +98,11 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     }
 
     @Override
+    public PhaseTapChangerStepsReplacer stepsReplacer() {
+        return new PhaseTapChangerStepsReplacerImpl(this);
+    }
+
+    @Override
     public PhaseTapChangerStep getCurrentStep() {
         var attributes = getAttributes();
         int tapPositionIndex = attributes.getTapPosition() - attributes.getLowTapPosition();
@@ -118,9 +123,10 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         return "phaseTapChanger '" + parent.getTransformer().getId() + "': ";
     }
 
-    @Override
-    public PhaseTapChangerStepsReplacer stepsReplacer() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stepsReplacer'");
+    public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
+        AbstractTapChanger.validateStep(step, parent);
+        if (Double.isNaN(step.getAlpha())) {
+            throw new ValidationException(parent, "step alpha is not set");
+        }
     }
 }

@@ -34,7 +34,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private double regulationValue = Double.NaN;
 
-    class StepAdderImpl implements StepAdder {
+    class StepAdderImpl implements PhaseTapChangerAdder.StepAdder {
 
         private double alpha = Double.NaN;
 
@@ -86,25 +86,6 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
         @Override
         public PhaseTapChangerAdder endStep() {
-            if (Double.isNaN(alpha)) {
-                throw new ValidationException(tapChangerParent, "step alpha is not set");
-            }
-            if (Double.isNaN(rho)) {
-                throw new ValidationException(tapChangerParent, "step rho is not set");
-            }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(tapChangerParent, "step r is not set");
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(tapChangerParent, "step x is not set");
-            }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(tapChangerParent, "step g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(tapChangerParent, "step b is not set");
-            }
-
             TapChangerStepAttributes phaseTapChangerStepAttributes =
                     TapChangerStepAttributes.builder()
                             .alpha(alpha)
@@ -114,6 +95,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                             .rho(rho)
                             .x(x)
                             .build();
+            PhaseTapChangerImpl.validateStep(phaseTapChangerStepAttributes, tapChangerParent);
             steps.add(phaseTapChangerStepAttributes);
             return PhaseTapChangerAdderImpl.this;
         }
@@ -165,7 +147,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
     }
 
     @Override
-    public StepAdder beginStep() {
+    public PhaseTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();
     }
 

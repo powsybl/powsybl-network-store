@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.Attributes;
-import com.powsybl.network.store.model.RatioTapChangerAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TapChangerParentAttributes;
+import com.powsybl.network.store.model.*;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -106,6 +103,11 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
+    public RatioTapChangerStepsReplacer stepsReplacer() {
+        return new RatioTapChangerStepsReplacerImpl(this);
+    }
+
+    @Override
     public RatioTapChangerStep getCurrentStep() {
         var attributes = getAttributes();
         int tapPositionIndex = attributes.getTapPosition() - attributes.getLowTapPosition();
@@ -124,12 +126,6 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     @Override
     public String getMessageHeader() {
         return "ratioTapChanger '" + parent.getTransformer().getId() + "': ";
-    }
-
-    @Override
-    public RatioTapChangerStepsReplacer stepsReplacer() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stepsReplacer'");
     }
 
     @Override
@@ -163,5 +159,9 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
             setRegulationMode(RegulationMode.VOLTAGE);
         }
         return this;
+    }
+
+    public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
+        AbstractTapChanger.validateStep(step, parent);
     }
 }
