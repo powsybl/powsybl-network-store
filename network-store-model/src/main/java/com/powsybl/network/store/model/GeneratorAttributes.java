@@ -9,10 +9,7 @@ package com.powsybl.network.store.model;
 import com.powsybl.iidm.network.EnergySource;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,28 +18,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Generator attributes")
-public class GeneratorAttributes extends AbstractAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class GeneratorAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes, ReactiveLimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "Generator name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "Generator fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
@@ -105,8 +86,4 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
 
     @Schema(description = "Generator short circuit attributes")
     private GeneratorShortCircuitAttributes generatorShortCircuitAttributes;
-
-    @Schema(description = "Extension attributes")
-    @Builder.Default
-    private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }
