@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
-import com.powsybl.network.store.model.OperatingStatusHolder;
+import com.powsybl.network.store.model.OperatingStatusAttributes;
 
 import java.util.Objects;
 
@@ -31,10 +31,11 @@ public class OperatingStatusAdderImpl<I extends Identifiable<I>>
     @Override
     protected OperatingStatus<I> createExtension(I identifiable) {
         ((AbstractIdentifiableImpl<?, ?>) identifiable).updateResource(res -> {
-            if (!(res.getAttributes() instanceof OperatingStatusHolder)) {
+            if (!OperatingStatus.isAllowedIdentifiable(identifiable)) {
                 throw new PowsyblException("Operating status extension is not allowed on identifiable type: " + identifiable.getType());
             }
-            ((OperatingStatusHolder) res.getAttributes()).setOperatingStatus(status.name());
+            var attributes = new OperatingStatusAttributes(status.name());
+            res.getAttributes().getExtensionAttributes().put(OperatingStatus.NAME, attributes);
         });
         return new OperatingStatusImpl<>(identifiable);
     }

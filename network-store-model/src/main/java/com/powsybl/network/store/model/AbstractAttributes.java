@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -18,6 +19,7 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 public abstract class AbstractAttributes {
 
     @ToString.Exclude
