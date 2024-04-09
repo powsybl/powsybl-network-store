@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.network.store.iidm.impl.AbstractInjectionImpl;
+import com.powsybl.network.store.model.ActivePowerControlAttributes;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -20,16 +21,21 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
         super(injection);
     }
 
+    private ActivePowerControlAttributes getActivePowerControlAttributes() {
+        return (ActivePowerControlAttributes) getInjection().getResource().getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME);
+    }
+
     @Override
     public boolean isParticipate() {
-        return getInjection().getResource().getAttributes().getActivePowerControl().isParticipate();
+        return getActivePowerControlAttributes().isParticipate();
     }
 
     @Override
     public void setParticipate(boolean participate) {
-        boolean oldValue = getInjection().getResource().getAttributes().getActivePowerControl().isParticipate();
+        ActivePowerControlAttributes activePowerControlAttributes = (ActivePowerControlAttributes) getInjection().getResource().getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME);
+        boolean oldValue = activePowerControlAttributes.isParticipate();
         if (oldValue != participate) {
-            getInjection().updateResource(res -> res.getAttributes().getActivePowerControl().setParticipate(participate));
+            getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setParticipate(participate));
             String variantId = getInjection().getNetwork().getVariantManager().getWorkingVariantId();
             getInjection().getNetwork().getIndex().notifyUpdate(getInjection(), "participate", variantId, oldValue, participate);
         }
@@ -37,14 +43,14 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public double getDroop() {
-        return getInjection().getResource().getAttributes().getActivePowerControl().getDroop();
+        return getActivePowerControlAttributes().getDroop();
     }
 
     @Override
     public void setDroop(double droop) {
-        double oldValue = getInjection().getResource().getAttributes().getActivePowerControl().getDroop();
+        double oldValue = getActivePowerControlAttributes().getDroop();
         if (oldValue != droop) {
-            getInjection().updateResource(res -> res.getAttributes().getActivePowerControl().setDroop(droop));
+            getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setDroop(droop));
             String variantId = getInjection().getNetwork().getVariantManager().getWorkingVariantId();
             getInjection().getNetwork().getIndex().notifyUpdate(getInjection(), "droop", variantId, oldValue, droop);
         }
@@ -52,12 +58,12 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public double getParticipationFactor() {
-        return getInjection().getResource().getAttributes().getActivePowerControl().getParticipationFactor();
+        return getActivePowerControlAttributes().getParticipationFactor();
     }
 
     @Override
     public void setParticipationFactor(double participationFactor) {
-        getInjection().updateResource(res -> res.getAttributes().getActivePowerControl().setParticipationFactor(participationFactor));
+        getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setParticipationFactor(participationFactor));
     }
 
     private AbstractInjectionImpl<?, ?> getInjection() {

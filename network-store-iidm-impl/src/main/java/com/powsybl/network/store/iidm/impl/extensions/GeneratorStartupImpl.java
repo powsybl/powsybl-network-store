@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
+import com.powsybl.network.store.model.GeneratorStartupAttributes;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
@@ -24,67 +25,70 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
         return (GeneratorImpl) getExtendable();
     }
 
+    private GeneratorStartupAttributes getGeneratorStartupAttributes() {
+        return (GeneratorStartupAttributes) getGenerator().getResource().getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME);
+    }
+
     @Override
     public double getPlannedActivePowerSetpoint() {
-        return getGenerator().getResource().getAttributes().getGeneratorStartupAttributes()
-                .getPlannedActivePowerSetpoint();
+        return getGeneratorStartupAttributes().getPlannedActivePowerSetpoint();
     }
 
     @Override
     public GeneratorStartupImpl setPlannedActivePowerSetpoint(double predefinedActivePowerSetpoint) {
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorStartupAttributes()
-                .setPlannedActivePowerSetpoint(predefinedActivePowerSetpoint));
+        getGenerator().updateResource(res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)
+        ).setPlannedActivePowerSetpoint(predefinedActivePowerSetpoint));
         return this;
     }
 
     @Override
     public double getStartupCost() {
-        return getGenerator().getResource().getAttributes().getGeneratorStartupAttributes()
-                .getStartupCost();
+        return getGeneratorStartupAttributes().getStartupCost();
     }
 
     @Override
     public GeneratorStartup setStartupCost(double startUpCost) {
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorStartupAttributes()
+        getGenerator().updateResource(res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)
+        )
                 .setStartupCost(startUpCost));
         return this;
     }
 
     @Override
     public double getMarginalCost() {
-        return getGenerator().getResource().getAttributes().getGeneratorStartupAttributes()
-                .getMarginalCost();
+        return getGeneratorStartupAttributes().getMarginalCost();
     }
 
     @Override
     public GeneratorStartupImpl setMarginalCost(double marginalCost) {
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorStartupAttributes()
+        getGenerator().updateResource(res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)
+        )
                 .setMarginalCost(marginalCost));
         return this;
     }
 
     @Override
     public double getPlannedOutageRate() {
-        return getGenerator().getResource().getAttributes().getGeneratorStartupAttributes()
-                .getPlannedOutageRate();
+        return getGeneratorStartupAttributes().getPlannedOutageRate();
     }
 
     @Override
     public GeneratorStartupImpl setPlannedOutageRate(double plannedOutageRate) {
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorStartupAttributes()
+        getGenerator().updateResource(res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)
+        )
                 .setPlannedOutageRate(plannedOutageRate));
         return this;
     }
 
     @Override
     public double getForcedOutageRate() {
-        return getGenerator().getResource().getAttributes().getGeneratorStartupAttributes()
-                .getForcedOutageRate();
+        return getGeneratorStartupAttributes().getForcedOutageRate();
     }
 
     @Override
     public GeneratorStartupImpl setForcedOutageRate(double forcedOutageRate) {
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorStartupAttributes()
+        getGenerator().updateResource(res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)
+        )
                 .setForcedOutageRate(forcedOutageRate));
         return this;
     }
