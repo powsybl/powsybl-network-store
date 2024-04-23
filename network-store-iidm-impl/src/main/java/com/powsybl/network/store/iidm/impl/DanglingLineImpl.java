@@ -337,6 +337,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         return getResource().getAttributes().getPairingKey();
     }
 
+    @Override
+    public DanglingLine setPairingKey(String s) {
+        //TODO in this version update or not
+        return null;
+    }
+
     private void updateSelectedOperationalLimitsGroupIdIfNull(String id) {
         var resource = getResource();
         if (resource.getAttributes().getSelectedOperationalLimitsGroupId() == null) {

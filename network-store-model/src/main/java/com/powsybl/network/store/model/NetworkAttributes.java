@@ -53,11 +53,8 @@ public class NetworkAttributes extends AbstractIdentifiableAttributes {
     @Schema(description = "Synchronous components validity")
     private boolean synchronousComponentsValid = false;
 
-    @Schema(description = "CGMES SV metadata")
-    private CgmesSvMetadataAttributes cgmesSvMetadata;
-
-    @Schema(description = "CGMES SSH metadata")
-    private CgmesSshMetadataAttributes cgmesSshMetadata;
+    @Schema(description = "CGMES metadata models")
+    private CgmesMetadataModelsAttributes cgmesMetadataModels;
 
     @Schema(description = "CIM characteristics")
     private CimCharacteristicsAttributes cimCharacteristics;
