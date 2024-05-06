@@ -63,6 +63,6 @@ public class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractE
     }
 
     void putReferencePriority(ReferencePriorityImpl referencePriority) {
-        getAttributes().getReferencePriorities().add(referencePriority.getAttributes());
+        getAttributes().putReferencePriority(referencePriority.getAttributes());
     }
 }

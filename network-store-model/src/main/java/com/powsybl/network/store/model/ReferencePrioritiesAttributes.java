@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -30,4 +31,16 @@ public class ReferencePrioritiesAttributes {
 
     @Schema(description = "Reference priorities")
     private List<ReferencePriorityAttributes> referencePriorities = new ArrayList<>();
+
+    public void putReferencePriority(ReferencePriorityAttributes referencePriorityAttributes) {
+        Optional<ReferencePriorityAttributes> found = referencePriorities.stream()
+            .filter(r -> r.getTerminal().getConnectableId().equals(referencePriorityAttributes.getTerminal().getConnectableId())
+                         && (r.getTerminal().getSide() == null ||
+                             r.getTerminal().getSide().equals(referencePriorityAttributes.getTerminal().getSide()))).findFirst();
+        if (found.isPresent()) {
+            found.get().setPriority(referencePriorityAttributes.getPriority());
+        } else {
+            referencePriorities.add(referencePriorityAttributes);
+        }
+    }
 }
