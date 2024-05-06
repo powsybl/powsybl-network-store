@@ -7,6 +7,7 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
@@ -44,6 +45,19 @@ public class ReferencePriorityAdderImpl implements ReferencePriorityAdder {
 
     @Override
     public ReferencePriority add() {
+        if (terminal == null) {
+            throw new NullPointerException("Terminal needs to be set for ReferencePriority extension");
+        }
+        if (priority < 0) {
+            throw new PowsyblException(String.format("Priority (%s) of terminal (equipment %s) should be zero or positive for ReferencePriority extension",
+                priority, terminal.getConnectable().getId()));
+        }
+
+        if (!referencePriorities.getExtendable().getTerminals().contains(terminal)) {
+            throw new PowsyblException(String.format("The provided terminal does not belong to the connectable %s",
+                referencePriorities.getExtendable().getId()));
+        }
+
         ReferencePriorityAttributes attributes = ReferencePriorityAttributes.builder()
             .terminal(TerminalRefUtils.getTerminalRefAttributes(terminal))
             .priority(priority)
