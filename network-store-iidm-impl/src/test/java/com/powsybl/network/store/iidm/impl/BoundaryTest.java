@@ -7,10 +7,13 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+
+import java.util.Properties;
 
 /**
  *
@@ -43,8 +46,10 @@ public class BoundaryTest {
 
     @Test
     public void tieLineTest() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
-                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
+                .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
         tieLine.getDanglingLine1().getTerminal().setP(-26);
         tieLine.getDanglingLine1().getTerminal().setQ(193);
@@ -67,6 +72,6 @@ public class BoundaryTest {
         assertEquals(430.1, boundary2.getV(), EPS1);
         assertEquals(0.1, boundary2.getAngle(), EPS2);
         //assertSame(tieLine.getDanglingLine2(), boundary2.getConnectable());
-        //assertEquals(Branch.Side.TWO, boundary2.getSide());
+        //assertEquals(TwoSides.TWO, boundary2.getSide());
     }
 }

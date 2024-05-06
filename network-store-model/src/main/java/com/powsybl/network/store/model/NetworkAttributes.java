@@ -8,9 +8,11 @@ package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.joda.time.DateTime;
+import lombok.experimental.SuperBuilder;
 
-import java.util.*;
+import java.time.ZonedDateTime;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -19,9 +21,9 @@ import java.util.*;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Network attributes")
-public class NetworkAttributes extends AbstractAttributes implements IdentifiableAttributes {
+public class NetworkAttributes extends AbstractIdentifiableAttributes {
 
     @Schema(description = "Network UUID", required = true)
     private UUID uuid;
@@ -29,28 +31,12 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @Schema(description = "Variant ID")
     private String variantId;
 
-    @Schema(description = "Network name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
-
     @Schema(description = "Id by alias")
     private Map<String, String> idByAlias;
 
     @Schema(description = "Network date", required = true)
     @Builder.Default
-    private DateTime caseDate = new DateTime();
+    private ZonedDateTime caseDate = ZonedDateTime.now();
 
     @Schema(description = "Forecast distance")
     @Builder.Default
@@ -81,5 +67,4 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
 
     @Schema(description = "Base voltage mapping")
     private BaseVoltageMappingAttributes baseVoltageMapping;
-
 }

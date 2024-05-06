@@ -12,8 +12,10 @@ import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerAttributes;
+import com.powsybl.network.store.model.TapChangerStepAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -136,4 +138,42 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     abstract String getTapChangerAttribute();
 
     abstract int getHighTapPosition();
+
+    protected C setSteps(List<TapChangerStepAttributes> steps) {
+        if (steps == null || steps.isEmpty()) {
+            throw new ValidationException(parent, "a tap changer shall have at least one step");
+        }
+        steps.forEach(step -> C.validateStep(step, parent));
+
+        // We check if the tap position is still correct
+        int newHighTapPosition = getLowTapPosition() + steps.size() - 1;
+        if (getTapPosition() > newHighTapPosition) {
+            throw new ValidationException(parent, "incorrect tap position "
+                + getTapPosition() + " [" + getLowTapPosition() + ", "
+                + newHighTapPosition + "]");
+        }
+
+        List<TapChangerStepAttributes> oldValue = getAttributes().getSteps();
+        getTransformer().updateResource(res -> getAttributes(res).setSteps(steps));
+        notifyUpdate(() -> getTapChangerAttribute() + ".steps", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, steps);
+        return (C) this;
+    }
+
+    public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
+        if (Double.isNaN(step.getRho())) {
+            throw new ValidationException(parent, "step rho is not set");
+        }
+        if (Double.isNaN(step.getR())) {
+            throw new ValidationException(parent, "step r is not set");
+        }
+        if (Double.isNaN(step.getX())) {
+            throw new ValidationException(parent, "step x is not set");
+        }
+        if (Double.isNaN(step.getG())) {
+            throw new ValidationException(parent, "step g is not set");
+        }
+        if (Double.isNaN(step.getB())) {
+            throw new ValidationException(parent, "step b is not set");
+        }
+    }
 }

@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.InjectionAttributes;
@@ -16,6 +17,7 @@ import com.powsybl.network.store.model.Resource;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -83,5 +85,25 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
             extensions.add(extension);
         }
         return extensions;
+    }
+
+    @Override
+    public boolean connect() {
+        return getTerminal().connect();
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        return getTerminal().connect(isTypeSwitchToOperate);
+    }
+
+    @Override
+    public boolean disconnect() {
+        return getTerminal().disconnect();
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        return getTerminal().disconnect(isSwitchOpenable);
     }
 }

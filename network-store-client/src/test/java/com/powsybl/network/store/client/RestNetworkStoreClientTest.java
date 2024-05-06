@@ -7,16 +7,15 @@
 
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
-import com.powsybl.network.store.model.ErrorObject;
-
 import org.hamcrest.Matchers;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,23 +27,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.Assert.assertNotNull;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -65,17 +61,19 @@ public class RestNetworkStoreClientTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+    private final UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
     @Before
     public void setUp() throws IOException {
-        objectMapper.registerModule(new JodaModule());
+        objectMapper.registerModule(new JavaTimeModule())
+            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
                 .attributes(NetworkAttributes.builder()
                                              .uuid(networkUuid)
                                              .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
-                                             .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                                             .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                                              .build())
                 .build();
 
@@ -85,7 +83,7 @@ public class RestNetworkStoreClientTest {
                 .attributes(NetworkAttributes.builder()
                         .uuid(clonedNetworkUuid)
                         .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
-                        .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
 

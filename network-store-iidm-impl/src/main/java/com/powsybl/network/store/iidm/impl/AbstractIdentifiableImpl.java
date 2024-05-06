@@ -7,16 +7,24 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.*;
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.commons.extensions.ExtensionAdderProvider;
+import com.powsybl.commons.extensions.ExtensionAdderProviders;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.network.store.model.AttributeFilter;
+import com.powsybl.network.store.model.ExtensionLoaders;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -285,10 +293,17 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
-        return null;
+        return resource.getAttributes().getExtensionAttributes().keySet().stream()
+                .map(ExtensionLoaders::findLoader)
+                .filter(loader -> type.isAssignableFrom(loader.getType()))
+                .map(loader -> (E) loader.load(this))
+                .findFirst().orElse(null);
     }
 
     public <E extends Extension<I>> E getExtensionByName(String name) {
+        if (resource.getAttributes().getExtensionAttributes().containsKey(name)) {
+            return (E) ExtensionLoaders.findLoader(name).load(this);
+        }
         return null;
     }
 
@@ -297,7 +312,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        return new ArrayList<>();
+        return resource.getAttributes().getExtensionAttributes().keySet().stream()
+                .map(name -> (E) ExtensionLoaders.findLoader(name).load(this))
+                .collect(Collectors.toList());
     }
 
     @Override

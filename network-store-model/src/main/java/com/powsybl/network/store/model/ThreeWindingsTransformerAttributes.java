@@ -11,8 +11,11 @@ import com.google.common.collect.ImmutableSet;
 import com.powsybl.commons.PowsyblException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -21,25 +24,9 @@ import java.util.*;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder, BranchStatusHolder {
-
-    @Schema(description = "3 windings transformer name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
+public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttributes implements Contained, TransformerAttributes, LimitHolder {
 
     @Schema(description = "Side 1 active power in MW")
     @Builder.Default
@@ -89,9 +76,6 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @Schema(description = "Phase angle clock for leg 2 and 3")
     private ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock;
 
-    @Schema(description = "Branch status")
-    private String branchStatus;
-
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
 
@@ -125,33 +109,38 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     }
 
     @Override
-    public LimitsAttributes getCurrentLimits(int side) {
-        return getLeg(side).getCurrentLimitsAttributes();
+    public LimitsAttributes getCurrentLimits(int side, String groupId) {
+        return getLeg(side).getOrCreateOperationalLimitsGroup(groupId).getCurrentLimits();
     }
 
     @Override
-    public LimitsAttributes getApparentPowerLimits(int side) {
-        return getLeg(side).getApparentPowerLimitsAttributes();
+    public LimitsAttributes getApparentPowerLimits(int side, String groupId) {
+        return getLeg(side).getOrCreateOperationalLimitsGroup(groupId).getApparentPowerLimits();
     }
 
     @Override
-    public LimitsAttributes getActivePowerLimits(int side) {
-        return getLeg(side).getActivePowerLimitsAttributes();
+    public LimitsAttributes getActivePowerLimits(int side, String groupId) {
+        return getLeg(side).getOrCreateOperationalLimitsGroup(groupId).getActivePowerLimits();
     }
 
     @Override
-    public void setCurrentLimits(int side, LimitsAttributes limits) {
-        getLeg(side).setCurrentLimitsAttributes(limits);
+    public void setCurrentLimits(int side, LimitsAttributes limits, String groupId) {
+        getLeg(side).getOrCreateOperationalLimitsGroup(groupId).setCurrentLimits(limits);
     }
 
     @Override
-    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
-        getLeg(side).setApparentPowerLimitsAttributes(limits);
+    public void setApparentPowerLimits(int side, LimitsAttributes limits, String groupId) {
+        getLeg(side).getOrCreateOperationalLimitsGroup(groupId).setApparentPowerLimits(limits);
     }
 
     @Override
-    public void setActivePowerLimits(int side, LimitsAttributes limits) {
-        getLeg(side).setActivePowerLimitsAttributes(limits);
+    public void setActivePowerLimits(int side, LimitsAttributes limits, String groupId) {
+        getLeg(side).getOrCreateOperationalLimitsGroup(groupId).setActivePowerLimits(limits);
+    }
+
+    @Override
+    public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
+        return getLeg(side).getOperationalLimitsGroups();
     }
 
     @JsonIgnore

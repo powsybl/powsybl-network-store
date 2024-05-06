@@ -8,8 +8,11 @@ package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,31 +21,15 @@ import java.util.*;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "2 windings transformer attributes")
-public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes {
+public class TwoWindingsTransformerAttributes extends AbstractIdentifiableAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes {
 
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
 
     @Schema(description = "Side 2 voltage level ID")
     private String voltageLevelId2;
-
-    @Schema(description = "2 windings transformer name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Side 1 connection node in node/breaker topology")
     private Integer node1;
@@ -111,29 +98,22 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @Schema(description = "Ratio tap changer")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
-    @Schema(description = "Current limits side 1")
-    private LimitsAttributes currentLimits1;
-
-    @Schema(description = "Current limits side 2")
-    private LimitsAttributes currentLimits2;
-
     @Schema(description = "Phase angle clock")
     private TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes;
 
-    @Schema(description = "Apparent power limit side 1")
-    private LimitsAttributes apparentPowerLimits1;
+    @Schema(description = "OperationalLimitsGroup1")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups1 = new HashMap<>();
 
-    @Schema(description = "Apparent power limit side 2")
-    private LimitsAttributes apparentPowerLimits2;
+    @Schema(description = "selected OperationalLimitsGroupId1")
+    private String selectedOperationalLimitsGroupId1;
 
-    @Schema(description = "Active power limit side 1")
-    private LimitsAttributes activePowerLimits1;
+    @Schema(description = "OperationalLimitsGroup2")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups2 = new HashMap<>();
 
-    @Schema(description = "Active power limit side 2")
-    private LimitsAttributes activePowerLimits2;
-
-    @Schema(description = "Branch status")
-    private String branchStatus;
+    @Schema(description = "selected OperationalLimitsGroupId2")
+    private String selectedOperationalLimitsGroupId2;
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;

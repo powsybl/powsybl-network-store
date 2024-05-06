@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,10 @@ import java.util.TreeMap;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "limits attributes")
 public class LimitsAttributes {
+
+    @JsonIgnore
+    @Schema(description = "Operational limits group Id")
+    private String operationalLimitsGroupId;
 
     @Schema(description = "Permanent limit in A")
     private double permanentLimit;

@@ -272,6 +272,8 @@ public class NetworkObjectIndex {
 
     private final ObjectCache<DanglingLine, DanglingLineImpl, DanglingLineAttributes> danglingLineCache;
 
+    private final ObjectCache<Ground, GroundImpl, GroundAttributes> groundCache;
+
     private final ObjectCache<Bus, ConfiguredBusImpl, ConfiguredBusAttributes> configuredBusCache;
 
     private final Map<ResourceType, ObjectCache> objectCachesByResourceType = new EnumMap<>(ResourceType.class);
@@ -374,6 +376,12 @@ public class NetworkObjectIndex {
             () -> storeClient.getDanglingLines(network.getUuid(), workingVariantNum),
             id -> storeClient.removeDanglingLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> DanglingLineImpl.create(NetworkObjectIndex.this, resource));
+        groundCache = new ObjectCache<>(resource -> storeClient.createGrounds(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getGround(network.getUuid(), workingVariantNum, id),
+            voltageLevelId -> storeClient.getVoltageLevelGrounds(network.getUuid(), workingVariantNum, voltageLevelId),
+            () -> storeClient.getGrounds(network.getUuid(), workingVariantNum),
+            id -> storeClient.removeGrounds(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            resource -> GroundImpl.create(NetworkObjectIndex.this, resource));
         configuredBusCache = new ObjectCache<>(resource -> storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(resource)),
             id -> storeClient.getConfiguredBus(network.getUuid(), workingVariantNum, id),
             voltageLevelId -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), workingVariantNum, voltageLevelId),
@@ -403,6 +411,7 @@ public class NetworkObjectIndex {
         objectCachesByResourceType.put(ResourceType.LINE, lineCache);
         objectCachesByResourceType.put(ResourceType.HVDC_LINE, hvdcLineCache);
         objectCachesByResourceType.put(ResourceType.DANGLING_LINE, danglingLineCache);
+        objectCachesByResourceType.put(ResourceType.GROUND, groundCache);
         objectCachesByResourceType.put(ResourceType.CONFIGURED_BUS, configuredBusCache);
         objectCachesByResourceType.put(ResourceType.TIE_LINE, tieLineCache);
     }
@@ -442,6 +451,7 @@ public class NetworkObjectIndex {
         lineCache.setResourcesToObjects();
         hvdcLineCache.setResourcesToObjects();
         danglingLineCache.setResourcesToObjects();
+        groundCache.setResourcesToObjects();
         configuredBusCache.setResourcesToObjects();
     }
 
@@ -916,6 +926,28 @@ public class NetworkObjectIndex {
         return danglingLineCache.create(resource);
     }
 
+    // Ground
+
+    Optional<GroundImpl> getGround(String id) {
+        return groundCache.getOne(id);
+    }
+
+    List<Ground> getGrounds() {
+        return groundCache.getAll().collect(Collectors.toList());
+    }
+
+    List<Ground> getGrounds(String voltageLevelId) {
+        return groundCache.getSome(voltageLevelId).collect(Collectors.toList());
+    }
+
+    public GroundImpl createGround(Resource<GroundAttributes> resource) {
+        return groundCache.create(resource);
+    }
+
+    public void removeGround(String groundId) {
+        groundCache.remove(groundId);
+    }
+
     public Collection<Identifiable<?>> getIdentifiables() {
         return ImmutableList.<Identifiable<?>>builder()
                 .addAll(getSubstations())
@@ -934,37 +966,27 @@ public class NetworkObjectIndex {
                 .addAll(getLines())
                 .addAll(getHvdcLines())
                 .addAll(getDanglingLines())
+                .addAll(getGrounds())
                 .addAll(getConfiguredBuses())
                 .build();
     }
 
     public Connectable<?> getConnectable(String connectableId, IdentifiableType connectableType) {
-        switch (connectableType) {
-            case BUSBAR_SECTION:
-                return getBusbarSection(connectableId).orElse(null);
-            case LINE:
-                return getLine(connectableId).orElse(null);
-            case TWO_WINDINGS_TRANSFORMER:
-                return getTwoWindingsTransformer(connectableId).orElse(null);
-            case THREE_WINDINGS_TRANSFORMER:
-                return getThreeWindingsTransformer(connectableId).orElse(null);
-            case GENERATOR:
-                return getGenerator(connectableId).orElse(null);
-            case BATTERY:
-                return getBattery(connectableId).orElse(null);
-            case LOAD:
-                return getLoad(connectableId).orElse(null);
-            case SHUNT_COMPENSATOR:
-                return getShuntCompensator(connectableId).orElse(null);
-            case DANGLING_LINE:
-                return getDanglingLine(connectableId).orElse(null);
-            case STATIC_VAR_COMPENSATOR:
-                return getStaticVarCompensator(connectableId).orElse(null);
-            case HVDC_CONVERTER_STATION:
-                return getHvdcConverterStation(connectableId).orElse(null);
-            default:
-                throw new IllegalStateException("Unexpected connectable type:" + connectableType);
-        }
+        return switch (connectableType) {
+            case BUSBAR_SECTION -> getBusbarSection(connectableId).orElse(null);
+            case LINE -> getLine(connectableId).orElse(null);
+            case TWO_WINDINGS_TRANSFORMER -> getTwoWindingsTransformer(connectableId).orElse(null);
+            case THREE_WINDINGS_TRANSFORMER -> getThreeWindingsTransformer(connectableId).orElse(null);
+            case GENERATOR -> getGenerator(connectableId).orElse(null);
+            case BATTERY -> getBattery(connectableId).orElse(null);
+            case LOAD -> getLoad(connectableId).orElse(null);
+            case SHUNT_COMPENSATOR -> getShuntCompensator(connectableId).orElse(null);
+            case DANGLING_LINE -> getDanglingLine(connectableId).orElse(null);
+            case GROUND -> getGround(connectableId).orElse(null);
+            case STATIC_VAR_COMPENSATOR -> getStaticVarCompensator(connectableId).orElse(null);
+            case HVDC_CONVERTER_STATION -> getHvdcConverterStation(connectableId).orElse(null);
+            default -> throw new IllegalStateException("Unexpected connectable type:" + connectableType);
+        };
     }
 
     public Branch<?> getBranch(String branchId) {
@@ -1066,65 +1088,27 @@ public class NetworkObjectIndex {
     @SuppressWarnings("unchecked")
     <T extends IdentifiableAttributes> void updateResource(Resource<T> resource, AttributeFilter attributeFilter) {
         switch (resource.getType()) {
-            case NETWORK:
-                updateNetworkResource((Resource<NetworkAttributes>) resource, attributeFilter);
-                break;
-            case SUBSTATION:
-                updateSubstationResource((Resource<SubstationAttributes>) resource, attributeFilter);
-                break;
-            case VOLTAGE_LEVEL:
-                updateVoltageLevelResource((Resource<VoltageLevelAttributes>) resource, attributeFilter);
-                break;
-            case LOAD:
-                updateLoadResource((Resource<LoadAttributes>) resource, attributeFilter);
-                break;
-            case GENERATOR:
-                updateGeneratorResource((Resource<GeneratorAttributes>) resource, attributeFilter);
-                break;
-            case BATTERY:
-                updateBatteryResource((Resource<BatteryAttributes>) resource, attributeFilter);
-                break;
-            case SHUNT_COMPENSATOR:
-                updateShuntCompensatorResource((Resource<ShuntCompensatorAttributes>) resource, attributeFilter);
-                break;
-            case VSC_CONVERTER_STATION:
-                updateVscConverterStationResource((Resource<VscConverterStationAttributes>) resource, attributeFilter);
-                break;
-            case LCC_CONVERTER_STATION:
-                updateLccConverterStationResource((Resource<LccConverterStationAttributes>) resource, attributeFilter);
-                break;
-            case STATIC_VAR_COMPENSATOR:
-                updateStaticVarCompensatorResource((Resource<StaticVarCompensatorAttributes>) resource, attributeFilter);
-                break;
-            case BUSBAR_SECTION:
-                updateBusbarSectionResource((Resource<BusbarSectionAttributes>) resource, attributeFilter);
-                break;
-            case SWITCH:
-                updateSwitchResource((Resource<SwitchAttributes>) resource, attributeFilter);
-                break;
-            case TWO_WINDINGS_TRANSFORMER:
-                updateTwoWindingsTransformerResource((Resource<TwoWindingsTransformerAttributes>) resource, attributeFilter);
-                break;
-            case THREE_WINDINGS_TRANSFORMER:
-                updateThreeWindingsTransformerResource((Resource<ThreeWindingsTransformerAttributes>) resource, attributeFilter);
-                break;
-            case LINE:
-                updateLineResource((Resource<LineAttributes>) resource, attributeFilter);
-                break;
-            case HVDC_LINE:
-                updateHvdcLineResource((Resource<HvdcLineAttributes>) resource, attributeFilter);
-                break;
-            case DANGLING_LINE:
-                updateDanglingLineResource((Resource<DanglingLineAttributes>) resource, attributeFilter);
-                break;
-            case CONFIGURED_BUS:
-                updateConfiguredBusResource((Resource<ConfiguredBusAttributes>) resource, attributeFilter);
-                break;
-            case TIE_LINE:
-                updateTieLineResource((Resource<TieLineAttributes>) resource, attributeFilter);
-                break;
-            default:
-                throw new IllegalStateException("Unknown resource type: " + resource.getType());
+            case NETWORK -> updateNetworkResource((Resource<NetworkAttributes>) resource, attributeFilter);
+            case SUBSTATION -> updateSubstationResource((Resource<SubstationAttributes>) resource, attributeFilter);
+            case VOLTAGE_LEVEL -> updateVoltageLevelResource((Resource<VoltageLevelAttributes>) resource, attributeFilter);
+            case LOAD -> updateLoadResource((Resource<LoadAttributes>) resource, attributeFilter);
+            case GENERATOR -> updateGeneratorResource((Resource<GeneratorAttributes>) resource, attributeFilter);
+            case BATTERY -> updateBatteryResource((Resource<BatteryAttributes>) resource, attributeFilter);
+            case SHUNT_COMPENSATOR -> updateShuntCompensatorResource((Resource<ShuntCompensatorAttributes>) resource, attributeFilter);
+            case VSC_CONVERTER_STATION -> updateVscConverterStationResource((Resource<VscConverterStationAttributes>) resource, attributeFilter);
+            case LCC_CONVERTER_STATION -> updateLccConverterStationResource((Resource<LccConverterStationAttributes>) resource, attributeFilter);
+            case STATIC_VAR_COMPENSATOR -> updateStaticVarCompensatorResource((Resource<StaticVarCompensatorAttributes>) resource, attributeFilter);
+            case BUSBAR_SECTION -> updateBusbarSectionResource((Resource<BusbarSectionAttributes>) resource, attributeFilter);
+            case SWITCH -> updateSwitchResource((Resource<SwitchAttributes>) resource, attributeFilter);
+            case TWO_WINDINGS_TRANSFORMER -> updateTwoWindingsTransformerResource((Resource<TwoWindingsTransformerAttributes>) resource, attributeFilter);
+            case THREE_WINDINGS_TRANSFORMER -> updateThreeWindingsTransformerResource((Resource<ThreeWindingsTransformerAttributes>) resource, attributeFilter);
+            case LINE -> updateLineResource((Resource<LineAttributes>) resource, attributeFilter);
+            case HVDC_LINE -> updateHvdcLineResource((Resource<HvdcLineAttributes>) resource, attributeFilter);
+            case DANGLING_LINE -> updateDanglingLineResource((Resource<DanglingLineAttributes>) resource, attributeFilter);
+            case GROUND -> updateGroundResource((Resource<GroundAttributes>) resource, attributeFilter);
+            case CONFIGURED_BUS -> updateConfiguredBusResource((Resource<ConfiguredBusAttributes>) resource, attributeFilter);
+            case TIE_LINE -> updateTieLineResource((Resource<TieLineAttributes>) resource, attributeFilter);
+            default -> throw new IllegalStateException("Unknown resource type: " + resource.getType());
         }
     }
 
@@ -1162,6 +1146,10 @@ public class NetworkObjectIndex {
 
     void updateDanglingLineResource(Resource<DanglingLineAttributes> resource, AttributeFilter attributeFilter) {
         storeClient.updateDanglingLines(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    }
+
+    void updateGroundResource(Resource<GroundAttributes> resource, AttributeFilter attributeFilter) {
+        storeClient.updateGrounds(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
     void updateTieLineResource(Resource<TieLineAttributes> resource, AttributeFilter attributeFilter) {

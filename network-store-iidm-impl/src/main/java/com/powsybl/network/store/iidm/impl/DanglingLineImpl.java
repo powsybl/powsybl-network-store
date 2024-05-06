@@ -9,8 +9,10 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -181,6 +183,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
     }
 
+    private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
+    private static final String SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "selectedOperationalLimitsGroupId";
+
     private final DanglingLineBoundaryImpl boundary;
 
     public DanglingLineImpl(NetworkObjectIndex index, Resource<DanglingLineAttributes> resource) {
@@ -332,11 +337,19 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         return getResource().getAttributes().getPairingKey();
     }
 
-    @Override
-    public void setCurrentLimits(Void side, LimitsAttributes currentLimits) {
+    private void updateSelectedOperationalLimitsGroupIdIfNull(String id) {
         var resource = getResource();
-        LimitsAttributes oldValue = resource.getAttributes().getCurrentLimits();
-        updateResource(res -> res.getAttributes().setCurrentLimits(currentLimits));
+        if (resource.getAttributes().getSelectedOperationalLimitsGroupId() == null) {
+            resource.getAttributes().setSelectedOperationalLimitsGroupId(id);
+        }
+    }
+
+    @Override
+    public void setCurrentLimits(Void side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
+        var operationalLimitsGroup = getResource().getAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
+        LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
+        updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
+        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(currentLimits));
         notifyUpdate("currentLimits", oldValue, currentLimits);
     }
 
@@ -347,9 +360,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public CurrentLimits getNullableCurrentLimits() {
-        var resource = getResource();
-        return resource.getAttributes().getCurrentLimits() != null
-                ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits())
+        var operationalLimitsGroup = getResource().getAttributes().getSelectedOperationalLimitsGroup();
+        return operationalLimitsGroup != null && operationalLimitsGroup.getCurrentLimits() != null
+                ? new CurrentLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getCurrentLimits())
                 : null;
     }
 
@@ -360,9 +373,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits() {
-        var resource = getResource();
-        return resource.getAttributes().getActivePowerLimits() != null
-                ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits())
+        var operationalLimitsGroup = getResource().getAttributes().getSelectedOperationalLimitsGroup();
+        return operationalLimitsGroup != null && operationalLimitsGroup.getActivePowerLimits() != null
+                ? new ActivePowerLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getActivePowerLimits())
                 : null;
     }
 
@@ -373,9 +386,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits() {
-        var resource = getResource();
-        return resource.getAttributes().getApparentPowerLimits() != null
-                ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits())
+        var operationalLimitsGroup = getResource().getAttributes().getSelectedOperationalLimitsGroup();
+        return operationalLimitsGroup != null && operationalLimitsGroup.getApparentPowerLimits() != null
+                ? new ApparentPowerLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getApparentPowerLimits())
                 : null;
     }
 
@@ -384,33 +397,43 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         return Optional.ofNullable(getNullableApparentPowerLimits());
     }
 
+    private String getSelectedLimitsGroupId() {
+        return getResource().getAttributes().getSelectedOperationalLimitsGroupId() != null
+                ? getResource().getAttributes().getSelectedOperationalLimitsGroupId()
+                : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+    }
+
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return new CurrentLimitsAdderImpl<>(null, this);
+        return new CurrentLimitsAdderImpl<>(null, this, getSelectedLimitsGroupId());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return new ApparentPowerLimitsAdderImpl<>(null, this);
+        return new ApparentPowerLimitsAdderImpl<>(null, this, getSelectedLimitsGroupId());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return new ActivePowerLimitsAdderImpl<>(null, this);
+        return new ActivePowerLimitsAdderImpl<>(null, this, getSelectedLimitsGroupId());
     }
 
     @Override
-    public void setApparentPowerLimits(Void unused, LimitsAttributes apparentPowerLimitsAttributes) {
-        LimitsAttributes oldValue = getResource().getAttributes().getApparentPowerLimits();
-        updateResource(res -> res.getAttributes().setApparentPowerLimits(apparentPowerLimitsAttributes));
-        notifyUpdate("apparentPowerLimits", oldValue, apparentPowerLimitsAttributes);
+    public void setApparentPowerLimits(Void unused, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId) {
+        var operationalLimitsGroup = getResource().getAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
+        LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
+        updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
+        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes));
+        notifyUpdate("apparentLimits", oldValue, apparentPowerLimitsAttributes);
     }
 
     @Override
-    public void setActivePowerLimits(Void unused, LimitsAttributes activePowerLimitsAttributes) {
-        LimitsAttributes oldValue = getResource().getAttributes().getActivePowerLimits();
-        updateResource(res -> res.getAttributes().setActivePowerLimits(activePowerLimitsAttributes));
-        notifyUpdate("activePowerLimits", oldValue, activePowerLimitsAttributes);
+    public void setActivePowerLimits(Void unused, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId) {
+        var operationalLimitsGroup = getResource().getAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
+        LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
+        updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
+        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes));
+        notifyUpdate("activeLimits", oldValue, activePowerLimitsAttributes);
     }
 
     @Override
@@ -436,5 +459,70 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         var resource = getResource();
         return Optional.ofNullable(resource.getAttributes().getTieLineId())
                 .flatMap(index::getTieLine);
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
+        return getResource().getAttributes().getOperationalLimitsGroups().values().stream()
+                .map(group -> new OperationalLimitsGroupImpl<>(this, null, group))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<String> getSelectedOperationalLimitsGroupId() {
+        return Optional.ofNullable(getResource().getAttributes().getSelectedOperationalLimitsGroupId());
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
+        return getOperationalLimitsGroups().stream()
+                .filter(group -> group.getId().equals(id))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
+        return getSelectedOperationalLimitsGroupId().flatMap(this::getOperationalLimitsGroup);
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
+        var resource = getResource();
+        var group = OperationalLimitsGroupAttributes.builder().id(id).build();
+        resource.getAttributes().getOperationalLimitsGroups().put(id, group);
+        return new OperationalLimitsGroupImpl<>(this, null, group);
+    }
+
+    @Override
+    public void setSelectedOperationalLimitsGroup(String id) {
+        var resource = getResource();
+        String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
+        if (!id.equals(oldValue)) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(id));
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, id);
+        }
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup(String id) {
+        var resource = getResource();
+        if (resource.getAttributes().getOperationalLimitsGroups().get(id) == null) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        }
+        if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId())) {
+            resource.getAttributes().setSelectedOperationalLimitsGroupId(null);
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, null);
+        }
+        updateResource(res -> res.getAttributes().getOperationalLimitsGroups().remove(id));
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup() {
+        var resource = getResource();
+        String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
+        if (oldValue != null) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(null));
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
+        }
     }
 }

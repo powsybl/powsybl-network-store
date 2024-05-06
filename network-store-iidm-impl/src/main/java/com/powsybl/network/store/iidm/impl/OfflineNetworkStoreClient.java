@@ -613,4 +613,36 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     public void flush(UUID networkUuid) {
         // nothing to do
     }
+
+    @Override
+    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
+            String voltageLevelId) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
+        // nothing to do
+    }
+
+    @Override
+    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        // nothing to do
+    }
+
+    @Override
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources,
+            AttributeFilter attributeFilter) {
+        // nothing to do
+    }
 }
