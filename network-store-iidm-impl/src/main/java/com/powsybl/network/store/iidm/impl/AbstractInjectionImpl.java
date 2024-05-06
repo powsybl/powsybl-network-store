@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.network.store.iidm.impl.extensions.ReferencePrioritiesImpl;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -55,11 +57,22 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         return extension;
     }
 
+    public <E extends Extension<I>> E createReferencePrioritiesExtension() {
+        E extension = null;
+        var resource = getResource();
+        if (resource.getAttributes().getReferencePriorities() != null) {
+            return (E) new ReferencePrioritiesImpl<>(getInjection());
+        }
+        return extension;
+    }
+
     @Override
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
         E extension;
         if (type == ConnectablePosition.class) {
             extension = createConnectablePositionExtension();
+        } else if (type == ReferencePriorities.class) {
+            extension = createReferencePrioritiesExtension();
         } else {
             extension = super.getExtension(type);
         }
@@ -71,6 +84,8 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         E extension;
         if (name.equals("position")) {
             extension = createConnectablePositionExtension();
+        } else if (name.equals("referencePriorities")) {
+            extension = createReferencePrioritiesExtension();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -81,6 +96,10 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
     public <E extends Extension<I>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
         E extension = createConnectablePositionExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        extension = createReferencePrioritiesExtension();
         if (extension != null) {
             extensions.add(extension);
         }

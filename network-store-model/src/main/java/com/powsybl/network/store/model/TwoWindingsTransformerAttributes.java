@@ -117,4 +117,7 @@ public class TwoWindingsTransformerAttributes extends AbstractIdentifiableAttrib
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
+
+    @Schema(description = "Reference priorities")
+    private ReferencePrioritiesAttributes referencePriorities;
 }

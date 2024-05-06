@@ -8,8 +8,6 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.powsybl.cgmes.model.CgmesMetadataModel;
-import com.powsybl.cgmes.model.CgmesSubset;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 
 /**
@@ -32,9 +29,5 @@ import java.util.List;
 public class CgmesMetadataModelsAttributes {
 
     @Schema(description = "CGMES metadata models")
-    private List<CgmesMetadataModel> models = new ArrayList<>();
-
-    @Schema(description = "Subset Model")
-    private EnumMap<CgmesSubset, CgmesMetadataModel> subsetModel = new EnumMap<>(CgmesSubset.class);
-
+    private List<CgmesMetadataModelAttributes> models = new ArrayList<>();
 }

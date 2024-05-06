@@ -7,18 +7,36 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
+import com.powsybl.commons.extensions.ExtensionAdderProvider;
+import com.powsybl.iidm.network.Network;
+
 /**
  * @author Etienne HOMER {@literal <etienne.homer at rte-france.com>}
  */
-//public class CgmesMetadataModelsAdderImplProvider implements
-//        ExtensionAdderProvider<Network, CgmesMetadataModels, CgmesMetadataModelsAdderImpl> {
-//
-//    @Override
-//    public String getImplementationName() {
-//        return "NetworkStore";
-//    }
-//}
+@AutoService(ExtensionAdderProvider.class)
+public class CgmesMetadataModelsAdderImplProvider implements
+    ExtensionAdderProvider<Network, CgmesMetadataModels, CgmesMetadataModelsAdderImpl> {
 
-public class CgmesMetadataModelsAdderImplProvider {
+    @Override
+    public String getImplementationName() {
+        return "NetworkStore";
+    }
 
+    @Override
+    public String getExtensionName() {
+        return CgmesMetadataModels.NAME;
+    }
+
+    @Override
+    public Class<? super CgmesMetadataModelsAdderImpl> getAdderClass() {
+        return CgmesMetadataModelsAdderImpl.class;
+    }
+
+    @Override
+    public CgmesMetadataModelsAdderImpl newAdder(Network extendable) {
+        return new CgmesMetadataModelsAdderImpl(extendable);
+    }
 }
+

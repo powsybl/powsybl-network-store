@@ -86,4 +86,7 @@ public class GeneratorAttributes extends AbstractIdentifiableAttributes implemen
 
     @Schema(description = "Generator short circuit attributes")
     private GeneratorShortCircuitAttributes generatorShortCircuitAttributes;
+
+    @Schema(description = "Reference priorities")
+    private ReferencePrioritiesAttributes referencePriorities;
 }

@@ -50,4 +50,7 @@ public class LccConverterStationAttributes extends AbstractIdentifiableAttribute
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    @Schema(description = "Reference priorities")
+    private ReferencePrioritiesAttributes referencePriorities;
 }

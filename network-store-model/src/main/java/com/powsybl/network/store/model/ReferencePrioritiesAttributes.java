@@ -8,32 +8,26 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.powsybl.cgmes.model.CgmesSubset;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @author Etienne HOMER {@literal <etienne.homer at rte-france.com>}
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "CGMES metadata model attributes")
-public class CgmesMetadataModelAttributes {
+@Schema(description = "Reference priorities attributes")
+public class ReferencePrioritiesAttributes {
 
-    private CgmesSubset subset;
-    private String id;
-    private String description;
-    private int version;
-    private String modelingAuthoritySet;
-    private List<String> profiles = new ArrayList<>();
-    private List<String> dependentOn = new ArrayList<>();
-    private List<String> supersedes = new ArrayList<>();
+    @Schema(description = "Reference priorities")
+    private List<ReferencePriorityAttributes> referencePriorities = new ArrayList<>();
 }

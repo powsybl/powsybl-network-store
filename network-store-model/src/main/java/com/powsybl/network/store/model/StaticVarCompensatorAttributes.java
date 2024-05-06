@@ -68,4 +68,7 @@ public class StaticVarCompensatorAttributes extends AbstractIdentifiableAttribut
 
     @Schema(description = "Standby automaton")
     private StandbyAutomatonAttributes standbyAutomaton;
+
+    @Schema(description = "Reference priorities")
+    private ReferencePrioritiesAttributes referencePriorities;
 }

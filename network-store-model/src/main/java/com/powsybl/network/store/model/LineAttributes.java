@@ -104,4 +104,7 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
 
     @Schema(description = "selected OperationalLimitsGroupId2")
     private String selectedOperationalLimitsGroupId2;
+
+    @Schema(description = "Reference priorities")
+    private ReferencePrioritiesAttributes referencePriorities;
 }

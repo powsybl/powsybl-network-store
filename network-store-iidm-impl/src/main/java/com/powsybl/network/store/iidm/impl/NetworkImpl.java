@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesMetadataModelsImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
@@ -941,15 +942,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public <E extends Extension<Network>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
-//        E extension = createCgmesSvMetadata();
-//        if (extension != null) {
-//            extensions.add(extension);
-//        }
-//        extension = createCgmesSshMetadata();
-//        if (extension != null) {
-//            extensions.add(extension);
-//        }
-        E extension = createCimCharacteristics();
+        E extension = createCgmesMetadataModels();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        extension = createCimCharacteristics();
         if (extension != null) {
             extensions.add(extension);
         }
@@ -962,12 +959,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <E extends Extension<Network>> E getExtension(Class<? super E> type) {
-//        if (type == CgmesSvMetadata.class) {
-//            return createCgmesSvMetadata();
-//        }
-//        if (type == CgmesSshMetadata.class) {
-//            return createCgmesSshMetadata();
-//        }
+        if (type == CgmesMetadataModels.class) {
+            return createCgmesMetadataModels();
+        }
         if (type == CimCharacteristics.class) {
             return createCimCharacteristics();
         }
@@ -982,12 +976,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <E extends Extension<Network>> E getExtensionByName(String name) {
-//        if (name.equals("cgmesSvMetadata")) {
-//            return createCgmesSvMetadata();
-//        }
-//        if (name.equals("cgmesSshMetadata")) {
-//            return createCgmesSshMetadata();
-//        }
+        if (name.equals("cgmesMetadataModels")) {
+            return createCgmesMetadataModels();
+        }
         if (name.equals("cimCharacteristics")) {
             return createCimCharacteristics();
         }
@@ -1000,25 +991,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return super.getExtensionByName(name);
     }
 
-//    private <E extends Extension<Network>> E createCgmesSvMetadata() {
-//        E extension = null;
-//        var resource = getResource();
-//        CgmesSvMetadataAttributes attributes = resource.getAttributes().getCgmesSvMetadata();
-//        if (attributes != null) {
-//            extension = (E) new CgmesSvMetadataImpl(this);
-//        }
-//        return extension;
-//    }
-//
-//    private <E extends Extension<Network>> E createCgmesSshMetadata() {
-//        E extension = null;
-//        var resource = getResource();
-//        CgmesSshMetadataAttributes attributes = resource.getAttributes().getCgmesSshMetadata();
-//        if (attributes != null) {
-//            extension = (E) new CgmesSshMetadataImpl(this);
-//        }
-//        return extension;
-//    }
+    private <E extends Extension<Network>> E createCgmesMetadataModels() {
+        E extension = null;
+        var resource = getResource();
+        CgmesMetadataModelsAttributes attributes = resource.getAttributes().getCgmesMetadataModels();
+        if (attributes != null) {
+            extension = (E) new CgmesMetadataModelsImpl(this);
+        }
+        return extension;
+    }
 
     private <E extends Extension<Network>> E createCimCharacteristics() {
         E extension = null;

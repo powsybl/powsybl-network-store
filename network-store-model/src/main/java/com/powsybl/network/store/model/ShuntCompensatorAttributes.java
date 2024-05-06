@@ -61,4 +61,7 @@ public class ShuntCompensatorAttributes extends AbstractIdentifiableAttributes i
 
     @Schema(description = "targetDeadband")
     private double targetDeadband;
+
+    @Schema(description = "Reference priorities")
+    private ReferencePrioritiesAttributes referencePriorities;
 }

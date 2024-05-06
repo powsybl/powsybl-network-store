@@ -339,8 +339,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setPairingKey(String s) {
-        //TODO in this version update or not
-        return null;
+        if (this.isPaired()) {
+            throw new ValidationException(this, "pairing key cannot be set if dangling line is paired.");
+        } else {
+            updateResource(res -> res.getAttributes().setPairingKey(s));
+        }
+        return this;
     }
 
     private void updateSelectedOperationalLimitsGroupIdIfNull(String id) {

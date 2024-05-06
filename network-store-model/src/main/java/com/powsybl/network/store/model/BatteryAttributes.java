@@ -59,4 +59,6 @@ public class BatteryAttributes extends AbstractIdentifiableAttributes implements
     @Schema(description = "reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
+    @Schema(description = "Reference priorities")
+    private ReferencePrioritiesAttributes referencePriorities;
 }
