@@ -11,7 +11,10 @@ import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.network.store.iidm.impl.extensions.ReferencePrioritiesImpl;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
+import com.powsybl.network.store.model.ReferencePrioritiesAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
@@ -54,6 +57,16 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         return terminal;
     }
 
+    @Override
+    public <E extends Extension<BusbarSection>> void addExtension(Class<? super E> type, E extension) {
+        var resource = getResource();
+        if (type == ReferencePriorities.class) {
+            resource.getAttributes().setReferencePriorities(new ReferencePrioritiesAttributes());
+        } else {
+            super.addExtension(type, extension);
+        }
+    }
+
     private <E extends Extension<BusbarSection>> E createBusbarSectionPositionExtension() {
         E extension = null;
         var resource = getResource();
@@ -64,11 +77,23 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         return extension;
     }
 
+    private <E extends Extension<BusbarSection>> E createReferencePrioritiesExtension() {
+        E extension = null;
+        var resource = getResource();
+        var attributes = resource.getAttributes().getReferencePriorities();
+        if (attributes != null) {
+            extension = (E) new ReferencePrioritiesImpl<>(this);
+        }
+        return extension;
+    }
+
     @Override
     public <E extends Extension<BusbarSection>> E getExtension(Class<? super E> type) {
         E extension;
         if (type == BusbarSectionPosition.class) {
             extension = createBusbarSectionPositionExtension();
+        } else if (type == ReferencePriorities.class) {
+            extension = createReferencePrioritiesExtension();
         } else {
             extension = super.getExtension(type);
         }
@@ -80,6 +105,8 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         E extension;
         if (name.equals("position")) {
             extension = createBusbarSectionPositionExtension();
+        } else if (name.equals("referencePriorities")) {
+            extension = createReferencePrioritiesExtension();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -90,6 +117,10 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     public <E extends Extension<BusbarSection>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
         E extension = createBusbarSectionPositionExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        extension = createReferencePrioritiesExtension();
         if (extension != null) {
             extensions.add(extension);
         }

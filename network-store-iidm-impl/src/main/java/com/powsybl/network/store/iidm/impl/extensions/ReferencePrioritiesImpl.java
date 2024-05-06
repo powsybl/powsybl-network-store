@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.extensions.ReferencePriorityAdder;
 import com.powsybl.network.store.iidm.impl.AbstractBranchImpl;
 import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
 import com.powsybl.network.store.iidm.impl.AbstractInjectionImpl;
+import com.powsybl.network.store.iidm.impl.BusbarSectionImpl;
 import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl;
 import com.powsybl.network.store.model.ReferencePrioritiesAttributes;
 
@@ -28,20 +29,12 @@ public class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractE
 
     public ReferencePrioritiesImpl(C extendable) {
         super(extendable);
-        if (getExtendable() instanceof AbstractInjectionImpl) {
-            ((AbstractInjectionImpl<?, ?>) getExtendable()).updateResource(res ->
-                res.getAttributes().setReferencePriorities(new ReferencePrioritiesAttributes()));
-        } else if (getExtendable() instanceof AbstractBranchImpl) {
-            ((AbstractBranchImpl<?, ?>) getExtendable()).updateResource(res ->
-                res.getAttributes().setReferencePriorities(new ReferencePrioritiesAttributes()));
-        } else if (getExtendable() instanceof ThreeWindingsTransformerImpl) {
-            ((ThreeWindingsTransformerImpl) getExtendable()).updateResource(res ->
-                res.getAttributes().setReferencePriorities(new ReferencePrioritiesAttributes()));
-        }
     }
 
     private ReferencePrioritiesAttributes getAttributes() {
-        if (getExtendable() instanceof AbstractInjectionImpl) {
+        if (getExtendable() instanceof BusbarSectionImpl) {
+            return ((BusbarSectionImpl) getExtendable()).getResource().getAttributes().getReferencePriorities();
+        } else if (getExtendable() instanceof AbstractInjectionImpl) {
             return ((AbstractInjectionImpl<?, ?>) getExtendable()).getResource().getAttributes().getReferencePriorities();
         } else if (getExtendable() instanceof AbstractBranchImpl) {
             return ((AbstractBranchImpl<?, ?>) getExtendable()).getResource().getAttributes().getReferencePriorities();
