@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
+
+    private static final int MAX_GET_IDENTIFIABLE_CALL_COUNT = 10;
 
     private final Map<UUID, List<VariantInfos>> variantsInfosByNetworkUuid = new HashMap<>();
 
@@ -123,6 +127,10 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = new EnumMap<>(ResourceType.class);
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCaches = new EnumMap<>(ResourceType.class);
+
+    private final Map<Pair<UUID, Integer>, MutableInt> getIdentifiableCallCount = new HashMap<>();
+
+    private final Map<Pair<UUID, Integer>, Set<String>> identifiablesIdsByNetworkVariant = new HashMap<>();
 
     public CachedNetworkStoreClient(NetworkStoreClient delegate) {
         super(delegate);
@@ -941,12 +949,30 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             return Optional.empty();
         }
 
+        // when too many getIdentifiable call go through the cache (and consequently go to the server REST API),
+        // we prefer to load all IDs from the server to be able to check that an ID exists on the server before
+        // getting it from the server
+        var p = Pair.of(networkUuid, variantNum);
+        Set<String> identifiablesIds = identifiablesIdsByNetworkVariant.get(p);
+        if (identifiablesIds == null && getIdentifiableCallCount.getOrDefault(p, new MutableInt()).getValue() > MAX_GET_IDENTIFIABLE_CALL_COUNT) {
+            identifiablesIds = new HashSet<>(delegate.getIdentifiablesIds(networkUuid, variantNum));
+            identifiablesIdsByNetworkVariant.put(p, identifiablesIds);
+        }
+
+        if (identifiablesIds != null && !identifiablesIds.contains(id)) {
+            return Optional.empty();
+        }
+
         // if not in one of the caches, get resource from delegate and if present add in corresponding cache
         Optional<Resource<IdentifiableAttributes>> resource = delegate.getIdentifiable(networkUuid, variantNum, id);
         resource.ifPresent(r -> {
             CollectionCache<IdentifiableAttributes> collection = (CollectionCache<IdentifiableAttributes>) networkContainersCaches.get(r.getType()).getCollection(networkUuid, variantNum);
             collection.addResource(r);
         });
+
+        getIdentifiableCallCount.computeIfAbsent(p, k -> new MutableInt())
+                .increment();
+
         return resource;
     }
 }

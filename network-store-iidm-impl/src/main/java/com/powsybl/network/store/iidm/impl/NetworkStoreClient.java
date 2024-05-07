@@ -303,8 +303,6 @@ public interface NetworkStoreClient {
 
     Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
 
-    int getIdentifiableCallCount(UUID networkUuid, int variantNum);
-
     List<String> getIdentifiablesIds(UUID networkUuid, int variantNum);
 
     void flush(UUID networkUuid);
