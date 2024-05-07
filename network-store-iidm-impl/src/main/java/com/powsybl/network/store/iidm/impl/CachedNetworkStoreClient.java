@@ -163,6 +163,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             UUID networkUuid = networkResource.getAttributes().getUuid();
             int variantNum = networkResource.getVariantNum();
             networksCache.getCollection(networkUuid, variantNum).createResource(networkResource);
+            addIdentifiableId(networkUuid, networkResource);
 
             // initialize network sub-collection cache to set to fully loaded
             networkContainersCaches.values().forEach(cache -> cache.getCollection(networkUuid, networkResource.getVariantNum()).init());
@@ -272,6 +273,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
         for (Resource<SubstationAttributes> substationResource : substationResources) {
             substationsCache.getCollection(networkUuid, substationResource.getVariantNum()).createResource(substationResource);
+            addIdentifiableId(networkUuid, substationResource);
 
             // initialize voltage level cache to set to fully loaded
             voltageLevelsCache.getCollection(networkUuid, substationResource.getVariantNum()).initContainer(substationResource.getId());
@@ -300,6 +302,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeSubstations(UUID networkUuid, int variantNum, List<String> substationsId) {
         delegate.removeSubstations(networkUuid, variantNum, substationsId);
         substationsCache.getCollection(networkUuid, variantNum).removeResources(substationsId);
+        removeIdentifiableIds(networkUuid, variantNum, substationsId);
     }
 
     @Override
@@ -307,6 +310,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createVoltageLevels(networkUuid, voltageLevelResources);
         for (Resource<VoltageLevelAttributes> voltageLevelResource : voltageLevelResources) {
             voltageLevelsCache.getCollection(networkUuid, voltageLevelResource.getVariantNum()).createResource(voltageLevelResource);
+            addIdentifiableId(networkUuid, voltageLevelResource);
         }
 
         // initialize voltage level sub-collection cache to set to fully loaded
@@ -339,6 +343,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeVoltageLevels(UUID networkUuid, int variantNum, List<String> voltageLevelsId) {
         delegate.removeVoltageLevels(networkUuid, variantNum, voltageLevelsId);
         voltageLevelsCache.getCollection(networkUuid, variantNum).removeResources(voltageLevelsId);
+        removeIdentifiableIds(networkUuid, variantNum, voltageLevelsId);
     }
 
     @Override
@@ -355,6 +360,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeGenerators(UUID networkUuid, int variantNum, List<String> generatorsId) {
         delegate.removeGenerators(networkUuid, variantNum, generatorsId);
         generatorsCache.getCollection(networkUuid, variantNum).removeResources(generatorsId);
+        removeIdentifiableIds(networkUuid, variantNum, generatorsId);
     }
 
     @Override
@@ -366,6 +372,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeBatteries(UUID networkUuid, int variantNum, List<String> batteriesId) {
         delegate.removeBatteries(networkUuid, variantNum, batteriesId);
         batteriesCache.getCollection(networkUuid, variantNum).removeResources(batteriesId);
+        removeIdentifiableIds(networkUuid, variantNum, batteriesId);
     }
 
     @Override
@@ -377,6 +384,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeLoads(UUID networkUuid, int variantNum, List<String> loadsId) {
         delegate.removeLoads(networkUuid, variantNum, loadsId);
         loadsCache.getCollection(networkUuid, variantNum).removeResources(loadsId);
+        removeIdentifiableIds(networkUuid, variantNum, loadsId);
     }
 
     @Override
@@ -388,6 +396,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeShuntCompensators(UUID networkUuid, int variantNum, List<String> shuntCompensatorsId) {
         delegate.removeShuntCompensators(networkUuid, variantNum, shuntCompensatorsId);
         shuntCompensatorsCache.getCollection(networkUuid, variantNum).removeResources(shuntCompensatorsId);
+        removeIdentifiableIds(networkUuid, variantNum, shuntCompensatorsId);
     }
 
     @Override
@@ -399,6 +408,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeStaticVarCompensators(UUID networkUuid, int variantNum, List<String> staticVarCompensatorsId) {
         delegate.removeStaticVarCompensators(networkUuid, variantNum, staticVarCompensatorsId);
         staticVarCompensatorCache.getCollection(networkUuid, variantNum).removeResources(staticVarCompensatorsId);
+        removeIdentifiableIds(networkUuid, variantNum, staticVarCompensatorsId);
     }
 
     @Override
@@ -410,6 +420,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeVscConverterStations(UUID networkUuid, int variantNum, List<String> vscConverterStationsId) {
         delegate.removeVscConverterStations(networkUuid, variantNum, vscConverterStationsId);
         vscConverterStationCache.getCollection(networkUuid, variantNum).removeResources(vscConverterStationsId);
+        removeIdentifiableIds(networkUuid, variantNum, vscConverterStationsId);
     }
 
     @Override
@@ -421,6 +432,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeLccConverterStations(UUID networkUuid, int variantNum, List<String> lccConverterStationsId) {
         delegate.removeLccConverterStations(networkUuid, variantNum, lccConverterStationsId);
         lccConverterStationCache.getCollection(networkUuid, variantNum).removeResources(lccConverterStationsId);
+        removeIdentifiableIds(networkUuid, variantNum, lccConverterStationsId);
     }
 
     @Override
@@ -432,6 +444,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeTwoWindingsTransformers(UUID networkUuid, int variantNum, List<String> twoWindingsTransformersId) {
         delegate.removeTwoWindingsTransformers(networkUuid, variantNum, twoWindingsTransformersId);
         twoWindingsTransformerCache.getCollection(networkUuid, variantNum).removeResources(twoWindingsTransformersId);
+        removeIdentifiableIds(networkUuid, variantNum, twoWindingsTransformersId);
     }
 
     @Override
@@ -443,6 +456,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeThreeWindingsTransformers(UUID networkUuid, int variantNum, List<String> threeWindingsTransformersId) {
         delegate.removeThreeWindingsTransformers(networkUuid, variantNum, threeWindingsTransformersId);
         threeWindingsTranqformerCache.getCollection(networkUuid, variantNum).removeResources(threeWindingsTransformersId);
+        removeIdentifiableIds(networkUuid, variantNum, threeWindingsTransformersId);
     }
 
     @Override
@@ -454,6 +468,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeLines(UUID networkUuid, int variantNum, List<String> linesId) {
         delegate.removeLines(networkUuid, variantNum, linesId);
         linesCache.getCollection(networkUuid, variantNum).removeResources(linesId);
+        removeIdentifiableIds(networkUuid, variantNum, linesId);
     }
 
     @Override
@@ -466,6 +481,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createSwitches(networkUuid, switchResources);
         for (Resource<SwitchAttributes> switchResource : switchResources) {
             switchesCache.getCollection(networkUuid, switchResource.getVariantNum()).createResource(switchResource);
+            addIdentifiableId(networkUuid, switchResource);
         }
     }
 
@@ -496,6 +512,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeSwitches(UUID networkUuid, int variantNum, List<String> switchesId) {
         delegate.removeSwitches(networkUuid, variantNum, switchesId);
         switchesCache.getCollection(networkUuid, variantNum).removeResources(switchesId);
+        removeIdentifiableIds(networkUuid, variantNum, switchesId);
     }
 
     @Override
@@ -503,6 +520,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createBusbarSections(networkUuid, busbarSectionResources);
         for (Resource<BusbarSectionAttributes> busbarSectionResource : busbarSectionResources) {
             busbarSectionsCache.getCollection(networkUuid, busbarSectionResource.getVariantNum()).createResource(busbarSectionResource);
+            addIdentifiableId(networkUuid, busbarSectionResource);
         }
     }
 
@@ -510,6 +528,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeBusBarSections(UUID networkUuid, int variantNum, List<String> busbarSectionsId) {
         delegate.removeBusBarSections(networkUuid, variantNum, busbarSectionsId);
         busbarSectionsCache.getCollection(networkUuid, variantNum).removeResources(busbarSectionsId);
+        removeIdentifiableIds(networkUuid, variantNum, busbarSectionsId);
     }
 
     @Override
@@ -540,6 +559,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createLoads(networkUuid, loadResources);
         for (Resource<LoadAttributes> loadResource : loadResources) {
             loadsCache.getCollection(networkUuid, loadResource.getVariantNum()).createResource(loadResource);
+            addIdentifiableId(networkUuid, loadResource);
         }
     }
 
@@ -566,6 +586,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createGenerators(networkUuid, generatorResources);
         for (Resource<GeneratorAttributes> generatorResource : generatorResources) {
             generatorsCache.getCollection(networkUuid, generatorResource.getVariantNum()).createResource(generatorResource);
+            addIdentifiableId(networkUuid, generatorResource);
         }
     }
 
@@ -592,6 +613,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createBatteries(networkUuid, batteryResources);
         for (Resource<BatteryAttributes> batteryResource : batteryResources) {
             batteriesCache.getCollection(networkUuid, batteryResource.getVariantNum()).createResource(batteryResource);
+            addIdentifiableId(networkUuid, batteryResource);
         }
     }
 
@@ -618,6 +640,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createTwoWindingsTransformers(networkUuid, twoWindingsTransformerResources);
         for (Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource : twoWindingsTransformerResources) {
             twoWindingsTransformerCache.getCollection(networkUuid, twoWindingsTransformerResource.getVariantNum()).createResource(twoWindingsTransformerResource);
+            addIdentifiableId(networkUuid, twoWindingsTransformerResource);
         }
     }
 
@@ -646,6 +669,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createThreeWindingsTransformers(networkUuid, threeWindingsTransformerResources);
         for (Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource : threeWindingsTransformerResources) {
             threeWindingsTranqformerCache.getCollection(networkUuid, threeWindingsTransformerResource.getVariantNum()).createResource(threeWindingsTransformerResource);
+            addIdentifiableId(networkUuid, threeWindingsTransformerResource);
         }
     }
 
@@ -672,6 +696,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createLines(networkUuid, lineResources);
         for (Resource<LineAttributes> lineResource : lineResources) {
             linesCache.getCollection(networkUuid, lineResource.getVariantNum()).createResource(lineResource);
+            addIdentifiableId(networkUuid, lineResource);
         }
     }
 
@@ -698,6 +723,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createShuntCompensators(networkUuid, shuntCompensatorResources);
         for (Resource<ShuntCompensatorAttributes> shuntCompensatorResource : shuntCompensatorResources) {
             shuntCompensatorsCache.getCollection(networkUuid, shuntCompensatorResource.getVariantNum()).createResource(shuntCompensatorResource);
+            addIdentifiableId(networkUuid, shuntCompensatorResource);
         }
     }
 
@@ -724,6 +750,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createVscConverterStations(networkUuid, vscConverterStationResources);
         for (Resource<VscConverterStationAttributes> vscConverterStationResource : vscConverterStationResources) {
             vscConverterStationCache.getCollection(networkUuid, vscConverterStationResource.getVariantNum()).createResource(vscConverterStationResource);
+            addIdentifiableId(networkUuid, vscConverterStationResource);
         }
     }
 
@@ -750,6 +777,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createLccConverterStations(networkUuid, lccConverterStationResources);
         for (Resource<LccConverterStationAttributes> lccConverterStationResource : lccConverterStationResources) {
             lccConverterStationCache.getCollection(networkUuid, lccConverterStationResource.getVariantNum()).createResource(lccConverterStationResource);
+            addIdentifiableId(networkUuid, lccConverterStationResource);
         }
     }
 
@@ -776,6 +804,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createStaticVarCompensators(networkUuid, svcResources);
         for (Resource<StaticVarCompensatorAttributes> svcResource : svcResources) {
             staticVarCompensatorCache.getCollection(networkUuid, svcResource.getVariantNum()).createResource(svcResource);
+            addIdentifiableId(networkUuid, svcResource);
         }
     }
 
@@ -802,6 +831,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createHvdcLines(networkUuid, hvdcLineResources);
         for (Resource<HvdcLineAttributes> hvdcLineResource : hvdcLineResources) {
             hvdcLinesCache.getCollection(networkUuid, hvdcLineResource.getVariantNum()).createResource(hvdcLineResource);
+            addIdentifiableId(networkUuid, hvdcLineResource);
         }
     }
 
@@ -827,6 +857,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeHvdcLines(UUID networkUuid, int variantNum, List<String> hvdcLinesId) {
         delegate.removeHvdcLines(networkUuid, variantNum, hvdcLinesId);
         hvdcLinesCache.getCollection(networkUuid, variantNum).removeResources(hvdcLinesId);
+        removeIdentifiableIds(networkUuid, variantNum, hvdcLinesId);
     }
 
     @Override
@@ -834,6 +865,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createDanglingLines(networkUuid, danglingLineResources);
         for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
             danglingLinesCache.getCollection(networkUuid, danglingLineResource.getVariantNum()).createResource(danglingLineResource);
+            addIdentifiableId(networkUuid, danglingLineResource);
         }
     }
 
@@ -859,6 +891,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
         delegate.removeDanglingLines(networkUuid, variantNum, danglingLinesId);
         danglingLinesCache.getCollection(networkUuid, variantNum).removeResources(danglingLinesId);
+        removeIdentifiableIds(networkUuid, variantNum, danglingLinesId);
     }
 
     @Override
@@ -866,6 +899,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createTieLines(networkUuid, tieLineResources);
         for (Resource<TieLineAttributes> tieLineResource : tieLineResources) {
             tieLinesCache.getCollection(networkUuid, tieLineResource.getVariantNum()).createResource(tieLineResource);
+            addIdentifiableId(networkUuid, tieLineResource);
         }
     }
 
@@ -883,6 +917,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
         delegate.removeTieLines(networkUuid, variantNum, tieLinesId);
         tieLinesCache.getCollection(networkUuid, variantNum).removeResources(tieLinesId);
+        removeIdentifiableIds(networkUuid, variantNum, tieLinesId);
     }
 
     @Override
@@ -898,6 +933,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createConfiguredBuses(networkUuid, busResources);
         for (Resource<ConfiguredBusAttributes> busResource : busResources) {
             configuredBusesCache.getCollection(networkUuid, busResource.getVariantNum()).createResource(busResource);
+            addIdentifiableId(networkUuid, busResource);
         }
     }
 
@@ -928,6 +964,23 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId) {
         delegate.removeConfiguredBuses(networkUuid, variantNum, busesId);
         configuredBusesCache.getCollection(networkUuid, variantNum).removeResources(busesId);
+        removeIdentifiableIds(networkUuid, variantNum, busesId);
+    }
+
+    private void addIdentifiableId(UUID networkUuid, Resource<?> resource) {
+        var p = Pair.of(networkUuid, resource.getVariantNum());
+        Set<String> identifiableIds = identifiablesIdsByNetworkVariant.get(p);
+        if (identifiableIds != null) {
+            identifiableIds.add(resource.getId());
+        }
+    }
+
+    private void removeIdentifiableIds(UUID networkUuid, int variantNum, List<String> ids) {
+        var p = Pair.of(networkUuid, variantNum);
+        Set<String> identifiableIds = identifiablesIdsByNetworkVariant.get(p);
+        if (identifiableIds != null) {
+            identifiableIds.removeAll(ids);
+        }
     }
 
     @SuppressWarnings("unchecked")
