@@ -27,7 +27,7 @@ import java.util.Optional;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Reference priorities attributes")
-public class ReferencePrioritiesAttributes {
+public class ReferencePrioritiesAttributes implements ExtensionAttributes {
 
     @Schema(description = "Reference priorities")
     private List<ReferencePriorityAttributes> referencePriorities = new ArrayList<>();

@@ -13,6 +13,7 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.model.CgmesMetadataModelsAttributes;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -35,7 +36,7 @@ public class CgmesMetadataModelsImpl extends AbstractExtension<Network> implemen
 
     @Override
     public Collection<CgmesMetadataModel> getModels() {
-        return getNetwork().getResource().getAttributes().getCgmesMetadataModels().getModels().stream().map(m -> {
+        return ((CgmesMetadataModelsAttributes) getNetwork().getResource().getAttributes().getExtensionAttributes().get(CgmesMetadataModels.NAME)).getModels().stream().map(m -> {
                 CgmesMetadataModel model = new CgmesMetadataModel(m.getSubset(), m.getModelingAuthoritySet());
                 model.setId(m.getId());
                 model.setDescription(m.getDescription());

@@ -994,7 +994,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     private <E extends Extension<Network>> E createCgmesMetadataModels() {
         E extension = null;
         var resource = getResource();
-        CgmesMetadataModelsAttributes attributes = resource.getAttributes().getCgmesMetadataModels();
+        CgmesMetadataModelsAttributes attributes = (CgmesMetadataModelsAttributes) resource.getAttributes().getExtensionAttributes().get(CgmesMetadataModels.NAME);
         if (attributes != null) {
             extension = (E) new CgmesMetadataModelsImpl(this);
         }

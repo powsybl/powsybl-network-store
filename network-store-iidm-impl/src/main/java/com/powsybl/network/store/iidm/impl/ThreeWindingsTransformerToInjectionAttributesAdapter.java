@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.LegAttributes;
-import com.powsybl.network.store.model.ReferencePrioritiesAttributes;
 import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
 
 import java.util.Objects;
@@ -142,15 +141,5 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case THREE -> attributes.setPosition3(position);
             default -> throw createUnknownSideException();
         }
-    }
-
-    @Override
-    public ReferencePrioritiesAttributes getReferencePriorities() {
-        return attributes.getReferencePriorities();
-    }
-
-    @Override
-    public void setReferencePriorities(ReferencePrioritiesAttributes referencePriorities) {
-        attributes.setReferencePriorities(referencePriorities);
     }
 }

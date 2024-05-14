@@ -61,7 +61,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     public <E extends Extension<BusbarSection>> void addExtension(Class<? super E> type, E extension) {
         var resource = getResource();
         if (type == ReferencePriorities.class) {
-            resource.getAttributes().setReferencePriorities(new ReferencePrioritiesAttributes());
+            resource.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes());
         } else {
             super.addExtension(type, extension);
         }
@@ -80,7 +80,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     private <E extends Extension<BusbarSection>> E createReferencePrioritiesExtension() {
         E extension = null;
         var resource = getResource();
-        var attributes = resource.getAttributes().getReferencePriorities();
+        var attributes = resource.getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
         if (attributes != null) {
             extension = (E) new ReferencePrioritiesImpl<>(this);
         }

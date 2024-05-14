@@ -79,9 +79,6 @@ public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttr
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
 
-    @Schema(description = "Reference priorities")
-    private ReferencePrioritiesAttributes referencePriorities;
-
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {

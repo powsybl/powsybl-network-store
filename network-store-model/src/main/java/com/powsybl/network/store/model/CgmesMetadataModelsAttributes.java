@@ -26,7 +26,7 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "CGMES metadata models attributes")
-public class CgmesMetadataModelsAttributes {
+public class CgmesMetadataModelsAttributes implements ExtensionAttributes {
 
     @Schema(description = "CGMES metadata models")
     private List<CgmesMetadataModelAttributes> models = new ArrayList<>();

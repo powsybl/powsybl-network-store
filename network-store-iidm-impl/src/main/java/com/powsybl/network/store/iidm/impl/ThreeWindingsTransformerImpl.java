@@ -618,7 +618,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         if (type == CgmesTapChangers.class) {
             resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
         } else if (type == ReferencePriorities.class) {
-            resource.getAttributes().setReferencePriorities(new ReferencePrioritiesAttributes());
+            resource.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes());
         } else {
             super.addExtension(type, extension);
         }
@@ -718,7 +718,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     private <E extends Extension<ThreeWindingsTransformer>> E createReferencePriorities() {
         E extension = null;
         var resource = getResource();
-        if (resource.getAttributes().getReferencePriorities() != null) {
+        if (resource.getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME) != null) {
             extension = (E) new ReferencePrioritiesImpl<>(this);
         }
         return extension;

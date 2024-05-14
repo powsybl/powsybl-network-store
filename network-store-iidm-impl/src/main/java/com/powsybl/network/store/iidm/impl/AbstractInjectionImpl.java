@@ -60,7 +60,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
     public <E extends Extension<I>> E createReferencePrioritiesExtension() {
         E extension = null;
         var resource = getResource();
-        if (resource.getAttributes().getReferencePriorities() != null) {
+        if (resource.getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME) != null) {
             return (E) new ReferencePrioritiesImpl<>(getInjection());
         }
         return extension;

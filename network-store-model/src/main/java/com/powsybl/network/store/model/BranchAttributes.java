@@ -228,8 +228,4 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
         }
         return new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
     }
-
-    ReferencePrioritiesAttributes getReferencePriorities();
-
-    void setReferencePriorities(ReferencePrioritiesAttributes referencePriorities);
 }

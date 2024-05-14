@@ -31,16 +31,16 @@ class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractExt
         ReferencePriorities referencePriorities = new ReferencePrioritiesImpl<C>(extendable);
         if (extendable instanceof BusbarSectionImpl) {
             ((BusbarSectionImpl) extendable).updateResource(res ->
-                res.getAttributes().setReferencePriorities(new ReferencePrioritiesAttributes()));
+                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         } else if (extendable instanceof AbstractInjectionImpl) {
             ((AbstractInjectionImpl<?, ?>) extendable).updateResource(res ->
-                res.getAttributes().setReferencePriorities(new ReferencePrioritiesAttributes()));
+                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         } else if (extendable instanceof AbstractBranchImpl) {
             ((AbstractBranchImpl<?, ?>) extendable).updateResource(res ->
-                res.getAttributes().setReferencePriorities(new ReferencePrioritiesAttributes()));
+                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         } else if (extendable instanceof ThreeWindingsTransformerImpl) {
             ((ThreeWindingsTransformerImpl) extendable).updateResource(res ->
-                res.getAttributes().setReferencePriorities(new ReferencePrioritiesAttributes()));
+                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         }
         return referencePriorities;
     }

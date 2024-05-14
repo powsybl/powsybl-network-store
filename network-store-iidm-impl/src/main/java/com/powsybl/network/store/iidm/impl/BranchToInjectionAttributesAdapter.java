@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
-import com.powsybl.network.store.model.ReferencePrioritiesAttributes;
 
 import java.util.Objects;
 
@@ -136,15 +135,5 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
         } else {
             attributes.setPosition2(position);
         }
-    }
-
-    @Override
-    public ReferencePrioritiesAttributes getReferencePriorities() {
-        return attributes.getReferencePriorities();
-    }
-
-    @Override
-    public void setReferencePriorities(ReferencePrioritiesAttributes referencePriorities) {
-        attributes.setReferencePriorities(referencePriorities);
     }
 }

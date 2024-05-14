@@ -84,9 +84,6 @@ public class DanglingLineAttributes extends AbstractIdentifiableAttributes imple
     @Schema(description = "Tie line ID in case of a paired dangling line")
     private String tieLineId;
 
-    @Schema(description = "Reference priorities")
-    private ReferencePrioritiesAttributes referencePriorities;
-
     @Override
     @JsonIgnore
     public List<Integer> getSideList() {

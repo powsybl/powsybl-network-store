@@ -35,9 +35,6 @@ public class BusbarSectionAttributes extends AbstractIdentifiableAttributes impl
     @Schema(description = "Busbar section position (for substation diagram)")
     private BusbarSectionPositionAttributes position;
 
-    @Schema(description = "Reference priorities")
-    private ReferencePrioritiesAttributes referencePriorities;
-
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {

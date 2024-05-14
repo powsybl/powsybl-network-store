@@ -577,7 +577,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     private <E extends Extension<T>> E createReferencePrioritiesExtension() {
         E extension = null;
         var resource = getResource();
-        if (resource.getAttributes().getReferencePriorities() != null) {
+        if (resource.getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME) != null) {
             return (E) new ReferencePrioritiesImpl<>(getBranch());
         }
         return extension;

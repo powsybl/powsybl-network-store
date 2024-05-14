@@ -33,13 +33,13 @@ public class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractE
 
     private ReferencePrioritiesAttributes getAttributes() {
         if (getExtendable() instanceof BusbarSectionImpl) {
-            return ((BusbarSectionImpl) getExtendable()).getResource().getAttributes().getReferencePriorities();
+            return (ReferencePrioritiesAttributes) ((BusbarSectionImpl) getExtendable()).getResource().getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
         } else if (getExtendable() instanceof AbstractInjectionImpl) {
-            return ((AbstractInjectionImpl<?, ?>) getExtendable()).getResource().getAttributes().getReferencePriorities();
+            return (ReferencePrioritiesAttributes) ((AbstractInjectionImpl<?, ?>) getExtendable()).getResource().getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
         } else if (getExtendable() instanceof AbstractBranchImpl) {
-            return ((AbstractBranchImpl<?, ?>) getExtendable()).getResource().getAttributes().getReferencePriorities();
+            return (ReferencePrioritiesAttributes) ((AbstractBranchImpl<?, ?>) getExtendable()).getResource().getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
         } else if (getExtendable() instanceof ThreeWindingsTransformerImpl) {
-            return ((ThreeWindingsTransformerImpl) getExtendable()).getResource().getAttributes().getReferencePriorities();
+            return (ReferencePrioritiesAttributes) ((ThreeWindingsTransformerImpl) getExtendable()).getResource().getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
         }
         return null;
     }

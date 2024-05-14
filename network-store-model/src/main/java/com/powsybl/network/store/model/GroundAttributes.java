@@ -43,7 +43,4 @@ public class GroundAttributes extends AbstractIdentifiableAttributes implements 
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
-
-    @Schema(description = "Reference priorities")
-    private ReferencePrioritiesAttributes referencePriorities;
 }

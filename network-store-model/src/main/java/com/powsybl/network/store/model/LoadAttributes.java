@@ -56,7 +56,4 @@ public class LoadAttributes extends AbstractIdentifiableAttributes implements In
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
-
-    @Schema(description = "Reference priorities")
-    private ReferencePrioritiesAttributes referencePriorities;
 }
