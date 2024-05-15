@@ -31,7 +31,7 @@ class CgmesMetadataModelsTest {
         CgmesMetadataModels cgmesMetadataModels = network.getExtension(CgmesMetadataModels.class);
         assertNotNull(cgmesMetadataModels);
         assertEquals(9, cgmesMetadataModels.getModels().size());
-        Optional<CgmesMetadataModel> cgmesSvModel =  cgmesMetadataModels.getModelForSubset(CgmesSubset.STATE_VARIABLES);
+        Optional<CgmesMetadataModel> cgmesSvModel = cgmesMetadataModels.getModelForSubset(CgmesSubset.STATE_VARIABLES);
         assertTrue(cgmesSvModel.isPresent());
         assertEquals(CgmesSubset.STATE_VARIABLES, cgmesSvModel.get().getSubset());
         assertEquals("urn:uuid:c2960b34-0a04-4cd1-9c4d-f3112d85ec6c", cgmesSvModel.get().getId());
@@ -43,7 +43,7 @@ class CgmesMetadataModelsTest {
         assertEquals(1, cgmesSvModel.get().getProfiles().size());
         assertTrue(CollectionUtils.isEqualCollection(Set.of("http://entsoe.eu/CIM/StateVariables/4/1"), cgmesSvModel.get().getProfiles()));
 
-        Optional<CgmesMetadataModel> cgmesSshModel =  cgmesMetadataModels.getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS);
+        Optional<CgmesMetadataModel> cgmesSshModel = cgmesMetadataModels.getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS);
         assertTrue(cgmesSshModel.isPresent());
         assertEquals(CgmesSubset.STEADY_STATE_HYPOTHESIS, cgmesSshModel.get().getSubset());
         assertEquals("urn:uuid:52b712d1-f3b0-4a59-9191-79f2fb1e4c4e", cgmesSshModel.get().getId());
