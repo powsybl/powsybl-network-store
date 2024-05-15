@@ -170,6 +170,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
     }
 
+    @Override
     public NetworkObjectIndex getIndex() {
         return index;
     }

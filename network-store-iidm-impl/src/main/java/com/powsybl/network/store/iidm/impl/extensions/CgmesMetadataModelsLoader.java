@@ -17,7 +17,7 @@ import com.powsybl.network.store.model.ExtensionLoader;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @AutoService(ExtensionLoader.class)
-public class CgmesMetadataModelsLoader<N extends Network> implements ExtensionLoader<Network, CgmesMetadataModels, CgmesMetadataModelsAttributes> {
+public class CgmesMetadataModelsLoader implements ExtensionLoader<Network, CgmesMetadataModels, CgmesMetadataModelsAttributes> {
     @Override
     public Extension<com.powsybl.iidm.network.Network> load(Network network) {
         return new CgmesMetadataModelsImpl(network);

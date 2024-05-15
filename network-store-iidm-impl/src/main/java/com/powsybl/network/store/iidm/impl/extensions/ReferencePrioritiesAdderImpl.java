@@ -28,7 +28,7 @@ class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractExt
 
     @Override
     protected ReferencePriorities<C> createExtension(C extendable) {
-        ReferencePriorities referencePriorities = new ReferencePrioritiesImpl<C>(extendable);
+        ReferencePriorities<C> referencePriorities = new ReferencePrioritiesImpl<>(extendable);
         if (extendable instanceof BusbarSectionImpl) {
             ((BusbarSectionImpl) extendable).updateResource(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
