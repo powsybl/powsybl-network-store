@@ -7,6 +7,7 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
@@ -41,7 +42,7 @@ public class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractE
         } else if (getExtendable() instanceof ThreeWindingsTransformerImpl) {
             return (ReferencePrioritiesAttributes) ((ThreeWindingsTransformerImpl) getExtendable()).getResource().getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
         }
-        return null;
+        throw new PowsyblException("Reference priorities extension is not allowed on identifiable type: " + getExtendable().getType());
     }
 
     @Override
