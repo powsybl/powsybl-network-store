@@ -30,6 +30,7 @@ public class SubstationPositionTest extends AbstractSubstationAndLinePositionTes
         Substation p1 = network.getSubstation("P1");
         SubstationPosition substationPosition = p1.newExtension(SubstationPositionAdder.class).withCoordinate(new Coordinate(48.0D, 2.0D)).add();
         Assertions.assertNotNull(substationPosition);
+        Assertions.assertEquals("substationPosition", substationPosition.getName());
         Assertions.assertEquals(new Coordinate(48.0D, 2.0D), substationPosition.getCoordinate());
     }
 }
