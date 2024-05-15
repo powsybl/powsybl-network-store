@@ -7,6 +7,7 @@
 
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
@@ -17,6 +18,7 @@ import com.powsybl.network.store.model.SubstationPositionAttributes;
  * @author Seddik Yengui <seddik.yengui_externe at rte-france.com>
  */
 
+@AutoService(ExtensionLoader.class)
 public class SubstationPositionLoader implements ExtensionLoader<Substation, SubstationPosition, SubstationPositionAttributes> {
     @Override
     public Extension<Substation> load(Substation extendable) {
