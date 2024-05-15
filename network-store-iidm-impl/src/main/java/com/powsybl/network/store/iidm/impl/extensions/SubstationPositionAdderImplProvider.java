@@ -7,6 +7,7 @@
 
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
@@ -15,6 +16,7 @@ import com.powsybl.iidm.network.extensions.SubstationPosition;
  * @author Seddik Yengui <seddik.yengui_externe at rte-france.com>
  */
 
+@AutoService(ExtensionAdderProvider.class)
 public class SubstationPositionAdderImplProvider implements
         ExtensionAdderProvider<Substation, SubstationPosition, SubstationPositionAdderImpl> {
 

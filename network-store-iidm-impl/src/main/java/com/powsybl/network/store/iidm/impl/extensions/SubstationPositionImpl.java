@@ -29,7 +29,7 @@ public class SubstationPositionImpl extends AbstractExtension<Substation> implem
     }
 
     private SubstationPositionAttributes getSubstationPositionAttributes() {
-        return (SubstationPositionAttributes) getSubstation().getResource().getAttributes().getExtensionAttributes();
+        return (SubstationPositionAttributes) getSubstation().getResource().getAttributes().getExtensionAttributes().get(SubstationPosition.NAME);
     }
 
     @Override
