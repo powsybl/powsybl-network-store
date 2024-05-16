@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.ValidationException;
@@ -56,8 +57,11 @@ public class NetworkTest extends AbstractNetworkTest {
     public void testPermanentLimitOnSelectedOperationalLimitsGroup() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
-        ValidationException e = assertThrows(ValidationException.class, () -> network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().setPermanentLimit(Double.NaN));
-        assertTrue(e.getMessage().contains("AC Line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        Line line = network.getLine("NHV1_NHV2_1");
+        line.getCurrentLimits2().ifPresent(currentLimits -> {
+            ValidationException e = assertThrows(ValidationException.class, () -> currentLimits.setPermanentLimit(Double.NaN));
+            assertTrue(e.getMessage().contains("AC Line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        });
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().setPermanentLimit(Double.NaN);
         assertTrue(Double.isNaN(network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().getPermanentLimit()));
@@ -76,9 +80,7 @@ public class NetworkTest extends AbstractNetworkTest {
         Assertions.assertTrue(e.getMessage().contains("AC Line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
         CurrentLimits currentLimits = adder.setPermanentLimit(1000.0).add();
         Assertions.assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
-        e = Assertions.assertThrows(ValidationException.class, () -> {
-            currentLimits.setPermanentLimit(Double.NaN);
-        });
+        e = Assertions.assertThrows(ValidationException.class, () -> currentLimits.setPermanentLimit(Double.NaN));
         Assertions.assertTrue(e.getMessage().contains("AC Line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         currentLimits.setPermanentLimit(Double.NaN);
