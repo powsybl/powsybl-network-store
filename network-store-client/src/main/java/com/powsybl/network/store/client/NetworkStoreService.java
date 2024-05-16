@@ -9,7 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Importer;
@@ -124,7 +124,7 @@ public class NetworkStoreService implements AutoCloseable {
         return importNetwork(file, (Properties) null);
     }
 
-    public Network importNetwork(Path file, Reporter report) {
+    public Network importNetwork(Path file, ReportNode report) {
         return importNetwork(DataSource.fromPath(file), null, LocalComputationManager.getDefault(), null, report);
     }
 
@@ -141,15 +141,15 @@ public class NetworkStoreService implements AutoCloseable {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null);
     }
 
-    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter) {
+    public Network importNetwork(ReadOnlyDataSource dataSource, ReportNode reporter) {
         return importNetwork(dataSource, reporter, true);
     }
 
-    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter, boolean flush) {
+    public Network importNetwork(ReadOnlyDataSource dataSource, ReportNode reporter, boolean flush) {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null, reporter, flush);
     }
 
-    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter, Properties parameters, boolean flush) {
+    public Network importNetwork(ReadOnlyDataSource dataSource, ReportNode reporter, Properties parameters, boolean flush) {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), parameters, reporter, flush);
     }
 
@@ -176,12 +176,12 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
-                                 ComputationManager computationManager, Properties parameters, Reporter reporter) {
+                                 ComputationManager computationManager, Properties parameters, ReportNode reporter) {
         return importNetwork(dataSource, preloadingStrategy, computationManager, parameters, reporter, true);
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
-                                 ComputationManager computationManager, Properties parameters, Reporter reporter, boolean flush) {
+                                 ComputationManager computationManager, Properties parameters, ReportNode reporter, boolean flush) {
         Importer importer = Importer.find(dataSource, computationManager);
         if (importer == null) {
             throw new PowsyblException("No importer found");
