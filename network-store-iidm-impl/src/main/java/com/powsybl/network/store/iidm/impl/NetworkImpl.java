@@ -8,14 +8,15 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
-import com.powsybl.cgmes.extensions.*;
+import com.powsybl.cgmes.extensions.BaseVoltageMapping;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
+import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
-import com.powsybl.network.store.iidm.impl.extensions.CgmesMetadataModelsImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
@@ -943,11 +944,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public <E extends Extension<Network>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
-        E extension = createCgmesMetadataModels();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createCimCharacteristics();
+        E extension = createCimCharacteristics();
         if (extension != null) {
             extensions.add(extension);
         }
@@ -960,9 +957,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <E extends Extension<Network>> E getExtension(Class<? super E> type) {
-        if (type == CgmesMetadataModels.class) {
-            return createCgmesMetadataModels();
-        }
         if (type == CimCharacteristics.class) {
             return createCimCharacteristics();
         }
@@ -977,9 +971,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <E extends Extension<Network>> E getExtensionByName(String name) {
-        if (name.equals("cgmesMetadataModels")) {
-            return createCgmesMetadataModels();
-        }
         if (name.equals("cimCharacteristics")) {
             return createCimCharacteristics();
         }
@@ -990,16 +981,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             return createBaseVoltageMapping();
         }
         return super.getExtensionByName(name);
-    }
-
-    private <E extends Extension<Network>> E createCgmesMetadataModels() {
-        E extension = null;
-        var resource = getResource();
-        CgmesMetadataModelsAttributes attributes = (CgmesMetadataModelsAttributes) resource.getAttributes().getExtensionAttributes().get(CgmesMetadataModels.NAME);
-        if (attributes != null) {
-            extension = (E) new CgmesMetadataModelsImpl(this);
-        }
-        return extension;
     }
 
     private <E extends Extension<Network>> E createCimCharacteristics() {
