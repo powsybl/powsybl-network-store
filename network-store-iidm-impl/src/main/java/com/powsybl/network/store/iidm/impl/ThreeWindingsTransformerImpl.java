@@ -10,11 +10,9 @@ import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
-import com.powsybl.network.store.iidm.impl.extensions.ReferencePrioritiesImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
 
@@ -617,8 +615,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         var resource = getResource();
         if (type == CgmesTapChangers.class) {
             resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
-        } else if (type == ReferencePriorities.class) {
-            resource.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes());
         } else {
             super.addExtension(type, extension);
         }
@@ -648,8 +644,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = createPhaseAngleClock();
         } else if (type == CgmesTapChangers.class) {
             extension = createCgmesTapChangers();
-        } else if (type == ReferencePriorities.class) {
-            extension = createReferencePriorities();
         } else {
             extension = super.getExtension(type);
         }
@@ -665,8 +659,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = createPhaseAngleClock();
         } else if (name.equals(CgmesTapChangers.NAME)) {
             extension = createCgmesTapChangers();
-        } else if (name.equals(ReferencePriorities.NAME)) {
-            extension = createReferencePriorities();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -689,10 +681,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         if (extension != null) {
             result.add(extension);
         }
-        extension = createReferencePriorities();
-        if (extension != null) {
-            result.add(extension);
-        }
         return result;
     }
 
@@ -711,15 +699,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         var resource = getResource();
         if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
             extension = (E) new CgmesTapChangersImpl(this);
-        }
-        return extension;
-    }
-
-    private <E extends Extension<ThreeWindingsTransformer>> E createReferencePriorities() {
-        E extension = null;
-        var resource = getResource();
-        if (resource.getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME) != null) {
-            extension = (E) new ReferencePrioritiesImpl<>(this);
         }
         return extension;
     }

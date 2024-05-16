@@ -9,9 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
-import com.powsybl.network.store.iidm.impl.extensions.ReferencePrioritiesImpl;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
@@ -574,22 +572,11 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         return extension;
     }
 
-    private <E extends Extension<T>> E createReferencePrioritiesExtension() {
-        E extension = null;
-        var resource = getResource();
-        if (resource.getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME) != null) {
-            return (E) new ReferencePrioritiesImpl<>(getBranch());
-        }
-        return extension;
-    }
-
     @Override
     public <E extends Extension<T>> E getExtension(Class<? super E> type) {
         E extension;
         if (type == ConnectablePosition.class) {
             extension = createConnectablePositionExtension();
-        } else if (type == ReferencePriorities.class) {
-            extension = createReferencePrioritiesExtension();
         } else {
             extension = super.getExtension(type);
         }
@@ -601,8 +588,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         E extension;
         if (name.equals("position")) {
             extension = createConnectablePositionExtension();
-        } else if (name.equals("referencePriorities")) {
-            extension = createReferencePrioritiesExtension();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -613,10 +598,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     public <E extends Extension<T>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
         E extension = createConnectablePositionExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createReferencePrioritiesExtension();
         if (extension != null) {
             extensions.add(extension);
         }
