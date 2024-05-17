@@ -14,6 +14,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * @author Seddik Yengui <seddik.yengui_externe at rte-france.com>
  */
@@ -22,8 +24,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Substation position attributes")
+@Schema(description = "Line position attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SubstationPositionAttributes implements ExtensionAttributes {
-    private Coordinate coordinate;
+public class LinePositionAttributes implements ExtensionAttributes {
+    private List<Coordinate> coordinates;
 }

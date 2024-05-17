@@ -34,6 +34,6 @@ public class SubstationPositionImpl extends AbstractExtension<Substation> implem
 
     @Override
     public Coordinate getCoordinate() {
-        return getSubstationPositionAttributes().getCoordinate();
+        return new Coordinate(getSubstationPositionAttributes().getCoordinate().getLatitude(), getSubstationPositionAttributes().getCoordinate().getLongitude());
     }
 }
