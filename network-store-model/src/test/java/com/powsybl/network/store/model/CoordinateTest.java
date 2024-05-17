@@ -3,12 +3,16 @@ package com.powsybl.network.store.model;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class CoordinateTest {
     @Test
     public void testEquals() {
+        assertEquals(new Coordinate(), new Coordinate());
         assertEquals(new Coordinate(48.1, 1.5), new Coordinate(48.1, 1.5));
         assertEquals(new Coordinate(48.06, 1.3), new Coordinate(48.06, 1.3));
+        assertNotEquals(new Coordinate(48.1, 1.5), new Coordinate(48.06, 1.3));
+        assertNotEquals(new Coordinate(48.1, 1.5), null);
     }
 
     @Test
