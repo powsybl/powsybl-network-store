@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.google.common.base.Strings;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
@@ -61,6 +62,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     public Resource<D> getResource() {
         if (resource == null) {
             throw new PowsyblException("Object has been removed in current variant");
+        }
+        if (index.getWorkingVariantNum() == -1) {
+            throw new PowsyblException("Variant index not set");
         }
         return resource;
     }
@@ -124,7 +128,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     @Override
     public Optional<String> getAliasFromType(String aliasType) {
-        Objects.requireNonNull(aliasType);
+        if (Strings.isNullOrEmpty(aliasType)) {
+            throw new PowsyblException("Alias type must not be null or empty");
+        }
         var attributes = getResource().getAttributes();
         if (attributes.getAliasByType() != null) {
             return Optional.ofNullable(attributes.getAliasByType().get(aliasType));
@@ -193,12 +199,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
                 }
             } else {
                 var aliasesWithoutType = attributes.getAliasesWithoutType();
-                if (aliasesWithoutType != null) {
-                    if (!aliasesWithoutType.contains(alias)) {
-                        throw new PowsyblException(String.format("No alias '%s' found in the network", alias));
-                    }
-                    aliasesWithoutType.remove(alias);
+                if (aliasesWithoutType == null || !aliasesWithoutType.contains(alias)) {
+                    throw new PowsyblException(String.format("No alias '%s' found in the network", alias));
                 }
+                aliasesWithoutType.remove(alias);
             }
         });
         getNetwork().removeAlias(alias);

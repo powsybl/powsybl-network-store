@@ -13,8 +13,4 @@ import com.powsybl.iidm.network.tck.extensions.AbstractHvdcOperatorActivePowerRa
  */
 public class HvdcOperatorActivePowerRangeTest extends AbstractHvdcOperatorActivePowerRangeTest {
 
-    @Override
-    public void variantsCloneTest() {
-        // FIXME
-    }
 }

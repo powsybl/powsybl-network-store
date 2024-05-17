@@ -14,11 +14,6 @@ import com.powsybl.iidm.network.tck.AbstractShuntCompensatorTest;
 public class ShuntCompensatorTest extends AbstractShuntCompensatorTest {
     @Override
     public void baseLinearShuntTest() {
-        // FIXME
-    }
-
-    @Override
-    public void testSetterGetterInMultiVariants() {
-        // FIXME
+        // FIXME remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/2847
     }
 }

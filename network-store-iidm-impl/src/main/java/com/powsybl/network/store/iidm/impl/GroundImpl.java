@@ -14,7 +14,7 @@ import com.powsybl.network.store.model.Resource;
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
-class GroundImpl extends AbstractInjectionImpl<Ground, GroundAttributes> implements Ground {
+public class GroundImpl extends AbstractInjectionImpl<Ground, GroundAttributes> implements Ground {
 
     public GroundImpl(NetworkObjectIndex index, Resource<GroundAttributes> resource) {
         super(index, resource);

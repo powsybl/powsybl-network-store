@@ -35,6 +35,8 @@ public class NetworkObjectIndex {
 
     private int workingVariantNum = Resource.INITIAL_VARIANT_NUM;
 
+    private UUID networkUuid;
+
     private enum LoadingGranularity {
         ONE,
         SOME,
@@ -420,10 +422,15 @@ public class NetworkObjectIndex {
 
     public void setNetwork(NetworkImpl network) {
         this.network = Objects.requireNonNull(network);
+        this.networkUuid = network.getUuid();
     }
 
     NetworkImpl getNetwork() {
         return network;
+    }
+
+    UUID getNetworkUuid() {
+        return networkUuid;
     }
 
     public int getWorkingVariantNum() {
@@ -432,25 +439,27 @@ public class NetworkObjectIndex {
 
     public void setWorkingVariantNum(int workingVariantNum) {
         this.workingVariantNum = workingVariantNum;
-        network.setResource(storeClient.getNetwork(network.getUuid(), workingVariantNum).orElseThrow());
-        substationCache.setResourcesToObjects();
-        voltageLevelCache.setResourcesToObjects();
-        generatorCache.setResourcesToObjects();
-        batteryCache.setResourcesToObjects();
-        shuntCompensatorCache.setResourcesToObjects();
-        vscConverterStationCache.setResourcesToObjects();
-        lccConverterStationCache.setResourcesToObjects();
-        staticVarCompensatorCache.setResourcesToObjects();
-        loadCache.setResourcesToObjects();
-        busbarSectionCache.setResourcesToObjects();
-        switchCache.setResourcesToObjects();
-        twoWindingsTransformerCache.setResourcesToObjects();
-        threeWindingsTransformerCache.setResourcesToObjects();
-        lineCache.setResourcesToObjects();
-        hvdcLineCache.setResourcesToObjects();
-        danglingLineCache.setResourcesToObjects();
-        groundCache.setResourcesToObjects();
-        configuredBusCache.setResourcesToObjects();
+        if (workingVariantNum != -1) {
+            network.setResource(storeClient.getNetwork(network.getUuid(), workingVariantNum).orElseThrow());
+            substationCache.setResourcesToObjects();
+            voltageLevelCache.setResourcesToObjects();
+            generatorCache.setResourcesToObjects();
+            batteryCache.setResourcesToObjects();
+            shuntCompensatorCache.setResourcesToObjects();
+            vscConverterStationCache.setResourcesToObjects();
+            lccConverterStationCache.setResourcesToObjects();
+            staticVarCompensatorCache.setResourcesToObjects();
+            loadCache.setResourcesToObjects();
+            busbarSectionCache.setResourcesToObjects();
+            switchCache.setResourcesToObjects();
+            twoWindingsTransformerCache.setResourcesToObjects();
+            threeWindingsTransformerCache.setResourcesToObjects();
+            lineCache.setResourcesToObjects();
+            hvdcLineCache.setResourcesToObjects();
+            danglingLineCache.setResourcesToObjects();
+            groundCache.setResourcesToObjects();
+            configuredBusCache.setResourcesToObjects();
+        }
     }
 
     void notifyCreation(Identifiable<?> identifiable) {

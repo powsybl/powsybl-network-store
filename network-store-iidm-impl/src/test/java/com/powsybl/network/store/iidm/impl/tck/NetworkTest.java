@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractNetworkTest;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,13 +24,13 @@ public class NetworkTest extends AbstractNetworkTest {
         // FIXME
     }
 
-    @Override
+    @Test
     public void testStreams() {
-        // FIXME
+        // FIXME remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3020
     }
 
     @Override
     public void testNetwork1() {
-        // FIXME
+        // FIXME remove this test when getFictitiousP0 and getFictitiousQ0 of CalculatedBus are implemented
     }
 }

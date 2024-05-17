@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
@@ -31,6 +32,14 @@ public class CoordinatedReactiveControlImpl extends AbstractExtension<Generator>
 
     @Override
     public void setQPercent(double qPercent) {
+        checkQPercent(qPercent);
         getGenerator().updateResource(res -> res.getAttributes().getCoordinatedReactiveControl().setQPercent(qPercent));
+    }
+
+    private void checkQPercent(double qPercent) {
+        if (Double.isNaN(qPercent)) {
+            throw new PowsyblException(String.format("Undefined value (%s) for qPercent for generator %s",
+                    qPercent, getGenerator().getId()));
+        }
     }
 }

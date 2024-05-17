@@ -12,33 +12,5 @@ import com.powsybl.iidm.network.tck.AbstractCurrentLimitsTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CurrentLimitsTest extends AbstractCurrentLimitsTest {
-    @Override
-    public void test() {
-        // FIXME
-    }
 
-    @Override
-    public void testForThreeWindingsTransformerLeg1() {
-        // FIXME
-    }
-
-    @Override
-    public void testForThreeWindingsTransformerLeg2() {
-        // FIXME
-    }
-
-    @Override
-    public void testForThreeWindingsTransformerLeg3() {
-        // FIXME
-    }
-
-    @Override
-    public void testLimitWithoutTempLimit() {
-        // FIXME
-    }
-
-    @Override
-    public void testSetterGetter() {
-        // FIXME
-    }
 }

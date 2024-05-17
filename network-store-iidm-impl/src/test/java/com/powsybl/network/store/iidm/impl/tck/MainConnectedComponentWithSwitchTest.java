@@ -15,6 +15,6 @@ public class MainConnectedComponentWithSwitchTest extends AbstractMainConnectedC
 
     @Override
     public void test() {
-        // FIXME
+        // FIXME remove this test when we stop losing the v of buses / use the right views
     }
 }

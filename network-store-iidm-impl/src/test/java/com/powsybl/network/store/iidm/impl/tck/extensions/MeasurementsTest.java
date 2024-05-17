@@ -14,6 +14,6 @@ import com.powsybl.iidm.network.tck.extensions.AbstractMeasurementsTest;
 public class MeasurementsTest extends AbstractMeasurementsTest {
     @Override
     public void test() {
-        // FIXME
+        // FIXME remove this test when Measurements extension is implemented
     }
 }

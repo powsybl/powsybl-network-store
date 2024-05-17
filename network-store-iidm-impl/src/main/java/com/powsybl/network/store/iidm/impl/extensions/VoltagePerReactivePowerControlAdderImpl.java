@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
@@ -26,6 +27,7 @@ public class VoltagePerReactivePowerControlAdderImpl extends AbstractExtensionAd
 
     @Override
     protected VoltagePerReactivePowerControl createExtension(StaticVarCompensator staticVarCompensator) {
+        checkSlope();
         VoltagePerReactivePowerControlAttributes attributes = VoltagePerReactivePowerControlAttributes.builder()
                 .slope(slope)
                 .build();
@@ -37,5 +39,20 @@ public class VoltagePerReactivePowerControlAdderImpl extends AbstractExtensionAd
     public VoltagePerReactivePowerControlAdder withSlope(double slope) {
         this.slope = slope;
         return this;
+    }
+
+    @Override
+    public VoltagePerReactivePowerControl add() {
+        checkSlope();
+        return super.add();
+    }
+
+    private void checkSlope() {
+        if (Double.isNaN(slope)) {
+            throw new PowsyblException("Undefined value for slope");
+        }
+        if (slope < 0) {
+            throw new PowsyblException("Slope value of SVC " + extendable.getId() + " must be positive: " + slope);
+        }
     }
 }
