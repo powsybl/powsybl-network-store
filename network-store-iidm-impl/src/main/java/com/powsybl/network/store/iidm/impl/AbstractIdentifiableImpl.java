@@ -350,4 +350,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     public String getMessageHeader() {
         return resource.getMessageHeader();
     }
+
+    public NetworkObjectIndex getIndex() {
+        return index;
+    }
 }

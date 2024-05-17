@@ -177,7 +177,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
     @Override
     public L add() {
         Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toList());
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd);
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd, true);
         checkTemporaryLimits();
 
         LimitsAttributes attributes = LimitsAttributes.builder()

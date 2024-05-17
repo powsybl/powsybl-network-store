@@ -399,12 +399,14 @@ public class LineTest {
         tieLine.newActivePowerLimits2().setPermanentLimit(10.0).add();
 
         assertFalse(tieLine.checkPermanentLimit(TwoSides.ONE, 2.0f, LimitType.ACTIVE_POWER));
-        assertFalse(tieLine.checkPermanentLimit(TwoSides.TWO, 2.0f, LimitType.ACTIVE_POWER));
+        assertTrue(tieLine.checkPermanentLimit(TwoSides.TWO, 2.0f, LimitType.ACTIVE_POWER));
         assertFalse(tieLine.checkPermanentLimit(TwoSides.ONE, LimitType.ACTIVE_POWER));
-        assertFalse(tieLine.checkPermanentLimit(TwoSides.TWO, LimitType.ACTIVE_POWER));
+        assertTrue(tieLine.checkPermanentLimit(TwoSides.TWO, LimitType.ACTIVE_POWER));
 
         tieLine.newApparentPowerLimits1().setPermanentLimit(10.0).add();
         tieLine.newApparentPowerLimits2().setPermanentLimit(10.0).add();
+        tieLine.setSelectedOperationalLimitsGroup1("id");
+        tieLine.setSelectedOperationalLimitsGroup2("id");
 
         assertFalse(tieLine.checkPermanentLimit(TwoSides.ONE, 2.0f, LimitType.APPARENT_POWER));
         assertFalse(tieLine.checkPermanentLimit(TwoSides.TWO, 2.0f, LimitType.APPARENT_POWER));
