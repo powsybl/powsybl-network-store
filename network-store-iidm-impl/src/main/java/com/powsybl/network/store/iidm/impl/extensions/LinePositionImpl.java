@@ -12,15 +12,10 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.LinePosition;
-import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
-import com.powsybl.network.store.iidm.impl.SubstationImpl;
-import com.powsybl.network.store.model.AbstractIdentifiableAttributes;
 import com.powsybl.network.store.model.LinePositionAttributes;
-import com.powsybl.network.store.model.SubstationPositionAttributes;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Seddik Yengui <seddik.yengui_externe at rte-france.com>
