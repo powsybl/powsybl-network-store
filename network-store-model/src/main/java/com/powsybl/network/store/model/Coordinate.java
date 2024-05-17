@@ -12,6 +12,9 @@ import java.util.Objects;
  * @author Seddik Yengui <seddik.yengui_externe at rte-france.com>
  */
 
+// This class is the same as com.powsybl.iidm.network.extensions.Coordinate with no args constructor.
+// It is a workaround, so we can create instance when used in spring Beans.
+//TODO Should be removed when com.powsybl.iidm.network.extensions.Coordinate is fixed
 public class Coordinate {
 
     private double latitude;
