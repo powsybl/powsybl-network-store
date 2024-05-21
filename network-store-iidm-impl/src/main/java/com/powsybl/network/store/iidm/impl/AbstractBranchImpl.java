@@ -468,7 +468,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public boolean isOverloaded(float limitReduction) {
+    public boolean isOverloaded(double limitReduction) {
         return checkPermanentLimit1(limitReduction, LimitType.CURRENT) || checkPermanentLimit2(limitReduction, LimitType.CURRENT);
     }
 
@@ -487,7 +487,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public Overload checkTemporaryLimits(TwoSides side, float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, double limitReduction, LimitType type) {
         Objects.requireNonNull(side);
         return switch (side) {
             case ONE -> this.checkTemporaryLimits1(limitReduction, type);
@@ -496,7 +496,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits1(double limitReduction, LimitType type) {
         return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReduction, this.getValueForLimit(this.getTerminal1(), type), type);
     }
 
@@ -506,7 +506,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits2(double limitReduction, LimitType type) {
         return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReduction, this.getValueForLimit(this.getTerminal2(), type), type);
     }
 
@@ -516,7 +516,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public boolean checkPermanentLimit(TwoSides side, float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, double limitReduction, LimitType type) {
         Objects.requireNonNull(side);
         return switch (side) {
             case ONE -> checkPermanentLimit1(limitReduction, type);
@@ -530,7 +530,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit1(double limitReduction, LimitType type) {
         return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
@@ -540,7 +540,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit2(double limitReduction, LimitType type) {
         return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 

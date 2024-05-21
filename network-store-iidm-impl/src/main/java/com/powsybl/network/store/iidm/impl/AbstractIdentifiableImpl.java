@@ -293,11 +293,21 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
-        return resource.getAttributes().getExtensionAttributes().keySet().stream()
+        List<E> matchingExtensions = resource.getAttributes().getExtensionAttributes().keySet().stream()
                 .map(ExtensionLoaders::findLoader)
-                .filter(loader -> type.isAssignableFrom(loader.getType()))
+                .filter(loader -> type == loader.getType())
                 .map(loader -> (E) loader.load(this))
-                .findFirst().orElse(null);
+                .collect(Collectors.toList());
+
+        if (matchingExtensions.isEmpty()) {
+            return null;
+        }
+
+        if (matchingExtensions.size() > 1) {
+            throw new PowsyblException("More than one extension found for type: " + type.getSimpleName());
+        }
+
+        return matchingExtensions.get(0);
     }
 
     public <E extends Extension<I>> E getExtensionByName(String name) {
@@ -345,5 +355,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public String getMessageHeader() {
         return resource.getMessageHeader();
+    }
+
+    public NetworkObjectIndex getIndex() {
+        return index;
     }
 }
