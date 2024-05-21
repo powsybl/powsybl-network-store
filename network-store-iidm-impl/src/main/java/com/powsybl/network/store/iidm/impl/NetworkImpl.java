@@ -8,15 +8,15 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
-import com.powsybl.cgmes.extensions.*;
+import com.powsybl.cgmes.extensions.BaseVoltageMapping;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
+import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
-import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
-import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
@@ -44,11 +44,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private final List<NetworkListener> listeners = new ArrayList<>();
 
-    private AbstractReporterContext reporterContext;
+    private AbstractReportNodeContext reporterContext;
 
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
-        this.reporterContext = new SimpleReporterContext();
+        this.reporterContext = new SimpleReportNodeContext();
         index.setNetwork(this);
     }
 
@@ -171,6 +171,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
     }
 
+    @Override
     public NetworkObjectIndex getIndex() {
         return index;
     }
@@ -224,12 +225,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public void allowReporterContextMultiThreadAccess(boolean allow) {
-        this.reporterContext = Networks.allowReporterContextMultiThreadAccess(this.reporterContext, allow);
+    public void allowReportNodeContextMultiThreadAccess(boolean allow) {
+        this.reporterContext = Networks.allowReportNodeContextMultiThreadAccess(this.reporterContext, allow);
     }
 
     @Override
-    public ReporterContext getReporterContext() {
+    public ReportNodeContext getReportNodeContext() {
         return this.reporterContext;
     }
 
@@ -943,15 +944,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public <E extends Extension<Network>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
-        E extension = createCgmesSvMetadata();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createCgmesSshMetadata();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createCimCharacteristics();
+        E extension = createCimCharacteristics();
         if (extension != null) {
             extensions.add(extension);
         }
@@ -964,12 +957,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <E extends Extension<Network>> E getExtension(Class<? super E> type) {
-        if (type == CgmesSvMetadata.class) {
-            return createCgmesSvMetadata();
-        }
-        if (type == CgmesSshMetadata.class) {
-            return createCgmesSshMetadata();
-        }
         if (type == CimCharacteristics.class) {
             return createCimCharacteristics();
         }
@@ -984,12 +971,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <E extends Extension<Network>> E getExtensionByName(String name) {
-        if (name.equals("cgmesSvMetadata")) {
-            return createCgmesSvMetadata();
-        }
-        if (name.equals("cgmesSshMetadata")) {
-            return createCgmesSshMetadata();
-        }
         if (name.equals("cimCharacteristics")) {
             return createCimCharacteristics();
         }
@@ -1000,26 +981,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             return createBaseVoltageMapping();
         }
         return super.getExtensionByName(name);
-    }
-
-    private <E extends Extension<Network>> E createCgmesSvMetadata() {
-        E extension = null;
-        var resource = getResource();
-        CgmesSvMetadataAttributes attributes = resource.getAttributes().getCgmesSvMetadata();
-        if (attributes != null) {
-            extension = (E) new CgmesSvMetadataImpl(this);
-        }
-        return extension;
-    }
-
-    private <E extends Extension<Network>> E createCgmesSshMetadata() {
-        E extension = null;
-        var resource = getResource();
-        CgmesSshMetadataAttributes attributes = resource.getAttributes().getCgmesSshMetadata();
-        if (attributes != null) {
-            extension = (E) new CgmesSshMetadataImpl(this);
-        }
-        return extension;
     }
 
     private <E extends Extension<Network>> E createCimCharacteristics() {

@@ -270,7 +270,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public boolean isOverloaded(float limitReduction) {
+    public boolean isOverloaded(double limitReduction) {
         return checkPermanentLimit1(limitReduction, LimitType.CURRENT) || checkPermanentLimit2(limitReduction, LimitType.CURRENT);
     }
 
@@ -280,7 +280,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public boolean checkPermanentLimit(TwoSides side, float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, double limitReduction, LimitType type) {
         return getFromSide(side,
             () -> checkPermanentLimit1(limitReduction, type),
             () -> checkPermanentLimit2(limitReduction, type));
@@ -292,7 +292,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit1(double limitReduction, LimitType type) {
         return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
@@ -302,7 +302,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit2(double limitReduction, LimitType type) {
         return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
@@ -312,7 +312,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public Overload checkTemporaryLimits(TwoSides side, float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, double limitReduction, LimitType type) {
         return getFromSide(side,
             () -> checkTemporaryLimits1(limitReduction, type),
             () -> checkTemporaryLimits2(limitReduction, type));
@@ -324,7 +324,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits1(double limitReduction, LimitType type) {
         return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
@@ -334,7 +334,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits2(double limitReduction, LimitType type) {
         return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 

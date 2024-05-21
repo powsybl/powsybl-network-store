@@ -498,7 +498,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public boolean isOverloaded(float limitReduction) {
+    public boolean isOverloaded(double limitReduction) {
         return checkPermanentLimit1(limitReduction, LimitType.CURRENT)
             || checkPermanentLimit2(limitReduction, LimitType.CURRENT)
             || checkPermanentLimit3(limitReduction, LimitType.CURRENT);
@@ -516,7 +516,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public boolean checkPermanentLimit(ThreeSides side, float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit(ThreeSides side, double limitReduction, LimitType type) {
         return LimitViolationUtils.checkPermanentLimit(this, side, limitReduction, type);
     }
 
@@ -526,7 +526,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit1(double limitReduction, LimitType type) {
         return checkPermanentLimit(ThreeSides.ONE, limitReduction, type);
     }
 
@@ -536,7 +536,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit2(double limitReduction, LimitType type) {
         return checkPermanentLimit(ThreeSides.TWO, limitReduction, type);
     }
 
@@ -546,7 +546,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public boolean checkPermanentLimit3(float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit3(double limitReduction, LimitType type) {
         return checkPermanentLimit(ThreeSides.THREE, limitReduction, type);
     }
 
@@ -556,7 +556,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public Overload checkTemporaryLimits(ThreeSides side, float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits(ThreeSides side, double limitReduction, LimitType type) {
         return LimitViolationUtils.checkTemporaryLimits(this, side, limitReduction, type);
     }
 
@@ -566,7 +566,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits1(double limitReduction, LimitType type) {
         return checkTemporaryLimits(ThreeSides.ONE, limitReduction, type);
     }
 
@@ -576,7 +576,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits2(double limitReduction, LimitType type) {
         return checkTemporaryLimits(ThreeSides.TWO, limitReduction, type);
     }
 
@@ -586,7 +586,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public Overload checkTemporaryLimits3(float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits3(double limitReduction, LimitType type) {
         return checkTemporaryLimits(ThreeSides.THREE, limitReduction, type);
     }
 
