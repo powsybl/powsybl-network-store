@@ -6,11 +6,8 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.LinePosition;
 import com.powsybl.iidm.network.extensions.LinePositionAdder;
@@ -34,12 +31,6 @@ public class LinePositionAdderImpl<T extends Identifiable<T>> extends AbstractEx
 
     @Override
     protected LinePosition<T> createExtension(T extendable) {
-        if (!(extendable instanceof Line) && !(extendable instanceof DanglingLine)) {
-            throw new PowsyblException("Line position extension only supported for lines and dangling lines");
-        }
-        List<com.powsybl.network.store.model.Coordinate> coordinates = this.coordinates.stream()
-                .map(coordinate -> new com.powsybl.network.store.model.Coordinate(coordinate.getLatitude(), coordinate.getLongitude()))
-                .toList();
         var attributes = new LinePositionAttributes(coordinates);
         ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(LinePosition.NAME, attributes));
         return new LinePositionImpl<>(extendable);

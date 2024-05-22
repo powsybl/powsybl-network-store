@@ -31,7 +31,7 @@ public class SubstationPositionAdderImpl extends AbstractExtensionAdder<Substati
 
     @Override
     protected SubstationPosition createExtension(Substation substation) {
-        var attributes = new SubstationPositionAttributes(new com.powsybl.network.store.model.Coordinate(coordinate.getLatitude(), coordinate.getLongitude()));
+        var attributes = new SubstationPositionAttributes(coordinate);
         ((SubstationImpl) substation).updateResource(res -> res.getAttributes().getExtensionAttributes().put(SubstationPosition.NAME, attributes));
         return new SubstationPositionImpl(substation);
     }

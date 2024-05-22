@@ -1,0 +1,10 @@
+{
+  "extensionName" : "linePosition",
+  "coordinates" : [ {
+    "latitude" : 46.11,
+    "longitude" : 49.23
+  }, {
+    "latitude" : 50.23,
+    "longitude" : 12.3
+  } ]
+}

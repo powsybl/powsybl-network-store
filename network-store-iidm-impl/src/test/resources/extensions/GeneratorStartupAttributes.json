@@ -1,0 +1,8 @@
+{
+  "extensionName" : "startup",
+  "plannedActivePowerSetpoint" : 0.5,
+  "startupCost" : 10.0,
+  "marginalCost" : 5.0,
+  "plannedOutageRate" : 3.0,
+  "forcedOutageRate" : 5.0
+}

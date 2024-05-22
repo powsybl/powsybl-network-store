@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Active power control attributes")
+@Schema(description = "Operating status attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OperatingStatusAttributes implements ExtensionAttributes {
 

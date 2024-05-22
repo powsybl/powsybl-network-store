@@ -45,9 +45,6 @@ public class LinePositionImpl<T extends Identifiable<T>> extends AbstractExtensi
 
     @Override
     public List<Coordinate> getCoordinates() {
-        return getLinePositionAttributes().getCoordinates()
-                .stream()
-                .map(coordinate -> new Coordinate(coordinate.getLatitude(), coordinate.getLongitude()))
-                .toList();
+        return getLinePositionAttributes().getCoordinates();
     }
 }
