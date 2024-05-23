@@ -1,6 +1,0 @@
-{
-  "extensionName" : "activePowerControl",
-  "participate" : true,
-  "droop" : 12.0,
-  "participationFactor" : 0.5
-}
