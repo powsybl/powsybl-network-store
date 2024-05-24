@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Observability quality attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ObservabilityQualityAttributes {
+    @Builder.Default
     private double standardDeviation = Double.NaN;
 
     private Boolean redundant;

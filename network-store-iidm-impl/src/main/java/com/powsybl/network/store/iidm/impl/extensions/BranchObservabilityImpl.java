@@ -14,6 +14,10 @@ import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 import com.powsybl.network.store.iidm.impl.AbstractBranchImpl;
 import com.powsybl.network.store.model.BranchObservabilityAttributes;
 import com.powsybl.network.store.model.ObservabilityQualityAttributes;
+import lombok.NonNull;
+
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -32,181 +36,117 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
         return (BranchObservabilityAttributes) getBranch().getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
     }
 
+    @Override
     public boolean isObservable() {
         return getBranchObservabilityAttributes().isObservable();
     }
 
     @Override
     public BranchObservability<B> setObservable(boolean observable) {
-        getBranch().updateResource(res -> ((BranchObservabilityAttributes) res.getAttributes().getExtensionAttributes().get(BranchObservability.NAME)).setObservable(observable));
+        getBranch().updateResource(res -> getBranchObservabilityAttributes().setObservable(observable));
         return this;
     }
 
-    @Override
-    public ObservabilityQuality<B> getQualityP1() {
-        BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) getBranch().getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-        if (branchObservabilityAttributes.getQualityP1() != null) {
-            return new ObservabilityQualityImpl<>(quality -> setQualityP1(quality.getStandardDeviation(), quality.isRedundant().orElse(null)),
-                branchObservabilityAttributes.getQualityP1().getStandardDeviation(),
-                branchObservabilityAttributes.getQualityP1().getRedundant());
+    private ObservabilityQuality<B> getQuality(final @NonNull Function<BranchObservabilityAttributes,
+                                               ObservabilityQualityAttributes> getterQuality,
+                                               final @NonNull BiConsumer<Double, Boolean> setterQuality) {
+        final ObservabilityQualityAttributes qualityP = getterQuality.apply(getBranchObservabilityAttributes());
+        if (qualityP != null) {
+            return new ObservabilityQualityImpl<>(
+                quality -> setterQuality.accept(quality.getStandardDeviation(), quality.isRedundant().orElse(null)),
+                qualityP.getStandardDeviation(),
+                qualityP.getRedundant());
         } else {
             return null;
         }
     }
 
     @Override
-    public BranchObservability<B> setQualityP1(double standardDeviation, Boolean redundant) {
-        getBranch().updateResource(res -> {
-            BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) res.getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-            branchObservabilityAttributes.setQualityP1(ObservabilityQualityAttributes.builder()
+    public ObservabilityQuality<B> getQualityP1() {
+        return getQuality(BranchObservabilityAttributes::getQualityP1, this::setQualityP1);
+    }
+
+    @Override
+    public ObservabilityQuality<B> getQualityP2() {
+        return getQuality(BranchObservabilityAttributes::getQualityP2, this::setQualityP2);
+    }
+
+    @Override
+    public ObservabilityQuality<B> getQualityQ1() {
+        return getQuality(BranchObservabilityAttributes::getQualityQ1, this::setQualityQ1);
+    }
+
+    @Override
+    public ObservabilityQuality<B> getQualityQ2() {
+        return getQuality(BranchObservabilityAttributes::getQualityQ2, this::setQualityQ2);
+    }
+
+    private BranchObservability<B> setQuality(final double standardDeviation, final Boolean redundant,
+                                              final @NonNull BiConsumer<BranchObservabilityAttributes,
+                                              ObservabilityQualityAttributes> setterQuality) {
+        getBranch().updateResource(res -> setterQuality.accept(
+            getBranchObservabilityAttributes(),
+            ObservabilityQualityAttributes.builder()
                 .standardDeviation(standardDeviation)
                 .redundant(redundant)
-                .build());
+                .build()));
+        return this;
+    }
+
+    @Override
+    public BranchObservability<B> setQualityP1(final double standardDeviation, final Boolean redundant) {
+        return setQuality(standardDeviation, redundant, BranchObservabilityAttributes::setQualityP1);
+    }
+
+    @Override
+    public BranchObservability<B> setQualityP2(final double standardDeviation, final Boolean redundant) {
+        return setQuality(standardDeviation, redundant, BranchObservabilityAttributes::setQualityP2);
+    }
+
+    @Override
+    public BranchObservability<B> setQualityQ1(final double standardDeviation, final Boolean redundant) {
+        return setQuality(standardDeviation, redundant, BranchObservabilityAttributes::setQualityQ1);
+    }
+
+    @Override
+    public BranchObservability<B> setQualityQ2(final double standardDeviation, final Boolean redundant) {
+        return setQuality(standardDeviation, redundant, BranchObservabilityAttributes::setQualityQ2);
+    }
+
+    private BranchObservability<B> setQuality(final double standardDeviation,
+                                              final @NonNull Function<BranchObservabilityAttributes,
+                                              ObservabilityQualityAttributes> getterQuality,
+                                              final @NonNull BiConsumer<BranchObservabilityAttributes,
+                                              ObservabilityQualityAttributes> setterQuality) {
+        getBranch().updateResource(res -> {
+            final BranchObservabilityAttributes branchObservabilityAttributes = getBranchObservabilityAttributes();
+            ObservabilityQualityAttributes.ObservabilityQualityAttributesBuilder builder = ObservabilityQualityAttributes.builder().standardDeviation(standardDeviation);
+            final ObservabilityQualityAttributes quality = getterQuality.apply(branchObservabilityAttributes);
+            if (quality != null) {
+                builder = builder.redundant(quality.getRedundant());
+            }
+            setterQuality.accept(branchObservabilityAttributes, builder.build());
         });
         return this;
     }
 
     @Override
     public BranchObservability<B> setQualityP1(double standardDeviation) {
-        getBranch().updateResource(res -> {
-            BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) getBranch().getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-            if (branchObservabilityAttributes.getQualityP1() == null) {
-                branchObservabilityAttributes.setQualityP1(ObservabilityQualityAttributes.builder()
-                    .standardDeviation(standardDeviation)
-                    .build());
-            } else {
-                branchObservabilityAttributes.setQualityP1(ObservabilityQualityAttributes.builder()
-                    .standardDeviation(standardDeviation)
-                    .redundant(branchObservabilityAttributes.getQualityP1().getRedundant())
-                    .build());
-            }
-        });
-        return this;
-    }
-
-    @Override
-    public ObservabilityQuality<B> getQualityP2() {
-        BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) getBranch().getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-        if (branchObservabilityAttributes.getQualityP2() != null) {
-            return new ObservabilityQualityImpl<>(quality -> setQualityP2(quality.getStandardDeviation(), quality.isRedundant().orElse(null)),
-                branchObservabilityAttributes.getQualityP2().getStandardDeviation(),
-                branchObservabilityAttributes.getQualityP2().getRedundant());
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public BranchObservability<B> setQualityP2(double standardDeviation, Boolean redundant) {
-        getBranch().updateResource(res -> {
-            BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) res.getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-            branchObservabilityAttributes.setQualityP2(ObservabilityQualityAttributes.builder()
-                .standardDeviation(standardDeviation)
-                .redundant(redundant)
-                .build());
-        });
-        return this;
+        return setQuality(standardDeviation, BranchObservabilityAttributes::getQualityP1, BranchObservabilityAttributes::setQualityP1);
     }
 
     @Override
     public BranchObservability<B> setQualityP2(double standardDeviation) {
-        getBranch().updateResource(res -> {
-            BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) getBranch().getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-            if (branchObservabilityAttributes.getQualityP2() == null) {
-                branchObservabilityAttributes.setQualityP2(ObservabilityQualityAttributes.builder()
-                    .standardDeviation(standardDeviation)
-                    .build());
-            } else {
-                branchObservabilityAttributes.setQualityP2(ObservabilityQualityAttributes.builder()
-                    .standardDeviation(standardDeviation)
-                    .redundant(branchObservabilityAttributes.getQualityP2().getRedundant())
-                    .build());
-            }
-        });
-        return this;
-    }
-
-    @Override
-    public ObservabilityQuality<B> getQualityQ1() {
-        BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) getBranch().getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-        if (branchObservabilityAttributes.getQualityQ1() != null) {
-            return new ObservabilityQualityImpl<>(quality -> setQualityQ1(quality.getStandardDeviation(), quality.isRedundant().orElse(null)),
-                branchObservabilityAttributes.getQualityQ1().getStandardDeviation(),
-                branchObservabilityAttributes.getQualityQ1().getRedundant());
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public BranchObservability<B> setQualityQ1(double standardDeviation, Boolean redundant) {
-        getBranch().updateResource(res -> {
-            BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) res.getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-            branchObservabilityAttributes.setQualityQ1(ObservabilityQualityAttributes.builder()
-                .standardDeviation(standardDeviation)
-                .redundant(redundant)
-                .build());
-        });
-        return this;
+        return setQuality(standardDeviation, BranchObservabilityAttributes::getQualityP2, BranchObservabilityAttributes::setQualityP2);
     }
 
     @Override
     public BranchObservability<B> setQualityQ1(double standardDeviation) {
-        getBranch().updateResource(res -> {
-            BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) getBranch().getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-            if (branchObservabilityAttributes.getQualityQ1() == null) {
-                branchObservabilityAttributes.setQualityQ1(ObservabilityQualityAttributes.builder()
-                    .standardDeviation(standardDeviation)
-                    .build());
-            } else {
-                branchObservabilityAttributes.setQualityQ1(ObservabilityQualityAttributes.builder()
-                    .standardDeviation(standardDeviation)
-                    .redundant(branchObservabilityAttributes.getQualityQ1().getRedundant())
-                    .build());
-            }
-        });
-        return this;
-    }
-
-    @Override
-    public ObservabilityQuality<B> getQualityQ2() {
-        BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) getBranch().getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-        if (branchObservabilityAttributes.getQualityQ2() != null) {
-            return new ObservabilityQualityImpl<>(quality -> setQualityQ2(quality.getStandardDeviation(), quality.isRedundant().orElse(null)),
-                branchObservabilityAttributes.getQualityQ2().getStandardDeviation(),
-                branchObservabilityAttributes.getQualityQ2().getRedundant());
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public BranchObservability<B> setQualityQ2(double standardDeviation, Boolean redundant) {
-        getBranch().updateResource(res -> {
-            BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) res.getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-            branchObservabilityAttributes.setQualityQ2(ObservabilityQualityAttributes.builder()
-                .standardDeviation(standardDeviation)
-                .redundant(redundant)
-                .build());
-        });
-        return this;
+        return setQuality(standardDeviation, BranchObservabilityAttributes::getQualityQ1, BranchObservabilityAttributes::setQualityQ1);
     }
 
     @Override
     public BranchObservability<B> setQualityQ2(double standardDeviation) {
-        getBranch().updateResource(res -> {
-            BranchObservabilityAttributes branchObservabilityAttributes = (BranchObservabilityAttributes) getBranch().getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
-            if (branchObservabilityAttributes.getQualityQ2() == null) {
-                branchObservabilityAttributes.setQualityQ2(ObservabilityQualityAttributes.builder()
-                    .standardDeviation(standardDeviation)
-                    .build());
-            } else {
-                branchObservabilityAttributes.setQualityQ2(ObservabilityQualityAttributes.builder()
-                    .standardDeviation(standardDeviation)
-                    .redundant(branchObservabilityAttributes.getQualityQ2().getRedundant())
-                    .build());
-            }
-        });
-        return this;
+        return setQuality(standardDeviation, BranchObservabilityAttributes::getQualityQ2, BranchObservabilityAttributes::setQualityQ2);
     }
 }

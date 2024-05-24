@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -24,6 +25,7 @@ public class ObservabilityQualityImpl<T> implements ObservabilityQuality<T> {
     private final Consumer<ObservabilityQuality<?>> setter;
 
     public ObservabilityQualityImpl(Consumer<ObservabilityQuality<?>> setter, double standardDeviation, Boolean redundant) {
+        Objects.requireNonNull(setter);
         this.standardDeviation = standardDeviation;
         this.redundant = redundant;
         this.setter = setter;

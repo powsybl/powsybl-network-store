@@ -22,7 +22,7 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
         extends AbstractExtensionAdder<B, BranchObservability<B>>
         implements BranchObservabilityAdder<B> {
 
-    private boolean observable;
+    private boolean observable = false;
 
     private double standardDeviationP1 = Double.NaN;
 
@@ -32,13 +32,13 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
 
     private double standardDeviationQ2 = Double.NaN;
 
-    private Boolean redundantP1 = null;
+    private Boolean redundantP1;
 
-    private Boolean redundantP2 = null;
+    private Boolean redundantP2;
 
-    private Boolean redundantQ1 = null;
+    private Boolean redundantQ1;
 
-    private Boolean redundantQ2 = null;
+    private Boolean redundantQ2;
 
     public BranchObservabilityAdderImpl(B extendable) {
         super(extendable);

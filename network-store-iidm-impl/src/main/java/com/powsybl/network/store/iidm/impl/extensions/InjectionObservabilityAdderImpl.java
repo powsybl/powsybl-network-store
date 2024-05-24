@@ -22,7 +22,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
         extends AbstractExtensionAdder<I, InjectionObservability<I>>
         implements InjectionObservabilityAdder<I> {
 
-    private boolean observable;
+    private boolean observable = false;
 
     private double standardDeviationP = Double.NaN;
 
@@ -30,11 +30,11 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
 
     private double standardDeviationV = Double.NaN;
 
-    private Boolean redundantP = null;
+    private Boolean redundantP;
 
-    private Boolean redundantQ = null;
+    private Boolean redundantQ;
 
-    private Boolean redundantV = null;
+    private Boolean redundantV;
 
     public InjectionObservabilityAdderImpl(I extendable) {
         super(extendable);
