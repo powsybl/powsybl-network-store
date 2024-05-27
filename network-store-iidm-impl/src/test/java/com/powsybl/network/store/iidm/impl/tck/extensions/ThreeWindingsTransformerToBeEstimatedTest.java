@@ -12,8 +12,4 @@ import com.powsybl.iidm.network.tck.extensions.AbstractThreeWindingsTransformerT
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ThreeWindingsTransformerToBeEstimatedTest extends AbstractThreeWindingsTransformerToBeEstimatedTest {
-    @Override
-    public void test() {
-        // FIXME
-    }
 }
