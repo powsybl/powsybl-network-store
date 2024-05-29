@@ -31,6 +31,13 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
         this.abstractIdentifiable = abstractIdentifiable;
     }
 
+    private void updateResource() {
+        this.abstractIdentifiable.updateResource(resource ->
+                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().remove(this.discreteMeasurementAttributes));
+        this.abstractIdentifiable.updateResource(resource ->
+                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().add(this.discreteMeasurementAttributes));
+    }
+
     @Override
     public String getId() {
         return discreteMeasurementAttributes.getId();
@@ -59,12 +66,14 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
     @Override
     public DiscreteMeasurement putProperty(String name, String value) {
         discreteMeasurementAttributes.getProperties().put(name, value);
+        updateResource();
         return this;
     }
 
     @Override
     public DiscreteMeasurement removeProperty(String name) {
         discreteMeasurementAttributes.getProperties().remove(name);
+        updateResource();
         return this;
     }
 
@@ -102,6 +111,7 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
         checkValue(value, discreteMeasurementAttributes.isValid());
         discreteMeasurementAttributes.setValueType(ValueType.STRING);
         discreteMeasurementAttributes.setValue(value);
+        updateResource();
         return this;
     }
 
@@ -109,6 +119,7 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
     public DiscreteMeasurement setValue(int value) {
         discreteMeasurementAttributes.setValueType(ValueType.INT);
         discreteMeasurementAttributes.setValue(value);
+        updateResource();
         return this;
     }
 
@@ -116,6 +127,7 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
     public DiscreteMeasurement setValue(boolean value) {
         discreteMeasurementAttributes.setValueType(ValueType.BOOLEAN);
         discreteMeasurementAttributes.setValue(value);
+        updateResource();
         return this;
     }
 
@@ -127,12 +139,13 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
     @Override
     public DiscreteMeasurement setValid(boolean valid) {
         discreteMeasurementAttributes.setValid(valid);
+        updateResource();
         return this;
     }
 
     @Override
     public void remove() {
-        ((DiscreteMeasurementsAttributes) abstractIdentifiable.getResource().getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME))
-                .getDiscreteMeasurementAttributes().remove(this.discreteMeasurementAttributes);
+        this.abstractIdentifiable.updateResource(resource ->
+                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().remove(this.discreteMeasurementAttributes));
     }
 }

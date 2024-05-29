@@ -20,13 +20,20 @@ import java.util.Set;
  */
 public class MeasurementImpl implements Measurement {
 
-    private MeasurementAttributes measurementAttributes;
+    private final MeasurementAttributes measurementAttributes;
 
     AbstractIdentifiableImpl<?, ?> abstractIdentifiable;
 
     public MeasurementImpl(AbstractIdentifiableImpl abstractIdentifiable, MeasurementAttributes measurementAttributes) {
         this.measurementAttributes = measurementAttributes;
         this.abstractIdentifiable = abstractIdentifiable;
+    }
+
+    private void updateResource() {
+        this.abstractIdentifiable.updateResource(resource ->
+                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().remove(this.measurementAttributes));
+        this.abstractIdentifiable.updateResource(resource ->
+                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().add(this.measurementAttributes));
     }
 
     @Override
@@ -52,18 +59,21 @@ public class MeasurementImpl implements Measurement {
     @Override
     public Measurement putProperty(String name, String property) {
         this.measurementAttributes.getProperties().put(name, property);
+        updateResource();
         return this;
     }
 
     @Override
     public Measurement removeProperty(String id) {
         this.measurementAttributes.getProperties().remove(id);
+        updateResource();
         return this;
     }
 
     @Override
     public Measurement setValue(double value) {
         this.measurementAttributes.setValue(value);
+        updateResource();
         return this;
     }
 
@@ -75,6 +85,7 @@ public class MeasurementImpl implements Measurement {
     @Override
     public Measurement setStandardDeviation(double standardDeviation) {
         this.measurementAttributes.setStandardDeviation(standardDeviation);
+        updateResource();
         return this;
     }
 
@@ -91,6 +102,7 @@ public class MeasurementImpl implements Measurement {
     @Override
     public Measurement setValid(boolean b) {
         this.measurementAttributes.setValid(b);
+        updateResource();
         return this;
     }
 
@@ -102,7 +114,7 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public void remove() {
-        ((MeasurementsAttributes) abstractIdentifiable.getResource().getAttributes().getExtensionAttributes().get(Measurements.NAME))
-                .getMeasurementAttributes().remove(this.measurementAttributes);
+        this.abstractIdentifiable.updateResource(resource ->
+                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().remove(this.measurementAttributes));
     }
 }

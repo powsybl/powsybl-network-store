@@ -27,7 +27,7 @@ import java.util.Map;
 @Builder
 @Schema(description = "Measurement attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MeasurementAttributes implements ExtensionAttributes {
+public class MeasurementAttributes {
 
     @Schema(description = "The ID of the measurement")
     private String id;
