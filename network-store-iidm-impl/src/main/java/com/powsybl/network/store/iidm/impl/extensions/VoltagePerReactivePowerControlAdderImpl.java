@@ -41,12 +41,6 @@ public class VoltagePerReactivePowerControlAdderImpl extends AbstractExtensionAd
         return this;
     }
 
-    @Override
-    public VoltagePerReactivePowerControl add() {
-        checkSlope();
-        return super.add();
-    }
-
     private void checkSlope() {
         if (Double.isNaN(slope)) {
             throw new PowsyblException("Undefined value for slope");

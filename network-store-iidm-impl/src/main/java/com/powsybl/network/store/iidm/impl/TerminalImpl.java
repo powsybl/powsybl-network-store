@@ -135,8 +135,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             return 0;
         }
-        double v = isBusBeakerTopologyKind() ? getBusBreakerView().getBus().getV() : getBusView().getBus().getV();
-        return isConnected() ? Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * v / 1000) : Double.NaN;
+        return isConnected() ? Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * getBusView().getBus().getV() / 1000) : Double.NaN;
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {

@@ -78,10 +78,10 @@ public class VariantManagerImpl implements VariantManager {
             throw new IllegalArgumentException("Empty target variant id list");
         }
         int workingVariantNum = index.getWorkingVariantNum();
+        List<VariantInfos> variantsInfos = index.getStoreClient().getVariantsInfos(index.getNetworkUuid());
+        int sourceVariantNum = VariantUtils.getVariantNum(sourceVariantId, variantsInfos);
         String workingVariantId = workingVariantNum != -1 ? getWorkingVariantId() : null;
         for (String targetVariantId : targetVariantIds) {
-            List<VariantInfos> variantsInfos = index.getStoreClient().getVariantsInfos(index.getNetworkUuid());
-            int sourceVariantNum = VariantUtils.getVariantNum(sourceVariantId, variantsInfos);
             Optional<VariantInfos> targetVariant = VariantUtils.getVariant(targetVariantId, variantsInfos);
             if (targetVariant.isPresent()) {
                 if (!mayOverwrite) {
@@ -93,7 +93,7 @@ public class VariantManagerImpl implements VariantManager {
             int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
             // clone resources
             index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
-            //If we overwrite the working variant we need to set back the working variant id because it's deleted in the removeVariant method
+            //If we overwrite the working variant we need to set back the working variant num because it's deleted in the removeVariant method
             if (targetVariantId.equals(workingVariantId)) {
                 index.setWorkingVariantNum(workingVariantNum);
             }

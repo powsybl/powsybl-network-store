@@ -47,10 +47,4 @@ public class CoordinatedReactiveControlAdderImpl extends AbstractExtensionAdder<
         this.qPercent = qPercent;
         return this;
     }
-
-    @Override
-    public CoordinatedReactiveControl add() {
-        checkQPercent();
-        return super.add();
-    }
 }

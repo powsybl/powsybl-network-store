@@ -19,8 +19,8 @@ import com.powsybl.network.store.model.ThreeWindingsTransformerPhaseAngleClockAt
  */
 public class ThreeWindingsTransformerPhaseAngleClockAdderImpl extends AbstractExtensionAdder<ThreeWindingsTransformer, ThreeWindingsTransformerPhaseAngleClock> implements ThreeWindingsTransformerPhaseAngleClockAdder {
 
-    private int phaseAngleClockLeg2;
-    private int phaseAngleClockLeg3;
+    private int phaseAngleClockLeg2 = -1;
+    private int phaseAngleClockLeg3 = -1;
 
     public ThreeWindingsTransformerPhaseAngleClockAdderImpl(ThreeWindingsTransformer extendable) {
         super(extendable);
@@ -28,6 +28,7 @@ public class ThreeWindingsTransformerPhaseAngleClockAdderImpl extends AbstractEx
 
     @Override
     protected ThreeWindingsTransformerPhaseAngleClock createExtension(ThreeWindingsTransformer threeWindingsTransformer) {
+        checkPhaseAngleClock();
         ((ThreeWindingsTransformerImpl) threeWindingsTransformer).updateResource(res -> res.getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3)));
         return new ThreeWindingsTransformerPhaseAngleClockImpl((ThreeWindingsTransformerImpl) threeWindingsTransformer);
     }
@@ -51,11 +52,5 @@ public class ThreeWindingsTransformerPhaseAngleClockAdderImpl extends AbstractEx
         if (phaseAngleClockLeg3 < 0 || phaseAngleClockLeg3 > 11) {
             throw new PowsyblException("Unexpected value for phaseAngleClock: " + phaseAngleClockLeg3);
         }
-    }
-
-    @Override
-    public ThreeWindingsTransformerPhaseAngleClock add() {
-        checkPhaseAngleClock();
-        return super.add();
     }
 }

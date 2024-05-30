@@ -35,6 +35,8 @@ public class NetworkObjectIndex {
 
     private int workingVariantNum = Resource.INITIAL_VARIANT_NUM;
 
+    /* this field is not redundant with the field network above, it is needed to keep the networkUuid in case we delete
+    the current variant, so we can fetch the network when we switch variants */
     private UUID networkUuid;
 
     private enum LoadingGranularity {
@@ -440,7 +442,7 @@ public class NetworkObjectIndex {
     public void setWorkingVariantNum(int workingVariantNum) {
         this.workingVariantNum = workingVariantNum;
         if (workingVariantNum != -1) {
-            network.setResource(storeClient.getNetwork(network.getUuid(), workingVariantNum).orElseThrow());
+            network.setResource(storeClient.getNetwork(networkUuid, workingVariantNum).orElseThrow());
             substationCache.setResourcesToObjects();
             voltageLevelCache.setResourcesToObjects();
             generatorCache.setResourcesToObjects();

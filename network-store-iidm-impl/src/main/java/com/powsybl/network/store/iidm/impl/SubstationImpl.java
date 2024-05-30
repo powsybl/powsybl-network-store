@@ -39,12 +39,6 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     }
 
     @Override
-    public NetworkImpl getNetwork() {
-        getResource();
-        return index.getNetwork();
-    }
-
-    @Override
     public Optional<Country> getCountry() {
         return Optional.ofNullable(getResource().getAttributes().getCountry());
     }
