@@ -7,7 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import org.junit.Test;
@@ -131,5 +134,26 @@ public class ActivePowerControlExtensionTest {
         assertEquals(2, listener.getNbUpdatedEquipments());
         apc.setParticipate(false);
         assertEquals(2, listener.getNbUpdatedEquipments());
+    }
+
+    @Test
+    public void testActivePowerControlGetExtension() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
+
+        Battery battery = network.getBattery("battery");
+        assertNotNull(battery);
+
+        assertNull(battery.getExtension(Object.class));
+        assertNull(battery.getExtensionByName(""));
+        assertEquals(0, battery.getExtensions().size());
+
+        battery.newExtension(ActivePowerControlAdder.class)
+                .withParticipate(true)
+                .withDroop(0.1)
+                .add();
+
+        assertNull(battery.getExtension(Object.class));
+        assertNull(battery.getExtensionByName(""));
+        assertEquals(1, battery.getExtensions().size());
     }
 }
