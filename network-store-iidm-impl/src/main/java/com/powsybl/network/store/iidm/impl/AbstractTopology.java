@@ -76,6 +76,7 @@ public abstract class AbstractTopology<T> {
             case VSC_CONVERTER_STATION, LCC_CONVERTER_STATION -> IdentifiableType.HVDC_CONVERTER_STATION;
             case STATIC_VAR_COMPENSATOR -> IdentifiableType.STATIC_VAR_COMPENSATOR;
             case DANGLING_LINE -> IdentifiableType.DANGLING_LINE;
+            case GROUND -> IdentifiableType.GROUND;
             default -> throw new IllegalStateException("Resource is not an injection: " + resource.getType());
         };
         T nodeOrBus = getInjectionNodeOrBus(resource);

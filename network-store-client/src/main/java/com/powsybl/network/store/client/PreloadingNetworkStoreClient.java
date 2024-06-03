@@ -46,7 +46,8 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.LINE,
         ResourceType.HVDC_LINE,
         ResourceType.DANGLING_LINE,
-        ResourceType.TIE_LINE
+        ResourceType.TIE_LINE,
+        ResourceType.GROUND
     );
 
     private final boolean allCollectionsNeededForBusView;
@@ -83,6 +84,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             case DANGLING_LINE -> delegate.getDanglingLines(networkUuid, variantNum);
             case CONFIGURED_BUS -> delegate.getConfiguredBuses(networkUuid, variantNum);
             case TIE_LINE -> delegate.getTieLines(networkUuid, variantNum);
+            case GROUND -> delegate.getGrounds(networkUuid, variantNum);
             default -> {
                 // Do nothing
             }
@@ -754,6 +756,46 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
         ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
         delegate.removeDanglingLines(networkUuid, variantNum, danglingLinesId);
+    }
+
+    @Override
+    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum, String voltageLevelId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        return delegate.getVoltageLevelGrounds(networkUuid, variantNum, voltageLevelId);
+    }
+
+    @Override
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
+        for (Resource<GroundAttributes> groundResource : groundResources) {
+            ensureCached(ResourceType.GROUND, networkUuid, groundResource.getVariantNum());
+        }
+        delegate.createGrounds(networkUuid, groundResources);
+    }
+
+    @Override
+    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        return delegate.getGrounds(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        return delegate.getGround(networkUuid, variantNum, groundId);
+    }
+
+    @Override
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources, AttributeFilter attributeFilter) {
+        for (Resource<GroundAttributes> groundResource : groundResources) {
+            ensureCached(ResourceType.GROUND, networkUuid, groundResource.getVariantNum());
+        }
+        delegate.updateGrounds(networkUuid, groundResources, attributeFilter);
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        delegate.removeDanglingLines(networkUuid, variantNum, groundsId);
     }
 
     @Override
