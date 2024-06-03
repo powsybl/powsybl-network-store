@@ -911,8 +911,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String danglingLineId) {
-        return groundsCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, danglingLineId);
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+        return groundsCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, groundId);
     }
 
     @Override

@@ -459,6 +459,50 @@ public class PreloadingNetworkStoreClientTest {
     }
 
     @Test
+    public void testGroundCache() throws IOException {
+        // Two successive ground retrievals, only the first should send a REST request, the second uses the cache
+        Resource<GroundAttributes> ground = Resource.groundBuilder()
+                .id("groundId")
+                .attributes(GroundAttributes.builder()
+                        .voltageLevelId("vl2")
+                        .p(1)
+                        .q(2)
+                        .bus("bus")
+                        .build())
+                .build();
+
+        String groundJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(ground)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/grounds"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(groundJson, MediaType.APPLICATION_JSON));
+
+        // First time ground retrieval by Id
+        Resource<GroundAttributes> groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "groundId").orElse(null);
+        assertNotNull(groundAttributesResource);
+        assertEquals("bus", groundAttributesResource.getAttributes().getBus());
+        assertEquals(1, groundAttributesResource.getAttributes().getP(), 0.001);
+        assertEquals(2, groundAttributesResource.getAttributes().getQ(), 0.001);
+        assertEquals("vl2", groundAttributesResource.getAttributes().getVoltageLevelId());
+
+        groundAttributesResource.getAttributes().setP(3);
+        groundAttributesResource.getAttributes().setQ(4);
+
+        // Second time ground retrieval by Id
+        groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "groundId").orElse(null);
+        assertNotNull(groundAttributesResource);
+        assertEquals(3, groundAttributesResource.getAttributes().getP(), 0.001);
+        assertEquals(4, groundAttributesResource.getAttributes().getQ(), 0.001);
+
+        // Remove component
+        assertEquals(1, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        cachedClient.removeGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("groundId"));
+        assertEquals(0, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        server.verify();
+    }
+
+    @Test
     public void testTwoWindingsTransformerCache() throws IOException {
         // Two successive two windings transformer retrievals, only the first should send a REST request, the second uses the cache
         Resource<TwoWindingsTransformerAttributes> twoWindingsTransformer = Resource.twoWindingsTransformerBuilder()
