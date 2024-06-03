@@ -16,12 +16,6 @@ import com.powsybl.iidm.network.tck.AbstractGroundTest;
 class GroundTest extends AbstractGroundTest {
 
     @Test
-    void test() {
-        // FIXME remove this test when we find why NetworkObjectIndex.getGrounds(String voltageLevelId) doesn't always return all expected result
-        // (some results are missing from groundCache)
-    }
-
-    @Test
     void testOnSubnetwork() {
         // FIXME remove this test when subnetworks are implemented
     }

@@ -407,6 +407,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         connectables.addAll(index.getThreeWindingsTransformers(resource.getId()));
         connectables.addAll(getDanglingLines());
         connectables.addAll(index.getLines(resource.getId()));
+        connectables.addAll(index.getGrounds(resource.getId()));
         return connectables;
     }
 
