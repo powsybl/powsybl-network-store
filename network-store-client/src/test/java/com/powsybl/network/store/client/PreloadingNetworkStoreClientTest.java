@@ -26,6 +26,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
@@ -494,10 +495,24 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(3, groundAttributesResource.getAttributes().getP(), 0.001);
         assertEquals(4, groundAttributesResource.getAttributes().getQ(), 0.001);
 
+        // ground retrieval by voltage level
+        List<Resource<GroundAttributes>> vl2Grounds = cachedClient.getVoltageLevelGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl2");
+        assertEquals(1, vl2Grounds.size());
+        assertEquals(3, vl2Grounds.get(0).getAttributes().getP(), 0.001);
+        assertEquals(4, vl2Grounds.get(0).getAttributes().getQ(), 0.001);
+
         // Remove component
         assertEquals(1, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("groundId"));
         assertEquals(0, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // recreate ground
+        cachedClient.createGrounds(networkUuid, List.of(ground));
+        assertEquals(1, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        vl2Grounds = cachedClient.getVoltageLevelGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl2");
+        assertEquals(1, vl2Grounds.size());
+        assertEquals(1, vl2Grounds.get(0).getAttributes().getP(), 0.001);
+        assertEquals(2, vl2Grounds.get(0).getAttributes().getQ(), 0.001);
 
         server.verify();
     }
