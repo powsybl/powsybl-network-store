@@ -795,7 +795,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     @Override
     public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
         ensureCached(ResourceType.GROUND, networkUuid, variantNum);
-        delegate.removeDanglingLines(networkUuid, variantNum, groundsId);
+        delegate.removeGrounds(networkUuid, variantNum, groundsId);
     }
 
     @Override

@@ -437,6 +437,30 @@ public class ResourceTest {
     }
 
     @Test
+    public void ground() {
+        GroundAttributes groundAttributes = GroundAttributes
+                .builder()
+                .voltageLevelId("vl1")
+                .name("name")
+                .bus("bus1")
+                .p(250)
+                .q(100)
+                .fictitious(false)
+                .node(1)
+                .build();
+
+        Resource<GroundAttributes> resourceGround = Resource.groundBuilder()
+                .id("ground1")
+                .attributes(groundAttributes)
+                .build();
+
+        assertEquals(Boolean.FALSE, resourceGround.getAttributes().isFictitious());
+        assertEquals(250, resourceGround.getAttributes().getP(), 0);
+        assertEquals(100, resourceGround.getAttributes().getQ(), 0);
+        assertEquals(1, resourceGround.getAttributes().getNode(), 0);
+    }
+
+    @Test
     public void tieLine() throws JsonProcessingException {
         TieLineAttributes tieLineAttributes = TieLineAttributes
                 .builder()

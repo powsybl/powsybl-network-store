@@ -660,6 +660,36 @@ public class PreloadingNetworkStoreClientTest {
         server.verify();
     }
 
+    public void testGroundCache() throws IOException {
+        Resource<GroundAttributes> ground = Resource.groundBuilder()
+                .id("gr1")
+                .attributes(GroundAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("gr1")
+                        .p(9)
+                        .q(8)
+                        .build())
+                .build();
+
+        String groundsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(ground)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/grounds"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(groundsJson, MediaType.APPLICATION_JSON));
+
+        Resource<GroundAttributes> groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "gr1").orElse(null);
+        assertNotNull(groundAttributesResource);
+        assertEquals(10., groundAttributesResource.getAttributes().getQ(), 0.001);
+
+        groundAttributesResource.getAttributes().setQ(60);
+
+        groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "gr1").orElse(null);
+        assertNotNull(groundAttributesResource);
+        assertEquals(60., groundAttributesResource.getAttributes().getQ(), 0.001);
+
+        server.verify();
+    }
+
     @Test
     public void testTieLineCache() throws IOException {
         // Two successive tie line retrievals, only the first should send a REST request, the second uses the cache

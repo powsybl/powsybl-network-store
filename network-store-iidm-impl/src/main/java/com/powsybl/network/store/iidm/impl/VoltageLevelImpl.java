@@ -537,6 +537,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
         }
+        for (Ground ground : getGrounds()) {
+            visitor.visitGround(ground);
+        }
         for (Ground ground : index.getGrounds(resource.getId())) {
             visitor.visitGround(ground);
         }

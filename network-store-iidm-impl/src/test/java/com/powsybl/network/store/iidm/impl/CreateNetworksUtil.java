@@ -136,6 +136,11 @@ final class CreateNetworksUtil {
             }
 
             @Override
+            public void visitGround(Ground ground) {
+                visited.add(ground.getId());
+            }
+
+            @Override
             public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
                 visited.add(staticVarCompensator.getId());
             }
