@@ -1038,13 +1038,13 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Iterable<Ground> getGrounds() {
+    public List<Ground> getGrounds() {
         return index.getGrounds();
     }
 
     @Override
     public Stream<Ground> getGroundStream() {
-        return index.getGrounds().stream();
+        return getGrounds().stream();
     }
 
     @Override

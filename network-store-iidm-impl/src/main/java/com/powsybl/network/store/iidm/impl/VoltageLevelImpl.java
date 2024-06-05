@@ -399,6 +399,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         connectables.addAll(getGenerators());
         connectables.addAll(getBatteries());
         connectables.addAll(getLoads());
+        connectables.addAll(getGrounds());
         connectables.addAll(getShuntCompensators());
         connectables.addAll(getVscConverterStations());
         connectables.addAll(getLccConverterStations());
@@ -430,6 +431,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             return (List<T>) getBatteries();
         } else if (clazz == Load.class) {
             return (List<T>) getLoads();
+        } else if (clazz == Ground.class) {
+            return (List<T>) getGrounds();
         } else if (clazz == ShuntCompensator.class) {
             return (List<T>) getShuntCompensators();
         } else if (clazz == HvdcConverterStation.class) {
@@ -457,8 +460,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             } else {
                 throw new PowsyblException("No BusbarSection in a bus breaker topology");
             }
-        } else if (clazz == Ground.class) {
-            return (List<T>) index.getGrounds(resource.getId());
         }
         throw new UnsupportedOperationException("TODO");
     }
@@ -494,6 +495,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         }
         for (Load load : getLoads()) {
             visitor.visitLoad(load);
+        }
+        for (Ground ground : getGrounds()) {
+            visitor.visitGround(ground);
         }
         for (ShuntCompensator sc : getShuntCompensators()) {
             visitor.visitShuntCompensator(sc);
@@ -536,12 +540,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         }
         for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
-        }
-        for (Ground ground : getGrounds()) {
-            visitor.visitGround(ground);
-        }
-        for (Ground ground : index.getGrounds(resource.getId())) {
-            visitor.visitGround(ground);
         }
     }
 
@@ -658,17 +656,17 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
-    public Iterable<Ground> getGrounds() {
-        return getGroundStream().collect(Collectors.toList());
+    public List<Ground> getGrounds() {
+        return index.getGrounds(getResource().getId());
     }
 
     @Override
     public Stream<Ground> getGroundStream() {
-        return getConnectableStream(Ground.class);
+        return getGrounds().stream();
     }
 
     @Override
     public int getGroundCount() {
-        return getConnectableCount(Ground.class);
+        return getGrounds().size();
     }
 }

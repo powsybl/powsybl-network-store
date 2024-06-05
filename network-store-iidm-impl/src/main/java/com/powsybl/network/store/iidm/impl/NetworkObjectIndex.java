@@ -332,6 +332,12 @@ public class NetworkObjectIndex {
             () -> storeClient.getLoads(network.getUuid(), workingVariantNum),
             id -> storeClient.removeLoads(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> LoadImpl.create(NetworkObjectIndex.this, resource));
+        groundCache = new ObjectCache<>(resource -> storeClient.createGrounds(network.getUuid(), Collections.singletonList(resource)),
+                id -> storeClient.getGround(network.getUuid(), workingVariantNum, id),
+                voltageLevelId -> storeClient.getVoltageLevelGrounds(network.getUuid(), workingVariantNum, voltageLevelId),
+                () -> storeClient.getGrounds(network.getUuid(), workingVariantNum),
+                id -> storeClient.removeGrounds(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+                resource -> GroundImpl.create(NetworkObjectIndex.this, resource));
         busbarSectionCache = new ObjectCache<>(resource -> storeClient.createBusbarSections(network.getUuid(), Collections.singletonList(resource)),
             id -> storeClient.getBusbarSection(network.getUuid(), workingVariantNum, id),
             voltageLevelId -> storeClient.getVoltageLevelBusbarSections(network.getUuid(), workingVariantNum, voltageLevelId),
@@ -374,12 +380,6 @@ public class NetworkObjectIndex {
             () -> storeClient.getDanglingLines(network.getUuid(), workingVariantNum),
             id -> storeClient.removeDanglingLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> DanglingLineImpl.create(NetworkObjectIndex.this, resource));
-        groundCache = new ObjectCache<>(resource -> storeClient.createGrounds(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getGround(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelGrounds(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getGrounds(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeGrounds(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
-            resource -> GroundImpl.create(NetworkObjectIndex.this, resource));
         configuredBusCache = new ObjectCache<>(resource -> storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(resource)),
             id -> storeClient.getConfiguredBus(network.getUuid(), workingVariantNum, id),
             voltageLevelId -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), workingVariantNum, voltageLevelId),
