@@ -58,7 +58,7 @@ public abstract class AbstractTopology<T> {
                     branchCount++;
                     feederCount++;
                 }
-                case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR -> feederCount++;
+                case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, GROUND -> feederCount++;
                 case BUSBAR_SECTION -> busbarSectionCount++;
                 default -> throw new IllegalStateException();
             }
