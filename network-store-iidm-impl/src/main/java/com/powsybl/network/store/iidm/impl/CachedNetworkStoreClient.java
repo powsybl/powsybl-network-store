@@ -894,7 +894,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     @Override
     public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
         delegate.removeGrounds(networkUuid, variantNum, groundsId);
-        danglingLinesCache.getCollection(networkUuid, variantNum).removeResources(groundsId);
+        groundsCache.getCollection(networkUuid, variantNum).removeResources(groundsId);
     }
 
     @Override

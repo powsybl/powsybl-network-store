@@ -660,12 +660,12 @@ public class PreloadingNetworkStoreClientTest {
         server.verify();
     }
 
+    @Test
     public void testGroundCache() throws IOException {
         Resource<GroundAttributes> ground = Resource.groundBuilder()
-                .id("gr1")
+                .id("ground1")
                 .attributes(GroundAttributes.builder()
-                        .voltageLevelId("vl1")
-                        .name("gr1")
+                        .name("ground1")
                         .p(9)
                         .q(8)
                         .build())
@@ -677,15 +677,19 @@ public class PreloadingNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(groundsJson, MediaType.APPLICATION_JSON));
 
-        Resource<GroundAttributes> groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "gr1").orElse(null);
+        Resource<GroundAttributes> groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "ground1").orElse(null);
         assertNotNull(groundAttributesResource);
-        assertEquals(10., groundAttributesResource.getAttributes().getQ(), 0.001);
+        assertEquals(8., groundAttributesResource.getAttributes().getQ(), 0.001);
 
         groundAttributesResource.getAttributes().setQ(60);
 
-        groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "gr1").orElse(null);
+        groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "ground1").orElse(null);
         assertNotNull(groundAttributesResource);
         assertEquals(60., groundAttributesResource.getAttributes().getQ(), 0.001);
+
+        assertEquals(1, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        cachedClient.removeGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("ground1"));
+        assertEquals(0, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
         server.verify();
     }
