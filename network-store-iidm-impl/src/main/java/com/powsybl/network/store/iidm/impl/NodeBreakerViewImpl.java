@@ -320,6 +320,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public Stream<Switch> getSwitchStream(int node) {
+        checkBusBreakerTopology();
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource(), true, true);
         return graph.edgesOf(node).stream()
                 .filter(edge -> edge.getBiConnectable() instanceof SwitchAttributes)
@@ -336,6 +337,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public IntStream getNodeInternalConnectedToStream(int node) {
+        checkBusBreakerTopology();
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource(), true, true);
         return graph.edgesOf(node).stream()
                 .filter(edge -> edge.getBiConnectable() instanceof InternalConnectionAttributes)

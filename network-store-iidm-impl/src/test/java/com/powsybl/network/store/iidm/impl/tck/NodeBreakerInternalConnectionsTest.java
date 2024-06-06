@@ -15,6 +15,8 @@ public class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInter
 
     @Override
     public void testTraversalInternalConnections() {
-        // FIXME
+        // FIXME getNodeInternalConnectedToStream returns some results twice
+        //  + AbstractNodeBreakerInternalConnectionsTest.findInternalConnectionsTraverseStoppingAtTerminals doesn't return the same
+        // internalConnections as the one in powsybl-core
     }
 }

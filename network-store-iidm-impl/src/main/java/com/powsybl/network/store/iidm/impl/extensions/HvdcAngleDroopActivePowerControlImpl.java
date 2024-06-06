@@ -70,14 +70,18 @@ public class HvdcAngleDroopActivePowerControlImpl implements HvdcAngleDroopActiv
 
     private float checkP0(float p0) {
         if (Float.isNaN(p0)) {
-            throw new IllegalArgumentException("p0 is not set");
+            throw new IllegalArgumentException(String.format("p0 value (%s) is invalid for HVDC line %s",
+                    p0,
+                    hvdcLine.getId()));
         }
         return p0;
     }
 
     private float checkDroop(float droop) {
         if (Float.isNaN(droop)) {
-            throw new IllegalArgumentException("droop is not set");
+            throw new IllegalArgumentException(String.format("droop value (%s) is invalid for HVDC line %s",
+                    droop,
+                    hvdcLine.getId()));
         }
         return droop;
     }

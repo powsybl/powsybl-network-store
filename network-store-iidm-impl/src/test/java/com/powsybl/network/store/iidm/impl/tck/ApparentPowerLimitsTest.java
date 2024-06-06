@@ -11,9 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractApparentPowerLimitsTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ApparentPowerLimitsTest extends AbstractApparentPowerLimitsTest {
-    @Override
-    public void test() {
-        // FIXME
-    }
-}
+public class ApparentPowerLimitsTest extends AbstractApparentPowerLimitsTest { }

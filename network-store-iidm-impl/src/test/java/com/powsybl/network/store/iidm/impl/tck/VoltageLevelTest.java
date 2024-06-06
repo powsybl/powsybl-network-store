@@ -14,6 +14,6 @@ import com.powsybl.iidm.network.tck.AbstractVoltageLevelTest;
 public class VoltageLevelTest extends AbstractVoltageLevelTest {
     @Override
     public void baseTests() {
-        // FIXME
+        // FIXME remove this test when exception msg are homogenized with the powsybl-core
     }
 }

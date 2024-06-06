@@ -13,13 +13,4 @@ import com.powsybl.iidm.network.tck.AbstractDanglingLineTest;
  */
 public class DanglingLineTest extends AbstractDanglingLineTest {
 
-    @Override
-    public void testSetterGetterInMultiVariants() {
-        // FIXME
-    }
-
-    @Override
-    public void testDefaultValuesDanglingLine() {
-        // FIXME
-    }
 }

@@ -125,6 +125,11 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             null,
             delegate::getTieLines));
 
+    private final NetworkCollectionIndex<CollectionCache<GroundAttributes>> groundsCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+            delegate::getGround,
+            delegate::getVoltageLevelGrounds,
+            delegate::getGrounds));
+
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = new EnumMap<>(ResourceType.class);
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCaches = new EnumMap<>(ResourceType.class);
@@ -147,6 +152,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         voltageLevelContainersCaches.put(ResourceType.DANGLING_LINE, danglingLinesCache);
         voltageLevelContainersCaches.put(ResourceType.GROUND, groundsCache);
         voltageLevelContainersCaches.put(ResourceType.CONFIGURED_BUS, configuredBusesCache);
+        voltageLevelContainersCaches.put(ResourceType.GROUND, groundsCache);
 
         networkContainersCaches.putAll(voltageLevelContainersCaches);
         networkContainersCaches.put(ResourceType.SUBSTATION, substationsCache);
@@ -256,6 +262,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         cloneCollection(groundsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(tieLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(configuredBusesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(groundsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(substationsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(voltageLevelsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(networksCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
@@ -927,6 +934,38 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         for (Resource<TieLineAttributes> tieLineResource : tieLineResources) {
             tieLinesCache.getCollection(networkUuid, tieLineResource.getVariantNum()).updateResource(tieLineResource);
         }
+    }
+
+    @Override
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
+        delegate.createGrounds(networkUuid, groundResources);
+        for (Resource<GroundAttributes> groundResource : groundResources) {
+            groundsCache.getCollection(networkUuid, groundResource.getVariantNum()).createResource(groundResource);
+        }
+    }
+
+    @Override
+    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+        return groundsCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+        return groundsCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, groundId);
+    }
+
+    @Override
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundAttributes, AttributeFilter attributeFilter) {
+        delegate.updateGrounds(networkUuid, groundAttributes, attributeFilter);
+        for (Resource<GroundAttributes> groundResource : groundAttributes) {
+            groundsCache.getCollection(networkUuid, groundResource.getVariantNum()).updateResource(groundResource);
+        }
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        delegate.removeGrounds(networkUuid, variantNum, groundsId);
+        groundsCache.getCollection(networkUuid, variantNum).removeResources(groundsId);
     }
 
     @Override

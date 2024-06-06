@@ -41,6 +41,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.LCC_CONVERTER_STATION,
         ResourceType.STATIC_VAR_COMPENSATOR,
         ResourceType.BUSBAR_SECTION, // FIXME this should not be in the list but as connectable visitor also visit busbar sections we need to keep it
+        ResourceType.GROUND,
         ResourceType.TWO_WINDINGS_TRANSFORMER,
         ResourceType.THREE_WINDINGS_TRANSFORMER,
         ResourceType.LINE,
@@ -76,6 +77,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             case STATIC_VAR_COMPENSATOR -> delegate.getStaticVarCompensators(networkUuid, variantNum);
             case BUSBAR_SECTION -> delegate.getBusbarSections(networkUuid, variantNum);
             case SWITCH -> delegate.getSwitches(networkUuid, variantNum);
+            case GROUND -> delegate.getGrounds(networkUuid, variantNum);
             case TWO_WINDINGS_TRANSFORMER -> delegate.getTwoWindingsTransformers(networkUuid, variantNum);
             case THREE_WINDINGS_TRANSFORMER -> delegate.getThreeWindingsTransformers(networkUuid, variantNum);
             case LINE -> delegate.getLines(networkUuid, variantNum);
@@ -304,6 +306,18 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
+    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum, String voltageLevelId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        return delegate.getVoltageLevelGrounds(networkUuid, variantNum, voltageLevelId);
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        delegate.removeGrounds(networkUuid, variantNum, groundsId);
+    }
+
+    @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
         ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid, variantNum);
         return delegate.getVoltageLevelTwoWindingsTransformers(networkUuid, variantNum, voltageLevelId);
@@ -489,6 +503,34 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             ensureCached(ResourceType.BATTERY, networkUuid, batteryResource.getVariantNum());
         }
         delegate.updateBatteries(networkUuid, batteryResources, attributeFilter);
+    }
+
+    @Override
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
+        for (Resource<GroundAttributes> groundResource : groundResources) {
+            ensureCached(ResourceType.GROUND, networkUuid, groundResource.getVariantNum());
+        }
+        delegate.createGrounds(networkUuid, groundResources);
+    }
+
+    @Override
+    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        return delegate.getGrounds(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        return delegate.getGround(networkUuid, variantNum, groundId);
+    }
+
+    @Override
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources, AttributeFilter attributeFilter) {
+        for (Resource<GroundAttributes> groundResource : groundResources) {
+            ensureCached(ResourceType.GROUND, networkUuid, groundResource.getVariantNum());
+        }
+        delegate.updateGrounds(networkUuid, groundResources, attributeFilter);
     }
 
     @Override

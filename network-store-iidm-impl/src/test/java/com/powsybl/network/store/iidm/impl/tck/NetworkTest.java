@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.tck.AbstractNetworkTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
@@ -39,14 +40,14 @@ public class NetworkTest extends AbstractNetworkTest {
         // FIXME
     }
 
-    @Override
+    @Test
     public void testStreams() {
-        // FIXME
+        // FIXME remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3020
     }
 
     @Override
     public void testNetwork1() {
-        // FIXME
+        // FIXME remove this test when getFictitiousP0 and getFictitiousQ0 of CalculatedBus are implemented
     }
 
     // The following test methods are overrided from AbstractNetworkTest, because of a different message header

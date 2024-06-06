@@ -288,7 +288,7 @@ public class BusBreakerCalculatedBusTest {
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         Bus busVl1 = vl1.getBusBreakerView().getBus("BUS1");
 
-        assertEquals(6, ((BaseBus) busVl1).getAllTerminalsStream().count());
+        assertEquals(7, ((BaseBus) busVl1).getAllTerminalsStream().count());
 
         assertEquals(0, busVl1.getConnectedTerminalStream().count());
 
@@ -308,7 +308,7 @@ public class BusBreakerCalculatedBusTest {
 
         busVl1 = vl1.getBusBreakerView().getBus("BUS1");
 
-        assertEquals(6, busVl1.getConnectedTerminalStream().count());
+        assertEquals(7, busVl1.getConnectedTerminalStream().count());
 
         assertEquals(1, busVl1.getLineStream().count());
         assertEquals(1, busVl1.getBatteryStream().count());
