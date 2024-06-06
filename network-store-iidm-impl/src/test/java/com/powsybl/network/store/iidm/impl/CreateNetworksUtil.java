@@ -253,8 +253,6 @@ final class CreateNetworksUtil {
         Ground ground = ((GroundAdder) adder)
                 .setId("ground")
                 .add();
-        ground.getTerminal().setP(500);
-        battery.getTerminal().setQ(250);
 
         adder = vl2.newStaticVarCompensator();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
@@ -935,9 +933,6 @@ final class CreateNetworksUtil {
         BatteryImpl battery = (BatteryImpl) network.getBattery("battery");
         battery.getResource().getAttributes().setNode(4);
 
-        GroundImpl ground = (GroundImpl) network.getGround("ground");
-        ground.getResource().getAttributes().setNode(5);
-
         return network;
     }
 
@@ -997,6 +992,9 @@ final class CreateNetworksUtil {
 
         BatteryImpl battery = (BatteryImpl) network.getBattery("battery");
         battery.getResource().getAttributes().setConnectableBus("BUS1");
+
+        GroundImpl ground = (GroundImpl) network.getGround("ground");
+        ground.getResource().getAttributes().setConnectableBus("BUS1");
 
         return network;
     }

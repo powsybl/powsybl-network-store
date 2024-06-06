@@ -46,8 +46,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.LINE,
         ResourceType.HVDC_LINE,
         ResourceType.DANGLING_LINE,
-        ResourceType.TIE_LINE,
-        ResourceType.GROUND
+        ResourceType.TIE_LINE
     );
 
     private final boolean allCollectionsNeededForBusView;

@@ -399,7 +399,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         connectables.addAll(getGenerators());
         connectables.addAll(getBatteries());
         connectables.addAll(getLoads());
-        connectables.addAll(getGrounds());
         connectables.addAll(getShuntCompensators());
         connectables.addAll(getVscConverterStations());
         connectables.addAll(getLccConverterStations());
