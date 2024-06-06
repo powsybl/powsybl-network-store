@@ -12,23 +12,16 @@ import com.powsybl.iidm.network.tck.AbstractTapChangerTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class TapChangerTest extends AbstractTapChangerTest {
-    @Override
-    public void baseTestsRatioTapChanger() {
-        // FIXME
-    }
 
+    // TODO remove this test when TapChanger.getNeutralPosition et getNeutralStep are implemented
     @Override
-    public void baseTestsPhaseTapChanger() {
-        // FIXME
-    }
+    public void baseTestsRatioTapChanger() { }
 
+    // TODO remove this test when TapChanger.getNeutralPosition et getNeutralStep are implemented
     @Override
-    public void testTapChangerSetterGetterInMultiVariants() {
-        // FIXME
-    }
+    public void baseTestsPhaseTapChanger() { }
 
+    // TODO remove this test when TapChanger.getNeutralPosition et getNeutralStep are implemented
     @Override
-    public void undefinedRegulationValueOnlyWarning() {
-        // FIXME
-    }
+    public void undefinedRegulationValueOnlyWarning() { }
 }

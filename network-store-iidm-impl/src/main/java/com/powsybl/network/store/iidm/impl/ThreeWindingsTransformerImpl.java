@@ -322,7 +322,13 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Optional<? extends LoadingLimits> getLimits(LimitType limitType) {
-            return Optional.empty();
+            return switch (limitType) {
+                case CURRENT -> getCurrentLimits();
+                case ACTIVE_POWER -> getActivePowerLimits();
+                case APPARENT_POWER -> getApparentPowerLimits();
+                default ->
+                        throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", limitType.name()));
+            };
         }
 
         @Override

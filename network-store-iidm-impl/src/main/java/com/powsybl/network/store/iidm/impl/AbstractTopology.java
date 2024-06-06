@@ -58,7 +58,7 @@ public abstract class AbstractTopology<T> {
                     branchCount++;
                     feederCount++;
                 }
-                case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR -> feederCount++;
+                case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, GROUND -> feederCount++;
                 case BUSBAR_SECTION -> busbarSectionCount++;
                 default -> throw new IllegalStateException();
             }
@@ -76,6 +76,7 @@ public abstract class AbstractTopology<T> {
             case VSC_CONVERTER_STATION, LCC_CONVERTER_STATION -> IdentifiableType.HVDC_CONVERTER_STATION;
             case STATIC_VAR_COMPENSATOR -> IdentifiableType.STATIC_VAR_COMPENSATOR;
             case DANGLING_LINE -> IdentifiableType.DANGLING_LINE;
+            case GROUND -> IdentifiableType.GROUND;
             default -> throw new IllegalStateException("Resource is not an injection: " + resource.getType());
         };
         T nodeOrBus = getInjectionNodeOrBus(resource);
@@ -216,6 +217,11 @@ public abstract class AbstractTopology<T> {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelDanglingLines(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
+                .stream()
+                .map(this::createVertexFromInjection)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
+        vertices.addAll(index.getStoreClient().getVoltageLevelGrounds(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)

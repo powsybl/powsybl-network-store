@@ -12,13 +12,9 @@ import com.powsybl.iidm.network.tck.AbstractGeneratorTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class GeneratorTest extends AbstractGeneratorTest {
-    @Override
-    public void testSetterGetterInMultiVariants() {
-        // FIXME
-    }
 
     @Override
     public void testRemove() {
-        // FIXME
+        // FIXME remove this test when exception msg are homogenized with the powsybl-core
     }
 }

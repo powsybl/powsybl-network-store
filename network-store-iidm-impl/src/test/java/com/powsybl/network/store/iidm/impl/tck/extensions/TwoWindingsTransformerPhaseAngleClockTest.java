@@ -11,14 +11,4 @@ import com.powsybl.iidm.network.tck.extensions.AbstractTwoWindingsTransformerPha
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TwoWindingsTransformerPhaseAngleClockTest extends AbstractTwoWindingsTransformerPhaseAngleClockTest {
-    @Override
-    public void testError1() {
-        // FIXME
-    }
-
-    @Override
-    public void testError2() {
-        // FIXME
-    }
-}
+public class TwoWindingsTransformerPhaseAngleClockTest extends AbstractTwoWindingsTransformerPhaseAngleClockTest { }

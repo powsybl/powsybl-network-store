@@ -26,6 +26,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
@@ -454,6 +455,79 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1, cachedClient.getLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("lcc1"));
         assertEquals(0, cachedClient.getLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        server.verify();
+    }
+
+    @Test
+    public void testGroundCache() throws IOException {
+        // Two successive ground retrievals, only the first should send a REST request, the second uses the cache
+        Resource<GroundAttributes> ground = Resource.groundBuilder()
+                .id("groundId")
+                .attributes(GroundAttributes.builder()
+                        .voltageLevelId("vl2")
+                        .p(1)
+                        .q(2)
+                        .bus("bus")
+                        .build())
+                .build();
+
+        String groundJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(ground)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/grounds"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(groundJson, MediaType.APPLICATION_JSON));
+
+        // First time ground retrieval by Id
+        Resource<GroundAttributes> groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "groundId").orElse(null);
+        assertNotNull(groundAttributesResource);
+        assertEquals("bus", groundAttributesResource.getAttributes().getBus());
+        assertEquals(1, groundAttributesResource.getAttributes().getP(), 0.001);
+        assertEquals(2, groundAttributesResource.getAttributes().getQ(), 0.001);
+        assertEquals("vl2", groundAttributesResource.getAttributes().getVoltageLevelId());
+
+        groundAttributesResource.getAttributes().setP(3);
+        groundAttributesResource.getAttributes().setQ(4);
+
+        // Second time ground retrieval by Id
+        groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "groundId").orElse(null);
+        assertNotNull(groundAttributesResource);
+        assertEquals(3, groundAttributesResource.getAttributes().getP(), 0.001);
+        assertEquals(4, groundAttributesResource.getAttributes().getQ(), 0.001);
+
+        // ground retrieval by voltage level
+        List<Resource<GroundAttributes>> vl2Grounds = cachedClient.getVoltageLevelGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl2");
+        assertEquals(1, vl2Grounds.size());
+        assertEquals(3, vl2Grounds.get(0).getAttributes().getP(), 0.001);
+        assertEquals(4, vl2Grounds.get(0).getAttributes().getQ(), 0.001);
+
+        // Remove component
+        assertEquals(1, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        cachedClient.removeGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("groundId"));
+        assertEquals(0, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // recreate ground
+        cachedClient.createGrounds(networkUuid, List.of(ground));
+        assertEquals(1, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        vl2Grounds = cachedClient.getVoltageLevelGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl2");
+        assertEquals(1, vl2Grounds.size());
+        assertEquals(1, vl2Grounds.get(0).getAttributes().getP(), 0.001);
+        assertEquals(2, vl2Grounds.get(0).getAttributes().getQ(), 0.001);
+
+        Resource<GroundAttributes> updateGround = Resource.groundBuilder()
+                .id("groundId")
+                .attributes(GroundAttributes.builder()
+                        .voltageLevelId("vl2")
+                        .p(5)
+                        .q(6)
+                        .bus("bus")
+                        .build())
+                .build();
+        cachedClient.updateGrounds(networkUuid, List.of(updateGround), null);
+        vl2Grounds = cachedClient.getVoltageLevelGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl2");
+        assertEquals(1, vl2Grounds.size());
+        assertEquals(5, vl2Grounds.get(0).getAttributes().getP(), 0.001);
+        assertEquals(6, vl2Grounds.get(0).getAttributes().getQ(), 0.001);
 
         server.verify();
     }

@@ -141,6 +141,11 @@ final class CreateNetworksUtil {
             }
 
             @Override
+            public void visitGround(Ground ground) {
+                visited.add(ground.getId());
+            }
+
+            @Override
             public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
                 visited.add(converterStation.getId());
             }
@@ -242,6 +247,10 @@ final class CreateNetworksUtil {
                 .add();
         battery.getTerminal().setQ(250);
         battery.getTerminal().setP(650);
+
+        adder = vl1.newGround();
+        invalidNode = initAdder(adder, topologyKind, invalidNode);
+        ((GroundAdder) adder).setId("ground").add();
 
         adder = vl2.newStaticVarCompensator();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
@@ -981,6 +990,9 @@ final class CreateNetworksUtil {
 
         BatteryImpl battery = (BatteryImpl) network.getBattery("battery");
         battery.getResource().getAttributes().setConnectableBus("BUS1");
+
+        GroundImpl ground = (GroundImpl) network.getGround("ground");
+        ground.getResource().getAttributes().setConnectableBus("BUS1");
 
         return network;
     }

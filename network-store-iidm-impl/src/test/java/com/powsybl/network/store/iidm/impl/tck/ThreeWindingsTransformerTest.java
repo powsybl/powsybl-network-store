@@ -14,6 +14,6 @@ import com.powsybl.iidm.network.tck.AbstractThreeWindingsTransformerTest;
 public class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest {
     @Override
     public void baseTests() {
-        // FIXME
+        // FIXME : remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3019
     }
 }

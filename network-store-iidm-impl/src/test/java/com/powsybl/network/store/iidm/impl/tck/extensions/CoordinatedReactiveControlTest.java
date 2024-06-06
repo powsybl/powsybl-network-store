@@ -12,13 +12,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractCoordinatedReactiveContro
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CoordinatedReactiveControlTest extends AbstractCoordinatedReactiveControlTest {
-    @Override
-    public void variantsCloneTest() {
-        // FIXME
-    }
 
-    @Override
-    public void testUndefined() {
-        // FIXME
-    }
 }

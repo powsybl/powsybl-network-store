@@ -107,6 +107,11 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                 delegate::updateDanglingLines,
                 delegate::removeDanglingLines));
 
+    private final NetworkCollectionIndex<CollectionBuffer<GroundAttributes>> groundResourcesToFlush
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createGrounds,
+            delegate::updateGrounds,
+            delegate::removeGrounds));
+
     private final NetworkCollectionIndex<CollectionBuffer<TwoWindingsTransformerAttributes>> twoWindingsTransformerResourcesToFlush
             = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createTwoWindingsTransformers,
                 delegate::updateTwoWindingsTransformers,
@@ -147,6 +152,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             lccConverterStationResourcesToFlush,
             danglingLineResourcesToFlush,
             hvdcLineResourcesToFlush,
+            groundResourcesToFlush,
             twoWindingsTransformerResourcesToFlush,
             threeWindingsTransformerResourcesToFlush,
             lineResourcesToFlush,
@@ -342,6 +348,27 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     @Override
     public void removeTwoWindingsTransformers(UUID networkUuid, int variantNum, List<String> twoWindingsTransformersId) {
         twoWindingsTransformerResourcesToFlush.getCollection(networkUuid, variantNum).remove(twoWindingsTransformersId);
+    }
+
+    // Grounds
+
+    @Override
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
+        for (Resource<GroundAttributes> groundResource : groundResources) {
+            groundResourcesToFlush.getCollection(networkUuid, groundResource.getVariantNum()).create(groundResource);
+        }
+    }
+
+    @Override
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources, AttributeFilter attributeFilter) {
+        for (Resource<GroundAttributes> groundResource : groundResources) {
+            groundResourcesToFlush.getCollection(networkUuid, groundResource.getVariantNum()).update(groundResource, attributeFilter);
+        }
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        groundResourcesToFlush.getCollection(networkUuid, variantNum).remove(groundsId);
     }
 
     // 3 windings transformer
@@ -577,6 +604,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(loadResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(generatorResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(batteryResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(groundResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(twoWindingsTransformerResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(threeWindingsTransformerResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(lineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);

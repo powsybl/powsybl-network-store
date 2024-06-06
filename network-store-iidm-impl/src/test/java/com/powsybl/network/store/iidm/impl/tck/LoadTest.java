@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.tck.AbstractLoadTest;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.junit.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -18,17 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class LoadTest extends AbstractLoadTest {
-    @Override
-    public void testSetterGetterInMultiVariants() {
-        // FIXME
-    }
 
+    //TODO remove this test when ZipLoadModelAdder is implemented
     @Override
-    public void testZipLoadModel() {
-        // FIXME
-    }
+    public void testZipLoadModel() { }
 
-    @Test
+    //TODO remove this test when ZipLoadModelAdder is implemented
     @Override
     public void testExponentialLoadModel() {
         // FIXME

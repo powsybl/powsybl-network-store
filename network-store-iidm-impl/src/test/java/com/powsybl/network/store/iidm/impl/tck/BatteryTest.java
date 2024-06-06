@@ -14,16 +14,6 @@ import com.powsybl.iidm.network.tck.AbstractBatteryTest;
 public class BatteryTest extends AbstractBatteryTest {
     @Override
     public void testRemove() {
-        // FIXME
-    }
-
-    @Override
-    public void testSetterGetter() {
-        // FIXME
-    }
-
-    @Override
-    public void testSetterGetterInMultiVariants() {
-        // FIXME
+        // FIXME remove this test when exception msg are homogenized with the powsybl-core
     }
 }

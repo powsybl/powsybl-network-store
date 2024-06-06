@@ -15,6 +15,6 @@ public class SubstationTest extends AbstractSubstationTest {
 
     @Override
     public void baseTests() {
-        // FIXME
+        // FIXME remove this test when exception msg are homogenized with the powsybl-core
     }
 }

@@ -8,19 +8,17 @@ package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractVoltageLevelExportTest;
 
-import java.io.IOException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class VoltageLevelExportTest extends AbstractVoltageLevelExportTest {
     @Override
-    public void nodeBreakerTest() throws IOException {
-        // FIXME
+    public void nodeBreakerTest() {
+        // FIXME remove this test when VoltageLevelImpl.exportTopology is implemented
     }
 
     @Override
-    public void busBreakerTest() throws IOException {
-        // FIXME
+    public void busBreakerTest() {
+        // FIXME remove this test when VoltageLevelImpl.exportTopology is implemented
     }
 }

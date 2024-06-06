@@ -12,13 +12,14 @@ import com.powsybl.iidm.network.tck.AbstractLineTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class LineTest extends AbstractLineTest {
+
     @Override
     public void baseAcLineTests() {
-        // FIXME
+        // FIXME remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3022
     }
 
     @Override
     public void testRemoveAcLine() {
-        // FIXME
+        // FIXME remove this test when exception msg are homogenized with the powsybl-core
     }
 }
