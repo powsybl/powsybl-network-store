@@ -500,6 +500,11 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
+    public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
+        danglingLineResourcesToFlush.getCollection(networkUuid, variantNum).remove(danglingLinesId);
+    }
+
+    @Override
     public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
         for (Resource<GroundAttributes> groundResource : groundResources) {
             groundResourcesToFlush.getCollection(networkUuid, groundResource.getVariantNum()).create(groundResource);
