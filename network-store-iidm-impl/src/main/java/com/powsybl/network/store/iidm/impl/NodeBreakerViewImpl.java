@@ -332,7 +332,6 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public List<Switch> getSwitches(int node) {
-        checkBusBreakerTopology();
         return getSwitchStream(node).collect(Collectors.toList());
     }
 
