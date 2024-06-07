@@ -735,40 +735,6 @@ public class PreloadingNetworkStoreClientTest {
     }
 
     @Test
-    public void testGroundCache() throws IOException {
-        Resource<GroundAttributes> ground = Resource.groundBuilder()
-                .id("ground1")
-                .attributes(GroundAttributes.builder()
-                        .name("ground1")
-                        .p(9)
-                        .q(8)
-                        .build())
-                .build();
-
-        String groundsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(ground)));
-
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/grounds"))
-                .andExpect(method(GET))
-                .andRespond(withSuccess(groundsJson, MediaType.APPLICATION_JSON));
-
-        Resource<GroundAttributes> groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "ground1").orElse(null);
-        assertNotNull(groundAttributesResource);
-        assertEquals(8., groundAttributesResource.getAttributes().getQ(), 0.001);
-
-        groundAttributesResource.getAttributes().setQ(60);
-
-        groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "ground1").orElse(null);
-        assertNotNull(groundAttributesResource);
-        assertEquals(60., groundAttributesResource.getAttributes().getQ(), 0.001);
-
-        assertEquals(1, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
-        cachedClient.removeGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("ground1"));
-        assertEquals(0, cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
-
-        server.verify();
-    }
-
-    @Test
     public void testTieLineCache() throws IOException {
         // Two successive tie line retrievals, only the first should send a REST request, the second uses the cache
         Resource<TieLineAttributes> tieLine = Resource.tieLineBuilder()

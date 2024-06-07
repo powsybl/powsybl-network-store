@@ -125,11 +125,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             null,
             delegate::getTieLines));
 
-    private final NetworkCollectionIndex<CollectionCache<GroundAttributes>> groundsCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-            delegate::getGround,
-            delegate::getVoltageLevelGrounds,
-            delegate::getGrounds));
-
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = new EnumMap<>(ResourceType.class);
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCaches = new EnumMap<>(ResourceType.class);
@@ -870,38 +865,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
         delegate.removeDanglingLines(networkUuid, variantNum, danglingLinesId);
         danglingLinesCache.getCollection(networkUuid, variantNum).removeResources(danglingLinesId);
-    }
-
-    @Override
-    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
-        delegate.createGrounds(networkUuid, groundResources);
-        for (Resource<GroundAttributes> groundResource : groundResources) {
-            groundsCache.getCollection(networkUuid, groundResource.getVariantNum()).createResource(groundResource);
-        }
-    }
-
-    @Override
-    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
-        return groundsCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
-    }
-
-    @Override
-    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundsId) {
-        return groundsCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, groundsId);
-    }
-
-    @Override
-    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources, AttributeFilter attributeFilter) {
-        delegate.updateGrounds(networkUuid, groundResources, attributeFilter);
-        for (Resource<GroundAttributes> groundResource : groundResources) {
-            groundsCache.getCollection(networkUuid, groundResource.getVariantNum()).updateResource(groundResource);
-        }
-    }
-
-    @Override
-    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
-        delegate.removeGrounds(networkUuid, variantNum, groundsId);
-        groundsCache.getCollection(networkUuid, variantNum).removeResources(groundsId);
     }
 
     @Override

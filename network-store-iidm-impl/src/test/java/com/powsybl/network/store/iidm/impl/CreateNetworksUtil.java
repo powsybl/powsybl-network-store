@@ -252,9 +252,9 @@ final class CreateNetworksUtil {
                 .add();
         battery.getTerminal().setQ(250);
         battery.getTerminal().setP(650);
-
         adder = vl1.newGround();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
+<<<<<<< HEAD
 <<<<<<< HEAD
         Ground ground = ((GroundAdder) adder)
                 .setId("ground")
@@ -263,6 +263,9 @@ final class CreateNetworksUtil {
         ((GroundAdder) adder).setId("ground").add();
 >>>>>>> increase compatibility with powsybl-core api and tck (#393)
 
+=======
+        ((GroundAdder) adder).setId("ground").add();
+>>>>>>> resolve conflicts
         adder = vl2.newStaticVarCompensator();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
         StaticVarCompensator svc = ((StaticVarCompensatorAdder) adder)
