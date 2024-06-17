@@ -305,6 +305,18 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
+    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum, String voltageLevelId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        return delegate.getVoltageLevelGrounds(networkUuid, variantNum, voltageLevelId);
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        delegate.removeGrounds(networkUuid, variantNum, groundsId);
+    }
+
+    @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
         ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid, variantNum);
         return delegate.getVoltageLevelTwoWindingsTransformers(networkUuid, variantNum, voltageLevelId);
@@ -784,18 +796,6 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
         ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
         delegate.removeDanglingLines(networkUuid, variantNum, danglingLinesId);
-    }
-
-    @Override
-    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
-        return delegate.getVoltageLevelGrounds(networkUuid, variantNum, voltageLevelId);
-    }
-
-    @Override
-    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
-        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
-        delegate.removeGrounds(networkUuid, variantNum, groundsId);
     }
 
     @Override

@@ -110,11 +110,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate::getVoltageLevelDanglingLines,
         delegate::getDanglingLines));
 
-    private final NetworkCollectionIndex<CollectionCache<GroundAttributes>> groundsCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-            delegate::getGround,
-            delegate::getVoltageLevelGrounds,
-            delegate::getGrounds));
-
     private final NetworkCollectionIndex<CollectionCache<ConfiguredBusAttributes>> configuredBusesCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
         delegate::getConfiguredBus,
         delegate::getVoltageLevelConfiguredBuses,
@@ -124,6 +119,11 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             delegate::getTieLine,
             null,
             delegate::getTieLines));
+
+    private final NetworkCollectionIndex<CollectionCache<GroundAttributes>> groundsCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+            delegate::getGround,
+            delegate::getVoltageLevelGrounds,
+            delegate::getGrounds));
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = new EnumMap<>(ResourceType.class);
 
@@ -145,7 +145,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         voltageLevelContainersCaches.put(ResourceType.STATIC_VAR_COMPENSATOR, staticVarCompensatorCache);
         voltageLevelContainersCaches.put(ResourceType.HVDC_LINE, hvdcLinesCache);
         voltageLevelContainersCaches.put(ResourceType.DANGLING_LINE, danglingLinesCache);
-        voltageLevelContainersCaches.put(ResourceType.GROUND, groundsCache);
         voltageLevelContainersCaches.put(ResourceType.CONFIGURED_BUS, configuredBusesCache);
         voltageLevelContainersCaches.put(ResourceType.GROUND, groundsCache);
 

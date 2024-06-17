@@ -136,13 +136,13 @@ final class CreateNetworksUtil {
             }
 
             @Override
-            public void visitGround(Ground ground) {
-                visited.add(ground.getId());
+            public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+                visited.add(staticVarCompensator.getId());
             }
 
             @Override
-            public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
-                visited.add(staticVarCompensator.getId());
+            public void visitGround(Ground ground) {
+                visited.add(ground.getId());
             }
 
             @Override
@@ -252,6 +252,7 @@ final class CreateNetworksUtil {
                 .add();
         battery.getTerminal().setQ(250);
         battery.getTerminal().setP(650);
+
         adder = vl1.newGround();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
 <<<<<<< HEAD
@@ -265,7 +266,11 @@ final class CreateNetworksUtil {
 
 =======
         ((GroundAdder) adder).setId("ground").add();
+<<<<<<< HEAD
 >>>>>>> resolve conflicts
+=======
+
+>>>>>>> code review remarqs
         adder = vl2.newStaticVarCompensator();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
         StaticVarCompensator svc = ((StaticVarCompensatorAdder) adder)

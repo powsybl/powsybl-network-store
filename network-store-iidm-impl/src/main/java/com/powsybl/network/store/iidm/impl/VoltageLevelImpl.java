@@ -431,8 +431,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             return (List<T>) getBatteries();
         } else if (clazz == Load.class) {
             return (List<T>) getLoads();
-        } else if (clazz == Ground.class) {
-            return (List<T>) getGrounds();
         } else if (clazz == ShuntCompensator.class) {
             return (List<T>) getShuntCompensators();
         } else if (clazz == HvdcConverterStation.class) {
@@ -461,10 +459,15 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 throw new PowsyblException("No BusbarSection in a bus breaker topology");
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         } else if (clazz == Ground.class) {
             return (List<T>) getGrounds();
 >>>>>>> increase compatibility with powsybl-core api and tck (#393)
+=======
+        } else if (clazz == Ground.class) {
+            return (List<T>) getGrounds();
+>>>>>>> code review remarqs
         }
         throw new UnsupportedOperationException("TODO");
     }
@@ -500,9 +503,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         }
         for (Load load : getLoads()) {
             visitor.visitLoad(load);
-        }
-        for (Ground ground : getGrounds()) {
-            visitor.visitGround(ground);
         }
         for (ShuntCompensator sc : getShuntCompensators()) {
             visitor.visitShuntCompensator(sc);
@@ -547,11 +547,17 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             visitor.visitDanglingLine(danglingLine);
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         for (Ground ground : getGrounds()) {
             visitor.visitGround(ground);
         }
 >>>>>>> increase compatibility with powsybl-core api and tck (#393)
+=======
+        for (Ground ground : getGrounds()) {
+            visitor.visitGround(ground);
+        }
+>>>>>>> code review remarqs
     }
 
     private <E extends Extension<VoltageLevel>> void addIfNotNull(Collection<E> list, E extension) {

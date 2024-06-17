@@ -23,9 +23,13 @@ class GroundTest extends AbstractGroundTest {
     @Test
     void testOnSubnetwork() {
 <<<<<<< HEAD
+<<<<<<< HEAD
         // FIXME
 =======
         // FIXME remove this test when subnetworks are implemented
 >>>>>>> increase compatibility with powsybl-core api and tck (#393)
+=======
+        // FIXME remove this test when subnetworks are implemented
+>>>>>>> code review remarqs
     }
 }
