@@ -7,13 +7,18 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.powsybl.iidm.network.tck.AbstractGroundTest;
+=======
+>>>>>>> code review remarqs
 import org.junit.jupiter.api.Test;
 =======
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.tck.AbstractGroundTest;
 >>>>>>> increase compatibility with powsybl-core api and tck (#393)
+
+import com.powsybl.iidm.network.tck.AbstractGroundTest;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>

@@ -379,11 +379,11 @@ public class NetworkObjectIndex {
             id -> storeClient.removeDanglingLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> DanglingLineImpl.create(NetworkObjectIndex.this, resource));
         groundCache = new ObjectCache<>(resource -> storeClient.createGrounds(network.getUuid(), Collections.singletonList(resource)),
-                id -> storeClient.getGround(network.getUuid(), workingVariantNum, id),
-                voltageLevelId -> storeClient.getVoltageLevelGrounds(network.getUuid(), workingVariantNum, voltageLevelId),
-                () -> storeClient.getGrounds(network.getUuid(), workingVariantNum),
-                id -> storeClient.removeGrounds(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
-                resource -> GroundImpl.create(NetworkObjectIndex.this, resource));
+            id -> storeClient.getGround(network.getUuid(), workingVariantNum, id),
+            voltageLevelId -> storeClient.getVoltageLevelGrounds(network.getUuid(), workingVariantNum, voltageLevelId),
+            () -> storeClient.getGrounds(network.getUuid(), workingVariantNum),
+            id -> storeClient.removeGrounds(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            resource -> GroundImpl.create(NetworkObjectIndex.this, resource));
         configuredBusCache = new ObjectCache<>(resource -> storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(resource)),
             id -> storeClient.getConfiguredBus(network.getUuid(), workingVariantNum, id),
             voltageLevelId -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), workingVariantNum, voltageLevelId),

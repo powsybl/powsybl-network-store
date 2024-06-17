@@ -210,30 +210,38 @@ public abstract class AbstractTopology<T> {
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
-                .toList());
+                .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelLccConverterStations(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
-                .toList());
+                .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelDanglingLines(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
 <<<<<<< HEAD
-                .toList());
-=======
-                .collect(Collectors.toList()));
->>>>>>> increase compatibility with powsybl-core api and tck (#393)
-        vertices.addAll(index.getStoreClient().getVoltageLevelGrounds(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
-                .stream()
-                .map(this::createVertexFromInjection)
-                .filter(Objects::nonNull)
 <<<<<<< HEAD
                 .toList());
 =======
                 .collect(Collectors.toList()));
 >>>>>>> increase compatibility with powsybl-core api and tck (#393)
+=======
+                .collect(Collectors.toList()));
+>>>>>>> code review remarqs
+        vertices.addAll(index.getStoreClient().getVoltageLevelGrounds(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
+                .stream()
+                .map(this::createVertexFromInjection)
+                .filter(Objects::nonNull)
+<<<<<<< HEAD
+<<<<<<< HEAD
+                .toList());
+=======
+                .collect(Collectors.toList()));
+>>>>>>> increase compatibility with powsybl-core api and tck (#393)
+=======
+                .collect(Collectors.toList()));
+>>>>>>> code review remarqs
         vertices.addAll(index.getStoreClient().getVoltageLevelLines(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .flatMap(resource -> createVertextFromBranch(resource, voltageLevelResource).stream())
