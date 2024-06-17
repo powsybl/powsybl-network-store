@@ -458,16 +458,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             } else {
                 throw new PowsyblException("No BusbarSection in a bus breaker topology");
             }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
         } else if (clazz == Ground.class) {
             return (List<T>) getGrounds();
->>>>>>> increase compatibility with powsybl-core api and tck (#393)
-=======
-        } else if (clazz == Ground.class) {
-            return (List<T>) getGrounds();
->>>>>>> code review remarqs
         }
         throw new UnsupportedOperationException("TODO");
     }
@@ -546,18 +538,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
         }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
         for (Ground ground : getGrounds()) {
             visitor.visitGround(ground);
         }
->>>>>>> increase compatibility with powsybl-core api and tck (#393)
-=======
-        for (Ground ground : getGrounds()) {
-            visitor.visitGround(ground);
-        }
->>>>>>> code review remarqs
     }
 
     private <E extends Extension<VoltageLevel>> void addIfNotNull(Collection<E> list, E extension) {

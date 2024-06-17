@@ -145,12 +145,6 @@ final class CreateNetworksUtil {
                 visited.add(ground.getId());
             }
 
-            @Override
-            public void visitGround(Ground ground) {
-                visited.add(ground.getId());
-            }
-
-            @Override
             public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
                 visited.add(converterStation.getId());
             }
@@ -255,22 +249,8 @@ final class CreateNetworksUtil {
 
         adder = vl1.newGround();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
-<<<<<<< HEAD
-<<<<<<< HEAD
-        Ground ground = ((GroundAdder) adder)
-                .setId("ground")
-                .add();
-=======
         ((GroundAdder) adder).setId("ground").add();
->>>>>>> increase compatibility with powsybl-core api and tck (#393)
 
-=======
-        ((GroundAdder) adder).setId("ground").add();
-<<<<<<< HEAD
->>>>>>> resolve conflicts
-=======
-
->>>>>>> code review remarqs
         adder = vl2.newStaticVarCompensator();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
         StaticVarCompensator svc = ((StaticVarCompensatorAdder) adder)

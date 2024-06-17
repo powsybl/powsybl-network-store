@@ -6,17 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-import com.powsybl.iidm.network.tck.AbstractGroundTest;
-=======
->>>>>>> code review remarqs
 import org.junit.jupiter.api.Test;
-=======
-import org.junit.jupiter.api.Test;
-
-import com.powsybl.iidm.network.tck.AbstractGroundTest;
->>>>>>> increase compatibility with powsybl-core api and tck (#393)
 
 import com.powsybl.iidm.network.tck.AbstractGroundTest;
 
@@ -27,14 +17,6 @@ class GroundTest extends AbstractGroundTest {
 
     @Test
     void testOnSubnetwork() {
-<<<<<<< HEAD
-<<<<<<< HEAD
-        // FIXME
-=======
         // FIXME remove this test when subnetworks are implemented
->>>>>>> increase compatibility with powsybl-core api and tck (#393)
-=======
-        // FIXME remove this test when subnetworks are implemented
->>>>>>> code review remarqs
     }
 }
