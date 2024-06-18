@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
@@ -168,6 +169,9 @@ public class OperatingStatusExtensionTest {
     @Test
     public void testRemoveExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        DummyNetworkListener listener = new DummyNetworkListener();
+        network.addListener(listener);
+
         Line l1 = network.getLine("L1");
         l1.newExtension(OperatingStatusAdder.class)
                 .withStatus(OperatingStatus.Status.PLANNED_OUTAGE)
@@ -180,4 +184,79 @@ public class OperatingStatusExtensionTest {
 
     }
 
+    private class DummyNetworkListener implements NetworkListener {
+
+        @Override
+        public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+        }
+
+        @Override
+        public void onExtensionBeforeRemoval(Extension<?> extension) {
+        }
+
+        @Override
+        public void onCreation(Identifiable identifiable) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
+        }
+
+        @Override
+        public void beforeRemoval(Identifiable identifiable) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
+        }
+
+        @Override
+        public void afterRemoval(String id) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
+        }
+
+        @Override
+        public void onUpdate(Identifiable identifiable, String s, Object o, Object o1) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
+        }
+
+        @Override
+        public void onVariantCreated(String sourceVariantId, String targetVariantId) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
+        }
+
+        @Override
+        public void onVariantRemoved(String variantId) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
+        }
+
+        public int getNbCreatedVariant() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
+        }
+
+        public int getNbRemovedVariant() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
+        }
+
+        @Override
+        public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue,
+                             Object newValue) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
+        }
+
+        @Override
+        public void onExtensionCreation(Extension<?> extension) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionCreation'");
+        }
+
+        @Override
+        public void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionUpdate'");
+        }
+    }
 }
