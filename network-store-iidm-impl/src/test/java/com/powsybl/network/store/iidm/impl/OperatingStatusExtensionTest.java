@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -163,4 +164,20 @@ public class OperatingStatusExtensionTest {
 
         assertEquals(1, hvdcLine.getExtensions().size());
     }
+
+    @Test
+    public void testRemoveExtension() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        Line l1 = network.getLine("L1");
+        l1.newExtension(OperatingStatusAdder.class)
+                .withStatus(OperatingStatus.Status.PLANNED_OUTAGE)
+                .add();
+
+        assertEquals(OperatingStatus.Status.PLANNED_OUTAGE, l1.getExtension(OperatingStatus.class).getStatus());
+
+        l1.removeExtension(OperatingStatus.class);
+        assertNull(l1.getExtension(OperatingStatus.class));
+
+    }
+
 }
