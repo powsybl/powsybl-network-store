@@ -30,7 +30,7 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
 
     private final OperationalLimitsGroupAttributes attributes;
 
-    public OperationalLimitsGroupImpl(LimitsOwner<S> owner, S side, OperationalLimitsGroupAttributes attributes) {
+    protected OperationalLimitsGroupImpl(LimitsOwner<S> owner, S side, OperationalLimitsGroupAttributes attributes) {
         this.owner = Objects.requireNonNull(owner);
         this.side = side;
         this.attributes = Objects.requireNonNull(attributes);
