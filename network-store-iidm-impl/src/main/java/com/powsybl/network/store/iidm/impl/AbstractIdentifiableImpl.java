@@ -323,8 +323,11 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
+        E extension = getExtension(type);
         AtomicBoolean removed = new AtomicBoolean(false);
-        updateResource(r -> removed.set(r.getAttributes().getExtensionAttributes().remove(getExtension(type).getName()) != null));
+        index.notifyExtensionBeforeRemoval(extension);
+        updateResource(r -> removed.set(r.getAttributes().getExtensionAttributes().remove(extension.getName()) != null));
+        index.notifyExtensionAfterRemoval(this, extension.getName());
         return removed.get();
     }
 
