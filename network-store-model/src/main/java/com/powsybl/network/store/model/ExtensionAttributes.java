@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
@@ -18,4 +19,8 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 )
 @JsonTypeIdResolver(ExtensionAttributesIdResolver.class)
 public interface ExtensionAttributes {
+    @JsonIgnore
+    default boolean isPersisted() {
+        return true;
+    }
 }

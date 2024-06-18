@@ -24,6 +24,7 @@ import com.powsybl.network.store.model.Resource;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -322,7 +323,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
-        throw new UnsupportedOperationException("TODO");
+        AtomicBoolean removed = new AtomicBoolean(false);
+        updateResource(r -> removed.set(r.getAttributes().getExtensionAttributes().remove(getExtension(type).getName()) != null));
+        return removed.get();
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
