@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 )
 @JsonTypeIdResolver(ExtensionAttributesIdResolver.class)
 public interface ExtensionAttributes {
+    // This property is used to not persist some extensions that are only used at import/export.
+    // This workaround can be removed when private importers do not add private extensions to build open source classes.
     @JsonIgnore
     default boolean isPersisted() {
         return true;
