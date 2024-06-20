@@ -197,66 +197,55 @@ public class OperatingStatusExtensionTest {
 
         @Override
         public void onCreation(Identifiable identifiable) {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
         }
 
         @Override
         public void beforeRemoval(Identifiable identifiable) {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
         }
 
         @Override
         public void afterRemoval(String id) {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
         }
 
         @Override
         public void onUpdate(Identifiable identifiable, String s, Object o, Object o1) {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
         }
 
         @Override
         public void onVariantCreated(String sourceVariantId, String targetVariantId) {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
         }
 
         @Override
         public void onVariantRemoved(String variantId) {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
         }
 
         public int getNbCreatedVariant() {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
         }
 
         public int getNbRemovedVariant() {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
         }
 
         @Override
         public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue,
                              Object newValue) {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
         }
 
         @Override
         public void onExtensionCreation(Extension<?> extension) {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onExtensionCreation'");
         }
 
         @Override
         public void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue) {
-            // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onExtensionUpdate'");
         }
     }
