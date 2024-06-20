@@ -261,7 +261,6 @@ public class OperatingStatusExtensionTest {
         }
     }
 
-
     private class DummyNetworkListenerWithExceptions extends DummyNetworkListener {
         @Override
         public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
