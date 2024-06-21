@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
-import com.powsybl.network.store.iidm.impl.AbstractInjectionImpl;
+import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
 import com.powsybl.network.store.model.InjectionObservabilityAttributes;
 import com.powsybl.network.store.model.ObservabilityQualityAttributes;
 import lombok.NonNull;
@@ -28,8 +28,8 @@ public class InjectionObservabilityImpl<I extends Injection<I>> extends Abstract
         super(injection);
     }
 
-    private AbstractInjectionImpl<?, ?> getInjection() {
-        return (AbstractInjectionImpl<?, ?>) getExtendable();
+    private AbstractIdentifiableImpl<?, ?> getInjection() {
+        return (AbstractIdentifiableImpl<?, ?>) getExtendable();
     }
 
     private InjectionObservabilityAttributes getInjectionObservabilityAttributes() {
