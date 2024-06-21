@@ -11,7 +11,7 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
-import com.powsybl.network.store.iidm.impl.AbstractInjectionImpl;
+import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
 import com.powsybl.network.store.model.InjectionObservabilityAttributes;
 import com.powsybl.network.store.model.ObservabilityQualityAttributes;
 
@@ -57,7 +57,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
                 .redundant(redundantV)
                 .build() : null)
             .build();
-        ((AbstractInjectionImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(InjectionObservability.NAME, attributes));
+        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(InjectionObservability.NAME, attributes));
         return new InjectionObservabilityImpl<>(injection);
     }
 
