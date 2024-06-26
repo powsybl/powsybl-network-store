@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import org.junit.Test;
@@ -181,14 +182,26 @@ public class OperatingStatusExtensionTest {
 
         assertEquals(OperatingStatus.Status.PLANNED_OUTAGE, l1.getExtension(OperatingStatus.class).getStatus());
 
+        assertEquals(0, listener1.getNbRemovedExtension());
+        l1.removeExtension(Measurements.class);
+        assertEquals(0, listener1.getNbRemovedExtension());
         l1.removeExtension(OperatingStatus.class);
+        assertEquals(1, listener1.getNbRemovedExtension());
+
         assertNull(l1.getExtension(OperatingStatus.class));
     }
 
     private class DummyNetworkListener implements NetworkListener {
 
+        private int nbRemovedExtension = 0;
+
+        public int getNbRemovedExtension() {
+            return nbRemovedExtension;
+        }
+
         @Override
         public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+            nbRemovedExtension++;
         }
 
         @Override
@@ -222,14 +235,6 @@ public class OperatingStatusExtensionTest {
 
         @Override
         public void onVariantRemoved(String variantId) {
-            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
-        }
-
-        public int getNbCreatedVariant() {
-            throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
-        }
-
-        public int getNbRemovedVariant() {
             throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
         }
 
