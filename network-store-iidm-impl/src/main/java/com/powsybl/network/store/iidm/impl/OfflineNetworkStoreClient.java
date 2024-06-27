@@ -600,6 +600,11 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<String> getIdentifiablesIds(UUID networkUuid, int variantNum) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void flush(UUID networkUuid) {
         // nothing to do
     }

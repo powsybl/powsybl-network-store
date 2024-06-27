@@ -803,6 +803,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<String> getIdentifiablesIds(UUID networkUuid, int variantNum) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        List<String> identifiablesIds = restClient.get("/networks/{networkUuid}/{variantNum}/identifiables-ids", new ParameterizedTypeReference<>() {
+        }, networkUuid, variantNum);
+        stopwatch.stop();
+        LOGGER.info("Get identifiables IDs ({}) loaded in {} ms", identifiablesIds.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        return identifiablesIds;
+    }
+
+    @Override
     public void flush(UUID networkUuid) {
         // nothing to do
     }
