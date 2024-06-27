@@ -133,7 +133,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCaches = new EnumMap<>(ResourceType.class);
 
-    private final Map<Pair<UUID, Integer>, MutableInt> getIdentifiableCallCount = new HashMap<>();
+    private final Map<Pair<UUID, Integer>, MutableInt> identifiableCallCountByNetworkVariant = new HashMap<>();
 
     private final Map<Pair<UUID, Integer>, Set<String>> identifiablesIdsByNetworkVariant = new HashMap<>();
 
@@ -1051,7 +1051,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         // getting it from the server
         var p = Pair.of(networkUuid, variantNum);
         Set<String> identifiablesIds = identifiablesIdsByNetworkVariant.get(p);
-        if (identifiablesIds == null && getIdentifiableCallCount.getOrDefault(p, new MutableInt()).getValue() > MAX_GET_IDENTIFIABLE_CALL_COUNT) {
+        if (identifiablesIds == null && identifiableCallCountByNetworkVariant.getOrDefault(p, new MutableInt()).getValue() > MAX_GET_IDENTIFIABLE_CALL_COUNT) {
             identifiablesIds = new HashSet<>(delegate.getIdentifiablesIds(networkUuid, variantNum));
             identifiablesIdsByNetworkVariant.put(p, identifiablesIds);
         }
@@ -1067,7 +1067,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             collection.addResource(r);
         });
 
-        getIdentifiableCallCount.computeIfAbsent(p, k -> new MutableInt())
+        identifiableCallCountByNetworkVariant.computeIfAbsent(p, k -> new MutableInt())
                 .increment();
 
         return resource;
