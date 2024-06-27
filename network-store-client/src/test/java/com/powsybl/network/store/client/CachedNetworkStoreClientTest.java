@@ -320,6 +320,85 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
+    public void testAllGroundsCache() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        // Two successive Ground retrievals by voltage level, only the first should send a REST request, the second uses the cache
+
+        Resource<GroundAttributes> g1 = Resource.groundBuilder()
+                .id("groundId1")
+                .attributes(GroundAttributes.builder()
+                        .voltageLevelId("VL_1")
+                        .p(1)
+                        .q(2)
+                        .build())
+                .build();
+
+        Resource<GroundAttributes> g2 = Resource.groundBuilder()
+                .id("groundId2")
+                .attributes(GroundAttributes.builder()
+                        .voltageLevelId("VL_1")
+                        .p(3)
+                        .q(4)
+                        .build())
+                .build();
+
+        Resource<GroundAttributes> g3 = Resource.groundBuilder()
+                .id("groundId3")
+                .attributes(GroundAttributes.builder()
+                        .voltageLevelId("VL_1")
+                        .p(5)
+                        .q(6)
+                        .build())
+                .build();
+
+        String allGroundsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(g1, g2, g3)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/grounds"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(allGroundsJson, MediaType.APPLICATION_JSON));
+
+        // First time all grounds retrieval
+        List<Resource<GroundAttributes>> groundAttributesResources = cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(3, groundAttributesResources.size());
+
+        // Second time grounds retrieval by voltage level
+        groundAttributesResources = cachedClient.getGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(3, groundAttributesResources.size());
+
+        server.verify();
+
+        server.reset();
+
+        // Single ground retrieval by Id
+
+        // We expect single ground retrieval by id REST request will never be executed (cache will be used)
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/grounds/groundId1"));
+
+        Resource<GroundAttributes> groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "groundId1").orElse(null);
+        assertNotNull(groundAttributesResource);
+        assertEquals("groundId1", groundAttributesResource.getId());
+
+        server.verify();
+
+        server.reset();
+
+        // Getting all grounds of a specified voltage level
+
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_1/grounds"));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_2/grounds"));
+
+        // ground retrieval by voltage level (should use cache)
+        groundAttributesResources = cachedClient.getVoltageLevelGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, "VL_1");
+        assertEquals(3, groundAttributesResources.size());
+
+        groundAttributesResources = cachedClient.getVoltageLevelGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, "VL_2");
+        assertEquals(0, groundAttributesResources.size());
+
+        server.verify();
+    }
+
+    @Test
     public void testSwitchCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");

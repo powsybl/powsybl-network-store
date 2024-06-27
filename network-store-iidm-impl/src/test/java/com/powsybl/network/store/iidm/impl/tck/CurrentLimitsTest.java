@@ -14,31 +14,31 @@ import com.powsybl.iidm.network.tck.AbstractCurrentLimitsTest;
 public class CurrentLimitsTest extends AbstractCurrentLimitsTest {
     @Override
     public void test() {
-        // FIXME
+        // FIXME delete this test when we fix Bus.getV/setV not getting/updating correctly the V in all views
     }
 
     @Override
     public void testForThreeWindingsTransformerLeg1() {
-        // FIXME
+        // FIXME delete this test when we fix Bus.getV/setV not getting/updating correctly the V in all views
     }
 
     @Override
     public void testForThreeWindingsTransformerLeg2() {
-        // FIXME
+        // FIXME delete this test when we fix Bus.getV/setV not getting/updating correctly the V in all views
     }
 
     @Override
     public void testForThreeWindingsTransformerLeg3() {
-        // FIXME
+        // FIXME delete this test when we fix Bus.getV/setV not getting/updating correctly the V in all views
     }
 
     @Override
     public void testLimitWithoutTempLimit() {
-        // FIXME
+        // FIXME delete this test when we fix Bus.getV/setV not getting/updating correctly the V in all views
     }
 
     @Override
     public void testSetterGetter() {
-        // FIXME
+        // FIXME delete this test when we fix Bus.getV/setV not getting/updating correctly the V in all views
     }
 }

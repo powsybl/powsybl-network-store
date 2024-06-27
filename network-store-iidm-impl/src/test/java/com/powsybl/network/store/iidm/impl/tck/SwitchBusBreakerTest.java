@@ -11,10 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractSwitchBusBreakerTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SwitchBusBreakerTest extends AbstractSwitchBusBreakerTest {
-
-    @Override
-    public void addSwitchWithSameBusAtBothEnds() {
-        // FIXME
-    }
-}
+public class SwitchBusBreakerTest extends AbstractSwitchBusBreakerTest { }

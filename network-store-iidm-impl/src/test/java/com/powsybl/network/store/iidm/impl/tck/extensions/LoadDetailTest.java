@@ -13,8 +13,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractLoadDetailTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class LoadDetailTest extends AbstractLoadDetailTest {
-    @Override
-    public void variantsCloneTest() {
-        // FIXME
-    }
+
 }

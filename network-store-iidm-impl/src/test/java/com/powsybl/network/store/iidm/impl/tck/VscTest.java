@@ -14,16 +14,11 @@ import com.powsybl.iidm.network.tck.AbstractVscTest;
 public class VscTest extends AbstractVscTest {
     @Override
     public void testRegulatingTerminal() {
-        // FIXME
-    }
-
-    @Override
-    public void testSetterGetterInMultiVariants() {
-        // FIXME
+        // FIXME implement VscConverterStation.setRegulatingTerminal
     }
 
     @Override
     public void testVscConverterStationAdder() {
-        // FIXME
+        // FIXME implement VscConverterStation.setRegulatingTerminal
     }
 }

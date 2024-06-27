@@ -105,11 +105,12 @@ public class VariantTest {
         });
 
         // Remove variant "v" while working on it
-        // Should fall back to initial variant
+        // Should not fall back to initial variant
         network.getVariantManager().setWorkingVariant("v");
         network.getVariantManager().removeVariant("v");
         assertEquals(Set.of(VariantManagerConstants.INITIAL_VARIANT_ID), network.getVariantManager().getVariantIds());
-        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, network.getVariantManager().getWorkingVariantId());
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> network.getVariantManager().getWorkingVariantId());
+        assertEquals("Variant index not set", exception.getMessage());
         // check listeners are correctly notified
         assertEquals(1, listener.getNbRemovedVariant());
     }
