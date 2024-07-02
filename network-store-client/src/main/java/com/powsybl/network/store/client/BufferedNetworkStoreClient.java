@@ -621,4 +621,15 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(networkResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
             networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
     }
+
+    @Override
+    public List<String> getIdentifiablesIds(UUID networkUuid, int variantNum) {
+        List<String> identifiablesIds = super.getIdentifiablesIds(networkUuid, variantNum);
+        for (var buffer : allBuffers) {
+            CollectionBuffer<? extends IdentifiableAttributes> collection = buffer.getCollection(networkUuid, variantNum);
+            identifiablesIds.addAll(collection.getCreateResourcesIds());
+            identifiablesIds.removeAll(collection.getRemoveResourcesIds());
+        }
+        return identifiablesIds;
+    }
 }

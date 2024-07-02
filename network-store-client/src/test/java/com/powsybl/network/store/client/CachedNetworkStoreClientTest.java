@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -441,5 +443,40 @@ public class CachedNetworkStoreClientTest {
                 .andRespond(withSuccess());
 
         cachedClient.flush(networkUuid);
+    }
+
+    @Test
+    public void testGetIdentifiable() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        int variantNum = 0;
+
+        for (int i = 0; i <= 11; i++) {
+            String gId = "g" + i;
+
+            Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
+                    .id(gId)
+                    .attributes(GeneratorAttributes.builder()
+                            .voltageLevelId("VL_1")
+                            .build())
+                    .build();
+
+            if (i <= 10) {
+                String g1Json = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(g1Resource)));
+                server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + gId))
+                        .andExpect(method(GET))
+                        .andRespond(withSuccess(g1Json, MediaType.APPLICATION_JSON));
+            } else {
+                String json = objectMapper.writeValueAsString(IntStream.range(0, 11).mapToObj(value -> "g" + value).collect(Collectors.toList()));
+                server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables-ids"))
+                        .andExpect(method(GET))
+                        .andRespond(withSuccess(json, MediaType.APPLICATION_JSON));
+            }
+
+            cachedClient.getIdentifiable(networkUuid, variantNum, gId);
+
+            server.verify();
+            server.reset();
+        }
     }
 }
