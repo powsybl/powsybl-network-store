@@ -333,7 +333,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
         return getResource().getAttributes().getOperationalLimitsGroups1().values().stream()
-                .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, group))
+                .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, group))
                 .collect(Collectors.toList());
     }
 
