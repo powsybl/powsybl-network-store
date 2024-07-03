@@ -9,6 +9,8 @@ package com.powsybl.network.store.iidm.impl;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
+
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.Network;
@@ -37,6 +39,8 @@ class OperationalLimitsTest {
         l1.newOperationalLimitsGroup1("group1");
         l1.setSelectedOperationalLimitsGroup1("group");
         assertEquals("group", l1.getSelectedOperationalLimitsGroupId1().get());
+        OperationalLimitsGroup olg = l1.getOperationalLimitsGroups1().stream().findFirst().get();
+        assertEquals(TwoSides.ONE, ((OperationalLimitsGroupImpl) olg).side);
         l1.cancelSelectedOperationalLimitsGroup1();
         assertEquals(Optional.empty(), l1.getSelectedOperationalLimitsGroupId1());
         l1.setSelectedOperationalLimitsGroup1("group1");
