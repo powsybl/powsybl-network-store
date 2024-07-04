@@ -204,6 +204,7 @@ public class OperatingStatusExtensionTest {
 
         @Override
         public void onExtensionBeforeRemoval(Extension<?> extension) {
+            //Nothing to be done
         }
 
         @Override
