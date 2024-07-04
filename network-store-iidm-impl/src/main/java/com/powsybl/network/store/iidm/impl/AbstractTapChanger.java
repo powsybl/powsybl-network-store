@@ -17,6 +17,7 @@ import com.powsybl.network.store.model.TerminalRefAttributes;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 /**
@@ -138,6 +139,12 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     abstract String getTapChangerAttribute();
 
     abstract int getHighTapPosition();
+
+    public OptionalInt getNeutralPosition() {
+        TapChangerAttributes attributes = getAttributes();
+        Integer relativeNeutralPosition = attributes.getRelativeNeutralPosition();
+        return relativeNeutralPosition != null ? OptionalInt.of(attributes.getLowTapPosition() + relativeNeutralPosition) : OptionalInt.empty();
+    }
 
     protected C setSteps(List<TapChangerStepAttributes> steps) {
         if (steps == null || steps.isEmpty()) {

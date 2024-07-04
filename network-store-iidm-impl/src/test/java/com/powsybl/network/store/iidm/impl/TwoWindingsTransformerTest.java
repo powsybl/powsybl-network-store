@@ -100,6 +100,57 @@ class TwoWindingsTransformerTest {
         assertEquals(1.0, phaseTapChanger.getStep(phaseLowTapPosition).getRho());
     }
 
+    @Test
+    void testTapChangerNeutralPosition() {
+        Network network = createNetwork();
+
+        // Test ratio tap changer neutral position
+        RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
+        assertEquals(25, ratioTapChanger.getStepCount());
+        assertEquals(13, ratioTapChanger.getNeutralPosition().orElseThrow());
+        assertEquals(ratioTapChanger.getNeutralStep().orElseThrow().getR(), ratioTapChanger.getStep(13).getR());
+        assertEquals(ratioTapChanger.getNeutralStep().orElseThrow().getB(), ratioTapChanger.getStep(13).getB());
+        assertEquals(ratioTapChanger.getNeutralStep().orElseThrow().getG(), ratioTapChanger.getStep(13).getG());
+        assertEquals(ratioTapChanger.getNeutralStep().orElseThrow().getX(), ratioTapChanger.getStep(13).getX());
+        assertEquals(ratioTapChanger.getNeutralStep().orElseThrow().getRho(), ratioTapChanger.getStep(13).getRho());
+
+        // Test phase tap changer neutral position
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        assertEquals(25, phaseTapChanger.getStepCount());
+        assertEquals(13, phaseTapChanger.getNeutralPosition().orElseThrow());
+        assertEquals(phaseTapChanger.getNeutralStep().orElseThrow().getR(), phaseTapChanger.getStep(13).getR());
+        assertEquals(phaseTapChanger.getNeutralStep().orElseThrow().getB(), phaseTapChanger.getStep(13).getB());
+        assertEquals(phaseTapChanger.getNeutralStep().orElseThrow().getG(), phaseTapChanger.getStep(13).getG());
+        assertEquals(phaseTapChanger.getNeutralStep().orElseThrow().getX(), phaseTapChanger.getStep(13).getX());
+        assertEquals(phaseTapChanger.getNeutralStep().orElseThrow().getRho(), phaseTapChanger.getStep(13).getRho());
+        assertEquals(phaseTapChanger.getNeutralStep().orElseThrow().getAlpha(), phaseTapChanger.getStep(13).getAlpha());
+
+        // Test with no phase tap changer neutral position
+        PhaseTapChanger phaseTapChanger2 = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957")
+                .newPhaseTapChanger()
+                .beginStep()
+                .setR(1)
+                .setAlpha(12)
+                .setRho(13)
+                .endStep()
+                .setTapPosition(0)
+                .add();
+        assertTrue(phaseTapChanger2.getNeutralPosition().isEmpty());
+        assertTrue(phaseTapChanger2.getNeutralStep().isEmpty());
+
+        // Test with no ratio tap changer neutral position
+        RatioTapChanger ratioTapChanger2 = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957")
+                .newRatioTapChanger()
+                .beginStep()
+                .setR(1)
+                .setRho(13)
+                .endStep()
+                .setTapPosition(0)
+                .add();
+        assertTrue(ratioTapChanger2.getNeutralPosition().isEmpty());
+        assertTrue(ratioTapChanger2.getNeutralStep().isEmpty());
+    }
+
     private Network createNetwork() {
         Properties properties = new Properties();
         properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");

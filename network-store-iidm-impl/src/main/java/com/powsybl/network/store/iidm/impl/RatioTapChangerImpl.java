@@ -11,6 +11,7 @@ import com.powsybl.network.store.model.*;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -112,6 +113,13 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         var attributes = getAttributes();
         int tapPositionIndex = attributes.getTapPosition() - attributes.getLowTapPosition();
         return new RatioTapChangerStepImpl(this, tapPositionIndex);
+    }
+
+    @Override
+    public Optional<RatioTapChangerStep> getNeutralStep() {
+        var attributes = getAttributes();
+        Integer relativeNeutralPosition = attributes.getRelativeNeutralPosition();
+        return relativeNeutralPosition != null ? Optional.of(new RatioTapChangerStepImpl(this, relativeNeutralPosition)) : Optional.empty();
     }
 
     @Override

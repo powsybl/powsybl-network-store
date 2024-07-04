@@ -13,15 +13,15 @@ import com.powsybl.iidm.network.tck.AbstractTapChangerTest;
  */
 public class TapChangerTest extends AbstractTapChangerTest {
 
-    // TODO remove this test when TapChanger.getNeutralPosition et getNeutralStep are implemented
-    @Override
-    public void baseTestsRatioTapChanger() { }
-
-    // TODO remove this test when TapChanger.getNeutralPosition et getNeutralStep are implemented
+    // TODO remove this test when regulation are handled properly :
+    //  regulating terminal are not deleted from TapChangers when linked terminals are deleted
+    //  and isRegulating is not updated either
     @Override
     public void baseTestsPhaseTapChanger() { }
 
-    // TODO remove this test when TapChanger.getNeutralPosition et getNeutralStep are implemented
+    // TODO remove this test when regulation are handled properly :
+    //  regulating terminal are not deleted from TapChangers when linked terminals are deleted
+    //  and isRegulating is not updated either
     @Override
     public void undefinedRegulationValueOnlyWarning() { }
 }

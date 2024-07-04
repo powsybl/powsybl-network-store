@@ -156,6 +156,16 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         return this;
     }
 
+    private Integer getRelativeNeutralPosition() {
+        for (int i = 0; i < steps.size(); i++) {
+            TapChangerStepAttributes tapChangerStepAttributes = steps.get(i);
+            if (tapChangerStepAttributes.getRho() == 1 && tapChangerStepAttributes.getAlpha() == 0) {
+                return i;
+            }
+        }
+        return null;
+    }
+
     @Override
     public PhaseTapChanger add() {
         if (tapPosition == null) {
@@ -189,6 +199,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .tapPosition(tapPosition)
                 .targetDeadband(targetDeadband)
                 .regulatingTerminal(terminalRefAttributes)
+                .relativeNeutralPosition(getRelativeNeutralPosition())
                 .build();
         TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().getResource().getAttributes());
         if (tapChangerParentAttributes.getRatioTapChangerAttributes() != null) {
