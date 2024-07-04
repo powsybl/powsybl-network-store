@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 public interface ExtensionAttributes {
     // This property is used to not persist some extensions that are only used at import/export.
     @JsonIgnore
-    default boolean isPersisted() {
+    default boolean isPersistent() {
         return true;
     }
 }
