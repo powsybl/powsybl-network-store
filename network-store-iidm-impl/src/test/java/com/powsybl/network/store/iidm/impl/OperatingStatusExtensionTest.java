@@ -6,12 +6,16 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
+import lombok.Getter;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -162,5 +166,103 @@ public class OperatingStatusExtensionTest {
         assertEquals(OperatingStatus.Status.FORCED_OUTAGE, brs.getStatus());
 
         assertEquals(1, hvdcLine.getExtensions().size());
+    }
+
+    @Test
+    public void testRemoveExtension() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        DummyNetworkListener listener1 = new DummyNetworkListener();
+        DummyNetworkListenerWithExceptions listener2 = new DummyNetworkListenerWithExceptions();
+        network.addListener(listener1);
+        network.addListener(listener2);
+
+        Line l1 = network.getLine("L1");
+        l1.newExtension(OperatingStatusAdder.class)
+                .withStatus(OperatingStatus.Status.PLANNED_OUTAGE)
+                .add();
+
+        assertEquals(OperatingStatus.Status.PLANNED_OUTAGE, l1.getExtension(OperatingStatus.class).getStatus());
+
+        assertEquals(0, listener1.getNbRemovedExtension());
+        l1.removeExtension(Measurements.class);
+        assertEquals(0, listener1.getNbRemovedExtension());
+        l1.removeExtension(OperatingStatus.class);
+        assertEquals(1, listener1.getNbRemovedExtension());
+
+        assertNull(l1.getExtension(OperatingStatus.class));
+    }
+
+    private static class DummyNetworkListener implements NetworkListener {
+
+        @Getter
+        private int nbRemovedExtension = 0;
+
+        @Override
+        public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+            nbRemovedExtension++;
+        }
+
+        @Override
+        public void onExtensionBeforeRemoval(Extension<?> extension) {
+            //Nothing to be done
+        }
+
+        @Override
+        public void onCreation(Identifiable identifiable) {
+            throw new UnsupportedOperationException("Unimplemented method");
+        }
+
+        @Override
+        public void beforeRemoval(Identifiable identifiable) {
+            throw new UnsupportedOperationException("Unimplemented method");
+        }
+
+        @Override
+        public void afterRemoval(String id) {
+            throw new UnsupportedOperationException("Unimplemented method");
+        }
+
+        @Override
+        public void onUpdate(Identifiable identifiable, String s, Object o, Object o1) {
+            throw new UnsupportedOperationException("Unimplemented method");
+        }
+
+        @Override
+        public void onVariantCreated(String sourceVariantId, String targetVariantId) {
+            throw new UnsupportedOperationException("Unimplemented method");
+        }
+
+        @Override
+        public void onVariantRemoved(String variantId) {
+            throw new UnsupportedOperationException("Unimplemented method");
+        }
+
+        @Override
+        public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue,
+                             Object newValue) {
+            throw new UnsupportedOperationException("Unimplemented method");
+        }
+
+        @Override
+        public void onExtensionCreation(Extension<?> extension) {
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionCreation'");
+        }
+
+        @Override
+        public void onExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+            throw new UnsupportedOperationException("Unimplemented method 'onExtensionUpdate'");
+        }
+    }
+
+    private static class DummyNetworkListenerWithExceptions extends DummyNetworkListener {
+        @Override
+        public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+            throw new UnsupportedOperationException("error'");
+        }
+
+        @Override
+        public void onExtensionBeforeRemoval(Extension<?> extension) {
+            throw new UnsupportedOperationException("error'");
+        }
     }
 }
