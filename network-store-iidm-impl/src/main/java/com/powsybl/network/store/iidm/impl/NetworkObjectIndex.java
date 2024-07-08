@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
@@ -490,6 +491,26 @@ public class NetworkObjectIndex {
                 listener.afterRemoval(id);
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
+            }
+        }
+    }
+
+    public void notifyExtensionBeforeRemoval(Extension<?> extension) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onExtensionBeforeRemoval(extension);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    public void notifyExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onExtensionAfterRemoval(identifiable, extensionName);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
             }
         }
     }
