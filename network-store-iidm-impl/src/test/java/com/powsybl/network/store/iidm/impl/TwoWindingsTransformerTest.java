@@ -149,6 +149,88 @@ class TwoWindingsTransformerTest {
                 .add();
         assertTrue(ratioTapChanger2.getNeutralPosition().isEmpty());
         assertTrue(ratioTapChanger2.getNeutralStep().isEmpty());
+
+        // Test with RatioTapChanger stepReplacer
+        ratioTapChanger2.stepsReplacer()
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRho(6.0)
+                .endStep()
+                .beginStep()
+                .setR(5.0)
+                .setX(6.0)
+                .setG(7.0)
+                .setB(8.0)
+                .setRho(7.0)
+                .endStep()
+                .beginStep()
+                .setR(9.0)
+                .setX(10.0)
+                .setG(11.0)
+                .setB(12.0)
+                .setRho(1.0)
+                .endStep()
+                .replaceSteps();
+
+        assertEquals(3, ratioTapChanger2.getStepCount());
+        assertEquals(3, ratioTapChanger2.getAllSteps().size());
+        assertEquals(0, ratioTapChanger2.getLowTapPosition());
+        assertEquals(2, ratioTapChanger2.getHighTapPosition());
+        assertEquals(2, ratioTapChanger2.getNeutralPosition().orElseThrow());
+
+        //check neutral step attributes
+        var ratioTapChangerNeutralStep = ratioTapChanger2.getNeutralStep().orElseThrow();
+        assertEquals(1, ratioTapChangerNeutralStep.getRho());
+        assertEquals(9, ratioTapChangerNeutralStep.getR());
+        assertEquals(10, ratioTapChangerNeutralStep.getX());
+        assertEquals(11, ratioTapChangerNeutralStep.getG());
+        assertEquals(12, ratioTapChangerNeutralStep.getB());
+
+        //test with PhaseTapChanger stepsReplacer
+        phaseTapChanger2.stepsReplacer()
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
+                .endStep()
+                .beginStep()
+                .setR(5.0)
+                .setX(6.0)
+                .setG(7.0)
+                .setB(8.0)
+                .setAlpha(6.0)
+                .setRho(7.0)
+                .endStep()
+                .beginStep()
+                .setR(9.0)
+                .setX(10.0)
+                .setG(11.0)
+                .setB(12.0)
+                .setAlpha(0.0)
+                .setRho(1.0)
+                .endStep()
+                .replaceSteps();
+
+        assertEquals(3, phaseTapChanger2.getStepCount());
+        assertEquals(3, phaseTapChanger2.getAllSteps().size());
+        assertEquals(0, phaseTapChanger2.getLowTapPosition());
+        assertEquals(2, phaseTapChanger2.getHighTapPosition());
+        assertEquals(2, phaseTapChanger2.getNeutralPosition().orElseThrow());
+
+        //check neutral step attributes
+        var phaseTapChangerNeutralStep = phaseTapChanger2.getNeutralStep().orElseThrow();
+        assertEquals(0, phaseTapChangerNeutralStep.getAlpha());
+        assertEquals(1, phaseTapChangerNeutralStep.getRho());
+        assertEquals(9, phaseTapChangerNeutralStep.getR());
+        assertEquals(10, phaseTapChangerNeutralStep.getX());
+        assertEquals(11, phaseTapChangerNeutralStep.getG());
+        assertEquals(12, phaseTapChangerNeutralStep.getB());
     }
 
     private Network createNetwork() {

@@ -141,16 +141,6 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         return this;
     }
 
-    private Integer getRelativeNeutralPosition() {
-        for (int i = 0; i < steps.size(); i++) {
-            TapChangerStepAttributes tapChangerStepAttributes = steps.get(i);
-            if (tapChangerStepAttributes.getRho() == 1) {
-                return i;
-            }
-        }
-        return null;
-    }
-
     @Override
     public RatioTapChanger add() {
         if (tapPosition == null) {
@@ -185,7 +175,6 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .regulationValue(regulationValue)
                 .steps(steps)
                 .regulatingTerminal(terminalRefAttributes)
-                .relativeNeutralPosition(getRelativeNeutralPosition())
                 .build();
         TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().getResource().getAttributes());
         if (tapChangerParentAttributes.getPhaseTapChangerAttributes() != null) {

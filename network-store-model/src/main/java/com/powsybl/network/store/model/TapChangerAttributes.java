@@ -42,7 +42,4 @@ public class TapChangerAttributes {
 
     @Schema(description = "steps")
     private List<TapChangerStepAttributes> steps;
-
-    @Schema(description = "relativeNeutralPosition")
-    private Integer relativeNeutralPosition;
 }

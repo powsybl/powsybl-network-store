@@ -140,10 +140,11 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     abstract int getHighTapPosition();
 
+    protected abstract Integer getRelativeNeutralPosition();
+
     public OptionalInt getNeutralPosition() {
-        TapChangerAttributes attributes = getAttributes();
-        Integer relativeNeutralPosition = attributes.getRelativeNeutralPosition();
-        return relativeNeutralPosition != null ? OptionalInt.of(attributes.getLowTapPosition() + relativeNeutralPosition) : OptionalInt.empty();
+        var relativeNeutralPosition = getRelativeNeutralPosition();
+        return relativeNeutralPosition != null ? OptionalInt.of(getLowTapPosition() + relativeNeutralPosition) : OptionalInt.empty();
     }
 
     protected C setSteps(List<TapChangerStepAttributes> steps) {
