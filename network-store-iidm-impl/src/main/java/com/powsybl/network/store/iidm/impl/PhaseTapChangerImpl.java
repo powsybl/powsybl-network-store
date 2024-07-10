@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -107,6 +108,24 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         var attributes = getAttributes();
         int tapPositionIndex = attributes.getTapPosition() - attributes.getLowTapPosition();
         return new PhaseTapChangerStepImpl(this, tapPositionIndex);
+    }
+
+    @Override
+    protected Integer getRelativeNeutralPosition() {
+        var steps = getAttributes().getSteps();
+        for (int i = 0; i < steps.size(); i++) {
+            TapChangerStepAttributes stepAttributes = steps.get(i);
+            if (stepAttributes.getRho() == 1 && stepAttributes.getAlpha() == 0) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Optional<PhaseTapChangerStep> getNeutralStep() {
+        Integer relativeNeutralPosition = getRelativeNeutralPosition();
+        return relativeNeutralPosition != null ? Optional.of(new PhaseTapChangerStepImpl(this, relativeNeutralPosition)) : Optional.empty();
     }
 
     @Override
