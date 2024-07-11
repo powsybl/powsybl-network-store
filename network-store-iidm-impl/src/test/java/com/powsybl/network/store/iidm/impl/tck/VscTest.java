@@ -12,13 +12,4 @@ import com.powsybl.iidm.network.tck.AbstractVscTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class VscTest extends AbstractVscTest {
-    @Override
-    public void testRegulatingTerminal() {
-        // FIXME implement VscConverterStation.setRegulatingTerminal
-    }
-
-    @Override
-    public void testVscConverterStationAdder() {
-        // FIXME implement VscConverterStation.setRegulatingTerminal
-    }
 }

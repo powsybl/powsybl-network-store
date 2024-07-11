@@ -154,4 +154,21 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         index.removeVscConverterStation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
     }
+
+    @Override
+    public Terminal getRegulatingTerminal() {
+        var resource = getResource();
+        TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
+        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
+        return regulatingTerminal != null ? regulatingTerminal : terminal;
+    }
+
+    @Override
+    public VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        TerminalRefAttributes oldValue = getResource().getAttributes().getRegulatingTerminal();
+        updateResource(res -> res.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
+        index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        return this;
+    }
 }
