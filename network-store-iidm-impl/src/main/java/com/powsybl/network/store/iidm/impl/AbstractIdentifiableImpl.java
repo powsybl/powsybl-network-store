@@ -17,16 +17,14 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.network.store.model.AttributeFilter;
-import com.powsybl.network.store.model.ExtensionLoaders;
-import com.powsybl.network.store.model.IdentifiableAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static com.powsybl.network.store.model.ExtensionLoaders.loaderExists;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -298,27 +296,29 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
-        List<E> matchingExtensions = resource.getAttributes().getExtensionAttributes().keySet().stream()
-                .map(ExtensionLoaders::findLoader)
-                .filter(loader -> type == loader.getType())
-                .map(loader -> (E) loader.load(this))
-                .collect(Collectors.toList());
-
-        if (matchingExtensions.isEmpty()) {
+        if (!loaderExists(type)) {
             return null;
         }
-
-        if (matchingExtensions.size() > 1) {
-            throw new PowsyblException("More than one extension found for type: " + type.getSimpleName());
-        }
-
-        return matchingExtensions.get(0);
+        return getExtensionByName(ExtensionLoaders.findLoader(type).getName());
     }
 
     public <E extends Extension<I>> E getExtensionByName(String name) {
-        if (resource.getAttributes().getExtensionAttributes().containsKey(name)) {
-            return (E) ExtensionLoaders.findLoader(name).load(this);
+        if (name == null || name.isEmpty()) {
+            return null;
         }
+
+        // Extension already loaded
+        if (resource.getAttributes().getExtensionAttributes().containsKey(name)) {
+            return (E) ExtensionLoaders.findLoaderByName(name).load(this);
+        }
+
+        // Extension on the server
+        Optional<ExtensionAttributes> extensionAttributes = index.getExtensionAttributes(resource.getType(), resource.getId(), name);
+        if (extensionAttributes.isPresent()) {
+            resource.getAttributes().getExtensionAttributes().put(name, extensionAttributes.get());
+            return (E) ExtensionLoaders.findLoaderByName(name).load(this);
+        }
+
         return null;
     }
 
@@ -327,18 +327,18 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (extension == null) {
             return false;
         }
-        AtomicBoolean removed = new AtomicBoolean(false);
         index.notifyExtensionBeforeRemoval(extension);
-        updateResource(r -> removed.set(r.getAttributes().getExtensionAttributes().remove(extension.getName()) != null));
-        if (removed.get()) {
-            index.notifyExtensionAfterRemoval(this, extension.getName());
-        }
-        return removed.get();
+        resource.getAttributes().getExtensionAttributes().remove(extension.getName());
+        index.removeExtensionAttributes(resource.getId(), extension.getName());
+        index.notifyExtensionAfterRemoval(this, extension.getName());
+        return true;
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
+        Map<String, ExtensionAttributes> extensionsAttributes = index.getAllExtensionsAttributesByIdentifiableId(resource.getType(), resource.getId());
+        resource.getAttributes().getExtensionAttributes().putAll(extensionsAttributes);
         return resource.getAttributes().getExtensionAttributes().keySet().stream()
-                .map(name -> (E) ExtensionLoaders.findLoader(name).load(this))
+                .map(name -> (E) ExtensionLoaders.findLoaderByName(name).load(this))
                 .collect(Collectors.toList());
     }
 

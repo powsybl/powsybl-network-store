@@ -6,11 +6,14 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.junit.Before;
@@ -25,13 +28,10 @@ import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -806,5 +806,121 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.removeConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("cb1"));
         assertEquals(0, cachedClient.getConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         server.verify();
+    }
+
+    @Test
+    public void testGetExtensionCache() throws IOException {
+        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
+        String identifiableId1 = "GEN";
+        ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(0.5)
+                .build();
+        String identifiableId2 = "GEN1";
+        ActivePowerControlAttributes apc2 = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(1)
+                .build();
+
+        String extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
+        }).writeValueAsString(Map.of(identifiableId1, apc1, identifiableId2, apc2));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/types/" + ResourceType.GENERATOR + "/extensions/activepowercontrol"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
+
+        Optional<ExtensionAttributes> apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1, "activepowercontrol");
+        assertTrue(apc1Attributes.isPresent());
+        ActivePowerControlAttributes activePowerControlAttributes = (ActivePowerControlAttributes) apc1Attributes.get();
+        assertEquals(0.5, activePowerControlAttributes.getParticipationFactor(), 0);
+
+        apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1, "activepowercontrol");
+        assertTrue(apc1Attributes.isPresent());
+        activePowerControlAttributes = (ActivePowerControlAttributes) apc1Attributes.get();
+        assertEquals(0.5, activePowerControlAttributes.getParticipationFactor(), 0);
+
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testGetExtensionEmptyExtensionAttributesCache() throws IOException {
+        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
+        String identifiableId1 = "GEN";
+        String extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
+        }).writeValueAsString(Map.of());
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/types/" + ResourceType.GENERATOR + "/extensions/activepowercontrol"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
+
+        Optional<ExtensionAttributes> apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1, "activepowercontrol");
+        assertFalse(apc1Attributes.isPresent());
+
+        apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1, "activepowercontrol");
+        assertFalse(apc1Attributes.isPresent());
+
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testGetExtensionsCache() throws IOException {
+        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
+        String identifiableId1 = "GEN";
+        ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(0.5)
+                .build();
+        GeneratorStartupAttributes gs1 = GeneratorStartupAttributes.builder()
+                .marginalCost(6.8)
+                .forcedOutageRate(35)
+                .plannedOutageRate(30)
+                .startupCost(28)
+                .plannedActivePowerSetpoint(5)
+                .build();
+        String identifiableId2 = "GEN1";
+        ActivePowerControlAttributes apc2 = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(1)
+                .build();
+
+        String multipleExtensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<String, ExtensionAttributes>>>() {
+        }).writeValueAsString(Map.of(identifiableId1, Map.of(ActivePowerControl.NAME, apc1, GeneratorStartup.NAME, gs1), identifiableId2, Map.of(ActivePowerControl.NAME, apc2)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/types/" + ResourceType.GENERATOR + "/extensions"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
+
+        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
+        assertEquals(2, extensionAttributesMap.size());
+
+        extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
+        assertEquals(2, extensionAttributesMap.size());
+
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testGetExtensionsEmptyExtensionAttributesCache() throws IOException {
+        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
+        String identifiableId1 = "GEN";
+
+        String multipleExtensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<String, ExtensionAttributes>>>() {
+        }).writeValueAsString(Map.of());
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/types/" + ResourceType.GENERATOR + "/extensions"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
+
+        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
+        assertEquals(0, extensionAttributesMap.size());
+
+        extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
+        assertEquals(0, extensionAttributesMap.size());
+
+        server.verify();
+        server.reset();
     }
 }

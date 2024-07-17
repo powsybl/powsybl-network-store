@@ -848,4 +848,74 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             AttributeFilter attributeFilter) {
         updateAll(STR_GROUND, "/networks/{networkUuid}/grounds", groundResources, attributeFilter, networkUuid);
     }
+
+    @Override
+    public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
+        String url = "/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions/{extensionName}";
+        logGetExtensionUrl(url, networkUuid, variantNum, identifiableId, extensionName);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
+        Optional<ExtensionAttributes> extensionAttributes = restClient.getOneExtensionAttributes(url, networkUuid, variantNum, identifiableId, extensionName);
+        stopwatch.stop();
+        if (extensionAttributes.isPresent()) {
+            logGetExtensionTime(1, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        }
+        return extensionAttributes;
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
+        String url = "/networks/{networkUuid}/{variantNum}/types/{type}/extensions/{extensionName}";
+        logGetExtensionUrl(url, networkUuid, variantNum, resourceType, extensionName);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Map<String, ExtensionAttributes> extensionAttributesByIdentifiableId = restClient.get(url, new ParameterizedTypeReference<>() {
+        }, networkUuid, variantNum, resourceType, extensionName);
+        stopwatch.stop();
+        logGetExtensionTime(extensionAttributesByIdentifiableId.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        return extensionAttributesByIdentifiableId;
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId) {
+        String url = "/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions";
+        logGetExtensionUrl(url, networkUuid, variantNum, identifiableId);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Map<String, ExtensionAttributes> extensionAttributesByExtensionName = restClient.get(url, new ParameterizedTypeReference<>() {
+        }, networkUuid, variantNum, identifiableId);
+        stopwatch.stop();
+        logGetExtensionTime(extensionAttributesByExtensionName.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return extensionAttributesByExtensionName;
+    }
+
+    @Override
+    public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        String url = "/networks/{networkUuid}/{variantNum}/types/{resourceType}/extensions";
+        logGetExtensionUrl(url, networkUuid, variantNum, resourceType);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Map<String, Map<String, ExtensionAttributes>> extensionAttributesByIdentifiableId = restClient.get(url, new ParameterizedTypeReference<>() {
+        }, networkUuid, variantNum, resourceType);
+        stopwatch.stop();
+        long loadedAttributesCount = extensionAttributesByIdentifiableId.values().stream()
+                .mapToLong(innerMap -> innerMap.values().size())
+                .sum();
+        logGetExtensionTime(loadedAttributesCount, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return extensionAttributesByIdentifiableId;
+    }
+
+    private static void logGetExtensionUrl(String urlTemplate, Object... uriVariables) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Loading extension attributes {}", UriComponentsBuilder.fromUriString(urlTemplate).build(uriVariables));
+        }
+    }
+
+    private static void logGetExtensionTime(long loadedAttributesCount, long timeElapsed) {
+        LOGGER.info("{} extension attributes loaded in {} ms", loadedAttributesCount, timeElapsed);
+    }
+
+    @Override
+    public void removeExtensionAttributes(UUID networkUuid, int variantNum, String identifiableId, String extensionName) {
+        restClient.delete("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions/{extensionName}", networkUuid, variantNum, identifiableId, extensionName);
+    }
 }

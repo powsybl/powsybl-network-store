@@ -10,6 +10,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.network.store.model.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -300,6 +301,35 @@ public interface NetworkStoreClient {
     void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId);
 
     void updateTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources, AttributeFilter attributeFilter);
+
+    // Extension Attributes
+
+    /**
+     * For one identifiable with a specific identifiable id, retrieves one extension attributes by its extension name.
+     */
+    Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName);
+
+    /**
+     * For all the identifiables of a specific resource type, retrieves one extension attributes by its extension name.
+     * Used for preloading collection strategy.
+     * @return A {@link Map} where keys are identifiable IDs and values are {@link ExtensionAttributes}.
+     */
+    Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName);
+
+    /**
+     * For one identifiable with a specific identifiable id, retrieves all extension attributes of this identifiable.
+     * @return A {@link Map} where keys are extension names and values are {@link ExtensionAttributes}.
+     */
+    Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId);
+
+    /**
+     * For all the identifiables of a specific resource type, retrieves all extension attributes of this identifiable.
+     * Used for preloading collection strategy.
+     * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
+     */
+    Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
+
+    void removeExtensionAttributes(UUID networkUuid, int variantNum, String identifiableId, String extensionName);
 
     Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
 

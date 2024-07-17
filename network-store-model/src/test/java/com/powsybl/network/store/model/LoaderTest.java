@@ -18,13 +18,13 @@ import static org.junit.Assert.assertThrows;
 public class LoaderTest {
     @Test
     public void testLoaderNotFound() {
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoader("unknown"));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoaderByName("unknown"));
         assertEquals("ExtensionLoader not found", exception.getMessage());
     }
 
     @Test
     public void testDuplicatedLoader() {
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoader("loader"));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoaderByName("loader"));
         assertEquals("Multiple ExtensionLoaders configuration providers found", exception.getMessage());
     }
 }

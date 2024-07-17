@@ -8,10 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.network.store.model.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -606,6 +603,31 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void flush(UUID networkUuid) {
+        // nothing to do
+    }
+
+    @Override
+    public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID uuid, int variantNum, ResourceType resourceType, String extensionName) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID uuid, int workingVariantNum, ResourceType resourceType, String id) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        return Map.of();
+    }
+
+    @Override
+    public void removeExtensionAttributes(UUID uuid, int workingVariantNum, String identifiableId, String extensionName) {
         // nothing to do
     }
 

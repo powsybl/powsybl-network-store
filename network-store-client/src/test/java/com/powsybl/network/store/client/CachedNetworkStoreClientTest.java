@@ -6,9 +6,13 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.junit.Before;
@@ -16,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -24,17 +29,18 @@ import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.PUT;
+import static org.junit.Assert.*;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
@@ -478,5 +484,163 @@ public class CachedNetworkStoreClientTest {
             server.verify();
             server.reset();
         }
+    }
+
+    @Test
+    public void testGetExtensionCache() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "GEN";
+
+        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
+        ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(0.5)
+                .build();
+
+        String oneExtensionAttributes = objectMapper.writeValueAsString(apc1);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
+
+        Optional<ExtensionAttributes> apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(apc1Attributes.isPresent());
+
+        apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(apc1Attributes.isPresent());
+
+        server.verify();
+        server.reset();
+
+        // Not found extension
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ConnectablePosition.NAME))
+                .andExpect(method(GET))
+                .andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+        Optional<ExtensionAttributes> notFoundExtensionAttributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ConnectablePosition.NAME);
+        assertFalse(notFoundExtensionAttributes.isPresent());
+
+        server.verify();
+        server.reset();
+
+        // When calling removeExtensionAttributes, the attributes should be removed from the cache and no new request should be done
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
+                .andExpect(method(DELETE))
+                .andRespond(withSuccess());
+        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId, ActivePowerControl.NAME);
+
+        apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertFalse(apc1Attributes.isPresent());
+        server.verify();
+        server.reset();
+
+        // When removing the generator, the extension attributes should be removed from the cache as well
+        GeneratorStartupAttributes gs1 = GeneratorStartupAttributes.builder()
+                .marginalCost(6.8)
+                .forcedOutageRate(35)
+                .plannedOutageRate(30)
+                .startupCost(28)
+                .plannedActivePowerSetpoint(5)
+                .build();
+        oneExtensionAttributes = objectMapper.writeValueAsString(gs1);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + GeneratorStartup.NAME))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
+
+        Optional<ExtensionAttributes> gs1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, GeneratorStartup.NAME);
+        assertTrue(gs1Attributes.isPresent());
+
+        cachedClient.removeGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(identifiableId));
+        gs1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, GeneratorStartup.NAME);
+        assertFalse(gs1Attributes.isPresent());
+    }
+
+    @Test
+    public void testGetExtensionsCache() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "GEN";
+
+        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
+        ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(0.5)
+                .build();
+
+        GeneratorStartupAttributes gs1 = GeneratorStartupAttributes.builder()
+                .marginalCost(6.8)
+                .forcedOutageRate(35)
+                .plannedOutageRate(30)
+                .startupCost(28)
+                .plannedActivePowerSetpoint(5)
+                .build();
+
+        String multipleExtensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
+        }).writeValueAsString(Map.of(ActivePowerControl.NAME, apc1, GeneratorStartup.NAME, gs1));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
+
+        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId);
+        assertEquals(2, extensionAttributesMap.size());
+
+        extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId);
+        assertEquals(2, extensionAttributesMap.size());
+
+        server.verify();
+        server.reset();
+
+        // When calling removeExtensionAttributes, the attributes should be removed from the cache and no new request should be done
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
+                .andExpect(method(DELETE))
+                .andRespond(withSuccess());
+        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId, ActivePowerControl.NAME);
+
+        extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId);
+        assertEquals(1, extensionAttributesMap.size());
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testGetExtensionCacheWithClonedNetwork() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "GEN";
+        int targetVariantNum = 1;
+        String targetVariantId = "new_variant";
+
+        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
+        ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(0.5)
+                .build();
+
+        String oneExtensionAttributes = objectMapper.writeValueAsString(apc1);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
+
+        Optional<ExtensionAttributes> apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(apc1Attributes.isPresent());
+
+        apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(apc1Attributes.isPresent());
+
+        server.verify();
+        server.reset();
+
+        // When cloning the network, the cached attributes should remained cached
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId);
+        apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(apc1Attributes.isPresent());
+        server.verify();
+        server.reset();
     }
 }
