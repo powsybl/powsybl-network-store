@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -98,12 +99,22 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
     }
 
     @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+        return getTerminal().connect(isTypeSwitchToOperate);
+    }
+
+    @Override
     public boolean disconnect() {
         return getTerminal().disconnect();
     }
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        return getTerminal().disconnect(isSwitchOpenable);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
         return getTerminal().disconnect(isSwitchOpenable);
     }
 }

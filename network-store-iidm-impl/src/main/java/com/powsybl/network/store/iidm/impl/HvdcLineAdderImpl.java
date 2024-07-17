@@ -81,9 +81,9 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
     public HvdcLine add() {
         String id = checkAndGetUniqueId();
         ValidationUtil.checkR(this, r);
-        ValidationUtil.checkConvertersMode(this, convertersMode, true);
+        ValidationUtil.checkConvertersMode(this, convertersMode, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkNominalV(this, nominalV);
-        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, true);
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkHvdcMaxP(this, maxP);
         HvdcConverterStation<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {

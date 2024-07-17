@@ -79,7 +79,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         if (voltageRegulatorOn == null) {
             throw new ValidationException(this, "voltage regulator status is not set");
         }
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override

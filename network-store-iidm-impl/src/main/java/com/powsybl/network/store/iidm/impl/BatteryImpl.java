@@ -35,7 +35,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public Battery setTargetP(double targetP) {
-        ValidationUtil.checkP0(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkP0(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP());
         double oldValue = getResource().getAttributes().getTargetP();
         if (targetP != oldValue) {
@@ -53,7 +53,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public Battery setTargetQ(double targetQ) {
-        ValidationUtil.checkQ0(this, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkQ0(this, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetQ();
         if (targetQ != oldValue) {
             updateResource(res -> res.getAttributes().setTargetQ(targetQ));

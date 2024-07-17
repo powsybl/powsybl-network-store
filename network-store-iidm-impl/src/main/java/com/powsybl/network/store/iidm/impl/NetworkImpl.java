@@ -1056,4 +1056,47 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     public Ground getGround(String id) {
         return index.getGround(getIdFromAlias(id)).orElse(null);
     }
+
+    @Override
+    public Iterable<String> getAreaTypes() {
+        return getAreaTypeStream().toList();
+    }
+
+    @Override
+    public Stream<String> getAreaTypeStream() {
+        return getAreaStream().map(Area::getAreaType).distinct();
+    }
+
+    @Override
+    public int getAreaTypeCount() {
+        return (int) getAreaTypeStream().count();
+    }
+
+    @Override
+    public AreaAdder newArea() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        return getAreaStream().toList();
+    }
+
+    @Override
+    public Stream<Area> getAreaStream() {
+        // TODO
+        return Stream.empty();
+    }
+
+    @Override
+    public Area getArea(String id) {
+        // TODO
+        return getAreaStream().filter(a -> a.getId().equals(id)).findFirst().orElse(null);
+    }
+
+    @Override
+    public int getAreaCount() {
+        return getAreaStream().toList().size();
+    }
 }

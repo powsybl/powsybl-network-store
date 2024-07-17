@@ -29,4 +29,8 @@ public class ActivePowerControlAttributes implements ExtensionAttributes {
     private double droop;
 
     private double participationFactor;
+
+    private Double minTargetP;
+
+    private Double maxTargetP;
 }

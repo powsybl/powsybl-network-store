@@ -26,6 +26,10 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
 
     private double participationFactor;
 
+    private Double minTargetP;
+
+    private Double maxTargetP;
+
     public ActivePowerControlAdderImpl(I extendable) {
         super(extendable);
     }
@@ -37,6 +41,8 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
                     .droop(droop)
                     .participate(participate)
                     .participationFactor(participationFactor)
+                    .minTargetP(minTargetP)
+                    .maxTargetP(maxTargetP)
                     .build();
             ((AbstractInjectionImpl<?, ?>) injection).updateResource(res -> res.getAttributes().getExtensionAttributes().put(ActivePowerControl.NAME, attributes));
             return new ActivePowerControlImpl<>(injection);
@@ -60,6 +66,18 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
     @Override
     public ActivePowerControlAdder<I> withParticipationFactor(double participationFactor) {
         this.participationFactor = participationFactor;
+        return this;
+    }
+
+    @Override
+    public ActivePowerControlAdder<I> withMinTargetP(double minTargetP) {
+        this.minTargetP = minTargetP;
+        return this;
+    }
+
+    @Override
+    public ActivePowerControlAdder<I> withMaxTargetP(double maxTargetP) {
+        this.maxTargetP = maxTargetP;
         return this;
     }
 }

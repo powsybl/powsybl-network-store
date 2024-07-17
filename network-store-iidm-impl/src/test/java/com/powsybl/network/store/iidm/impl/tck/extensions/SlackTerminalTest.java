@@ -99,4 +99,10 @@ public class SlackTerminalTest extends AbstractSlackTerminalTest {
         assertNull(vlhv1.getExtension(SlackTerminal.class));
 
     }
+
+    @Test
+    @Override
+    public void testWithSubnetwork() {
+        // Network merging unavailable
+    }
 }

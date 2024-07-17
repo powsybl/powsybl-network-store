@@ -39,7 +39,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setSectionCount(int sectionCount) {
-        ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         int oldValue = getResource().getAttributes().getSectionCount();
         if (sectionCount != oldValue) {
             updateResource(res -> res.getAttributes().setSectionCount(sectionCount));
@@ -123,8 +123,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         boolean oldValue = getResource().getAttributes().isVoltageRegulatorOn();
         if (voltageRegulatorOn != oldValue) {
             updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
@@ -157,7 +157,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setTargetV(double targetV) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetV();
         if (Double.compare(targetV, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setTargetV(targetV));
@@ -174,7 +174,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetDeadband();
         if (Double.compare(targetDeadband, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setTargetDeadband(targetDeadband));

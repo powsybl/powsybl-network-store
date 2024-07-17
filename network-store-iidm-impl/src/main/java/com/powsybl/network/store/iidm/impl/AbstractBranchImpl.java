@@ -615,6 +615,11 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+        return getTerminal(side.toTwoSides()).connect(isTypeSwitchToOperate);
+    }
+
+    @Override
     public boolean disconnect() {
         return getTerminal1().disconnect() && getTerminal2().disconnect();
     }
@@ -622,5 +627,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         return getTerminal1().disconnect(isSwitchOpenable) && getTerminal2().disconnect(isSwitchOpenable);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
+        return getTerminal(side.toTwoSides()).disconnect(isSwitchOpenable);
     }
 }

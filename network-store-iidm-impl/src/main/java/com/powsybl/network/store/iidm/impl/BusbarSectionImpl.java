@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -117,6 +118,11 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     }
 
     @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+        return connect(isTypeSwitchToOperate);
+    }
+
+    @Override
     public boolean disconnect() {
         return terminal.disconnect();
     }
@@ -124,5 +130,10 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         return terminal.disconnect(isSwitchOpenable);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
+        return disconnect(isSwitchOpenable);
     }
 }

@@ -98,7 +98,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public C setRegulating(boolean regulating) {
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
         boolean oldValue = getAttributes().isRegulating();
         if (regulating != oldValue) {
             getTransformer().updateResource(res -> getAttributes(res).setRegulating(regulating));
@@ -127,7 +127,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public C setTargetDeadband(double targetDeadBand) {
-        ValidationUtil.checkTargetDeadband(parent, type, isRegulating(), targetDeadBand, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkTargetDeadband(parent, type, isRegulating(), targetDeadBand, ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getAttributes().getTargetDeadband();
         if (Double.compare(targetDeadBand, oldValue) != 0) {
             getTransformer().updateResource(res -> getAttributes(res).setTargetDeadband(targetDeadBand));

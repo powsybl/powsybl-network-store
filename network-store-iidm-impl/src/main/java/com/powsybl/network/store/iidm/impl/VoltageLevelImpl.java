@@ -669,4 +669,35 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     public int getGroundCount() {
         return getGrounds().size();
     }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        // TODO
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<Area> getAreasStream() {
+        // TODO
+        return Stream.empty();
+    }
+
+    @Override
+    public Optional<Area> getArea(String areaType) {
+        Objects.requireNonNull(areaType);
+        // TODO
+        return Optional.empty();
+    }
+
+    @Override
+    public void addArea(Area area) {
+        Objects.requireNonNull(area);
+        // TODO
+    }
+
+    @Override
+    public void removeArea(Area area) {
+        Objects.requireNonNull(area);
+        // TODO
+    }
 }
