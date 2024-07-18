@@ -101,7 +101,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         delegate.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
     }
 
-    private void loadExtensionAttributesByIdToCache(ResourceType resourceType, UUID networkUuid, int variantNum) {
+    private void loadExtensionAttributesToCache(ResourceType resourceType, UUID networkUuid, int variantNum) {
         delegate.getAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
     }
 
@@ -141,6 +141,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     private void ensureExtensionAttributesCached(ResourceType resourceType, UUID networkUuid, int variantNum, String extensionName) {
         Objects.requireNonNull(resourceType);
         Objects.requireNonNull(networkUuid);
+        Objects.requireNonNull(extensionName);
         Map<ResourceType, Set<String>> extensionAttributesByTypeAndName = cachedExtensionAttributesByTypeAndName.getCollection(networkUuid, variantNum);
         Set<ResourceType> extensionAttributesByType = cachedExtensionAttributesByType.getCollection(networkUuid, variantNum);
         boolean isFullyLoadedType = extensionAttributesByType.contains(resourceType);
@@ -159,7 +160,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         Set<ResourceType> extensionAttributesByType = cachedExtensionAttributesByType.getCollection(networkUuid, variantNum);
         boolean isFullyLoadedType = extensionAttributesByType.contains(resourceType);
         if (!isFullyLoadedType) {
-            loadExtensionAttributesByIdToCache(resourceType, networkUuid, variantNum);
+            loadExtensionAttributesToCache(resourceType, networkUuid, variantNum);
             extensionAttributesByType.add(resourceType);
         }
     }

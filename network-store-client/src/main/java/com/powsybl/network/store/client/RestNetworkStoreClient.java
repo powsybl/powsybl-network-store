@@ -115,6 +115,52 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return resource;
     }
 
+    private Optional<ExtensionAttributes> getExtensionAttributes(String urlTemplate, Object... uriVariables) {
+        logGetExtensionAttributesUrl(urlTemplate, uriVariables);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Optional<ExtensionAttributes> extensionAttributes = restClient.getOneExtensionAttributes(urlTemplate, uriVariables);
+        stopwatch.stop();
+
+        if (extensionAttributes.isPresent()) {
+            logGetExtensionAttributesTime(1, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        }
+
+        return extensionAttributes;
+    }
+
+    private Map<String, ExtensionAttributes> getExtensionAttributesMap(String urlTemplate, Object... uriVariables) {
+        logGetExtensionAttributesUrl(urlTemplate, uriVariables);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Map<String, ExtensionAttributes> extensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        stopwatch.stop();
+        logGetExtensionAttributesTime(extensionAttributes.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return extensionAttributes;
+    }
+
+    private Map<String, Map<String, ExtensionAttributes>> getExtensionAttributesNestedMap(String urlTemplate, Object... uriVariables) {
+        logGetExtensionAttributesUrl(urlTemplate, uriVariables);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Map<String, Map<String, ExtensionAttributes>> extensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        stopwatch.stop();
+        long loadedAttributesCount = extensionAttributes.values().stream()
+                .mapToLong(innerMap -> innerMap.values().size())
+                .sum();
+        logGetExtensionAttributesTime(loadedAttributesCount, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return extensionAttributes;
+    }
+
+    private static void logGetExtensionAttributesUrl(String urlTemplate, Object... uriVariables) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Loading extension attributes {}", UriComponentsBuilder.fromUriString(urlTemplate).build(uriVariables));
+        }
+    }
+
+    private static void logGetExtensionAttributesTime(long loadedAttributesCount, long timeElapsed) {
+        LOGGER.info("{} extension attributes loaded in {} ms", loadedAttributesCount, timeElapsed);
+    }
+
     private <T extends IdentifiableAttributes> void updatePartition(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
         if (attributeFilter == null) {
             if (LOGGER.isInfoEnabled()) {
@@ -851,67 +897,22 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
-        String url = "/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions/{extensionName}";
-        logGetExtensionUrl(url, networkUuid, variantNum, identifiableId, extensionName);
-        Stopwatch stopwatch = Stopwatch.createStarted();
-
-        Optional<ExtensionAttributes> extensionAttributes = restClient.getOneExtensionAttributes(url, networkUuid, variantNum, identifiableId, extensionName);
-        stopwatch.stop();
-        if (extensionAttributes.isPresent()) {
-            logGetExtensionTime(1, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        }
-        return extensionAttributes;
+        return getExtensionAttributes("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions/{extensionName}", networkUuid, variantNum, identifiableId, extensionName);
     }
 
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
-        String url = "/networks/{networkUuid}/{variantNum}/types/{type}/extensions/{extensionName}";
-        logGetExtensionUrl(url, networkUuid, variantNum, resourceType, extensionName);
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<String, ExtensionAttributes> extensionAttributesByIdentifiableId = restClient.get(url, new ParameterizedTypeReference<>() {
-        }, networkUuid, variantNum, resourceType, extensionName);
-        stopwatch.stop();
-        logGetExtensionTime(extensionAttributesByIdentifiableId.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        return extensionAttributesByIdentifiableId;
+        return getExtensionAttributesMap("/networks/{networkUuid}/{variantNum}/types/{type}/extensions/{extensionName}", networkUuid, variantNum, resourceType, extensionName);
     }
 
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId) {
-        String url = "/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions";
-        logGetExtensionUrl(url, networkUuid, variantNum, identifiableId);
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<String, ExtensionAttributes> extensionAttributesByExtensionName = restClient.get(url, new ParameterizedTypeReference<>() {
-        }, networkUuid, variantNum, identifiableId);
-        stopwatch.stop();
-        logGetExtensionTime(extensionAttributesByExtensionName.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
-
-        return extensionAttributesByExtensionName;
+        return getExtensionAttributesMap("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions", networkUuid, variantNum, identifiableId);
     }
 
     @Override
     public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        String url = "/networks/{networkUuid}/{variantNum}/types/{resourceType}/extensions";
-        logGetExtensionUrl(url, networkUuid, variantNum, resourceType);
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<String, Map<String, ExtensionAttributes>> extensionAttributesByIdentifiableId = restClient.get(url, new ParameterizedTypeReference<>() {
-        }, networkUuid, variantNum, resourceType);
-        stopwatch.stop();
-        long loadedAttributesCount = extensionAttributesByIdentifiableId.values().stream()
-                .mapToLong(innerMap -> innerMap.values().size())
-                .sum();
-        logGetExtensionTime(loadedAttributesCount, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-
-        return extensionAttributesByIdentifiableId;
-    }
-
-    private static void logGetExtensionUrl(String urlTemplate, Object... uriVariables) {
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Loading extension attributes {}", UriComponentsBuilder.fromUriString(urlTemplate).build(uriVariables));
-        }
-    }
-
-    private static void logGetExtensionTime(long loadedAttributesCount, long timeElapsed) {
-        LOGGER.info("{} extension attributes loaded in {} ms", loadedAttributesCount, timeElapsed);
+        return getExtensionAttributesNestedMap("/networks/{networkUuid}/{variantNum}/types/{resourceType}/extensions", networkUuid, variantNum, resourceType);
     }
 
     @Override
