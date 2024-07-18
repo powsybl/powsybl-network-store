@@ -24,12 +24,4 @@ public class TapChangerTest extends AbstractTapChangerTest {
     //  and isRegulating is not updated either
     @Override
     public void undefinedRegulationValueOnlyWarning() { }
-
-    // TODO remove this test when TapChanger.getNeutralPosition et getNeutralStep are implemented
-    @Override
-    public void testPhaseTapChangerStepsReplacer() { }
-
-    // TODO remove this test when TapChanger.getNeutralPosition et getNeutralStep are implemented
-    @Override
-    public void testRatioTapChangerStepsReplacer() { }
 }

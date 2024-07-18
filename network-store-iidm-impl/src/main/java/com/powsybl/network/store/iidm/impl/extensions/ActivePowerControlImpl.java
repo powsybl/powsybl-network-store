@@ -103,8 +103,8 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public OptionalDouble getMinTargetP() {
-        Double value = getActivePowerControlAttributes().getMinTargetP();
-        return value == null || Double.isNaN(value) ? OptionalDouble.empty() : OptionalDouble.of(withinPMinMax(value, getExtendable()));
+        double value = getActivePowerControlAttributes().getMinTargetP();
+        return Double.isNaN(value) ? OptionalDouble.empty() : OptionalDouble.of(withinPMinMax(value, getExtendable()));
     }
 
     private double checkTargetPLimit(double targetPLimit, String name, I injection) {
@@ -133,8 +133,8 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public OptionalDouble getMaxTargetP() {
-        Double value = getActivePowerControlAttributes().getMaxTargetP();
-        return value == null || Double.isNaN(value) ? OptionalDouble.empty() : OptionalDouble.of(withinPMinMax(value, getExtendable()));
+        double value = getActivePowerControlAttributes().getMaxTargetP();
+        return Double.isNaN(value) ? OptionalDouble.empty() : OptionalDouble.of(withinPMinMax(value, getExtendable()));
     }
 
     @Override

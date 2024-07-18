@@ -163,15 +163,6 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
                 }
             }
         }
-        // check name unicity
-        // name unicity constraint removed since powsybl-core 6.4.0
-//        temporaryLimits.values().stream()
-//                .collect(Collectors.groupingBy(TemporaryLimitAttributes::getName))
-//                .forEach((name, temporaryLimits1) -> {
-//                    if (temporaryLimits1.size() > 1) {
-//                        throw new ValidationException(owner, temporaryLimits1.size() + "temporary limits have the same name " + name);
-//                    }
-//                });
     }
 
     protected abstract L createAndSetLimit(LimitsAttributes attributes);

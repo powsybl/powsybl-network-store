@@ -26,9 +26,9 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
 
     private double participationFactor;
 
-    private Double minTargetP;
+    private double minTargetP = Double.NaN;
 
-    private Double maxTargetP;
+    private double maxTargetP = Double.NaN;
 
     public ActivePowerControlAdderImpl(I extendable) {
         super(extendable);

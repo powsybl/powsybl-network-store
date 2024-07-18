@@ -30,7 +30,7 @@ public class ActivePowerControlAttributes implements ExtensionAttributes {
 
     private double participationFactor;
 
-    private Double minTargetP;
+    private double minTargetP;
 
-    private Double maxTargetP;
+    private double maxTargetP;
 }
