@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 import com.powsybl.network.store.model.VscConverterStationAttributes;
 
@@ -22,6 +23,8 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     private double reactivePowerSetPoint = Double.NaN;
 
     private double voltageSetPoint = Double.NaN;
+
+    private Terminal regulatingTerminal;
 
     VscConverterStationAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
@@ -46,10 +49,18 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     }
 
     @Override
+    public VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
+    }
+
+    @Override
     public VscConverterStation add() {
         String id = checkAndGetUniqueId();
         checkNodeBus();
         validate();
+
+        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
@@ -65,6 +76,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .voltageRegulatorOn(voltageRegulatorOn)
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
+                        .regulatingTerminal(terminalRefAttributes)
                         .build())
                 .build();
         VscConverterStationImpl station = getIndex().createVscConverterStation(resource);
@@ -80,6 +92,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
             throw new ValidationException(this, "voltage regulator status is not set");
         }
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
     }
 
     @Override
