@@ -6,17 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
-import org.junit.jupiter.api.Test;
-
-import com.powsybl.iidm.network.tck.AbstractGroundTest;
+import com.powsybl.iidm.network.tck.util.AbstractNodeBreakerTopologyTest;
 
 /**
- * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-class GroundTest extends AbstractGroundTest {
-
-    @Test
-    public void testOnSubnetwork() {
-        // FIXME remove this test when subnetworks are implemented
-    }
+public class NodeBreakerTopologyTest extends AbstractNodeBreakerTopologyTest {
 }

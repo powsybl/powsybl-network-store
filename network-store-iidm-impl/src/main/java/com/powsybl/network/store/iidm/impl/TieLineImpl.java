@@ -14,6 +14,7 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TieLineAttributes;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -473,5 +474,35 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     @Override
     public void cancelSelectedOperationalLimitsGroup2() {
         getDanglingLine2().cancelSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public boolean connectDanglingLines() {
+        return getTerminal1().connect() && getTerminal2().connect();
+    }
+
+    @Override
+    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate) {
+        return getTerminal1().connect(isTypeSwitchToOperate) && getTerminal2().connect(isTypeSwitchToOperate);
+    }
+
+    @Override
+    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+        return getTerminal(side).connect(isTypeSwitchToOperate);
+    }
+
+    @Override
+    public boolean disconnectDanglingLines() {
+        return getTerminal1().disconnect() && getTerminal2().disconnect();
+    }
+
+    @Override
+    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable) {
+        return getTerminal1().disconnect(isSwitchOpenable) && getTerminal2().disconnect(isSwitchOpenable);
+    }
+
+    @Override
+    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+        return getTerminal(side).disconnect(isSwitchOpenable);
     }
 }

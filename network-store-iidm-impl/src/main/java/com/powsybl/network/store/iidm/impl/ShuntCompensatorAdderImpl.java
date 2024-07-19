@@ -200,15 +200,15 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
         if (model == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         if (sectionCount < 0 || sectionCount > model.getMaximumSectionCount()) {
             throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
 
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
 
         Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder()
                 .id(id)
