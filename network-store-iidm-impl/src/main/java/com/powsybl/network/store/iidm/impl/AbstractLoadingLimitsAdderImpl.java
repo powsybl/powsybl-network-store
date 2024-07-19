@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.iidm.impl.AbstractLoadingLimits.TemporaryLimitImpl;
 import com.powsybl.network.store.model.LimitsAttributes;
@@ -145,8 +146,8 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
             if (Double.isNaN(tl.getValue())) {
                 throw new ValidationException(owner, "temporary limit value is not set");
             }
-            if (tl.getValue() <= 0) {
-                throw new ValidationException(owner, "temporary limit value must be > 0");
+            if (tl.getValue() < 0) {
+                throw new ValidationException(owner, "temporary limit value must be >= 0");
             }
             if (tl.getAcceptableDuration() < 0) {
                 throw new ValidationException(owner, "acceptable duration must be >= 0");
@@ -162,14 +163,6 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
                 }
             }
         }
-        // check name unicity
-        temporaryLimits.values().stream()
-                .collect(Collectors.groupingBy(TemporaryLimitAttributes::getName))
-                .forEach((name, temporaryLimits1) -> {
-                    if (temporaryLimits1.size() > 1) {
-                        throw new ValidationException(owner, temporaryLimits1.size() + "temporary limits have the same name " + name);
-                    }
-                });
     }
 
     protected abstract L createAndSetLimit(LimitsAttributes attributes);
@@ -177,7 +170,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
     @Override
     public L add() {
         Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toList());
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd, true);
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd, ValidationLevel.STEADY_STATE_HYPOTHESIS, owner.getIdentifiable().getNetwork().getReportNodeContext().getReportNode());
         checkTemporaryLimits();
 
         LimitsAttributes attributes = LimitsAttributes.builder()

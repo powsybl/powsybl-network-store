@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LccConverterStationAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -60,7 +61,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public LccConverterStation setLossFactor(float lossFactor) {
-        ValidationUtil.checkLossFactor(this, lossFactor);
+        ValidationUtil.checkLossFactor(this, lossFactor, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
             updateResource(res -> res.getAttributes().setLossFactor(lossFactor));

@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesMetadataModelImpl;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
@@ -37,7 +38,7 @@ public class CgmesMetadataModelsImpl extends AbstractExtension<Network> implemen
     @Override
     public Collection<CgmesMetadataModel> getModels() {
         return ((CgmesMetadataModelsAttributes) getNetwork().getResource().getAttributes().getExtensionAttributes().get(CgmesMetadataModels.NAME)).getModels().stream().map(m -> {
-                CgmesMetadataModel model = new CgmesMetadataModel(m.getSubset(), m.getModelingAuthoritySet());
+                CgmesMetadataModel model = new CgmesMetadataModelImpl(m.getSubset(), m.getModelingAuthoritySet());
                 model.setId(m.getId());
                 model.setDescription(m.getDescription());
                 model.setVersion(m.getVersion());

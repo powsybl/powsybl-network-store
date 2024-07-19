@@ -32,6 +32,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private Terminal regulatingTerminal;
 
+    private boolean condenser = false;
+
     GeneratorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
     }
@@ -99,18 +101,24 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
+    public GeneratorAdder setCondenser(boolean condenser) {
+        this.condenser = condenser;
+        return this;
+    }
+
+    @Override
     public Generator add() {
         String id = checkAndGetUniqueId();
         checkNodeBus();
         ValidationUtil.checkEnergySource(this, energySource);
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkActivePowerSetpoint(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkActivePowerSetpoint(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         // FIXME this is a workaround for an issue in powsybl core 4.7.0
         if (voltageRegulatorOn == null) {
             throw new ValidationException(this, "voltage regulator status is not set");
         }
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
@@ -143,6 +151,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .ratedS(ratedS)
                         .reactiveLimits(minMaxAttributes)
                         .regulatingTerminal(terminalRefAttributes)
+                        .condenser(condenser)
                         .build())
                 .build();
         GeneratorImpl generator = getIndex().createGenerator(resource);

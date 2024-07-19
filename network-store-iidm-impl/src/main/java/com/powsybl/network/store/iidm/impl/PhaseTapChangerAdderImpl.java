@@ -162,7 +162,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
             throw new ValidationException(tapChangerParent, "tap position is not set");
         }
         if (steps.isEmpty()) {
-            throw new ValidationException(tapChangerParent, "a phase tap changer shall have at least one step");
+            throw new ValidationException(tapChangerParent, "phase tap changer should have at least one step");
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
         if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
@@ -170,13 +170,13 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, regulatingTerminal, index.getNetwork(), true);
-        ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, regulatingTerminal, tapChangerParent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, index.getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
         tapChangers.addAll(tapChangerParent.getAllTapChangers());
         tapChangers.remove(tapChangerParent.getPhaseTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, true);
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
