@@ -17,16 +17,16 @@ public class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControl
 
     @Test
     public void pilotPointTargetVoltageNotificationTest() {
-        // FIXME
+        // notify is not implemented in powsybl-network-store-iidm-impl
     }
 
     @Test
     public void controlUnitParticipateNotificationTest() {
-        // FIXME
+        // notify is not implemented in powsybl-network-store-iidm-impl
     }
 
     @Test
     public void extensionRemovalAndCreationNotificationTest() {
-        // FIXME
+        // notify is not implemented in powsybl-network-store-iidm-impl
     }
 }

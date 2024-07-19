@@ -23,17 +23,18 @@ public class ControlZoneAdderImpl implements ControlZoneAdder {
 
     private final SecondaryVoltageControlAdderImpl parent;
 
-    private final NetworkImpl network;
-
     private String name;
 
     private PilotPointImpl pilotPoint;
 
     private final List<ControlUnitImpl> controlUnits = new ArrayList<>();
 
-    ControlZoneAdderImpl(NetworkImpl network, SecondaryVoltageControlAdderImpl parent) {
-        this.network = Objects.requireNonNull(network);
+    ControlZoneAdderImpl(SecondaryVoltageControlAdderImpl parent) {
         this.parent = Objects.requireNonNull(parent);
+    }
+
+    public NetworkImpl getNetwork() {
+        return parent.getNetwork();
     }
 
     @Override
@@ -48,7 +49,7 @@ public class ControlZoneAdderImpl implements ControlZoneAdder {
 
     @Override
     public PilotPointAdderImpl newPilotPoint() {
-        return new PilotPointAdderImpl(network, this);
+        return new PilotPointAdderImpl(this);
     }
 
     void addControlUnit(ControlUnitImpl controlUnit) {
@@ -57,7 +58,7 @@ public class ControlZoneAdderImpl implements ControlZoneAdder {
 
     @Override
     public ControlUnitAdderImpl newControlUnit() {
-        return new ControlUnitAdderImpl(network, this);
+        return new ControlUnitAdderImpl(this);
     }
 
     @Override
@@ -76,7 +77,7 @@ public class ControlZoneAdderImpl implements ControlZoneAdder {
                 .pilotPoint(pilotPoint.getPilotPointAttributes())
                 .controlUnits(controlUnits.stream().map(ControlUnitImpl::getControlUnitAttributes).toList())
                 .build();
-        ControlZoneImpl controlZone = new ControlZoneImpl(network, controlZoneAttributes);
+        ControlZoneImpl controlZone = new ControlZoneImpl(getNetwork(), controlZoneAttributes);
         parent.addControlZone(controlZone);
         return parent;
     }

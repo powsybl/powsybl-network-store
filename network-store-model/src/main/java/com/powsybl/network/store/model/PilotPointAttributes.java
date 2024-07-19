@@ -29,5 +29,4 @@ import java.util.List;
 public class PilotPointAttributes {
     private List<String> busbarSectionsOrBusesIds;
     private double targetV;
-    private ControlZoneAttributes controlZone;
 }

@@ -22,14 +22,11 @@ public class PilotPointAdderImpl implements PilotPointAdder {
 
     private final ControlZoneAdderImpl parent;
 
-    private final NetworkImpl network;
-
     private List<String> busbarSectionsOrBusesIds;
 
     private double targetV = Double.NaN;
 
-    PilotPointAdderImpl(NetworkImpl network, ControlZoneAdderImpl parent) {
-        this.network = Objects.requireNonNull(network);
+    PilotPointAdderImpl(ControlZoneAdderImpl parent) {
         this.parent = Objects.requireNonNull(parent);
     }
 
@@ -62,6 +59,7 @@ public class PilotPointAdderImpl implements PilotPointAdder {
                 .busbarSectionsOrBusesIds(busbarSectionsOrBusesIds)
                 .targetV(targetV)
                 .build();
+        NetworkImpl network = parent.getNetwork();
         parent.setPilotPoint(new PilotPointImpl(network, pilotPointAttributes));
         return parent;
     }

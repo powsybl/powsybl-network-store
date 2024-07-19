@@ -21,14 +21,11 @@ public class ControlUnitAdderImpl implements ControlUnitAdder {
 
     private final ControlZoneAdderImpl parent;
 
-    private final NetworkImpl network;
-
     private String id;
 
     private boolean participate = true;
 
-    ControlUnitAdderImpl(NetworkImpl network, ControlZoneAdderImpl parent) {
-        this.network = Objects.requireNonNull(network);
+    ControlUnitAdderImpl(ControlZoneAdderImpl parent) {
         this.parent = Objects.requireNonNull(parent);
     }
 
@@ -53,6 +50,7 @@ public class ControlUnitAdderImpl implements ControlUnitAdder {
                 .id(id)
                 .participate(participate)
                 .build();
+        NetworkImpl network = parent.getNetwork();
         parent.addControlUnit(new ControlUnitImpl(network, controlUnitAttributes));
         return parent;
     }

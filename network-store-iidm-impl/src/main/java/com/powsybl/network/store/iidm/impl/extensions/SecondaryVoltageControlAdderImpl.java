@@ -31,6 +31,10 @@ public class SecondaryVoltageControlAdderImpl extends AbstractExtensionAdder<Net
         super(network);
     }
 
+    public NetworkImpl getNetwork() {
+        return (NetworkImpl) extendable;
+    }
+
     @Override
     public Class<? super SecondaryVoltageControl> getExtensionClass() {
         return SecondaryVoltageControl.class;
@@ -42,7 +46,7 @@ public class SecondaryVoltageControlAdderImpl extends AbstractExtensionAdder<Net
 
     @Override
     public ControlZoneAdder newControlZone() {
-        return new ControlZoneAdderImpl((NetworkImpl) super.extendable, this);
+        return new ControlZoneAdderImpl(this);
     }
 
     @Override
