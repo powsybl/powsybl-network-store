@@ -21,7 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
+
 // TODO : to remove when Area will be implemented
+
 public class AreaTest {
     @Test
     public void testUnimplementedAreas() {
