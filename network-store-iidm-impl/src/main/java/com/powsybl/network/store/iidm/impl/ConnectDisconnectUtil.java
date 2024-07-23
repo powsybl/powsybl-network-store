@@ -82,7 +82,7 @@ public final class ConnectDisconnectUtil {
             if (!terminal.isConnected()
                 && terminal instanceof TerminalImpl<?> terminalImpl
                 && !terminalImpl.isNodeBeakerTopologyKind()) {
-                    terminalImpl.connectBusBreaker();
+                terminalImpl.connectBusBreaker();
             }
         }
 
@@ -157,7 +157,7 @@ public final class ConnectDisconnectUtil {
             if (terminal.isConnected()
                 && terminal instanceof TerminalImpl<?> terminalImpl
                 && !terminalImpl.isNodeBeakerTopologyKind()) {
-                    terminalImpl.disconnectBusBreaker();
+                terminalImpl.disconnectBusBreaker();
             }
         }
 

@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractConnectableImpl<I extends Connectable<I>, D extends IdentifiableAttributes> extends AbstractIdentifiableImpl<I, D> implements Connectable<I>  {
+public abstract class AbstractConnectableImpl<I extends Connectable<I>, D extends IdentifiableAttributes> extends AbstractIdentifiableImpl<I, D> implements Connectable<I> {
 
     AbstractConnectableImpl(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
