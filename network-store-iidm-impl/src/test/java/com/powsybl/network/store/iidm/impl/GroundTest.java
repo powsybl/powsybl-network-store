@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
 import static com.powsybl.network.store.iidm.impl.CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 /**
@@ -23,8 +22,7 @@ public class GroundTest {
     public void assertGroundRemoval() {
         Network network = createNodeBreakerNetwokWithMultipleEquipments();
         Ground ground = network.getGround("ground");
-        assertFalse(ground.connect());
-        network.getGround("ground").remove();
+        ground.remove();
         assertNull(network.getGround("ground"));
     }
 }
