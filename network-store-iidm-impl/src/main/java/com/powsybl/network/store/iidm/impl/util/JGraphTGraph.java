@@ -12,10 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.iidm.impl.Edge;
 import org.jgrapht.Graph;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -35,7 +32,7 @@ public class JGraphTGraph {
                                           Comparator<List<Edge>> comparator) {
 
         List<List<Edge>> paths = new ArrayList<>();
-        BitSet encountered = new BitSet(graph.vertexSet().size());
+        BitSet encountered = new BitSet(Collections.max(graph.vertexSet()) + 1);
         List<Edge> path = new ArrayList<>();
         findAllPaths(from, pathComplete, pathCancelled, path, encountered, paths);
 
