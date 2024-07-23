@@ -75,18 +75,16 @@ public class JGraphTGraph {
         }
     }
 
-    private boolean findAllPaths(Edge edge, int v1or2, Predicate<Integer> pathComplete, Predicate<Edge> pathCancelled,
+    private void findAllPaths(Edge edge, int v1or2, Predicate<Integer> pathComplete, Predicate<Edge> pathCancelled,
                                  List<Edge> path, BitSet encountered, List<List<Edge>> paths) {
         if (encountered.get(v1or2)) {
-            return false;
+            return;
         }
         path.add(edge);
         if (Boolean.TRUE.equals(pathComplete.test(v1or2))) {
             paths.add(path);
-            return true;
         } else {
             findAllPaths(v1or2, pathComplete, pathCancelled, path, encountered, paths);
-            return false;
         }
     }
 }
