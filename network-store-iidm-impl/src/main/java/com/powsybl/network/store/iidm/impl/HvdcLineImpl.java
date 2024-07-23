@@ -7,14 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.network.store.iidm.impl.extensions.HvdcAngleDroopActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.HvdcOperatorActivePowerRangeImpl;
 import com.powsybl.network.store.model.HvdcAngleDroopActivePowerControlAttributes;
@@ -23,6 +19,7 @@ import com.powsybl.network.store.model.HvdcOperatorActivePowerRangeAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -208,31 +205,46 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public boolean connectConverterStations() {
-        return getConverterStation1().getTerminal().connect() && getConverterStation2().getTerminal().connect();
+        return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
     }
 
     @Override
     public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
-        return getConverterStation1().getTerminal().connect(isTypeSwitchToOperate) && getConverterStation2().getTerminal().connect(isTypeSwitchToOperate);
+        return connectConverterStations(isTypeSwitchToOperate, null);
     }
 
     @Override
     public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
-        return getConverterStation(side).getTerminal().connect(isTypeSwitchToOperate);
+        return ConnectDisconnectUtil.connectAllTerminals(
+            this,
+            getTerminalsOfConverterStations(side),
+            isTypeSwitchToOperate,
+            getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
     public boolean disconnectConverterStations() {
-        return getConverterStation1().getTerminal().disconnect() && getConverterStation2().getTerminal().disconnect();
+        return disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, null);
     }
 
     @Override
     public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
-        return getConverterStation1().getTerminal().disconnect(isSwitchOpenable) && getConverterStation2().getTerminal().disconnect(isSwitchOpenable);
+        return disconnectConverterStations(isSwitchOpenable, null);
     }
 
     @Override
     public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side) {
-        return getConverterStation(side).getTerminal().disconnect(isSwitchOpenable);
+        return ConnectDisconnectUtil.disconnectAllTerminals(
+            this,
+            getTerminalsOfConverterStations(side),
+            isSwitchOpenable,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    private List<Terminal> getTerminalsOfConverterStations(TwoSides side) {
+        return side == null ? List.of(getConverterStation1().getTerminal(), getConverterStation2().getTerminal()) : switch (side) {
+            case ONE -> List.of(getConverterStation1().getTerminal());
+            case TWO -> List.of(getConverterStation2().getTerminal());
+        };
     }
 }
