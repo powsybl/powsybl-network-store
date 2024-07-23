@@ -8,6 +8,7 @@
 
 package com.powsybl.network.store.iidm.impl.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.iidm.impl.Edge;
 import org.jgrapht.Graph;
 
@@ -45,6 +46,9 @@ public class JGraphTGraph {
 
     private void findAllPaths(int v, Predicate<Integer> pathComplete, Predicate<Edge> pathCancelled,
                               List<Edge> path, BitSet encountered, List<List<Edge>> paths) {
+        if (v < 0) {
+            throw new PowsyblException("Invalid vertex " + v);
+        }
         encountered.set(v, true);
         List<Edge> adjacentEdges = graph.edgesOf(v).stream().toList();
         for (int i = 0; i < adjacentEdges.size(); i++) {
