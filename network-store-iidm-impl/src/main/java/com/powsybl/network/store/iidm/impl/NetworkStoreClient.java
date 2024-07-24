@@ -329,7 +329,7 @@ public interface NetworkStoreClient {
      */
     Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
 
-    void removeExtensionAttributes(UUID networkUuid, int variantNum, String identifiableId, String extensionName);
+    void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName);
 
     Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
 

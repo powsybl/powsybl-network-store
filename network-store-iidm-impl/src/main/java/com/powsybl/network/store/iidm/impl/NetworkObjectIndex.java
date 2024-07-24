@@ -1219,15 +1219,15 @@ public class NetworkObjectIndex {
         storeClient.updateBusbarSections(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
-    public Optional<ExtensionAttributes> getExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
-        return storeClient.getExtensionAttributes(network.getUuid(), workingVariantNum, type, identifiableId, extensionName);
+    public void loadExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
+        storeClient.getExtensionAttributes(network.getUuid(), workingVariantNum, type, identifiableId, extensionName);
     }
 
-    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(ResourceType resourceType, String identifiableId) {
-        return storeClient.getAllExtensionsAttributesByIdentifiableId(network.getUuid(), workingVariantNum, resourceType, identifiableId);
+    public void loadAllExtensionsAttributesByIdentifiableId(ResourceType type, String identifiableId) {
+        storeClient.getAllExtensionsAttributesByIdentifiableId(network.getUuid(), workingVariantNum, type, identifiableId);
     }
 
-    public void removeExtensionAttributes(String identifiableId, String extensionName) {
-        storeClient.removeExtensionAttributes(network.getUuid(), workingVariantNum, identifiableId, extensionName);
+    public void removeExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
+        storeClient.removeExtensionAttributes(network.getUuid(), workingVariantNum, type, identifiableId, extensionName);
     }
 }

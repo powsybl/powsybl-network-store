@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -810,14 +811,18 @@ public class PreloadingNetworkStoreClientTest {
 
     @Test
     public void testGetExtensionCache() throws IOException {
-        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         String identifiableId1 = "GEN";
+        String identifiableId2 = "GEN1";
+
+        // Load the identifiables in the cache
+        loadTwoIdentifiablesInCache(identifiableId1, identifiableId2);
+
+        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
                 .droop(5.2)
                 .participate(true)
                 .participationFactor(0.5)
                 .build();
-        String identifiableId2 = "GEN1";
         ActivePowerControlAttributes apc2 = ActivePowerControlAttributes.builder()
                 .droop(5.2)
                 .participate(true)
@@ -866,8 +871,13 @@ public class PreloadingNetworkStoreClientTest {
 
     @Test
     public void testGetExtensionsCache() throws IOException {
-        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         String identifiableId1 = "GEN";
+        String identifiableId2 = "GEN1";
+
+        // Load the identifiables in the cache
+        loadTwoIdentifiablesInCache(identifiableId1, identifiableId2);
+
+        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
                 .droop(5.2)
                 .participate(true)
@@ -880,7 +890,6 @@ public class PreloadingNetworkStoreClientTest {
                 .startupCost(28)
                 .plannedActivePowerSetpoint(5)
                 .build();
-        String identifiableId2 = "GEN1";
         ActivePowerControlAttributes apc2 = ActivePowerControlAttributes.builder()
                 .droop(5.2)
                 .participate(true)
@@ -905,9 +914,12 @@ public class PreloadingNetworkStoreClientTest {
 
     @Test
     public void testGetExtensionsEmptyExtensionAttributesCache() throws IOException {
-        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         String identifiableId1 = "GEN";
+        String identifiableId2 = "GEN1";
 
+        loadTwoIdentifiablesInCache(identifiableId1, identifiableId2);
+
+        // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         String multipleExtensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<String, ExtensionAttributes>>>() {
         }).writeValueAsString(Map.of());
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/types/" + ResourceType.GENERATOR + "/extensions"))
@@ -920,6 +932,28 @@ public class PreloadingNetworkStoreClientTest {
         extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
         assertEquals(0, extensionAttributesMap.size());
 
+        server.verify();
+        server.reset();
+    }
+
+    private void loadTwoIdentifiablesInCache(String identifiableId1, String identifiableId2) throws JsonProcessingException {
+        Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
+                .id(identifiableId1)
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("VL_1")
+                        .build())
+                .build();
+        Resource<GeneratorAttributes> g2Resource = Resource.generatorBuilder()
+                .id(identifiableId2)
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("VL_1")
+                        .build())
+                .build();
+        String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource, g2Resource)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
+        cachedClient.getGenerator(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId1);
         server.verify();
         server.reset();
     }

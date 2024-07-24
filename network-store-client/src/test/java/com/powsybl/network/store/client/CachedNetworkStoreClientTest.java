@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -492,6 +493,9 @@ public class CachedNetworkStoreClientTest {
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
 
+        // Load the identifiable in the cache
+        loadIdentifiableInCache(identifiableId, networkUuid, cachedClient);
+
         // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
                 .droop(5.2)
@@ -528,7 +532,7 @@ public class CachedNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
                 .andExpect(method(DELETE))
                 .andRespond(withSuccess());
-        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId, ActivePowerControl.NAME);
+        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
 
         apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
         assertFalse(apc1Attributes.isPresent());
@@ -561,6 +565,9 @@ public class CachedNetworkStoreClientTest {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
+
+        // Load the identifiable in the cache
+        loadIdentifiableInCache(identifiableId, networkUuid, cachedClient);
 
         // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
@@ -596,7 +603,7 @@ public class CachedNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
                 .andExpect(method(DELETE))
                 .andRespond(withSuccess());
-        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId, ActivePowerControl.NAME);
+        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
 
         extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId);
         assertEquals(1, extensionAttributesMap.size());
@@ -608,9 +615,11 @@ public class CachedNetworkStoreClientTest {
     public void testGetExtensionCacheWithClonedNetwork() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        String identifiableId = "GEN";
         int targetVariantNum = 1;
         String targetVariantId = "new_variant";
+        String identifiableId = "GEN";
+
+        loadIdentifiableInCache(identifiableId, networkUuid, cachedClient);
 
         // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
@@ -640,6 +649,22 @@ public class CachedNetworkStoreClientTest {
         cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId);
         apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
         assertTrue(apc1Attributes.isPresent());
+        server.verify();
+        server.reset();
+    }
+
+    private void loadIdentifiableInCache(String identifiableId, UUID networkUuid, CachedNetworkStoreClient cachedClient) throws JsonProcessingException {
+        Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
+                .id(identifiableId)
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("VL_1")
+                        .build())
+                .build();
+        String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators/" + identifiableId))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
+        cachedClient.getGenerator(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId);
         server.verify();
         server.reset();
     }

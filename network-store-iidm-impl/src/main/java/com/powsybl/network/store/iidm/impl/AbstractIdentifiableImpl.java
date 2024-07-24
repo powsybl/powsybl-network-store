@@ -17,7 +17,10 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.AttributeFilter;
+import com.powsybl.network.store.model.ExtensionLoaders;
+import com.powsybl.network.store.model.IdentifiableAttributes;
+import com.powsybl.network.store.model.Resource;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
@@ -306,19 +309,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (name == null || name.isEmpty()) {
             return null;
         }
-
-        // Extension already loaded
+        index.loadExtensionAttributes(resource.getType(), resource.getId(), name);
         if (resource.getAttributes().getExtensionAttributes().containsKey(name)) {
             return (E) ExtensionLoaders.findLoaderByName(name).load(this);
         }
-
-        // Extension on the server
-        Optional<ExtensionAttributes> extensionAttributes = index.getExtensionAttributes(resource.getType(), resource.getId(), name);
-        if (extensionAttributes.isPresent()) {
-            resource.getAttributes().getExtensionAttributes().put(name, extensionAttributes.get());
-            return (E) ExtensionLoaders.findLoaderByName(name).load(this);
-        }
-
         return null;
     }
 
@@ -328,15 +322,13 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
             return false;
         }
         index.notifyExtensionBeforeRemoval(extension);
-        resource.getAttributes().getExtensionAttributes().remove(extension.getName());
-        index.removeExtensionAttributes(resource.getId(), extension.getName());
+        index.removeExtensionAttributes(resource.getType(), resource.getId(), extension.getName());
         index.notifyExtensionAfterRemoval(this, extension.getName());
         return true;
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        Map<String, ExtensionAttributes> extensionsAttributes = index.getAllExtensionsAttributesByIdentifiableId(resource.getType(), resource.getId());
-        resource.getAttributes().getExtensionAttributes().putAll(extensionsAttributes);
+        index.loadAllExtensionsAttributesByIdentifiableId(resource.getType(), resource.getId());
         return resource.getAttributes().getExtensionAttributes().keySet().stream()
                 .map(name -> (E) ExtensionLoaders.findLoaderByName(name).load(this))
                 .collect(Collectors.toList());

@@ -120,10 +120,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Optional<ExtensionAttributes> extensionAttributes = restClient.getOneExtensionAttributes(urlTemplate, uriVariables);
         stopwatch.stop();
-
-        if (extensionAttributes.isPresent()) {
-            logGetExtensionAttributesTime(1, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        }
+        logGetExtensionAttributesTime(extensionAttributes.isPresent() ? 1 : 0, stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
         return extensionAttributes;
     }
@@ -916,7 +913,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeExtensionAttributes(UUID networkUuid, int variantNum, String identifiableId, String extensionName) {
+    public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
         restClient.delete("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions/{extensionName}", networkUuid, variantNum, identifiableId, extensionName);
     }
 }

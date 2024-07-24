@@ -617,7 +617,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID uuid, int workingVariantNum, ResourceType resourceType, String id) {
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId) {
         return Map.of();
     }
 
@@ -627,7 +627,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeExtensionAttributes(UUID uuid, int workingVariantNum, String identifiableId, String extensionName) {
+    public void removeExtensionAttributes(UUID uuid, int workingVariantNum, ResourceType resourceType, String identifiableId, String extensionName) {
         // nothing to do
     }
 
