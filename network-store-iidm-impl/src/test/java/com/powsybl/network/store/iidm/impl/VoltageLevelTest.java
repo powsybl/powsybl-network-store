@@ -84,4 +84,40 @@ public class VoltageLevelTest {
         assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
             assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
     }
+
+    @Test
+    public void testBusBreakerSetVUpdateVoltageLevel() {
+        Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
+        LineImpl l1 = (LineImpl) network.getLine("L1");
+
+        // Set voltage using BusBreakerView
+        l1.getTerminal1().getBusBreakerView().getBus().setV(400.0);
+
+        // Verify voltage update in BusView
+        assertEquals("Voltage should match in BusView after update in BusBreakerView", 400.0, l1.getTerminal1().getBusView().getBus().getV(), 0.0);
+
+        // Update voltage again using BusView
+        l1.getTerminal1().getBusView().getBus().setV(222);
+
+        // Verify the voltage update in BusView
+        assertEquals("Voltage should match in BusView after second update in BusBreakerView", 222, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
+    }
+
+    @Test
+    public void testNodeBreakerSetVUpdateVoltageLevel() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        LineImpl l1 = (LineImpl) network.getLine("L1");
+
+        // Set voltage using BusView
+        l1.getTerminal1().getBusView().getBus().setV(400.0);
+
+        // Verify voltage update in BusBreakerView
+        assertEquals("Voltage should match in BusBreakerView after update in BusView", 400.0, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
+
+        // Update voltage again using BusBreakerView
+        l1.getTerminal1().getBusBreakerView().getBus().setV(222);
+
+        // Verify the voltage update in BusView
+        assertEquals("Voltage should match in BusBreakerView after second update in BusView", 222, l1.getTerminal1().getBusView().getBus().getV(), 0.0);
+    }
 }

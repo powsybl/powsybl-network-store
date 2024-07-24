@@ -347,12 +347,8 @@ public abstract class AbstractTopology<T> {
             voltageLevelResource.getAttributes().setCalculatedBusesForBusView(null);
             voltageLevelResource.getAttributes().setCalculatedBusesForBusBreakerView(null);
         }
-
-        if (isBusView) { // set calculated buses
-            voltageLevelResource.getAttributes().setCalculatedBusesForBusView(calculatedBusAttributesList);
-        } else {
-            voltageLevelResource.getAttributes().setCalculatedBusesForBusBreakerView(calculatedBusAttributesList);
-        }
+        voltageLevelResource.getAttributes().setCalculatedBusesForBusView(calculatedBusAttributesList);
+        voltageLevelResource.getAttributes().setCalculatedBusesForBusBreakerView(calculatedBusAttributesList);
     }
 
     private CalculationResult<T> getCalculatedBusAttributesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {

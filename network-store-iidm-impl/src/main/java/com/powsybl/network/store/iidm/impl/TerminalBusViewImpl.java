@@ -64,7 +64,12 @@ class TerminalBusViewImpl<U extends IdentifiableAttributes> implements Terminal.
 
     @Override
     public Bus getBus() {
-        return calculateBus();
+        if (isNodeBeakerTopologyKind()) { // calculated bus
+            return calculateBus();
+        } else {  // configured bus
+            String busId = getAttributes().getBus();
+            return busId != null ? index.getConfiguredBus(busId).orElseThrow(() -> new AssertionError(busId + " " + "not found")) : null;
+        }
     }
 
     @Override
