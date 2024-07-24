@@ -8,39 +8,25 @@
 package com.powsybl.network.store.iidm.impl.tck.extensions;
 
 import com.powsybl.iidm.network.tck.extensions.AbstractSecondaryVoltageControlTest;
-
-import java.io.IOException;
-
-import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControlTest {
-    @Override
-    @BeforeEach
-   public void setUp() {
-        // FIXME
-    }
-
-    @Test
-    public void test() throws IOException {
-        // FIXME
-    }
 
     @Test
     public void pilotPointTargetVoltageNotificationTest() {
-        // FIXME
+        // notify is not implemented in powsybl-network-store-iidm-impl
     }
 
     @Test
     public void controlUnitParticipateNotificationTest() {
-        // FIXME
+        // notify is not implemented in powsybl-network-store-iidm-impl
     }
 
     @Test
     public void extensionRemovalAndCreationNotificationTest() {
-        // FIXME
+        // notify is not implemented in powsybl-network-store-iidm-impl
     }
 }
