@@ -25,10 +25,12 @@ class LoadTest extends AbstractLoadTest {
 
     //TODO remove this test when ZipLoadModelAdder is implemented
     @Override
+    @Test
     public void testZipLoadModel() { }
 
     //TODO remove this test when ZipLoadModelAdder is implemented
     @Override
+    @Test
     public void testExponentialLoadModel() {
         // FIXME
         Network network = FictitiousSwitchFactory.create();
