@@ -241,7 +241,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
             getNetwork().getReportNodeContext().getReportNode());
     }
 
-    private List<Terminal> getTerminalsOfConverterStations(TwoSides side) {
+    public List<Terminal> getTerminalsOfConverterStations(TwoSides side) {
         return side == null ? List.of(getConverterStation1().getTerminal(), getConverterStation2().getTerminal()) : switch (side) {
             case ONE -> List.of(getConverterStation1().getTerminal());
             case TWO -> List.of(getConverterStation2().getTerminal());

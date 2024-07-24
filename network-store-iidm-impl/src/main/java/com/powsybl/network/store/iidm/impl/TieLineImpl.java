@@ -515,7 +515,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
             getNetwork().getReportNodeContext().getReportNode());
     }
 
-    private List<Terminal> getTerminalsOfDanglingLines(TwoSides side) {
+    public List<Terminal> getTerminalsOfDanglingLines(TwoSides side) {
         return side == null ? List.of(getTerminal1(), getTerminal2()) : switch (side) {
             case ONE -> List.of(getTerminal1());
             case TWO -> List.of(getTerminal2());
