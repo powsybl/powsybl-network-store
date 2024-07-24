@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest {
+class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest {
     @Override
     public void baseTests() {
         // FIXME : remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3019
