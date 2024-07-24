@@ -11,11 +11,11 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import static com.powsybl.network.store.iidm.impl.CreateNetworksUtil.createNodeBreakerNetworkWithLine;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -45,7 +45,16 @@ public class LoadTest {
     public void testConnectDisconnect() {
         Network network = createNodeBreakerNetworkWithLine();
         Load load = network.getLoad("LD");
+
+        // The load starts connected
+        load.getTerminals().forEach(terminal -> Assertions.assertTrue(terminal.isConnected()));
+
+        // Disconnect the load
+        Assertions.assertTrue(load.disconnect());
+        load.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
+
+        // Reconnect the load
         assertTrue(load.connect());
-        assertTrue(load.disconnect());
+        load.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
     }
 }
