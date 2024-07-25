@@ -96,7 +96,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     private final PentaFunction<UUID, Integer, ResourceType, String, String, Optional<ExtensionAttributes>> extensionAttributeLoader;
 
     /**
-     * A function to load the extension attributes with a specific extension name for the collection with specified resource type.
+     * A function to load the extension attributes with a specific extension name for the collection.
      */
     private final QuadriFunction<UUID, Integer, ResourceType, String, Map<String, ExtensionAttributes>> extensionAttributesLoaderByResourceTypeAndName;
 
@@ -106,7 +106,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     private final QuadriFunction<UUID, Integer, ResourceType, String, Map<String, ExtensionAttributes>> extensionAttributesLoaderById;
 
     /**
-     * A function to load all extension attributes for the collection with specified resource type.
+     * A function to load all extension attributes for the collection.
      */
     private final TriFunction<UUID, Integer, ResourceType, Map<String, Map<String, ExtensionAttributes>>> extensionAttributesLoaderByResourceType;
 
@@ -433,18 +433,10 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             // we update the full cache and set it as fully loaded
             extensionAttributesMap.forEach((identifiableId, extensionAttributes) -> addExtensionAttributesToCache(identifiableId, extensionName, extensionAttributes));
             fullyLoadedExtensionsByExtensionName.add(extensionName);
-            discardRemovedStatus(extensionAttributesMap.keySet(), extensionName);
         }
         // The return of this method is meaningless as it's not used in the client but only to load extension attributes
         // in the cache with collection preloading strategy.
         return Map.of();
-    }
-
-    private void discardRemovedStatus(Set<String> identifiableIds, String extensionName) {
-        identifiableIds.forEach(id -> removedExtensionAttributes.computeIfPresent(id, (k, v) -> {
-            v.remove(extensionName);
-            return v.isEmpty() ? null : v;
-        }));
     }
 
     /**
@@ -463,8 +455,6 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                 return extensionAttributes;
             }
         }
-        // The return of this method is meaningless as it's not used in the client but only to load extension attributes
-        // in the cache with collection preloading strategy.
         return Map.of();
     }
 

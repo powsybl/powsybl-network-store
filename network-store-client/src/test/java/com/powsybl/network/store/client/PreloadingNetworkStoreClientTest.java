@@ -815,7 +815,7 @@ public class PreloadingNetworkStoreClientTest {
         String identifiableId2 = "GEN1";
 
         // Load the identifiables in the cache
-        loadTwoIdentifiablesInCache(identifiableId1, identifiableId2);
+        loadTwoIdentifiablesToCache(identifiableId1, identifiableId2);
 
         // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
@@ -875,7 +875,7 @@ public class PreloadingNetworkStoreClientTest {
         String identifiableId2 = "GEN1";
 
         // Load the identifiables in the cache
-        loadTwoIdentifiablesInCache(identifiableId1, identifiableId2);
+        loadTwoIdentifiablesToCache(identifiableId1, identifiableId2);
 
         // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
@@ -917,7 +917,7 @@ public class PreloadingNetworkStoreClientTest {
         String identifiableId1 = "GEN";
         String identifiableId2 = "GEN1";
 
-        loadTwoIdentifiablesInCache(identifiableId1, identifiableId2);
+        loadTwoIdentifiablesToCache(identifiableId1, identifiableId2);
 
         // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         String multipleExtensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<String, ExtensionAttributes>>>() {
@@ -936,7 +936,7 @@ public class PreloadingNetworkStoreClientTest {
         server.reset();
     }
 
-    private void loadTwoIdentifiablesInCache(String identifiableId1, String identifiableId2) throws JsonProcessingException {
+    private void loadTwoIdentifiablesToCache(String identifiableId1, String identifiableId2) throws JsonProcessingException {
         Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
                 .id(identifiableId1)
                 .attributes(GeneratorAttributes.builder()

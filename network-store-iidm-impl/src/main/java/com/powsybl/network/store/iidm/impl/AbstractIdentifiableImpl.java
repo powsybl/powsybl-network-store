@@ -306,7 +306,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> E getExtensionByName(String name) {
-        if (name == null || name.isEmpty()) {
+        if (!loaderExists(name)) {
             return null;
         }
         index.loadExtensionAttributes(resource.getType(), resource.getId(), name);

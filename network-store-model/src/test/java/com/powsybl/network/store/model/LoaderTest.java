@@ -7,10 +7,10 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
@@ -20,6 +20,14 @@ public class LoaderTest {
     public void testLoaderNotFound() {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoaderByName("unknown"));
         assertEquals("ExtensionLoader not found", exception.getMessage());
+    }
+
+    @Test
+    public void testLoaderExists() {
+        assertTrue(ExtensionLoaders.loaderExists("loader"));
+        assertFalse(ExtensionLoaders.loaderExists("unknown"));
+        assertTrue(ExtensionLoaders.loaderExists(Extension.class));
+        assertFalse(ExtensionLoaders.loaderExists(Object.class));
     }
 
     @Test

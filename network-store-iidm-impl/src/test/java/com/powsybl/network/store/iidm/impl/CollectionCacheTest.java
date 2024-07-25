@@ -509,7 +509,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void whenExtensionIsCachedAndExtensionIsRemovedClearExtensionCache() {
+    public void whenExtensionIsCachedThenRemovedClearExtensionCache() {
         // Load resources in cache
         assertEquals(l1, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElse(null));
         assertFalse(extensionAttributeLoaderCalled);
