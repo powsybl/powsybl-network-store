@@ -185,6 +185,10 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return false;
     }
 
+    /**
+     * <p>This method is an adaptation of the same method from NodeBreakerVoltageLevel in powsybl-core, in order to keep
+     * the same logic and the same results on both sides.</p>
+     */
     boolean getConnectingSwitches(Predicate<Switch> isSwitchOperable, Set<SwitchImpl> switchForConnection) {
         boolean done = false;
 
@@ -357,6 +361,10 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return false;
     }
 
+    /**
+     * <p>This method is an adaptation of the same method from NodeBreakerVoltageLevel in powsybl-core, in order to keep
+     * the same logic and the same results on both sides.</p>
+     */
     boolean getDisconnectingSwitches(Predicate<Switch> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
 
         // Voltage level

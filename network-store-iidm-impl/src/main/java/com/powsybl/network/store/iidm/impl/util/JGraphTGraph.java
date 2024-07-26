@@ -16,6 +16,9 @@ import java.util.*;
 import java.util.function.Predicate;
 
 /**
+ * This class is used to provide JGraphT graphs with the same methods as the UndirectedGraph implementation from
+ * powsybl-core. As such, the results of the methods in both implementations are the same.
+ *
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class JGraphTGraph {
@@ -26,6 +29,22 @@ public class JGraphTGraph {
         this.graph = graph;
     }
 
+    /**
+     * Find all paths from the specified vertex.
+     * This method relies on two functions to stop the traverse when the target vertex is found or when an edge must not be traversed.
+     * <p>
+     * This method allocates a {@link List} of {@link List} of {@link Edge} to store the paths, a {@link BitSet} to store the encountered vertices
+     * and calls {@link #findAllPaths(int, Predicate, Predicate, List, BitSet, List)}.
+     * In the output, the paths are sorted by using the given comparator.
+     * </p>
+     * <p>This method is a copy of the same method from UndirectedGraph in powsybl-core.</p>
+     *
+     * @param from the vertex index where the traverse has to start.
+     * @param pathComplete a function that returns true when the target vertex is found.
+     * @param pathCancelled a function that returns true when the edge must not be traversed.
+     * @param comparator a comparator used to sort the paths
+     * @return a list that contains the index of the traversed edges.
+     */
     public List<List<Edge>> findAllPaths(int from,
                                           Predicate<Integer> pathComplete,
                                           Predicate<Edge> pathCancelled,
@@ -41,6 +60,18 @@ public class JGraphTGraph {
         return paths;
     }
 
+    /**
+     * This method is called by {@link #findAllPaths(int, Predicate, Predicate,Comparator)}.
+     * For each adjacent edges for which the pathCanceled returns {@literal false}, traverse the other vertex calling {@link #findAllPaths(Edge, int, Predicate, Predicate, List, BitSet, List)}.
+     * <p>This method is a copy of the same method from UndirectedGraph in powsybl-core.</p>
+     *
+     * @param v the current vertex
+     * @param pathComplete a function that returns true when the target vertex is found.
+     * @param pathCancelled a function that returns true when the edge must not be traversed.
+     * @param path a list that contains the traversed edges.
+     * @param encountered a BitSet that contains the traversed vertex.
+     * @param paths a list that contains the complete paths.
+     */
     private void findAllPaths(int v, Predicate<Integer> pathComplete, Predicate<Edge> pathCancelled,
                               List<Edge> path, BitSet encountered, List<List<Edge>> paths) {
         if (v < 0) {
@@ -76,6 +107,20 @@ public class JGraphTGraph {
         }
     }
 
+    /**
+     * This method is called by {@link #findAllPaths(int, Predicate, Predicate, List, BitSet, List)} each time a vertex is traversed.
+     * The path is added to the paths list if it's complete, otherwise this method calls the {@link #findAllPaths(int, Predicate, Predicate, List, BitSet, List)}
+     * to continue the recursion.
+     * <p>This method is a copy of the same method from UndirectedGraph in powsybl-core.</p>
+     *
+     * @param edge the current edge.
+     * @param v1or2 the index of the current vertex.
+     * @param pathComplete a function that returns true when the target vertex is found.
+     * @param pathCancelled pathCanceled a function that returns true when the edge must not be traversed.
+     * @param path a list that contains the traversed edges.
+     * @param encountered a BitSet that contains the traversed vertex.
+     * @param paths a list that contains the complete paths.
+     */
     private void findAllPaths(Edge edge, int v1or2, Predicate<Integer> pathComplete, Predicate<Edge> pathCancelled,
                                  List<Edge> path, BitSet encountered, List<List<Edge>> paths) {
         if (encountered.get(v1or2)) {
