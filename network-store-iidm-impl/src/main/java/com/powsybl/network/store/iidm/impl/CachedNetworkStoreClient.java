@@ -1158,7 +1158,12 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
-        return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
+        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
+        // Note: The return value of this method is not used in this context. As part of the delegate pattern,
+        // this method is used in the RestNetworkStoreClient delegate to load extension attributes from the server when
+        // using the collection preloading strategy. The empty map returned here serves as a placeholder since the actual
+        // loading logic is handled within the method call above.
+        return Map.of();
     }
 
     @Override
@@ -1168,7 +1173,12 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     @Override
     public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
+        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
+        // Note: The return value of this method is not used in this context. As part of the delegate pattern,
+        // this method is used in the RestNetworkStoreClient delegate to load extension attributes from the server when
+        // using the collection preloading strategy. The empty map returned here serves as a placeholder since the actual
+        // loading logic is handled within the method call above.
+        return Map.of();
     }
 
     @Override

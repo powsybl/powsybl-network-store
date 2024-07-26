@@ -390,11 +390,11 @@ public class CollectionCacheTest {
     public void getExtensionAttributesWithResourceNotCachedMustThrow() {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1", "activePowerControl"));
         assertTrue(exception.getMessage().startsWith("Cannot manipulate extensions for identifiable"));
-        exception = assertThrows(PowsyblException.class, () -> collectionCache.getAllExtensionsAttributesByResourceTypeAndExtensionName(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "activePowerControl"));
+        exception = assertThrows(PowsyblException.class, () -> collectionCache.loadAllExtensionsAttributesByResourceTypeAndExtensionName(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "activePowerControl"));
         assertTrue(exception.getMessage().startsWith("Cannot manipulate extensions for identifiable"));
         exception = assertThrows(PowsyblException.class, () -> collectionCache.getAllExtensionsAttributesByIdentifiableId(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1"));
         assertTrue(exception.getMessage().startsWith("Cannot manipulate extensions for identifiable"));
-        exception = assertThrows(PowsyblException.class, () -> collectionCache.getAllExtensionsAttributesByResourceType(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD));
+        exception = assertThrows(PowsyblException.class, () -> collectionCache.loadAllExtensionsAttributesByResourceType(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD));
         assertTrue(exception.getMessage().startsWith("Cannot manipulate extensions for identifiable"));
     }
 
@@ -539,7 +539,7 @@ public class CollectionCacheTest {
         assertFalse(extensionAttributesLoaderByResourceTypeAndNameCalled);
         assertFalse(extensionAttributesLoaderByIdCalled);
         assertFalse(extensionAttributesLoaderByResourceTypeCalled);
-        assertEquals(Map.of(), collectionCache.getAllExtensionsAttributesByResourceTypeAndExtensionName(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "activePowerControl"));
+        collectionCache.loadAllExtensionsAttributesByResourceTypeAndExtensionName(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "activePowerControl");
         assertFalse(extensionAttributeLoaderCalled);
         assertTrue(extensionAttributesLoaderByResourceTypeAndNameCalled);
         assertFalse(extensionAttributesLoaderByIdCalled);
@@ -581,7 +581,7 @@ public class CollectionCacheTest {
         assertFalse(extensionAttributesLoaderByResourceTypeAndNameCalled);
         assertFalse(extensionAttributesLoaderByIdCalled);
         assertFalse(extensionAttributesLoaderByResourceTypeCalled);
-        assertEquals(Map.of(), collectionCache.getAllExtensionsAttributesByResourceType(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD));
+        collectionCache.loadAllExtensionsAttributesByResourceType(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD);
         assertFalse(extensionAttributeLoaderCalled);
         assertFalse(extensionAttributesLoaderByResourceTypeAndNameCalled);
         assertFalse(extensionAttributesLoaderByIdCalled);

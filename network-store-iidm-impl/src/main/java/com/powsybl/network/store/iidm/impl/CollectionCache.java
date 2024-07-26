@@ -425,7 +425,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     /**
      * Load the extensions attributes with specified extension name for all the identifiables of the collection in the cache.
      */
-    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType type, String extensionName) {
+    public void loadAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType type, String extensionName) {
         if (!isFullyLoadedExtension(extensionName)) {
             // if collection has not yet been fully loaded we load it from the server
             Map<String, ExtensionAttributes> extensionAttributesMap = extensionAttributesLoaderByResourceTypeAndName.apply(networkUuid, variantNum, type, extensionName);
@@ -434,9 +434,6 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             extensionAttributesMap.forEach((identifiableId, extensionAttributes) -> addExtensionAttributesToCache(identifiableId, extensionName, extensionAttributes));
             fullyLoadedExtensionsByExtensionName.add(extensionName);
         }
-        // The return of this method is meaningless as it's not used in the client but only to load extension attributes
-        // in the cache with collection preloading strategy.
-        return Map.of();
     }
 
     /**
@@ -480,7 +477,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     /**
      * Load all the extensions attributes for all the identifiables with specified resource type in the cache
      */
-    public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType type) {
+    public void loadAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType type) {
         if (!fullyLoadedExtensions) {
             // if collection has not yet been fully loaded we load it from the server
             Map<String, Map<String, ExtensionAttributes>> extensionAttributesMap = extensionAttributesLoaderByResourceType.apply(networkUuid, variantNum, type);
@@ -489,9 +486,6 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             extensionAttributesMap.forEach(this::addAllExtensionAttributesToCache);
             fullyLoadedExtensions = true;
         }
-        // The return of this method is meaningless as it's not used in the client but only to load extension attributes
-        // in the cache with collection preloading strategy.
-        return Map.of();
     }
 
     public void removeExtensionAttributesByExtensionName(String identifiableId, String extensionName) {
