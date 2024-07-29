@@ -997,7 +997,7 @@ public final class CreateNetworksUtil {
         return network;
     }
 
-    static Network createDummyNodeBreakerWithTieLineNetwork() {
+    public static Network createDummyNodeBreakerWithTieLineNetwork() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation().setId("S1").add();
         Substation s2 = network.newSubstation().setId("S2").add();
