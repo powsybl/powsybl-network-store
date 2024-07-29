@@ -153,19 +153,21 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     private double computeEdgeWeight(Edge edge, Predicate<Switch> openOperableSwitch) {
-        return isSwitchOperableAndPresent(edge, openOperableSwitch) ? 1d : 0d;
+        return testSwitchFromEdge(edge, openOperableSwitch) ? 1d : 0d;
     }
 
-    private boolean isSwitchOperableAndPresent(Edge edge, Predicate<Switch> openOperableSwitch) {
+    /**
+     * Check that the edge corresponds to a switch and test the predicate on the switch
+     */
+    private boolean testSwitchFromEdge(Edge edge, Predicate<Switch> predicate) {
         if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
             // Get the switch behind the switchAttributes
             Optional<SwitchImpl> sw = index.getSwitch(switchAttributes.getResource().getId());
 
-            // THe weight is 1 if the switch is operable and open, else 0
-            return sw.isPresent() && openOperableSwitch.test(sw.get());
-        } else {
-            return false;
+            // Test the switch
+            return sw.isPresent() && predicate.test(sw.get());
         }
+        return false;
     }
 
     /**
@@ -175,14 +177,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
      * @return <code>true</code> if the switch is open and cannot be operated
      */
     private boolean checkNonClosableSwitch(Edge edge, Predicate<Switch> isSwitchOperable) {
-        if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
-            // Get the switch behind the switchAttributes
-            Optional<SwitchImpl> sw = index.getSwitch(switchAttributes.getResource().getId());
-
-            // Test if the switch can be opened according to the predicate
-            return sw.isPresent() && SwitchPredicates.IS_OPEN.test(sw.get()) && isSwitchOperable.negate().test(sw.get());
-        }
-        return false;
+        return testSwitchFromEdge(edge, SwitchPredicates.IS_OPEN.and(isSwitchOperable.negate()));
     }
 
     /**
@@ -223,7 +218,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
             // close all open operable switches on the path
             shortestPath.stream()
-                .filter(edge -> isSwitchOperableAndPresent(edge, isOpenOperableSwitch))
+                .filter(edge -> testSwitchFromEdge(edge, isOpenOperableSwitch))
                 .forEach(edge -> {
                     if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
                         // Get the switch behind the switchAttributes
@@ -334,7 +329,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
      * @param switchesToOpen   set of switches to be opened
      * @return true if the path has been opened, else false
      */
-    boolean identifySwitchToOpenPath(List<Edge> path, Predicate<? super Switch> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
+    boolean identifySwitchToOpenPath(List<Edge> path, Predicate<Switch> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
         for (Edge edge : path) {
             if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
                 // Get the switch behind the switchAttributes
@@ -351,14 +346,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     private boolean isAnOpenSwitch(Edge edge) {
-        if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
-            // Get the switch behind the switchAttributes
-            Optional<SwitchImpl> sw = index.getSwitch(switchAttributes.getResource().getId());
-
-            // Test if the switch is already open
-            return sw.isPresent() && SwitchPredicates.IS_OPEN.test(sw.get());
-        }
-        return false;
+        return testSwitchFromEdge(edge, SwitchPredicates.IS_OPEN);
     }
 
     /**
