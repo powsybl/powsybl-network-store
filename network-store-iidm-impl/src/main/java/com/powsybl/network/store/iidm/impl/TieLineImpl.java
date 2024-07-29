@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TieLineAttributes;
@@ -478,31 +479,46 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public boolean connectDanglingLines() {
-        return getTerminal1().connect() && getTerminal2().connect();
+        return connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
     }
 
     @Override
     public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate) {
-        return getTerminal1().connect(isTypeSwitchToOperate) && getTerminal2().connect(isTypeSwitchToOperate);
+        return connectDanglingLines(isTypeSwitchToOperate, null);
     }
 
     @Override
     public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
-        return getTerminal(side).connect(isTypeSwitchToOperate);
+        return ConnectDisconnectUtil.connectAllTerminals(
+            this,
+            getTerminalsOfDanglingLines(side),
+            isTypeSwitchToOperate,
+            getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
     public boolean disconnectDanglingLines() {
-        return getTerminal1().disconnect() && getTerminal2().disconnect();
+        return disconnectDanglingLines(SwitchPredicates.IS_CLOSED_BREAKER, null);
     }
 
     @Override
     public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable) {
-        return getTerminal1().disconnect(isSwitchOpenable) && getTerminal2().disconnect(isSwitchOpenable);
+        return disconnectDanglingLines(isSwitchOpenable, null);
     }
 
     @Override
     public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
-        return getTerminal(side).disconnect(isSwitchOpenable);
+        return ConnectDisconnectUtil.disconnectAllTerminals(
+            this,
+            getTerminalsOfDanglingLines(side),
+            isSwitchOpenable,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    public List<Terminal> getTerminalsOfDanglingLines(TwoSides side) {
+        return side == null ? List.of(getTerminal1(), getTerminal2()) : switch (side) {
+            case ONE -> List.of(getTerminal1());
+            case TWO -> List.of(getTerminal2());
+        };
     }
 }

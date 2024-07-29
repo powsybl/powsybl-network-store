@@ -6,24 +6,35 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.tck.AbstractHvdcLineTest;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.network.store.iidm.impl.HvdcLineImpl;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class HvdcLineTest extends AbstractHvdcLineTest {
+class HvdcLineTest extends AbstractHvdcLineTest {
+
     @Test
-    void testConnectDisconnect() {
-        //FIXME test fails :
-        // in AbstractHvdcLineTest :
-        //    assertFalse(hvdcLine.disconnectConverterStations(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
-        //    --> assertion succeeds here but :
-        //        HvdcLine 'L' is then disconnected on side 1, which is in a BUS_BRAKER voltage level
-        //        nothing is done on side 2, because side 2 is in a NODE_BREAKER voltage level and predicate doesn't match
-        //
-        //    assertTrue(hvdcLine.disconnectConverterStations());
-        //    --> assertion fails here because side 1 has already been disconnected just above, and the method returns true
-        //        only if both sides have been disconnected ...
+    void testTerminals() {
+        Network network = HvdcTestNetwork.createVsc();
+        HvdcLine line = network.getHvdcLine("L");
+        assertNotNull(line);
+        assertInstanceOf(HvdcLineImpl.class, line);
+
+        Terminal terminal1 = line.getConverterStation1().getTerminal();
+        Terminal terminal2 = line.getConverterStation2().getTerminal();
+        assertEquals(List.of(terminal1, terminal2), ((HvdcLineImpl) line).getTerminalsOfConverterStations(null));
+        assertEquals(List.of(terminal1), ((HvdcLineImpl) line).getTerminalsOfConverterStations(TwoSides.ONE));
+        assertEquals(List.of(terminal2), ((HvdcLineImpl) line).getTerminalsOfConverterStations(TwoSides.TWO));
     }
 }

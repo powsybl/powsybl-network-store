@@ -1,20 +1,26 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.tck.AbstractTieLineTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.network.store.iidm.impl.TieLineImpl;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.List;
 
-public class TieLineTest extends AbstractTieLineTest {
+import static com.powsybl.network.store.iidm.impl.CreateNetworksUtil.createDummyNodeBreakerWithTieLineNetwork;
+import static org.junit.jupiter.api.Assertions.*;
+
+class TieLineTest extends AbstractTieLineTest {
     /* Temporary fix for upgrade to PowSyBl 2023.3.
     * In order for this test to pass in the network-store, we need to get the dangling line from the network
     * directly and not from the line because the line is removed when we evaluate the assertion.
     * line1.getDanglingLine1() is replaced by eurostagNetwork.getDanglingLine(danglingLine11Id) where the id is
     * stored before the line deletion. */
+    @Override
     @Test
     public void testRemoveUpdateDanglingLinesNotCalculated() {
         Network eurostagNetwork = EurostagTutorialExample1Factory.createWithTieLine();
@@ -63,13 +69,29 @@ public class TieLineTest extends AbstractTieLineTest {
         assertEquals(0, eurostagNetwork.getDanglingLine(danglingLine22Id).getQ0(), 0.001);
     }
 
+    @Test
     @Override
     public void testRemoveUpdateDanglingLinesDcCalculated() {
         //FIXME test fails
     }
 
+    @Test
     @Override
     public void testRemoveUpdateDanglingLines() {
         //FIXME test fails
+    }
+
+    @Test
+    void testTerminals() {
+        Network network = createDummyNodeBreakerWithTieLineNetwork();
+        TieLine line = network.getTieLine("TL");
+        assertNotNull(line);
+        assertInstanceOf(TieLineImpl.class, line);
+
+        Terminal terminal1 = line.getDanglingLine1().getTerminal();
+        Terminal terminal2 = line.getDanglingLine2().getTerminal();
+        assertEquals(List.of(terminal1, terminal2), ((TieLineImpl) line).getTerminalsOfDanglingLines(null));
+        assertEquals(List.of(terminal1), ((TieLineImpl) line).getTerminalsOfDanglingLines(TwoSides.ONE));
+        assertEquals(List.of(terminal2), ((TieLineImpl) line).getTerminalsOfDanglingLines(TwoSides.TWO));
     }
 }

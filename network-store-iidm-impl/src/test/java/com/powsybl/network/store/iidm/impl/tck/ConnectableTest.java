@@ -12,18 +12,4 @@ import com.powsybl.iidm.network.tck.AbstractConnectableTest;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class ConnectableTest extends AbstractConnectableTest {
-    @Override
-    public void nominallyConnectedTest() {
-        // FIXME
-    }
-
-    @Override
-    public void partiallyConnectedTest() {
-        // FIXME
-    }
-
-    @Override
-    public void oneTerminalConnectedTest() {
-        // FIXME
-    }
 }

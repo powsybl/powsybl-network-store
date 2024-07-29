@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-final class CreateNetworksUtil {
+public final class CreateNetworksUtil {
 
     static String BUS_UNKNOW_ID = "unknown";
 
@@ -761,7 +761,7 @@ final class CreateNetworksUtil {
         return network;
     }
 
-    static Network createNodeBreakerNetworkWithLine() {
+    public static Network createNodeBreakerNetworkWithLine() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -877,7 +877,7 @@ final class CreateNetworksUtil {
         return network;
     }
 
-    static Network createNodeBreakerNetwokWithMultipleEquipments() {
+    public static Network createNodeBreakerNetwokWithMultipleEquipments() {
         Network network = createNetwokWithMultipleEquipments(TopologyKind.NODE_BREAKER);
 
         network.getSubstation("S1");
@@ -997,7 +997,7 @@ final class CreateNetworksUtil {
         return network;
     }
 
-    static Network createDummyNodeBreakerWithTieLineNetwork() {
+    public static Network createDummyNodeBreakerWithTieLineNetwork() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation().setId("S1").add();
         Substation s2 = network.newSubstation().setId("S2").add();
