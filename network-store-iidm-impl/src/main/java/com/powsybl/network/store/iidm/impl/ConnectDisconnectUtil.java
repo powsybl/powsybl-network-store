@@ -38,7 +38,7 @@ public final class ConnectDisconnectUtil {
      */
     static boolean connectAllTerminals(AbstractIdentifiableImpl<?, ?> identifiable, List<Terminal> terminals, Predicate<Switch> isTypeSwitchToOperate, ReportNode reportNode) {
 
-        // Booleans
+        // Booleans used to stop the execution  early if needed
         boolean isAlreadyConnected = true;
         boolean canBeConnected = true;
 
@@ -93,16 +93,14 @@ public final class ConnectDisconnectUtil {
     }
 
     public static void closeSwitches(NetworkObjectIndex index, Set<SwitchImpl> switchesToClose) {
-        Set<String> closedSwitches = new HashSet<>();
         switchesToClose.forEach(switchImpl -> {
+            // Close
             switchImpl.setOpen(false);
+            // Update the resource
             index.updateSwitchResource(switchImpl.getResource());
-            closedSwitches.add(switchImpl.getResource().getId());
+            // Notify update
+            index.notifyUpdate(index.getSwitch(switchImpl.getResource().getId()).orElseThrow(), "open", true, false);
         });
-
-        // Notify update
-        closedSwitches.forEach(switchId -> index
-            .notifyUpdate(index.getSwitch(switchId).orElseThrow(), "open", true, false));
     }
 
     /**
@@ -167,16 +165,14 @@ public final class ConnectDisconnectUtil {
     }
 
     public static void openSwitches(NetworkObjectIndex index, Set<SwitchImpl> switchesToOpen) {
-        Set<String> openedSwitches = new HashSet<>();
         switchesToOpen.forEach(switchImpl -> {
+            // Open
             switchImpl.setOpen(true);
+            // Update the resource
             index.updateSwitchResource(switchImpl.getResource());
-            openedSwitches.add(switchImpl.getResource().getId());
+            // Notify update
+            index.notifyUpdate(index.getSwitch(switchImpl.getResource().getId()).orElseThrow(), "open", false, true);
         });
-
-        // Notify update
-        openedSwitches.forEach(switchId -> index
-            .notifyUpdate(index.getSwitch(switchId).orElseThrow(), "open", false, true));
     }
 }
 
