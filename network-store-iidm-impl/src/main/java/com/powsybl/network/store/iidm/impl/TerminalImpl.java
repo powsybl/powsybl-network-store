@@ -174,7 +174,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
      * @param isSwitchOperable the predicate defining if a switch can be operated
      * @return <code>true</code> if the switch is open and cannot be operated
      */
-    private boolean checkNonClosableSwitch(Edge edge, Predicate<? super SwitchImpl> isSwitchOperable) {
+    private boolean checkNonClosableSwitch(Edge edge, Predicate<Switch> isSwitchOperable) {
         if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
             // Get the switch behind the switchAttributes
             Optional<SwitchImpl> sw = index.getSwitch(switchAttributes.getResource().getId());

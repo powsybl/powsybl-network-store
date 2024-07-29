@@ -38,9 +38,8 @@ public final class ConnectDisconnectUtil {
      */
     static boolean connectAllTerminals(AbstractIdentifiableImpl<?, ?> identifiable, List<Terminal> terminals, Predicate<Switch> isTypeSwitchToOperate, ReportNode reportNode) {
 
-        // Booleans used to stop the execution  early if needed
+        // Boolean used to stop the execution early if needed
         boolean isAlreadyConnected = true;
-        boolean canBeConnected = true;
 
         // Initialisation of a list to open in case some terminals are in node-breaker view
         Set<SwitchImpl> switchForConnection = new HashSet<>();
@@ -61,15 +60,13 @@ public final class ConnectDisconnectUtil {
             }
 
             // If it's a node-breaker terminal, the switches to connect are added to a set
-            if (terminal instanceof TerminalImpl<?> terminalImpl && terminalImpl.isNodeBeakerTopologyKind()) {
-                canBeConnected = terminalImpl.getConnectingSwitches(isTypeSwitchToOperate, switchForConnection);
-            }
-            // If it's a bus-breaker terminal, there is nothing to do now
+            if (terminal instanceof TerminalImpl<?> terminalImpl && terminalImpl.isNodeBeakerTopologyKind()
+                && !terminalImpl.getConnectingSwitches(isTypeSwitchToOperate, switchForConnection)) {
+                    // Exit if the terminal cannot be connected
+                    return false;
+                }
 
-            // Exit if the terminal cannot be connected
-            if (!canBeConnected) {
-                return false;
-            }
+            // If it's a bus-breaker terminal, there is nothing to do now
         }
 
         // Exit if the connectable is already fully connected
@@ -115,9 +112,8 @@ public final class ConnectDisconnectUtil {
      * @return {@code true} if all the specified terminals have been disconnected, else {@code false}.
      */
     static boolean disconnectAllTerminals(AbstractIdentifiableImpl<?, ?> identifiable, List<Terminal> terminals, Predicate<Switch> isSwitchOpenable, ReportNode reportNode) {
-        // Booleans
+        // Boolean used to stop the execution early if needed
         boolean isAlreadyDisconnected = true;
-        boolean isNowDisconnected = true;
 
         // Initialisation of a list to open in case some terminals are in node-breaker view
         Set<SwitchImpl> switchForDisconnection = new HashSet<>();
@@ -161,7 +157,8 @@ public final class ConnectDisconnectUtil {
 
         // The switches are now open in node-breaker terminals
         openSwitches(identifiable.getIndex(), switchForDisconnection);
-        return isNowDisconnected;
+
+        return true;
     }
 
     public static void openSwitches(NetworkObjectIndex index, Set<SwitchImpl> switchesToOpen) {
