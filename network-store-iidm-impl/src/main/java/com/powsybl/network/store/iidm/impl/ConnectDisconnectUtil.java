@@ -42,7 +42,7 @@ public final class ConnectDisconnectUtil {
         boolean isAlreadyConnected = true;
 
         // Initialisation of a list to open in case some terminals are in node-breaker view
-        Set<SwitchImpl> switchForConnection = new HashSet<>();
+        Set<SwitchImpl> switchesForConnection = new HashSet<>();
 
         // We try to connect each terminal
         for (Terminal terminal : terminals) {
@@ -61,7 +61,7 @@ public final class ConnectDisconnectUtil {
 
             // If it's a node-breaker terminal, the switches to connect are added to a set
             if (terminal instanceof TerminalImpl<?> terminalImpl && terminalImpl.isNodeBeakerTopologyKind()
-                && !terminalImpl.getConnectingSwitches(isTypeSwitchToOperate, switchForConnection)) {
+                && !terminalImpl.getConnectingSwitches(isTypeSwitchToOperate, switchesForConnection)) {
                 // Exit if the terminal cannot be connected
                 return false;
             }
@@ -84,7 +84,7 @@ public final class ConnectDisconnectUtil {
         }
 
         // The switches are now closed in node-breaker terminals
-        closeSwitches(identifiable.getIndex(), switchForConnection);
+        closeSwitches(identifiable.getIndex(), switchesForConnection);
 
         return true;
     }
