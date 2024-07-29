@@ -62,9 +62,9 @@ public final class ConnectDisconnectUtil {
             // If it's a node-breaker terminal, the switches to connect are added to a set
             if (terminal instanceof TerminalImpl<?> terminalImpl && terminalImpl.isNodeBeakerTopologyKind()
                 && !terminalImpl.getConnectingSwitches(isTypeSwitchToOperate, switchForConnection)) {
-                    // Exit if the terminal cannot be connected
-                    return false;
-                }
+                // Exit if the terminal cannot be connected
+                return false;
+            }
 
             // If it's a bus-breaker terminal, there is nothing to do now
         }

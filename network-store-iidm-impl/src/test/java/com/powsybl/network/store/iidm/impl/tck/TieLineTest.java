@@ -1,9 +1,11 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.tck.AbstractTieLineTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.network.store.iidm.impl.TieLineImpl;
 import org.junit.jupiter.api.Test;
 
