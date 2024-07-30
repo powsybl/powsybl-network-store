@@ -908,6 +908,9 @@ public class PreloadingNetworkStoreClientTest {
         extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
         assertEquals(2, extensionAttributesMap.size());
 
+        // Check that there is no new fetch when getting a single extension once all the extensions have been loaded in the identifiable
+        cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1, "activepowercontrol");
+
         server.verify();
         server.reset();
     }

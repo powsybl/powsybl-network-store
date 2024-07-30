@@ -146,7 +146,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         Set<ResourceType> extensionAttributesByType = cachedExtensionAttributesByType.getCollection(networkUuid, variantNum);
         boolean isFullyLoadedType = extensionAttributesByType.contains(resourceType);
         boolean isFullyLoadedExtension = extensionAttributesByTypeAndName.containsKey(resourceType) && extensionAttributesByTypeAndName.get(resourceType).contains(extensionName);
-        if (!isFullyLoadedType || !isFullyLoadedExtension) {
+        if (!isFullyLoadedType && !isFullyLoadedExtension) {
             loadExtensionAttributesToCache(resourceType, networkUuid, variantNum, extensionName);
             extensionAttributesByTypeAndName
                     .computeIfAbsent(resourceType, k -> new HashSet<>())
