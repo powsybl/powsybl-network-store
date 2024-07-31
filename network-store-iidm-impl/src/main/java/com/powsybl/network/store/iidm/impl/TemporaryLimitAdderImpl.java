@@ -76,8 +76,8 @@ class TemporaryLimitAdderImpl<S,
         if (Double.isNaN(value)) {
             throw new ValidationException(activePowerLimitsAdder.getOwner(), "temporary limit value is not set");
         }
-        if (value <= 0) {
-            throw new ValidationException(activePowerLimitsAdder.getOwner(), "temporary limit value must be > 0");
+        if (value < 0) {
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "temporary limit value must be >= 0");
         }
         if (acceptableDuration == null) {
             throw new ValidationException(activePowerLimitsAdder.getOwner(), "acceptable duration is not set");

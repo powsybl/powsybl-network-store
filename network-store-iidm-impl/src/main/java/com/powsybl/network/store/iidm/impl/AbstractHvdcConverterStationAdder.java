@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -31,6 +32,6 @@ public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcCo
     }
 
     protected void validate() {
-        ValidationUtil.checkLossFactor(this, lossFactor);
+        ValidationUtil.checkLossFactor(this, lossFactor, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
     }
 }

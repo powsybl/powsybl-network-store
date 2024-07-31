@@ -40,7 +40,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         boolean oldValue = getResource().getAttributes().getVoltageRegulatorOn();
         if (voltageRegulatorOn != oldValue) {
             updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
@@ -57,7 +57,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getVoltageSetPoint();
         if (Double.compare(voltageSetpoint, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetpoint));
@@ -74,7 +74,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
         if (Double.compare(reactivePowerSetpoint, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint));
@@ -91,7 +91,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public VscConverterStation setLossFactor(float lossFactor) {
-        ValidationUtil.checkLossFactor(this, lossFactor);
+        ValidationUtil.checkLossFactor(this, lossFactor, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
             updateResource(res -> res.getAttributes().setLossFactor(lossFactor));

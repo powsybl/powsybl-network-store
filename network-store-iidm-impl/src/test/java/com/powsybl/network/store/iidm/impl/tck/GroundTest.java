@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.tck.AbstractGroundTest;
 class GroundTest extends AbstractGroundTest {
 
     @Test
-    void testOnSubnetwork() {
+    public void testOnSubnetwork() {
         // FIXME remove this test when subnetworks are implemented
     }
 }

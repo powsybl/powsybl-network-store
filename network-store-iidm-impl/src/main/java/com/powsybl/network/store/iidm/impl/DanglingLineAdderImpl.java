@@ -68,8 +68,8 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
         @Override
         public DanglingLineAdder add() {
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
-            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
 
             generation = DanglingLineGenerationAttributes
                     .builder()
@@ -156,8 +156,8 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
         String id = checkAndGetUniqueId();
         checkNodeBus();
 
-        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);

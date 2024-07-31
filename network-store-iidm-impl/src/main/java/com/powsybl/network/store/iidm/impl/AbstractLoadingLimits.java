@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
@@ -74,7 +75,7 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
 
     @Override
     public T setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getTemporaryLimits(), true);
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getTemporaryLimits(), ValidationLevel.STEADY_STATE_HYPOTHESIS, owner.getIdentifiable().getNetwork().getReportNodeContext().getReportNode());
         attributes.setPermanentLimit(permanentLimit);
         return (T) this;
     }

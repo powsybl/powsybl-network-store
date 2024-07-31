@@ -720,6 +720,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+        return getTerminal(side).connect(isTypeSwitchToOperate);
+    }
+
+    @Override
     public boolean disconnect() {
         return terminal1.disconnect() && terminal2.disconnect() && terminal3.disconnect();
     }
@@ -727,5 +732,10 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         return terminal1.disconnect(isSwitchOpenable) && terminal2.disconnect(isSwitchOpenable) && terminal3.disconnect(isSwitchOpenable);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
+        return getTerminal(side).disconnect(isSwitchOpenable);
     }
 }

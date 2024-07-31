@@ -10,6 +10,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesMetadataModelImpl;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
@@ -102,7 +103,7 @@ public class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network
             if (profiles.isEmpty()) {
                 throw new PowsyblException("Model must contain at least one profile");
             }
-            models.add(new CgmesMetadataModel(subset, modelingAuthoritySet)
+            models.add(new CgmesMetadataModelImpl(subset, modelingAuthoritySet)
                 .setId(id)
                 .setDescription(description)
                 .setVersion(version)
