@@ -8,8 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.network.store.iidm.impl.util.PentaFunction;
-import com.powsybl.network.store.iidm.impl.util.QuadriFunction;
 import com.powsybl.network.store.iidm.impl.util.TriFunction;
 import com.powsybl.network.store.model.*;
 
@@ -89,41 +87,15 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      */
     private final BiFunction<UUID, Integer, List<Resource<T>>> allLoaderFunction;
 
-    /**
-     * A function to load one extension attributes from the server. An optional is returned because extension attributes could not exist on
-     * the server.
-     */
-    private final PentaFunction<UUID, Integer, ResourceType, String, String, Optional<ExtensionAttributes>> extensionAttributeLoader;
-
-    /**
-     * A function to load the extension attributes with a specific extension name for the collection.
-     */
-    private final QuadriFunction<UUID, Integer, ResourceType, String, Map<String, ExtensionAttributes>> extensionAttributesLoaderByResourceTypeAndName;
-
-    /**
-     * A function to load all extension attributes for one identifiable from the server.
-     */
-    private final QuadriFunction<UUID, Integer, ResourceType, String, Map<String, ExtensionAttributes>> extensionAttributesLoaderById;
-
-    /**
-     * A function to load all extension attributes for the collection.
-     */
-    private final TriFunction<UUID, Integer, ResourceType, Map<String, Map<String, ExtensionAttributes>>> extensionAttributesLoaderByResourceType;
+    private final NetworkStoreClient delegate;
 
     public CollectionCache(TriFunction<UUID, Integer, String, Optional<Resource<T>>> oneLoaderFunction,
                            TriFunction<UUID, Integer, String, List<Resource<T>>> containerLoaderFunction,
-                           BiFunction<UUID, Integer, List<Resource<T>>> allLoaderFunction,
-                           PentaFunction<UUID, Integer, ResourceType, String, String, Optional<ExtensionAttributes>> extensionAttributeLoader,
-                           QuadriFunction<UUID, Integer, ResourceType, String, Map<String, ExtensionAttributes>> extensionAttributesLoaderByResourceTypeAndName,
-                           QuadriFunction<UUID, Integer, ResourceType, String, Map<String, ExtensionAttributes>> extensionAttributesLoaderById,
-                           TriFunction<UUID, Integer, ResourceType, Map<String, Map<String, ExtensionAttributes>>> extensionAttributesLoaderByResourceType) {
+                           BiFunction<UUID, Integer, List<Resource<T>>> allLoaderFunction, NetworkStoreClient delegate) {
         this.oneLoaderFunction = Objects.requireNonNull(oneLoaderFunction);
         this.containerLoaderFunction = containerLoaderFunction;
-        this.extensionAttributeLoader = extensionAttributeLoader;
-        this.extensionAttributesLoaderByResourceTypeAndName = extensionAttributesLoaderByResourceTypeAndName;
-        this.extensionAttributesLoaderById = extensionAttributesLoaderById;
-        this.extensionAttributesLoaderByResourceType = extensionAttributesLoaderByResourceType;
         this.allLoaderFunction = Objects.requireNonNull(allLoaderFunction);
+        this.delegate = delegate;
     }
 
     public boolean isResourceLoaded(String id) {
@@ -338,7 +310,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         // use json serialization to clone the resources of source collection
         List<Resource<T>> clonedResources = Resource.cloneResourcesToVariant(resources.values(), newVariantNum, objectMapper, resourcePostProcessor);
 
-        var clonedCache = new CollectionCache<>(oneLoaderFunction, containerLoaderFunction, allLoaderFunction, extensionAttributeLoader, extensionAttributesLoaderByResourceTypeAndName, extensionAttributesLoaderById, extensionAttributesLoaderByResourceType);
+        var clonedCache = new CollectionCache<>(oneLoaderFunction, containerLoaderFunction, allLoaderFunction, delegate);
         for (Resource<T> clonedResource : clonedResources) {
             clonedCache.resources.put(clonedResource.getId(), clonedResource);
         }
@@ -372,7 +344,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         }
 
         if (!isFullyLoadedExtension(identifiableId, extensionName) && !isRemovedAttributes(identifiableId, extensionName)) {
-            return extensionAttributeLoader.apply(networkUuid, variantNum, type, identifiableId, extensionName)
+            return delegate.getExtensionAttributes(networkUuid, variantNum, type, identifiableId, extensionName)
                     .map(attributes -> {
                         addExtensionAttributesToCache(identifiableId, extensionName, attributes);
                         return attributes;
@@ -423,17 +395,21 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     /**
-     * Load the extensions attributes with specified extension name for all the identifiables of the collection in the cache.
+     * Get the extensions attributes with specified extension name for all the identifiables of the collection in the cache.
      */
-    public void loadAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType type, String extensionName) {
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType type, String extensionName) {
         if (!isFullyLoadedExtension(extensionName)) {
             // if collection has not yet been fully loaded we load it from the server
-            Map<String, ExtensionAttributes> extensionAttributesMap = extensionAttributesLoaderByResourceTypeAndName.apply(networkUuid, variantNum, type, extensionName);
+            Map<String, ExtensionAttributes> extensionAttributesMap = delegate.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, type, extensionName);
 
             // we update the full cache and set it as fully loaded
             extensionAttributesMap.forEach((identifiableId, extensionAttributes) -> addExtensionAttributesToCache(identifiableId, extensionName, extensionAttributes));
             fullyLoadedExtensionsByExtensionName.add(extensionName);
         }
+        return resources.entrySet()
+                .stream()
+                .filter(resourceEntry -> resourceEntry.getValue().getAttributes().getExtensionAttributes().containsKey(extensionName))
+                .collect(Collectors.toMap(Map.Entry::getKey, resourceEntry -> resourceEntry.getValue().getAttributes().getExtensionAttributes().get(extensionName)));
     }
 
     /**
@@ -446,7 +422,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         }
 
         if (!isFullyLoadedIdentifiable(identifiableId)) {
-            Map<String, ExtensionAttributes> extensionAttributes = extensionAttributesLoaderById.apply(networkUuid, variantNum, type, identifiableId);
+            Map<String, ExtensionAttributes> extensionAttributes = delegate.getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, type, identifiableId);
             if (extensionAttributes != null) {
                 addAllExtensionAttributesToCache(identifiableId, extensionAttributes);
                 return extensionAttributes;
@@ -475,17 +451,21 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     /**
-     * Load all the extensions attributes for all the identifiables with specified resource type in the cache
+     * Get all the extensions attributes for all the identifiables with specified resource type in the cache
      */
-    public void loadAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType type) {
+    public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType type) {
         if (!fullyLoadedExtensions) {
             // if collection has not yet been fully loaded we load it from the server
-            Map<String, Map<String, ExtensionAttributes>> extensionAttributesMap = extensionAttributesLoaderByResourceType.apply(networkUuid, variantNum, type);
+            Map<String, Map<String, ExtensionAttributes>> extensionAttributesMap = delegate.getAllExtensionsAttributesByResourceType(networkUuid, variantNum, type);
 
             // we update the full cache and set it as fully loaded
             extensionAttributesMap.forEach(this::addAllExtensionAttributesToCache);
             fullyLoadedExtensions = true;
         }
+        return resources.entrySet()
+                .stream()
+                .filter(resourceEntry -> !resourceEntry.getValue().getAttributes().getExtensionAttributes().isEmpty())
+                .collect(Collectors.toMap(Map.Entry::getKey, resourceEntry -> resourceEntry.getValue().getAttributes().getExtensionAttributes()));
     }
 
     public void removeExtensionAttributesByExtensionName(String identifiableId, String extensionName) {

@@ -34,11 +34,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     (networkUuid, variantNum, id) -> delegate.getNetwork(networkUuid, variantNum),
                     null,
                     (networkUuid, variantNum) -> delegate.getNetwork(networkUuid, variantNum).stream().collect(Collectors.toList()),
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<SubstationAttributes>> substationsCache =
@@ -46,11 +42,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getSubstation,
                     null,
                     delegate::getSubstations,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<VoltageLevelAttributes>> voltageLevelsCache =
@@ -58,11 +50,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getVoltageLevel,
                     delegate::getVoltageLevelsInSubstation,
                     delegate::getVoltageLevels,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<SwitchAttributes>> switchesCache =
@@ -70,11 +58,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getSwitch,
                     delegate::getVoltageLevelSwitches,
                     delegate::getSwitches,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<BusbarSectionAttributes>> busbarSectionsCache =
@@ -82,11 +66,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getBusbarSection,
                     delegate::getVoltageLevelBusbarSections,
                     delegate::getBusbarSections,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<LoadAttributes>> loadsCache =
@@ -94,11 +74,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getLoad,
                     delegate::getVoltageLevelLoads,
                     delegate::getLoads,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<GeneratorAttributes>> generatorsCache =
@@ -106,11 +82,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getGenerator,
                     delegate::getVoltageLevelGenerators,
                     delegate::getGenerators,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<BatteryAttributes>> batteriesCache =
@@ -118,11 +90,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getBattery,
                     delegate::getVoltageLevelBatteries,
                     delegate::getBatteries,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<TwoWindingsTransformerAttributes>> twoWindingsTransformerCache =
@@ -130,11 +98,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getTwoWindingsTransformer,
                     delegate::getVoltageLevelTwoWindingsTransformers,
                     delegate::getTwoWindingsTransformers,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<ThreeWindingsTransformerAttributes>> threeWindingsTransformerCache =
@@ -142,11 +106,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getThreeWindingsTransformer,
                     delegate::getVoltageLevelThreeWindingsTransformers,
                     delegate::getThreeWindingsTransformers,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<LineAttributes>> linesCache =
@@ -154,11 +114,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getLine,
                     delegate::getVoltageLevelLines,
                     delegate::getLines,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<ShuntCompensatorAttributes>> shuntCompensatorsCache =
@@ -166,11 +122,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getShuntCompensator,
                     delegate::getVoltageLevelShuntCompensators,
                     delegate::getShuntCompensators,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<VscConverterStationAttributes>> vscConverterStationCache =
@@ -178,11 +130,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getVscConverterStation,
                     delegate::getVoltageLevelVscConverterStations,
                     delegate::getVscConverterStations,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<LccConverterStationAttributes>> lccConverterStationCache =
@@ -190,11 +138,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getLccConverterStation,
                     delegate::getVoltageLevelLccConverterStations,
                     delegate::getLccConverterStations,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<StaticVarCompensatorAttributes>> staticVarCompensatorCache =
@@ -202,11 +146,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getStaticVarCompensator,
                     delegate::getVoltageLevelStaticVarCompensators,
                     delegate::getStaticVarCompensators,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<HvdcLineAttributes>> hvdcLinesCache =
@@ -214,11 +154,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getHvdcLine,
                     null,
                     delegate::getHvdcLines,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<DanglingLineAttributes>> danglingLinesCache =
@@ -226,11 +162,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getDanglingLine,
                     delegate::getVoltageLevelDanglingLines,
                     delegate::getDanglingLines,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<ConfiguredBusAttributes>> configuredBusesCache =
@@ -238,11 +170,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getConfiguredBus,
                     delegate::getVoltageLevelConfiguredBuses,
                     delegate::getConfiguredBuses,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<TieLineAttributes>> tieLinesCache =
@@ -250,11 +178,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getTieLine,
                     null,
                     delegate::getTieLines,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final NetworkCollectionIndex<CollectionCache<GroundAttributes>> groundsCache =
@@ -262,11 +186,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate::getGround,
                     delegate::getVoltageLevelGrounds,
                     delegate::getGrounds,
-                    delegate::getExtensionAttributes,
-                    delegate::getAllExtensionsAttributesByResourceTypeAndExtensionName,
-                    delegate::getAllExtensionsAttributesByIdentifiableId,
-                    delegate::getAllExtensionsAttributesByResourceType
-            )
+                    delegate)
             );
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = new EnumMap<>(ResourceType.class);
@@ -1158,12 +1078,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
-        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
-        // Note: The return value of this method is not used in this context. As part of the delegate pattern,
-        // this method is used in the RestNetworkStoreClient delegate to load extension attributes from the server when
-        // using the collection preloading strategy. The empty map returned here serves as a placeholder since the actual
-        // loading logic is handled within the method call above.
-        return Map.of();
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
     }
 
     @Override
@@ -1173,12 +1088,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     @Override
     public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
-        // Note: The return value of this method is not used in this context. As part of the delegate pattern,
-        // this method is used in the RestNetworkStoreClient delegate to load extension attributes from the server when
-        // using the collection preloading strategy. The empty map returned here serves as a placeholder since the actual
-        // loading logic is handled within the method call above.
-        return Map.of();
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
     }
 
     @Override
