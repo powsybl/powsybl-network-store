@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractOverloadManagementSystemTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
+// FIXME remove all the tests in this class when we implement OverloadManagementSystem
 public class OverloadManagementSystemTest extends AbstractOverloadManagementSystemTest {
     @Override
     public void baseTests() {
