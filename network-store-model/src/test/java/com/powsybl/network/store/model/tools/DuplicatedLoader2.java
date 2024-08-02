@@ -28,8 +28,8 @@ public class DuplicatedLoader2<I extends Injection<I>> implements ExtensionLoade
     }
 
     @Override
-    public Class<Extension<I>> getType() {
-        return null;
+    public Class<Extension> getType() {
+        return Extension.class;
     }
 
     @Override

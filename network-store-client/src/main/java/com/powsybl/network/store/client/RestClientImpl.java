@@ -104,6 +104,19 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
+    public Optional<ExtensionAttributes> getOneExtensionAttributes(String url, Object... uriVariables) {
+        ResponseEntity<ExtensionAttributes> response = restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<>() { }, uriVariables);
+        if (response.getStatusCode() == HttpStatus.OK) {
+            ExtensionAttributes body = response.getBody();
+            return Optional.of(body);
+        } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+            return Optional.empty();
+        } else {
+            throw createHttpException(url, "get", response.getStatusCode());
+        }
+    }
+
+    @Override
     public <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
         ResponseEntity<TopLevelDocument<T>> response = getDocument(url, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {

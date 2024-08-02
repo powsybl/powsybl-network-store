@@ -24,9 +24,10 @@ import com.powsybl.network.store.model.Resource;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static com.powsybl.network.store.model.ExtensionLoaders.loaderExists;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -298,26 +299,19 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
-        List<E> matchingExtensions = resource.getAttributes().getExtensionAttributes().keySet().stream()
-                .map(ExtensionLoaders::findLoader)
-                .filter(loader -> type == loader.getType())
-                .map(loader -> (E) loader.load(this))
-                .collect(Collectors.toList());
-
-        if (matchingExtensions.isEmpty()) {
+        if (!loaderExists(type)) {
             return null;
         }
-
-        if (matchingExtensions.size() > 1) {
-            throw new PowsyblException("More than one extension found for type: " + type.getSimpleName());
-        }
-
-        return matchingExtensions.get(0);
+        return getExtensionByName(ExtensionLoaders.findLoader(type).getName());
     }
 
     public <E extends Extension<I>> E getExtensionByName(String name) {
+        if (!loaderExists(name)) {
+            return null;
+        }
+        index.loadExtensionAttributes(resource.getType(), resource.getId(), name);
         if (resource.getAttributes().getExtensionAttributes().containsKey(name)) {
-            return (E) ExtensionLoaders.findLoader(name).load(this);
+            return (E) ExtensionLoaders.findLoaderByName(name).load(this);
         }
         return null;
     }
@@ -327,18 +321,16 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (extension == null) {
             return false;
         }
-        AtomicBoolean removed = new AtomicBoolean(false);
         index.notifyExtensionBeforeRemoval(extension);
-        updateResource(r -> removed.set(r.getAttributes().getExtensionAttributes().remove(extension.getName()) != null));
-        if (removed.get()) {
-            index.notifyExtensionAfterRemoval(this, extension.getName());
-        }
-        return removed.get();
+        index.removeExtensionAttributes(resource.getType(), resource.getId(), extension.getName());
+        index.notifyExtensionAfterRemoval(this, extension.getName());
+        return true;
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
+        index.loadAllExtensionsAttributesByIdentifiableId(resource.getType(), resource.getId());
         return resource.getAttributes().getExtensionAttributes().keySet().stream()
-                .map(name -> (E) ExtensionLoaders.findLoader(name).load(this))
+                .map(name -> (E) ExtensionLoaders.findLoaderByName(name).load(this))
                 .collect(Collectors.toList());
     }
 
