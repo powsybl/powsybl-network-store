@@ -525,7 +525,7 @@ public class CachedNetworkStoreClientTest {
                 .startupCost(28)
                 .plannedActivePowerSetpoint(5)
                 .build();
-        String oneExtensionAttributes = objectMapper.writeValueAsString(gs1);
+        String oneExtensionAttributes = objectMapper.writerFor(new TypeReference<TopLevelDocument<ExtensionAttributes>>() { }).writeValueAsString(TopLevelDocument.of(gs1));
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + GeneratorStartup.NAME))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
@@ -552,7 +552,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     private void getExtensionAttributes(ExtensionAttributes extensionAttributes, UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient, String extensionName) throws JsonProcessingException {
-        String oneExtensionAttributes = objectMapper.writeValueAsString(extensionAttributes);
+        String oneExtensionAttributes = objectMapper.writerFor(new TypeReference<TopLevelDocument<ExtensionAttributes>>() { }).writeValueAsString(TopLevelDocument.of(extensionAttributes));
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
