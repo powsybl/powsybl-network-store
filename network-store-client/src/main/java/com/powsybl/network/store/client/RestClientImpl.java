@@ -60,16 +60,15 @@ public class RestClientImpl implements RestClient {
         return converter;
     }
 
-    private <T extends IdentifiableAttributes> ResponseEntity<TopLevelDocument<T>> getDocument(String url, Object... uriVariables) {
+    private <T> ResponseEntity<TopLevelDocument<T>> getDocument(String url, ParameterizedTypeReference<TopLevelDocument<T>> parameterizedTypeReference, Object... uriVariables) {
         return restTemplate.exchange(url,
                 HttpMethod.GET,
                 new HttpEntity<>(new HttpHeaders()),
-                new ParameterizedTypeReference<TopLevelDocument<T>>() { // this unnecessary type should not be removed!!! https://github.com/powsybl/powsybl-network-store/commit/9744168f47210eab11796861f9dcf4ffdd5aea0c
-                },
+                parameterizedTypeReference,
                 uriVariables);
     }
 
-    private static <T extends IdentifiableAttributes> TopLevelDocument<T> getBody(ResponseEntity<TopLevelDocument<T>> response) {
+    private static <T> TopLevelDocument<T> getBody(ResponseEntity<TopLevelDocument<T>> response) {
         TopLevelDocument<T> body = response.getBody();
         if (body == null) {
             throw new PowsyblException("Body is null");
@@ -91,8 +90,8 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends IdentifiableAttributes> Optional<Resource<T>> getOne(String target, String url, Object... uriVariables) {
-        ResponseEntity<TopLevelDocument<T>> response = getDocument(url, uriVariables);
+    public <T> Optional<T> getOne(String target, String url, ParameterizedTypeReference<TopLevelDocument<T>> parameterizedTypeReference, Object... uriVariables) {
+        ResponseEntity<TopLevelDocument<T>> response = getDocument(url, parameterizedTypeReference, uriVariables);
         if (response.getStatusCode() == HttpStatus.OK) {
             TopLevelDocument<T> body = getBody(response);
             return Optional.of(body.getData().get(0));
@@ -104,21 +103,8 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public Optional<ExtensionAttributes> getOneExtensionAttributes(String url, Object... uriVariables) {
-        ResponseEntity<ExtensionAttributes> response = restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<>() { }, uriVariables);
-        if (response.getStatusCode() == HttpStatus.OK) {
-            ExtensionAttributes body = response.getBody();
-            return Optional.of(body);
-        } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-            return Optional.empty();
-        } else {
-            throw createHttpException(url, "get", response.getStatusCode());
-        }
-    }
-
-    @Override
-    public <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
-        ResponseEntity<TopLevelDocument<T>> response = getDocument(url, uriVariables);
+    public <T> List<T> getAll(String target, String url, ParameterizedTypeReference<TopLevelDocument<T>> parameterizedTypeReference, Object... uriVariables) {
+        ResponseEntity<TopLevelDocument<T>> response = getDocument(url, parameterizedTypeReference, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "get", response.getStatusCode());
         }

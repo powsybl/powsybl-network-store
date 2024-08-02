@@ -7,6 +7,7 @@
 
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
@@ -31,12 +32,12 @@ public class TopLevelDocumentTest {
                         .country(Country.FR)
                         .build())
                 .build();
-        TopLevelDocument document = TopLevelDocument.of(resource);
+        TopLevelDocument<Resource<SubstationAttributes>> document = TopLevelDocument.of(resource);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
         String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\"}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
-        TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
+        TopLevelDocument<Resource<SubstationAttributes>> document2 = objectMapper.readValue(json, new TypeReference<>() { });
         assertEquals(resource, document2.getData().get(0));
     }
 
@@ -48,12 +49,12 @@ public class TopLevelDocumentTest {
                         .country(Country.FR)
                         .build())
                 .build();
-        TopLevelDocument document = TopLevelDocument.of(ImmutableList.of(resource, resource));
+        TopLevelDocument<Resource<SubstationAttributes>> document = TopLevelDocument.of(ImmutableList.of(resource, resource));
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
         String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\"}},{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\"}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
-        TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
+        TopLevelDocument<Resource<SubstationAttributes>> document2 = objectMapper.readValue(json, new TypeReference<>() { });
         assertEquals(2, document2.getData().size());
         assertEquals(resource, document2.getData().get(0));
         assertEquals(resource, document2.getData().get(1));
@@ -82,12 +83,12 @@ public class TopLevelDocumentTest {
                 .attributes(generatorAttributes)
                 .build();
 
-        TopLevelDocument document = TopLevelDocument.of(resourceGenerator);
+        TopLevelDocument<Resource<GeneratorAttributes>> document = TopLevelDocument.of(resourceGenerator);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
         String jsonRef = "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\",\"minP\":2.0,\"maxP\":1.0,\"voltageRegulatorOn\":false,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"condenser\":false}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
-        TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
+        TopLevelDocument<Resource<GeneratorAttributes>> document2 = objectMapper.readValue(json, new TypeReference<>() { });
         assertEquals(resourceGenerator, document2.getData().get(0));
     }
 }

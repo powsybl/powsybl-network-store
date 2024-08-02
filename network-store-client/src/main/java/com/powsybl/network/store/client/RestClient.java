@@ -7,9 +7,9 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.network.store.model.Attributes;
-import com.powsybl.network.store.model.ExtensionAttributes;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TopLevelDocument;
 import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.List;
@@ -22,11 +22,9 @@ public interface RestClient {
 
     <T extends IdentifiableAttributes> void createAll(String url, List<Resource<T>> resources, Object... uriVariables);
 
-    <T extends IdentifiableAttributes> Optional<Resource<T>> getOne(String target, String url, Object... uriVariables);
+    <T> Optional<T> getOne(String target, String url, ParameterizedTypeReference<TopLevelDocument<T>> parameterizedTypeReference, Object... uriVariables);
 
-    Optional<ExtensionAttributes> getOneExtensionAttributes(String url, Object... uriVariables);
-
-    <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables);
+    <T> List<T> getAll(String target, String url, ParameterizedTypeReference<TopLevelDocument<T>> parameterizedTypeReference, Object... uriVariables);
 
     <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables);
 
