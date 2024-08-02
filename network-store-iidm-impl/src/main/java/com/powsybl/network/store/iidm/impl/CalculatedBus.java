@@ -125,12 +125,29 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public double getV() {
-        return getAttributes().getV();
+        // Get v from BusView
+        Double v = voltageLevelResource.getAttributes().getCalculatedBusesForBusView().get(calculatedBusNum).getV();
+        if (!Double.isNaN(v)) {
+            return v;
+        }
+        // Get v from BusBreakerView
+        v = voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView().get(calculatedBusNum).getV();
+        if (!Double.isNaN(v)) {
+            return v;
+        }
+        return Double.NaN;
     }
 
     @Override
     public Bus setV(double v) {
-        getAttributes().setV(v);
+        List<CalculatedBusAttributes> calculatedBusesForBusView = voltageLevelResource.getAttributes().getCalculatedBusesForBusView();
+        if (calculatedBusesForBusView != null) {
+            calculatedBusesForBusView.get(calculatedBusNum).setV(v);
+        }
+        List<CalculatedBusAttributes> calculatedBusesForBusBreakerView = voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView();
+        if (calculatedBusesForBusBreakerView != null) {
+            calculatedBusesForBusBreakerView.get(calculatedBusNum).setV(v);
+        }
         index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
         return this;
     }
