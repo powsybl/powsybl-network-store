@@ -96,7 +96,9 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
                         .build())
                 .build();
         StaticVarCompensatorImpl svc = getIndex().createStaticVarCompensator(resource);
+
         svc.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        svc.setRegulatingTerminal(regulatingTerminal);
         return svc;
     }
 
