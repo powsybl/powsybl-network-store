@@ -6,11 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LccConverterStationAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -78,6 +74,9 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
         }
         index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+        }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeLccConverterStation(resource.getId());

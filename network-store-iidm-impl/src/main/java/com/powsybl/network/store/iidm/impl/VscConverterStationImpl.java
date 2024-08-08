@@ -144,6 +144,9 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     @Override
     public void remove() {
         var resource = getResource();
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+        }
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");

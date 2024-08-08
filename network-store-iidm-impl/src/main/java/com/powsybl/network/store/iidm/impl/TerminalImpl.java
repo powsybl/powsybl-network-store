@@ -41,6 +41,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     private final TerminalBusViewImpl<U> busView;
 
+    private final List<RegulatingPoint> regulated = new ArrayList<>();
+
     public TerminalImpl(NetworkObjectIndex index, Connectable<?> connectable, Function<Resource<U>, InjectionAttributes> attributesGetter) {
         this.index = index;
         this.connectable = connectable;
@@ -508,5 +510,18 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     public ThreeSides getSide() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getSide'");
+    }
+
+    public void addNewRegulatingPoint(RegulatingPoint regulatingPoint) {
+        regulated.add(regulatingPoint);
+    }
+
+    public void removeRegulatingPoint(RegulatingPoint regulatingPoint) {
+        regulated.remove(regulatingPoint);
+    }
+
+    public void removeAsRegulatingPoint() {
+        regulated.forEach(RegulatingPoint::removeRegulation);
+        regulated.clear();
     }
 }
