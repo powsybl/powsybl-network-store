@@ -36,5 +36,5 @@ public class RegulationPointAttributes extends AbstractAttributes implements Att
     private TerminalRefAttributes regulatingTerminal;
 
     @Schema(description = "Regulation mode ordinal")
-    private int regulationMode;
+    private String regulationMode;
 }

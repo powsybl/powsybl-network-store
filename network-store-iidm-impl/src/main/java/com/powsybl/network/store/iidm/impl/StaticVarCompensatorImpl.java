@@ -106,7 +106,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public RegulationMode getRegulationMode() {
-        return RegulationMode.values()[getResource().getAttributes().getRegulationPoint().getRegulationMode()];
+        return RegulationMode.valueOf(getResource().getAttributes().getRegulationPoint().getRegulationMode());
     }
 
     @Override
@@ -114,7 +114,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
-            regulatingPoint.setRegulationMode(regulationMode.ordinal());
+            regulatingPoint.setRegulationMode(String.valueOf(regulationMode));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "regulationMode", variantId, oldValue, regulationMode);
         }

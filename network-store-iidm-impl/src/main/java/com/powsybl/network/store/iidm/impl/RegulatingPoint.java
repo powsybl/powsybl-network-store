@@ -17,21 +17,21 @@ import java.util.function.Function;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public record RegulatingPoint(NetworkObjectIndex index, StaticVarCompensatorImpl staticVarCompensator,
-                              Function<Attributes, StaticVarCompensatorAttributes> attributesGetter) {
+public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl identifiable,
+                              Function<Attributes, AbstractIdentifiableAttributes> attributesGetter) {
 
-    public RegulatingPoint(NetworkObjectIndex index, StaticVarCompensatorImpl staticVarCompensator, Function<Attributes, StaticVarCompensatorAttributes> attributesGetter) {
+    public RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl identifiable, Function<Attributes, AbstractIdentifiableAttributes> attributesGetter) {
         this.index = index;
         this.attributesGetter = Objects.requireNonNull(attributesGetter);
-        this.staticVarCompensator = staticVarCompensator;
+        this.identifiable = identifiable;
     }
 
-    private Resource<StaticVarCompensatorAttributes> getSvcResource() {
-        return staticVarCompensator.getResource();
+    private Resource<AbstractIdentifiableAttributes> getResource() {
+        return identifiable.getResource();
     }
 
     private RegulationPointAttributes getAttributes() {
-        return attributesGetter.apply(getSvcResource().getAttributes()).getRegulationPoint();
+        return attributesGetter.apply(getResource().getAttributes()).getRegulationPoint();
     }
 
     private RegulationPointAttributes getAttributes(Resource<?> resource) {
@@ -48,24 +48,24 @@ public record RegulatingPoint(NetworkObjectIndex index, StaticVarCompensatorImpl
         TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         oldRegulatingTerminal.removeRegulatingPoint(this);
         regulatingTerminal.addNewRegulatingPoint(this);
-        staticVarCompensator.updateResource(res -> getAttributes(res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
+        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
     }
 
     public void setRegulatingTerminalAsLocalTerminal() {
-        staticVarCompensator.updateResource(res -> getAttributes(res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
+        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
     }
 
-    public void setRegulationMode(int regulationModeOrdinal) {
-        staticVarCompensator.updateResource(res -> getAttributes(res).setRegulationMode(regulationModeOrdinal));
+    public void setRegulationMode(String regulationModeOrdinal) {
+        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulationMode(regulationModeOrdinal));
     }
 
     public void removeRegulation() {
         Terminal localTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getLocalTerminal());
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
-        staticVarCompensator.updateResource(res -> getAttributes(res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(localTerminal)));
+        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(localTerminal)));
         if (!localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
             switch (getAttributes().getIdentifiableType()) {
-                case STATIC_VAR_COMPENSATOR -> staticVarCompensator.updateResource(res -> getAttributes().setRegulationMode(StaticVarCompensator.RegulationMode.OFF.ordinal()), null);
+                case STATIC_VAR_COMPENSATOR -> identifiable.updateResource(res -> getAttributes().setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF)), null);
                 case GENERATOR, SHUNT_COMPENSATOR, HVDC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER -> throw new PowsyblException("Not implemented yet");
                 default -> throw new PowsyblException("No regulation for this kind of equipment");
             }

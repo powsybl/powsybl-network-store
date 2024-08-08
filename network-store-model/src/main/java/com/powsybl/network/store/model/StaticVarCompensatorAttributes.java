@@ -56,9 +56,6 @@ public class StaticVarCompensatorAttributes extends AbstractIdentifiableAttribut
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @Schema(description = "regulation info")
-    private RegulationPointAttributes regulationPoint;
-
     @Schema(description = "Voltage per reactive control")
     private VoltagePerReactivePowerControlAttributes voltagePerReactiveControl;
 
