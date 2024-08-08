@@ -33,9 +33,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         return new StaticVarCompensatorImpl(index, resource);
     }
 
-    protected void setLocalTerminal() {
-    }
-
     @Override
     protected StaticVarCompensator getInjection() {
         return this;

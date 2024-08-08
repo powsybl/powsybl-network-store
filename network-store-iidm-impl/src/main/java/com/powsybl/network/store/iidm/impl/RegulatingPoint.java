@@ -6,10 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.*;
-import lombok.Getter;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -17,12 +17,8 @@ import java.util.function.Function;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-@Getter
-public class RegulatingPoint {
-
-    private final StaticVarCompensatorImpl staticVarCompensator;
-    private final NetworkObjectIndex index;
-    private final Function<Attributes, StaticVarCompensatorAttributes> attributesGetter;
+public record RegulatingPoint(NetworkObjectIndex index, StaticVarCompensatorImpl staticVarCompensator,
+                              Function<Attributes, StaticVarCompensatorAttributes> attributesGetter) {
 
     public RegulatingPoint(NetworkObjectIndex index, StaticVarCompensatorImpl staticVarCompensator, Function<Attributes, StaticVarCompensatorAttributes> attributesGetter) {
         this.index = index;
@@ -30,15 +26,15 @@ public class RegulatingPoint {
         this.staticVarCompensator = staticVarCompensator;
     }
 
-    protected Resource<StaticVarCompensatorAttributes> getSvcResource() {
+    private Resource<StaticVarCompensatorAttributes> getSvcResource() {
         return staticVarCompensator.getResource();
     }
 
-    protected RegulationPointAttributes getAttributes() {
+    private RegulationPointAttributes getAttributes() {
         return attributesGetter.apply(getSvcResource().getAttributes()).getRegulationPoint();
     }
 
-    protected RegulationPointAttributes getAttributes(Resource resource) {
+    private RegulationPointAttributes getAttributes(Resource resource) {
         return attributesGetter.apply(resource.getAttributes()).getRegulationPoint();
     }
 
@@ -48,8 +44,8 @@ public class RegulatingPoint {
         return regulatingTerminal != null ? regulatingTerminal : localTerminal;
     }
 
-    public void setRegulatingTerminal(TerminalImpl regulatingTerminal) {
-        TerminalImpl oldRegulatingTerminal = (TerminalImpl) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
+    public void setRegulatingTerminal(TerminalImpl<?> regulatingTerminal) {
+        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         oldRegulatingTerminal.removeRegulatingPoint(this);
         regulatingTerminal.addNewRegulatingPoint(this);
         staticVarCompensator.updateResource(res -> getAttributes(res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
@@ -70,12 +66,14 @@ public class RegulatingPoint {
         if (!localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
             switch (getAttributes().getIdentifiableType()) {
                 case STATIC_VAR_COMPENSATOR -> staticVarCompensator.updateResource(res -> getAttributes().setRegulationMode(StaticVarCompensator.RegulationMode.OFF.ordinal()), null);
+                case GENERATOR, SHUNT_COMPENSATOR, HVDC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER -> throw new PowsyblException("Not implemented yet");
+                default -> throw new PowsyblException("No regulation for this kind of equipment");
             }
         }
     }
 
     void remove() {
-        TerminalImpl<?> regulatingTerminal = (TerminalImpl) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
+        TerminalImpl<?> regulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         regulatingTerminal.removeRegulatingPoint(this);
     }
 }
