@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.AbstractIdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
 
 import java.util.Collection;
 import java.util.Collections;
