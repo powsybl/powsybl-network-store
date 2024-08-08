@@ -34,7 +34,7 @@ public record RegulatingPoint(NetworkObjectIndex index, StaticVarCompensatorImpl
         return attributesGetter.apply(getSvcResource().getAttributes()).getRegulationPoint();
     }
 
-    private RegulationPointAttributes getAttributes(Resource resource) {
+    private RegulationPointAttributes getAttributes(Resource<?> resource) {
         return attributesGetter.apply(resource.getAttributes()).getRegulationPoint();
     }
 
