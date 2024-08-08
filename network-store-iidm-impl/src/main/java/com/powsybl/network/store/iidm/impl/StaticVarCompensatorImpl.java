@@ -26,11 +26,14 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     public StaticVarCompensatorImpl(NetworkObjectIndex index, Resource<StaticVarCompensatorAttributes> resource) {
         super(index, resource);
-        regulatingPoint = new RegulatingPoint(getId(), IdentifiableType.STATIC_VAR_COMPENSATOR, getTerminal(), getRegulationMode().ordinal());
+        regulatingPoint = new RegulatingPoint(index, this, StaticVarCompensatorAttributes.class::cast);
     }
 
     static StaticVarCompensatorImpl create(NetworkObjectIndex index, Resource<StaticVarCompensatorAttributes> resource) {
         return new StaticVarCompensatorImpl(index, resource);
+    }
+
+    protected void setLocalTerminal() {
     }
 
     @Override
@@ -106,16 +109,15 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public RegulationMode getRegulationMode() {
-        return getResource().getAttributes().getRegulationMode();
+        return RegulationMode.values()[getResource().getAttributes().getRegulationPoint().getRegulationMode()];
     }
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        RegulationMode oldValue = getResource().getAttributes().getRegulationMode();
-        regulatingPoint.setRegulationMode(regulationMode.ordinal());
+        RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
-            updateResource(res -> res.getAttributes().setRegulationMode(regulationMode));
+            regulatingPoint.setRegulationMode(regulationMode.ordinal());
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "regulationMode", variantId, oldValue, regulationMode);
         }
@@ -135,7 +137,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         } else {
             regulatingPoint.setRegulatingTerminalAsLocalTerminal();
         }
-        updateResource(res -> res.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
         return this;
     }
 

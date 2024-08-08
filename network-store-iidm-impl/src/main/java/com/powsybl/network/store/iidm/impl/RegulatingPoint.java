@@ -6,51 +6,76 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.network.store.model.*;
 import lombok.Getter;
-import lombok.Setter;
+
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 @Getter
 public class RegulatingPoint {
-    private final String regulatedEquipmentId;
-    private final IdentifiableType identifiableType;
-    private final TerminalImpl localTerminal;
-    private TerminalImpl regulatingTerminal;
-    @Setter
-    private int regulationMode;
 
-    public RegulatingPoint(String regulatedEquipmentId, IdentifiableType identifiableType, TerminalImpl localTerminal, int regulationMode) {
-        this.regulatedEquipmentId = regulatedEquipmentId;
-        this.identifiableType = identifiableType;
-        this.localTerminal = localTerminal;
-        this.regulatingTerminal = localTerminal;
-        this.regulationMode = regulationMode;
+    private final StaticVarCompensatorImpl staticVarCompensator;
+    private final NetworkObjectIndex index;
+    private final Function<Attributes, StaticVarCompensatorAttributes> attributesGetter;
+
+    public RegulatingPoint(NetworkObjectIndex index, StaticVarCompensatorImpl staticVarCompensator, Function<Attributes, StaticVarCompensatorAttributes> attributesGetter) {
+        this.index = index;
+        this.attributesGetter = Objects.requireNonNull(attributesGetter);
+        this.staticVarCompensator = staticVarCompensator;
+    }
+
+    protected Resource<StaticVarCompensatorAttributes> getSvcResource() {
+        return staticVarCompensator.getResource();
+    }
+
+    protected RegulationPointAttributes getAttributes() {
+        return attributesGetter.apply(getSvcResource().getAttributes()).getRegulationPoint();
+    }
+
+    protected RegulationPointAttributes getAttributes(Resource resource) {
+        return attributesGetter.apply(resource.getAttributes()).getRegulationPoint();
+    }
+
+    public Terminal getRegulatingTerminal() {
+        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
+        Terminal localTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getLocalTerminal());
+        return regulatingTerminal != null ? regulatingTerminal : localTerminal;
     }
 
     public void setRegulatingTerminal(TerminalImpl regulatingTerminal) {
+        TerminalImpl oldRegulatingTerminal = (TerminalImpl) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
+        oldRegulatingTerminal.removeRegulatingPoint(this);
         regulatingTerminal.addNewRegulatingPoint(this);
-        this.regulatingTerminal.removeRegulatingPoint(this);
-        this.regulatingTerminal = regulatingTerminal;
+        staticVarCompensator.updateResource(res -> getAttributes(res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
     }
 
     public void setRegulatingTerminalAsLocalTerminal() {
-        regulatingTerminal = localTerminal;
+        staticVarCompensator.updateResource(res -> getAttributes(res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
     }
 
-    public void removeRegulatingTerminal() {
-        regulatingTerminal = localTerminal;
+    public void setRegulationMode(int regulationModeOrdinal) {
+        staticVarCompensator.updateResource(res -> getAttributes(res).setRegulationMode(regulationModeOrdinal));
+    }
+
+    public void removeRegulation() {
+        Terminal localTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getLocalTerminal());
+        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
+        staticVarCompensator.updateResource(res -> getAttributes(res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(localTerminal)));
         if (!localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
-            switch (identifiableType) {
-                case STATIC_VAR_COMPENSATOR -> regulationMode = StaticVarCompensator.RegulationMode.OFF.ordinal();
+            switch (getAttributes().getIdentifiableType()) {
+                case STATIC_VAR_COMPENSATOR -> staticVarCompensator.updateResource(res -> getAttributes().setRegulationMode(StaticVarCompensator.RegulationMode.OFF.ordinal()), null);
             }
         }
     }
 
     void remove() {
+        TerminalImpl<?> regulatingTerminal = (TerminalImpl) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         regulatingTerminal.removeRegulatingPoint(this);
     }
 }

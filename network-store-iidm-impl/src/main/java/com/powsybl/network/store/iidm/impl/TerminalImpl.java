@@ -521,7 +521,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     public void removeAsRegulatingPoint() {
-        regulated.forEach(RegulatingPoint::removeRegulatingTerminal);
+        regulated.forEach(RegulatingPoint::removeRegulation);
         regulated.clear();
     }
 }

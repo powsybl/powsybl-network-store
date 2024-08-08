@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.powsybl.iidm.network.StaticVarCompensator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -46,9 +45,6 @@ public class StaticVarCompensatorAttributes extends AbstractIdentifiableAttribut
     @Schema(description = "Reactive power setpoint in MVAR")
     private double reactivePowerSetPoint;
 
-    @Schema(description = "Regulating mode")
-    private StaticVarCompensator.RegulationMode regulationMode;
-
     @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
@@ -60,8 +56,8 @@ public class StaticVarCompensatorAttributes extends AbstractIdentifiableAttribut
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @Schema(description = "terminalRef")
-    private TerminalRefAttributes regulatingTerminal;
+    @Schema(description = "regulation info")
+    private RegulationPointAttributes regulationPoint;
 
     @Schema(description = "Voltage per reactive control")
     private VoltagePerReactivePowerControlAttributes voltagePerReactiveControl;
