@@ -148,6 +148,9 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     public void remove() {
         var resource = getResource();
         index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+        }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeBattery(resource.getId());
