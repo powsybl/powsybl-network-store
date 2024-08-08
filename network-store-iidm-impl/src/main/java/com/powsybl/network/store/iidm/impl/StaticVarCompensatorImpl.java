@@ -22,11 +22,9 @@ import java.util.Collection;
  */
 public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCompensator, StaticVarCompensatorAttributes> implements StaticVarCompensator {
 
-    private final RegulatingPoint regulatingPoint;
 
     public StaticVarCompensatorImpl(NetworkObjectIndex index, Resource<StaticVarCompensatorAttributes> resource) {
         super(index, resource);
-        regulatingPoint = new RegulatingPoint(index, this, StaticVarCompensatorAttributes.class::cast);
     }
 
     static StaticVarCompensatorImpl create(NetworkObjectIndex index, Resource<StaticVarCompensatorAttributes> resource) {

@@ -12,8 +12,10 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.network.store.model.AbstractIdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,11 +28,13 @@ import java.util.function.Predicate;
  */
 public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractIdentifiableImpl<I, D> implements Injection<I> {
 
+    protected final RegulatingPoint regulatingPoint;
     protected final TerminalImpl<D> terminal;
 
     protected AbstractInjectionImpl(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
         terminal = new TerminalImpl<>(index, this, Resource::getAttributes);
+        regulatingPoint = new RegulatingPoint(index, this, AbstractIdentifiableAttributes.class::cast);
     }
 
     protected abstract I getInjection();
