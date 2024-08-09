@@ -11,10 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.AttributeFilter;
-import com.powsybl.network.store.model.CalculatedBusAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 import lombok.EqualsAndHashCode;
 
 import java.util.*;
@@ -125,14 +122,116 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public double getV() {
-        return getAttributes().getV();
+        VoltageLevelAttributes attributes = voltageLevelResource.getAttributes();
+        List<CalculatedBusAttributes> calculatedBusAttributesForBusList = attributes.getCalculatedBusesForBusView();
+
+        // Check the Bus View
+        double busViewV = getBusViewV(calculatedBusAttributesForBusList);
+        if (!Double.isNaN(busViewV)) {
+            return busViewV;
+        }
+
+        // If the topology is NODE_BREAKER, check the Bus Breaker View
+        switch (attributes.getTopologyKind()) {
+            case NODE_BREAKER -> {
+                List<CalculatedBusAttributes> calculatedBusAttributesForBusBreakerList = attributes.getCalculatedBusesForBusBreakerView();
+                double busBreakerViewV = getBusViewV(calculatedBusAttributesForBusBreakerList);
+                if (!Double.isNaN(busBreakerViewV)) {
+                    return busBreakerViewV;
+                }
+            }
+            case BUS_BREAKER -> {
+                return getConfiguredBusV(calculatedBusAttributesForBusList);
+            }
+        }
+        return Double.NaN;
+    }
+
+    private double getBusViewV(List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        if (calculatedBusAttributesList != null) {
+            CalculatedBusAttributes calculatedBusAttributes = calculatedBusAttributesList.get(calculatedBusNum);
+            if (calculatedBusAttributes != null && !Double.isNaN(calculatedBusAttributes.getV())) {
+                return calculatedBusAttributes.getV();
+            }
+        }
+        return Double.NaN;
+    }
+
+    private double getConfiguredBusV(List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        if (calculatedBusAttributesList != null) {
+            CalculatedBusAttributes calculatedBusAttributes = calculatedBusAttributesList.get(calculatedBusNum);
+            if (calculatedBusAttributes != null) {
+                List<String> busesIds = calculatedBusAttributes.getVertices().stream()
+                        .map(vertice -> vertice.getBus())
+                        .collect(Collectors.toList());
+                return index.getConfiguredBuses().stream()
+                        .filter(bus -> busesIds.contains(bus.getId()))
+                        .map(Bus::getV)
+                        .findFirst()
+                        .orElse(Double.NaN);
+            }
+        }
+        return Double.NaN;
     }
 
     @Override
     public Bus setV(double v) {
-        getAttributes().setV(v);
-        index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
+        var attributes = voltageLevelResource.getAttributes();
+        switch (attributes.getTopologyKind()) {
+            case NODE_BREAKER -> {
+                updateCalculatedBusAttributes(v, attributes.getCalculatedBusesForBusView());
+                updateCalculatedBusAttributes(v, attributes.getCalculatedBusesForBusBreakerView());
+                index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
+            }
+            case BUS_BREAKER -> {
+                List<CalculatedBusAttributes> calculatedBusAttributesBusList = attributes.getCalculatedBusesForBusView();
+                if (calculatedBusAttributesBusList != null) {
+                    CalculatedBusAttributes calculatedBusAttributesBus = calculatedBusAttributesBusList.get(calculatedBusNum);
+                    if (calculatedBusAttributesBus != null) {
+                        calculatedBusAttributesBus.setV(v);
+                        index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
+                        updateConfiguredBuses(v, calculatedBusAttributesBus);
+                    }
+                }
+            }
+        }
         return this;
+    }
+
+    private void updateCalculatedBusAttributes(double v, List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        if (calculatedBusAttributesList != null) {
+            CalculatedBusAttributes calculatedBusAttributes = calculatedBusAttributesList.get(calculatedBusNum);
+            if (calculatedBusAttributes != null) {
+                calculatedBusAttributes.setV(v);
+            }
+        }
+    }
+
+    private void updateConfiguredBuses(double v, CalculatedBusAttributes calculatedBusAttributesBus) {
+        List<String> busesIds = calculatedBusAttributesBus.getVertices().stream()
+                .map(vertice -> vertice.getBus())
+                .collect(Collectors.toList());
+
+        List<Bus> buses = index.getConfiguredBuses().stream()
+                .filter(bus -> busesIds.contains(bus.getId()) && bus.getV() != v)
+                .collect(Collectors.toList());
+
+        Map<Bus, Map.Entry<Double, Double>> vValue = buses.stream()
+                .collect(Collectors.toMap(
+                        bus -> bus,    // The key is the Bus object itself
+                        bus -> new AbstractMap.SimpleEntry<>(bus.getV(), v)  // Create a SimpleEntry with old and new values
+                ));
+
+        buses.forEach(bus -> bus.setV(v));
+
+        if (!buses.isEmpty()) {
+            index.updateConfiguredBusResource(((ConfiguredBusImpl) buses.get(0)).getResource(), null);
+        }
+
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        vValue.forEach((bus, oldNewValues) ->
+                index.notifyUpdate(bus, "v", variantId, oldNewValues.getKey(), oldNewValues.getValue())
+        );
     }
 
     @Override

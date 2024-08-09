@@ -7,8 +7,11 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.AttributeFilter;
+import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,21 +54,94 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public double getV() {
-        return getResource().getAttributes().getV();
+        // Attempt to get the voltage from configuredBus
+        Double configuredV = getConfiguredBusVoltage();
+        if (!Double.isNaN(configuredV)) {
+            return configuredV;
+        }
+
+        // Attempt to get the voltage from calculatedBusesForBusView
+        return getCalculatedBusVoltage().orElse(Double.NaN);
+    }
+
+    private double getConfiguredBusVoltage() {
+        ConfiguredBusAttributes attributes = getResource().getAttributes();
+        if (attributes != null) {
+            double v = attributes.getV();
+            if (!Double.isNaN(v)) {
+                return v;
+            }
+        }
+        return Double.NaN;
+    }
+
+    private Optional<Double> getCalculatedBusVoltage() {
+        ConfiguredBusAttributes attributes = getResource().getAttributes();
+        if (attributes == null) {
+            return Optional.empty();
+        }
+
+        String voltageLevelId = attributes.getVoltageLevelId();
+        Optional<VoltageLevelImpl> voltageLevelOpt = index.getVoltageLevel(voltageLevelId);
+
+        return voltageLevelOpt
+                .filter(voltageLevel -> voltageLevel.getResource().getVariantNum() == getResource().getVariantNum())
+                .flatMap(voltageLevel -> voltageLevel.getResource().getAttributes()
+                        .getCalculatedBusesForBusView().stream().findFirst())
+                .map(CalculatedBusAttributes::getV);
     }
 
     @Override
     public Bus setV(double v) {
+        validateVoltage(v);
+
+        ConfiguredBusAttributes configuredBus = getResource().getAttributes();
+        double oldValue = configuredBus.getV();
+
+        if (v != oldValue) {
+            updateVoltage(v, oldValue);
+        }
+
+        updateCalculatedBusAttributesIfNeeded(v, configuredBus.getVoltageLevelId());
+
+        return this;
+    }
+
+    private void validateVoltage(double v) {
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
         }
-        double oldValue = getResource().getAttributes().getV();
-        if (v != oldValue) {
-            updateResource(res -> res.getAttributes().setV(v));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "v", variantId, oldValue, v);
-        }
-        return this;
+    }
+
+    private void updateVoltage(double v, double oldValue) {
+        updateResource(res -> res.getAttributes().setV(v));
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "v", variantId, oldValue, v);
+    }
+
+    private void updateCalculatedBusAttributesIfNeeded(double v, String voltageLevelId) {
+        Optional<VoltageLevelImpl> voltageLevelOpt = index.getVoltageLevel(voltageLevelId);
+
+        voltageLevelOpt.ifPresent(voltageLevel -> {
+            if (isSameVariant(voltageLevel)) {
+                List<CalculatedBusAttributes> calculatedBusAttributesList = voltageLevel.getResource()
+                        .getAttributes()
+                        .getCalculatedBusesForBusView();
+
+                if (CollectionUtils.isNotEmpty(calculatedBusAttributesList)) {
+                    updateCalculatedBusAttributes(v, calculatedBusAttributesList);
+                    index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
+                }
+            }
+        });
+    }
+
+    private boolean isSameVariant(VoltageLevelImpl voltageLevel) {
+        return voltageLevel.getResource().getVariantNum() == getResource().getVariantNum();
+    }
+
+    private void updateCalculatedBusAttributes(double v, List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        calculatedBusAttributesList.forEach(calculatedBusAttributes -> calculatedBusAttributes.setV(v));
     }
 
     @Override
