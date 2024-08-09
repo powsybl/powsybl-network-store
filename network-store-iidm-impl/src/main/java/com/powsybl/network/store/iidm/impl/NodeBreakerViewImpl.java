@@ -71,6 +71,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource());
         return graph.vertexSet().stream()
                 .mapToInt(Integer::intValue)
+                .sorted()
                 .toArray();
     }
 
@@ -344,7 +345,8 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                 .mapToInt(edge -> {
                     NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
                     return biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
-                });
+                })
+                .distinct();
     }
 
     @Override
