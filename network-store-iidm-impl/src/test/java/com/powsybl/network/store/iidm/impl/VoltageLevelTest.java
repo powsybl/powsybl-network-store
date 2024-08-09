@@ -18,6 +18,42 @@ import static org.junit.Assert.*;
 public class VoltageLevelTest {
 
     @Test
+    public void testBusBreakerSetVUpdateVoltageLevel() {
+        Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
+        LineImpl l1 = (LineImpl) network.getLine("L1");
+
+        // Update voltage using BusView
+        l1.getTerminal1().getBusView().getBus().setV(222);
+
+        // Verify the voltage update in BusBreakerView
+        assertEquals("Voltage should match in BusView after update in BusBreakerView", 222, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
+
+        // Set voltage using BusBreakerView
+        l1.getTerminal1().getBusBreakerView().getBus().setV(400.0);
+
+        // Verify voltage update in BusView
+        assertEquals("Voltage should match in BusView after update in BusBreakerView", 400.0, l1.getTerminal1().getBusView().getBus().getV(), 0.0);
+    }
+
+    @Test
+    public void testNodeBreakerSetVUpdateVoltageLevel() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        LineImpl l1 = (LineImpl) network.getLine("L1");
+
+        // Update voltage again using BusBreakerView
+        l1.getTerminal1().getBusBreakerView().getBus().setV(222);
+
+        // Verify the voltage update in BusView
+        assertEquals("Voltage should match in BusBreakerView after second update in BusView", 222, l1.getTerminal1().getBusView().getBus().getV(), 0.0);
+
+        // Set voltage using BusView
+        l1.getTerminal1().getBusView().getBus().setV(400.0);
+
+        // Verify voltage update in BusBreakerView
+        assertEquals("Voltage should match in BusBreakerView after update in BusView", 400.0, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
+    }
+
+    @Test
     public void testBusBreakerConnectables() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
 
