@@ -15,7 +15,10 @@ import com.powsybl.network.store.model.*;
 import lombok.EqualsAndHashCode;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -122,42 +125,71 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public double getV() {
+        return getBusAttribute(this::getBusViewV, this::getConfiguredBusV, "v");
+    }
+
+    @Override
+    public double getAngle() {
+        return getBusAttribute(this::getBusViewAngle, this::getConfiguredBusAngle, "angle");
+    }
+
+    private double getBusAttribute(Function<List<CalculatedBusAttributes>, Double> busViewFunction,
+                                   Function<List<CalculatedBusAttributes>, Double> configuredBusFunction,
+                                   String attributeName) {
         VoltageLevelAttributes attributes = voltageLevelResource.getAttributes();
         List<CalculatedBusAttributes> calculatedBusAttributesForBusList = attributes.getCalculatedBusesForBusView();
 
         // Check the Bus View
-        double busViewV = getBusViewV(calculatedBusAttributesForBusList);
-        if (!Double.isNaN(busViewV)) {
-            return busViewV;
+        double busViewValue = busViewFunction.apply(calculatedBusAttributesForBusList);
+        if (!Double.isNaN(busViewValue)) {
+            return busViewValue;
         }
 
         // If the topology is NODE_BREAKER, check the Bus Breaker View
         switch (attributes.getTopologyKind()) {
             case NODE_BREAKER -> {
                 List<CalculatedBusAttributes> calculatedBusAttributesForBusBreakerList = attributes.getCalculatedBusesForBusBreakerView();
-                double busBreakerViewV = getBusViewV(calculatedBusAttributesForBusBreakerList);
-                if (!Double.isNaN(busBreakerViewV)) {
-                    return busBreakerViewV;
+                double busBreakerViewValue = busViewFunction.apply(calculatedBusAttributesForBusBreakerList);
+                if (!Double.isNaN(busBreakerViewValue)) {
+                    return busBreakerViewValue;
                 }
             }
             case BUS_BREAKER -> {
-                return getConfiguredBusV(calculatedBusAttributesForBusList);
+                return configuredBusFunction.apply(calculatedBusAttributesForBusList);
             }
         }
         return Double.NaN;
     }
 
     private double getBusViewV(List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        return getBusViewAttribute(calculatedBusAttributesList, CalculatedBusAttributes::getV);
+    }
+
+    private double getBusViewAngle(List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        return getBusViewAttribute(calculatedBusAttributesList, CalculatedBusAttributes::getAngle);
+    }
+
+    private double getBusViewAttribute(List<CalculatedBusAttributes> calculatedBusAttributesList,
+                                       ToDoubleFunction<CalculatedBusAttributes> attributeGetter) {
         if (calculatedBusAttributesList != null) {
             CalculatedBusAttributes calculatedBusAttributes = calculatedBusAttributesList.get(calculatedBusNum);
-            if (calculatedBusAttributes != null && !Double.isNaN(calculatedBusAttributes.getV())) {
-                return calculatedBusAttributes.getV();
+            if (calculatedBusAttributes != null && !Double.isNaN(attributeGetter.applyAsDouble(calculatedBusAttributes))) {
+                return attributeGetter.applyAsDouble(calculatedBusAttributes);
             }
         }
         return Double.NaN;
     }
 
     private double getConfiguredBusV(List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        return getConfiguredBusAttribute(calculatedBusAttributesList, Bus::getV);
+    }
+
+    private double getConfiguredBusAngle(List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        return getConfiguredBusAttribute(calculatedBusAttributesList, Bus::getAngle);
+    }
+
+    private double getConfiguredBusAttribute(List<CalculatedBusAttributes> calculatedBusAttributesList,
+                                             ToDoubleFunction<Bus> busAttributeGetter) {
         if (calculatedBusAttributesList != null) {
             CalculatedBusAttributes calculatedBusAttributes = calculatedBusAttributesList.get(calculatedBusNum);
             if (calculatedBusAttributes != null) {
@@ -166,7 +198,7 @@ public final class CalculatedBus implements BaseBus {
                         .collect(Collectors.toList());
                 return index.getConfiguredBuses().stream()
                         .filter(bus -> busesIds.contains(bus.getId()))
-                        .map(Bus::getV)
+                        .mapToDouble(busAttributeGetter)
                         .findFirst()
                         .orElse(Double.NaN);
             }
@@ -176,11 +208,23 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public Bus setV(double v) {
-        var attributes = voltageLevelResource.getAttributes();
+        return setBusAttribute(v, this::updateBusAttributeV, this::updateVConfiguredBuses, "v");
+    }
+
+    @Override
+    public Bus setAngle(double angle) {
+        return setBusAttribute(angle, this::updateBusAttributeAngle, this::updateAngleConfiguredBuses, "angle");
+    }
+
+    private <T> Bus setBusAttribute(T value,
+                                    BiConsumer<T, List<CalculatedBusAttributes>> updateAttributeMethod,
+                                    BiConsumer<T, CalculatedBusAttributes> updateConfiguredBusesMethod,
+                                    String attributeName) {
+        VoltageLevelAttributes attributes = voltageLevelResource.getAttributes();
         switch (attributes.getTopologyKind()) {
             case NODE_BREAKER -> {
-                updateCalculatedBusAttributes(v, attributes.getCalculatedBusesForBusView());
-                updateCalculatedBusAttributes(v, attributes.getCalculatedBusesForBusBreakerView());
+                updateAttributeMethod.accept(value, attributes.getCalculatedBusesForBusView());
+                updateAttributeMethod.accept(value, attributes.getCalculatedBusesForBusBreakerView());
                 index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
             }
             case BUS_BREAKER -> {
@@ -188,9 +232,9 @@ public final class CalculatedBus implements BaseBus {
                 if (calculatedBusAttributesBusList != null) {
                     CalculatedBusAttributes calculatedBusAttributesBus = calculatedBusAttributesBusList.get(calculatedBusNum);
                     if (calculatedBusAttributesBus != null) {
-                        calculatedBusAttributesBus.setV(v);
+                        setAttribute(calculatedBusAttributesBus, (double) value, attributeName);
                         index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
-                        updateConfiguredBuses(v, calculatedBusAttributesBus);
+                        updateConfiguredBusesMethod.accept(value, calculatedBusAttributesBus);
                     }
                 }
             }
@@ -198,52 +242,67 @@ public final class CalculatedBus implements BaseBus {
         return this;
     }
 
-    private void updateCalculatedBusAttributes(double v, List<CalculatedBusAttributes> calculatedBusAttributesList) {
+    private void setAttribute(CalculatedBusAttributes busAttributes, double value, String attributeName) {
+        switch (attributeName) {
+            case "v" -> busAttributes.setV(value);
+            case "angle" -> busAttributes.setAngle(value);
+        }
+    }
+
+    private void updateBusAttributeV(double v, List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        updateBusAttribute(calculatedBusAttributesList, v, CalculatedBusAttributes::setV);
+    }
+
+    private void updateBusAttributeAngle(double angle, List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        updateBusAttribute(calculatedBusAttributesList, angle, CalculatedBusAttributes::setAngle);
+    }
+
+    private void updateBusAttribute(List<CalculatedBusAttributes> calculatedBusAttributesList, double value, BiConsumer<CalculatedBusAttributes, Double> setter) {
         if (calculatedBusAttributesList != null) {
             CalculatedBusAttributes calculatedBusAttributes = calculatedBusAttributesList.get(calculatedBusNum);
             if (calculatedBusAttributes != null) {
-                calculatedBusAttributes.setV(v);
+                setter.accept(calculatedBusAttributes, value);
             }
         }
     }
 
-    private void updateConfiguredBuses(double v, CalculatedBusAttributes calculatedBusAttributesBus) {
+    private void updateVConfiguredBuses(double v, CalculatedBusAttributes calculatedBusAttributesBus) {
+        updateConfiguredBuses(calculatedBusAttributesBus, v, Bus::getV, Bus::setV, "v");
+    }
+
+    private void updateAngleConfiguredBuses(double angle, CalculatedBusAttributes calculatedBusAttributesBus) {
+        updateConfiguredBuses(calculatedBusAttributesBus, angle, Bus::getAngle, Bus::setAngle, "angle");
+    }
+
+    private void updateConfiguredBuses(CalculatedBusAttributes calculatedBusAttributesBus,
+                                       double newValue,
+                                       Function<Bus, Double> getter,
+                                       BiConsumer<Bus, Double> setter,
+                                       String attributeName) {
         List<String> busesIds = calculatedBusAttributesBus.getVertices().stream()
                 .map(vertice -> vertice.getBus())
                 .collect(Collectors.toList());
 
         List<Bus> buses = index.getConfiguredBuses().stream()
-                .filter(bus -> busesIds.contains(bus.getId()) && bus.getV() != v)
+                .filter(bus -> busesIds.contains(bus.getId()) && !Objects.equals(getter.apply(bus), newValue))
                 .collect(Collectors.toList());
 
-        Map<Bus, Map.Entry<Double, Double>> vValue = buses.stream()
+        Map<Bus, Map.Entry<Double, Double>> oldNewValues = buses.stream()
                 .collect(Collectors.toMap(
-                        bus -> bus,    // The key is the Bus object itself
-                        bus -> new AbstractMap.SimpleEntry<>(bus.getV(), v)  // Create a SimpleEntry with old and new values
+                        bus -> bus,
+                        bus -> new AbstractMap.SimpleEntry<>(getter.apply(bus), newValue)
                 ));
 
-        buses.forEach(bus -> bus.setV(v));
+        buses.forEach(bus -> setter.accept(bus, newValue));
 
         if (!buses.isEmpty()) {
             index.updateConfiguredBusResource(((ConfiguredBusImpl) buses.get(0)).getResource(), null);
         }
 
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        vValue.forEach((bus, oldNewValues) ->
-                index.notifyUpdate(bus, "v", variantId, oldNewValues.getKey(), oldNewValues.getValue())
+        oldNewValues.forEach((bus, oldNewValue) ->
+                index.notifyUpdate(bus, attributeName, variantId, oldNewValue.getKey(), oldNewValue.getValue())
         );
-    }
-
-    @Override
-    public double getAngle() {
-        return getAttributes().getAngle();
-    }
-
-    @Override
-    public Bus setAngle(double angle) {
-        getAttributes().setAngle(angle);
-        index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
-        return this;
     }
 
     @Override

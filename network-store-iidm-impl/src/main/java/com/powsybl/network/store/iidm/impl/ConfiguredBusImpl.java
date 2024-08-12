@@ -15,7 +15,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,28 +54,53 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public double getV() {
-        // Attempt to get the voltage from configuredBus
-        Double configuredV = getConfiguredBusVoltage();
-        if (!Double.isNaN(configuredV)) {
-            return configuredV;
+        return getBusAttribute(this::getConfiguredBusVoltage, this::getCalculatedBusVoltage);
+    }
+
+    @Override
+    public double getAngle() {
+        return getBusAttribute(this::getConfiguredBusAngle, this::getCalculatedBusAngle);
+    }
+
+    private double getBusAttribute(Supplier<Double> configuredBusGetter, Supplier<Optional<Double>> calculatedBusGetter) {
+        // Attempt to get the attribute from configuredBus
+        Double configuredValue = configuredBusGetter.get();
+        if (!Double.isNaN(configuredValue)) {
+            return configuredValue;
         }
 
-        // Attempt to get the voltage from calculatedBusesForBusView
-        return getCalculatedBusVoltage().orElse(Double.NaN);
+        // Attempt to get the attribute from calculatedBusesForBusView
+        return calculatedBusGetter.get().orElse(Double.NaN);
     }
 
     private double getConfiguredBusVoltage() {
+        return getConfiguredBusAttribute(ConfiguredBusAttributes::getV);
+    }
+
+    private double getConfiguredBusAngle() {
+        return getConfiguredBusAttribute(ConfiguredBusAttributes::getAngle);
+    }
+
+    private double getConfiguredBusAttribute(ToDoubleFunction<ConfiguredBusAttributes> attributeGetter) {
         ConfiguredBusAttributes attributes = getResource().getAttributes();
         if (attributes != null) {
-            double v = attributes.getV();
-            if (!Double.isNaN(v)) {
-                return v;
+            double value = attributeGetter.applyAsDouble(attributes);
+            if (!Double.isNaN(value)) {
+                return value;
             }
         }
         return Double.NaN;
     }
 
     private Optional<Double> getCalculatedBusVoltage() {
+        return getCalculatedBusAttribute(CalculatedBusAttributes::getV);
+    }
+
+    private Optional<Double> getCalculatedBusAngle() {
+        return getCalculatedBusAttribute(CalculatedBusAttributes::getAngle);
+    }
+
+    private Optional<Double> getCalculatedBusAttribute(Function<CalculatedBusAttributes, Double> attributeGetter) {
         ConfiguredBusAttributes attributes = getResource().getAttributes();
         if (attributes == null) {
             return Optional.empty();
@@ -88,38 +113,50 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
                 .filter(voltageLevel -> voltageLevel.getResource().getVariantNum() == getResource().getVariantNum())
                 .flatMap(voltageLevel -> voltageLevel.getResource().getAttributes()
                         .getCalculatedBusesForBusView().stream().findFirst())
-                .map(CalculatedBusAttributes::getV);
+                .map(attributeGetter);
     }
 
     @Override
     public Bus setV(double v) {
-        validateVoltage(v);
+        validateNonNegative(v, "voltage");
 
         ConfiguredBusAttributes configuredBus = getResource().getAttributes();
         double oldValue = configuredBus.getV();
 
         if (v != oldValue) {
-            updateVoltage(v, oldValue);
+            updateAttribute(v, oldValue, "v", configuredBus::setV);
+            updateCalculatedBusAttributesIfNeeded(v, configuredBus.getVoltageLevelId(), this::updateCalculatedBusAttributesV);
         }
-
-        updateCalculatedBusAttributesIfNeeded(v, configuredBus.getVoltageLevelId());
-
         return this;
     }
 
-    private void validateVoltage(double v) {
-        if (v < 0) {
-            throw new ValidationException(this, "voltage cannot be < 0");
+    @Override
+    public Bus setAngle(double angle) {
+
+        ConfiguredBusAttributes configuredBus = getResource().getAttributes();
+        double oldValue = configuredBus.getAngle();
+
+        if (angle != oldValue) {
+            updateAttribute(angle, oldValue, "angle", configuredBus::setAngle);
+            updateCalculatedBusAttributesIfNeeded(angle, configuredBus.getVoltageLevelId(), this::updateCalculatedBusAttributesAngle);
+        }
+        return this;
+    }
+
+    private void validateNonNegative(double value, String attributeName) {
+        if (value < 0) {
+            throw new ValidationException(this, attributeName + " cannot be < 0");
         }
     }
 
-    private void updateVoltage(double v, double oldValue) {
-        updateResource(res -> res.getAttributes().setV(v));
+    private void updateAttribute(double newValue, double oldValue, String attributeName, Consumer<Double> setter) {
+        updateResource(res -> setter.accept(newValue));
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "v", variantId, oldValue, v);
+        index.notifyUpdate(this, attributeName, variantId, oldValue, newValue);
     }
 
-    private void updateCalculatedBusAttributesIfNeeded(double v, String voltageLevelId) {
+    private void updateCalculatedBusAttributesIfNeeded(double newValue, String voltageLevelId,
+                                                       BiConsumer<Double, List<CalculatedBusAttributes>> updater) {
         Optional<VoltageLevelImpl> voltageLevelOpt = index.getVoltageLevel(voltageLevelId);
 
         voltageLevelOpt.ifPresent(voltageLevel -> {
@@ -129,7 +166,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
                         .getCalculatedBusesForBusView();
 
                 if (CollectionUtils.isNotEmpty(calculatedBusAttributesList)) {
-                    updateCalculatedBusAttributes(v, calculatedBusAttributesList);
+                    updater.accept(newValue, calculatedBusAttributesList);
                     index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
                 }
             }
@@ -140,24 +177,12 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         return voltageLevel.getResource().getVariantNum() == getResource().getVariantNum();
     }
 
-    private void updateCalculatedBusAttributes(double v, List<CalculatedBusAttributes> calculatedBusAttributesList) {
+    private void updateCalculatedBusAttributesV(double v, List<CalculatedBusAttributes> calculatedBusAttributesList) {
         calculatedBusAttributesList.forEach(calculatedBusAttributes -> calculatedBusAttributes.setV(v));
     }
 
-    @Override
-    public double getAngle() {
-        return getResource().getAttributes().getAngle();
-    }
-
-    @Override
-    public Bus setAngle(double angle) {
-        double oldValue = getResource().getAttributes().getAngle();
-        if (angle != oldValue) {
-            updateResource(res -> res.getAttributes().setAngle(angle));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "angle", variantId, oldValue, angle);
-        }
-        return this;
+    private void updateCalculatedBusAttributesAngle(double angle, List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        calculatedBusAttributesList.forEach(calculatedBusAttributes -> calculatedBusAttributes.setAngle(angle));
     }
 
     private Optional<Bus> getMergedBus() {

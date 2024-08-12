@@ -40,7 +40,7 @@ public class VoltageLevelTest {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
-        // Update voltage again using BusBreakerView
+        // Update voltage using BusBreakerView
         l1.getTerminal1().getBusBreakerView().getBus().setV(222);
 
         // Verify the voltage update in BusView
@@ -51,6 +51,42 @@ public class VoltageLevelTest {
 
         // Verify voltage update in BusBreakerView
         assertEquals("Voltage should match in BusBreakerView after update in BusView", 400.0, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
+    }
+
+    @Test
+    public void testBusBreakerSetAngleUpdateVoltageLevel() {
+        Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
+        LineImpl l1 = (LineImpl) network.getLine("L1");
+
+        // Update angle using BusView
+        l1.getTerminal1().getBusView().getBus().setAngle(111);
+
+        // Verify the angle update in BusBreakerView
+        assertEquals("Angle should match in BusView after update in BusBreakerView", 111, l1.getTerminal1().getBusBreakerView().getBus().getAngle(), 0.0);
+
+        // Set angle using BusBreakerView
+        l1.getTerminal1().getBusBreakerView().getBus().setAngle(400.0);
+
+        // Verify Angle update in BusView
+        assertEquals("Angle should match in BusView after update in BusBreakerView", 400.0, l1.getTerminal1().getBusView().getBus().getAngle(), 0.0);
+    }
+
+    @Test
+    public void testNodeBreakerSetAngleUpdateVoltageLevel() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        LineImpl l1 = (LineImpl) network.getLine("L1");
+
+        // Update angle using BusBreakerView
+        l1.getTerminal1().getBusBreakerView().getBus().setAngle(222);
+
+        // Verify the angle update in BusView
+        assertEquals("Angle should match in BusBreakerView after second update in BusView", 222, l1.getTerminal1().getBusView().getBus().getAngle(), 0.0);
+
+        // Set angle using BusView
+        l1.getTerminal1().getBusView().getBus().setAngle(400.0);
+
+        // Verify angle update in BusBreakerView
+        assertEquals("Angle should match in BusBreakerView after update in BusView", 400.0, l1.getTerminal1().getBusBreakerView().getBus().getAngle(), 0.0);
     }
 
     @Test
