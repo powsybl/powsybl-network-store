@@ -12,9 +12,4 @@ import com.powsybl.iidm.network.tck.AbstractMainConnectedComponentWithSwitchTest
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class MainConnectedComponentWithSwitchTest extends AbstractMainConnectedComponentWithSwitchTest {
-
-   /* @Override
-    public void test() {
-        // FIXME remove this test when we stop losing the Angle of buses / use the right views
-    }*/
 }

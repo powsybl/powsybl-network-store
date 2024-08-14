@@ -62,9 +62,9 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         return getBusAttribute(this::getConfiguredBusAngle, this::getCalculatedBusAngle);
     }
 
-    private double getBusAttribute(Supplier<Double> configuredBusGetter, Supplier<Optional<Double>> calculatedBusGetter) {
+    private double getBusAttribute(DoubleSupplier configuredBusGetter, Supplier<Optional<Double>> calculatedBusGetter) {
         // Attempt to get the attribute from configuredBus
-        Double configuredValue = configuredBusGetter.get();
+        Double configuredValue = configuredBusGetter.getAsDouble();
         if (!Double.isNaN(configuredValue)) {
             return configuredValue;
         }
@@ -149,7 +149,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         }
     }
 
-    private void updateAttribute(double newValue, double oldValue, String attributeName, Consumer<Double> setter) {
+    private void updateAttribute(double newValue, double oldValue, String attributeName, DoubleConsumer setter) {
         updateResource(res -> setter.accept(newValue));
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, attributeName, variantId, oldValue, newValue);
