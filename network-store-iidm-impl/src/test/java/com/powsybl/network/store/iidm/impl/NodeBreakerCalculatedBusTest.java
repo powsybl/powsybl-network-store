@@ -14,6 +14,7 @@ import org.junit.Test;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -490,5 +491,19 @@ public class NodeBreakerCalculatedBusTest {
             bus.getConnectedComponent();
             bus.getSynchronousComponent();
         }
+    }
+
+    @Test
+    public void testGetBusCacheInvalidation() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        CreateNetworksUtil.addBusBarSection(vl1);
+
+        // creating the cache and checking VL1_10 is not existing yet
+        assertNull(network.getBusView().getBus("VL1_10"));
+        // creating a new calculated bus by opening a switch, the cache should be invalidated
+        vl1.getNodeBreakerView().getSwitch("BRS12").setOpen(true);
+        // checking the cache has been invalidated and returns the new bus
+        assertNotNull(network.getBusView().getBus("VL1_10"));
     }
 }
