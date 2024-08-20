@@ -103,7 +103,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Iterable<Bus> getBuses() {
-            return getBusStream().toList();
+            return getBusStream().collect(Collectors.toList());
         }
 
         @Override
@@ -118,7 +118,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Iterable<Switch> getSwitches() {
-            return getSwitchStream().toList();
+            return getSwitchStream().collect(Collectors.toList());
         }
 
         @Override
@@ -145,7 +145,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Iterable<Bus> getBuses() {
-            return getBusStream().toList();
+            return getBusStream().collect(Collectors.toList());
         }
 
         @Override
@@ -292,7 +292,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                 }
             }
             return true;
-        }).toList();
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -412,7 +412,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).toList();
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
@@ -812,7 +812,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz) {
-        return getConnectableStream(clazz).toList();
+        return getConnectableStream(clazz).collect(Collectors.toList());
     }
 
     @Override
@@ -903,7 +903,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                         .map(Bus.class::cast)
                         .collect(Collectors.toSet()))
                 .sorted((o1, o2) -> o2.size() - o1.size()) // Main component is the first
-                .toList();
+                .collect(Collectors.toList());
 
         // associate components to buses
         for (int num = 0; num < sets.size(); num++) {
