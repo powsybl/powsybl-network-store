@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
@@ -144,6 +145,40 @@ public final class CalculatedBus implements BaseBus {
     public Bus setAngle(double angle) {
         getAttributes().setAngle(angle);
         index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
+        return this;
+    }
+
+    @Override
+    public double getFictitiousP0() {
+        return voltageLevelResource.getAttributes().getNodeToFictitiousP0().values().stream().reduce(0.0, Double::sum);
+    }
+
+    @Override
+    public Bus setFictitiousP0(double p0) {
+        if (voltageLevelResource.getAttributes().getNodeToFictitiousP0() != null) {
+            voltageLevelResource.getAttributes().getNodeToFictitiousP0().replaceAll((k, v) -> 0.0);
+        }
+        getVoltageLevel().getNodeBreakerView().setFictitiousP0(voltageLevelResource.getAttributes().getNodeToFictitiousP0().keySet().stream()
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
+                p0);
+        return this;
+    }
+
+    @Override
+    public double getFictitiousQ0() {
+        return this.voltageLevelResource.getAttributes().getNodeToFictitiousQ0().values().stream().reduce(0.0, Double::sum);
+    }
+
+    @Override
+    public Bus setFictitiousQ0(double q0) {
+        if (voltageLevelResource.getAttributes().getNodeToFictitiousQ0() != null) {
+            voltageLevelResource.getAttributes().getNodeToFictitiousQ0().replaceAll((k, v) -> 0.0);
+        }
+        getVoltageLevel().getNodeBreakerView().setFictitiousP0(voltageLevelResource.getAttributes().getNodeToFictitiousQ0().keySet().stream()
+                        .findFirst()
+                        .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
+                q0);
         return this;
     }
 
