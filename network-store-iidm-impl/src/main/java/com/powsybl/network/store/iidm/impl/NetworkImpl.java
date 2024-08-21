@@ -1142,4 +1142,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     public int getAreaCount() {
         return getAreaStream().toList().size();
     }
+
+    @Override
+    public void setResource(Resource<NetworkAttributes> resource) {
+        super.setResource(resource);
+        // when network is updated (variant change), cache is invalidated
+        busView.invalidateCache();
+    }
 }
