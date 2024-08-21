@@ -46,7 +46,7 @@ public class LineTest {
         assertFalse(l1.isOverloaded());
 
         l1.getTerminal1().setP(400);
-        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes("DEFAULT", 40, null), "DEFAULT");
+        l1.newCurrentLimits1().setPermanentLimit(40).add();
         assertTrue(l1.getNullableCurrentLimits1().getTemporaryLimits().isEmpty());
         assertTrue(l1.isOverloaded());
 
