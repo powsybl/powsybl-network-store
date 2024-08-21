@@ -24,16 +24,16 @@ public class BusBreakerCalculatedBusTest {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithMultiBuses();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
-        List<Bus> calculatedBuses = vl1.getBusView().getBusStream().collect(Collectors.toList());
-        List<Bus> configurededBuses = vl1.getBusBreakerView().getBusStream().collect(Collectors.toList());
-        assertEquals(0, calculatedBuses.size());
+        List<Bus> calculatedBuses = vl1.getBusView().getBusStream().toList();
+        List<Bus> configurededBuses = vl1.getBusBreakerView().getBusStream().toList();
+        assertEquals(1, calculatedBuses.size());
         assertEquals(3, configurededBuses.size());
 
         assertEquals(0, configurededBuses.stream().filter(b -> b instanceof CalculatedBus).count());
 
-        assertNull(vl1.getBusView().getMergedBus("B1"));
-        assertNull(vl1.getBusView().getMergedBus("B2"));
-        assertNull(vl1.getBusView().getMergedBus("B3"));
+        assertNotNull(vl1.getBusView().getMergedBus("B1"));
+        assertNotNull(vl1.getBusView().getMergedBus("B2"));
+        assertNotNull(vl1.getBusView().getMergedBus("B3"));
         assertNull(vl1.getBusView().getMergedBus("FOO"));
     }
 
@@ -89,7 +89,7 @@ public class BusBreakerCalculatedBusTest {
         vl1.getBusBreakerView().getSwitch("BR1").setOpen(true);
         vl1.getBusBreakerView().getSwitch("BR2").setOpen(false);
 
-        assertEquals(1, vl1.getBusView().getBusStream().count());
+        assertEquals(2, vl1.getBusView().getBusStream().count());
         assertEquals(3, vl1.getBusBreakerView().getBusStream().count());
 
         assertEquals(3, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
@@ -98,8 +98,8 @@ public class BusBreakerCalculatedBusTest {
         assertEquals(1, vl1.getBusBreakerView().getBus("B3").getConnectedTerminalCount());
 
         assertNotNull(vl1.getBusView().getMergedBus("B1"));
-        assertNull(vl1.getBusView().getMergedBus("B2"));
-        assertNull(vl1.getBusView().getMergedBus("B3"));
+        assertNotNull(vl1.getBusView().getMergedBus("B2"));
+        assertNotNull(vl1.getBusView().getMergedBus("B3"));
     }
 
     @Test
@@ -110,7 +110,7 @@ public class BusBreakerCalculatedBusTest {
         vl1.getBusBreakerView().getSwitch("BR1").setOpen(false);
         vl1.getBusBreakerView().getSwitch("BR2").setOpen(true);
 
-        assertEquals(1, vl1.getBusView().getBusStream().count());
+        assertEquals(2, vl1.getBusView().getBusStream().count());
         assertEquals(3, vl1.getBusBreakerView().getBusStream().count());
 
         assertEquals(4, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
@@ -120,7 +120,7 @@ public class BusBreakerCalculatedBusTest {
 
         assertNotNull(vl1.getBusView().getMergedBus("B1"));
         assertNotNull(vl1.getBusView().getMergedBus("B2"));
-        assertNull(vl1.getBusView().getMergedBus("B3"));
+        assertNotNull(vl1.getBusView().getMergedBus("B3"));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class BusBreakerCalculatedBusTest {
         vl1.getBusBreakerView().getSwitch("BR1").setOpen(true);
         vl1.getBusBreakerView().getSwitch("BR2").setOpen(true);
 
-        assertEquals(1, vl1.getBusView().getBusStream().count());
+        assertEquals(3, vl1.getBusView().getBusStream().count());
         assertEquals(3, vl1.getBusBreakerView().getBusStream().count());
 
         assertEquals(3, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
@@ -140,8 +140,8 @@ public class BusBreakerCalculatedBusTest {
         assertEquals(1, vl1.getBusBreakerView().getBus("B3").getConnectedTerminalCount());
 
         assertNotNull(vl1.getBusView().getMergedBus("B1"));
-        assertNull(vl1.getBusView().getMergedBus("B2"));
-        assertNull(vl1.getBusView().getMergedBus("B3"));
+        assertNotNull(vl1.getBusView().getMergedBus("B2"));
+        assertNotNull(vl1.getBusView().getMergedBus("B3"));
     }
 
     @Test
