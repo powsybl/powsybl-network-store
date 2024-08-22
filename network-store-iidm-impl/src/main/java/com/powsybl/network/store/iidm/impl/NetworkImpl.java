@@ -42,7 +42,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private final BusBreakerView busBreakerView = new BusBreakerViewImpl();
 
-    private final BusViewImpl busView = new BusViewImpl();
+    private final BusView busView = new BusViewImpl();
 
     private final List<NetworkListener> listeners = new ArrayList<>();
 
@@ -166,9 +166,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                 return cachesBuses.get(id);
             }
             // if cache not existing, creating it
-            Map<String, Bus> calculatedBuses = getIdToBusMap();
-            getResource().getAttributes().setBusCache(calculatedBuses);
-            return calculatedBuses.get(id);
+            Map<String, Bus> idToBusMap = getIdToBusMap();
+            getResource().getAttributes().setBusCache(idToBusMap);
+            return idToBusMap.get(id);
         }
 
         @Override
@@ -757,7 +757,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public BusViewImpl getBusView() {
+    public BusView getBusView() {
         return busView;
     }
 
