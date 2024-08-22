@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.powsybl.iidm.network.Bus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -61,4 +63,7 @@ public class NetworkAttributes extends AbstractIdentifiableAttributes {
 
     @Schema(description = "Base voltage mapping")
     private BaseVoltageMappingAttributes baseVoltageMapping;
+
+    @JsonIgnore
+    private Map<String, Bus> busCache;
 }
