@@ -12,12 +12,6 @@ import com.powsybl.iidm.network.tck.AbstractBusBreakerTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class BusTest extends AbstractBusBreakerTest {
-
-    @Override
-    public void testDisconnectConnect() {
-        // FIXME
-    }
-
     @Override
     public void testSetterGetter() {
         // FIXME remove this test when getFictitiousP0 and getFictitiousQ0 of CalculatedBus are implemented
