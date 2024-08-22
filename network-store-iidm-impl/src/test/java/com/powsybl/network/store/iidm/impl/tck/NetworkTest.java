@@ -60,7 +60,7 @@ public class NetworkTest extends AbstractNetworkTest {
         // FIXME remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3020
     }
 
-    // see TODO-Override below
+    // see FIXME-Override below
     @Override
     @Test
     public void testNetwork1() {
@@ -175,7 +175,7 @@ public class NetworkTest extends AbstractNetworkTest {
         assertEquals(2, voltageLevel1.getBusBreakerView().getBusCount());
         Bus busCalc1 = voltageLevel1BusbarSection1.getTerminal().getBusBreakerView().getBus();
         Bus busCalc2 = voltageLevel1BusbarSection2.getTerminal().getBusBreakerView().getBus();
-        // TODO-Override dont use assertSame but asserEquals on CalculatedBus (id vs ptr equality)
+        // FIXME-Override use asserEquals rather than assertSame on CalculatedBus (id vs ptr equality)
         assertEquals(busCalc1, load1.getTerminal().getBusBreakerView().getBus());
         assertEquals(busCalc2, generator1.getTerminal().getBusBreakerView().getBus());
         assertEquals(0, busCalc1.getConnectedComponent().getNum());
@@ -186,7 +186,7 @@ public class NetworkTest extends AbstractNetworkTest {
         assertEquals(busCalc, voltageLevel1BusbarSection2.getTerminal().getBusView().getBus());
         assertEquals(busCalc, load1.getTerminal().getBusView().getBus());
         assertEquals(busCalc, generator1.getTerminal().getBusView().getBus());
-        // TODO-Override KO assertEquals(0, busCalc.getConnectedComponent().getNum());
+        // FIXME-Override KO assertEquals(0, busCalc.getConnectedComponent().getNum());
 
         // Changes listener
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
@@ -196,7 +196,7 @@ public class NetworkTest extends AbstractNetworkTest {
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
 
         // Identifiable properties
-        // TODO-Override properties assertions made on voltageLevel1 rather than busCalc, cause CalculatedBus is NOT AbstractIdentifiable in network-store
+        // FIXME-Override properties assertions made on voltageLevel1 rather than busCalc, cause CalculatedBus is NOT AbstractIdentifiable in network-store
         String key = "keyTest";
         String value = "ValueTest";
         assertFalse(voltageLevel1.hasProperty());
@@ -239,7 +239,7 @@ public class NetworkTest extends AbstractNetworkTest {
         // validation
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
         network.runValidationChecks();
-        // TODO-Override cannot use EQUIPMENT level (Validation level below STEADY_STATE_HYPOTHESIS not supported)
+        // FIXME-Override cannot use EQUIPMENT level (cf error 'Validation level below STEADY_STATE_HYPOTHESIS not supported')
         /*network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
         network.getLoad("load1").setP0(0.0);

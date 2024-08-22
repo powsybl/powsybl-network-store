@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
@@ -150,35 +149,49 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public double getFictitiousP0() {
+        if (voltageLevelResource.getAttributes().getNodeToFictitiousP0() == null) {
+            return 0.0;
+        }
         return voltageLevelResource.getAttributes().getNodeToFictitiousP0().values().stream().reduce(0.0, Double::sum);
     }
 
     @Override
     public Bus setFictitiousP0(double p0) {
-        if (voltageLevelResource.getAttributes().getNodeToFictitiousP0() != null) {
-            voltageLevelResource.getAttributes().getNodeToFictitiousP0().replaceAll((k, v) -> 0.0);
+        Map<Integer, Double> nodesMap = voltageLevelResource.getAttributes().getNodeToFictitiousP0();
+        // set the value in the first nodes map entry
+        int firstNode = 0;
+        if (nodesMap != null) {
+            nodesMap.replaceAll((k, v) -> 0.0);
+            firstNode = nodesMap.keySet().stream().findFirst().orElse(0);
         }
-        getVoltageLevel().getNodeBreakerView().setFictitiousP0(voltageLevelResource.getAttributes().getNodeToFictitiousP0().keySet().stream()
-                .findFirst()
-                .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
-                p0);
+        getVoltageLevel().getNodeBreakerView().setFictitiousP0(firstNode, p0);
+
+        // also update fictitiousP0 for the configured buses
+        getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct().forEach(b -> b.setFictitiousP0(p0));
         return this;
     }
 
     @Override
     public double getFictitiousQ0() {
-        return this.voltageLevelResource.getAttributes().getNodeToFictitiousQ0().values().stream().reduce(0.0, Double::sum);
+        if (voltageLevelResource.getAttributes().getNodeToFictitiousQ0() == null) {
+            return 0.0;
+        }
+        return voltageLevelResource.getAttributes().getNodeToFictitiousQ0().values().stream().reduce(0.0, Double::sum);
     }
 
     @Override
     public Bus setFictitiousQ0(double q0) {
-        if (voltageLevelResource.getAttributes().getNodeToFictitiousQ0() != null) {
-            voltageLevelResource.getAttributes().getNodeToFictitiousQ0().replaceAll((k, v) -> 0.0);
+        Map<Integer, Double> nodesMap = voltageLevelResource.getAttributes().getNodeToFictitiousQ0();
+        // set the value in the first nodes map entry
+        int firstNode = 0;
+        if (nodesMap != null) {
+            nodesMap.replaceAll((k, v) -> 0.0);
+            firstNode = nodesMap.keySet().stream().findFirst().orElse(0);
         }
-        getVoltageLevel().getNodeBreakerView().setFictitiousP0(voltageLevelResource.getAttributes().getNodeToFictitiousQ0().keySet().stream()
-                        .findFirst()
-                        .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
-                q0);
+        getVoltageLevel().getNodeBreakerView().setFictitiousQ0(firstNode, q0);
+
+        // also update fictitiousQ0 for the configured buses
+        getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct().forEach(b -> b.setFictitiousQ0(q0));
         return this;
     }
 

@@ -96,6 +96,9 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
             updateResource(res -> res.getAttributes().setFictitiousP0(p0));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "fictitiousP0", variantId, oldValue, p0);
+            // also update fictitiousP0 for the calculated buses
+            getAllTerminals().stream().map(t -> t.getBusView().getBus()).distinct().forEach(b -> b.setFictitiousP0(p0));
+
         }
         return this;
     }
@@ -112,6 +115,8 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
             updateResource(res -> res.getAttributes().setFictitiousQ0(q0));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "fictitiousQ0", variantId, oldValue, q0);
+            // also update fictitiousQ0 for the calculated buses
+            getAllTerminals().stream().map(t -> t.getBusView().getBus()).distinct().forEach(b -> b.setFictitiousQ0(q0));
         }
         return this;
     }
