@@ -28,7 +28,6 @@ import org.jgrapht.graph.Pseudograph;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -144,44 +143,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
     }
 
-    /**
-     * Caching buses by their ID :
-     * the cache is fully builts on first call to {@link BusCache#getBus(String)},
-     * and must be invalidated on any topology change.
-     */
-    private static final class BusCache {
-
-        private final Supplier<Stream<Bus>> busStream;
-        private Map<String, Bus> cache;
-
-        private BusCache(Supplier<Stream<Bus>> busStream) {
-            this.busStream = busStream;
-        }
-
-        private void buildCache() {
-            cache = busStream.get().collect(ImmutableMap.toImmutableMap(Bus::getId, Functions.identity()));
-        }
-
-        synchronized void invalidate() {
-            cache = null;
-        }
-
-        private synchronized Map<String, Bus> getCache() {
-            if (cache == null) {
-                buildCache();
-            }
-            return cache;
-        }
-
-        Bus getBus(String id) {
-            return getCache().get(id);
-        }
-    }
-
     class BusViewImpl implements Network.BusView {
-
-        private final BusCache busViewCache = new BusCache(this::getBusStream);
-
         @Override
         public Iterable<Bus> getBuses() {
             return getBusStream().collect(Collectors.toList());
@@ -192,9 +154,21 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
         }
 
+        private Map<String, Bus> getIdToBusMap() {
+            return getBusStream().collect(ImmutableMap.toImmutableMap(Bus::getId, Functions.identity()));
+        }
+
         @Override
         public Bus getBus(String id) {
-            return busViewCache.getBus(id);
+            // checking cached data first
+            Map<String, Bus> cachesBuses = getResource().getAttributes().getBusCache();
+            if (cachesBuses != null) {
+                return cachesBuses.get(id);
+            }
+            // if cache not existing, creating it
+            Map<String, Bus> calculatedBuses = getIdToBusMap();
+            getResource().getAttributes().setBusCache(calculatedBuses);
+            return calculatedBuses.get(id);
         }
 
         @Override
@@ -207,10 +181,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         public Collection<Component> getSynchronousComponents() {
             return getBusStream().map(Bus::getSynchronousComponent)
                 .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Component::getNum))), ArrayList::new));
-        }
-
-        public void invalidateCache() {
-            busViewCache.invalidate();
         }
     }
 
@@ -984,6 +954,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         });
     }
 
+    void invalidateCalculatedBuses() {
+        invalidateComponents();
+        getResource().getAttributes().setBusCache(null);
+    }
+
     @Override
     public <E extends Extension<Network>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
@@ -1141,12 +1116,5 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public int getAreaCount() {
         return getAreaStream().toList().size();
-    }
-
-    @Override
-    public void setResource(Resource<NetworkAttributes> resource) {
-        super.setResource(resource);
-        // when network is updated (variant change), cache is invalidated
-        busView.invalidateCache();
     }
 }
