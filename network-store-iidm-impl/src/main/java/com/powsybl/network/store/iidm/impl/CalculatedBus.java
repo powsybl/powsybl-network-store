@@ -49,6 +49,9 @@ public final class CalculatedBus implements BaseBus {
 
     private final ComponentImpl synchronousComponent;
 
+    private static final String VOLTAGE = "v";
+    private static final String ANGLE = "angle";
+
     CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, Resource<VoltageLevelAttributes> voltageLevelResource,
                   int calculatedBusNum, boolean isBusView) {
         this.index = Objects.requireNonNull(index);
@@ -151,26 +154,28 @@ public final class CalculatedBus implements BaseBus {
                                            boolean searchInBusView,
                                            boolean retrieveSingleBus) {
         Set<Integer> result = new HashSet<>();
-        if (searchInBusView && isBusView) { // we search in bus view and the bus is a bus view bus
-            result.add(calculatedBusNum);
-        } else if (!searchInBusView && !isBusView) { // we search in bus breaker view and the bus is a bus breaker view bus
-            result.add(calculatedBusNum);
-        } else { // find the buses num in the other view, using the vertices ids to find the equivalent buses in the other view
-            CalculatedBusAttributes busAttributes = calculatedBusAttributesList.get(calculatedBusNum);
-            busAttributes.getVertices().forEach(vertice -> {
-                AtomicInteger i = new AtomicInteger(0);
-                if (calculatedBusAttributesListToSearch != null) {
-                    calculatedBusAttributesListToSearch.forEach(otherBusBreakerAttributes -> {
-                        otherBusBreakerAttributes.getVertices().forEach(otherVertice -> {
-                            if (otherVertice.getId().equals(vertice.getId()) && (!retrieveSingleBus || result.isEmpty())) {
-                                result.add(i.get());
-                            }
-                        });
-                        i.incrementAndGet();
-                    });
-                }
-            });
+
+        // we search in bus view and the bus is a bus view bus
+        // or we search in bus breaker view and the bus is a bus breaker view bus
+        if (searchInBusView && isBusView || !searchInBusView && !isBusView) {
+            return Set.of(calculatedBusNum);
         }
+
+        // find the buses num in the other view, using the vertices ids to find the equivalent buses in the other view
+        CalculatedBusAttributes busAttributes = calculatedBusAttributesList.get(calculatedBusNum);
+        busAttributes.getVertices().forEach(vertice -> {
+            AtomicInteger i = new AtomicInteger(0);
+            if (calculatedBusAttributesListToSearch != null) {
+                calculatedBusAttributesListToSearch.forEach(otherBusBreakerAttributes -> {
+                    otherBusBreakerAttributes.getVertices().forEach(otherVertice -> {
+                        if (otherVertice.getId().equals(vertice.getId()) && (!retrieveSingleBus || result.isEmpty())) {
+                            result.add(i.get());
+                        }
+                    });
+                    i.incrementAndGet();
+                });
+            }
+        });
         return result;
     }
 
@@ -252,12 +257,12 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public Bus setV(double v) {
-        return setBusAttribute(v, this::updateBusAttributeV, this::updateVConfiguredBuses, "v");
+        return setBusAttribute(v, this::updateBusAttributeV, this::updateVConfiguredBuses, VOLTAGE);
     }
 
     @Override
     public Bus setAngle(double angle) {
-        return setBusAttribute(angle, this::updateBusAttributeAngle, this::updateAngleConfiguredBuses, "angle");
+        return setBusAttribute(angle, this::updateBusAttributeAngle, this::updateAngleConfiguredBuses, ANGLE);
     }
 
     private <T> Bus setBusAttribute(T value,
@@ -294,9 +299,12 @@ public final class CalculatedBus implements BaseBus {
     }
 
     private void setAttribute(CalculatedBusAttributes busAttributes, double value, String attributeName) {
-        switch (attributeName) {
-            case "v" -> busAttributes.setV(value);
-            case "angle" -> busAttributes.setAngle(value);
+        if (VOLTAGE.equals(attributeName)) {
+            busAttributes.setV(value);
+        } else if (ANGLE.equals(attributeName)) {
+            busAttributes.setAngle(value);
+        } else {
+            throw new IllegalArgumentException("Attribute name must be '" + VOLTAGE + "' or '" + ANGLE + "'");
         }
     }
 
@@ -323,11 +331,11 @@ public final class CalculatedBus implements BaseBus {
     }
 
     private void updateVConfiguredBuses(double v, CalculatedBusAttributes calculatedBusAttributesBus) {
-        updateConfiguredBuses(calculatedBusAttributesBus, v, Bus::getV, Bus::setV, "v");
+        updateConfiguredBuses(calculatedBusAttributesBus, v, Bus::getV, Bus::setV, VOLTAGE);
     }
 
     private void updateAngleConfiguredBuses(double angle, CalculatedBusAttributes calculatedBusAttributesBus) {
-        updateConfiguredBuses(calculatedBusAttributesBus, angle, Bus::getAngle, Bus::setAngle, "angle");
+        updateConfiguredBuses(calculatedBusAttributesBus, angle, Bus::getAngle, Bus::setAngle, ANGLE);
     }
 
     private void updateConfiguredBuses(CalculatedBusAttributes calculatedBusAttributesBus,
