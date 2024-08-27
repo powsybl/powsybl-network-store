@@ -13,14 +13,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.network.store.model.LimitsAttributes;
-import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -33,58 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class LineTest {
-
-    //TODO: there is a similar test in the TCK tests. A CurrentLimitsTest extends AbstractCurrentLimitsTest should be created and this test can be deleted.
-    // The TCK test doesn't pass yet. As is, the network-store implementation of setV(v) on buses is not consistent. We have problems with the views we are working on (BusBreakerView or BusView).
-    @Test
-    public void isOverloadedTest() {
-        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
-        LineImpl l1 = (LineImpl) network.getLine("L1");
-        l1.getTerminal1().setP(10);
-        l1.getTerminal1().setQ(0);
-        l1.getTerminal1().getBusView().getBus().setV(400.0);
-        assertFalse(l1.isOverloaded());
-
-        l1.getTerminal1().setP(400);
-
-        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes("PermaLimit1", 600, null), "PermaLimit1");
-        assertNull(l1.getNullableCurrentLimits1());
-        l1.setSelectedOperationalLimitsGroup1("PermaLimit1");
-        assertTrue(l1.getNullableCurrentLimits1().getTemporaryLimits().isEmpty());
-        assertFalse(l1.isOverloaded());
-
-        l1.newCurrentLimits1().setPermanentLimit(50).add();
-        assertTrue(l1.isOverloaded());
-
-        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
-        temporaryLimits.put(5, TemporaryLimitAttributes.builder().name("TempLimit5").value(1000).acceptableDuration(5).fictitious(false).build());
-        l1.setCurrentLimits(TwoSides.ONE, new LimitsAttributes("PermaLimit1", 40, temporaryLimits), "PermaLimit1");
-        l1.setCurrentLimits(TwoSides.TWO, new LimitsAttributes("PermaLimit1", 40, temporaryLimits), "PermaLimit1");
-        l1.setSelectedOperationalLimitsGroup1("PermaLimit1");
-        l1.setSelectedOperationalLimitsGroup2("PermaLimit1");
-        assertEquals(5, l1.getOverloadDuration());
-
-        assertTrue(l1.checkPermanentLimit(TwoSides.ONE, LimitType.CURRENT));
-        assertTrue(l1.checkPermanentLimit1(LimitType.CURRENT));
-        assertFalse(l1.checkPermanentLimit(TwoSides.TWO, LimitType.CURRENT));
-        assertFalse(l1.checkPermanentLimit2(LimitType.CURRENT));
-        assertFalse(l1.checkPermanentLimit(TwoSides.ONE, LimitType.APPARENT_POWER));
-        assertFalse(l1.checkPermanentLimit(TwoSides.TWO, LimitType.ACTIVE_POWER));
-        assertThrows(UnsupportedOperationException.class, () -> l1.checkPermanentLimit(TwoSides.TWO, LimitType.VOLTAGE));
-
-        Overload overload = l1.checkTemporaryLimits(TwoSides.ONE, LimitType.CURRENT);
-        assertEquals("TempLimit5", overload.getTemporaryLimit().getName());
-        assertEquals(40.0, overload.getPreviousLimit(), 0);
-        assertEquals(5, overload.getTemporaryLimit().getAcceptableDuration());
-        assertNull(l1.checkTemporaryLimits(TwoSides.TWO, LimitType.CURRENT));
-
-        temporaryLimits.put(5, TemporaryLimitAttributes.builder().name("TempLimit5").value(20).acceptableDuration(5).fictitious(false).build());
-        assertEquals(Integer.MAX_VALUE, l1.getOverloadDuration());
-
-        temporaryLimits.put(10, TemporaryLimitAttributes.builder().name("TempLimit10").value(8).acceptableDuration(10).fictitious(false).build());
-        // check duration sorting order: first entry has the highest duration
-        assertEquals(10., l1.getNullableCurrentLimits1().getTemporaryLimits().iterator().next().getAcceptableDuration(), 0);
-    }
 
     @Test
     public void testAddConnectablePositionExtensionToLine() {
