@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -166,8 +167,15 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
                         .getCalculatedBusesForBusView();
 
                 if (CollectionUtils.isNotEmpty(calculatedBusAttributesList)) {
-                    updater.accept(newValue, calculatedBusAttributesList);
-                    index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
+                    List<Integer> calculatedBusesNum = getAllTerminals().stream().map(t -> ((CalculatedBus) t.getBusView().getBus()).getCalculatedBusNum()).distinct().toList();
+                    List<CalculatedBusAttributes> busesToUpdateList = IntStream.range(0, calculatedBusAttributesList.size())
+                        .filter(calculatedBusesNum::contains)
+                        .mapToObj(calculatedBusAttributesList::get)
+                        .toList();
+                    if (CollectionUtils.isNotEmpty(busesToUpdateList)) {
+                        updater.accept(newValue, busesToUpdateList);
+                        index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
+                    }
                 }
             }
         });

@@ -636,4 +636,8 @@ public final class CalculatedBus implements BaseBus {
         ExtensionAdderProvider provider = ExtensionAdderProviders.findCachedProvider(getImplementationName(), type);
         return (B) provider.newAdder(this);
     }
+
+    public int getCalculatedBusNum() {
+        return calculatedBusNum;
+    }
 }
