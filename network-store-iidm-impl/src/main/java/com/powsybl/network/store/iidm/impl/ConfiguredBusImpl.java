@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.TopologyKind.BUS_BREAKER;
+
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
@@ -195,36 +197,47 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public double getFictitiousP0() {
-        return getResource().getAttributes().getFictitiousP0();
+        return BUS_BREAKER == getVoltageLevel().getTopologyKind() ?
+            getResource().getAttributes().getFictitiousP0() :
+            getAllTerminals().stream().map(t -> t.getBusView().getBus()).distinct()
+                .map(Bus::getFictitiousP0)
+                .reduce(0.0, Double::sum);
     }
 
     @Override
     public Bus setFictitiousP0(double p0) {
-        double oldValue = getResource().getAttributes().getFictitiousP0();
-        if (p0 != oldValue) {
-            updateResource(res -> res.getAttributes().setFictitiousP0(p0));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "fictitiousP0", variantId, oldValue, p0);
-            // also update fictitiousP0 for the calculated buses
+        if (BUS_BREAKER == getVoltageLevel().getTopologyKind()) {
+            double oldValue = getResource().getAttributes().getFictitiousP0();
+            if (p0 != oldValue) {
+                updateResource(res -> res.getAttributes().setFictitiousP0(p0));
+                String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+                index.notifyUpdate(this, "fictitiousP0", variantId, oldValue, p0);
+            }
+        } else {
             getAllTerminals().stream().map(t -> t.getBusView().getBus()).distinct().forEach(b -> b.setFictitiousP0(p0));
-
         }
         return this;
     }
 
     @Override
     public double getFictitiousQ0() {
-        return getResource().getAttributes().getFictitiousQ0();
+        return BUS_BREAKER == getVoltageLevel().getTopologyKind() ?
+            getResource().getAttributes().getFictitiousQ0() :
+            getAllTerminals().stream().map(t -> t.getBusView().getBus()).distinct()
+                .map(Bus::getFictitiousQ0)
+                .reduce(0.0, Double::sum);
     }
 
     @Override
     public Bus setFictitiousQ0(double q0) {
-        double oldValue = getResource().getAttributes().getFictitiousQ0();
-        if (q0 != oldValue) {
-            updateResource(res -> res.getAttributes().setFictitiousQ0(q0));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "fictitiousQ0", variantId, oldValue, q0);
-            // also update fictitiousQ0 for the calculated buses
+        if (BUS_BREAKER == getVoltageLevel().getTopologyKind()) {
+            double oldValue = getResource().getAttributes().getFictitiousQ0();
+            if (q0 != oldValue) {
+                updateResource(res -> res.getAttributes().setFictitiousQ0(q0));
+                String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+                index.notifyUpdate(this, "fictitiousQ0", variantId, oldValue, q0);
+            }
+        } else {
             getAllTerminals().stream().map(t -> t.getBusView().getBus()).distinct().forEach(b -> b.setFictitiousQ0(q0));
         }
         return this;
