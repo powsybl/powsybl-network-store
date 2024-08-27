@@ -111,10 +111,12 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         Optional<VoltageLevelImpl> voltageLevelOpt = index.getVoltageLevel(voltageLevelId);
 
         return voltageLevelOpt
-                .filter(voltageLevel -> voltageLevel.getResource().getVariantNum() == getResource().getVariantNum())
-                .flatMap(voltageLevel -> voltageLevel.getResource().getAttributes()
-                        .getCalculatedBusesForBusView().stream().findFirst())
-                .map(attributeGetter);
+            .filter(voltageLevel -> voltageLevel.getResource().getVariantNum() == getResource().getVariantNum())
+            .flatMap(voltageLevel -> voltageLevel.getResource().getAttributes().getCalculatedBusesForBusView() != null
+                ? voltageLevel.getResource().getAttributes().getCalculatedBusesForBusView().stream().findFirst()
+                : Optional.empty()
+            )
+            .map(attributeGetter);
     }
 
     @Override
