@@ -91,7 +91,7 @@ public class BusBreakerTopology extends AbstractTopology<String> {
         EquipmentCount<String> equipmentCount = new EquipmentCount<>();
         equipmentCount.count(nodesOrBusesConnected, verticesByNodeOrBus);
 
-        return equipmentCount.branchCount >= 1;
+        return equipmentCount.feederCount >= 1;
     }
 
     @Override
