@@ -14,6 +14,6 @@ import com.powsybl.iidm.network.tck.AbstractNetworkReportNodeTest;
 public class NetworkReportNodeTest extends AbstractNetworkReportNodeTest {
     @Override
     public void onSubnetworkTest() {
-        // FIXME
+        // FIXME remove this when subnetworks are implemented
     }
 }

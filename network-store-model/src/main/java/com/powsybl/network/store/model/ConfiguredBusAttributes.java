@@ -37,6 +37,12 @@ public class ConfiguredBusAttributes extends AbstractIdentifiableAttributes impl
     @Builder.Default
     private double angle = Double.NaN;
 
+    @Schema(description = "fictitious P0")
+    private double fictitiousP0 = Double.NaN;
+
+    @Schema(description = "fictitious Q0")
+    private double fictitiousQ0 = Double.NaN;
+
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {

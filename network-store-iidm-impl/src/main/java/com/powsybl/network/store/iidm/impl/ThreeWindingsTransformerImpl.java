@@ -215,16 +215,19 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
 
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
             return new CurrentLimitsAdderImpl<>(null, this, getSelectedGroupId());
         }
 
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
             return new ApparentPowerLimitsAdderImpl<>(null, this, getSelectedGroupId());
         }
 
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
             return new ActivePowerLimitsAdderImpl<>(null, this, getSelectedGroupId());
         }
 
@@ -270,7 +273,6 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         public void setCurrentLimits(Void side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
             var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
-            updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
             transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(currentLimits));
             notifyUpdate("currentLimits", oldValue, currentLimits);
         }
@@ -284,7 +286,6 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         public void setApparentPowerLimits(Void side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId) {
             var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
-            updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
             transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes));
             notifyUpdate("apparentLimits", oldValue, apparentPowerLimitsAttributes);
         }
@@ -293,7 +294,6 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         public void setActivePowerLimits(Void side, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId) {
             var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
-            updateSelectedOperationalLimitsGroupIdIfNull(operationalLimitsGroupId);
             transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes));
             notifyUpdate("activePowerLimits", oldValue, activePowerLimitsAttributes);
         }
@@ -622,6 +622,9 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
     public void remove() {
         var resource = getResource();
         index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+        }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeThreeWindingsTransformer(resource.getId());

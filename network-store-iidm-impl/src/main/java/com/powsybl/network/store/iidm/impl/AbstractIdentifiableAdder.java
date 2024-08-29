@@ -8,8 +8,11 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Identifiables;
 
 /**
@@ -102,6 +105,26 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
             throw new ValidationException(this, "configured bus '" + connectableBusId + "' not found");
         }
         return bus.getVoltageLevel().getId();
+    }
+
+    public void checkBus(String connectionBus, VoltageLevel voltageLevel) {
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            throw new ValidationException(this, "bus only used in a bus breaker topology");
+        }
+        if (index.getConfiguredBus(connectionBus).isEmpty()) {
+            throw new ValidationException(this, "connectable bus '" + connectionBus + "' not found");
+        }
+    }
+
+    public void checkNode(Integer node, VoltageLevel voltageLevel) {
+        if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+            throw new ValidationException(this, "node only used in a node breaker topology");
+        }
+
+        Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
+        if (terminal != null) {
+            throw new ValidationException(this, terminal.getConnectable().getId() + " is already connected to the node " + node);
+        }
     }
 
     @Override

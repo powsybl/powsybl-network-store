@@ -158,6 +158,13 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
             if (connectionBus != null && index.getConfiguredBus(connectionBus).isEmpty()) {
                 throw new ValidationException(this, "connectable bus leg " + legNumber + " '" + connectionBus + " not found");
             }
+
+            VoltageLevel voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
+            if (connectionBus != null) {
+                checkBus(connectionBus, voltageLevel);
+            } else {
+                checkNode(node, voltageLevel);
+            }
         }
 
         protected VoltageLevel checkVoltageLevel() {
@@ -179,8 +186,8 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
         @Override
         public ThreeWindingsTransformerAdder add() {
             checkParams();
-            checkNodeBus();
             checkVoltageLevel();
+            checkNodeBus();
 
             if (legNumber == 1) {
                 leg1 = LegAttributes.builder()

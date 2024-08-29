@@ -14,11 +14,11 @@ import com.powsybl.iidm.network.tck.AbstractConnectionNotificationTest;
 public class ConnectionNotificationTest extends AbstractConnectionNotificationTest {
     @Override
     public void busBreakerTest() {
-        // FIXME
+        // FIXME remove this test when we have the same update notifications as the core impl when disconnecting terminals : beginDisconnect and endDisconnect
     }
 
     @Override
     public void nodeBreakerTest() {
-        // FIXME
+        // FIXME remove this test when we have the same update notifications as the core impl when disconnecting terminals : beginDisconnect and endDisconnect
     }
 }
