@@ -87,6 +87,13 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         if (connectionBus != null && index.getConfiguredBus(connectionBus).isEmpty()) {
             throw new ValidationException(this, "connectable bus 1 '" + connectionBus + " not found");
         }
+
+        VoltageLevel voltageLevel = getNetwork().getVoltageLevel(voltageLevelId1);
+        if (connectionBus != null) {
+            checkBus(connectionBus, voltageLevel);
+        } else {
+            checkNode(node1, voltageLevel);
+        }
     }
 
     private String getConnectionBus1() {
@@ -167,6 +174,13 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
         if (connectionBus != null && index.getConfiguredBus(connectionBus).isEmpty()) {
             throw new ValidationException(this, "connectable bus 2 '" + connectionBus + " not found");
+        }
+
+        VoltageLevel voltageLevel = getNetwork().getVoltageLevel(voltageLevelId2);
+        if (connectionBus != null) {
+            checkBus(connectionBus, voltageLevel);
+        } else {
+            checkNode(node2, voltageLevel);
         }
     }
 

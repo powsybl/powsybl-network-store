@@ -6,7 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import com.powsybl.cgmes.extensions.BaseVoltageMapping;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
@@ -142,7 +144,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     class BusViewImpl implements Network.BusView {
-
         @Override
         public Iterable<Bus> getBuses() {
             return getBusStream().collect(Collectors.toList());
@@ -153,9 +154,21 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
         }
 
+        private Map<String, Bus> getIdToBusMap() {
+            return getBusStream().collect(ImmutableMap.toImmutableMap(Bus::getId, Functions.identity()));
+        }
+
         @Override
         public Bus getBus(String id) {
-            return getBusStream().filter(b -> b.getId().equals(id)).findFirst().orElse(null);
+            // checking cached data first
+            Map<String, Bus> cachesBuses = getResource().getAttributes().getBusCache();
+            if (cachesBuses != null) {
+                return cachesBuses.get(id);
+            }
+            // if cache not existing, creating it
+            Map<String, Bus> idToBusMap = getIdToBusMap();
+            getResource().getAttributes().setBusCache(idToBusMap);
+            return idToBusMap.get(id);
         }
 
         @Override
@@ -939,6 +952,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             res.getAttributes().setConnectedComponentsValid(false);
             res.getAttributes().setSynchronousComponentsValid(false);
         });
+    }
+
+    void invalidateCalculatedBuses() {
+        invalidateComponents();
+        getResource().getAttributes().setBusCache(null);
     }
 
     @Override

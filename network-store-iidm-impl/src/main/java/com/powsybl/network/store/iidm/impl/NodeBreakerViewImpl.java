@@ -71,6 +71,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource());
         return graph.vertexSet().stream()
                 .mapToInt(Integer::intValue)
+                .sorted()
                 .toArray();
     }
 
@@ -326,13 +327,14 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                 .filter(edge -> edge.getBiConnectable() instanceof SwitchAttributes)
                 .map(edge -> {
                     Resource<SwitchAttributes> resource = ((SwitchAttributes) edge.getBiConnectable()).getResource();
-                    return index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
-                });
+                    return (Switch) index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
+                })
+                .distinct();
     }
 
     @Override
     public List<Switch> getSwitches(int node) {
-        return getSwitchStream(node).collect(Collectors.toList());
+        return getSwitchStream(node).toList();
     }
 
     @Override
@@ -344,7 +346,8 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                 .mapToInt(edge -> {
                     NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
                     return biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
-                });
+                })
+                .distinct();
     }
 
     @Override
@@ -458,5 +461,43 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public boolean hasAttachedEquipment(int node) {
         // not sure
         return getTerminal(node) != null;
+    }
+
+    @Override
+    public double getFictitiousP0(int node) {
+        Map<Integer, Double> nodeToFictitiousP0 = getVoltageLevelResource().getAttributes().getNodeToFictitiousP0();
+        return nodeToFictitiousP0 == null ? 0.0 : nodeToFictitiousP0.getOrDefault(node, 0.0);
+    }
+
+    @Override
+    public VoltageLevel.NodeBreakerView setFictitiousP0(int node, double p0) {
+        Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
+        Map<Integer, Double> nodeToFictitiousP0 = voltageLevelResource.getAttributes().getNodeToFictitiousP0();
+        if (nodeToFictitiousP0 == null) {
+            nodeToFictitiousP0 = new HashMap<>();
+        }
+        nodeToFictitiousP0.put(node, p0);
+        voltageLevelResource.getAttributes().setNodeToFictitiousP0(nodeToFictitiousP0);
+        index.updateVoltageLevelResource(voltageLevelResource);
+        return this;
+    }
+
+    @Override
+    public double getFictitiousQ0(int node) {
+        Map<Integer, Double> nodeToFictitiousQ0 = getVoltageLevelResource().getAttributes().getNodeToFictitiousQ0();
+        return nodeToFictitiousQ0 == null ? 0.0 : nodeToFictitiousQ0.getOrDefault(node, 0.0);
+    }
+
+    @Override
+    public VoltageLevel.NodeBreakerView setFictitiousQ0(int node, double q0) {
+        Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
+        Map<Integer, Double> nodeToFictitiousQ0 = voltageLevelResource.getAttributes().getNodeToFictitiousQ0();
+        if (nodeToFictitiousQ0 == null) {
+            nodeToFictitiousQ0 = new HashMap<>();
+        }
+        nodeToFictitiousQ0.put(node, q0);
+        voltageLevelResource.getAttributes().setNodeToFictitiousQ0(nodeToFictitiousQ0);
+        index.updateVoltageLevelResource(voltageLevelResource);
+        return this;
     }
 }
