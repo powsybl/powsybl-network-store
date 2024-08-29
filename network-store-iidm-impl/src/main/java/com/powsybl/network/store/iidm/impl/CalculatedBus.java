@@ -6,11 +6,13 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.model.*;
 import lombok.EqualsAndHashCode;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -19,11 +21,14 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.powsybl.iidm.network.TopologyKind.NODE_BREAKER;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -49,6 +54,8 @@ public final class CalculatedBus implements BaseBus {
 
     private final ComponentImpl synchronousComponent;
 
+    private final Function<Terminal, Bus> getBusFromTerminal;
+
     private static final String VOLTAGE = "v";
     private static final String ANGLE = "angle";
 
@@ -63,6 +70,7 @@ public final class CalculatedBus implements BaseBus {
         this.isBusView = isBusView;
         connectedComponent = new ComponentImpl(this, ComponentType.CONNECTED);
         synchronousComponent = new ComponentImpl(this, ComponentType.SYNCHRONOUS);
+        getBusFromTerminal = isBusView ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
     }
 
     boolean isBusView() {
@@ -163,12 +171,12 @@ public final class CalculatedBus implements BaseBus {
 
         // find the buses num in the other view, using the vertices ids to find the equivalent buses in the other view
         CalculatedBusAttributes busAttributes = calculatedBusAttributesList.get(calculatedBusNum);
-        busAttributes.getVertices().forEach(vertice -> {
+        busAttributes.getVertices().forEach(vertex -> {
             AtomicInteger i = new AtomicInteger(0);
             if (calculatedBusAttributesListToSearch != null) {
                 calculatedBusAttributesListToSearch.forEach(otherBusBreakerAttributes -> {
-                    otherBusBreakerAttributes.getVertices().forEach(otherVertice -> {
-                        if (otherVertice.getId().equals(vertice.getId()) && (!retrieveSingleBus || result.isEmpty())) {
+                    otherBusBreakerAttributes.getVertices().forEach(otherVertex -> {
+                        if (otherVertex.getId().equals(vertex.getId()) && (!retrieveSingleBus || result.isEmpty())) {
                             result.add(i.get());
                         }
                     });
@@ -194,7 +202,7 @@ public final class CalculatedBus implements BaseBus {
         }
 
         // If the topology is NODE_BREAKER, check in the bus breaker view
-        if (attributes.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+        if (attributes.getTopologyKind() == NODE_BREAKER) {
             List<CalculatedBusAttributes> calculatedBusAttributesForBusBreakerList = attributes.getCalculatedBusesForBusBreakerView();
             double busBreakerViewValue = findInViewFunction.apply(calculatedBusAttributesForBusBreakerList,
                                                                   getBusNumInView(calculatedBusAttributesForBusBreakerList,
@@ -270,7 +278,7 @@ public final class CalculatedBus implements BaseBus {
                                     BiConsumer<T, CalculatedBusAttributes> updateConfiguredBusesMethod,
                                     String attributeName) {
         VoltageLevelAttributes attributes = voltageLevelResource.getAttributes();
-        if (attributes.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+        if (attributes.getTopologyKind() == NODE_BREAKER) {
             updateAttributeMethod.accept(value,
                                          attributes.getCalculatedBusesForBusView(),
                                          getBusesNumInView(attributes.getCalculatedBusesForBusView(),
@@ -367,6 +375,56 @@ public final class CalculatedBus implements BaseBus {
         oldNewValues.forEach((bus, oldNewValue) ->
                 index.notifyUpdate(bus, attributeName, variantId, oldNewValue.getKey(), oldNewValue.getValue())
         );
+    }
+
+    @Override
+    public double getFictitiousP0() {
+        return NODE_BREAKER == getVoltageLevel().getTopologyKind() ?
+            Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal)
+                .mapToDouble(n -> getVoltageLevel().getNodeBreakerView().getFictitiousP0(n))
+                .reduce(0.0, Double::sum) :
+            getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct()
+                .map(Bus::getFictitiousP0)
+                .reduce(0.0, Double::sum);
+    }
+
+    @Override
+    public Bus setFictitiousP0(double p0) {
+        if (NODE_BREAKER == getVoltageLevel().getTopologyKind()) {
+            Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal).forEach(n -> getVoltageLevel().getNodeBreakerView().setFictitiousP0(n, 0.0));
+            getVoltageLevel().getNodeBreakerView().setFictitiousP0(Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal)
+                    .findFirst()
+                    .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
+                p0);
+        } else {
+            getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct().forEach(b -> b.setFictitiousP0(p0));
+        }
+        return this;
+    }
+
+    @Override
+    public double getFictitiousQ0() {
+        return NODE_BREAKER == getVoltageLevel().getTopologyKind() ?
+            Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal)
+                .mapToDouble(n -> getVoltageLevel().getNodeBreakerView().getFictitiousQ0(n))
+                .reduce(0.0, Double::sum) :
+            getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct()
+                .map(Bus::getFictitiousQ0)
+                .reduce(0.0, Double::sum);
+    }
+
+    @Override
+    public Bus setFictitiousQ0(double q0) {
+        if (NODE_BREAKER == getVoltageLevel().getTopologyKind()) {
+            Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal).forEach(n -> getVoltageLevel().getNodeBreakerView().setFictitiousQ0(n, 0.0));
+            getVoltageLevel().getNodeBreakerView().setFictitiousQ0(Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal)
+                    .findFirst()
+                    .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
+                q0);
+        } else {
+            getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct().forEach(b -> b.setFictitiousQ0(q0));
+        }
+        return this;
     }
 
     @Override

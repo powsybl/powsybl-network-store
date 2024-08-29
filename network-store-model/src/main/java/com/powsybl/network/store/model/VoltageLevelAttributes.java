@@ -73,6 +73,12 @@ public class VoltageLevelAttributes extends AbstractIdentifiableAttributes imple
     @Schema(description = "Calculated buses validity")
     private boolean calculatedBusesValid = false;
 
+    @Schema(description = "Node to fictitious P0")
+    private Map<Integer, Double> nodeToFictitiousP0;
+
+    @Schema(description = "Node to fictitious Q0")
+    private Map<Integer, Double> nodeToFictitiousQ0;
+
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {
