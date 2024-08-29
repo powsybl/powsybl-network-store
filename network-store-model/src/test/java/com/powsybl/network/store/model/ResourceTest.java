@@ -252,6 +252,13 @@ public class ResourceTest {
 
     @Test
     public void generator() {
+        TerminalRefAttributes regulatingTerminal = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
+        RegulationPointAttributes regulationPointAttributes = RegulationPointAttributes.builder()
+            .regulatedEquipmentId("gen")
+            .identifiableType(IdentifiableType.GENERATOR)
+            .regulatingTerminal(regulatingTerminal)
+            .localTerminal(new TerminalRefAttributes("gen", null))
+            .build();
         GeneratorAttributes generatorAttributes = GeneratorAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -264,7 +271,7 @@ public class ResourceTest {
                 .node(1)
                 .targetP(3)
                 .targetV(4)
-                .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
+                .regulationPoint(regulationPointAttributes)
                 .build();
 
         Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder()
@@ -282,8 +289,8 @@ public class ResourceTest {
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getQ()));
 
-        assertEquals("idEq", resourceGenerator.getAttributes().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceGenerator.getAttributes().getRegulatingTerminal().getSide());
+        assertEquals("idEq", resourceGenerator.getAttributes().getRegulationPoint().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceGenerator.getAttributes().getRegulationPoint().getRegulatingTerminal().getSide());
 
     }
 
@@ -361,6 +368,13 @@ public class ResourceTest {
         assertEquals(5, nonLinearModelAttributes.getB(2), 0.1);
         assertEquals(2, nonLinearModelAttributes.getG(1), 0.1);
 
+        TerminalRefAttributes regulatingTerminal = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
+        RegulationPointAttributes regulationPointAttributes = RegulationPointAttributes.builder()
+            .regulatedEquipmentId("gen")
+            .identifiableType(IdentifiableType.SHUNT_COMPENSATOR)
+            .regulatingTerminal(regulatingTerminal)
+            .localTerminal(new TerminalRefAttributes("gen", null))
+            .build();
         ShuntCompensatorAttributes shuntCompensatorAttributes = ShuntCompensatorAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -370,7 +384,7 @@ public class ResourceTest {
                 .q(200)
                 .model(linearModelAttributes)
                 .sectionCount(2)
-                .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
+                .regulationPoint(regulationPointAttributes)
                 .build();
 
         Resource<ShuntCompensatorAttributes> resourceShunt = Resource.shuntCompensatorBuilder()
@@ -379,8 +393,8 @@ public class ResourceTest {
                 .build();
 
         assertFalse(resourceShunt.getAttributes().isFictitious());
-        assertEquals("idEq", resourceShunt.getAttributes().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceShunt.getAttributes().getRegulatingTerminal().getSide());
+        assertEquals("idEq", resourceShunt.getAttributes().getRegulationPoint().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceShunt.getAttributes().getRegulationPoint().getRegulatingTerminal().getSide());
         assertEquals(100., resourceShunt.getAttributes().getP(), 0.001);
         assertEquals(200, resourceShunt.getAttributes().getQ(), 0.001);
         assertEquals(2, resourceShunt.getAttributes().getSectionCount());
