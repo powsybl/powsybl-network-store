@@ -11,10 +11,8 @@ import com.powsybl.iidm.network.tck.AbstractSubnetworksCreationTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
+// FIXME remove all the tests in this class when we implement subnetworks and areas
 public class SubnetworksCreationTest extends AbstractSubnetworksCreationTest {
-    @Override
-    public void setup() {
-    }
 
     @Override
     public void testAreaCreation() {

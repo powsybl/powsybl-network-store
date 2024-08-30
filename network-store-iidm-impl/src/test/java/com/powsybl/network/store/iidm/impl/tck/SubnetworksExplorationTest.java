@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractSubnetworksExplorationTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
+// FIXME remove all the tests in this class when we implement subnetworks and areas
 public class SubnetworksExplorationTest extends AbstractSubnetworksExplorationTest {
     @Override
     public void testExploreSubnetworks() {

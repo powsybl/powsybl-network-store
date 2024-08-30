@@ -6,9 +6,8 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
@@ -71,30 +70,11 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
             throw new ValidationException(this, "connection node and connection bus are exclusives");
         }
 
+        VoltageLevel voltageLevel = getNetwork().getVoltageLevel(getVoltageLevelResource().getId());
         if (connectionBus != null) {
-            checkBus(connectionBus);
+            checkBus(connectionBus, voltageLevel);
         } else {
-            checkNode();
-        }
-    }
-
-    private void checkBus(String connectionBus) {
-        if (getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            throw new ValidationException(this, "bus only used in a bus breaker topology");
-        }
-        if (index.getConfiguredBus(connectionBus).isEmpty()) {
-            throw new ValidationException(this, "connectable bus '" + connectionBus + "' not found");
-        }
-    }
-
-    private void checkNode() {
-        if (getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-            throw new ValidationException(this, "node only used in a node breaker topology");
-        }
-
-        Terminal terminal = getNetwork().getVoltageLevel(getVoltageLevelResource().getId()).getNodeBreakerView().getTerminal(node);
-        if (terminal != null) {
-            throw new ValidationException(this, terminal.getConnectable().getId() + " is already connected to the node " + node);
+            checkNode(node, voltageLevel);
         }
     }
 
