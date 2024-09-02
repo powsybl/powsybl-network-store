@@ -23,7 +23,7 @@ import java.util.Objects;
 @Getter
 public abstract class AbstractTopLevelDocument<T> {
 
-    @Schema(description = "data", required = true)
+    @Schema(description = "data", requiredMode = Schema.RequiredMode.REQUIRED)
     private final List<T> data;
 
     @Schema(description = "Metadata")
