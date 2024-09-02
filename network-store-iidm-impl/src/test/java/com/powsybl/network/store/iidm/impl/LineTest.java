@@ -13,17 +13,13 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -369,9 +365,19 @@ public class LineTest {
 
     @Test
     public void testConnectDisconnect() {
+        // Network elements
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         Line l1 = network.getLine("L1");
-        assertTrue(l1.connect());
+
+        // The line starts connected
+        l1.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
+
+        // Disconnect the line
         assertTrue(l1.disconnect());
+        l1.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
+
+        // Reconnect the line
+        assertTrue(l1.connect());
+        l1.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
     }
 }

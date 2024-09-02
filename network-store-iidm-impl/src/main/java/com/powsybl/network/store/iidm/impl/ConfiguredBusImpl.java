@@ -195,6 +195,38 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         calculatedBusAttributesList.forEach(calculatedBusAttributes -> calculatedBusAttributes.setAngle(angle));
     }
 
+    @Override
+    public double getFictitiousP0() {
+        return getResource().getAttributes().getFictitiousP0();
+    }
+
+    @Override
+    public Bus setFictitiousP0(double p0) {
+        double oldValue = getResource().getAttributes().getFictitiousP0();
+        if (p0 != oldValue) {
+            updateResource(res -> res.getAttributes().setFictitiousP0(p0));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "fictitiousP0", variantId, oldValue, p0);
+        }
+        return this;
+    }
+
+    @Override
+    public double getFictitiousQ0() {
+        return getResource().getAttributes().getFictitiousQ0();
+    }
+
+    @Override
+    public Bus setFictitiousQ0(double q0) {
+        double oldValue = getResource().getAttributes().getFictitiousQ0();
+        if (q0 != oldValue) {
+            updateResource(res -> res.getAttributes().setFictitiousQ0(q0));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "fictitiousQ0", variantId, oldValue, q0);
+        }
+        return this;
+    }
+
     private Optional<Bus> getMergedBus() {
         return Optional.ofNullable(getVoltageLevel().getBusView().getMergedBus(getId()));
     }

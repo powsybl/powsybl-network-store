@@ -11,16 +11,16 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.network.store.iidm.impl.util.JGraphTGraph;
 import com.powsybl.network.store.model.*;
-import org.jgrapht.Graph;
-import org.jgrapht.GraphPath;
-import org.jgrapht.alg.shortestpath.AllDirectedPaths;
-import org.jgrapht.graph.AsWeightedGraph;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static com.powsybl.network.store.iidm.impl.ConnectDisconnectUtil.closeSwitches;
+import static com.powsybl.network.store.iidm.impl.ConnectDisconnectUtil.openSwitches;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -56,7 +56,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return getVoltageLevelResource().getAttributes().getTopologyKind();
     }
 
-    private boolean isNodeBeakerTopologyKind() {
+    protected boolean isNodeBeakerTopologyKind() {
         return getTopologyKind() == TopologyKind.NODE_BREAKER;
     }
 
@@ -150,34 +150,53 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             .collect(Collectors.toSet());
     }
 
-    private double computeEdgeWeight(Edge edge, Predicate<Switch> openOperableSwitch) {
-        return isSwitchOperableAndPresent(edge, openOperableSwitch) ? 1d : 0d;
+    private double computePathWeight(List<Edge> path, Predicate<Switch> openOperableSwitch) {
+        return path.stream().mapToDouble(edge -> computeEdgeWeight(edge, openOperableSwitch)).sum();
     }
 
-    private boolean isSwitchOperableAndPresent(Edge edge, Predicate<Switch> openOperableSwitch) {
+    private double computeEdgeWeight(Edge edge, Predicate<Switch> openOperableSwitch) {
+        return testSwitchFromEdge(edge, openOperableSwitch) ? 1d : 0d;
+    }
+
+    /**
+     * Check that the edge corresponds to a switch and test the predicate on the switch
+     */
+    private boolean testSwitchFromEdge(Edge edge, Predicate<Switch> predicate) {
         if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
             // Get the switch behind the switchAttributes
             Optional<SwitchImpl> sw = index.getSwitch(switchAttributes.getResource().getId());
 
-            // THe weight is 1 if the switch is operable and open, else 0
-            return sw.isPresent() && openOperableSwitch.test(sw.get());
-        } else {
-            return false;
+            // Test the switch
+            return sw.isPresent() && predicate.test(sw.get());
         }
+        return false;
     }
 
-    private boolean connectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource, Predicate<Switch> isTypeSwitchToOperate) {
+    /**
+     * Check if a switch from the edge is open but cannot be operated (according to the given predicate)
+     * @param edge the edge to test
+     * @param isSwitchOperable the predicate defining if a switch can be operated
+     * @return <code>true</code> if the switch is open and cannot be operated
+     */
+    private boolean checkNonClosableSwitch(Edge edge, Predicate<Switch> isSwitchOperable) {
+        return testSwitchFromEdge(edge, SwitchPredicates.IS_OPEN.and(isSwitchOperable.negate()));
+    }
+
+    /**
+     * <p>This method is an adaptation of the same method from NodeBreakerVoltageLevel in powsybl-core, in order to keep
+     * the same logic and the same results on both sides.</p>
+     */
+    boolean getConnectingSwitches(Predicate<Switch> isSwitchOperable, Set<SwitchImpl> switchForConnection) {
         boolean done = false;
 
+        // Voltage level
+        Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
+
         // Predicates useful
-        Predicate<Switch> openOperableSwitch = SwitchPredicates.IS_OPEN.and(isTypeSwitchToOperate);
+        Predicate<Switch> isOpenOperableSwitch = SwitchPredicates.IS_OPEN.and(isSwitchOperable);
 
         // Full graph of the network
-        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true);
-        AsWeightedGraph<Integer, Edge> weightedGraph = new AsWeightedGraph<>(graph,
-            edge -> computeEdgeWeight(edge, openOperableSwitch),
-            true,
-            false);
+        JGraphTGraph graph = new JGraphTGraph(NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true));
 
         // Node of the present terminal (start of the paths)
         int node = getAttributes().getNode();
@@ -185,39 +204,70 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         // Nodes of the busbar sections (end of the paths)
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
 
-        // Path validator: an edge can be added if it is closed or if the allows to operate it
-        SwitchPathValidator switchPathValidator = new SwitchPathValidator(SwitchPredicates.IS_OPEN.negate().or(isTypeSwitchToOperate), index);
+        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
+        // that is not of the type of switch the user wants to operate
+        // Paths are already sorted by the number of open switches and by the size of the paths
+        List<List<Edge>> paths = graph.findAllPaths(node,
+            busbarSectionNodes::contains,
+            edge -> checkNonClosableSwitch(edge, isSwitchOperable),
+            Comparator.comparing((List<Edge> list) -> computePathWeight(list, isOpenOperableSwitch))
+                .thenComparing(List::size));
 
-        // Find all paths from the source to the targets
-        AllDirectedPaths<Integer, Edge> allDirectedPaths = new AllDirectedPaths<>(weightedGraph, switchPathValidator);
-        List<GraphPath<Integer, Edge>> allPaths = allDirectedPaths.getAllPaths(Set.of(node), busbarSectionNodes, true, null);
-
-        // Sort the paths by weight then by length
-        allPaths.sort(Comparator.comparingDouble(GraphPath<Integer, Edge>::getWeight).thenComparingInt(GraphPath::getLength));
-
-        // Close the shortest path
-        Set<String> closedSwitches = new HashSet<>();
-        if (!allPaths.isEmpty()) {
+        // Close the switches on the shortest path if at least a path is found
+        if (!paths.isEmpty()) {
             // the shortest path is the best
-            GraphPath<Integer, Edge> shortestPath = allPaths.get(0);
+            List<Edge> shortestPath = paths.get(0);
 
             // close all open operable switches on the path
-            shortestPath.getEdgeList().stream()
-                .filter(edge -> isSwitchOperableAndPresent(edge, openOperableSwitch))
+            shortestPath.stream()
+                .filter(edge -> testSwitchFromEdge(edge, isOpenOperableSwitch))
                 .forEach(edge -> {
                     if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
-                        switchAttributes.setOpen(false);
-                        index.updateSwitchResource(switchAttributes.getResource());
-                        closedSwitches.add(switchAttributes.getResource().getId());
+                        // Get the switch behind the switchAttributes
+                        Optional<SwitchImpl> sw = index.getSwitch(switchAttributes.getResource().getId());
+
+                        // Add the switch to the list of switches to open
+                        sw.ifPresent(switchForConnection::add);
                     }
                 });
             done = true;
         }
 
-        // Notify update
-        closedSwitches.forEach(switchId -> index.notifyUpdate(index.getSwitch(switchId).orElseThrow(), "open", true, false));
-
         return done;
+    }
+
+    private boolean connectNodeBreaker(Predicate<Switch> isTypeSwitchToOperate) {
+
+        // Set of switches that are to be closed
+        Set<SwitchImpl> switchesToClose = new HashSet<>();
+
+        // Get the list of switches to open
+        if (getConnectingSwitches(isTypeSwitchToOperate, switchesToClose)) {
+            // Open the switches
+            switchesToClose.forEach(sw -> sw.setOpen(false));
+        } else {
+            return false;
+        }
+
+        // The switches are now closed
+        closeSwitches(index, switchesToClose);
+
+        return true;
+    }
+
+    protected void connectBusBreaker() {
+        getAbstractIdentifiable().updateResource(r -> {
+            var a = getAttributes(r);
+            a.setBus(a.getConnectableBus());
+
+            // Notification to the listeners
+            index.notifyUpdate(getConnectable(), "connected", index.getNetwork().getVariantManager().getWorkingVariantId(), false, true);
+
+            // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
+            if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
+                index.notifyUpdate(getConnectable(), "bus", null, a.getConnectableBus());
+            }
+        });
     }
 
     /**
@@ -235,24 +285,13 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
             VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
             if (isNodeBeakerTopologyKind()) {
-                if (connectNodeBreaker(voltageLevelResource, isTypeSwitchToOperate)) {
+                if (connectNodeBreaker(isTypeSwitchToOperate)) {
                     done = true;
                 }
             } else { // TopologyKind.BUS_BREAKER
-                var attributes = getAttributes();
-                if (attributes.getBus() == null) {
-                    getAbstractIdentifiable().updateResource(r -> {
-                        var a = getAttributes(r);
-                        a.setBus(a.getConnectableBus());
-
-                        // Notification to the listeners
-                        index.notifyUpdate(getConnectable(), "connected", index.getNetwork().getVariantManager().getWorkingVariantId(), false, true);
-
-                        // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
-                        if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
-                            index.notifyUpdate(getConnectable(), "bus", null, a.getConnectableBus());
-                        }
-                    });
+                // Check that the bus-breaker terminal has no bus defined (i.e. it is disconnected)
+                if (getAttributes().getBus() == null) {
+                    connectBusBreaker();
                     done = true;
                 }
             }
@@ -292,8 +331,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
      * @param switchesToOpen   set of switches to be opened
      * @return true if the path has been opened, else false
      */
-    boolean identifySwitchToOpenPath(GraphPath<Integer, Edge> path, Predicate<? super Switch> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
-        for (Edge edge : path.getEdgeList()) {
+    boolean identifySwitchToOpenPath(List<Edge> path, Predicate<Switch> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
+        for (Edge edge : path) {
             if (edge.getBiConnectable() instanceof SwitchAttributes switchAttributes) {
                 // Get the switch behind the switchAttributes
                 Optional<SwitchImpl> sw = index.getSwitch(switchAttributes.getResource().getId());
@@ -308,9 +347,21 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return false;
     }
 
-    private boolean disconnectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource, Predicate<Switch> isSwitchOpenable) {
+    private boolean isAnOpenSwitch(Edge edge) {
+        return testSwitchFromEdge(edge, SwitchPredicates.IS_OPEN);
+    }
+
+    /**
+     * <p>This method is an adaptation of the same method from NodeBreakerVoltageLevel in powsybl-core, in order to keep
+     * the same logic and the same results on both sides.</p>
+     */
+    boolean getDisconnectingSwitches(Predicate<Switch> isSwitchOpenable, Set<SwitchImpl> switchesToOpen) {
+
+        // Voltage level
+        Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
+
         // Full graph of the network
-        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true);
+        JGraphTGraph graph = new JGraphTGraph(NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true));
 
         // Node of the present terminal (start of the paths)
         int node = getAttributes().getNode();
@@ -318,34 +369,63 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         // Nodes of the busbar sections (end of the paths)
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
 
-        // Find all paths from the source to the targets
-        AllDirectedPaths<Integer, Edge> allDirectedPaths = new AllDirectedPaths<>(graph);
-        List<GraphPath<Integer, Edge>> allPaths = allDirectedPaths.getAllPaths(Set.of(node), busbarSectionNodes, true, null);
-
-        // Set of switches that are to be opened
-        Set<SwitchImpl> switchesToOpen = new HashSet<>(allPaths.size());
+        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
+        List<List<Edge>> paths = graph.findAllPaths(node,
+            busbarSectionNodes::contains,
+            this::isAnOpenSwitch,
+            Comparator.comparing(List::size));
+        if (paths.isEmpty()) {
+            return false;
+        }
 
         // Each path is visited and for each, the first openable switch found is added in the set of switches to open
-        for (GraphPath<Integer, Edge> path : allPaths) {
+        for (List<Edge> path : paths) {
             // Identify the first openable switch on the path
             if (!identifySwitchToOpenPath(path, isSwitchOpenable, switchesToOpen)) {
                 // If no such switch was found, return false immediately
                 return false;
             }
         }
+        return true;
+    }
+
+    private boolean disconnectNodeBreaker(Predicate<Switch> isSwitchOpenable) {
+
+        // Set of switches that are to be opened
+        Set<SwitchImpl> switchesToOpen = new HashSet<>();
+
+        // Get the list of switches to open
+        if (getDisconnectingSwitches(isSwitchOpenable, switchesToOpen)) {
+            // Open the switches
+            switchesToOpen.forEach(sw -> sw.setOpen(true));
+        } else {
+            return false;
+        }
 
         // The switches are now opened
-        Set<String> openedSwitches = new HashSet<>();
-        switchesToOpen.forEach(switchImpl -> {
-            switchImpl.setOpen(true);
-            index.updateSwitchResource(switchImpl.getResource());
-            openedSwitches.add(switchImpl.getResource().getId());
-        });
-
-        // Notify update
-        openedSwitches.forEach(switchId -> index.notifyUpdate(index.getSwitch(switchId).orElseThrow(), "open", false, true));
+        openSwitches(index, switchesToOpen);
 
         return true;
+    }
+
+    protected boolean disconnectBusBreaker() {
+        var attributes = getAttributes();
+        if (attributes.getBus() != null) {
+            getAbstractIdentifiable().updateResource(resource -> {
+                var a = getAttributes(resource);
+                a.setBus(null);
+
+                // Notification to the listeners
+                index.notifyUpdate(getConnectable(), "connected", index.getNetwork().getVariantManager().getWorkingVariantId(), true, false);
+
+                // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
+                if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
+                    index.notifyUpdate(getConnectable(), "bus", a.getConnectableBus(), null);
+                }
+            });
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -363,24 +443,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
             VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
             if (isNodeBeakerTopologyKind()) {
-                if (disconnectNodeBreaker(voltageLevelResource, isSwitchOpenable)) {
+                if (disconnectNodeBreaker(isSwitchOpenable)) {
                     done = true;
                 }
             } else { // TopologyKind.BUS_BREAKER
-                var attributes = getAttributes();
-                if (attributes.getBus() != null) {
-                    getAbstractIdentifiable().updateResource(resource -> {
-                        var a = getAttributes(resource);
-                        a.setBus(null);
-
-                        // Notification to the listeners
-                        index.notifyUpdate(getConnectable(), "connected", index.getNetwork().getVariantManager().getWorkingVariantId(), true, false);
-
-                        // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
-                        if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
-                            index.notifyUpdate(getConnectable(), "bus", a.getConnectableBus(), null);
-                        }
-                    });
+                if (disconnectBusBreaker()) {
                     done = true;
                 }
             }
