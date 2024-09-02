@@ -306,6 +306,8 @@ public interface NetworkStoreClient {
 
     /**
      * For one identifiable with a specific identifiable id, retrieves one extension attributes by its extension name.
+     * @return {@link ExtensionAttributes} which is a subset of an identifiable resource. The extension attributes can be put in the
+     * extensionAttributes map of an {@link IdentifiableAttributes} or used to load an extension.
      */
     Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName);
 
