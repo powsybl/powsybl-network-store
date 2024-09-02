@@ -11,9 +11,11 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -238,5 +240,20 @@ class TwoWindingsTransformerTest {
         properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         return Importer.find("CGMES")
             .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
+    }
+
+    @Test
+    void testTerminals() {
+        Network network = createNetwork();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957");
+        assertNotNull(twt);
+        assertInstanceOf(TwoWindingsTransformerImpl.class, twt);
+
+        Terminal terminal1 = twt.getTerminal1();
+        Terminal terminal2 = twt.getTerminal2();
+        assertEquals(List.of(terminal1, terminal2), ((TwoWindingsTransformerImpl) twt).getTerminals(null));
+        assertEquals(List.of(terminal1), ((TwoWindingsTransformerImpl) twt).getTerminals(ThreeSides.ONE));
+        assertEquals(List.of(terminal2), ((TwoWindingsTransformerImpl) twt).getTerminals(ThreeSides.TWO));
+        assertEquals(Collections.emptyList(), ((TwoWindingsTransformerImpl) twt).getTerminals(ThreeSides.THREE));
     }
 }
