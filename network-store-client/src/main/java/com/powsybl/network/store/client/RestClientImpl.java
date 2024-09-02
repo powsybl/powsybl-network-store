@@ -60,7 +60,7 @@ public class RestClientImpl implements RestClient {
         return converter;
     }
 
-    private <T> ResponseEntity<TopLevelDocument<T>> getDocument(String url, ParameterizedTypeReference<TopLevelDocument<T>> parameterizedTypeReference, Object... uriVariables) {
+    private <T, D extends AbstractTopLevelDocument<T>> ResponseEntity<D> getDocument(String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
         return restTemplate.exchange(url,
                 HttpMethod.GET,
                 new HttpEntity<>(new HttpHeaders()),
@@ -68,8 +68,8 @@ public class RestClientImpl implements RestClient {
                 uriVariables);
     }
 
-    private static <T> TopLevelDocument<T> getBody(ResponseEntity<TopLevelDocument<T>> response) {
-        TopLevelDocument<T> body = response.getBody();
+    private static <T, D extends AbstractTopLevelDocument<T>> D getBody(ResponseEntity<D> response) {
+        D body = response.getBody();
         if (body == null) {
             throw new PowsyblException("Body is null");
         }
@@ -90,10 +90,10 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T> Optional<T> getOne(String target, String url, ParameterizedTypeReference<TopLevelDocument<T>> parameterizedTypeReference, Object... uriVariables) {
-        ResponseEntity<TopLevelDocument<T>> response = getDocument(url, parameterizedTypeReference, uriVariables);
+    public <T, D extends AbstractTopLevelDocument<T>> Optional<T> getOne(String target, String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
+        ResponseEntity<D> response = getDocument(url, parameterizedTypeReference, uriVariables);
         if (response.getStatusCode() == HttpStatus.OK) {
-            TopLevelDocument<T> body = getBody(response);
+            AbstractTopLevelDocument<T> body = getBody(response);
             return Optional.of(body.getData().get(0));
         } else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
             return Optional.empty();
@@ -103,12 +103,12 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T> List<T> getAll(String target, String url, ParameterizedTypeReference<TopLevelDocument<T>> parameterizedTypeReference, Object... uriVariables) {
-        ResponseEntity<TopLevelDocument<T>> response = getDocument(url, parameterizedTypeReference, uriVariables);
+    public <T, D extends AbstractTopLevelDocument<T>> List<T> getAll(String target, String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
+        ResponseEntity<D> response = getDocument(url, parameterizedTypeReference, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "get", response.getStatusCode());
         }
-        TopLevelDocument<T> body = getBody(response);
+        AbstractTopLevelDocument<T> body = getBody(response);
         return body.getData();
     }
 

@@ -98,7 +98,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             LOGGER.info("Loading {} resources {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Resource<T>> resourceList = restClient.getAll(target, url, new ParameterizedTypeReference<>() {
+        List<Resource<T>> resourceList = restClient.getAll(target, url, new ParameterizedTypeReference<TopLevelDocument<T>>() {
         }, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} {} resources loaded in {} ms", resourceList.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -110,7 +110,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             LOGGER.info("Loading {} resource {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<Resource<T>> resource = restClient.getOne(target, url, new ParameterizedTypeReference<>() {
+        Optional<Resource<T>> resource = restClient.getOne(target, url, new ParameterizedTypeReference<TopLevelDocument<T>>() {
         }, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} resource (empty={}) loaded in {} ms", target, resource.isEmpty(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -120,7 +120,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private Optional<ExtensionAttributes> getExtensionAttributes(String urlTemplate, Object... uriVariables) {
         logGetExtensionAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<ExtensionAttributes> extensionAttributes = restClient.getOne(null, urlTemplate, new ParameterizedTypeReference<>() {
+        Optional<ExtensionAttributes> extensionAttributes = restClient.getOne(null, urlTemplate, new ParameterizedTypeReference<ExtensionAttributesTopLevelDocument>() {
         }, uriVariables);
         stopwatch.stop();
         logGetExtensionAttributesTime(extensionAttributes.isPresent() ? 1 : 0, stopwatch.elapsed(TimeUnit.MILLISECONDS));
