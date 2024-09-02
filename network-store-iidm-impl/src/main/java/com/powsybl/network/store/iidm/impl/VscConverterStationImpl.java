@@ -159,18 +159,8 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        return regulatingPoint.getRegulatingTerminal();
-    }
-
-    @Override
     public VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        if (regulatingTerminal instanceof TerminalImpl<?>) {
-            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
-        } else {
-            regulatingPoint.setRegulatingTerminalAsLocalTerminal();
-        }
+        setRegTerminal(regulatingTerminal);
         return this;
     }
 }

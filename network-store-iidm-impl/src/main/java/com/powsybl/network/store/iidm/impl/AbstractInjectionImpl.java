@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.AbstractIdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
@@ -55,6 +56,19 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
                 null);
         }
         return extension;
+    }
+
+    protected void setRegTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        if (regulatingTerminal instanceof TerminalImpl<?>) {
+            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
+        } else {
+            regulatingPoint.setRegulatingTerminalAsLocalTerminal();
+        }
+    }
+
+    public Terminal getRegulatingTerminal() {
+        return regulatingPoint.getRegulatingTerminal();
     }
 
     @Override

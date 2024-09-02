@@ -134,18 +134,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        return regulatingPoint.getRegulatingTerminal();
-    }
-
-    @Override
     public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        if (regulatingTerminal instanceof TerminalImpl<?>) {
-            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
-        } else {
-            regulatingPoint.setRegulatingTerminalAsLocalTerminal();
-        }
+        setRegTerminal(regulatingTerminal);
         return this;
     }
 

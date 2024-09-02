@@ -122,18 +122,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        return regulatingPoint.getRegulatingTerminal();
-    }
-
-    @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        if (regulatingTerminal instanceof TerminalImpl<?>) {
-            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
-        } else {
-            regulatingPoint.setRegulatingTerminalAsLocalTerminal();
-        }
+        setRegTerminal(regulatingTerminal);
         return this;
     }
 
