@@ -291,6 +291,8 @@ public class ResourceTest {
 
         assertEquals("idEq", resourceGenerator.getAttributes().getRegulationPoint().getRegulatingTerminal().getConnectableId());
         assertEquals("ONE", resourceGenerator.getAttributes().getRegulationPoint().getRegulatingTerminal().getSide());
+        assertEquals("gen", resourceGenerator.getAttributes().getRegulationPoint().getLocalTerminal().getConnectableId());
+        assertNull(resourceGenerator.getAttributes().getRegulationPoint().getLocalTerminal().getSide());
 
     }
 
@@ -370,10 +372,10 @@ public class ResourceTest {
 
         TerminalRefAttributes regulatingTerminal = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
         RegulationPointAttributes regulationPointAttributes = RegulationPointAttributes.builder()
-            .regulatedEquipmentId("gen")
+            .regulatedEquipmentId("shunt")
             .identifiableType(IdentifiableType.SHUNT_COMPENSATOR)
             .regulatingTerminal(regulatingTerminal)
-            .localTerminal(new TerminalRefAttributes("gen", null))
+            .localTerminal(new TerminalRefAttributes("shunt", null))
             .build();
         ShuntCompensatorAttributes shuntCompensatorAttributes = ShuntCompensatorAttributes
                 .builder()
@@ -395,6 +397,8 @@ public class ResourceTest {
         assertFalse(resourceShunt.getAttributes().isFictitious());
         assertEquals("idEq", resourceShunt.getAttributes().getRegulationPoint().getRegulatingTerminal().getConnectableId());
         assertEquals("ONE", resourceShunt.getAttributes().getRegulationPoint().getRegulatingTerminal().getSide());
+        assertEquals("shunt", resourceShunt.getAttributes().getRegulationPoint().getLocalTerminal().getConnectableId());
+        assertNull(resourceShunt.getAttributes().getRegulationPoint().getLocalTerminal().getSide());
         assertEquals(100., resourceShunt.getAttributes().getP(), 0.001);
         assertEquals(200, resourceShunt.getAttributes().getQ(), 0.001);
         assertEquals(2, resourceShunt.getAttributes().getSectionCount());
