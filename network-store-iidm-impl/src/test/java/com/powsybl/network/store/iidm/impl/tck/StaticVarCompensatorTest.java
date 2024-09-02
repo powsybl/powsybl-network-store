@@ -11,10 +11,6 @@ import com.powsybl.iidm.network.tck.AbstractStaticVarCompensatorTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
+class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
 
-    @Override
-    public void regulatingTerminalTest() {
-        // FIXME delete this test when the regulating terminal is moved when the equipment regulated is deleted
-    }
 }

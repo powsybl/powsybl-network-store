@@ -12,8 +12,4 @@ import com.powsybl.iidm.network.tck.AbstractNpeWhenAdding3wtOrLineAndNodeAlready
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NpeWhenAdding3wtOrLineAndNodeAlreadyUsed extends AbstractNpeWhenAdding3wtOrLineAndNodeAlreadyUsed {
-    @Override
-    public void shouldNotThrowNpe() {
-        // FIXME
-    }
 }
