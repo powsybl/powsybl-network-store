@@ -60,6 +60,34 @@ public class TopLevelDocumentTest {
     }
 
     @Test
+    public void testEmpty() throws IOException {
+        TopLevelDocument document = TopLevelDocument.empty();
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writeValueAsString(document);
+        String jsonRef = "{\"data\":[],\"meta\":{}}";
+        assertEquals(jsonRef, json);
+    }
+
+    @Test
+    public void testMeta() throws IOException {
+        Resource<SubstationAttributes> resource = Resource.substationBuilder()
+                .id("S")
+                .attributes(SubstationAttributes.builder()
+                        .country(Country.FR)
+                        .build())
+                .build();
+        TopLevelDocument document = TopLevelDocument.of(resource);
+        document.addMeta("test", "test123");
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writeValueAsString(document);
+        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\"}}],\"meta\":{\"test\":\"test123\"}}";
+        assertEquals(jsonRef, json);
+        TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
+        assertEquals(resource, document2.getData().get(0));
+        assertEquals("test123", document2.getMeta().get("test"));
+    }
+
+    @Test
     public void testGenerator() throws IOException {
 
         GeneratorAttributes generatorAttributes = GeneratorAttributes
@@ -89,5 +117,14 @@ public class TopLevelDocumentTest {
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resourceGenerator, document2.getData().get(0));
+    }
+
+    @Test
+    public void testEmptyExtensionAttributes() throws IOException {
+        ExtensionAttributesTopLevelDocument document = ExtensionAttributesTopLevelDocument.empty();
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writeValueAsString(document);
+        String jsonRef = "{\"data\":[],\"meta\":{}}";
+        assertEquals(jsonRef, json);
     }
 }
