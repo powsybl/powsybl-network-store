@@ -65,8 +65,10 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
         identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(localTerminal)));
         if (!localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
             switch (getAttributes().getIdentifiableType()) {
-                case STATIC_VAR_COMPENSATOR -> identifiable.updateResource(res -> getAttributes().setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF)), null);
-                case GENERATOR, SHUNT_COMPENSATOR, HVDC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER -> throw new PowsyblException("Not implemented yet");
+                case STATIC_VAR_COMPENSATOR ->
+                    identifiable.updateResource(res -> getAttributes().setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF)), null);
+                case GENERATOR, SHUNT_COMPENSATOR, HVDC_CONVERTER_STATION -> {
+                }
                 default -> throw new PowsyblException("No regulation for this kind of equipment");
             }
         }

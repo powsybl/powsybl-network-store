@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -135,18 +134,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        TerminalRefAttributes terminalRefAttributes = getResource().getAttributes().getRegulatingTerminal();
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
-        return regulatingTerminal != null ? regulatingTerminal : terminal;
-    }
-
-    @Override
     public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        TerminalRefAttributes oldValue = getResource().getAttributes().getRegulatingTerminal();
-        updateResource(res -> res.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        setRegTerminal(regulatingTerminal);
         return this;
     }
 

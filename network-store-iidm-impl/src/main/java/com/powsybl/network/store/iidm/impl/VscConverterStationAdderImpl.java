@@ -7,11 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ResourceType;
-import com.powsybl.network.store.model.TerminalRefAttributes;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
-import com.powsybl.network.store.model.VscConverterStationAttributes;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -61,6 +57,8 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         validate();
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        RegulationPointAttributes regulationPointAttributes = new RegulationPointAttributes(getId(), IdentifiableType.HVDC_CONVERTER_STATION,
+            new TerminalRefAttributes(getId(), null), terminalRefAttributes, null);
 
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
@@ -76,11 +74,12 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .voltageRegulatorOn(voltageRegulatorOn)
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
-                        .regulatingTerminal(terminalRefAttributes)
+                        .regulationPoint(regulationPointAttributes)
                         .build())
                 .build();
         VscConverterStationImpl station = getIndex().createVscConverterStation(resource);
         station.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        station.setRegulatingTerminal(regulatingTerminal);
         return station;
     }
 

@@ -72,9 +72,6 @@ public class GeneratorAttributes extends AbstractIdentifiableAttributes implemen
     @Schema(description = "reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
-    @Schema(description = "regulatingTerminal")
-    private TerminalRefAttributes regulatingTerminal;
-
     @Schema(description = "Coordinated reactive power control")
     private CoordinatedReactiveControlAttributes coordinatedReactiveControl;
 
