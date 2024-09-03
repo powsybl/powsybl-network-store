@@ -27,23 +27,25 @@ public class ConnectablePositionExtensionTest {
         l1.newExtension(ConnectablePositionAdder.class)
                 .newFeeder1()
                 .withName("l1")
-                .withOrder(0)
+                .withOrder(1)
                 .withDirection(ConnectablePosition.Direction.TOP)
                 .add()
                 .newFeeder2()
                 .withName("l2")
-                .withOrder(0)
+                .withOrder(2)
                 .withDirection(ConnectablePosition.Direction.TOP)
                 .add()
                 .add();
 
         assertNotNull(l1.getExtension(ConnectablePosition.class).getFeeder1());
         assertNotNull(l1.getExtension(ConnectablePosition.class).getFeeder2());
-        l1.getExtension(ConnectablePosition.class).getFeeder1().setName("l1Modified").setOrder(10);
-        l1.getExtension(ConnectablePosition.class).getFeeder2().setName("l2Modified").setDirection(ConnectablePosition.Direction.BOTTOM);
+        l1.getExtension(ConnectablePosition.class).getFeeder1().setName("l1Modified").setOrder(10).setDirection(ConnectablePosition.Direction.BOTTOM);
+        l1.getExtension(ConnectablePosition.class).getFeeder2().setName("l2Modified").setOrder(20).setDirection(ConnectablePosition.Direction.BOTTOM);
         assertEquals("l1Modified", l1.getExtension(ConnectablePosition.class).getFeeder1().getName().orElseThrow());
         assertEquals("l2Modified", l1.getExtension(ConnectablePosition.class).getFeeder2().getName().orElseThrow());
         assertEquals(10, (int) l1.getExtension(ConnectablePosition.class).getFeeder1().getOrder().orElseThrow());
+        assertEquals(20, (int) l1.getExtension(ConnectablePosition.class).getFeeder2().getOrder().orElseThrow());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, l1.getExtension(ConnectablePosition.class).getFeeder1().getDirection());
         assertEquals(ConnectablePosition.Direction.BOTTOM, l1.getExtension(ConnectablePosition.class).getFeeder2().getDirection());
     }
 
@@ -96,17 +98,17 @@ public class ConnectablePositionExtensionTest {
         assertNotNull(twt1.getExtension(ConnectablePosition.class).getFeeder1());
         assertNotNull(twt1.getExtension(ConnectablePosition.class).getFeeder2());
         assertNotNull(twt1.getExtension(ConnectablePosition.class).getFeeder3());
-        twt1.getExtension(ConnectablePosition.class).getFeeder1().setName("twt1Modfied");
-        twt1.getExtension(ConnectablePosition.class).getFeeder2().setDirection(ConnectablePosition.Direction.TOP);
-        twt1.getExtension(ConnectablePosition.class).getFeeder3().setOrder(200);
+        twt1.getExtension(ConnectablePosition.class).getFeeder1().setName("twt1Modfied").setOrder(100).setDirection(ConnectablePosition.Direction.BOTTOM);
+        twt1.getExtension(ConnectablePosition.class).getFeeder2().setName("twt2Modfied").setOrder(200).setDirection(ConnectablePosition.Direction.TOP);
+        twt1.getExtension(ConnectablePosition.class).getFeeder3().setName("twt3Modfied").setOrder(300).setDirection(ConnectablePosition.Direction.TOP);
         assertEquals("twt1Modfied", twt1.getExtension(ConnectablePosition.class).getFeeder1().getName().orElseThrow());
-        assertEquals("twt2", twt1.getExtension(ConnectablePosition.class).getFeeder2().getName().orElseThrow());
-        assertEquals("twt3", twt1.getExtension(ConnectablePosition.class).getFeeder3().getName().orElseThrow());
-        assertEquals(10, twt1.getExtension(ConnectablePosition.class).getFeeder1().getOrder().orElseThrow());
-        assertEquals(20, twt1.getExtension(ConnectablePosition.class).getFeeder2().getOrder().orElseThrow());
-        assertEquals(200, twt1.getExtension(ConnectablePosition.class).getFeeder3().getOrder().orElseThrow());
-        assertEquals(ConnectablePosition.Direction.TOP, twt1.getExtension(ConnectablePosition.class).getFeeder1().getDirection());
+        assertEquals("twt2Modfied", twt1.getExtension(ConnectablePosition.class).getFeeder2().getName().orElseThrow());
+        assertEquals("twt3Modfied", twt1.getExtension(ConnectablePosition.class).getFeeder3().getName().orElseThrow());
+        assertEquals(100, twt1.getExtension(ConnectablePosition.class).getFeeder1().getOrder().orElseThrow());
+        assertEquals(200, twt1.getExtension(ConnectablePosition.class).getFeeder2().getOrder().orElseThrow());
+        assertEquals(300, twt1.getExtension(ConnectablePosition.class).getFeeder3().getOrder().orElseThrow());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, twt1.getExtension(ConnectablePosition.class).getFeeder1().getDirection());
         assertEquals(ConnectablePosition.Direction.TOP, twt1.getExtension(ConnectablePosition.class).getFeeder2().getDirection());
-        assertEquals(ConnectablePosition.Direction.BOTTOM, twt1.getExtension(ConnectablePosition.class).getFeeder3().getDirection());
+        assertEquals(ConnectablePosition.Direction.TOP, twt1.getExtension(ConnectablePosition.class).getFeeder3().getDirection());
     }
 }
