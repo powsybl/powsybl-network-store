@@ -65,9 +65,11 @@ public class ConnectablePositionExtensionTest {
         assertNull(load.getExtension(ConnectablePosition.class).getFeeder1());
         assertNull(load.getExtension(ConnectablePosition.class).getFeeder2());
         assertNull(load.getExtension(ConnectablePosition.class).getFeeder3());
-        load.getExtension(ConnectablePosition.class).getFeeder().setName("ldModfied").setOrder(200);
+        load.getExtension(ConnectablePosition.class).getFeeder().setName("ldModfied").setOrder(200)
+                .setDirection(ConnectablePosition.Direction.BOTTOM);
         assertEquals("ldModfied", load.getExtension(ConnectablePosition.class).getFeeder().getName().orElseThrow());
         assertEquals(200, load.getExtension(ConnectablePosition.class).getFeeder().getOrder().orElseThrow());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, load.getExtension(ConnectablePosition.class).getFeeder().getDirection());
     }
 
     @Test
