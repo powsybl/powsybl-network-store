@@ -16,14 +16,13 @@ import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U>
+public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U extends BranchAttributes> extends AbstractConnectableImpl<T, U>
         implements Branch<T>, Connectable<T>, LimitsOwner<TwoSides> {
 
     private final TerminalImpl<U> terminal1;
@@ -606,32 +605,15 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public boolean connect() {
-        return getTerminal1().connect() && getTerminal2().connect();
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        return getTerminal1().connect(isTypeSwitchToOperate) && getTerminal2().connect(isTypeSwitchToOperate);
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
-        return getTerminal(side.toTwoSides()).connect(isTypeSwitchToOperate);
-    }
-
-    @Override
-    public boolean disconnect() {
-        return getTerminal1().disconnect() && getTerminal2().disconnect();
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        return getTerminal1().disconnect(isSwitchOpenable) && getTerminal2().disconnect(isSwitchOpenable);
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
-        return getTerminal(side.toTwoSides()).disconnect(isSwitchOpenable);
+    public List<Terminal> getTerminals(ThreeSides side) {
+        if (side == null) {
+            return Arrays.asList(terminal1, terminal2);
+        } else {
+            return switch (side) {
+                case ONE -> Collections.singletonList(terminal1);
+                case TWO -> Collections.singletonList(terminal2);
+                default -> Collections.emptyList();
+            };
+        }
     }
 }

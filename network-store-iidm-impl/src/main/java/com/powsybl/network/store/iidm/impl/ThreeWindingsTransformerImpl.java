@@ -18,14 +18,13 @@ import com.powsybl.network.store.model.*;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer {
+public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer {
 
     private final TerminalImpl<ThreeWindingsTransformerAttributes> terminal1;
 
@@ -450,6 +449,19 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
+    public List<Terminal> getTerminals(ThreeSides side) {
+        if (side == null) {
+            return Arrays.asList(terminal1, terminal2, terminal3);
+        } else {
+            return switch (side) {
+                case ONE -> Collections.singletonList(leg1.getTerminal());
+                case TWO -> Collections.singletonList(leg2.getTerminal());
+                case THREE -> Collections.singletonList(leg3.getTerminal());
+            };
+        }
+    }
+
+    @Override
     public Terminal getTerminal(ThreeSides side) {
         return switch (side) {
             case ONE -> leg1.getTerminal();
@@ -711,35 +723,5 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = (E) new CgmesTapChangersImpl(this);
         }
         return extension;
-    }
-
-    @Override
-    public boolean connect() {
-        return terminal1.connect() && terminal2.connect() && terminal3.connect();
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        return terminal1.connect(isTypeSwitchToOperate) && terminal2.connect(isTypeSwitchToOperate) && terminal3.connect(isTypeSwitchToOperate);
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
-        return getTerminal(side).connect(isTypeSwitchToOperate);
-    }
-
-    @Override
-    public boolean disconnect() {
-        return terminal1.disconnect() && terminal2.disconnect() && terminal3.disconnect();
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        return terminal1.disconnect(isSwitchOpenable) && terminal2.disconnect(isSwitchOpenable) && terminal3.disconnect(isSwitchOpenable);
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
-        return getTerminal(side).disconnect(isSwitchOpenable);
     }
 }
