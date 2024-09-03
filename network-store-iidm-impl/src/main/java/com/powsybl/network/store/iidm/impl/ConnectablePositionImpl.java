@@ -24,6 +24,10 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
     public class FeederImpl implements Feeder {
 
+        private static final String LABEL = "label";
+        private static final String ORDER = "order";
+        private static final String DIRECTION = "direction";
+
         private final Function<Connectable<C>, ConnectablePositionAttributes> getter;
 
         public FeederImpl(Function<Connectable<C>, ConnectablePositionAttributes> getter) {
@@ -44,31 +48,14 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
             String oldValue = getAttributes().getLabel();
             if (!Objects.equals(oldValue, name)) {
                 if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
-                    injection.updateResource(res -> res.getAttributes().getPosition().setLabel(Objects.requireNonNull(name)));
-                    String variantId = injection.getNetwork().getVariantManager().getWorkingVariantId();
-                    injection.getNetwork().getIndex().notifyUpdate(getExtendable(), "label", variantId, oldValue, name);
+                    updateInjectionLabelResource(injection, name);
+                    notifyUpdate(injection, LABEL, oldValue, name);
                 } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
-                    branch.updateResource(res -> {
-                        if (getSide() == ThreeSides.ONE) {
-                            res.getAttributes().getPosition1().setLabel(Objects.requireNonNull(name));
-                        } else if (getSide() == ThreeSides.TWO) {
-                            res.getAttributes().getPosition2().setLabel(Objects.requireNonNull(name));
-                        }
-                    });
-                    String variantId = branch.getNetwork().getVariantManager().getWorkingVariantId();
-                    branch.getNetwork().getIndex().notifyUpdate(getExtendable(), "label", variantId, oldValue, name);
+                    updateBranchLabelResource(branch, name);
+                    notifyUpdate(branch, LABEL, oldValue, name);
                 } else if (getExtendable() instanceof ThreeWindingsTransformerImpl windingsTransformer) {
-                    windingsTransformer.updateResource(res -> {
-                        if (getSide() == ThreeSides.ONE) {
-                            res.getAttributes().getPosition1().setLabel(Objects.requireNonNull(name));
-                        } else if (getSide() == ThreeSides.TWO) {
-                            res.getAttributes().getPosition2().setLabel(Objects.requireNonNull(name));
-                        } else if (getSide() == ThreeSides.THREE) {
-                            res.getAttributes().getPosition3().setLabel(Objects.requireNonNull(name));
-                        }
-                    });
-                    String variantId = windingsTransformer.getNetwork().getVariantManager().getWorkingVariantId();
-                    windingsTransformer.getNetwork().getIndex().notifyUpdate(getExtendable(), "label", variantId, oldValue, name);
+                    updateTransformerLabelResource(windingsTransformer, name);
+                    notifyUpdate(windingsTransformer, LABEL, oldValue, name);
                 }
             }
             return this;
@@ -90,32 +77,15 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
             Integer oldValue = getAttributes().getOrder();
             if (!Objects.equals(oldValue, order)) {
                 if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
-                    injection.updateResource(res -> res.getAttributes().getPosition().setOrder(order));
-                    String variantId = injection.getNetwork().getVariantManager().getWorkingVariantId();
-                    injection.getNetwork().getIndex().notifyUpdate(getExtendable(), "order", variantId, oldValue, order);
+                    updateInjectionOrderResource(injection, order);
+                    notifyUpdate(injection, ORDER, oldValue, order);
 
                 } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
-                    branch.updateResource(res -> {
-                        if (getSide() == ThreeSides.ONE) {
-                            res.getAttributes().getPosition1().setOrder(Objects.requireNonNull(order));
-                        } else if (getSide() == ThreeSides.TWO) {
-                            res.getAttributes().getPosition2().setOrder(Objects.requireNonNull(order));
-                        }
-                    });
-                    String variantId = branch.getNetwork().getVariantManager().getWorkingVariantId();
-                    branch.getNetwork().getIndex().notifyUpdate(getExtendable(), "order", variantId, oldValue, order);
+                    updateBranchOrderResource(branch, order);
+                    notifyUpdate(branch, ORDER, oldValue, order);
                 } else if (getExtendable() instanceof ThreeWindingsTransformerImpl windingsTransformer) {
-                    windingsTransformer.updateResource(res -> {
-                        if (getSide() == ThreeSides.ONE) {
-                            res.getAttributes().getPosition1().setOrder(Objects.requireNonNull(order));
-                        } else if (getSide() == ThreeSides.TWO) {
-                            res.getAttributes().getPosition2().setOrder(Objects.requireNonNull(order));
-                        } else if (getSide() == ThreeSides.THREE) {
-                            res.getAttributes().getPosition3().setOrder(Objects.requireNonNull(order));
-                        }
-                    });
-                    String variantId = windingsTransformer.getNetwork().getVariantManager().getWorkingVariantId();
-                    windingsTransformer.getNetwork().getIndex().notifyUpdate(getExtendable(), "order", variantId, oldValue, order);
+                    updateTransformerOrderResource(windingsTransformer, order);
+                    notifyUpdate(windingsTransformer, ORDER, oldValue, order);
                 }
             }
             return this;
@@ -131,35 +101,101 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
             Direction oldValue = getAttributes().getDirection();
             if (!Objects.equals(oldValue, direction)) {
                 if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
-                    injection.updateResource(res -> res.getAttributes().getPosition().setDirection(Direction.valueOf(Objects.requireNonNull(direction).name())));
-                    String variantId = injection.getNetwork().getVariantManager().getWorkingVariantId();
-                    injection.getNetwork().getIndex().notifyUpdate(getExtendable(), "direction", variantId, oldValue, direction);
-
+                    updateInjectionDirectionResource(injection, direction);
+                    notifyUpdate(injection, DIRECTION, oldValue, direction);
                 } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
-                    branch.updateResource(res -> {
-                        if (getSide() == ThreeSides.ONE) {
-                            res.getAttributes().getPosition1().setDirection(Objects.requireNonNull(direction));
-                        } else if (getSide() == ThreeSides.TWO) {
-                            res.getAttributes().getPosition2().setDirection(Objects.requireNonNull(direction));
-                        }
-                    });
-                    String variantId = branch.getNetwork().getVariantManager().getWorkingVariantId();
-                    branch.getNetwork().getIndex().notifyUpdate(getExtendable(), "direction", variantId, oldValue, direction);
+                    updateBranchDirectionResource(branch, direction);
+                    notifyUpdate(branch, DIRECTION, oldValue, direction);
                 } else if (getExtendable() instanceof ThreeWindingsTransformerImpl windingsTransformer) {
-                    windingsTransformer.updateResource(res -> {
-                        if (getSide() == ThreeSides.ONE) {
-                            res.getAttributes().getPosition1().setDirection(Objects.requireNonNull(direction));
-                        } else if (getSide() == ThreeSides.TWO) {
-                            res.getAttributes().getPosition2().setDirection(Objects.requireNonNull(direction));
-                        } else if (getSide() == ThreeSides.THREE) {
-                            res.getAttributes().getPosition3().setDirection(Objects.requireNonNull(direction));
-                        }
-                    });
-                    String variantId = windingsTransformer.getNetwork().getVariantManager().getWorkingVariantId();
-                    windingsTransformer.getNetwork().getIndex().notifyUpdate(getExtendable(), "direction", variantId, oldValue, direction);
+                    updateTransformerDirectionResource(windingsTransformer, direction);
+                    notifyUpdate(windingsTransformer, DIRECTION, oldValue, direction);
                 }
             }
             return this;
+        }
+
+        private void updateInjectionLabelResource(AbstractInjectionImpl<?, ?> injection, String name) {
+            injection.updateResource(res -> res.getAttributes().getPosition().setLabel(Objects.requireNonNull(name)));
+        }
+
+        private void updateBranchLabelResource(AbstractBranchImpl<?, ?> branch, String name) {
+            branch.updateResource(res -> {
+                if (getSide() == ThreeSides.ONE) {
+                    res.getAttributes().getPosition1().setLabel(Objects.requireNonNull(name));
+                } else if (getSide() == ThreeSides.TWO) {
+                    res.getAttributes().getPosition2().setLabel(Objects.requireNonNull(name));
+                }
+            });
+        }
+
+        private void updateTransformerLabelResource(ThreeWindingsTransformerImpl windingsTransformer, String name) {
+            windingsTransformer.updateResource(res -> {
+                if (getSide() == ThreeSides.ONE) {
+                    res.getAttributes().getPosition1().setLabel(Objects.requireNonNull(name));
+                } else if (getSide() == ThreeSides.TWO) {
+                    res.getAttributes().getPosition2().setLabel(Objects.requireNonNull(name));
+                } else if (getSide() == ThreeSides.THREE) {
+                    res.getAttributes().getPosition3().setLabel(Objects.requireNonNull(name));
+                }
+            });
+        }
+
+        private void updateInjectionOrderResource(AbstractInjectionImpl<?, ?> injection, int order) {
+            injection.updateResource(res -> res.getAttributes().getPosition().setOrder(order));
+        }
+
+        private void updateBranchOrderResource(AbstractBranchImpl<?, ?> branch, int order) {
+            branch.updateResource(res -> {
+                if (getSide() == ThreeSides.ONE) {
+                    res.getAttributes().getPosition1().setOrder(order);
+                } else if (getSide() == ThreeSides.TWO) {
+                    res.getAttributes().getPosition2().setOrder(order);
+                }
+            });
+        }
+
+        private void updateTransformerOrderResource(ThreeWindingsTransformerImpl windingsTransformer, int order) {
+            windingsTransformer.updateResource(res -> {
+                if (getSide() == ThreeSides.ONE) {
+                    res.getAttributes().getPosition1().setOrder(order);
+                } else if (getSide() == ThreeSides.TWO) {
+                    res.getAttributes().getPosition2().setOrder(order);
+                } else if (getSide() == ThreeSides.THREE) {
+                    res.getAttributes().getPosition3().setOrder(order);
+                }
+            });
+        }
+
+        private void updateInjectionDirectionResource(AbstractInjectionImpl<?, ?> injection, Direction direction) {
+            injection.updateResource(res -> res.getAttributes().getPosition()
+                    .setDirection(Direction.valueOf(Objects.requireNonNull(direction).name())));
+        }
+
+        private void updateBranchDirectionResource(AbstractBranchImpl<?, ?> branch, Direction direction) {
+            branch.updateResource(res -> {
+                if (getSide() == ThreeSides.ONE) {
+                    res.getAttributes().getPosition1().setDirection(Objects.requireNonNull(direction));
+                } else if (getSide() == ThreeSides.TWO) {
+                    res.getAttributes().getPosition2().setDirection(Objects.requireNonNull(direction));
+                }
+            });
+        }
+
+        private void updateTransformerDirectionResource(ThreeWindingsTransformerImpl windingsTransformer, Direction direction) {
+            windingsTransformer.updateResource(res -> {
+                if (getSide() == ThreeSides.ONE) {
+                    res.getAttributes().getPosition1().setDirection(Objects.requireNonNull(direction));
+                } else if (getSide() == ThreeSides.TWO) {
+                    res.getAttributes().getPosition2().setDirection(Objects.requireNonNull(direction));
+                } else if (getSide() == ThreeSides.THREE) {
+                    res.getAttributes().getPosition3().setDirection(Objects.requireNonNull(direction));
+                }
+            });
+        }
+
+        private void notifyUpdate(AbstractConnectableImpl connectable, String attribute, Object oldValue, Object newValue) {
+            String variantId = connectable.getNetwork().getVariantManager().getWorkingVariantId();
+            connectable.getNetwork().getIndex().notifyUpdate(getExtendable(), attribute, variantId, oldValue, newValue);
         }
     }
 
