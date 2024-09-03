@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 
@@ -39,7 +40,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
         }
 
         @Override
-        public Feeder setName(String name, int side) {
+        public Feeder setName(String name) {
             String oldValue = getAttributes().getLabel();
             if (!Objects.equals(oldValue, name)) {
                 if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
@@ -48,9 +49,9 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                     injection.getNetwork().getIndex().notifyUpdate(getExtendable(), "label", variantId, oldValue, name);
                 } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
                     branch.updateResource(res -> {
-                        if (side == 1) {
+                        if (getSide() == ThreeSides.ONE) {
                             res.getAttributes().getPosition1().setLabel(Objects.requireNonNull(name));
-                        } else if (side == 2) {
+                        } else if (getSide() == ThreeSides.TWO) {
                             res.getAttributes().getPosition2().setLabel(Objects.requireNonNull(name));
                         }
                     });
@@ -58,11 +59,11 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                     branch.getNetwork().getIndex().notifyUpdate(getExtendable(), "label", variantId, oldValue, name);
                 } else if (getExtendable() instanceof ThreeWindingsTransformerImpl windingsTransformer) {
                     windingsTransformer.updateResource(res -> {
-                        if (side == 1) {
+                        if (getSide() == ThreeSides.ONE) {
                             res.getAttributes().getPosition1().setLabel(Objects.requireNonNull(name));
-                        } else if (side == 2) {
+                        } else if (getSide() == ThreeSides.TWO) {
                             res.getAttributes().getPosition2().setLabel(Objects.requireNonNull(name));
-                        } else if (side == 3) {
+                        } else if (getSide() == ThreeSides.THREE) {
                             res.getAttributes().getPosition3().setLabel(Objects.requireNonNull(name));
                         }
                     });
@@ -80,14 +81,12 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
         @Override
         public Feeder removeOrder() {
-            ((AbstractInjectionImpl<?, ?>) getExtendable()).updateResource(res -> res.getAttributes().getPosition().setOrder(null));
-            String variantId = ((AbstractInjectionImpl<?, ?>) getExtendable()).getNetwork().getVariantManager().getWorkingVariantId();
-            ((AbstractInjectionImpl<?, ?>) getExtendable()).getNetwork().getIndex().notifyUpdate(getExtendable(), "order", variantId, getAttributes().getOrder(), null);
+            getAttributes().setOrder(null);
             return this;
         }
 
         @Override
-        public Feeder setOrder(int order, int side) {
+        public Feeder setOrder(int order) {
             Integer oldValue = getAttributes().getOrder();
             if (!Objects.equals(oldValue, order)) {
                 if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
@@ -97,22 +96,22 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
                 } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
                     branch.updateResource(res -> {
-                        if (side == 1) {
-                            res.getAttributes().getPosition1().setOrder(order);
-                        } else if (side == 2) {
-                            res.getAttributes().getPosition2().setOrder(order);
+                        if (getSide() == ThreeSides.ONE) {
+                            res.getAttributes().getPosition1().setOrder(Objects.requireNonNull(order));
+                        } else if (getSide() == ThreeSides.TWO) {
+                            res.getAttributes().getPosition2().setOrder(Objects.requireNonNull(order));
                         }
                     });
                     String variantId = branch.getNetwork().getVariantManager().getWorkingVariantId();
                     branch.getNetwork().getIndex().notifyUpdate(getExtendable(), "order", variantId, oldValue, order);
                 } else if (getExtendable() instanceof ThreeWindingsTransformerImpl windingsTransformer) {
                     windingsTransformer.updateResource(res -> {
-                        if (side == 1) {
-                            res.getAttributes().getPosition1().setOrder(order);
-                        } else if (side == 2) {
-                            res.getAttributes().getPosition2().setOrder(order);
-                        } else if (side == 3) {
-                            res.getAttributes().getPosition3().setOrder(order);
+                        if (getSide() == ThreeSides.ONE) {
+                            res.getAttributes().getPosition1().setOrder(Objects.requireNonNull(order));
+                        } else if (getSide() == ThreeSides.TWO) {
+                            res.getAttributes().getPosition2().setOrder(Objects.requireNonNull(order));
+                        } else if (getSide() == ThreeSides.THREE) {
+                            res.getAttributes().getPosition3().setOrder(Objects.requireNonNull(order));
                         }
                     });
                     String variantId = windingsTransformer.getNetwork().getVariantManager().getWorkingVariantId();
@@ -128,7 +127,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
         }
 
         @Override
-        public Feeder setDirection(Direction direction, int side) {
+        public Feeder setDirection(Direction direction) {
             Direction oldValue = getAttributes().getDirection();
             if (!Objects.equals(oldValue, direction)) {
                 if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
@@ -138,22 +137,22 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
                 } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
                     branch.updateResource(res -> {
-                        if (side == 1) {
-                            res.getAttributes().getPosition1().setDirection(Direction.valueOf(Objects.requireNonNull(direction).name()));
-                        } else if (side == 2) {
-                            res.getAttributes().getPosition2().setDirection(Direction.valueOf(Objects.requireNonNull(direction).name()));
+                        if (getSide() == ThreeSides.ONE) {
+                            res.getAttributes().getPosition1().setDirection(Objects.requireNonNull(direction));
+                        } else if (getSide() == ThreeSides.TWO) {
+                            res.getAttributes().getPosition2().setDirection(Objects.requireNonNull(direction));
                         }
                     });
                     String variantId = branch.getNetwork().getVariantManager().getWorkingVariantId();
                     branch.getNetwork().getIndex().notifyUpdate(getExtendable(), "direction", variantId, oldValue, direction);
                 } else if (getExtendable() instanceof ThreeWindingsTransformerImpl windingsTransformer) {
                     windingsTransformer.updateResource(res -> {
-                        if (side == 1) {
-                            res.getAttributes().getPosition1().setDirection(Direction.valueOf(Objects.requireNonNull(direction).name()));
-                        } else if (side == 2) {
-                            res.getAttributes().getPosition2().setDirection(Direction.valueOf(Objects.requireNonNull(direction).name()));
-                        } else if (side == 3) {
-                            res.getAttributes().getPosition3().setDirection(Direction.valueOf(Objects.requireNonNull(direction).name()));
+                        if (getSide() == ThreeSides.ONE) {
+                            res.getAttributes().getPosition1().setDirection(Objects.requireNonNull(direction));
+                        } else if (getSide() == ThreeSides.TWO) {
+                            res.getAttributes().getPosition2().setDirection(Objects.requireNonNull(direction));
+                        } else if (getSide() == ThreeSides.THREE) {
+                            res.getAttributes().getPosition3().setDirection(Objects.requireNonNull(direction));
                         }
                     });
                     String variantId = windingsTransformer.getNetwork().getVariantManager().getWorkingVariantId();
@@ -164,45 +163,56 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
         }
     }
 
+    public ThreeSides side;
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter;
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter1;
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter2;
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter3;
 
     public ConnectablePositionImpl(C connectable,
+                                   ThreeSides side,
                                    Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter,
                                    Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter1,
                                    Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter2,
                                    Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter3) {
         super(connectable);
+        this.side = side;
         this.positionAttributesGetter = positionAttributesGetter;
         this.positionAttributesGetter1 = positionAttributesGetter1;
         this.positionAttributesGetter2 = positionAttributesGetter2;
         this.positionAttributesGetter3 = positionAttributesGetter3;
     }
 
-    private FeederImpl getFeeder(Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter) {
+    private FeederImpl getFeeder(Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter, ThreeSides side) {
         return (positionAttributesGetter != null && positionAttributesGetter.apply(getExtendable()) != null) ?
-                new FeederImpl(positionAttributesGetter) : null;
+                new FeederImpl(connectable -> {
+                    ConnectablePositionAttributes attributes = positionAttributesGetter.apply(connectable);
+                    this.side = side;
+                    return attributes;
+                }) : null;
+    }
+
+    public ThreeSides getSide() {
+        return side;
     }
 
     @Override
     public FeederImpl getFeeder() {
-        return getFeeder(positionAttributesGetter);
+        return getFeeder(positionAttributesGetter, ThreeSides.ONE);
     }
 
     @Override
     public FeederImpl getFeeder1() {
-        return getFeeder(positionAttributesGetter1);
+        return getFeeder(positionAttributesGetter1, ThreeSides.ONE);
     }
 
     @Override
     public FeederImpl getFeeder2() {
-        return getFeeder(positionAttributesGetter2);
+        return getFeeder(positionAttributesGetter2, ThreeSides.TWO);
     }
 
     @Override
     public FeederImpl getFeeder3() {
-        return getFeeder(positionAttributesGetter3);
+        return getFeeder(positionAttributesGetter3, ThreeSides.THREE);
     }
 }

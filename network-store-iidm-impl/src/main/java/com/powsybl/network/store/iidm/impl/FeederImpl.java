@@ -46,7 +46,7 @@ public class FeederImpl implements ConnectablePosition.Feeder {
     }
 
     @Override
-    public ConnectablePosition.Feeder setName(String name, int side) {
+    public ConnectablePosition.Feeder setName(String name) {
         this.name = Objects.requireNonNull(name);
         return this;
     }
@@ -57,7 +57,7 @@ public class FeederImpl implements ConnectablePosition.Feeder {
     }
 
     @Override
-    public ConnectablePosition.Feeder setOrder(int order, int side) {
+    public ConnectablePosition.Feeder setOrder(int order) {
         this.order = order;
         return this;
     }
@@ -74,7 +74,7 @@ public class FeederImpl implements ConnectablePosition.Feeder {
     }
 
     @Override
-    public ConnectablePosition.Feeder setDirection(ConnectablePosition.Direction direction, int side) {
+    public ConnectablePosition.Feeder setDirection(ConnectablePosition.Direction direction) {
         this.direction = Objects.requireNonNull(direction);
         return this;
     }

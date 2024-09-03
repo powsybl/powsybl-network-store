@@ -51,6 +51,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         var resource = getResource();
         if (resource.getAttributes().getPosition() != null) {
             return (E) new ConnectablePositionImpl<>(getInjection(),
+                    null,
                 connectable -> ((AbstractInjectionImpl<?, ?>) connectable).getResource().getAttributes().getPosition(),
                 null,
                 null,

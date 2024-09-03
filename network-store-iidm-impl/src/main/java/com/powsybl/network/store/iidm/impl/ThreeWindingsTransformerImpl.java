@@ -636,6 +636,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
                 || resource.getAttributes().getPosition2() != null
                 || resource.getAttributes().getPosition3() != null) {
             return (E) new ConnectablePositionImpl<>(this,
+                    null,
                 null,
                 connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition1(),
                 connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition2(),
