@@ -38,6 +38,9 @@ class LoadTest {
         assertNull(load.getExtension(ConnectablePosition.class).getFeeder1());
         assertNull(load.getExtension(ConnectablePosition.class).getFeeder2());
         assertNull(load.getExtension(ConnectablePosition.class).getFeeder3());
+        load.getExtension(ConnectablePosition.class).getFeeder().setName("cpaModfied").setOrder(100);
+        assertEquals("cpaModfied", load.getExtension(ConnectablePosition.class).getFeeder().getName().orElseThrow());
+        assertEquals(100, load.getExtension(ConnectablePosition.class).getFeeder().getOrder().orElseThrow());
     }
 
     @Test

@@ -163,7 +163,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
         }
     }
 
-    public ThreeSides side;
+    private ThreeSides side;
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter;
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter1;
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter2;

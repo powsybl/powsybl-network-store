@@ -97,6 +97,15 @@ public class LineTest {
         assertEquals(ConnectablePosition.Direction.TOP, l3.getExtension(ConnectablePosition.class).getFeeder2().getDirection());
         assertEquals(0, (int) l3.getExtension(ConnectablePosition.class).getFeeder2().getOrder().orElseThrow());
         assertNull(l3.getExtension(ConnectablePosition.class).getFeeder1());
+
+        assertNotNull(l1.getExtension(ConnectablePosition.class).getFeeder1());
+        assertNotNull(l1.getExtension(ConnectablePosition.class).getFeeder2());
+        l1.getExtension(ConnectablePosition.class).getFeeder1().setName("cpa1Modified.1").setOrder(10);
+        l1.getExtension(ConnectablePosition.class).getFeeder2().setName("cpa2Modified.2").setDirection(ConnectablePosition.Direction.BOTTOM);
+        assertEquals("cpa1Modified.1", l1.getExtension(ConnectablePosition.class).getFeeder1().getName().orElseThrow());
+        assertEquals("cpa2Modified.2", l1.getExtension(ConnectablePosition.class).getFeeder2().getName().orElseThrow());
+        assertEquals(10, (int) l1.getExtension(ConnectablePosition.class).getFeeder1().getOrder().orElseThrow());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, l1.getExtension(ConnectablePosition.class).getFeeder2().getDirection());
     }
 
     @Test
