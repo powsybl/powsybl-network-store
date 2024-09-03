@@ -564,7 +564,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         if (resource.getAttributes().getPosition1() != null || resource.getAttributes().getPosition2() != null) {
             return (E) new ConnectablePositionImpl<>(getBranch(),
                 null,
-                null,
                 connectable -> ((AbstractBranchImpl<?, ?>) connectable).getResource().getAttributes().getPosition1(),
                 connectable -> ((AbstractBranchImpl<?, ?>) connectable).getResource().getAttributes().getPosition2(),
                 null);

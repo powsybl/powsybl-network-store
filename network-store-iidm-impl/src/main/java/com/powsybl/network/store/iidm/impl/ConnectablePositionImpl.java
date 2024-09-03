@@ -170,13 +170,11 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter3;
 
     public ConnectablePositionImpl(C connectable,
-                                   ThreeSides side,
                                    Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter,
                                    Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter1,
                                    Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter2,
                                    Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter3) {
         super(connectable);
-        this.side = side;
         this.positionAttributesGetter = positionAttributesGetter;
         this.positionAttributesGetter1 = positionAttributesGetter1;
         this.positionAttributesGetter2 = positionAttributesGetter2;
@@ -198,7 +196,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
     @Override
     public FeederImpl getFeeder() {
-        return getFeeder(positionAttributesGetter, ThreeSides.ONE);
+        return getFeeder(positionAttributesGetter, null);
     }
 
     @Override
