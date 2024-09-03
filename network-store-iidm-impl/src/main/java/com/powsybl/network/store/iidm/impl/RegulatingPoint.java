@@ -64,10 +64,10 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(localTerminal)));
         if (!localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
-            switch (getAttributes().getIdentifiableType()) {
+            switch (getAttributes().getResourceType()) {
                 case STATIC_VAR_COMPENSATOR ->
                     identifiable.updateResource(res -> getAttributes().setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF)), null);
-                case GENERATOR, SHUNT_COMPENSATOR, HVDC_CONVERTER_STATION -> {
+                case GENERATOR, SHUNT_COMPENSATOR, VSC_CONVERTER_STATION -> {
                 }
                 default -> throw new PowsyblException("No regulation for this kind of equipment");
             }
