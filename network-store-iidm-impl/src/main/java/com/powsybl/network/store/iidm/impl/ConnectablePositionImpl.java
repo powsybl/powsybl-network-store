@@ -27,11 +27,16 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
         private static final String LABEL = "label";
         private static final String ORDER = "order";
         private static final String DIRECTION = "direction";
-
+        private final ThreeSides side;
         private final Function<Connectable<C>, ConnectablePositionAttributes> getter;
 
-        public FeederImpl(Function<Connectable<C>, ConnectablePositionAttributes> getter) {
+        public FeederImpl(Function<Connectable<C>, ConnectablePositionAttributes> getter, ThreeSides side) {
             this.getter = Objects.requireNonNull(getter);
+            this.side = side;
+        }
+
+        private ThreeSides getSide() {
+            return side;
         }
 
         private ConnectablePositionAttributes getAttributes() {
@@ -199,7 +204,6 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
         }
     }
 
-    private ThreeSides side;
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter;
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter1;
     private final Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter2;
@@ -219,15 +223,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
     private FeederImpl getFeeder(Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter, ThreeSides side) {
         return (positionAttributesGetter != null && positionAttributesGetter.apply(getExtendable()) != null) ?
-                new FeederImpl(connectable -> {
-                    ConnectablePositionAttributes attributes = positionAttributesGetter.apply(connectable);
-                    this.side = side;
-                    return attributes;
-                }) : null;
-    }
-
-    public ThreeSides getSide() {
-        return side;
+                new FeederImpl(positionAttributesGetter, side) : null;
     }
 
     @Override
