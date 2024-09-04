@@ -198,7 +198,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
             });
         }
 
-        private void notifyUpdate(AbstractConnectableImpl connectable, String attribute, Object oldValue, Object newValue) {
+        private void notifyUpdate(AbstractConnectableImpl<?, ?> connectable, String attribute, Object oldValue, Object newValue) {
             String variantId = connectable.getNetwork().getVariantManager().getWorkingVariantId();
             connectable.getNetwork().getIndex().notifyUpdate(getExtendable(), attribute, variantId, oldValue, newValue);
         }
