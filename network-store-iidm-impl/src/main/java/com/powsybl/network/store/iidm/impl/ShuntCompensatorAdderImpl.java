@@ -209,6 +209,8 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        RegulationPointAttributes regulationPointAttributes = new RegulationPointAttributes(getId(), ResourceType.SHUNT_COMPENSATOR,
+            new TerminalRefAttributes(getId(), null), terminalRefAttributes, null);
 
         Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder()
                 .id(id)
@@ -222,7 +224,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                         .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .sectionCount(sectionCount)
                         .model(model)
-                        .regulatingTerminal(terminalRefAttributes)
+                        .regulationPoint(regulationPointAttributes)
                         .voltageRegulatorOn(voltageRegulatorOn)
                         .targetV(targetV)
                         .targetDeadband(targetDeadband)
@@ -230,6 +232,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                 .build();
         ShuntCompensatorImpl shuntCompensator = getIndex().createShuntCompensator(resource);
         shuntCompensator.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        shuntCompensator.setRegulatingTerminal(regulatingTerminal);
         return shuntCompensator;
     }
 
