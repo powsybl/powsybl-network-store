@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,8 +25,8 @@ public class RegulationPointAttributes extends AbstractAttributes implements Att
     @Schema(description = "Regulated Equipment Id")
     private String regulatedEquipmentId;
 
-    @Schema(description = "Identifiable type")
-    private IdentifiableType identifiableType;
+    @Schema(description = "Resource type")
+    private ResourceType resourceType;
 
     @Schema(description = "Local terminal")
     private TerminalRefAttributes localTerminal;
