@@ -29,6 +29,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
         private static final String ORDER = "order";
         private static final String DIRECTION = "direction";
         private static final String NOT_SUPPORTED = "Not supported side";
+        private static final String UNEXPECTED_EXTENDABLE = "Unexpected extendable instance: ";
         private final ThreeSides side;
         private final Function<Connectable<C>, ConnectablePositionAttributes> getter;
 
@@ -64,7 +65,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                     updateTransformerLabelResource(windingsTransformer, name);
                     notifyUpdate(windingsTransformer, LABEL, oldValue, name);
                 } else {
-                    throw new AssertionError("Unexpected connectable instance: " + getExtendable().getClass());
+                    throw new AssertionError(UNEXPECTED_EXTENDABLE + getExtendable().getClass());
                 }
             }
             return this;
@@ -96,7 +97,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                     updateTransformerOrderResource(windingsTransformer, order);
                     notifyUpdate(windingsTransformer, ORDER, oldValue, order);
                 } else {
-                    throw new AssertionError("Unexpected connectable instance: " + getExtendable().getClass());
+                    throw new AssertionError(UNEXPECTED_EXTENDABLE + getExtendable().getClass());
                 }
             }
             return this;
@@ -121,7 +122,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                     updateTransformerDirectionResource(windingsTransformer, direction);
                     notifyUpdate(windingsTransformer, DIRECTION, oldValue, direction);
                 } else {
-                    throw new AssertionError("Unexpected connectable instance: " + getExtendable().getClass());
+                    throw new AssertionError(UNEXPECTED_EXTENDABLE + getExtendable().getClass());
                 }
             }
             return this;
