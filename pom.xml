@@ -47,7 +47,7 @@
     </developers>
 
     <properties>
-        <springboot.version>3.1.2</springboot.version>
+        <springboot.version>3.3.2</springboot.version>
         <powsybl-dependencies.version>2024.2.0</powsybl-dependencies.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
