@@ -255,7 +255,7 @@ public class ResourceTest {
         TerminalRefAttributes regulatingTerminal = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
         RegulationPointAttributes regulationPointAttributes = RegulationPointAttributes.builder()
             .regulatedEquipmentId("gen")
-            .identifiableType(IdentifiableType.GENERATOR)
+            .resourceType(ResourceType.GENERATOR)
             .regulatingTerminal(regulatingTerminal)
             .localTerminal(new TerminalRefAttributes("gen", null))
             .build();
@@ -373,7 +373,7 @@ public class ResourceTest {
         TerminalRefAttributes regulatingTerminal = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
         RegulationPointAttributes regulationPointAttributes = RegulationPointAttributes.builder()
             .regulatedEquipmentId("shunt")
-            .identifiableType(IdentifiableType.SHUNT_COMPENSATOR)
+            .resourceType(ResourceType.SHUNT_COMPENSATOR)
             .regulatingTerminal(regulatingTerminal)
             .localTerminal(new TerminalRefAttributes("shunt", null))
             .build();
