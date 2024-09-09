@@ -70,8 +70,13 @@ class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements T
             throw new ValidationException(attributes.getResource(), "an equipment (" + terminal.getConnectable().getId()
                     + ") is already connected to node " + node + " of voltage level " + voltageLevelId);
         }
-        attributes.setNode(node);
-        attributes.setVoltageLevelId(voltageLevelId);
+        //attributes.setNode(node);
+        //attributes.setVoltageLevelId(voltageLevelId);
+        //index.updateResource(getAbstractIdentifiable().getResource(), null);
+        getAbstractIdentifiable().updateResource(res -> {
+            attributes.setNode(node);
+            attributes.setVoltageLevelId(voltageLevelId);
+        });
         voltageLevel.invalidateCalculatedBuses();
     }
 }
