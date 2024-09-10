@@ -146,15 +146,11 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
             throw new PowsyblException("Trying to move connectable " + attributes.getResource().getId()
                     + " to bus " + busId + " of voltage level " + bus.getVoltageLevel().getId() + ", which is a node breaker voltage level");
         }
-        //attributes.setConnectableBus(busId);
-        //attributes.setBus(connected ? busId : null);
-        //attributes.setVoltageLevelId(voltageLevel.getId());
-        //index.updateResource(getAbstractIdentifiable().getResource(), null);
         getAbstractIdentifiable().updateResource(res -> {
-            attributes.setConnectableBus(busId);
-            attributes.setBus(connected ? busId : null);
-            attributes.setNode(null);
-            attributes.setVoltageLevelId(voltageLevel.getId());
+            attributesGetter.apply(res).setConnectableBus(busId);
+            attributesGetter.apply(res).setBus(connected ? busId : null);
+            attributesGetter.apply(res).setNode(null);
+            attributesGetter.apply(res).setVoltageLevelId(voltageLevel.getId());
         });
         voltageLevel.invalidateCalculatedBuses();
     }
