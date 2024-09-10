@@ -147,10 +147,11 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
                     + " to bus " + busId + " of voltage level " + bus.getVoltageLevel().getId() + ", which is a node breaker voltage level");
         }
         getAbstractIdentifiable().updateResource(res -> {
-            attributesGetter.apply(res).setConnectableBus(busId);
-            attributesGetter.apply(res).setBus(connected ? busId : null);
-            attributesGetter.apply(res).setNode(null);
-            attributesGetter.apply(res).setVoltageLevelId(voltageLevel.getId());
+            InjectionAttributes attr = attributesGetter.apply(res);
+            attr.setConnectableBus(busId);
+            attr.setBus(connected ? busId : null);
+            attr.setNode(null);
+            attr.setVoltageLevelId(voltageLevel.getId());
         });
         voltageLevel.invalidateCalculatedBuses();
     }

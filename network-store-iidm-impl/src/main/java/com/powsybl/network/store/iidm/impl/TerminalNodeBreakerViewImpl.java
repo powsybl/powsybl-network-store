@@ -71,10 +71,11 @@ class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements T
                     + ") is already connected to node " + node + " of voltage level " + voltageLevelId);
         }
         getAbstractIdentifiable().updateResource(res -> {
-            attributesGetter.apply(res).setConnectableBus(null);
-            attributesGetter.apply(res).setBus(null);
-            attributesGetter.apply(res).setNode(node);
-            attributesGetter.apply(res).setVoltageLevelId(voltageLevelId);
+            InjectionAttributes attr = attributesGetter.apply(res);
+            attr.setConnectableBus(null);
+            attr.setBus(null);
+            attr.setNode(node);
+            attr.setVoltageLevelId(voltageLevelId);
         });
         voltageLevel.invalidateCalculatedBuses();
     }
