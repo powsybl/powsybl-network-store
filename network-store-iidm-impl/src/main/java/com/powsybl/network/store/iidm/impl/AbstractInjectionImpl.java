@@ -8,29 +8,31 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.network.store.model.AbstractIdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractIdentifiableImpl<I, D> implements Injection<I> {
+public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractConnectableImpl<I, D> implements Injection<I> {
 
+    protected final RegulatingPoint regulatingPoint;
     protected final TerminalImpl<D> terminal;
 
     protected AbstractInjectionImpl(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
         terminal = new TerminalImpl<>(index, this, Resource::getAttributes);
+        regulatingPoint = new RegulatingPoint(index, this, AbstractIdentifiableAttributes.class::cast);
     }
 
     protected abstract I getInjection();
@@ -54,6 +56,19 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
                 null);
         }
         return extension;
+    }
+
+    protected void setRegTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        if (regulatingTerminal instanceof TerminalImpl<?>) {
+            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
+        } else {
+            regulatingPoint.setRegulatingTerminalAsLocalTerminal();
+        }
+    }
+
+    public Terminal getRegulatingTerminal() {
+        return regulatingPoint.getRegulatingTerminal();
     }
 
     @Override
@@ -89,32 +104,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
     }
 
     @Override
-    public boolean connect() {
-        return getTerminal().connect();
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        return getTerminal().connect(isTypeSwitchToOperate);
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
-        return getTerminal().connect(isTypeSwitchToOperate);
-    }
-
-    @Override
-    public boolean disconnect() {
-        return getTerminal().disconnect();
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        return getTerminal().disconnect(isSwitchOpenable);
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
-        return getTerminal().disconnect(isSwitchOpenable);
+    public List<Terminal> getTerminals(ThreeSides side) {
+        return (side == null || side.equals(ThreeSides.ONE)) ? Collections.singletonList(terminal) : Collections.emptyList();
     }
 }

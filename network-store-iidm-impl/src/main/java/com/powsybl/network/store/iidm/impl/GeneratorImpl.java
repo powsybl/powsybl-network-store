@@ -95,6 +95,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     public void remove() {
         var resource = getResource();
         index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+        }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeGenerator(resource.getId());
@@ -119,19 +122,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        var resource = getResource();
-        TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
-        return regulatingTerminal != null ? regulatingTerminal : terminal;
-    }
-
-    @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        TerminalRefAttributes oldValue = getResource().getAttributes().getRegulatingTerminal();
-        updateResource(res -> res.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        setRegTerminal(regulatingTerminal);
         return this;
     }
 

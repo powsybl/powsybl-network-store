@@ -50,9 +50,6 @@ public class ShuntCompensatorAttributes extends AbstractIdentifiableAttributes i
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @Schema(description = "regulatingTerminal")
-    private TerminalRefAttributes regulatingTerminal;
-
     @Schema(description = "Voltage regulation status")
     private boolean voltageRegulatorOn;
 

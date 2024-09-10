@@ -103,15 +103,15 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public RegulationMode getRegulationMode() {
-        return getResource().getAttributes().getRegulationMode();
+        return RegulationMode.valueOf(getResource().getAttributes().getRegulationPoint().getRegulationMode());
     }
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        RegulationMode oldValue = getResource().getAttributes().getRegulationMode();
+        RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
-            updateResource(res -> res.getAttributes().setRegulationMode(regulationMode));
+            regulatingPoint.setRegulationMode(String.valueOf(regulationMode));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "regulationMode", variantId, oldValue, regulationMode);
         }
@@ -119,17 +119,8 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        var resource = getResource();
-        TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
-        return regulatingTerminal != null ? regulatingTerminal : terminal;
-    }
-
-    @Override
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        updateResource(res -> res.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
+        setRegTerminal(regulatingTerminal);
         return this;
     }
 
@@ -191,6 +182,10 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     public void remove() {
         var resource = getResource();
         index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+        }
+        regulatingPoint.remove();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeStaticVarCompensator(resource.getId());

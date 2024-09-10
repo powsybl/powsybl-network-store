@@ -8,12 +8,14 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.junit.Test;
 
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -490,5 +492,30 @@ public class NodeBreakerCalculatedBusTest {
             bus.getConnectedComponent();
             bus.getSynchronousComponent();
         }
+    }
+
+    @Test
+    public void testGetBusCacheInvalidation() {
+        String newVariant = "new_variant";
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        CreateNetworksUtil.addBusBarSection(vl1);
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, newVariant);
+
+        // creating the cache and checking VL1_10 is not existing yet
+        assertNull(network.getBusView().getBus("VL1_10"));
+        // creating a new calculated bus by opening a switch, the cache should be invalidated
+        vl1.getNodeBreakerView().getSwitch("BRS12").setOpen(true);
+        // checking the cache has been invalidated and returns the new bus
+        assertNotNull(network.getBusView().getBus("VL1_10"));
+
+        // switch variant, with switch still close
+        network.getVariantManager().setWorkingVariant(newVariant);
+        // cache should have been invalidated, previously checked bus should not exist
+        assertNull(network.getBusView().getBus("VL1_10"));
+
+        // switch to initial variant, cache should be invalidated, bus should exist
+        network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNotNull(network.getBusView().getBus("VL1_10"));
     }
 }

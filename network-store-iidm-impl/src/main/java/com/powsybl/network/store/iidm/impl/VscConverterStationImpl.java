@@ -144,6 +144,9 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     @Override
     public void remove() {
         var resource = getResource();
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+        }
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
@@ -156,19 +159,8 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        var resource = getResource();
-        TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
-        return regulatingTerminal != null ? regulatingTerminal : terminal;
-    }
-
-    @Override
     public VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        TerminalRefAttributes oldValue = getResource().getAttributes().getRegulatingTerminal();
-        updateResource(res -> res.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        setRegTerminal(regulatingTerminal);
         return this;
     }
 }
