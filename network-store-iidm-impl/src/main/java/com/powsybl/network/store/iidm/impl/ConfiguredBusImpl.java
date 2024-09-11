@@ -14,7 +14,6 @@ import com.powsybl.network.store.model.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.*;
 import java.util.stream.Collectors;
@@ -170,14 +169,10 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
                         .getCalculatedBusesForBusView();
 
                 if (CollectionUtils.isNotEmpty(calculatedBusAttributesList)) {
-                    List<Integer> calculatedBusesNum = getAllTerminals().stream().map(t -> {
-                        if (t.getBusView() != null && t.getBusView().getBus() instanceof CalculatedBus) {
-                            CalculatedBus bus = (CalculatedBus) t.getBusView().getBus();
-                            return bus != null ? bus.getCalculatedBusNum() : null;
-                        }
-                        return null;
-                    })
-                            .filter(Objects::nonNull).distinct().toList();
+                    List<Integer> calculatedBusesNum = getAllTerminals().stream()
+                            .filter(t -> t.isConnected())
+                            .map(t -> ((CalculatedBus) t.getBusView().getBus()).getCalculatedBusNum())
+                            .toList();
                     List<CalculatedBusAttributes> busesToUpdateList = IntStream.range(0, calculatedBusAttributesList.size())
                         .filter(calculatedBusesNum::contains)
                         .mapToObj(calculatedBusAttributesList::get)
