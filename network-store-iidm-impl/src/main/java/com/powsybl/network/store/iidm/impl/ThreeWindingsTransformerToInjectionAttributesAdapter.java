@@ -11,20 +11,15 @@ import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.LegAttributes;
 import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
 
-import java.util.Objects;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ThreeWindingsTransformerToInjectionAttributesAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<ThreeWindingsTransformerAttributes> {
 
-    private final ThreeWindingsTransformerImpl.LegImpl leg;
-
     private final ThreeSides side;
 
-    public ThreeWindingsTransformerToInjectionAttributesAdapter(ThreeWindingsTransformerImpl.LegImpl leg, ThreeWindingsTransformerAttributes attributes, ThreeSides side) {
+    public ThreeWindingsTransformerToInjectionAttributesAdapter(ThreeWindingsTransformerAttributes attributes, ThreeSides side) {
         super(attributes);
-        this.leg = Objects.requireNonNull(leg);
         this.side = side;
     }
 
@@ -37,7 +32,6 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case ONE -> attributes.getLeg1();
             case TWO -> attributes.getLeg2();
             case THREE -> attributes.getLeg3();
-            default -> throw createUnknownSideException();
         };
     }
 
@@ -87,7 +81,6 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case ONE -> attributes.getP1();
             case TWO -> attributes.getP2();
             case THREE -> attributes.getP3();
-            default -> throw createUnknownSideException();
         };
     }
 
@@ -107,7 +100,6 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case ONE -> attributes.getQ1();
             case TWO -> attributes.getQ2();
             case THREE -> attributes.getQ3();
-            default -> throw createUnknownSideException();
         };
     }
 
@@ -127,7 +119,6 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case ONE -> attributes.getPosition1();
             case TWO -> attributes.getPosition2();
             case THREE -> attributes.getPosition3();
-            default -> throw createUnknownSideException();
         };
     }
 
