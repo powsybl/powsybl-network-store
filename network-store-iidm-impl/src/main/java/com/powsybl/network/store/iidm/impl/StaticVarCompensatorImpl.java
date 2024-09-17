@@ -119,18 +119,8 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        return regulatingPoint.getRegulatingTerminal();
-    }
-
-    @Override
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        if (regulatingTerminal instanceof TerminalImpl<?>) {
-            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
-        } else {
-            regulatingPoint.setRegulatingTerminalAsLocalTerminal();
-        }
+        setRegTerminal(regulatingTerminal);
         return this;
     }
 
