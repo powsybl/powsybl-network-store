@@ -68,9 +68,7 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
 
     @Override
     public void setBus(String bus) {
-        String oldValue = getLegAttributes().getBus();
         getLegAttributes().setBus(bus);
-        leg.notifyUpdate("bus", oldValue, bus);
     }
 
     @Override

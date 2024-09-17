@@ -19,15 +19,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.powsybl.network.store.iidm.impl.ConnectDisconnectUtil.closeSwitches;
-import static com.powsybl.network.store.iidm.impl.ConnectDisconnectUtil.openSwitches;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal, Validable {
-
-    private static final Set<IdentifiableType> CONNECTABLE_WITH_SIDES_TYPES = Set.of(IdentifiableType.LINE, IdentifiableType.TWO_WINDINGS_TRANSFORMER, IdentifiableType.THREE_WINDINGS_TRANSFORMER);
 
     private final NetworkObjectIndex index;
 
@@ -230,7 +225,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                         sw.ifPresent(switchForConnection::add);
                     }
                 });
-            done = true;
+            done = !switchForConnection.isEmpty();
         }
 
         return done;
@@ -249,9 +244,6 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             return false;
         }
 
-        // The switches are now closed
-        closeSwitches(index, switchesToClose);
-
         return true;
     }
 
@@ -261,12 +253,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             a.setBus(a.getConnectableBus());
 
             // Notification to the listeners
-            index.notifyUpdate(getConnectable(), "connected", index.getNetwork().getVariantManager().getWorkingVariantId(), false, true);
-
-            // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
-            if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
-                index.notifyUpdate(getConnectable(), "bus", null, a.getConnectableBus());
-            }
+            String side = Terminal.getConnectableSide(this).map(s -> Integer.toString(s.getNum())).orElse("");
+            index.notifyUpdate(getConnectable(), "connected" + side, index.getNetwork().getVariantManager().getWorkingVariantId(), false, true);
         });
     }
 
@@ -284,6 +272,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         try {
             Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
             VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
+            boolean connectedBefore = isConnected();
+            index.notifyUpdate(getConnectable(), "beginConnect", index.getNetwork().getVariantManager().getWorkingVariantId(), connectedBefore, null);
             if (isNodeBeakerTopologyKind()) {
                 if (connectNodeBreaker(isTypeSwitchToOperate)) {
                     done = true;
@@ -295,6 +285,9 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                     done = true;
                 }
             }
+
+            boolean connectedAfter = isConnected();
+            index.notifyUpdate(getConnectable(), "endConnect", index.getNetwork().getVariantManager().getWorkingVariantId(), null, connectedAfter);
 
             if (done) {
                 // to invalidate calculated buses
@@ -402,9 +395,6 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             return false;
         }
 
-        // The switches are now opened
-        openSwitches(index, switchesToOpen);
-
         return true;
     }
 
@@ -416,12 +406,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                 a.setBus(null);
 
                 // Notification to the listeners
-                index.notifyUpdate(getConnectable(), "connected", index.getNetwork().getVariantManager().getWorkingVariantId(), true, false);
-
-                // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
-                if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
-                    index.notifyUpdate(getConnectable(), "bus", a.getConnectableBus(), null);
-                }
+                String side = Terminal.getConnectableSide(this).map(s -> Integer.toString(s.getNum())).orElse("");
+                index.notifyUpdate(getConnectable(), "connected" + side, index.getNetwork().getVariantManager().getWorkingVariantId(), true, false);
             });
             return true;
         }
@@ -442,6 +428,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         try {
             Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
             VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
+            boolean disconnectedBefore = !isConnected();
+            index.notifyUpdate(getConnectable(), "beginDisconnect", index.getNetwork().getVariantManager().getWorkingVariantId(), disconnectedBefore, null);
             if (isNodeBeakerTopologyKind()) {
                 if (disconnectNodeBreaker(isSwitchOpenable)) {
                     done = true;
@@ -451,6 +439,9 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                     done = true;
                 }
             }
+
+            boolean disconnectedAfter = !isConnected();
+            index.notifyUpdate(getConnectable(), "endDisconnect", index.getNetwork().getVariantManager().getWorkingVariantId(), null, disconnectedAfter);
 
             if (done) {
                 // to invalidate calculated buses

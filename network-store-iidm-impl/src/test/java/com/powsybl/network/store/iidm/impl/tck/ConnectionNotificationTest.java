@@ -12,13 +12,4 @@ import com.powsybl.iidm.network.tck.AbstractConnectionNotificationTest;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class ConnectionNotificationTest extends AbstractConnectionNotificationTest {
-    @Override
-    public void busBreakerTest() {
-        // FIXME remove this test when we have the same update notifications as the core impl when disconnecting terminals : beginDisconnect and endDisconnect
-    }
-
-    @Override
-    public void nodeBreakerTest() {
-        // FIXME remove this test when we have the same update notifications as the core impl when disconnecting terminals : beginDisconnect and endDisconnect
-    }
 }
