@@ -7,11 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -63,7 +62,8 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
         Terminal localTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getLocalTerminal());
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(localTerminal)));
-        if (!localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
+        // if localTerminal or regulatingTerminal is not connected the bus is null
+        if (localTerminal.isConnected() && regulatingTerminal.isConnected() && !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
             switch (getAttributes().getResourceType()) {
                 case STATIC_VAR_COMPENSATOR ->
                     identifiable.updateResource(res -> getAttributes().setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF)), null);
