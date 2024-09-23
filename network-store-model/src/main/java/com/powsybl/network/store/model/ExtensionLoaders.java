@@ -18,6 +18,9 @@ import java.util.function.Predicate;
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
+//Don't bother with generics because serviceloader doesn't return them
+//and we put them in a cache where we can't propagate the generic types.
+@SuppressWarnings("rawtypes")
 public final class ExtensionLoaders {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionLoaders.class);
