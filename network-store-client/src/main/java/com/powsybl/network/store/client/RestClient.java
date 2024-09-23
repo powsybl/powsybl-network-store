@@ -6,8 +6,8 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.network.store.model.AbstractTopLevelDocument;
 import com.powsybl.network.store.model.Attributes;
+import com.powsybl.network.store.model.ExtensionAttributes;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.springframework.core.ParameterizedTypeReference;
@@ -22,9 +22,16 @@ public interface RestClient {
 
     <T extends IdentifiableAttributes> void createAll(String url, List<Resource<T>> resources, Object... uriVariables);
 
-    <T, D extends AbstractTopLevelDocument<T>> Optional<T> getOne(String target, String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables);
+    <T extends IdentifiableAttributes> Optional<Resource<T>> getOne(String target, String url, Object... uriVariables);
 
-    <T, D extends AbstractTopLevelDocument<T>> List<T> getAll(String target, String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables);
+    /**
+     * Retrieves one extension attributes from the server.
+     * @return {@link ExtensionAttributes} which is a subset of an identifiable resource. The extension attributes can be put in the extensionAttributes
+     * map of an {@link IdentifiableAttributes} or used to load an extension.
+     */
+    Optional<ExtensionAttributes> getOneExtensionAttributes(String url, Object... uriVariables);
+
+    <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables);
 
     <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables);
 

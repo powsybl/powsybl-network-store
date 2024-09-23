@@ -90,7 +90,18 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T, D extends AbstractTopLevelDocument<T>> Optional<T> getOne(String target, String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
+    public <T extends IdentifiableAttributes> Optional<Resource<T>> getOne(String target, String url, Object... uriVariables) {
+        return getOneDocument(target, url, new ParameterizedTypeReference<TopLevelDocument<T>>() {
+        }, uriVariables);
+    }
+
+    @Override
+    public Optional<ExtensionAttributes> getOneExtensionAttributes(String url, Object... uriVariables) {
+        return getOneDocument(null, url, new ParameterizedTypeReference<ExtensionAttributesTopLevelDocument>() {
+        }, uriVariables);
+    }
+
+    public <T, D extends AbstractTopLevelDocument<T>> Optional<T> getOneDocument(String target, String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
         ResponseEntity<D> response = getDocument(url, parameterizedTypeReference, uriVariables);
         if (response.getStatusCode() == HttpStatus.OK) {
             AbstractTopLevelDocument<T> body = getBody(response);
@@ -103,12 +114,13 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T, D extends AbstractTopLevelDocument<T>> List<T> getAll(String target, String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
-        ResponseEntity<D> response = getDocument(url, parameterizedTypeReference, uriVariables);
+    public <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
+        ResponseEntity<TopLevelDocument<T>> response = getDocument(url, new ParameterizedTypeReference<>() {
+        }, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "get", response.getStatusCode());
         }
-        AbstractTopLevelDocument<T> body = getBody(response);
+        TopLevelDocument<T> body = getBody(response);
         return body.getData();
     }
 
