@@ -899,7 +899,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
-        return getExtensionAttributesMap("/networks/{networkUuid}/{variantNum}/types/{type}/extensions/{extensionName}", networkUuid, variantNum, resourceType, extensionName);
+        return getExtensionAttributesMap("/networks/{networkUuid}/{variantNum}/identifiables/types/{type}/extensions/{extensionName}", networkUuid, variantNum, resourceType, extensionName);
     }
 
     @Override
@@ -909,7 +909,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        return getExtensionAttributesNestedMap("/networks/{networkUuid}/{variantNum}/types/{resourceType}/extensions", networkUuid, variantNum, resourceType);
+        return getExtensionAttributesNestedMap("/networks/{networkUuid}/{variantNum}/identifiables/types/{resourceType}/extensions", networkUuid, variantNum, resourceType);
     }
 
     @Override
