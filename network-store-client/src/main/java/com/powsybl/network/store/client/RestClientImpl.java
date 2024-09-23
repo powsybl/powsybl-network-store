@@ -91,17 +91,17 @@ public class RestClientImpl implements RestClient {
 
     @Override
     public <T extends IdentifiableAttributes> Optional<Resource<T>> getOne(String target, String url, Object... uriVariables) {
-        return getOneDocument(target, url, new ParameterizedTypeReference<TopLevelDocument<T>>() {
+        return getOneDocument(url, new ParameterizedTypeReference<TopLevelDocument<T>>() {
         }, uriVariables);
     }
 
     @Override
     public Optional<ExtensionAttributes> getOneExtensionAttributes(String url, Object... uriVariables) {
-        return getOneDocument(null, url, new ParameterizedTypeReference<ExtensionAttributesTopLevelDocument>() {
+        return getOneDocument(url, new ParameterizedTypeReference<ExtensionAttributesTopLevelDocument>() {
         }, uriVariables);
     }
 
-    public <T, D extends AbstractTopLevelDocument<T>> Optional<T> getOneDocument(String target, String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
+    private <T, D extends AbstractTopLevelDocument<T>> Optional<T> getOneDocument(String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
         ResponseEntity<D> response = getDocument(url, parameterizedTypeReference, uriVariables);
         if (response.getStatusCode() == HttpStatus.OK) {
             AbstractTopLevelDocument<T> body = getBody(response);
