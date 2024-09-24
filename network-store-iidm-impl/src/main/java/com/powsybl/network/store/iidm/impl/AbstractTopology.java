@@ -397,21 +397,17 @@ public abstract class AbstractTopology<T> {
             voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() :
             voltageLevelResource.getAttributes().getCalculatedBusesForBusView();
         if (!CollectionUtils.isEmpty(calculatedBusAttributes)) {
-            connectedSet.getConnectedVertices().forEach(vertex -> {
-                List<CalculatedBusAttributes> busesInOtherView = calculatedBusAttributes.stream().filter(attr -> attr.getVertices().contains(vertex)).toList();
-                if (!CollectionUtils.isEmpty(busesInOtherView)) {
-                    busesInOtherView.forEach(b -> {
-                        if (!Double.isNaN(b.getV())) {
-                            v.set(b.getV());
-                            foundInCalculatedBuses.set(true);
-                        }
-                        if (!Double.isNaN(b.getAngle())) {
-                            angle.set(b.getAngle());
-                            foundInCalculatedBuses.set(true);
-                        }
-                    });
-                }
-            });
+            connectedSet.getConnectedVertices().forEach(vertex ->
+                calculatedBusAttributes.stream().filter(attr -> attr.getVertices().contains(vertex)).forEach(b -> {
+                    if (!Double.isNaN(b.getV())) {
+                        v.set(b.getV());
+                        foundInCalculatedBuses.set(true);
+                    }
+                    if (!Double.isNaN(b.getAngle())) {
+                        angle.set(b.getAngle());
+                        foundInCalculatedBuses.set(true);
+                    }
+                }));
         }
         if (isBusView && !foundInCalculatedBuses.get()) {
             // get V and Angle values from configured buses
