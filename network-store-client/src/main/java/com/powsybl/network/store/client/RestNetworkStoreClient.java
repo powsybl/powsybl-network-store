@@ -115,6 +115,49 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return resource;
     }
 
+    private Optional<ExtensionAttributes> getExtensionAttributes(String urlTemplate, Object... uriVariables) {
+        logGetExtensionAttributesUrl(urlTemplate, uriVariables);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Optional<ExtensionAttributes> extensionAttributes = restClient.getOneExtensionAttributes(urlTemplate, uriVariables);
+        stopwatch.stop();
+        logGetExtensionAttributesTime(extensionAttributes.isPresent() ? 1 : 0, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return extensionAttributes;
+    }
+
+    private Map<String, ExtensionAttributes> getExtensionAttributesMap(String urlTemplate, Object... uriVariables) {
+        logGetExtensionAttributesUrl(urlTemplate, uriVariables);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Map<String, ExtensionAttributes> extensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        stopwatch.stop();
+        logGetExtensionAttributesTime(extensionAttributes.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return extensionAttributes;
+    }
+
+    private Map<String, Map<String, ExtensionAttributes>> getExtensionAttributesNestedMap(String urlTemplate, Object... uriVariables) {
+        logGetExtensionAttributesUrl(urlTemplate, uriVariables);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Map<String, Map<String, ExtensionAttributes>> extensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        stopwatch.stop();
+        long loadedAttributesCount = extensionAttributes.values().stream()
+                .mapToLong(innerMap -> innerMap.values().size())
+                .sum();
+        logGetExtensionAttributesTime(loadedAttributesCount, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return extensionAttributes;
+    }
+
+    private static void logGetExtensionAttributesUrl(String urlTemplate, Object... uriVariables) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Loading extension attributes {}", UriComponentsBuilder.fromUriString(urlTemplate).build(uriVariables));
+        }
+    }
+
+    private static void logGetExtensionAttributesTime(long loadedAttributesCount, long timeElapsed) {
+        LOGGER.info("{} extension attributes loaded in {} ms", loadedAttributesCount, timeElapsed);
+    }
+
     private <T extends IdentifiableAttributes> void updatePartition(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
         if (attributeFilter == null) {
             if (LOGGER.isInfoEnabled()) {
@@ -847,5 +890,30 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources,
             AttributeFilter attributeFilter) {
         updateAll(STR_GROUND, "/networks/{networkUuid}/grounds", groundResources, attributeFilter, networkUuid);
+    }
+
+    @Override
+    public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
+        return getExtensionAttributes("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions/{extensionName}", networkUuid, variantNum, identifiableId, extensionName);
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
+        return getExtensionAttributesMap("/networks/{networkUuid}/{variantNum}/identifiables/types/{type}/extensions/{extensionName}", networkUuid, variantNum, resourceType, extensionName);
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId) {
+        return getExtensionAttributesMap("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions", networkUuid, variantNum, identifiableId);
+    }
+
+    @Override
+    public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        return getExtensionAttributesNestedMap("/networks/{networkUuid}/{variantNum}/identifiables/types/{resourceType}/extensions", networkUuid, variantNum, resourceType);
+    }
+
+    @Override
+    public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
+        restClient.delete("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions/{extensionName}", networkUuid, variantNum, identifiableId, extensionName);
     }
 }
