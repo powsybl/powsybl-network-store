@@ -36,7 +36,6 @@ import java.util.Optional;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -101,17 +100,14 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
                 .getCalculatedBusesForBusView();
 
             if (CollectionUtils.isNotEmpty(calculatedBusAttributesList)) {
-                List<Integer> calculatedBusesNum = getAllTerminals().stream()
+                getAllTerminals().stream()
                     .filter(Terminal::isConnected)
-                    .map(t -> ((CalculatedBus) t.getBusView().getBus()).getCalculatedBusNum()).distinct().toList();
-                List<CalculatedBusAttributes> busesToUpdateList = IntStream.range(0, calculatedBusAttributesList.size())
-                    .filter(calculatedBusesNum::contains)
-                    .mapToObj(calculatedBusAttributesList::get)
-                    .toList();
-                if (CollectionUtils.isNotEmpty(busesToUpdateList)) {
-                    busesToUpdateList.forEach(b -> setValue.accept(b, newValue));
-                    index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
-                }
+                    .map(t -> ((CalculatedBus) t.getBusView().getBus()).getCalculatedBusNum())
+                    .findFirst()
+                    .ifPresent(calculatedBusNum -> {
+                        setValue.accept(calculatedBusAttributesList.get(calculatedBusNum), newValue);
+                        index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
+                    });
             }
         });
     }

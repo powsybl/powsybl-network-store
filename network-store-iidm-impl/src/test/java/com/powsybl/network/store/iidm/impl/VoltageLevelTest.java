@@ -26,7 +26,7 @@ public class VoltageLevelTest {
         l1.getTerminal1().getBusView().getBus().setV(222);
 
         // Verify the voltage update in BusBreakerView
-        assertEquals("Voltage should match in BusView after update in BusBreakerView", 222, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
+        assertEquals("Voltage should match in BusBreakerView after update in BusView", 222, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
 
         // Set voltage using BusBreakerView
         l1.getTerminal1().getBusBreakerView().getBus().setV(400.0);
@@ -155,5 +155,163 @@ public class VoltageLevelTest {
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(-1).withSectionIndex(-1);
         assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
             assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
+    }
+
+    @Test
+    public void testWithMultipleBusInBusBreakerAndBusView() {
+        Network network = Network.create("test_mcc", "test");
+        Substation s1 = network.newSubstation()
+            .setId("A")
+            .setCountry(Country.FR)
+            .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+            .setId("B")
+            .setNominalV(225.0)
+            .setLowVoltageLimit(0.0)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+        vl1.getNodeBreakerView().newBusbarSection()
+            .setId("C")
+            .setNode(0)
+            .add();
+        vl1.getNodeBreakerView().newSwitch()
+            .setId("D")
+            .setKind(SwitchKind.DISCONNECTOR)
+            .setRetained(false)
+            .setOpen(false)
+            .setNode1(0)
+            .setNode2(1)
+            .add();
+        vl1.getNodeBreakerView().newSwitch()
+            .setId("E")
+            .setKind(SwitchKind.BREAKER)
+            .setRetained(false)
+            .setOpen(false)
+            .setNode1(1)
+            .setNode2(2)
+            .add();
+
+        Substation s2 = network.newSubstation()
+            .setId("F")
+            .setCountry(Country.FR)
+            .add();
+        VoltageLevel vl2 = s2.newVoltageLevel()
+            .setId("G")
+            .setNominalV(225.0)
+            .setLowVoltageLimit(0.0)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+            .setId("H")
+            .setNode(0)
+            .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+            .setId("I")
+            .setNode(1)
+            .add();
+        vl2.getNodeBreakerView().newSwitch()
+            .setId("J")
+            .setKind(SwitchKind.DISCONNECTOR)
+            .setRetained(true)
+            .setOpen(false)
+            .setNode1(0)
+            .setNode2(2)
+            .add();
+        vl2.getNodeBreakerView().newSwitch()
+            .setId("K")
+            .setKind(SwitchKind.DISCONNECTOR)
+            .setRetained(true)
+            .setOpen(false)
+            .setNode1(1)
+            .setNode2(3)
+            .add();
+        vl2.getNodeBreakerView().newSwitch()
+            .setId("L")
+            .setKind(SwitchKind.BREAKER)
+            .setRetained(true)
+            .setOpen(false)
+            .setNode1(2)
+            .setNode2(3)
+            .add();
+        vl2.getNodeBreakerView().newSwitch()
+            .setId("M")
+            .setKind(SwitchKind.BREAKER)
+            .setRetained(false)
+            .setOpen(false)
+            .setNode1(0)
+            .setNode2(4)
+            .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+            .setId("newBbs1")
+            .setNode(5)
+            .add();
+        vl2.getNodeBreakerView().newSwitch()
+            .setId("newDisconnector1")
+            .setKind(SwitchKind.DISCONNECTOR)
+            .setRetained(true)
+            .setOpen(false)
+            .setNode1(5)
+            .setNode2(6)
+            .add();
+        vl2.getNodeBreakerView().newSwitch()
+            .setId("newBreaker1")
+            .setKind(SwitchKind.BREAKER)
+            .setRetained(false)
+            .setOpen(false)
+            .setNode1(6)
+            .setNode2(7)
+            .add();
+        vl2.newGenerator()
+            .setId("newGen1")
+            .setNode(7)
+            .setMaxP(100.0)
+            .setMinP(50.0)
+            .setTargetP(100.0)
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true)
+            .add();
+        network.newLine()
+            .setId("N")
+            .setR(0.001)
+            .setX(0.1)
+            .setG1(0.0)
+            .setB1(0.0)
+            .setG2(0.0)
+            .setB2(0.0)
+            .setVoltageLevel1("B")
+            .setNode1(2)
+            .setVoltageLevel2("G")
+            .setNode2(4)
+            .add();
+
+        // set 2 different V values for the 2 buses in the bus view of voltage level vl2
+        assertNotNull(vl2.getBusView().getBus("G_0"));
+        vl2.getBusView().getBus("G_0").setV(230.);
+        assertNotNull(vl2.getBusView().getBus("G_5"));
+        vl2.getBusView().getBus("G_5").setV(250.);
+
+        // 2 buses in the bus breaker view of voltage level vl2 have V value = 230
+        assertNotNull(vl2.getBusBreakerView().getBus("G_0"));
+        assertEquals(230., vl2.getBusBreakerView().getBus("G_0").getV(), 0.0);
+        assertNotNull(vl2.getBusBreakerView().getBus("G_1"));
+        assertEquals(230., vl2.getBusBreakerView().getBus("G_1").getV(), 0.0);
+
+        // the 4 other buses in the bus breaker view of voltage level vl2 have V value = 250
+        assertNotNull(vl2.getBusBreakerView().getBus("G_2"));
+        assertEquals(250., vl2.getBusBreakerView().getBus("G_2").getV(), 0.0);
+        assertNotNull(vl2.getBusBreakerView().getBus("G_3"));
+        assertEquals(250., vl2.getBusBreakerView().getBus("G_3").getV(), 0.0);
+        assertNotNull(vl2.getBusBreakerView().getBus("G_5"));
+        assertEquals(250., vl2.getBusBreakerView().getBus("G_5").getV(), 0.0);
+        assertNotNull(vl2.getBusBreakerView().getBus("G_6"));
+        assertEquals(250., vl2.getBusBreakerView().getBus("G_6").getV(), 0.0);
+
+        // set 2 different V values for 2 buses in the bus breaker view of voltage level vl2, which correspond to 2
+        // different buses in the bus view
+        vl2.getBusBreakerView().getBus("G_1").setV(270.);
+        vl2.getBusBreakerView().getBus("G_5").setV(290.);
+
+        assertEquals(270., vl2.getBusView().getBus("G_0").getV(), 0.0);
+        assertEquals(290., vl2.getBusView().getBus("G_5").getV(), 0.0);
     }
 }

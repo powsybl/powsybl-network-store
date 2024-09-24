@@ -401,11 +401,11 @@ public abstract class AbstractTopology<T> {
                 List<CalculatedBusAttributes> busesInOtherView = calculatedBusAttributes.stream().filter(attr -> attr.getVertices().contains(vertex)).toList();
                 if (!CollectionUtils.isEmpty(busesInOtherView)) {
                     busesInOtherView.forEach(b -> {
-                        if (Double.isNaN(v.get()) && !Double.isNaN(b.getV())) {
+                        if (!Double.isNaN(b.getV())) {
                             v.set(b.getV());
                             foundInCalculatedBuses.set(true);
                         }
-                        if (Double.isNaN(angle.get()) && !Double.isNaN(b.getAngle())) {
+                        if (!Double.isNaN(b.getAngle())) {
                             angle.set(b.getAngle());
                             foundInCalculatedBuses.set(true);
                         }
