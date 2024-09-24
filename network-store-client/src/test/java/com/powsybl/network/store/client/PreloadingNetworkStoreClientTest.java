@@ -831,7 +831,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
         }).writeValueAsString(Map.of(identifiableId1, apc1, identifiableId2, apc2));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/types/" + ResourceType.GENERATOR + "/extensions/activepowercontrol"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/activepowercontrol"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
 
@@ -855,7 +855,7 @@ public class PreloadingNetworkStoreClientTest {
         String identifiableId1 = "GEN";
         String extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
         }).writeValueAsString(Map.of());
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/types/" + ResourceType.GENERATOR + "/extensions/activepowercontrol"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/activepowercontrol"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
 
@@ -898,7 +898,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String multipleExtensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<String, ExtensionAttributes>>>() {
         }).writeValueAsString(Map.of(identifiableId1, Map.of(ActivePowerControl.NAME, apc1, GeneratorStartup.NAME, gs1), identifiableId2, Map.of(ActivePowerControl.NAME, apc2)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/types/" + ResourceType.GENERATOR + "/extensions"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
 
@@ -925,7 +925,7 @@ public class PreloadingNetworkStoreClientTest {
         // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         String multipleExtensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<String, ExtensionAttributes>>>() {
         }).writeValueAsString(Map.of());
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/types/" + ResourceType.GENERATOR + "/extensions"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
 
