@@ -1218,4 +1218,16 @@ public class NetworkObjectIndex {
     void updateBusbarSectionResource(Resource<BusbarSectionAttributes> resource, AttributeFilter attributeFilter) {
         storeClient.updateBusbarSections(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
+
+    public void loadExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
+        storeClient.getExtensionAttributes(network.getUuid(), workingVariantNum, type, identifiableId, extensionName);
+    }
+
+    public void loadAllExtensionsAttributesByIdentifiableId(ResourceType type, String identifiableId) {
+        storeClient.getAllExtensionsAttributesByIdentifiableId(network.getUuid(), workingVariantNum, type, identifiableId);
+    }
+
+    public void removeExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
+        storeClient.removeExtensionAttributes(network.getUuid(), workingVariantNum, type, identifiableId, extensionName);
+    }
 }

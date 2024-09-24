@@ -871,4 +871,16 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid, variantNum);
         delegate.removeConfiguredBuses(networkUuid, variantNum, configuredBusesId);
     }
+
+    @Override
+    public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
+        delegate.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
+        return delegate.getExtensionAttributes(networkUuid, variantNum, resourceType, identifiableId, extensionName);
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String id) {
+        delegate.getAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
+        return delegate.getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, resourceType, id);
+    }
 }
