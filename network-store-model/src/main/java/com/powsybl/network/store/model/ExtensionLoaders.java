@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,21 +18,52 @@ import java.util.function.Predicate;
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
+//Don't bother with generics because serviceloader doesn't return them
+//and we put them in a cache where we can't propagate the generic types.
+@SuppressWarnings("rawtypes")
 public final class ExtensionLoaders {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionLoaders.class);
 
     private static final ServiceLoaderCache<ExtensionLoader> EXTENSION_LOADERS = new ServiceLoaderCache<>(ExtensionLoader.class);
 
+    private static Predicate<ExtensionLoader> namePredicate(String name) {
+        return s -> s.getName() != null && name.equals(s.getName());
+    }
+
+    private static <K extends Extension> Predicate<ExtensionLoader> typePredicate(Class<? super K> type) {
+        return s -> type == s.getType();
+    }
+
+    private static <K extends ExtensionAttributes> Predicate<ExtensionLoader> attributesTypePredicate(Class<? super K> attributesType) {
+        return s -> attributesType.isAssignableFrom(s.getAttributesType());
+    }
+
     private ExtensionLoaders() {
     }
 
-    public static ExtensionLoader findLoader(String name) {
-        return findLoader(s -> s.getName() != null && name.equals(s.getName()), name);
+    public static boolean loaderExists(String name) {
+        return loaderExists(namePredicate(name));
     }
 
-    public static <K extends ExtensionAttributes> ExtensionLoader findLoaderByAttributes(Class<? super K> type) {
-        return findLoader(s -> type.isAssignableFrom(s.getAttributesType()), type.getSimpleName());
+    public static <K extends Extension> boolean loaderExists(Class<? super K> type) {
+        return loaderExists(typePredicate(type));
+    }
+
+    private static boolean loaderExists(Predicate<ExtensionLoader> predicate) {
+        return EXTENSION_LOADERS.getServices().stream().anyMatch(predicate);
+    }
+
+    public static ExtensionLoader findLoaderByName(String name) {
+        return findLoader(namePredicate(name), name);
+    }
+
+    public static <K extends Extension> ExtensionLoader findLoader(Class<? super K> type) {
+        return findLoader(typePredicate(type), type.getSimpleName());
+    }
+
+    public static <K extends ExtensionAttributes> ExtensionLoader findLoaderByAttributes(Class<? super K> attributesType) {
+        return findLoader(attributesTypePredicate(attributesType), attributesType.getSimpleName());
     }
 
     private static ExtensionLoader findLoader(
