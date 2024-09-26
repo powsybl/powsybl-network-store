@@ -225,7 +225,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                         sw.ifPresent(switchForConnection::add);
                     }
                 });
-            done = !switchForConnection.isEmpty();
+            done = true;
         }
 
         return done;
@@ -235,6 +235,10 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
         // Set of switches that are to be closed
         Set<SwitchImpl> switchesToClose = new HashSet<>();
+
+        if (isConnected()) {
+            return false;
+        }
 
         // Get the list of switches to open
         if (getConnectingSwitches(isTypeSwitchToOperate, switchesToClose)) {
