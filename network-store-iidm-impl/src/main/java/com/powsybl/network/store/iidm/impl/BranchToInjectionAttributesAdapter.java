@@ -63,13 +63,9 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
     @Override
     public void setBus(String bus) {
         if (side1) {
-            String oldValue = attributes.getBus1();
             attributes.setBus1(bus);
-            branch.notifyUpdate("bus1", oldValue, bus, true);
         } else {
-            String oldValue = attributes.getBus2();
             attributes.setBus2(bus);
-            branch.notifyUpdate("bus2", oldValue, bus, true);
         }
     }
 
