@@ -29,9 +29,9 @@ import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.Predicate;
@@ -99,15 +99,14 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
                 .getAttributes()
                 .getCalculatedBusesForBusView();
 
-            if (CollectionUtils.isNotEmpty(calculatedBusAttributesList)) {
-                getAllTerminals().stream()
-                    .filter(Terminal::isConnected)
-                    .map(t -> ((CalculatedBus) t.getBusView().getBus()).getCalculatedBusNum())
-                    .findFirst()
-                    .ifPresent(calculatedBusNum -> {
-                        setValue.accept(calculatedBusAttributesList.get(calculatedBusNum), newValue);
-                        index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
-                    });
+            Map<String, Integer> listCalculatedBuses = voltageLevel.getResource().getAttributes().getBusToCalculatedBusForBusView();
+            if (listCalculatedBuses != null) {
+                Integer busviewnum = listCalculatedBuses.get(getId());
+                if (busviewnum != null) {
+                    CalculatedBusAttributes busviewattributes = voltageLevel.getResource().getAttributes().getCalculatedBusesForBusView().get(busviewnum);
+                    setValue.accept(busviewattributes, newValue);
+                    index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
+                }
             }
         });
     }

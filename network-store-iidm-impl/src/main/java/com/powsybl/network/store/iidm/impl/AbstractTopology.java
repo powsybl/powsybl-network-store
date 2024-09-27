@@ -423,11 +423,11 @@ public abstract class AbstractTopology<T> {
             nodeOrBusToCalculatedBusNum = getNodeOrBusToCalculatedBusNum(voltageLevelResource, isBusView);
         } else {
             List<ConnectedSetResult<T>> connectedSetList = findConnectedSetList(index, voltageLevelResource, isBusView);
-            AtomicDouble v = new AtomicDouble(Double.NaN);
-            AtomicDouble angle = new AtomicDouble(Double.NaN);
             calculatedBusAttributesList = connectedSetList
                     .stream()
                     .map(connectedSet -> {
+                        AtomicDouble v = new AtomicDouble(Double.NaN);
+                        AtomicDouble angle = new AtomicDouble(Double.NaN);
                         // get V and Angle values from other view if available
                         getVAndAngleFromOtherView(index, voltageLevelResource, connectedSet, v, angle, isBusView);
                         return new CalculatedBusAttributes(connectedSet.getConnectedVertices(), null, null, v.get(), angle.get());

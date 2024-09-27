@@ -200,13 +200,12 @@ public final class CalculatedBus implements BaseBus {
                                        String attributeName,
                                        ToDoubleFunction<Bus> getValue,
                                        ObjDoubleConsumer<ConfiguredBusAttributes> setValue) {
-        List<String> busesIds = calculatedBusAttributes.getVertices().stream()
-            .map(Vertex::getBus)
-            .toList();
-
-        List<Bus> buses = getVoltageLevel().getBusBreakerView().getBusStream()
-            .filter(bus -> busesIds.contains(bus.getId()) && !Objects.equals(getValue.applyAsDouble(bus), newValue))
-            .toList();
+        List<Bus> buses = ((VoltageLevelImpl) getVoltageLevel()).getResource().getAttributes()
+                .getBusToCalculatedBusForBusView().entrySet().stream()
+                .filter(entry -> getCalculatedBusNum() == entry.getValue())
+                .map(Map.Entry::getKey)
+                .map(getVoltageLevel().getBusBreakerView()::getBus)
+                .toList();
 
         Map<Bus, Map.Entry<Double, Double>> oldNewValues = buses.stream()
             .collect(Collectors.toMap(
