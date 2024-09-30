@@ -29,6 +29,7 @@ import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -92,16 +93,10 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     private void updateCalculatedBusAttributes(double newValue,
                                                String voltageLevelId,
                                                ObjDoubleConsumer<CalculatedBusAttributes> setValue) {
-        Optional<VoltageLevelImpl> voltageLevelOpt = index.getVoltageLevel(voltageLevelId);
-
-        voltageLevelOpt.ifPresent(voltageLevel -> {
-            List<CalculatedBusAttributes> calculatedBusAttributesList = voltageLevel.getResource()
-                .getAttributes()
-                .getCalculatedBusesForBusView();
-
-            Map<String, Integer> listCalculatedBuses = voltageLevel.getResource().getAttributes().getBusToCalculatedBusForBusView();
-            if (listCalculatedBuses != null) {
-                Integer busviewnum = listCalculatedBuses.get(getId());
+        index.getVoltageLevel(voltageLevelId).ifPresent(voltageLevel -> {
+            Map<String, Integer> calculatedBuses = voltageLevel.getResource().getAttributes().getBusToCalculatedBusForBusView();
+            if (!MapUtils.isEmpty(calculatedBuses)) {
+                Integer busviewnum = calculatedBuses.get(getId());
                 if (busviewnum != null) {
                     CalculatedBusAttributes busviewattributes = voltageLevel.getResource().getAttributes().getCalculatedBusesForBusView().get(busviewnum);
                     setValue.accept(busviewattributes, newValue);

@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.model.*;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -168,35 +169,44 @@ public final class CalculatedBus implements BaseBus {
 
         if (getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
             // update V in configured buses
-            updateConfiguredBuses(v, getAttributes(), VOLTAGE, this::getVInBus, this::setVInConfiguredBus);
+            updateConfiguredBuses(v, VOLTAGE, this::getVInBus, this::setVInConfiguredBus);
         } else {
-            if (isBusView) {
-                // update V for buses in BusBreakerView
-                updateBusesAttributes(v, voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView(), getAttributes(), this::setVInCalculatedBus);
-            } else {
-                // update V for buses in BusView
-                updateBusesAttributes(v, voltageLevelResource.getAttributes().getCalculatedBusesForBusView(), getAttributes(), this::setVInCalculatedBus);
-            }
+            // update V for buses in the other view (busView/busBreakerView)
+            updateBusesAttributes(v, this::setVInCalculatedBus);
         }
         return this;
     }
 
-    private void updateBusesAttributes(double value,
-                                       List<CalculatedBusAttributes> calculatedBusAttributesList,
-                                       CalculatedBusAttributes sourceBusAttributes,
-                                       ObjDoubleConsumer<CalculatedBusAttributes> setValue) {
-        if (!CollectionUtils.isEmpty(calculatedBusAttributesList)) {
-            calculatedBusAttributesList.forEach(busToUpdate -> busToUpdate.getVertices().forEach(vertex1 ->
-                sourceBusAttributes.getVertices().stream().filter(v -> v.getId().equals(vertex1.getId())).findFirst().ifPresent(vertex2 -> {
-                    setValue.accept(busToUpdate, value);
-                    index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
-                })
-            ));
+    private void updateBusesAttributes(double value, ObjDoubleConsumer<CalculatedBusAttributes> setValue) {
+        VoltageLevelAttributes vlAttributes = ((VoltageLevelImpl) getVoltageLevel()).getResource().getAttributes();
+        Map<Integer, Integer> nodesToCalculatedBuses = isBusView
+            ? vlAttributes.getNodeToCalculatedBusForBusView()
+            : vlAttributes.getNodeToCalculatedBusForBusBreakerView();
+        if (!MapUtils.isEmpty(nodesToCalculatedBuses)) {
+            nodesToCalculatedBuses.entrySet().stream()
+                .filter(entry -> getCalculatedBusNum() == entry.getValue())
+                .map(Map.Entry::getKey)
+                .forEach(node -> {
+                    Map<Integer, Integer> nodesToCalculatedBusesInOtherView = isBusView
+                        ? vlAttributes.getNodeToCalculatedBusForBusBreakerView()
+                        : vlAttributes.getNodeToCalculatedBusForBusView();
+                    if (!MapUtils.isEmpty(nodesToCalculatedBusesInOtherView)) {
+                        if (nodesToCalculatedBusesInOtherView.containsKey(node)) {
+                            int busNumInOtherView = nodesToCalculatedBusesInOtherView.get(node);
+                            List<CalculatedBusAttributes> calculatedBusAttributes = isBusView
+                                ? vlAttributes.getCalculatedBusesForBusBreakerView()
+                                : vlAttributes.getCalculatedBusesForBusView();
+                            if (!CollectionUtils.isEmpty(calculatedBusAttributes)) {
+                                setValue.accept(calculatedBusAttributes.get(busNumInOtherView), value);
+                                index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
+                            }
+                        }
+                    }
+                });
         }
     }
 
     private void updateConfiguredBuses(double newValue,
-                                       CalculatedBusAttributes calculatedBusAttributes,
                                        String attributeName,
                                        ToDoubleFunction<Bus> getValue,
                                        ObjDoubleConsumer<ConfiguredBusAttributes> setValue) {
@@ -236,15 +246,10 @@ public final class CalculatedBus implements BaseBus {
 
         if (getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
             // update angle in configuredBus
-            updateConfiguredBuses(angle, getAttributes(), ANGLE, this::getAngleInBus, this::setAngleInConfiguredBus);
+            updateConfiguredBuses(angle, ANGLE, this::getAngleInBus, this::setAngleInConfiguredBus);
         } else {
-            if (isBusView) {
-                // update angle for Bus in BusBreakerView
-                updateBusesAttributes(angle, voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView(), getAttributes(), this::setAngleInCalculatedBus);
-            } else {
-                // update angle for Bus in BusView
-                updateBusesAttributes(angle, voltageLevelResource.getAttributes().getCalculatedBusesForBusView(), getAttributes(), this::setAngleInCalculatedBus);
-            }
+            // update angle for buses in the other view (busView/busBreakerView)
+            updateBusesAttributes(angle, this::setAngleInCalculatedBus);
         }
         return this;
     }
