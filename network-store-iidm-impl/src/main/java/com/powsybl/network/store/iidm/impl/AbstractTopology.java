@@ -393,21 +393,42 @@ public abstract class AbstractTopology<T> {
                                            AtomicDouble angle,
                                            boolean isBusView) {
         AtomicBoolean foundInCalculatedBuses = new AtomicBoolean(false);
+
+        //TODO CLEANUP
         List<CalculatedBusAttributes> calculatedBusAttributes = isBusView ?
             voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() :
             voltageLevelResource.getAttributes().getCalculatedBusesForBusView();
+
         if (!CollectionUtils.isEmpty(calculatedBusAttributes)) {
-            connectedSet.getConnectedVertices().forEach(vertex ->
-                calculatedBusAttributes.stream().filter(attr -> attr.getVertices().contains(vertex)).forEach(b -> {
-                    if (!Double.isNaN(b.getV())) {
-                        v.set(b.getV());
-                        foundInCalculatedBuses.set(true);
-                    }
-                    if (!Double.isNaN(b.getAngle())) {
-                        angle.set(b.getAngle());
-                        foundInCalculatedBuses.set(true);
-                    }
-                }));
+            Integer busnum = null;
+            if (voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                Map<Integer, Integer> nums = isBusView ?
+                        voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView() :
+                        voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView();
+                if (nums != null) {
+                    busnum = nums.get(connectedSet.getConnectedNodesOrBuses().iterator().next());
+                }
+            } else {
+                Map<String, Integer> nums = isBusView ?
+                        voltageLevelResource.getAttributes().getBusToCalculatedBusForBusBreakerView() :
+                        voltageLevelResource.getAttributes().getBusToCalculatedBusForBusView();
+                if (nums != null) {
+                    busnum = nums.get(connectedSet.getConnectedNodesOrBuses().iterator().next());
+                }
+            }
+            CalculatedBusAttributes busattributes = null;
+            if (busnum != null) {
+                busattributes = calculatedBusAttributes.get(busnum);
+            }
+
+            if (busattributes != null && !Double.isNaN(busattributes.getV())) {
+                v.set(busattributes.getV());
+                foundInCalculatedBuses.set(true);
+            }
+            if (busattributes != null && !Double.isNaN(busattributes.getAngle())) {
+                angle.set(busattributes.getAngle());
+                foundInCalculatedBuses.set(true);
+            }
         }
         if (isBusView && !foundInCalculatedBuses.get()) {
             // get V and Angle values from configured buses
