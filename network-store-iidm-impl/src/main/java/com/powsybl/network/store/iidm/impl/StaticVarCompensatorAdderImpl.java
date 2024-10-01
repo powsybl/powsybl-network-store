@@ -77,7 +77,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
         RegulationPointAttributes regulationPointAttributes = new RegulationPointAttributes(getId(), ResourceType.STATIC_VAR_COMPENSATOR,
-            new TerminalRefAttributes(getId(), null), terminalRefAttributes, String.valueOf(regulationMode));
+            new TerminalRefAttributes(getId(), null), terminalRefAttributes, String.valueOf(regulationMode), ResourceType.STATIC_VAR_COMPENSATOR);
         Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())

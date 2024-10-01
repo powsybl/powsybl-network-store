@@ -439,9 +439,9 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         leg2 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg2, index);
         leg3 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg3, index);
 
-        terminal1 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg1, r.getAttributes(), ThreeSides.ONE));
-        terminal2 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg2, r.getAttributes(), ThreeSides.TWO));
-        terminal3 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg3, r.getAttributes(), ThreeSides.THREE));
+        terminal1 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(r.getAttributes(), ThreeSides.ONE));
+        terminal2 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(r.getAttributes(), ThreeSides.TWO));
+        terminal3 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(r.getAttributes(), ThreeSides.THREE));
     }
 
     static ThreeWindingsTransformerImpl create(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {

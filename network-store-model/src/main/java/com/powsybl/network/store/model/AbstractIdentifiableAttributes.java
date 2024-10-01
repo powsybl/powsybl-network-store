@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,4 +49,7 @@ public abstract class AbstractIdentifiableAttributes extends AbstractAttributes 
 
     @Schema(description = "regulation info")
     private RegulationPointAttributes regulationPoint;
+
+    @Schema(description = "regulatingEquipments")
+    private List<String> regulatingEquipments;
 }
