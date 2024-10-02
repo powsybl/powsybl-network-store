@@ -11,12 +11,12 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.DirectedPseudograph;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -367,23 +367,25 @@ public abstract class AbstractTopology<T> {
                                                ConnectedSetResult<T> connectedSet,
                                                AtomicDouble v,
                                                AtomicDouble angle) {
+        AtomicReference<ConfiguredBusImpl> foundConfiguredBus = new AtomicReference<>();
         index.getConfiguredBuses(voltageLevelResource.getId()).forEach(bus -> {
-            ConfiguredBusImpl configuredBus = (ConfiguredBusImpl) bus;
-            AtomicReference<ConfiguredBusImpl> foundConfiguredBus = new AtomicReference<>();
-            configuredBus.getAllTerminals().stream()
-                .filter(Terminal::isConnected)
-                .forEach(t -> {
-                    if (foundConfiguredBus.get() == null) {
-                        connectedSet.getConnectedVertices().stream().filter(vertex ->
-                            vertex.getId().equals(t.getConnectable().getId())
-                        ).findFirst().ifPresent(vertex -> foundConfiguredBus.set(configuredBus));
-                    }
-                });
-            if (foundConfiguredBus.get() != null) {
-                v.set(foundConfiguredBus.get().getResource().getAttributes().getV());
-                angle.set(foundConfiguredBus.get().getResource().getAttributes().getAngle());
+            if (foundConfiguredBus.get() == null) {
+                ConfiguredBusImpl configuredBus = (ConfiguredBusImpl) bus;
+                configuredBus.getAllTerminals().stream()
+                    .filter(Terminal::isConnected)
+                    .forEach(t -> {
+                        if (foundConfiguredBus.get() == null) {
+                            connectedSet.getConnectedVertices().stream().filter(vertex ->
+                                vertex.getId().equals(t.getConnectable().getId())
+                            ).findFirst().ifPresent(vertex -> foundConfiguredBus.set(configuredBus));
+                        }
+                    });
             }
         });
+        if (foundConfiguredBus.get() != null) {
+            v.set(foundConfiguredBus.get().getResource().getAttributes().getV());
+            angle.set(foundConfiguredBus.get().getResource().getAttributes().getAngle());
+        }
     }
 
     private void getVAndAngleFromOtherView(NetworkObjectIndex index,
@@ -392,45 +394,34 @@ public abstract class AbstractTopology<T> {
                                            AtomicDouble v,
                                            AtomicDouble angle,
                                            boolean isBusView) {
-        AtomicBoolean foundInCalculatedBuses = new AtomicBoolean(false);
+        boolean foundInCalculatedBuses = false;
 
-        //TODO CLEANUP
-        List<CalculatedBusAttributes> calculatedBusAttributes = isBusView ?
-            voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() :
-            voltageLevelResource.getAttributes().getCalculatedBusesForBusView();
-
+        List<CalculatedBusAttributes> calculatedBusAttributes = isBusView ? voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() : voltageLevelResource.getAttributes().getCalculatedBusesForBusView();
         if (!CollectionUtils.isEmpty(calculatedBusAttributes)) {
-            Integer busnum = null;
+            Integer busNum = null;
             if (voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                Map<Integer, Integer> nums = isBusView ?
-                        voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView() :
-                        voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView();
-                if (nums != null) {
-                    busnum = nums.get(connectedSet.getConnectedNodesOrBuses().iterator().next());
+                Map<Integer, Integer> nodesToCalculatedBuses = isBusView ? voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView() : voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView();
+                if (!MapUtils.isEmpty(nodesToCalculatedBuses)) {
+                    Integer node = (Integer) connectedSet.getConnectedNodesOrBuses().iterator().next();
+                    busNum = nodesToCalculatedBuses.get(node);
                 }
             } else {
-                Map<String, Integer> nums = isBusView ?
-                        voltageLevelResource.getAttributes().getBusToCalculatedBusForBusBreakerView() :
-                        voltageLevelResource.getAttributes().getBusToCalculatedBusForBusView();
-                if (nums != null) {
-                    busnum = nums.get(connectedSet.getConnectedNodesOrBuses().iterator().next());
+                Map<String, Integer> busesToCalculatedBuses = isBusView ? voltageLevelResource.getAttributes().getBusToCalculatedBusForBusBreakerView() : voltageLevelResource.getAttributes().getBusToCalculatedBusForBusView();
+                if (!MapUtils.isEmpty(busesToCalculatedBuses)) {
+                    String bus = (String) connectedSet.getConnectedNodesOrBuses().iterator().next();
+                    busNum = busesToCalculatedBuses.get(bus);
                 }
             }
-            CalculatedBusAttributes busattributes = null;
-            if (busnum != null) {
-                busattributes = calculatedBusAttributes.get(busnum);
-            }
-
-            if (busattributes != null && !Double.isNaN(busattributes.getV())) {
-                v.set(busattributes.getV());
-                foundInCalculatedBuses.set(true);
-            }
-            if (busattributes != null && !Double.isNaN(busattributes.getAngle())) {
-                angle.set(busattributes.getAngle());
-                foundInCalculatedBuses.set(true);
+            if (busNum != null) {
+                CalculatedBusAttributes busAttributes = calculatedBusAttributes.get(busNum);
+                if (busAttributes != null) {
+                    v.set(busAttributes.getV());
+                    angle.set(busAttributes.getAngle());
+                    foundInCalculatedBuses = true;
+                }
             }
         }
-        if (isBusView && !foundInCalculatedBuses.get()) {
+        if (isBusView && !foundInCalculatedBuses) {
             // get V and Angle values from configured buses
             getVAndAngleFromConfiguredBus(index, voltageLevelResource, connectedSet, v, angle);
         }

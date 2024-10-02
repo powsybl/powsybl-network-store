@@ -190,16 +190,15 @@ public final class CalculatedBus implements BaseBus {
                     Map<Integer, Integer> nodesToCalculatedBusesInOtherView = isBusView
                         ? vlAttributes.getNodeToCalculatedBusForBusBreakerView()
                         : vlAttributes.getNodeToCalculatedBusForBusView();
-                    if (!MapUtils.isEmpty(nodesToCalculatedBusesInOtherView)) {
-                        if (nodesToCalculatedBusesInOtherView.containsKey(node)) {
-                            int busNumInOtherView = nodesToCalculatedBusesInOtherView.get(node);
-                            List<CalculatedBusAttributes> calculatedBusAttributes = isBusView
-                                ? vlAttributes.getCalculatedBusesForBusBreakerView()
-                                : vlAttributes.getCalculatedBusesForBusView();
-                            if (!CollectionUtils.isEmpty(calculatedBusAttributes)) {
-                                setValue.accept(calculatedBusAttributes.get(busNumInOtherView), value);
-                                index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
-                            }
+                    if (!MapUtils.isEmpty(nodesToCalculatedBusesInOtherView) &&
+                        nodesToCalculatedBusesInOtherView.containsKey(node)) {
+                        int busNumInOtherView = nodesToCalculatedBusesInOtherView.get(node);
+                        List<CalculatedBusAttributes> calculatedBusAttributes = isBusView
+                            ? vlAttributes.getCalculatedBusesForBusBreakerView()
+                            : vlAttributes.getCalculatedBusesForBusView();
+                        if (!CollectionUtils.isEmpty(calculatedBusAttributes)) {
+                            setValue.accept(calculatedBusAttributes.get(busNumInOtherView), value);
+                            index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
                         }
                     }
                 });
