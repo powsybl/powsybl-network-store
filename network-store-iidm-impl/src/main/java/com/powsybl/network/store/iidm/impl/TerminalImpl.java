@@ -47,7 +47,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             public void moveConnectable(int node, String voltageLevelId) {
                 TopologyPoint oldTopologyPoint = TerminalImpl.this.getTopologyPoint();
                 super.moveConnectable(node, voltageLevelId);
-                index.notifyUpdate(connectable, "moveConnectable", oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
+                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
             }
         };
         busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter) {
@@ -55,7 +55,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             public void moveConnectable(String busId, boolean connected) {
                 TopologyPoint oldTopologyPoint = TerminalImpl.this.getTopologyPoint();
                 super.moveConnectable(busId, connected);
-                index.notifyUpdate(connectable, "moveConnectable", oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
+                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
             }
         };
         busView = new TerminalBusViewImpl<>(index, connectable, attributesGetter);
@@ -584,8 +584,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     @Override
     public ThreeSides getSide() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSide'");
+        int index = connectable.getTerminals().indexOf(this);
+        if (index < 0) {
+            throw new IllegalStateException();
+        }
+        return ThreeSides.valueOf(index + 1);
     }
 
     public void addNewRegulatingPoint(RegulatingPoint regulatingPoint) {

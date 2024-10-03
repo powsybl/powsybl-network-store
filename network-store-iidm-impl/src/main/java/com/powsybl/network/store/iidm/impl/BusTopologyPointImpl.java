@@ -50,7 +50,7 @@ public class BusTopologyPointImpl implements BusTopologyPoint {
 
     @Override
     public String toString() {
-        return "NodeTopologyPoint(" +
+        return "BusTopologyPoint(" +
                 "voltageLevelId='" + voltageLevelId + '\'' +
                 ", connectableBusId='" + connectableBusId + '\'' +
                 ", connected=" + connected +
