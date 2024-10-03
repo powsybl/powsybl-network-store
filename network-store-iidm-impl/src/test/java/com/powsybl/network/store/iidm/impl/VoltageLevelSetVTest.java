@@ -16,6 +16,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -27,13 +28,14 @@ import static org.junit.Assert.assertTrue;
 public class VoltageLevelSetVTest {
     @Test
     public void testWithMultipleBusInBusBreakerAndBusView() {
-        Network network = Network.create("test_mcc", "test");
-
-        VoltageLevelImpl vl1 = createNodeBreaker(network);
-        VoltageLevelImpl vl2 = createBusBreaker(network);
-
-        testSetVMultipleBusAcrossViews(vl1, NBVL_BUSBREAKERVIEWBUS_TO_BUSVIEWBUS, NBVL_BUSVIEWBUS_TO_BUSBREAKERVIEWBUS);
-        testSetVMultipleBusAcrossViews(vl2, BBVL_CONFIGUREDBUS_TO_BUSVIEWBUS, BBVL_BUSVIEWBUS_TO_CONFIGUREDBUS);
+        testSetVMultipleBusAcrossViews(() -> {
+            Network network = Network.create("test_mcc", "test");
+            return createNodeBreaker(network);
+        }, NBVL_BUSBREAKERVIEWBUS_TO_BUSVIEWBUS, NBVL_BUSVIEWBUS_TO_BUSBREAKERVIEWBUS);
+        testSetVMultipleBusAcrossViews(() -> {
+            Network network = Network.create("test_mcc", "test");
+            return createBusBreaker(network);
+        }, BBVL_CONFIGUREDBUS_TO_BUSVIEWBUS, BBVL_BUSVIEWBUS_TO_CONFIGUREDBUS);
     }
 
     private static final Map<String, String> NBVL_BUSBREAKERVIEWBUS_TO_BUSVIEWBUS = new TreeMap<>(Map.of(
@@ -43,7 +45,10 @@ public class VoltageLevelSetVTest {
             "VL1_4", "VL1_4",
             "VL1_10", "",
             "VL1_11", "VL1_0",
-            "VL1_5", ""
+            "VL1_5", "",
+            "VL1_12", "",
+            "VL1_13", "",
+            "VL1_14", ""
     ));
     private static final Map<String, List<String>> NBVL_BUSVIEWBUS_TO_BUSBREAKERVIEWBUS = invertMap(NBVL_BUSBREAKERVIEWBUS_TO_BUSVIEWBUS);
 
@@ -168,6 +173,37 @@ public class VoltageLevelSetVTest {
             .add();
         vl1.newLoad().setId("VL1L6").setNode(11).setP0(1).setQ0(1).add().getTerminal().setP(0.001).setQ(1);
 
+        // add busbar section BBS7 with 3 retained switches between BBS7 and BBS6, so there are buses in bus breaker view
+        // between 2 retained switches and without equipment
+        vl1.getNodeBreakerView().newBusbarSection()
+            .setId("BBS7")
+            .setNode(12)
+            .add();
+        vl1.getNodeBreakerView().newSwitch()
+            .setId("VL1SW8")
+            .setKind(SwitchKind.DISCONNECTOR)
+            .setRetained(true)
+            .setOpen(false)
+            .setNode1(5)
+            .setNode2(13)
+            .add();
+        vl1.getNodeBreakerView().newSwitch()
+            .setId("VL1SW9")
+            .setKind(SwitchKind.DISCONNECTOR)
+            .setRetained(true)
+            .setOpen(false)
+            .setNode1(12)
+            .setNode2(14)
+            .add();
+        vl1.getNodeBreakerView().newSwitch()
+            .setId("VL1SW10")
+            .setKind(SwitchKind.BREAKER)
+            .setRetained(true)
+            .setOpen(false)
+            .setNode1(13)
+            .setNode2(14)
+            .add();
+
         return (VoltageLevelImpl) vl1;
     }
 
@@ -226,15 +262,13 @@ public class VoltageLevelSetVTest {
         return (VoltageLevelImpl) vl2;
     }
 
-    private void testSetVMultipleBusAcrossViews(VoltageLevelImpl vl, Map<String, String> busBreakerViewBusToBusViewBus, Map<String, List<String>> busViewBusToBusBreakerViewBus) {
+    private void testSetVMultipleBusAcrossViews(Supplier<VoltageLevel> supplier, Map<String, String> busBreakerViewBusToBusViewBus, Map<String, List<String>> busViewBusToBusBreakerViewBus) {
+
+        VoltageLevel vl = supplier.get();
         for (Map.Entry<String, String > entry : busBreakerViewBusToBusViewBus.entrySet()) {
             String busbreakerviewbusid = entry.getKey();
             String busviewbusid = entry.getValue();
 
-            // should we replace with new network for each test ??
-            vl.invalidateCalculatedBuses(); // but this keeps previous v values
-            // TODO this forces a computation of all busviews
-            // need to test when views are not initialized
             for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
                 bbvb.setV(Double.NaN);
             }
@@ -261,14 +295,11 @@ public class VoltageLevelSetVTest {
             }
         }
 
+        vl = supplier.get();
         for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
             String busviewbusid = entry.getKey();
             List<String> busbreakerviewbusids = entry.getValue();
 
-            // should we replace with new network for each test ??
-            vl.invalidateCalculatedBuses(); // but this keeps previous v values
-            // TODO this forces a computation of all busviews
-            // need to test when views are not initialized
             for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
                 bbvb.setV(Double.NaN);
             }
