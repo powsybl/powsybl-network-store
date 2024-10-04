@@ -29,9 +29,10 @@ import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.Predicate;
@@ -92,22 +93,15 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     private void updateCalculatedBusAttributes(double newValue,
                                                String voltageLevelId,
                                                ObjDoubleConsumer<CalculatedBusAttributes> setValue) {
-        Optional<VoltageLevelImpl> voltageLevelOpt = index.getVoltageLevel(voltageLevelId);
-
-        voltageLevelOpt.ifPresent(voltageLevel -> {
-            List<CalculatedBusAttributes> calculatedBusAttributesList = voltageLevel.getResource()
-                .getAttributes()
-                .getCalculatedBusesForBusView();
-
-            if (CollectionUtils.isNotEmpty(calculatedBusAttributesList)) {
-                getAllTerminals().stream()
-                    .filter(Terminal::isConnected)
-                    .map(t -> ((CalculatedBus) t.getBusView().getBus()).getCalculatedBusNum())
-                    .findFirst()
-                    .ifPresent(calculatedBusNum -> {
-                        setValue.accept(calculatedBusAttributesList.get(calculatedBusNum), newValue);
-                        index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
-                    });
+        index.getVoltageLevel(voltageLevelId).ifPresent(voltageLevel -> {
+            Map<String, Integer> calculatedBuses = voltageLevel.getResource().getAttributes().getBusToCalculatedBusForBusView();
+            if (!MapUtils.isEmpty(calculatedBuses)) {
+                Integer busviewnum = calculatedBuses.get(getId());
+                if (busviewnum != null) {
+                    CalculatedBusAttributes busviewattributes = voltageLevel.getResource().getAttributes().getCalculatedBusesForBusView().get(busviewnum);
+                    setValue.accept(busviewattributes, newValue);
+                    index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
+                }
             }
         });
     }
