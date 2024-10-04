@@ -584,11 +584,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     @Override
     public ThreeSides getSide() {
-        int index = connectable.getTerminals().indexOf(this);
-        if (index < 0) {
+        int terminalIndex = connectable.getTerminals().indexOf(this);
+        if (terminalIndex < 0) {
             throw new IllegalStateException();
         }
-        return ThreeSides.valueOf(index + 1);
+        return ThreeSides.valueOf(terminalIndex + 1);
     }
 
     public void addNewRegulatingPoint(RegulatingPoint regulatingPoint) {
