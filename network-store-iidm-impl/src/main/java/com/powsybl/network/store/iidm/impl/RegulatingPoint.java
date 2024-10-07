@@ -39,9 +39,15 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
     }
 
     public Terminal getRegulatingTerminal() {
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         Terminal localTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getLocalTerminal());
-        return regulatingTerminal != null ? regulatingTerminal : localTerminal;
+        Terminal regulatingTerminal;
+        if (index.getIdentifiable(getAttributes().getRegulatingTerminal().getConnectableId()) == null) {
+            setRegulatingTerminalAsLocalTerminal();
+            regulatingTerminal = localTerminal;
+        } else {
+            regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
+        }
+        return regulatingTerminal;
     }
 
     public void setRegulatingTerminal(TerminalImpl<?> regulatingTerminal) {
