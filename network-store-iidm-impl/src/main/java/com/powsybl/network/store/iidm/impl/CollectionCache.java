@@ -486,13 +486,13 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     private void updateExtensionAttributesByExtensionNameMap(Map<String, Map<String, ExtensionAttributes>> extensionAttributesMap) {
-        extensionAttributesMap.forEach((identifiableId, nestedExtensionAttributesByExtensionName) -> {
-            nestedExtensionAttributesByExtensionName.forEach((extensionName, extensionAttribute) -> {
-                extensionAttributesByExtensionName
-                        .computeIfAbsent(extensionName, k -> new HashMap<>())
-                        .put(identifiableId, extensionAttribute);
-            });
-        });
+        extensionAttributesMap.forEach((identifiableId, nestedExtensionAttributesByExtensionName) ->
+                nestedExtensionAttributesByExtensionName.forEach((extensionName, extensionAttribute) ->
+                        extensionAttributesByExtensionName
+                                .computeIfAbsent(extensionName, k -> new HashMap<>())
+                                .put(identifiableId, extensionAttribute)
+                )
+        );
     }
 
     public void removeExtensionAttributesByExtensionName(String identifiableId, String extensionName) {
