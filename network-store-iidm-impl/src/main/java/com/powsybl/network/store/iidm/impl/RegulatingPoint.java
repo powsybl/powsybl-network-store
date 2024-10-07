@@ -39,6 +39,7 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
     }
 
     public Terminal getRegulatingTerminal() {
+        // FIXME when deleting a element the regulating terminal are not set to their original terminal it creates bugs
         Terminal localTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getLocalTerminal());
         Terminal regulatingTerminal;
         if (index.getIdentifiable(getAttributes().getRegulatingTerminal().getConnectableId()) == null) {
