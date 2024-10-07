@@ -553,5 +553,11 @@ public class CollectionCacheTest {
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByIdCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeCalled());
+        // Verify that the map extensionAttributesByExtensionName is correctly updated when calling getAllExtensionsAttributesByResourceType()
+        assertEquals(Map.of("l1", apc1, "l2", apc2), collectionCache.getAllExtensionsAttributesByResourceTypeAndExtensionName(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "activePowerControl"));
+        assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
+        assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());
+        assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByIdCalled());
+        assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeCalled());
     }
 }
