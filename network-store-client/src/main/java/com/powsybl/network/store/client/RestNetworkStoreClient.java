@@ -903,6 +903,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void loadAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
+        // nothing to do
+    }
+
+    @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId) {
         return getExtensionAttributesMap("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions", networkUuid, variantNum, identifiableId);
     }
@@ -910,6 +915,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return getExtensionAttributesNestedMap("/networks/{networkUuid}/{variantNum}/identifiables/types/{resourceType}/extensions", networkUuid, variantNum, resourceType);
+    }
+
+    @Override
+    public void loadAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        // nothing to do
     }
 
     @Override

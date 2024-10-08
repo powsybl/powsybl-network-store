@@ -59,6 +59,11 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void loadAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
+//TODO
+    }
+
+    @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId) {
         extensionAttributesLoaderByIdCalled = true;
         if (identifiableId.equals("l1")) {
@@ -76,6 +81,11 @@ class MockNetworkStoreClient implements NetworkStoreClient {
             return Map.of("l1", Map.of("activePowerControl", apc1, "operatingStatus", os1), "l2", Map.of("activePowerControl", apc2));
         }
         return Map.of();
+    }
+
+    @Override
+    public void loadAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+//TODO
     }
 
     // Methods below are not used in tests
