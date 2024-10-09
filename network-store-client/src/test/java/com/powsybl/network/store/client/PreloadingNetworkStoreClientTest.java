@@ -997,7 +997,7 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
-        cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR);
+        cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
         server.verify();
         server.reset();
 
@@ -1008,9 +1008,8 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId);
 
         // Verify that the cache is copied and there is no new fetch
-        cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, targetVariantNum, ResourceType.GENERATOR);
-        Map<String, ExtensionAttributes> extensionAttributesByExtensionNameMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId1);
-        assertEquals(2, extensionAttributesByExtensionNameMap.size());
+        Map<String, ExtensionAttributes> extensionAttributesByIdentifiableId = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId1);
+        assertEquals(2, extensionAttributesByIdentifiableId.size());
         server.verify();
         server.reset();
     }

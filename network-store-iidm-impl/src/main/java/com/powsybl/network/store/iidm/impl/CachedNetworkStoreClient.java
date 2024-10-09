@@ -1076,9 +1076,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         return getCache(resourceType).getCollection(networkUuid, variantNum).getExtensionAttributes(networkUuid, variantNum, resourceType, identifiableId, extensionName);
     }
 
-    @Override
-    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
-        return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
+    public void loadAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
     }
 
     @Override
@@ -1086,9 +1085,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, resourceType, identifiableId);
     }
 
-    @Override
-    public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
+    public void loadAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
     }
 
     @Override
