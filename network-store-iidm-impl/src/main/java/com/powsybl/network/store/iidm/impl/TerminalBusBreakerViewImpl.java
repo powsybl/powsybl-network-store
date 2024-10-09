@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -52,8 +49,12 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
         return getAttributes(getAbstractIdentifiable().getResource());
     }
 
+    private VoltageLevelImpl getVoltageLevel() {
+        return index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(IllegalStateException::new);
+    }
+
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
+        return getVoltageLevel().getResource();
     }
 
     private boolean isNodeBeakerTopologyKind() {
@@ -127,7 +128,7 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
             }
         });
 
-        index.getVoltageLevel(getVoltageLevelResource().getId()).orElseThrow(AssertionError::new).invalidateCalculatedBuses();
+        getVoltageLevel().invalidateCalculatedBuses();
     }
 
     @Override
@@ -146,13 +147,15 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
             throw new PowsyblException("Trying to move connectable " + attributes.getResource().getId()
                     + " to bus " + busId + " of voltage level " + bus.getVoltageLevel().getId() + ", which is a node breaker voltage level");
         }
+        VoltageLevelImpl oldVoltageLevel = getVoltageLevel();
         getAbstractIdentifiable().updateResource(res -> {
-            InjectionAttributes attr = attributesGetter.apply(res);
+            InjectionAttributes attr = getAttributes(res);
             attr.setConnectableBus(busId);
             attr.setBus(connected ? busId : null);
             attr.setNode(null);
             attr.setVoltageLevelId(voltageLevel.getId());
         });
+        oldVoltageLevel.invalidateCalculatedBuses();
         voltageLevel.invalidateCalculatedBuses();
     }
 }
