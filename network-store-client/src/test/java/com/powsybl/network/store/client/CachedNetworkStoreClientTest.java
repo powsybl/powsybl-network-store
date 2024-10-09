@@ -645,10 +645,11 @@ public class CachedNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
+        // Clone network and verify that there is the expected extension in the cloned cache
         cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId);
-        Optional<ExtensionAttributes> apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        Optional<ExtensionAttributes> apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
         assertTrue(apc1Attributes.isPresent());
-        Optional<ExtensionAttributes> os1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, OperatingStatus.NAME);
+        Optional<ExtensionAttributes> os1Attributes = cachedClient.getExtensionAttributes(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId, OperatingStatus.NAME);
         assertFalse(os1Attributes.isPresent());
         server.verify();
         server.reset();
