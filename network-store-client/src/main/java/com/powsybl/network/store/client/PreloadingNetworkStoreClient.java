@@ -874,13 +874,13 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     @Override
     public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
-        delegate.loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
+        ((CachedNetworkStoreClient) delegate).loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
         return delegate.getExtensionAttributes(networkUuid, variantNum, resourceType, identifiableId, extensionName);
     }
 
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String id) {
-        delegate.loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
+        ((CachedNetworkStoreClient) delegate).loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
         return delegate.getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, resourceType, id);
     }
 }

@@ -1076,7 +1076,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         return getCache(resourceType).getCollection(networkUuid, variantNum).getExtensionAttributes(networkUuid, variantNum, resourceType, identifiableId, extensionName);
     }
 
-    @Override
     public void loadAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
         getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
     }
@@ -1086,7 +1085,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, resourceType, identifiableId);
     }
 
-    @Override
     public void loadAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
     }

@@ -318,8 +318,6 @@ public interface NetworkStoreClient {
      */
     Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName);
 
-    void loadAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName);
-
     /**
      * For one identifiable with a specific identifiable id, retrieves all extension attributes of this identifiable.
      * @return A {@link Map} where keys are extension names and values are {@link ExtensionAttributes}.
@@ -332,8 +330,6 @@ public interface NetworkStoreClient {
      * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
      */
     Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
-
-    void loadAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
 
     void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName);
 
