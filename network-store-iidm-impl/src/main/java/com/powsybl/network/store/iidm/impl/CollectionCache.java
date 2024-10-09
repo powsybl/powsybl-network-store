@@ -406,10 +406,13 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             extensionAttributesMap.forEach((identifiableId, extensionAttributes) -> addExtensionAttributesToCache(identifiableId, extensionName, extensionAttributes));
             fullyLoadedExtensionsByExtensionName.add(extensionName);
         }
-        return resources.entrySet()
-                .stream()
-                .filter(resourceEntry -> resourceEntry.getValue().getAttributes().getExtensionAttributes().containsKey(extensionName))
-                .collect(Collectors.toMap(Map.Entry::getKey, resourceEntry -> resourceEntry.getValue().getAttributes().getExtensionAttributes().get(extensionName)));
+        //TODO This method is only used to load extension attributes in the collection cache when using preloading collection.
+        // The return is never used by the client as the call to getAllExtensionsAttributesByResourceTypeAndExtensionName() is always followed
+        // by a call to getExtensionAttributes(). The latter returns something meaningful for the client
+        // and it's used in the identifiable.getExtension() method. The map extensionAttributesMap can't be stored in the cache to be returned
+        // as we can't ensure synchronization with the resources map (if extensions or identifiables are updated/removed).
+        // We should refactor this method to return void.
+        return null;
     }
 
     /**
@@ -462,10 +465,13 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             extensionAttributesMap.forEach(this::addAllExtensionAttributesToCache);
             fullyLoadedExtensions = true;
         }
-        return resources.entrySet()
-                .stream()
-                .filter(resourceEntry -> !resourceEntry.getValue().getAttributes().getExtensionAttributes().isEmpty())
-                .collect(Collectors.toMap(Map.Entry::getKey, resourceEntry -> resourceEntry.getValue().getAttributes().getExtensionAttributes()));
+        //TODO This method is only used to load extension attributes in the collection cache when using preloading collection.
+        // The return is never used by the client as the call to getAllExtensionsAttributesByResourceType() is always followed
+        // by a call to getAllExtensionsAttributesByIdentifiableId(). The latter returns something meaningful for the client
+        // and it's used in the identifiable.getExtensions() method. The map extensionAttributesMap can't be stored in the cache to be returned
+        // as we can't ensure synchronization with the resources map (if extensions or identifiables are updated/removed).
+        // We should refactor this method to return void.
+        return null;
     }
 
     public void removeExtensionAttributesByExtensionName(String identifiableId, String extensionName) {
