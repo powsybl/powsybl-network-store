@@ -45,6 +45,18 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, connectable, attributesGetter);
         busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter);
         busView = new TerminalBusViewImpl<>(index, connectable, attributesGetter);
+        setRegulated();
+    }
+
+    private void setRegulated() {
+        if (getAttributes().getRegulatingEquipments() != null) {
+            getAttributes().getRegulatingEquipments()
+                .forEach(regulatingEquipment -> {
+                    // get identifiable create stack overflow error
+                    regulated.add(new RegulatingPoint(index, (AbstractIdentifiableImpl) index.getIdentifiable(regulatingEquipment),
+                        AbstractIdentifiableAttributes.class::cast));
+                });
+        }
     }
 
     private TopologyKind getTopologyKind() {
