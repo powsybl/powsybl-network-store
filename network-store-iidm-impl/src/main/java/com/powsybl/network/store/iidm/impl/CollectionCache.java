@@ -49,20 +49,6 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     private final Set<String> removedResources = new HashSet<>();
 
     /**
-     * Cache of extension attributes indexed by identifiable ID. <br/>
-     * Each key represents an identifiable ID, mapping to another map where the keys are extension names
-     * and the values are {@code ExtensionAttributes} for that extension.
-     */
-    private final Map<String, Map<String, ExtensionAttributes>> extensionAttributesByIdentifiableId = new HashMap<>();
-
-    /**
-     * Cache of extension attributes indexed by extension name. <br/>
-     * Each key represents an extension name, mapping to another map where the keys are identifiable IDs
-     * and the values are {@code ExtensionAttributes} for that identifiable resource.
-     */
-    private final Map<String, Map<String, ExtensionAttributes>> extensionAttributesByExtensionName = new HashMap<>();
-
-    /**
      * Indicates if the extension has been fully loaded and synchronized with the server.
      */
     private final Set<String> fullyLoadedExtensionsByExtensionName = new HashSet<>();
@@ -340,12 +326,6 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         for (Map.Entry<String, Set<String>> entry : removedExtensionAttributes.entrySet()) {
             clonedCache.removedExtensionAttributes.put(entry.getKey(), new HashSet<>(entry.getValue()));
         }
-        for (Map.Entry<String, Map<String, ExtensionAttributes>> entry : extensionAttributesByIdentifiableId.entrySet()) {
-            clonedCache.extensionAttributesByIdentifiableId.put(entry.getKey(), new HashMap<>(entry.getValue()));
-        }
-        for (Map.Entry<String, Map<String, ExtensionAttributes>> entry : extensionAttributesByExtensionName.entrySet()) {
-            clonedCache.extensionAttributesByExtensionName.put(entry.getKey(), new HashMap<>(entry.getValue()));
-        }
 
         clonedCache.fullyLoadedExtensionsByExtensionName.addAll(fullyLoadedExtensionsByExtensionName);
         clonedCache.fullyLoadedExtensionsByIdentifiableIds.addAll(fullyLoadedExtensionsByIdentifiableIds);
@@ -425,9 +405,14 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             // we update the full cache and set it as fully loaded
             extensionAttributesMap.forEach((identifiableId, extensionAttributes) -> addExtensionAttributesToCache(identifiableId, extensionName, extensionAttributes));
             fullyLoadedExtensionsByExtensionName.add(extensionName);
-            extensionAttributesByExtensionName.put(extensionName, extensionAttributesMap);
         }
-        return extensionAttributesByExtensionName.get(extensionName);
+        //TODO This method is only used to load extension attributes in the collection cache when using preloading collection.
+        // The return is never used by the client as the call to getAllExtensionsAttributesByResourceTypeAndExtensionName() is always followed
+        // by a call to getExtensionAttributes(). The latter returns something meaningful for the client
+        // and it's used in the identifiable.getExtension() method. The map extensionAttributesMap can't be stored in the cache to be returned
+        // as we can't ensure synchronization with the resources map (if extensions or identifiables are updated/removed).
+        // We should refactor this method to return void.
+        return null;
     }
 
     /**
@@ -479,20 +464,14 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             // we update the full cache and set it as fully loaded
             extensionAttributesMap.forEach(this::addAllExtensionAttributesToCache);
             fullyLoadedExtensions = true;
-            extensionAttributesByIdentifiableId.putAll(extensionAttributesMap);
-            updateExtensionAttributesByExtensionNameMap(extensionAttributesMap);
         }
-        return extensionAttributesByIdentifiableId;
-    }
-
-    private void updateExtensionAttributesByExtensionNameMap(Map<String, Map<String, ExtensionAttributes>> extensionAttributesMap) {
-        extensionAttributesMap.forEach((identifiableId, nestedExtensionAttributesByExtensionName) ->
-                nestedExtensionAttributesByExtensionName.forEach((extensionName, extensionAttribute) ->
-                        extensionAttributesByExtensionName
-                                .computeIfAbsent(extensionName, k -> new HashMap<>())
-                                .put(identifiableId, extensionAttribute)
-                )
-        );
+        //TODO This method is only used to load extension attributes in the collection cache when using preloading collection.
+        // The return is never used by the client as the call to getAllExtensionsAttributesByResourceType() is always followed
+        // by a call to getAllExtensionsAttributesByIdentifiableId(). The latter returns something meaningful for the client
+        // and it's used in the identifiable.getExtensions() method. The map extensionAttributesMap can't be stored in the cache to be returned
+        // as we can't ensure synchronization with the resources map (if extensions or identifiables are updated/removed).
+        // We should refactor this method to return void.
+        return null;
     }
 
     public void removeExtensionAttributesByExtensionName(String identifiableId, String extensionName) {

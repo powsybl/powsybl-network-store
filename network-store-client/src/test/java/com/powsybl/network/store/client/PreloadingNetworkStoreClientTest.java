@@ -991,14 +991,13 @@ public class PreloadingNetworkStoreClientTest {
                 .participationFactor(1)
                 .build();
 
-        // Load extensions to cache
+        // Load extensions to cache on initial variant
         String multipleExtensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<String, ExtensionAttributes>>>() {
         }).writeValueAsString(Map.of(identifiableId1, Map.of(ActivePowerControl.NAME, apc1, GeneratorStartup.NAME, gs1), identifiableId2, Map.of(ActivePowerControl.NAME, apc2)));
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
-        Map<String, Map<String, ExtensionAttributes>> extensionAttributesByIdentifiableIdMap = cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR);
-        assertEquals(2, extensionAttributesByIdentifiableIdMap.size());
+        cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR);
         server.verify();
         server.reset();
 
@@ -1009,8 +1008,7 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId);
 
         // Verify that the cache is copied and there is no new fetch
-        extensionAttributesByIdentifiableIdMap = cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, targetVariantNum, ResourceType.GENERATOR);
-        assertEquals(2, extensionAttributesByIdentifiableIdMap.size());
+        cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, targetVariantNum, ResourceType.GENERATOR);
         Map<String, ExtensionAttributes> extensionAttributesByExtensionNameMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId1);
         assertEquals(2, extensionAttributesByExtensionNameMap.size());
         server.verify();
