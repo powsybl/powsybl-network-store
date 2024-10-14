@@ -17,10 +17,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.network.store.model.AttributeFilter;
-import com.powsybl.network.store.model.ExtensionLoaders;
-import com.powsybl.network.store.model.IdentifiableAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
@@ -309,7 +306,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (!loaderExists(name)) {
             return null;
         }
-        index.loadExtensionAttributes(resource.getType(), resource.getId(), name);
+        Optional<ExtensionAttributes> extensionAttributes = index.getExtensionAttributes(resource.getType(), resource.getId(), name);
+        extensionAttributes.ifPresent(attributes -> resource.getAttributes().getExtensionAttributes().put(name, attributes));
         if (resource.getAttributes().getExtensionAttributes().containsKey(name)) {
             return (E) ExtensionLoaders.findLoaderByName(name).load(this);
         }
@@ -328,7 +326,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        index.loadAllExtensionsAttributesByIdentifiableId(resource.getType(), resource.getId());
+        Map<String, ExtensionAttributes> extensionAttributes = index.getAllExtensionsAttributesByIdentifiableId(resource.getType(), resource.getId());
+        resource.getAttributes().getExtensionAttributes().putAll(extensionAttributes);
         return resource.getAttributes().getExtensionAttributes().keySet().stream()
                 .map(name -> (E) ExtensionLoaders.findLoaderByName(name).load(this))
                 .collect(Collectors.toList());
