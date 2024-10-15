@@ -516,16 +516,11 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1, vl2Grounds.get(0).getAttributes().getP(), 0.001);
         assertEquals(2, vl2Grounds.get(0).getAttributes().getQ(), 0.001);
 
-        Resource<GroundAttributes> updateGround = Resource.groundBuilder()
-                .id("groundId")
-                .attributes(GroundAttributes.builder()
-                        .voltageLevelId("vl2")
-                        .p(5)
-                        .q(6)
-                        .bus("bus")
-                        .build())
-                .build();
-        cachedClient.updateGrounds(networkUuid, List.of(updateGround), null);
+        // Update grounds with new values in the resource
+        vl2Grounds.get(0).getAttributes().setP(5);
+        vl2Grounds.get(0).getAttributes().setQ(6);
+        cachedClient.updateGrounds(networkUuid, vl2Grounds, null);
+        // Retrieve grounds by container and ensure that vl2Grounds is up to date
         vl2Grounds = cachedClient.getVoltageLevelGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl2");
         assertEquals(1, vl2Grounds.size());
         assertEquals(5, vl2Grounds.get(0).getAttributes().getP(), 0.001);

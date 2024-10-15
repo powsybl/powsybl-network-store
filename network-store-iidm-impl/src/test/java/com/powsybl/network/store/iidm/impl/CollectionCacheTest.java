@@ -51,30 +51,10 @@ public class CollectionCacheTest {
         containerLoaderCalled = false;
         allLoaderCalled = false;
 
-        l1 = Resource.loadBuilder()
-                .id("l1")
-                .attributes(LoadAttributes.builder()
-                        .voltageLevelId("vl1")
-                        .build())
-                .build();
-        l2 = Resource.loadBuilder()
-                .id("l2")
-                .attributes(LoadAttributes.builder()
-                        .voltageLevelId("vl1")
-                        .build())
-                .build();
-        l3 = Resource.loadBuilder()
-                .id("l3")
-                .attributes(LoadAttributes.builder()
-                        .voltageLevelId("vl2")
-                        .build())
-                .build();
-        l4 = Resource.loadBuilder()
-                .id("l4")
-                .attributes(LoadAttributes.builder()
-                        .voltageLevelId("vl2")
-                        .build())
-                .build();
+        l1 = createResource("l1", "vl1");
+        l2 = createResource("l2", "vl1");
+        l3 = createResource("l3", "vl2");
+        l4 = createResource("l4", "vl2");
 
         apc1 = ActivePowerControlAttributes.builder()
                 .droop(5.2)
@@ -94,23 +74,20 @@ public class CollectionCacheTest {
 
         oneLoader = (networkUuid, variantNum, id) -> {
             oneLoaderCalled = true;
-            if (id.equals("l1")) {
-                return Optional.of(l1);
-            } else if (id.equals("l2")) {
-                return Optional.of(l2);
-            } else if (id.equals("l3")) {
-                return Optional.of(l3);
-            } else {
-                return Optional.empty();
-            }
+            return switch (id) {
+                case "l1" -> Optional.of(createResource("l1", "vl1"));
+                case "l2" -> Optional.of(createResource("l2", "vl1"));
+                case "l3" -> Optional.of(createResource("l3", "vl2"));
+                default -> Optional.empty();
+            };
         };
 
         containerLoader = (networkUuid, variantNum, containerId) -> {
             containerLoaderCalled = true;
             if (containerId.equals("vl1")) {
-                return Arrays.asList(l1, l2);
+                return Arrays.asList(createResource("l1", "vl1"), createResource("l2", "vl1"));
             } else if (containerId.equals("vl2")) {
-                return Collections.singletonList(l3);
+                return Collections.singletonList(createResource("l3", "vl2"));
             } else {
                 return Collections.emptyList();
             }
@@ -118,10 +95,23 @@ public class CollectionCacheTest {
 
         allLoader = (networkUuid, variantNum) -> {
             allLoaderCalled = true;
-            return Arrays.asList(l1, l2, l3);
+            return Arrays.asList(
+                    createResource("l1", "vl1"),
+                    createResource("l2", "vl1"),
+                    createResource("l3", "vl2")
+            );
         };
         mockNetworkStoreClient = new MockNetworkStoreClient(apc1, apc2, os1);
         collectionCache = new CollectionCache<>(oneLoader, containerLoader, allLoader, mockNetworkStoreClient);
+    }
+
+    private Resource<LoadAttributes> createResource(String id, String voltageLevelId) {
+        return Resource.loadBuilder()
+                .id(id)
+                .attributes(LoadAttributes.builder()
+                        .voltageLevelId(voltageLevelId)
+                        .build())
+                .build();
     }
 
     @Test
@@ -256,24 +246,23 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void updateResourceTest() {
+    public void getThenUpdateThenGetContainerTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        Resource<LoadAttributes> newL1 = Resource.loadBuilder()
-                .id("l1")
-                .attributes(LoadAttributes.builder()
-                        .voltageLevelId("vl999")
-                        .build())
-                .build();
-        collectionCache.updateResource(newL1);
-        assertFalse(oneLoaderCalled);
+        Resource<LoadAttributes> resource = collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new);
+        assertEquals("vl1", resource.getAttributes().getVoltageLevelId());
+        assertTrue(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals("vl999", collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
+        resource.getAttributes().setVoltageLevelId("vl999");
+        List<Resource<LoadAttributes>> containerResources = collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1");
+        oneLoaderCalled = false;
         assertFalse(oneLoaderCalled);
-        assertFalse(containerLoaderCalled);
+        assertTrue(containerLoaderCalled);
         assertFalse(allLoaderCalled);
+        Resource<LoadAttributes> modifiedL1 = createResource("l1", "vl999");
+        assertEquals(Arrays.asList(modifiedL1, l2), containerResources);
     }
 
     @Test
@@ -281,22 +270,18 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals("vl1", collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
+        Resource<LoadAttributes> resource = collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new);
+        assertEquals("vl1", resource.getAttributes().getVoltageLevelId());
         assertTrue(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        Resource<LoadAttributes> newL1 = Resource.loadBuilder()
-                .id("l1")
-                .attributes(LoadAttributes.builder()
-                        .voltageLevelId("vl999")
-                        .build())
-                .build();
+        resource.getAttributes().setVoltageLevelId("vl999");
+        resource = collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new);
         oneLoaderCalled = false;
-        collectionCache.updateResource(newL1);
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals("vl999", collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
+        assertEquals("vl999", resource.getAttributes().getVoltageLevelId());
     }
 
     @Test
@@ -426,7 +411,7 @@ public class CollectionCacheTest {
                         .voltageLevelId("vl1")
                         .build())
                 .build();
-        collectionCache.addResource(l1WithoutExtensions);
+        collectionCache.createResource(l1WithoutExtensions);
         assertNull(collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1", "activePowerControl").orElse(null));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());
@@ -456,7 +441,7 @@ public class CollectionCacheTest {
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByIdCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeCalled());
         l1.getAttributes().getExtensionAttributes().put("activePowerControl", apc2);
-        collectionCache.addResource(l1);
+        collectionCache.createResource(l1);
         assertEquals(apc2, collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1", "activePowerControl").orElse(null));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());

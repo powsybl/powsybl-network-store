@@ -670,4 +670,98 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
     }
+
+    @Test
+    public void testGetExtensionOverwriteCacheContainerLoading() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "GEN";
+
+        // Load the identifiable in the cache
+        loadIdentifiableToCache(identifiableId, networkUuid, cachedClient);
+
+        // Load extension attributes in the cache
+        ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(0.5)
+                .build();
+        String oneExtensionAttributes = objectMapper.writeValueAsString(ExtensionAttributesTopLevelDocument.of(List.of(apc1)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
+        Optional<ExtensionAttributes> extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+        server.verify();
+        server.reset();
+
+        // Load generators for voltage level VL_1 (by container), this should not overwrite existing resource in the cache
+        String voltageLevelId = "VL_1";
+        Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
+                .id(identifiableId)
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId(voltageLevelId)
+                        .build())
+                .build();
+        String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/" + voltageLevelId + "/generators"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
+        cachedClient.getVoltageLevelGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, voltageLevelId);
+        server.verify();
+        server.reset();
+
+        // Extension should still be loaded in the cache
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+    }
+
+    @Test
+    public void testGetExtensionOverwriteCacheCollectionLoading() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "GEN";
+
+        // Load the identifiable in the cache
+        Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
+                .id(identifiableId)
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("VL_1")
+                        .build())
+                .build();
+        String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
+        cachedClient.getIdentifiable(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId);
+        server.verify();
+        server.reset();
+
+        // Load extension attributes in the cache
+        ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(0.5)
+                .build();
+        String oneExtensionAttributes = objectMapper.writeValueAsString(ExtensionAttributesTopLevelDocument.of(List.of(apc1)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
+        Optional<ExtensionAttributes> extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+        server.verify();
+        server.reset();
+
+        // Load generators collection, this should not overwrite existing resource in the cache
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
+        cachedClient.getGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        server.verify();
+        server.reset();
+
+        // Extension should still be loaded in the cache
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+    }
 }

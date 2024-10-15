@@ -147,7 +147,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                 resource = oneLoaderFunction.apply(networkUuid, variantNum, id).orElse(null);
                 // if resource has been found on server side we add it to the cache
                 if (resource != null) {
-                    addResource(resource);
+                    addResource(resource, false);
                 }
             }
         }
@@ -161,8 +161,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             List<Resource<T>> resourcesToAdd = allLoaderFunction.apply(networkUuid, variantNum);
 
             // we update the full cache and set it as fully loaded
-            // notice: it might overwrite already loaded resource (single or container)
-            resourcesToAdd.forEach(resource -> resources.put(resource.getId(), resource));
+            resourcesToAdd.forEach(resource -> updateCache(resources, resource, false));
             fullyLoaded = true;
 
             // we update by container cache
@@ -172,7 +171,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                     Set<String> containerIds = ((Contained) attributes).getContainerIds();
                     containerIds.forEach(containerId -> {
                         // we add container resources and update container fully loaded status
-                        getResourcesByContainerId(containerId).put(resource.getId(), resource);
+                        updateCache(getResourcesByContainerId(containerId), resource, false);
                         containerFullyLoaded.add(containerId);
                     });
                 }
@@ -213,31 +212,46 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             List<Resource<T>> resourcesToAdd = containerLoaderFunction.apply(networkUuid, variantNum, containerId)
                 .stream().filter(resource -> !removedResources.contains(resource.getId())).collect(Collectors.toList());
 
-            // by container cache update
-            getResourcesByContainerId(containerId).putAll(resourcesToAdd.stream().collect(Collectors.toMap(Resource::getId, resource -> resource)));
-            containerFullyLoaded.add(containerId);
-
-            // full cache update
             resourcesToAdd.forEach(resource -> {
-                resources.put(resource.getId(), resource);
+                updateCache(getResourcesByContainerId(containerId), resource, false); // by container cache update
+                updateCache(resources, resource, false); // full cache update
                 removedResources.remove(resource.getId());
             });
+            containerFullyLoaded.add(containerId);
         }
         return new ArrayList<>(getResourcesByContainerId(containerId).values());
     }
 
-    public void addResource(Resource<T> resource) {
+    public void addResource(Resource<T> resource, boolean overrideExistingResourceInCache) {
         Objects.requireNonNull(resource);
 
         // full cache update
-        resources.put(resource.getId(), resource);
+        updateCache(resources, resource, overrideExistingResourceInCache);
         removedResources.remove(resource.getId());
 
         // by container cache update
         IdentifiableAttributes attributes = resource.getAttributes();
         if (attributes instanceof Contained) {
             Set<String> containerIds = ((Contained) attributes).getContainerIds();
-            containerIds.forEach(containerId -> getResourcesByContainerId(containerId).put(resource.getId(), resource));
+            containerIds.forEach(containerId -> updateCache(getResourcesByContainerId(containerId), resource, overrideExistingResourceInCache));
+        }
+    }
+
+    /**
+     * Updates the given cache with the provided resource. <br/>
+     * If we overwrite existing resource in the cache, we lose the reference to the IIDM object in NetworkObjectIndex.
+     *
+     * @param cache The cache where the resource will be added
+     * @param resource The resource to add to the cache
+     * @param overrideExistingResourceInCache If true, any existing entry with the same resource ID in the cache will be overwritten.
+     *                                        If false, the resource will only be added if there is no existing entry for the resource ID.
+     */
+    private void updateCache(Map<String, Resource<T>> cache, Resource<T> resource, boolean overrideExistingResourceInCache) {
+        String resourceId = resource.getId();
+        if (overrideExistingResourceInCache) {
+            cache.put(resourceId, resource);
+        } else {
+            cache.putIfAbsent(resourceId, resource);
         }
     }
 
@@ -247,16 +261,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * @param resource the newly created resources
      */
     public void createResource(Resource<T> resource) {
-        addResource(resource);
-    }
-
-    /**
-     * Update (replace) a resource of the collection.
-     *
-     * @param resource the resources to update
-     */
-    public void updateResource(Resource<T> resource) {
-        addResource(resource);
+        addResource(resource, true);
     }
 
     /**
@@ -384,7 +389,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     private void addExtensionAttributesToCache(String identifiableId, String extensionName, ExtensionAttributes extensionAttributes) {
         Objects.requireNonNull(extensionAttributes);
 
-        getCachedExtensionAttributes(identifiableId).put(extensionName, extensionAttributes);
+        getCachedExtensionAttributes(identifiableId).putIfAbsent(extensionName, extensionAttributes);
         Set<String> extensions = removedExtensionAttributes.get(identifiableId);
         if (extensions != null) {
             extensions.remove(extensionName);
@@ -448,7 +453,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     private void addAllExtensionAttributesToCache(String id, Map<String, ExtensionAttributes> extensionAttributes) {
         Objects.requireNonNull(extensionAttributes);
 
-        getCachedExtensionAttributes(id).putAll(extensionAttributes);
+        extensionAttributes.forEach(getCachedExtensionAttributes(id)::putIfAbsent);
         fullyLoadedExtensionsByIdentifiableIds.add(id);
         removedExtensionAttributes.remove(id);
     }
