@@ -246,23 +246,24 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void getThenUpdateThenGetContainerTest() {
+    public void updateResourceTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        Resource<LoadAttributes> resource = collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new);
-        assertEquals("vl1", resource.getAttributes().getVoltageLevelId());
-        assertTrue(oneLoaderCalled);
+        Resource<LoadAttributes> newL1 = Resource.loadBuilder()
+                .id("l1")
+                .attributes(LoadAttributes.builder()
+                        .voltageLevelId("vl999")
+                        .build())
+                .build();
+        collectionCache.updateResource(newL1);
+        assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        resource.getAttributes().setVoltageLevelId("vl999");
-        List<Resource<LoadAttributes>> containerResources = collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1");
-        oneLoaderCalled = false;
+        assertEquals("vl999", collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
         assertFalse(oneLoaderCalled);
-        assertTrue(containerLoaderCalled);
+        assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        Resource<LoadAttributes> modifiedL1 = createResource("l1", "vl999");
-        assertEquals(Arrays.asList(modifiedL1, l2), containerResources);
     }
 
     @Test
@@ -270,18 +271,22 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        Resource<LoadAttributes> resource = collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new);
-        assertEquals("vl1", resource.getAttributes().getVoltageLevelId());
+        assertEquals("vl1", collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
         assertTrue(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        resource.getAttributes().setVoltageLevelId("vl999");
-        resource = collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new);
+        Resource<LoadAttributes> newL1 = Resource.loadBuilder()
+                .id("l1")
+                .attributes(LoadAttributes.builder()
+                        .voltageLevelId("vl999")
+                        .build())
+                .build();
         oneLoaderCalled = false;
+        collectionCache.updateResource(newL1);
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals("vl999", resource.getAttributes().getVoltageLevelId());
+        assertEquals("vl999", collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
     }
 
     @Test

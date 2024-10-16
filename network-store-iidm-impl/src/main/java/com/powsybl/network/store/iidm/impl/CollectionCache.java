@@ -294,6 +294,15 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     /**
+     * Replace resource of the collection with {@code resource}.
+     *
+     * @param resource the resource to update
+     */
+    public void updateResource(Resource<T> resource) {
+        addOrReplaceResource(resource);
+    }
+
+    /**
      * Remove a resource from the collection.
      *
      * @param id the id of the resource to remove
