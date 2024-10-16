@@ -25,7 +25,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
 
     /**
      * Resources indexed by id. <br/>
-     * We enforce a single resource per variant because they are referenced both in this map
+     * We enforce a single resource per variant because they are referenced both in these maps
      * and directly in any identifiable object created via the IIDM API. <br/>
      * Overwriting a resource creates a new reference, which breaks synchronization with
      * the IIDM object managed in the NetworkObjectIndex.
@@ -39,7 +39,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
 
     /**
      * Resources indexed by container id. A container is either a substation or a voltage level. <br/>
-     * We enforce a single resource per variant because they are referenced both in this map
+     * We enforce a single resource per variant because they are referenced both in these maps
      * and directly in any identifiable object created via the IIDM API. <br/>
      * Overwriting a resource creates a new reference, which breaks synchronization with
      * the IIDM object managed in the NetworkObjectIndex.
@@ -155,7 +155,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                 resource = oneLoaderFunction.apply(networkUuid, variantNum, id).orElse(null);
                 // if resource has been found on server side we add it to the cache
                 if (resource != null) {
-                    addResourceIfAbsent(resource);
+                    // we already checked that the resource is not in the cache so we can directly put it in the cache
+                    addOrReplaceResource(resource);
                 }
             }
         }
@@ -240,43 +241,24 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         return new ArrayList<>(getResourcesByContainerId(containerId).values());
     }
 
-    public void addResourceIfAbsent(Resource<T> resource) {
-        cacheResource(resource, false);
-    }
-
-    private void addOrReplaceResource(Resource<T> resource) {
-        cacheResource(resource, true);
-    }
-
-    private void cacheResource(Resource<T> resource, boolean shouldOverwrite) {
+    /**
+     * Adds or replaces the given resource in the cache. <br/>
+     * If the resource already exists in the cache, it will be overridden.
+     *
+     * @param resource the resource to add or replace in the cache
+     */
+    public void addOrReplaceResource(Resource<T> resource) {
         Objects.requireNonNull(resource);
 
-        if (shouldOverwrite) {
-            // notice: in case we already checked that the resource is not in the map, we can directly put it
-            resources.put(resource.getId(), resource);
-        } else {
-            // notice: even if it adds some checks and reduces performance by a tiny bit, we avoid to overwrite already
-            // loaded resource (single or container) because they are referenced in the resources or resourcesByContainerId map,
-            // but also directly in any identifiable with the iidm api.
-            resources.putIfAbsent(resource.getId(), resource);
-        }
+        // full cache update
+        resources.put(resource.getId(), resource);
         removedResources.remove(resource.getId());
 
         // by container cache update
         IdentifiableAttributes attributes = resource.getAttributes();
         if (attributes instanceof Contained) {
             Set<String> containerIds = ((Contained) attributes).getContainerIds();
-            containerIds.forEach(containerId -> {
-                if (shouldOverwrite) {
-                    // notice: in case we already checked that the resource is not in the map, we can directly put it
-                    getResourcesByContainerId(containerId).put(resource.getId(), resource);
-                } else {
-                    // notice: even if it adds some checks and reduces performance by a tiny bit, we avoid to overwrite already
-                    // loaded resource (single or container) because they are referenced in the resources or resourcesByContainerId map,
-                    // but also directly in any identifiable with the iidm api.
-                    getResourcesByContainerId(containerId).putIfAbsent(resource.getId(), resource);
-                }
-            });
+            containerIds.forEach(containerId -> getResourcesByContainerId(containerId).put(resource.getId(), resource));
         }
     }
 
@@ -290,6 +272,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         if (resources.containsKey(resourceId)) {
             throw new PowsyblException("The collection cache already contains a " + resource.getType() + " with the id '" + resourceId + "'");
         }
+        // we already checked that the resource is not in the cache so we can directly put it in the cache
         addOrReplaceResource(resource);
     }
 
@@ -422,14 +405,14 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     /**
-     * Add extension attributes in the cache for single extension attributes loading
+     * Add extension attributes in the cache for single extension attributes loading.<br/>
+     * This method is only used to get extension attributes from the server so even if it adds some checks and reduces performance by a tiny bit,
+     * we avoid to overwrite already loaded extension attributes because they are referenced in the resources or resourcesByContainerId map,
+     * but also directly in any identifiable with the iidm api.
      */
     private void addExtensionAttributesToCache(String identifiableId, String extensionName, ExtensionAttributes extensionAttributes) {
         Objects.requireNonNull(extensionAttributes);
 
-        // notice: even if it adds some checks and reduces performance by a tiny bit, we avoid to overwrite already
-        // loaded extension attributes because they are referenced in the resources or resourcesByContainerId map,
-        // but also directly in any identifiable with the iidm api.
         getCachedExtensionAttributes(identifiableId).putIfAbsent(extensionName, extensionAttributes);
         Set<String> extensions = removedExtensionAttributes.get(identifiableId);
         if (extensions != null) {
@@ -489,14 +472,14 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     /**
-     * Add extension attributes to the cache when loading all the extension attributes of an identifiable
+     * Add extension attributes to the cache when loading all the extension attributes of an identifiable.<br/>
+     * This method is only used to get extension attributes from the server so even if it adds some checks and reduces performance by a tiny bit,
+     * we avoid to overwrite already loaded extension attributes because they are referenced in the resources or resourcesByContainerId map,
+     * but also directly in any identifiable with the iidm api.
      */
     private void addAllExtensionAttributesToCache(String id, Map<String, ExtensionAttributes> extensionAttributes) {
         Objects.requireNonNull(extensionAttributes);
 
-        // notice: even if it adds some checks and reduces performance by a tiny bit, we avoid to overwrite already
-        // loaded extension attributes because they are referenced in the resources or resourcesByContainerId map,
-        // but also directly in any identifiable with the iidm api.
         extensionAttributes.forEach(getCachedExtensionAttributes(id)::putIfAbsent);
         fullyLoadedExtensionsByIdentifiableIds.add(id);
         removedExtensionAttributes.remove(id);
