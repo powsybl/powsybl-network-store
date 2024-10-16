@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreClient {
+public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreClient<RestNetworkStoreClient> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BufferedNetworkStoreClient.class);
 

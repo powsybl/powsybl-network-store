@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
+public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient<NetworkStoreClient> implements NetworkStoreClient {
 
     private static final int MAX_GET_IDENTIFIABLE_CALL_COUNT = 10;
 
