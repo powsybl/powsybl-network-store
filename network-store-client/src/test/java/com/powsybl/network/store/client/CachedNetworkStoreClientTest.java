@@ -495,7 +495,7 @@ public class CachedNetworkStoreClientTest {
         String identifiableId = "GEN";
 
         // Load the identifiable in the cache
-        loadIdentifiableToCache(identifiableId, networkUuid, cachedClient);
+        loadGeneratorToCache(identifiableId, networkUuid, cachedClient, false);
 
         // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
@@ -574,7 +574,7 @@ public class CachedNetworkStoreClientTest {
         String identifiableId = "GEN";
 
         // Load the identifiable in the cache
-        loadIdentifiableToCache(identifiableId, networkUuid, cachedClient);
+        loadGeneratorToCache(identifiableId, networkUuid, cachedClient, false);
 
         // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
@@ -627,7 +627,7 @@ public class CachedNetworkStoreClientTest {
         String targetVariantId = "new_variant";
         String identifiableId = "GEN";
 
-        loadIdentifiableToCache(identifiableId, networkUuid, cachedClient);
+        loadGeneratorToCache(identifiableId, networkUuid, cachedClient, false);
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
                 .droop(5.2)
                 .participate(true)
@@ -655,24 +655,76 @@ public class CachedNetworkStoreClientTest {
         server.reset();
     }
 
-    private void loadIdentifiableToCache(String identifiableId, UUID networkUuid, CachedNetworkStoreClient cachedClient) throws JsonProcessingException {
-        Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
-                .id(identifiableId)
-                .attributes(GeneratorAttributes.builder()
-                        .voltageLevelId("VL_1")
-                        .build())
-                .build();
-        String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators/" + identifiableId))
-                .andExpect(method(GET))
-                .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
-        cachedClient.getGenerator(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId);
-        server.verify();
-        server.reset();
+    @Test
+    /*
+    * Following sequence should not overwrite resource in the cache
+    * getGenerator()
+    * getVoltageLevelGenerator()
+    * getGenerators()
+     */
+    public void testGetExtensionOverwriteCache1() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "GEN";
+
+        // Load the identifiable in the cache
+        loadGeneratorToCache(identifiableId, networkUuid, cachedClient, false);
+
+        // Load extension attributes in the cache
+        loadExtensionAttributesToCache(networkUuid, identifiableId, cachedClient);
+        Optional<ExtensionAttributes> extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+
+        // Load generators for voltage level VL_1 (by container), this should not overwrite existing resource in the cache
+        loadVoltageLevelGenerators(identifiableId, networkUuid, cachedClient, false);
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+
+        // Load all generators, this should not overwrite existing resource in the cache
+        loadGeneratorCollection(identifiableId, networkUuid, cachedClient);
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
     }
 
     @Test
-    public void testGetExtensionOverwriteCacheContainerLoading() throws IOException {
+    /*
+     * Following sequence should not overwrite resource in the cache
+     * getGenerator()
+     * getGenerators()
+     * getVoltageLevelGenerator()
+     */
+    public void testGetExtensionOverwriteCache2() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "GEN";
+
+        // Load the identifiable in the cache
+        loadGeneratorToCache(identifiableId, networkUuid, cachedClient, false);
+
+        // Load extension attributes in the cache
+        loadExtensionAttributesToCache(networkUuid, identifiableId, cachedClient);
+        Optional<ExtensionAttributes> extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+
+        // Load all generators, this should not overwrite existing resource in the cache
+        loadGeneratorCollection(identifiableId, networkUuid, cachedClient);
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+
+        // Load generators for voltage level VL_1 (by container), this should not overwrite existing resource in the cache
+        loadVoltageLevelGenerators(identifiableId, networkUuid, cachedClient, true);
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+    }
+
+    @Test
+    /*
+     * Following sequence should not overwrite resource in the cache
+     * getIdentifiable()
+     * getVoltageLevelGenerator()
+     * getGenerators()
+     */
+    public void testGetExtensionOverwriteCache3() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
@@ -681,48 +733,104 @@ public class CachedNetworkStoreClientTest {
         loadIdentifiableToCache(identifiableId, networkUuid, cachedClient);
 
         // Load extension attributes in the cache
-        ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
-                .droop(5.2)
-                .participate(true)
-                .participationFactor(0.5)
-                .build();
-        String oneExtensionAttributes = objectMapper.writeValueAsString(ExtensionAttributesTopLevelDocument.of(List.of(apc1)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
-                .andExpect(method(GET))
-                .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
+        loadExtensionAttributesToCache(networkUuid, identifiableId, cachedClient);
         Optional<ExtensionAttributes> extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
         assertTrue(extensionAttributesResult.isPresent());
-        server.verify();
-        server.reset();
 
         // Load generators for voltage level VL_1 (by container), this should not overwrite existing resource in the cache
-        String voltageLevelId = "VL_1";
-        Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
-                .id(identifiableId)
-                .attributes(GeneratorAttributes.builder()
-                        .voltageLevelId(voltageLevelId)
-                        .build())
-                .build();
-        String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/" + voltageLevelId + "/generators"))
-                .andExpect(method(GET))
-                .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
-        cachedClient.getVoltageLevelGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, voltageLevelId);
-        server.verify();
-        server.reset();
+        loadVoltageLevelGenerators(identifiableId, networkUuid, cachedClient, false);
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
 
-        // Extension should still be loaded in the cache
+        // Load all generators, this should not overwrite existing resource in the cache
+        loadGeneratorCollection(identifiableId, networkUuid, cachedClient);
         extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
         assertTrue(extensionAttributesResult.isPresent());
     }
 
     @Test
-    public void testGetExtensionOverwriteCacheCollectionLoading() throws IOException {
+    /*
+     * Following sequence should not overwrite resource in the cache
+     * getIdentifiable()
+     * getGenerators()
+     * getVoltageLevelGenerator()
+     */
+    public void testGetExtensionOverwriteCache4() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
 
         // Load the identifiable in the cache
+        loadIdentifiableToCache(identifiableId, networkUuid, cachedClient);
+
+        // Load extension attributes in the cache
+        loadExtensionAttributesToCache(networkUuid, identifiableId, cachedClient);
+        Optional<ExtensionAttributes> extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+
+        // Load all generators, this should not overwrite existing resource in the cache
+        loadGeneratorCollection(identifiableId, networkUuid, cachedClient);
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+
+        // Load generators for voltage level VL_1 (by container), this should not overwrite existing resource in the cache
+        loadVoltageLevelGenerators(identifiableId, networkUuid, cachedClient, true);
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+    }
+
+    @Test
+    /*
+     * Following sequence should not overwrite resource in the cache
+     * getGenerators()
+     * getVoltageLevelGenerator()
+     * getGenerator()
+     */
+    public void testGetExtensionOverwriteCache5() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "GEN";
+
+        // Load all generators, this should not overwrite existing resource in the cache
+        loadGeneratorCollection(identifiableId, networkUuid, cachedClient);
+
+        // Load extension attributes in the cache
+        loadExtensionAttributesToCache(networkUuid, identifiableId, cachedClient);
+        Optional<ExtensionAttributes> extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+
+        // Load generators for voltage level VL_1 (by container), this should not overwrite existing resource in the cache
+        loadVoltageLevelGenerators(identifiableId, networkUuid, cachedClient, true);
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+
+        // Load the identifiable in the cache, this should not overwrite existing resource in the cache
+        loadGeneratorToCache(identifiableId, networkUuid, cachedClient, true);
+        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        assertTrue(extensionAttributesResult.isPresent());
+    }
+
+    private void loadGeneratorToCache(String identifiableId, UUID networkUuid, CachedNetworkStoreClient cachedClient, boolean isCollectionLoaded) throws JsonProcessingException {
+        if (isCollectionLoaded) {
+            cachedClient.getGenerator(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId);
+        } else {
+            Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
+                    .id(identifiableId)
+                    .attributes(GeneratorAttributes.builder()
+                            .voltageLevelId("VL_1")
+                            .build())
+                    .build();
+            String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
+            server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators/" + identifiableId))
+                    .andExpect(method(GET))
+                    .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
+            cachedClient.getGenerator(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId);
+            server.verify();
+            server.reset();
+        }
+    }
+
+    private void loadIdentifiableToCache(String identifiableId, UUID networkUuid, CachedNetworkStoreClient cachedClient) throws JsonProcessingException {
         Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
                 .id(identifiableId)
                 .attributes(GeneratorAttributes.builder()
@@ -736,8 +844,47 @@ public class CachedNetworkStoreClientTest {
         cachedClient.getIdentifiable(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId);
         server.verify();
         server.reset();
+    }
 
-        // Load extension attributes in the cache
+    private void loadGeneratorCollection(String identifiableId, UUID networkUuid, CachedNetworkStoreClient cachedClient) throws JsonProcessingException {
+        String voltageLevelId = "VL_1";
+        Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
+                .id(identifiableId)
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId(voltageLevelId)
+                        .build())
+                .build();
+        String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
+        cachedClient.getGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        server.verify();
+        server.reset();
+    }
+
+    private void loadVoltageLevelGenerators(String identifiableId, UUID networkUuid, CachedNetworkStoreClient cachedClient, boolean isCollectionLoaded) throws JsonProcessingException {
+        String voltageLevelId = "VL_1";
+        if (isCollectionLoaded) {
+            cachedClient.getVoltageLevelGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, voltageLevelId);
+        } else {
+            Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
+                    .id(identifiableId)
+                    .attributes(GeneratorAttributes.builder()
+                            .voltageLevelId(voltageLevelId)
+                            .build())
+                    .build();
+            String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
+            server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/" + voltageLevelId + "/generators"))
+                    .andExpect(method(GET))
+                    .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
+            cachedClient.getVoltageLevelGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, voltageLevelId);
+            server.verify();
+            server.reset();
+        }
+    }
+
+    private void loadExtensionAttributesToCache(UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient) throws JsonProcessingException {
         ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
                 .droop(5.2)
                 .participate(true)
@@ -751,17 +898,5 @@ public class CachedNetworkStoreClientTest {
         assertTrue(extensionAttributesResult.isPresent());
         server.verify();
         server.reset();
-
-        // Load generators collection, this should not overwrite existing resource in the cache
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
-                .andExpect(method(GET))
-                .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
-        cachedClient.getGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM);
-        server.verify();
-        server.reset();
-
-        // Extension should still be loaded in the cache
-        extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
-        assertTrue(extensionAttributesResult.isPresent());
     }
 }
