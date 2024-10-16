@@ -1013,7 +1013,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         Optional<Resource<IdentifiableAttributes>> resource = delegate.getIdentifiable(networkUuid, variantNum, id);
         resource.ifPresent(r -> {
             CollectionCache<IdentifiableAttributes> collection = (CollectionCache<IdentifiableAttributes>) networkContainersCaches.get(r.getType()).getCollection(networkUuid, variantNum);
-            collection.addResource(r, false);
+            collection.addResourceIfAbsent(r);
         });
 
         identifiableCallCountByNetworkVariant.computeIfAbsent(p, k -> new MutableInt())

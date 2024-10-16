@@ -539,4 +539,16 @@ public class CollectionCacheTest {
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByIdCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeCalled());
     }
+
+    @Test
+    public void createThrowTest() {
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        // Create a resource in the cache
+        collectionCache.createResource(l4);
+        // Create it again, it should throw because the resource already exists in the cache
+        // This does not happen when we use the IIDM api because we check if the resource already exists in the network
+        assertThrows(PowsyblException.class, () -> collectionCache.createResource(l4));
+    }
 }

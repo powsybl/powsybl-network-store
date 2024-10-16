@@ -24,7 +24,8 @@ import java.util.stream.Collectors;
 public class CollectionCache<T extends IdentifiableAttributes> {
 
     /**
-     * Resources indexed by id.
+     * Resources indexed by id. <br/>
+     * Existing resources in the cache must not be overwritten to avoid losing the reference to the IIDM object in the NetworkObjectIndex.
      */
     private final Map<String, Resource<T>> resources = new HashMap<>();
 
@@ -147,7 +148,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                 resource = oneLoaderFunction.apply(networkUuid, variantNum, id).orElse(null);
                 // if resource has been found on server side we add it to the cache
                 if (resource != null) {
-                    addResource(resource, false);
+                    addResourceIfAbsent(resource);
                 }
             }
         }
@@ -161,7 +162,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             List<Resource<T>> resourcesToAdd = allLoaderFunction.apply(networkUuid, variantNum);
 
             // we update the full cache and set it as fully loaded
-            resourcesToAdd.forEach(resource -> updateCache(resources, resource, false));
+            resourcesToAdd.forEach(resource -> resources.putIfAbsent(resource.getId(), resource));
             fullyLoaded = true;
 
             // we update by container cache
@@ -171,7 +172,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                     Set<String> containerIds = ((Contained) attributes).getContainerIds();
                     containerIds.forEach(containerId -> {
                         // we add container resources and update container fully loaded status
-                        updateCache(getResourcesByContainerId(containerId), resource, false);
+                        getResourcesByContainerId(containerId).putIfAbsent(resource.getId(), resource);
                         containerFullyLoaded.add(containerId);
                     });
                 }
@@ -213,45 +214,45 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                 .stream().filter(resource -> !removedResources.contains(resource.getId())).collect(Collectors.toList());
 
             resourcesToAdd.forEach(resource -> {
-                updateCache(getResourcesByContainerId(containerId), resource, false); // by container cache update
-                updateCache(resources, resource, false); // full cache update
-                removedResources.remove(resource.getId());
+                String resourceId = resource.getId();
+                getResourcesByContainerId(containerId).putIfAbsent(resourceId, resource);
+                resources.putIfAbsent(resourceId, resource);
+                removedResources.remove(resourceId);
             });
             containerFullyLoaded.add(containerId);
         }
         return new ArrayList<>(getResourcesByContainerId(containerId).values());
     }
 
-    public void addResource(Resource<T> resource, boolean overrideExistingResourceInCache) {
+    public void addResourceIfAbsent(Resource<T> resource) {
+        cacheResource(resource, false);
+    }
+
+    private void addOrReplaceResource(Resource<T> resource) {
+        cacheResource(resource, true);
+    }
+
+    private void cacheResource(Resource<T> resource, boolean shouldOverwrite) {
         Objects.requireNonNull(resource);
 
-        // full cache update
-        updateCache(resources, resource, overrideExistingResourceInCache);
+        if (shouldOverwrite) {
+            resources.put(resource.getId(), resource);
+        } else {
+            resources.putIfAbsent(resource.getId(), resource);
+        }
         removedResources.remove(resource.getId());
 
         // by container cache update
         IdentifiableAttributes attributes = resource.getAttributes();
         if (attributes instanceof Contained) {
             Set<String> containerIds = ((Contained) attributes).getContainerIds();
-            containerIds.forEach(containerId -> updateCache(getResourcesByContainerId(containerId), resource, overrideExistingResourceInCache));
-        }
-    }
-
-    /**
-     * Updates the given cache with the provided resource. <br/>
-     * If we overwrite existing resource in the cache, we lose the reference to the IIDM object in NetworkObjectIndex.
-     *
-     * @param cache The cache where the resource will be added
-     * @param resource The resource to add to the cache
-     * @param overrideExistingResourceInCache If true, any existing entry with the same resource ID in the cache will be overwritten.
-     *                                        If false, the resource will only be added if there is no existing entry for the resource ID.
-     */
-    private void updateCache(Map<String, Resource<T>> cache, Resource<T> resource, boolean overrideExistingResourceInCache) {
-        String resourceId = resource.getId();
-        if (overrideExistingResourceInCache) {
-            cache.put(resourceId, resource);
-        } else {
-            cache.putIfAbsent(resourceId, resource);
+            containerIds.forEach(containerId -> {
+                if (shouldOverwrite) {
+                    getResourcesByContainerId(containerId).put(resource.getId(), resource);
+                } else {
+                    getResourcesByContainerId(containerId).putIfAbsent(resource.getId(), resource);
+                }
+            });
         }
     }
 
@@ -261,7 +262,11 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * @param resource the newly created resources
      */
     public void createResource(Resource<T> resource) {
-        addResource(resource, true);
+        String resourceId = resource.getId();
+        if (resources.containsKey(resourceId)) {
+            throw new PowsyblException("The collection cache already contains a " + resource.getType() + " with the id '" + resourceId + "'");
+        }
+        addOrReplaceResource(resource);
     }
 
     /**
