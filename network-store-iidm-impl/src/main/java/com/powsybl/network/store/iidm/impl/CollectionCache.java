@@ -407,7 +407,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     /**
      * Add extension attributes in the cache for single extension attributes loading.<br/>
      * This method is only used to get extension attributes from the server so even if it adds some checks and reduces performance by a tiny bit,
-     * we avoid to overwrite already loaded extension attributes because they are referenced in the resources or resourcesByContainerId map,
+     * we avoid to overwrite already loaded extension attributes because they are referenced in the extensionAttributes field of the resources or resourcesByContainerId map,
      * but also directly in any identifiable with the iidm api.
      */
     private void addExtensionAttributesToCache(String identifiableId, String extensionName, ExtensionAttributes extensionAttributes) {
@@ -457,7 +457,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             Map<String, ExtensionAttributes> extensionAttributes = delegate.getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, type, identifiableId);
             if (extensionAttributes != null) {
                 addAllExtensionAttributesToCache(identifiableId, extensionAttributes);
-                return extensionAttributes;
+                return getCachedExtensionAttributes(identifiableId);
             }
         }
         return Map.of();
@@ -474,7 +474,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     /**
      * Add extension attributes to the cache when loading all the extension attributes of an identifiable.<br/>
      * This method is only used to get extension attributes from the server so even if it adds some checks and reduces performance by a tiny bit,
-     * we avoid to overwrite already loaded extension attributes because they are referenced in the resources or resourcesByContainerId map,
+     * we avoid to overwrite already loaded extension attributes because they are referenced in the extensionAttributes field of the resources or resourcesByContainerId map,
      * but also directly in any identifiable with the iidm api.
      */
     private void addAllExtensionAttributesToCache(String id, Map<String, ExtensionAttributes> extensionAttributes) {
