@@ -12,13 +12,4 @@ import com.powsybl.iidm.network.tck.AbstractMoveConnectableNotifTest;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class MoveConnectableNotifTest extends AbstractMoveConnectableNotifTest {
-    @Override
-    public void nodeBreakerTest() {
-        // FIXME remove this test when Terminal.moveConnectable sends a notification (notifyUpdate)
-    }
-
-    @Override
-    public void busBreakerTest() {
-        // FIXME remove this test when Terminal.moveConnectable sends a notification (notifyUpdate)
-    }
 }
