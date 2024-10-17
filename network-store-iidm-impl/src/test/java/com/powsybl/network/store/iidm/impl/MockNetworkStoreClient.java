@@ -21,30 +21,21 @@ import java.util.UUID;
 @Getter
 @Setter
 class MockNetworkStoreClient implements NetworkStoreClient {
-    private final ActivePowerControlAttributes apc1;
-    private final ActivePowerControlAttributes apc2;
-    private final OperatingStatusAttributes os1;
     private boolean extensionAttributeLoaderCalled = false;
     private boolean extensionAttributesLoaderByResourceTypeAndNameCalled = false;
     private boolean extensionAttributesLoaderByIdCalled = false;
     private boolean extensionAttributesLoaderByResourceTypeCalled = false;
-
-    public MockNetworkStoreClient(ActivePowerControlAttributes apc1, ActivePowerControlAttributes apc2, OperatingStatusAttributes os1) {
-        this.apc1 = apc1;
-        this.apc2 = apc2;
-        this.os1 = os1;
-    }
 
     // Methods used in tests
     @Override
     public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
         extensionAttributeLoaderCalled = true;
         if (identifiableId.equals("l1") && extensionName.equals("operatingStatus")) {
-            return Optional.of(os1);
+            return Optional.of(createOperatinStatusAttributes());
         } else if (identifiableId.equals("l1") && extensionName.equals("activePowerControl")) {
-            return Optional.of(apc1);
+            return Optional.of(createActivePowerControlAttributes1());
         } else if (identifiableId.equals("l2") && extensionName.equals("activePowerControl")) {
-            return Optional.of(apc2);
+            return Optional.of(createActivePowerControlAttributes2());
         }
         return Optional.empty();
     }
@@ -53,7 +44,7 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
         extensionAttributesLoaderByResourceTypeAndNameCalled = true;
         if (extensionName.equals("activePowerControl")) {
-            return Map.of("l1", apc1, "l2", apc2);
+            return Map.of("l1", createActivePowerControlAttributes1(), "l2", createActivePowerControlAttributes2());
         }
         return Map.of();
     }
@@ -62,9 +53,9 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId) {
         extensionAttributesLoaderByIdCalled = true;
         if (identifiableId.equals("l1")) {
-            return Map.of("activePowerControl", apc1, "operatingStatus", os1);
+            return Map.of("activePowerControl", createActivePowerControlAttributes1(), "operatingStatus", createOperatinStatusAttributes());
         } else if (identifiableId.equals("l2")) {
-            return Map.of("activePowerControl", apc2);
+            return Map.of("activePowerControl", createActivePowerControlAttributes2());
         }
         return Map.of();
     }
@@ -73,9 +64,31 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         extensionAttributesLoaderByResourceTypeCalled = true;
         if (resourceType == ResourceType.LOAD) {
-            return Map.of("l1", Map.of("activePowerControl", apc1, "operatingStatus", os1), "l2", Map.of("activePowerControl", apc2));
+            return Map.of("l1", Map.of("activePowerControl", createActivePowerControlAttributes1(), "operatingStatus", createOperatinStatusAttributes()), "l2", Map.of("activePowerControl", createActivePowerControlAttributes2()));
         }
         return Map.of();
+    }
+
+    private ActivePowerControlAttributes createActivePowerControlAttributes1() {
+        return ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(0.5)
+                .build();
+    }
+
+    private ActivePowerControlAttributes createActivePowerControlAttributes2() {
+        return ActivePowerControlAttributes.builder()
+                .droop(6)
+                .participate(false)
+                .participationFactor(0.5)
+                .build();
+    }
+
+    private OperatingStatusAttributes createOperatinStatusAttributes() {
+        return OperatingStatusAttributes.builder()
+                .operatingStatus("foo")
+                .build();
     }
 
     // Methods below are not used in tests
