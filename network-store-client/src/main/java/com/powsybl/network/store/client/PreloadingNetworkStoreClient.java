@@ -105,7 +105,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     private void ensureCollectionCached(ResourceType resourceType, UUID networkUuid, int variantNum) {
         Objects.requireNonNull(resourceType);
         Objects.requireNonNull(networkUuid);
-        if (shouldLoadAllCollectionsForBusView(resourceType)) {
+        if (shouldLoadAllCollectionsNeededForBusView(resourceType)) {
             loadAllCollectionsNeededForBusView(networkUuid, variantNum);
         } else {
             loadToCache(resourceType, networkUuid, variantNum);
@@ -115,12 +115,12 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     private void ensureAllCollectionForBusViewCached(ResourceType resourceType, UUID networkUuid, int variantNum) {
         Objects.requireNonNull(resourceType);
         Objects.requireNonNull(networkUuid);
-        if (shouldLoadAllCollectionsForBusView(resourceType)) {
+        if (shouldLoadAllCollectionsNeededForBusView(resourceType)) {
             loadAllCollectionsNeededForBusView(networkUuid, variantNum);
         }
     }
 
-    private boolean shouldLoadAllCollectionsForBusView(ResourceType resourceType) {
+    boolean shouldLoadAllCollectionsNeededForBusView(ResourceType resourceType) {
         return !allCollectionsNeededForBusViewLoaded
                 && allCollectionsNeededForBusView
                 && RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW.contains(resourceType);
