@@ -40,7 +40,15 @@ class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements T
     }
 
     private InjectionAttributes getAttributes() {
-        return attributesGetter.apply(getAbstractIdentifiable().getResource());
+        return getAttributes(getAbstractIdentifiable().getResource());
+    }
+
+    private InjectionAttributes getAttributes(Resource<U> resource) {
+        return attributesGetter.apply(resource);
+    }
+
+    private VoltageLevelImpl getVoltageLevel() {
+        return index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(IllegalStateException::new);
     }
 
     @Override
@@ -70,13 +78,15 @@ class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements T
             throw new ValidationException(attributes.getResource(), "an equipment (" + terminal.getConnectable().getId()
                     + ") is already connected to node " + node + " of voltage level " + voltageLevelId);
         }
+        VoltageLevelImpl oldVoltageLevel = getVoltageLevel();
         getAbstractIdentifiable().updateResource(res -> {
-            InjectionAttributes attr = attributesGetter.apply(res);
+            InjectionAttributes attr = getAttributes(res);
             attr.setConnectableBus(null);
             attr.setBus(null);
             attr.setNode(node);
             attr.setVoltageLevelId(voltageLevelId);
         });
+        oldVoltageLevel.invalidateCalculatedBuses();
         voltageLevel.invalidateCalculatedBuses();
     }
 }
