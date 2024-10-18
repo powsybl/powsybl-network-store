@@ -36,8 +36,6 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     private final TerminalBusViewImpl<U> busView;
 
-    private final List<RegulatingPoint> regulated = new ArrayList<>();
-
     public TerminalImpl(NetworkObjectIndex index, Connectable<?> connectable, Function<Resource<U>, InjectionAttributes> attributesGetter) {
         this.index = index;
         this.connectable = connectable;
@@ -575,15 +573,19 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     public void addNewRegulatingPoint(RegulatingPoint regulatingPoint) {
-        regulated.add(regulatingPoint);
+        getAttributes().getRegulatingEquipments()
+            .put(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType());
     }
 
     public void removeRegulatingPoint(RegulatingPoint regulatingPoint) {
-        regulated.remove(regulatingPoint);
+        getAttributes().getRegulatingEquipments()
+            .remove(regulatingPoint.getRegulatingEquipmentId());
     }
 
     public void removeAsRegulatingPoint() {
-        regulated.forEach(RegulatingPoint::removeRegulation);
-        regulated.clear();
+        getAttributes().getRegulatingEquipments().forEach((regulatingEquipmentId, resourceType) ->
+            index.getRegulatingEquipment(regulatingEquipmentId, resourceType)
+                .getRegulatingPoint().removeRegulation());
+        getAttributes().getRegulatingEquipments().clear();
     }
 }

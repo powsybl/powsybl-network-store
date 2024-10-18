@@ -9,7 +9,10 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
+import com.powsybl.network.store.model.ResourceType;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -18,7 +21,7 @@ import java.util.Objects;
 public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<BranchAttributes> {
 
     private final AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch;
-
+    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
     private final boolean side1;
 
     public BranchToInjectionAttributesAdapter(AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch, BranchAttributes attributes, boolean side1) {
@@ -131,5 +134,15 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
         } else {
             attributes.setPosition2(position);
         }
+    }
+
+    @Override
+    public Map<String, ResourceType> getRegulatingEquipments() {
+        return regulatingEquipments;
+    }
+
+    @Override
+    public void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments) {
+        this.regulatingEquipments = regulatingEquipments;
     }
 }
