@@ -44,13 +44,25 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
     }
 
     public void setRegulatingTerminal(TerminalImpl<?> regulatingTerminal) {
-        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
-        oldRegulatingTerminal.removeRegulatingPoint(this);
+        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
+            getAttributes().getRegulatingTerminal(), getAttributes().getRegulatingResourceType());
+        if (oldRegulatingTerminal != null) {
+            oldRegulatingTerminal.removeRegulatingPoint(this);
+        }
         regulatingTerminal.addNewRegulatingPoint(this);
         identifiable.updateResource(res -> getAttributes((Resource<?>) res)
             .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
         identifiable.updateResource(res -> getAttributes((Resource<?>) res)
             .setRegulatingResourceType(ResourceType.convert(regulatingTerminal.getConnectable().getType())));
+    }
+
+    public void setRegulatingTerminalAsLocalTerminalAndRemoveRegulation() {
+        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
+            getAttributes().getRegulatingTerminal(), getAttributes().getRegulatingResourceType());
+        if (oldRegulatingTerminal != null) {
+            oldRegulatingTerminal.removeRegulatingPoint(this);
+        }
+        setRegulatingTerminalAsLocalTerminal();
     }
 
     public void setRegulatingTerminalAsLocalTerminal() {
@@ -63,8 +75,11 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
     }
 
     public void removeRegulation() {
-        Terminal localTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getLocalTerminal());
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
+        TerminalImpl localTerminal = (TerminalImpl) TerminalRefUtils.getTerminal(index,
+            getAttributes().getLocalTerminal(), getAttributes().getResourceType());
+        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal(),
+            getAttributes().getRegulatingResourceType());
+        // set local terminal as regulating terminal
         setRegulatingTerminalAsLocalTerminal();
         // if localTerminal or regulatingTerminal is not connected then the bus is null
         if (localTerminal.isConnected() && regulatingTerminal.isConnected() && !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
@@ -81,5 +96,13 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
     void remove() {
         TerminalImpl<?> regulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         regulatingTerminal.removeRegulatingPoint(this);
+    }
+
+    public String getRegulatingEquipmentId() {
+        return getAttributes().getRegulatedEquipmentId();
+    }
+
+    public ResourceType getRegulatingEquipmentType() {
+        return getAttributes().getResourceType();
     }
 }

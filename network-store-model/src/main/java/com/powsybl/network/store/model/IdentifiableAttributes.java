@@ -8,8 +8,6 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,7 +45,7 @@ public interface IdentifiableAttributes extends Attributes {
 
     void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes);
 
-    default List<String> getRegulatingEquipments() {
-        return Collections.emptyList();
-    }
+    Map<String, ResourceType> getRegulatingEquipments();
+
+    void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments);
 }

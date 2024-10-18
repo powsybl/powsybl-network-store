@@ -36,8 +36,6 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     private final TerminalBusViewImpl<U> busView;
 
-    private final List<RegulatingPoint> regulated = new ArrayList<>();
-
     public TerminalImpl(NetworkObjectIndex index, Connectable<?> connectable, Function<Resource<U>, InjectionAttributes> attributesGetter) {
         this.index = index;
         this.connectable = connectable;
@@ -45,18 +43,6 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, connectable, attributesGetter);
         busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter);
         busView = new TerminalBusViewImpl<>(index, connectable, attributesGetter);
-        setRegulated();
-    }
-
-    private void setRegulated() {
-        if (getAttributes().getRegulatingEquipments() != null) {
-            getAttributes().getRegulatingEquipments()
-                .forEach(regulatingEquipment -> {
-                    // get identifiable create stack overflow error
-                    regulated.add(new RegulatingPoint(index, (AbstractIdentifiableImpl) index.getIdentifiable(regulatingEquipment),
-                        AbstractIdentifiableAttributes.class::cast));
-                });
-        }
     }
 
     private TopologyKind getTopologyKind() {
@@ -587,15 +573,19 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     public void addNewRegulatingPoint(RegulatingPoint regulatingPoint) {
-        regulated.add(regulatingPoint);
+        getAttributes().getRegulatingEquipments()
+            .put(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType());
     }
 
     public void removeRegulatingPoint(RegulatingPoint regulatingPoint) {
-        regulated.remove(regulatingPoint);
+        getAttributes().getRegulatingEquipments()
+            .remove(regulatingPoint.getRegulatingEquipmentId());
     }
 
     public void removeAsRegulatingPoint() {
-        regulated.forEach(RegulatingPoint::removeRegulation);
-        regulated.clear();
+        getAttributes().getRegulatingEquipments().forEach((regulatingEquipmentId, resourceType) ->
+            index.getRegulatingEquipment(regulatingEquipmentId, resourceType)
+                .getRegulatingPoint().removeRegulation());
+        getAttributes().getRegulatingEquipments().clear();
     }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 
 /**
@@ -18,18 +19,30 @@ public final class TerminalRefUtils {
     }
 
     public static Terminal getTerminal(NetworkObjectIndex index, TerminalRefAttributes terminalRefAttributes) {
+        return getTerminal(index, terminalRefAttributes, null);
+    }
+
+    public static Terminal getTerminal(NetworkObjectIndex index, TerminalRefAttributes terminalRefAttributes, ResourceType resourceType) {
         if (terminalRefAttributes == null) {
             return null;
         }
-        Identifiable<?> identifiable = index.getIdentifiable(terminalRefAttributes.getConnectableId());
+        Identifiable<?> identifiable;
+        if (resourceType == null) {
+            identifiable = index.getIdentifiable(terminalRefAttributes.getConnectableId());
+        } else {
+            identifiable = index.getIdentifiable(terminalRefAttributes.getConnectableId(), resourceType);
+        }
+        if (identifiable == null) {
+            return null;
+        }
+
         String side = terminalRefAttributes.getSide();
 
-        if (identifiable instanceof Injection) {
-            return ((Injection<?>) identifiable).getTerminal();
-        } else if (identifiable instanceof Branch) {
-            return ((Branch<?>) identifiable).getTerminal(TwoSides.valueOf(side));
-        } else if (identifiable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
+        if (identifiable instanceof Injection<?> injection) {
+            return injection.getTerminal();
+        } else if (identifiable instanceof Branch<?> branch) {
+            return branch.getTerminal(TwoSides.valueOf(side));
+        } else if (identifiable instanceof ThreeWindingsTransformer twt) {
             return twt.getTerminal(ThreeSides.valueOf(side));
         } else {
             throw new AssertionError("Unexpected Identifiable instance: " + identifiable.getClass());
@@ -39,11 +52,9 @@ public final class TerminalRefUtils {
     private static String getSide(Terminal terminal) {
         String side = null;
         if (terminal.getConnectable().getTerminals().size() > 1) {
-            if (terminal.getConnectable() instanceof Branch) {
-                Branch<?> branch = (Branch<?>) terminal.getConnectable();
+            if (terminal.getConnectable() instanceof Branch<?> branch) {
                 side = branch.getSide(terminal).name();
-            } else if (terminal.getConnectable() instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) terminal.getConnectable();
+            } else if (terminal.getConnectable() instanceof ThreeWindingsTransformer twt) {
                 side = twt.getSide(terminal).name();
             } else {
                 throw new AssertionError("Unexpected connectable instance: " + terminal.getConnectable().getClass());

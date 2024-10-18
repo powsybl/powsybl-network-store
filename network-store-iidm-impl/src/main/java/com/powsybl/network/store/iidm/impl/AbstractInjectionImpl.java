@@ -63,7 +63,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         if (regulatingTerminal instanceof TerminalImpl<?>) {
             regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
         } else {
-            regulatingPoint.setRegulatingTerminalAsLocalTerminal();
+            regulatingPoint.setRegulatingTerminalAsLocalTerminalAndRemoveRegulation();
         }
     }
 
@@ -106,5 +106,9 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
     @Override
     public List<Terminal> getTerminals(ThreeSides side) {
         return (side == null || side.equals(ThreeSides.ONE)) ? Collections.singletonList(terminal) : Collections.emptyList();
+    }
+
+    public RegulatingPoint getRegulatingPoint() {
+        return regulatingPoint;
     }
 }

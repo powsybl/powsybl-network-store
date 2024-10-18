@@ -37,6 +37,6 @@ public class RegulationPointAttributes extends AbstractAttributes implements Att
     @Schema(description = "Regulation mode ordinal")
     private String regulationMode;
 
-    @Schema(description = "Resource type")
+    @Schema(description = "Regulated equipment resource type")
     private ResourceType regulatingResourceType;
 }
