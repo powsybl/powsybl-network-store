@@ -25,11 +25,16 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.network.store.model.AttributeFilter;
+import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.ObjDoubleConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -77,6 +82,30 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         return getResource().getAttributes().getAngle();
     }
 
+    private void setVInCalculatedBus(CalculatedBusAttributes calculatedBusAttributes, double value) {
+        calculatedBusAttributes.setV(value);
+    }
+
+    private void setAngleInCalculatedBus(CalculatedBusAttributes calculatedBusAttributes, double value) {
+        calculatedBusAttributes.setAngle(value);
+    }
+
+    private void updateCalculatedBusAttributes(double newValue,
+                                               String voltageLevelId,
+                                               ObjDoubleConsumer<CalculatedBusAttributes> setValue) {
+        index.getVoltageLevel(voltageLevelId).ifPresent(voltageLevel -> {
+            Map<String, Integer> calculatedBuses = voltageLevel.getResource().getAttributes().getBusToCalculatedBusForBusView();
+            if (!MapUtils.isEmpty(calculatedBuses)) {
+                Integer busviewnum = calculatedBuses.get(getId());
+                if (busviewnum != null) {
+                    CalculatedBusAttributes busviewattributes = voltageLevel.getResource().getAttributes().getCalculatedBusesForBusView().get(busviewnum);
+                    setValue.accept(busviewattributes, newValue);
+                    index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
+                }
+            }
+        });
+    }
+
     @Override
     public Bus setV(double v) {
         if (v < 0) {
@@ -87,6 +116,9 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
             updateResource(res -> res.getAttributes().setV(v));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "v", variantId, oldValue, v);
+
+            // update V for bus in BusView
+            updateCalculatedBusAttributes(v, getResource().getAttributes().getVoltageLevelId(), this::setVInCalculatedBus);
         }
         return this;
     }
@@ -98,6 +130,9 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
             updateResource(res -> res.getAttributes().setAngle(angle));
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "angle", variantId, oldValue, angle);
+
+            // update angle for bus in BusView
+            updateCalculatedBusAttributes(angle, getResource().getAttributes().getVoltageLevelId(), this::setAngleInCalculatedBus);
         }
         return this;
     }
