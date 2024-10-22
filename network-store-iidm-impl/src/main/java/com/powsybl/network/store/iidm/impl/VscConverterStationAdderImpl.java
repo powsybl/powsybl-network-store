@@ -74,7 +74,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .voltageRegulatorOn(voltageRegulatorOn)
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
-                        .regulatingPoint(regulatingPointAttributes)
+                        .regulationPoint(regulatingPointAttributes)
                         .build())
                 .build();
         VscConverterStationImpl station = getIndex().createVscConverterStation(resource);

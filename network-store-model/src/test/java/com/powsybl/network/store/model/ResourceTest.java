@@ -42,7 +42,7 @@ public class ResourceTest {
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         String json = objectMapper.writeValueAsString(resource);
-        assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"regulatingEquipments\":{},\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"caseDate\":1420070400000,\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}}", json);
+        assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"caseDate\":1420070400000,\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}}", json);
         Resource<NetworkAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<NetworkAttributes>>() { });
         assertNotNull(resource2);
         assertEquals("foo", resource2.getId());
@@ -65,7 +65,7 @@ public class ResourceTest {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(resource);
 
-        String jsonRef = "{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"name\":\"SS\",\"fictitious\":false,\"extensionAttributes\":{},\"regulatingEquipments\":{},\"country\":\"FR\",\"tso\":\"RTE\"}}";
+        String jsonRef = "{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"name\":\"SS\",\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\",\"tso\":\"RTE\"}}";
         assertEquals(jsonRef, json);
 
         Resource<SubstationAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<SubstationAttributes>>() { });
@@ -271,7 +271,7 @@ public class ResourceTest {
                 .node(1)
                 .targetP(3)
                 .targetV(4)
-                .regulatingPoint(regulatingPointAttributes)
+                .regulationPoint(regulatingPointAttributes)
                 .build();
 
         Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder()
@@ -289,10 +289,10 @@ public class ResourceTest {
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getQ()));
 
-        assertEquals("idEq", resourceGenerator.getAttributes().getRegulatingPoint().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceGenerator.getAttributes().getRegulatingPoint().getRegulatingTerminal().getSide());
-        assertEquals("gen", resourceGenerator.getAttributes().getRegulatingPoint().getLocalTerminal().getConnectableId());
-        assertNull(resourceGenerator.getAttributes().getRegulatingPoint().getLocalTerminal().getSide());
+        assertEquals("idEq", resourceGenerator.getAttributes().getRegulationPoint().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceGenerator.getAttributes().getRegulationPoint().getRegulatingTerminal().getSide());
+        assertEquals("gen", resourceGenerator.getAttributes().getRegulationPoint().getLocalTerminal().getConnectableId());
+        assertNull(resourceGenerator.getAttributes().getRegulationPoint().getLocalTerminal().getSide());
 
     }
 
@@ -386,7 +386,7 @@ public class ResourceTest {
                 .q(200)
                 .model(linearModelAttributes)
                 .sectionCount(2)
-                .regulatingPoint(regulatingPointAttributes)
+                .regulationPoint(regulatingPointAttributes)
                 .build();
 
         Resource<ShuntCompensatorAttributes> resourceShunt = Resource.shuntCompensatorBuilder()
@@ -395,10 +395,10 @@ public class ResourceTest {
                 .build();
 
         assertFalse(resourceShunt.getAttributes().isFictitious());
-        assertEquals("idEq", resourceShunt.getAttributes().getRegulatingPoint().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceShunt.getAttributes().getRegulatingPoint().getRegulatingTerminal().getSide());
-        assertEquals("shunt", resourceShunt.getAttributes().getRegulatingPoint().getLocalTerminal().getConnectableId());
-        assertNull(resourceShunt.getAttributes().getRegulatingPoint().getLocalTerminal().getSide());
+        assertEquals("idEq", resourceShunt.getAttributes().getRegulationPoint().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceShunt.getAttributes().getRegulationPoint().getRegulatingTerminal().getSide());
+        assertEquals("shunt", resourceShunt.getAttributes().getRegulationPoint().getLocalTerminal().getConnectableId());
+        assertNull(resourceShunt.getAttributes().getRegulationPoint().getLocalTerminal().getSide());
         assertEquals(100., resourceShunt.getAttributes().getP(), 0.001);
         assertEquals(200, resourceShunt.getAttributes().getQ(), 0.001);
         assertEquals(2, resourceShunt.getAttributes().getSectionCount());

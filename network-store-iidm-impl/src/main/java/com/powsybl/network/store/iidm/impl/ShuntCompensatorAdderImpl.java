@@ -224,7 +224,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                         .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .sectionCount(sectionCount)
                         .model(model)
-                        .regulatingPoint(regulatingPointAttributes)
+                        .regulationPoint(regulatingPointAttributes)
                         .voltageRegulatorOn(voltageRegulatorOn)
                         .targetV(targetV)
                         .targetDeadband(targetDeadband)

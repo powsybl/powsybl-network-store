@@ -30,11 +30,11 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
     }
 
     public RegulatingPointAttributes getAttributes() {
-        return attributesGetter.apply(getResource().getAttributes()).getRegulatingPoint();
+        return attributesGetter.apply(getResource().getAttributes()).getRegulationPoint();
     }
 
     private RegulatingPointAttributes getAttributes(Resource<?> resource) {
-        return attributesGetter.apply(resource.getAttributes()).getRegulatingPoint();
+        return attributesGetter.apply(resource.getAttributes()).getRegulationPoint();
     }
 
     public Terminal getRegulatingTerminal() {

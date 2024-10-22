@@ -47,9 +47,5 @@ public abstract class AbstractIdentifiableAttributes extends AbstractAttributes 
     private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 
     @Schema(description = "regulation info")
-    private RegulatingPointAttributes regulatingPoint;
-
-    @Builder.Default
-    @Schema(description = "regulatingEquipments")
-    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
+    private RegulatingPointAttributes regulationPoint;
 }
