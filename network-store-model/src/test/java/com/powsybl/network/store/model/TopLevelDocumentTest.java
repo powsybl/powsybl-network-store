@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.powsybl.network.store.model.ResourceType.GENERATOR;
+import static com.powsybl.network.store.model.ResourceType.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -127,6 +127,72 @@ public class TopLevelDocumentTest {
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resourceGenerator, document2.getData().get(0));
+    }
+
+    @Test
+    public void testShuntCompensator() throws IOException {
+        TerminalRefAttributes regulatedTerminalAttributes =
+            TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes("gen1", SHUNT_COMPENSATOR,
+            new TerminalRefAttributes("gen1", null), regulatedTerminalAttributes, null, SHUNT_COMPENSATOR);
+        Map<String, ResourceType> regEquipments = new HashMap<>();
+        regEquipments.put("gen1", GENERATOR);
+        regEquipments.put("shunt2", SHUNT_COMPENSATOR);
+        ShuntCompensatorAttributes shuntCompensatorAttributes = ShuntCompensatorAttributes
+            .builder()
+            .voltageLevelId("vl1")
+            .name("name")
+            .bus("bus1")
+            .fictitious(false)
+            .targetV(10.0)
+            .regulationPoint(regulatingPointAttributes)
+            .regulatingEquipments(regEquipments)
+            .build();
+
+        Resource<ShuntCompensatorAttributes> resourceShuntCompensator = Resource.shuntCompensatorBuilder()
+            .id("shunt1")
+            .attributes(shuntCompensatorAttributes)
+            .build();
+
+        TopLevelDocument document = TopLevelDocument.of(resourceShuntCompensator);
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writeValueAsString(document);
+        String jsonRef = "{\"data\":[{\"type\":\"SHUNT_COMPENSATOR\",\"id\":\"shunt1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"regulationPoint\":{\"regulatedEquipmentId\":\"gen1\",\"resourceType\":\"SHUNT_COMPENSATOR\",\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,\"regulatingResourceType\":\"SHUNT_COMPENSATOR\"},\"voltageLevelId\":\"vl1\",\"bus\":\"bus1\",\"sectionCount\":0,\"p\":NaN,\"q\":NaN,\"voltageRegulatorOn\":false,\"targetV\":10.0,\"targetDeadband\":0.0,\"regulatingEquipments\":{\"gen1\":\"GENERATOR\",\"shunt2\":\"SHUNT_COMPENSATOR\"}}}],\"meta\":{}}";
+        assertEquals(jsonRef, json);
+        TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
+        assertEquals(resourceShuntCompensator, document2.getData().get(0));
+    }
+
+    @Test
+    public void testStaticVarCompensator() throws IOException {
+        TerminalRefAttributes regulatedTerminalAttributes = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes("gen1", STATIC_VAR_COMPENSATOR,
+            new TerminalRefAttributes("gen1", null), regulatedTerminalAttributes, null, STATIC_VAR_COMPENSATOR);
+        Map<String, ResourceType> regEquipments = new HashMap<>();
+        regEquipments.put("gen2", GENERATOR);
+        regEquipments.put("shunt3", SHUNT_COMPENSATOR);
+        StaticVarCompensatorAttributes staticVarCompensatorAttributes = StaticVarCompensatorAttributes
+            .builder()
+            .voltageLevelId("vl1")
+            .name("name")
+            .bus("bus1")
+            .fictitious(false)
+            .regulationPoint(regulatingPointAttributes)
+            .regulatingEquipments(regEquipments)
+            .build();
+
+        Resource<StaticVarCompensatorAttributes> resourceShuntCompensator = Resource.staticVarCompensatorBuilder()
+            .id("svc1")
+            .attributes(staticVarCompensatorAttributes)
+            .build();
+
+        TopLevelDocument document = TopLevelDocument.of(resourceShuntCompensator);
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writeValueAsString(document);
+        String jsonRef = "{\"data\":[{\"type\":\"STATIC_VAR_COMPENSATOR\",\"id\":\"svc1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"regulationPoint\":{\"regulatedEquipmentId\":\"gen1\",\"resourceType\":\"STATIC_VAR_COMPENSATOR\",\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,\"regulatingResourceType\":\"STATIC_VAR_COMPENSATOR\"},\"voltageLevelId\":\"vl1\",\"bus\":\"bus1\",\"bmin\":0.0,\"bmax\":0.0,\"voltageSetPoint\":0.0,\"reactivePowerSetPoint\":0.0,\"p\":NaN,\"q\":NaN,\"regulatingEquipments\":{\"shunt3\":\"SHUNT_COMPENSATOR\",\"gen2\":\"GENERATOR\"}}}],\"meta\":{}}";
+        assertEquals(jsonRef, json);
+        TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
+        assertEquals(resourceShuntCompensator, document2.getData().get(0));
     }
 
     @Test

@@ -9,11 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.LegAttributes;
-import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,7 +17,6 @@ import java.util.Map;
 public class ThreeWindingsTransformerToInjectionAttributesAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<ThreeWindingsTransformerAttributes> {
 
     private final ThreeSides side;
-    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
 
     public ThreeWindingsTransformerToInjectionAttributesAdapter(ThreeWindingsTransformerAttributes attributes, ThreeSides side) {
         super(attributes);
@@ -135,15 +130,5 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case THREE -> attributes.setPosition3(position);
             default -> throw createUnknownSideException();
         }
-    }
-
-    @Override
-    public Map<String, ResourceType> getRegulatingEquipments() {
-        return regulatingEquipments;
-    }
-
-    @Override
-    public void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments) {
-        this.regulatingEquipments = regulatingEquipments;
     }
 }

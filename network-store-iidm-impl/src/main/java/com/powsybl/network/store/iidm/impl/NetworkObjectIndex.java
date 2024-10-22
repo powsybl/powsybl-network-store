@@ -1067,41 +1067,6 @@ public class NetworkObjectIndex {
         return null;
     }
 
-    public AbstractInjectionImpl getRegulatingEquipment(String id, ResourceType resourceType) {
-        return switch (resourceType) {
-            case STATIC_VAR_COMPENSATOR -> getStaticVarCompensator(id).orElse(null);
-            case GENERATOR -> getGenerator(id).orElse(null);
-            case VSC_CONVERTER_STATION -> getVscConverterStation(id).orElse(null);
-            case SHUNT_COMPENSATOR -> getShuntCompensator(id).orElse(null);
-            default -> throw new PowsyblException(String.format("equipement : %s of type %s does not regulate", id, resourceType));
-        };
-    }
-
-    public AbstractIdentifiableImpl getIdentifiable(String id, ResourceType resourceType) {
-        return switch (resourceType) {
-            case LOAD -> getLoad(id).orElse(null);
-            case STATIC_VAR_COMPENSATOR -> getStaticVarCompensator(id).orElse(null);
-            case LINE -> getLine(id).orElse(null);
-            case BATTERY -> getBattery(id).orElse(null);
-            case GENERATOR -> getGenerator(id).orElse(null);
-            case BUSBAR_SECTION -> getBusbarSection(id).orElse(null);
-            case TWO_WINDINGS_TRANSFORMER -> getTwoWindingsTransformer(id).orElse(null);
-            case THREE_WINDINGS_TRANSFORMER -> getThreeWindingsTransformer(id).orElse(null);
-            case VSC_CONVERTER_STATION -> getVscConverterStation(id).orElse(null);
-            case SHUNT_COMPENSATOR -> getShuntCompensator(id).orElse(null);
-            case VOLTAGE_LEVEL -> getVoltageLevel(id).orElse(null);
-            case DANGLING_LINE -> getDanglingLine(id).orElse(null);
-            case SUBSTATION -> getSubstation(id).orElse(null);
-            case LCC_CONVERTER_STATION -> getLccConverterStation(id).orElse(null);
-            case SWITCH -> getSwitch(id).orElse(null);
-            case HVDC_LINE -> getHvdcLine(id).orElse(null);
-            case GROUND -> getGround(id).orElse(null);
-            case CONFIGURED_BUS -> getConfiguredBus(id).orElse(null);
-            case TIE_LINE -> getTieLine(id).orElse(null);
-            case NETWORK -> throw new PowsyblException("the identifiable asked can not be the network");
-        };
-    }
-
     public void removeDanglingLine(String danglingLineId) {
         danglingLineCache.remove(danglingLineId);
     }

@@ -65,6 +65,7 @@ public enum ResourceType {
             case DANGLING_LINE -> DANGLING_LINE;
             case STATIC_VAR_COMPENSATOR -> STATIC_VAR_COMPENSATOR;
             case HVDC_CONVERTER_STATION -> VSC_CONVERTER_STATION;
+            case GROUND -> GROUND;
             default -> throw new PowsyblException("can not be converted to resourceType");
         };
     }
