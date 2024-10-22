@@ -18,72 +18,90 @@ import static org.junit.Assert.*;
 public class VoltageLevelTest {
 
     @Test
+    // For busbreaker topology,
+    // set in busbreakerview when busview cache exists
+    // here we use setV and in other tests we use setAngle to test
+    // all combinations of topology and update order
     public void testBusBreakerSetVUpdateVoltageLevel() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
-        // Update voltage using BusView
+        // Update voltage using BusView calculated bus, should also set the BusBreakerView configured bus immediately
         l1.getTerminal1().getBusView().getBus().setV(222);
 
-        // Verify the voltage update in BusBreakerView
+        // Verify voltage update in BusBreakerView configured bus
         assertEquals("Voltage should match in BusBreakerView after update in BusView", 222, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
 
-        // Set voltage using BusBreakerView
+        // Set voltage using BusBreakerView configured bus, should set the existing cache of the BusView calculated bus immediately
         l1.getTerminal1().getBusBreakerView().getBus().setV(400.0);
 
-        // Verify voltage update in BusView
+        // Verify voltage update in pre-existing cached BusView calculated bus
         assertEquals("Voltage should match in BusView after update in BusBreakerView", 400.0, l1.getTerminal1().getBusView().getBus().getV(), 0.0);
     }
 
     @Test
+    // For nodebreaker topology
+    // set in busbreakerview when busview cache doesn't exist,
+    // and then set in busview when busbreakerview cache exists
+    // here we use setV and in other tests we use setAngle to test
+    // all combinations of topology and update order
     public void testNodeBreakerSetVUpdateVoltageLevel() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
-        // Update voltage using BusBreakerView
+        // Update voltage using BusBreakerView calculated bus, with no cache for BusView calculated bus so no immediate update.
         l1.getTerminal1().getBusBreakerView().getBus().setV(222);
 
-        // Verify the voltage update in BusView
+        // Verify the voltage update in BusView calculated bus, here it should getV from BusBreakerView calculated bus when creating the cache
         assertEquals("Voltage should match in BusBreakerView after second update in BusView", 222, l1.getTerminal1().getBusView().getBus().getV(), 0.0);
 
-        // Set voltage using BusView
+        // Set voltage using BusView calculated bus, should setV in the existing BusBreakerView calculated bus cache immediately
         l1.getTerminal1().getBusView().getBus().setV(400.0);
 
-        // Verify voltage update in BusBreakerView
+        // Verify voltage update in pre-existing cached BusBreakerView calculated bus
         assertEquals("Voltage should match in BusBreakerView after update in BusView", 400.0, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
     }
 
     @Test
+    // For busbreaker topology,
+    // set in busbreakerview when busview cache doesn't exist
+    // here we use setAngle and in other tests we use setV to test
+    // all combinations of topology and update order
     public void testBusBreakerSetAngleUpdateVoltageLevel() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
-        // Update angle using BusView
-        l1.getTerminal1().getBusView().getBus().setAngle(111);
+        // Update angle using BusBreakerView configured bus, with no cache for BusView calculated bus so no immediate update.
+        l1.getTerminal1().getBusBreakerView().getBus().setAngle(111);
 
-        // Verify the angle update in BusBreakerView
-        assertEquals("Angle should match in BusView after update in BusBreakerView", 111, l1.getTerminal1().getBusBreakerView().getBus().getAngle(), 0.0);
+        // Verify the angle update in BusView calculated bus, here it should getAngle from BusBreakerView configured bus when creating the cache
+        assertEquals("Angle should match in BusView after update in BusBreakerView", 111, l1.getTerminal1().getBusView().getBus().getAngle(), 0.0);
 
-        // Set angle using BusBreakerView
-        l1.getTerminal1().getBusBreakerView().getBus().setAngle(400.0);
+        // Set angle using BusView calculated bus, should setAngle in the BusBreakerView configured bus immediately
+        l1.getTerminal1().getBusView().getBus().setAngle(400.0);
 
-        // Verify Angle update in BusView
+        // Verify Angle update in BusBreakerView configured bus
         assertEquals("Angle should match in BusView after update in BusBreakerView", 400.0, l1.getTerminal1().getBusView().getBus().getAngle(), 0.0);
     }
 
     @Test
+    // For nodebreaker topology
+    // set in busiew when busbreakervview cache doesn't exist,
+    // and then set in busbreakerview when busview cache exists
+    // here we use setAngle and in other tests we use setV to test
+    // all combinations of topology and update order
     public void testNodeBreakerSetAngleUpdateVoltageLevel() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
-        // Update angle using BusBreakerView
-        l1.getTerminal1().getBusBreakerView().getBus().setAngle(222);
+        // Update angle using BusView calculated bus, with no cache for BusBreakerView calculated bus so no immediate update.
+        l1.getTerminal1().getBusView().getBus().setAngle(222);
 
-        // Verify the angle update in BusView
-        assertEquals("Angle should match in BusBreakerView after second update in BusView", 222, l1.getTerminal1().getBusView().getBus().getAngle(), 0.0);
+        // Verify the angle update in BusBreakerView calculated bus, here it should getV from BusView calculated bus when creating the cache
+        assertEquals("Angle should match in BusBreakerView after second update in BusView", 222, l1.getTerminal1().getBusBreakerView().getBus().getAngle(), 0.0);
 
-        // Set angle using BusView
-        l1.getTerminal1().getBusView().getBus().setAngle(400.0);
+        // Set angle using BusBreakerView calculated bus, should also setAngle in the existing BusView calculated bus cache immediately
+        l1.getTerminal1().getBusBreakerView().getBus().setAngle(400.0);
 
         // Verify angle update in BusBreakerView
         assertEquals("Angle should match in BusBreakerView after update in BusView", 400.0, l1.getTerminal1().getBusBreakerView().getBus().getAngle(), 0.0);
