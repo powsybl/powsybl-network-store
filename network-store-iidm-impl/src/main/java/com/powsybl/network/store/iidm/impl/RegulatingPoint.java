@@ -29,12 +29,12 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
         return identifiable.getResource();
     }
 
-    public RegulationPointAttributes getAttributes() {
-        return attributesGetter.apply(getResource().getAttributes()).getRegulationPoint();
+    public RegulatingPointAttributes getAttributes() {
+        return attributesGetter.apply(getResource().getAttributes()).getRegulatingPoint();
     }
 
-    private RegulationPointAttributes getAttributes(Resource<?> resource) {
-        return attributesGetter.apply(resource.getAttributes()).getRegulationPoint();
+    private RegulatingPointAttributes getAttributes(Resource<?> resource) {
+        return attributesGetter.apply(resource.getAttributes()).getRegulatingPoint();
     }
 
     public Terminal getRegulatingTerminal() {
@@ -45,11 +45,11 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
 
     public void setRegulatingTerminal(TerminalImpl<?> regulatingTerminal) {
         TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
-            getAttributes().getRegulatingTerminal(), getAttributes().getRegulatingResourceType());
+            getAttributes().getRegulatingTerminal());
         if (oldRegulatingTerminal != null) {
             oldRegulatingTerminal.removeRegulatingPoint(this);
         }
-        regulatingTerminal.addNewRegulatingPoint(this);
+        regulatingTerminal.setAsRegulatingPoint(this);
         identifiable.updateResource(res -> getAttributes((Resource<?>) res)
             .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
         identifiable.updateResource(res -> getAttributes((Resource<?>) res)
@@ -58,14 +58,14 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
 
     public void setRegulatingTerminalAsLocalTerminalAndRemoveRegulation() {
         TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
-            getAttributes().getRegulatingTerminal(), getAttributes().getRegulatingResourceType());
+            getAttributes().getRegulatingTerminal());
         if (oldRegulatingTerminal != null) {
             oldRegulatingTerminal.removeRegulatingPoint(this);
         }
-        setRegulatingTerminalAsLocalTerminal();
+        resetRegulationToLocalTerminal();
     }
 
-    public void setRegulatingTerminalAsLocalTerminal() {
+    public void resetRegulationToLocalTerminal() {
         identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
         identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingResourceType(getAttributes().getResourceType()));
     }
@@ -76,13 +76,15 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
 
     public void removeRegulation() {
         TerminalImpl localTerminal = (TerminalImpl) TerminalRefUtils.getTerminal(index,
-            getAttributes().getLocalTerminal(), getAttributes().getResourceType());
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal(),
-            getAttributes().getRegulatingResourceType());
+            getAttributes().getLocalTerminal());
+        if (localTerminal == null) {
+            throw new PowsyblException("Cannot remove regulation because the local terminal is null");
+        }
+        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         // set local terminal as regulating terminal
-        setRegulatingTerminalAsLocalTerminal();
+        resetRegulationToLocalTerminal();
         // if localTerminal or regulatingTerminal is not connected then the bus is null
-        if (localTerminal.isConnected() && regulatingTerminal.isConnected() && !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
+        if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected() && !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
             switch (getAttributes().getResourceType()) {
                 case STATIC_VAR_COMPENSATOR ->
                     identifiable.updateResource(res -> getAttributes().setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF)), null);

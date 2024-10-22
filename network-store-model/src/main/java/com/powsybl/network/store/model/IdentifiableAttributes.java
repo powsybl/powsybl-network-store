@@ -44,8 +44,4 @@ public interface IdentifiableAttributes extends Attributes {
     Map<String, ExtensionAttributes> getExtensionAttributes();
 
     void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes);
-
-    Map<String, ResourceType> getRegulatingEquipments();
-
-    void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments);
 }

@@ -130,7 +130,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .build();
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-        RegulationPointAttributes regulationPointAttributes = new RegulationPointAttributes(getId(), ResourceType.GENERATOR,
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(getId(), ResourceType.GENERATOR,
             new TerminalRefAttributes(getId(), null), terminalRefAttributes, null, ResourceType.GENERATOR);
 
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder()
@@ -152,7 +152,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .targetV(targetV)
                         .ratedS(ratedS)
                         .reactiveLimits(minMaxAttributes)
-                        .regulationPoint(regulationPointAttributes)
+                        .regulatingPoint(regulatingPointAttributes)
                         .condenser(condenser)
                         .build())
                 .build();

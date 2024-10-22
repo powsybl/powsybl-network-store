@@ -8,17 +8,11 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
-import com.powsybl.network.store.model.ResourceType;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class BusbarSectionToInjectionAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<BusbarSectionAttributes> {
-
-    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
 
     public BusbarSectionToInjectionAdapter(BusbarSectionAttributes attributes) {
         super(attributes);
@@ -92,15 +86,5 @@ public class BusbarSectionToInjectionAdapter extends AbstractIdentifiableToInjec
     @Override
     public void setPosition(ConnectablePositionAttributes position) {
         throw new AssertionError();
-    }
-
-    @Override
-    public Map<String, ResourceType> getRegulatingEquipments() {
-        return regulatingEquipments;
-    }
-
-    @Override
-    public void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments) {
-        this.regulatingEquipments = regulatingEquipments;
     }
 }

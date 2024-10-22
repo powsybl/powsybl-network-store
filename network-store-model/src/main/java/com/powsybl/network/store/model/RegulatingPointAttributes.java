@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Regulation Point attributes")
-public class RegulationPointAttributes extends AbstractAttributes implements Attributes {
+public class RegulatingPointAttributes extends AbstractAttributes implements Attributes {
 
     @Schema(description = "Regulated Equipment Id")
     private String regulatedEquipmentId;

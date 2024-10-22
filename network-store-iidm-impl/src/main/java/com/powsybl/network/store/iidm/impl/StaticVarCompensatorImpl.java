@@ -103,7 +103,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public RegulationMode getRegulationMode() {
-        return RegulationMode.valueOf(getResource().getAttributes().getRegulationPoint().getRegulationMode());
+        return RegulationMode.valueOf(getResource().getAttributes().getRegulatingPoint().getRegulationMode());
     }
 
     @Override

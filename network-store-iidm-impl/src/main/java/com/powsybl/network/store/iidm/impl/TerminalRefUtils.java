@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 
 /**
@@ -19,22 +18,10 @@ public final class TerminalRefUtils {
     }
 
     public static Terminal getTerminal(NetworkObjectIndex index, TerminalRefAttributes terminalRefAttributes) {
-        return getTerminal(index, terminalRefAttributes, null);
-    }
-
-    public static Terminal getTerminal(NetworkObjectIndex index, TerminalRefAttributes terminalRefAttributes, ResourceType resourceType) {
         if (terminalRefAttributes == null) {
             return null;
         }
-        Identifiable<?> identifiable;
-        if (resourceType == null) {
-            identifiable = index.getIdentifiable(terminalRefAttributes.getConnectableId());
-        } else {
-            identifiable = index.getIdentifiable(terminalRefAttributes.getConnectableId(), resourceType);
-        }
-        if (identifiable == null) {
-            return null;
-        }
+        Identifiable<?> identifiable = index.getIdentifiable(terminalRefAttributes.getConnectableId());
 
         String side = terminalRefAttributes.getSide();
 

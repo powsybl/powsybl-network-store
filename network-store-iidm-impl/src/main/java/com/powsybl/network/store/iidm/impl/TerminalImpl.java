@@ -572,7 +572,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         throw new UnsupportedOperationException("Unimplemented method 'getSide'");
     }
 
-    public void addNewRegulatingPoint(RegulatingPoint regulatingPoint) {
+    public void setAsRegulatingPoint(RegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
             .put(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType());
     }
