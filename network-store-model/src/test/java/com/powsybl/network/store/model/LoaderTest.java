@@ -7,10 +7,10 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
@@ -18,13 +18,21 @@ import static org.junit.Assert.assertThrows;
 public class LoaderTest {
     @Test
     public void testLoaderNotFound() {
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoader("unknown"));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoaderByName("unknown"));
         assertEquals("ExtensionLoader not found", exception.getMessage());
     }
 
     @Test
+    public void testLoaderExists() {
+        assertTrue(ExtensionLoaders.loaderExists("loader"));
+        assertFalse(ExtensionLoaders.loaderExists("unknown"));
+        assertTrue(ExtensionLoaders.loaderExists(Extension.class));
+        assertFalse(ExtensionLoaders.loaderExists(Object.class));
+    }
+
+    @Test
     public void testDuplicatedLoader() {
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoader("loader"));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoaderByName("loader"));
         assertEquals("Multiple ExtensionLoaders configuration providers found", exception.getMessage());
     }
 }
