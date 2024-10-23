@@ -810,6 +810,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
+    public void flatten() {
+        // method working with subnetworks
+    }
+
+    @Override
     public void addListener(NetworkListener listener) {
         listeners.add(listener);
     }
