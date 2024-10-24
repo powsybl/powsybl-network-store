@@ -14,7 +14,7 @@ import com.powsybl.network.store.model.Resource;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractHvdcConverterStationImpl<I extends HvdcConverterStation<I>, D extends InjectionAttributes> extends AbstractInjectionImpl<I, D> {
+public abstract class AbstractHvdcConverterStationImpl<I extends HvdcConverterStation<I>, D extends InjectionAttributes> extends AbstractRegulatingEquipment<I, D> {
 
     protected AbstractHvdcConverterStationImpl(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);

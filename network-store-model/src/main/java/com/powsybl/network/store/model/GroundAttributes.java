@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
@@ -43,4 +46,8 @@ public class GroundAttributes extends AbstractIdentifiableAttributes implements 
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
 }

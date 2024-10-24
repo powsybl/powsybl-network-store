@@ -81,6 +81,10 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
 
     void setOperationalLimitsGroups1(Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups);
 
+    Map<String, ResourceType> getRegulatingEquipments();
+
+    void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments);
+
     default OperationalLimitsGroupAttributes getOperationalLimitsGroup1(String id) {
         return getOperationalLimitsGroups1().get(id);
     }

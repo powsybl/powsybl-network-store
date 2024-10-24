@@ -84,6 +84,10 @@ public class DanglingLineAttributes extends AbstractIdentifiableAttributes imple
     @Schema(description = "Tie line ID in case of a paired dangling line")
     private String tieLineId;
 
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
+
     @Override
     @JsonIgnore
     public List<Integer> getSideList() {

@@ -10,9 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.network.store.model.AbstractIdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -26,13 +24,11 @@ import java.util.List;
  */
 public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractConnectableImpl<I, D> implements Injection<I> {
 
-    protected final RegulatingPoint regulatingPoint;
     protected final TerminalImpl<D> terminal;
 
     protected AbstractInjectionImpl(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
         terminal = new TerminalImpl<>(index, this, Resource::getAttributes);
-        regulatingPoint = new RegulatingPoint(index, this, AbstractIdentifiableAttributes.class::cast);
     }
 
     protected abstract I getInjection();
@@ -56,19 +52,6 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
                 null);
         }
         return extension;
-    }
-
-    protected void setRegTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        if (regulatingTerminal instanceof TerminalImpl<?>) {
-            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
-        } else {
-            regulatingPoint.setRegulatingTerminalAsLocalTerminal();
-        }
-    }
-
-    public Terminal getRegulatingTerminal() {
-        return regulatingPoint.getRegulatingTerminal();
     }
 
     @Override
