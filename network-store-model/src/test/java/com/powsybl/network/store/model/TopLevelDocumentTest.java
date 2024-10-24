@@ -111,7 +111,7 @@ public class TopLevelDocumentTest {
                 .node(1)
                 .targetP(3)
                 .targetV(4)
-                .regulationPoint(regulatingPointAttributes)
+                .regulatingPoint(regulatingPointAttributes)
                 .regulatingEquipments(regEquipments)
                 .build();
 
@@ -123,7 +123,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(resourceGenerator);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"regulationPoint\":{\"regulatedEquipmentId\":\"gen1\",\"resourceType\":\"GENERATOR\",\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,\"regulatingResourceType\":\"GENERATOR\"},\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\",\"minP\":2.0,\"maxP\":1.0,\"voltageRegulatorOn\":false,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"condenser\":false,\"regulatingEquipments\":{\"gen1\":\"GENERATOR\",\"gen2\":\"GENERATOR\"}}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"regulatingPoint\":{\"regulatedEquipmentId\":\"gen1\",\"resourceType\":\"GENERATOR\",\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,\"regulatingResourceType\":\"GENERATOR\"},\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\",\"minP\":2.0,\"maxP\":1.0,\"voltageRegulatorOn\":false,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"condenser\":false,\"regulatingEquipments\":{\"gen1\":\"GENERATOR\",\"gen2\":\"GENERATOR\"}}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resourceGenerator, document2.getData().get(0));
@@ -145,7 +145,7 @@ public class TopLevelDocumentTest {
             .bus("bus1")
             .fictitious(false)
             .targetV(10.0)
-            .regulationPoint(regulatingPointAttributes)
+            .regulatingPoint(regulatingPointAttributes)
             .regulatingEquipments(regEquipments)
             .build();
 
@@ -157,7 +157,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(resourceShuntCompensator);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"SHUNT_COMPENSATOR\",\"id\":\"shunt1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"regulationPoint\":{\"regulatedEquipmentId\":\"gen1\",\"resourceType\":\"SHUNT_COMPENSATOR\",\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,\"regulatingResourceType\":\"SHUNT_COMPENSATOR\"},\"voltageLevelId\":\"vl1\",\"bus\":\"bus1\",\"sectionCount\":0,\"p\":NaN,\"q\":NaN,\"voltageRegulatorOn\":false,\"targetV\":10.0,\"targetDeadband\":0.0,\"regulatingEquipments\":{\"gen1\":\"GENERATOR\",\"shunt2\":\"SHUNT_COMPENSATOR\"}}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"SHUNT_COMPENSATOR\",\"id\":\"shunt1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"regulatingPoint\":{\"regulatedEquipmentId\":\"gen1\",\"resourceType\":\"SHUNT_COMPENSATOR\",\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,\"regulatingResourceType\":\"SHUNT_COMPENSATOR\"},\"voltageLevelId\":\"vl1\",\"bus\":\"bus1\",\"sectionCount\":0,\"p\":NaN,\"q\":NaN,\"voltageRegulatorOn\":false,\"targetV\":10.0,\"targetDeadband\":0.0,\"regulatingEquipments\":{\"gen1\":\"GENERATOR\",\"shunt2\":\"SHUNT_COMPENSATOR\"}}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resourceShuntCompensator, document2.getData().get(0));
@@ -177,7 +177,7 @@ public class TopLevelDocumentTest {
             .name("name")
             .bus("bus1")
             .fictitious(false)
-            .regulationPoint(regulatingPointAttributes)
+            .regulatingPoint(regulatingPointAttributes)
             .regulatingEquipments(regEquipments)
             .build();
 
@@ -189,7 +189,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(resourceShuntCompensator);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"STATIC_VAR_COMPENSATOR\",\"id\":\"svc1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"regulationPoint\":{\"regulatedEquipmentId\":\"gen1\",\"resourceType\":\"STATIC_VAR_COMPENSATOR\",\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,\"regulatingResourceType\":\"STATIC_VAR_COMPENSATOR\"},\"voltageLevelId\":\"vl1\",\"bus\":\"bus1\",\"bmin\":0.0,\"bmax\":0.0,\"voltageSetPoint\":0.0,\"reactivePowerSetPoint\":0.0,\"p\":NaN,\"q\":NaN,\"regulatingEquipments\":{\"shunt3\":\"SHUNT_COMPENSATOR\",\"gen2\":\"GENERATOR\"}}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"STATIC_VAR_COMPENSATOR\",\"id\":\"svc1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"regulatingPoint\":{\"regulatedEquipmentId\":\"gen1\",\"resourceType\":\"STATIC_VAR_COMPENSATOR\",\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,\"regulatingResourceType\":\"STATIC_VAR_COMPENSATOR\"},\"voltageLevelId\":\"vl1\",\"bus\":\"bus1\",\"bmin\":0.0,\"bmax\":0.0,\"voltageSetPoint\":0.0,\"reactivePowerSetPoint\":0.0,\"p\":NaN,\"q\":NaN,\"regulatingEquipments\":{\"shunt3\":\"SHUNT_COMPENSATOR\",\"gen2\":\"GENERATOR\"}}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resourceShuntCompensator, document2.getData().get(0));

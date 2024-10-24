@@ -16,25 +16,25 @@ import java.util.function.Function;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl identifiable,
-                              Function<Attributes, AbstractIdentifiableAttributes> attributesGetter) {
+public record RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipment identifiable,
+                              Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
 
-    public RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl identifiable, Function<Attributes, AbstractIdentifiableAttributes> attributesGetter) {
+    public RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipment identifiable, Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
         this.index = index;
         this.attributesGetter = Objects.requireNonNull(attributesGetter);
         this.identifiable = identifiable;
     }
 
-    private Resource<AbstractIdentifiableAttributes> getResource() {
+    private Resource<AbstractRegulatingEquipmentAttributes> getResource() {
         return identifiable.getResource();
     }
 
     public RegulatingPointAttributes getAttributes() {
-        return attributesGetter.apply(getResource().getAttributes()).getRegulationPoint();
+        return attributesGetter.apply(getResource().getAttributes()).getRegulatingPoint();
     }
 
     private RegulatingPointAttributes getAttributes(Resource<?> resource) {
-        return attributesGetter.apply(resource.getAttributes()).getRegulationPoint();
+        return attributesGetter.apply(resource.getAttributes()).getRegulatingPoint();
     }
 
     public Terminal getRegulatingTerminal() {
@@ -83,9 +83,16 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         // set local terminal as regulating terminal
         resetRegulationToLocalTerminal();
+        // rest regulation mode for equipment having one
+        resetRegulationMode(regulatingTerminal, localTerminal);
+    }
+
+    private void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal) {
         // if localTerminal or regulatingTerminal is not connected then the bus is null
-        if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected() && !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
+        if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected() &&
+            !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
             switch (getAttributes().getResourceType()) {
+                // for svc we set the regulation mode to Off if the regulation was not on the same bus than the svc. If the svc is on the same bus were the equipment was remove we keep the regulation
                 case STATIC_VAR_COMPENSATOR ->
                     identifiable.updateResource(res -> getAttributes().setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF)), null);
                 case GENERATOR, SHUNT_COMPENSATOR, VSC_CONVERTER_STATION -> {

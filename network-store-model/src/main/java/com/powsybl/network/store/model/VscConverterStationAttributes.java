@@ -22,7 +22,7 @@ import java.util.Map;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "VSC converter station attributes")
-public class VscConverterStationAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class VscConverterStationAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;

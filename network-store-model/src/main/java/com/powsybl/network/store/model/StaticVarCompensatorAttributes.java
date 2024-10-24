@@ -22,7 +22,7 @@ import java.util.Map;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Static var compensator attributes")
-public class StaticVarCompensatorAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes {
+public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;

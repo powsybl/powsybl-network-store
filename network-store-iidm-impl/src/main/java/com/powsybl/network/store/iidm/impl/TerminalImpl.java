@@ -585,8 +585,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     public void removeAsRegulatingPoint() {
         getAttributes().getRegulatingEquipments().forEach((regulatingEquipmentId, resourceType) -> {
             Identifiable identifiable = index.getIdentifiable(regulatingEquipmentId);
-            if (identifiable instanceof AbstractInjectionImpl injection) {
-                injection.getRegulatingPoint().removeRegulation();
+            if (identifiable instanceof AbstractRegulatingEquipment regulatingEquipment) {
+                regulatingEquipment.getRegulatingPoint().removeRegulation();
             }
 
         });

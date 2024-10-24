@@ -285,7 +285,7 @@ public class ResourceTest {
                 .node(1)
                 .targetP(3)
                 .targetV(4)
-                .regulationPoint(regulatingPointAttributes)
+                .regulatingPoint(regulatingPointAttributes)
                 .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                 .build();
 
@@ -304,10 +304,10 @@ public class ResourceTest {
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getQ()));
 
-        assertEquals("idEq", resourceGenerator.getAttributes().getRegulationPoint().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceGenerator.getAttributes().getRegulationPoint().getRegulatingTerminal().getSide());
-        assertEquals("gen", resourceGenerator.getAttributes().getRegulationPoint().getLocalTerminal().getConnectableId());
-        assertNull(resourceGenerator.getAttributes().getRegulationPoint().getLocalTerminal().getSide());
+        assertEquals("idEq", resourceGenerator.getAttributes().getRegulatingPoint().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceGenerator.getAttributes().getRegulatingPoint().getRegulatingTerminal().getSide());
+        assertEquals("gen", resourceGenerator.getAttributes().getRegulatingPoint().getLocalTerminal().getConnectableId());
+        assertNull(resourceGenerator.getAttributes().getRegulatingPoint().getLocalTerminal().getSide());
         assertFalse(resourceGenerator.getAttributes().getRegulatingEquipments().isEmpty());
         assertEquals(ResourceType.GENERATOR, resourceGenerator.getAttributes().getRegulatingEquipments().get("gen1"));
     }
@@ -408,7 +408,7 @@ public class ResourceTest {
                 .q(200)
                 .model(linearModelAttributes)
                 .sectionCount(2)
-                .regulationPoint(regulatingPointAttributes)
+                .regulatingPoint(regulatingPointAttributes)
                 .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                 .build();
 
@@ -418,10 +418,10 @@ public class ResourceTest {
                 .build();
 
         assertFalse(resourceShunt.getAttributes().isFictitious());
-        assertEquals("idEq", resourceShunt.getAttributes().getRegulationPoint().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceShunt.getAttributes().getRegulationPoint().getRegulatingTerminal().getSide());
-        assertEquals("shunt", resourceShunt.getAttributes().getRegulationPoint().getLocalTerminal().getConnectableId());
-        assertNull(resourceShunt.getAttributes().getRegulationPoint().getLocalTerminal().getSide());
+        assertEquals("idEq", resourceShunt.getAttributes().getRegulatingPoint().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceShunt.getAttributes().getRegulatingPoint().getRegulatingTerminal().getSide());
+        assertEquals("shunt", resourceShunt.getAttributes().getRegulatingPoint().getLocalTerminal().getConnectableId());
+        assertNull(resourceShunt.getAttributes().getRegulatingPoint().getLocalTerminal().getSide());
         assertEquals(100., resourceShunt.getAttributes().getP(), 0.001);
         assertEquals(200, resourceShunt.getAttributes().getQ(), 0.001);
         assertEquals(2, resourceShunt.getAttributes().getSectionCount());

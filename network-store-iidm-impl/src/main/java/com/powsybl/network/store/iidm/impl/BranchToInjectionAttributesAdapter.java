@@ -18,6 +18,7 @@ import java.util.Objects;
 public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<BranchAttributes> {
 
     private final AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch;
+
     private final boolean side1;
 
     public BranchToInjectionAttributesAdapter(AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch, BranchAttributes attributes, boolean side1) {

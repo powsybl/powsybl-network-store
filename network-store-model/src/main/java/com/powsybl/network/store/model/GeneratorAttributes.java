@@ -23,7 +23,7 @@ import java.util.Map;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Generator attributes")
-public class GeneratorAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;

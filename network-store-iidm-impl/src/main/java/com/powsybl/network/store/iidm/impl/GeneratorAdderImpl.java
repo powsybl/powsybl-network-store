@@ -152,7 +152,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .targetV(targetV)
                         .ratedS(ratedS)
                         .reactiveLimits(minMaxAttributes)
-                        .regulationPoint(regulatingPointAttributes)
+                        .regulatingPoint(regulatingPointAttributes)
                         .condenser(condenser)
                         .build())
                 .build();

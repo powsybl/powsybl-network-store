@@ -92,7 +92,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
                         .bmax(bMax)
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
-                        .regulationPoint(regulatingPointAttributes)
+                        .regulatingPoint(regulatingPointAttributes)
                         .build())
                 .build();
         StaticVarCompensatorImpl svc = getIndex().createStaticVarCompensator(resource);
