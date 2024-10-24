@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.network.store.model.*;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
