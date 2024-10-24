@@ -17,7 +17,6 @@ import java.util.Set;
  */
 public abstract class AbstractIdentifiableToInjectionAttributesAdapter<T extends IdentifiableAttributes> implements InjectionAttributes {
     protected final T attributes;
-    protected Map<String, ResourceType> regulatingEquipments = new HashMap<>();
 
     protected AbstractIdentifiableToInjectionAttributesAdapter(T attributes) {
         this.attributes = attributes;
@@ -91,15 +90,5 @@ public abstract class AbstractIdentifiableToInjectionAttributesAdapter<T extends
     @Override
     public void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes) {
         attributes.setExtensionAttributes(extensionAttributes);
-    }
-
-    @Override
-    public Map<String, ResourceType> getRegulatingEquipments() {
-        return regulatingEquipments;
-    }
-
-    @Override
-    public void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments) {
-        this.regulatingEquipments = regulatingEquipments;
     }
 }
