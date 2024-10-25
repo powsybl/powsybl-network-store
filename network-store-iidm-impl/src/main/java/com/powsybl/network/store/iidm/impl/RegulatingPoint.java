@@ -67,7 +67,7 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipm
 
     public void resetRegulationToLocalTerminal() {
         identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
-        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingResourceType(getAttributes().getResourceType()));
+        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingResourceType(getAttributes().getRegulatingResourceType()));
     }
 
     public void setRegulationMode(String regulationModeOrdinal) {
@@ -91,7 +91,7 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipm
         // if localTerminal or regulatingTerminal is not connected then the bus is null
         if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected() &&
             !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
-            switch (getAttributes().getResourceType()) {
+            switch (getAttributes().getRegulatingResourceType()) {
                 // for svc we set the regulation mode to Off if the regulation was not on the same bus than the svc. If the svc is on the same bus were the equipment was remove we keep the regulation
                 case STATIC_VAR_COMPENSATOR ->
                     identifiable.updateResource(res -> getAttributes().setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF)), null);
@@ -112,6 +112,6 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipm
     }
 
     public ResourceType getRegulatingEquipmentType() {
-        return getAttributes().getResourceType();
+        return getAttributes().getRegulatingResourceType();
     }
 }

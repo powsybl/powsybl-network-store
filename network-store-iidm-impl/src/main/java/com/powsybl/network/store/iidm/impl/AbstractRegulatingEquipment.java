@@ -22,7 +22,7 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractRegulatingEquipment<I extends Injection<I>, D extends InjectionAttributes> extends AbstractInjectionImpl<I, D> implements Injection<I> {
 
-    RegulatingPoint regulatingPoint;
+    protected final RegulatingPoint regulatingPoint;
 
     protected AbstractRegulatingEquipment(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);

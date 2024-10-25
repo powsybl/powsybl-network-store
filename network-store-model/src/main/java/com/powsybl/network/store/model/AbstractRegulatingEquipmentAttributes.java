@@ -22,5 +22,5 @@ import lombok.experimental.SuperBuilder;
 public abstract class AbstractRegulatingEquipmentAttributes extends AbstractIdentifiableAttributes {
 
     @Schema(description = "Regulating point")
-    RegulatingPointAttributes regulatingPoint;
+    private RegulatingPointAttributes regulatingPoint;
 }

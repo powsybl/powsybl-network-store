@@ -25,8 +25,8 @@ public class RegulatingPointAttributes extends AbstractAttributes implements Att
     @Schema(description = "Regulated Equipment Id")
     private String regulatedEquipmentId;
 
-    @Schema(description = "Resource type")
-    private ResourceType resourceType;
+    @Schema(description = "Regulated equipment resource type")
+    private ResourceType regulatedResourceType;
 
     @Schema(description = "Local terminal")
     private TerminalRefAttributes localTerminal;
@@ -37,6 +37,6 @@ public class RegulatingPointAttributes extends AbstractAttributes implements Att
     @Schema(description = "Regulation mode ordinal")
     private String regulationMode;
 
-    @Schema(description = "Regulated equipment resource type")
+    @Schema(description = "Resource type of the regulating equipment")
     private ResourceType regulatingResourceType;
 }
