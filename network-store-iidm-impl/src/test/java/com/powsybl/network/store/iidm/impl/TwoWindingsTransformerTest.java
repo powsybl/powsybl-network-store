@@ -11,9 +11,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,6 +33,19 @@ class TwoWindingsTransformerTest {
         TwoWindingsTransformer twtWithPhaseTapChanger = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
         twtWithPhaseTapChanger.getPhaseTapChanger().remove();
         assertNull(twtWithPhaseTapChanger.getPhaseTapChanger());
+    }
+
+    @Test
+    void testPhaseTapChangerEqualsAndHashCode() {
+        Network network = createNetwork();
+        TwoWindingsTransformer twtWithPhaseTapChanger = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        Set<PhaseTapChanger> phaseTapChangers = new HashSet<>();
+        phaseTapChangers.add(twtWithPhaseTapChanger.getPhaseTapChanger());
+
+        // use the equals and the hashcode of PhaseTapChangerImpl
+        phaseTapChangers.remove(twtWithPhaseTapChanger.getPhaseTapChanger());
+
+        assertEquals(0, phaseTapChangers.size());
     }
 
     @Test
