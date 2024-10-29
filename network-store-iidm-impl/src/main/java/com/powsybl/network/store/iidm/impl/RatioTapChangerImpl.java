@@ -180,4 +180,32 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
         AbstractTapChanger.validateStep(step, parent);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RatioTapChangerImpl that = (RatioTapChangerImpl) o;
+        // check phase tap changer are on same leg
+        if (!Objects.equals(that.getTransformer().getClass(), getTransformer().getClass())) {
+            return false;
+        }
+        if (that.getTransformer() instanceof ThreeWindingsTransformerImpl &&
+            !Objects.equals(((ThreeWindingsTransformerImpl.LegImpl) parent).getSide(),
+                ((ThreeWindingsTransformerImpl.LegImpl) that.getParent()).getSide())) {
+            return false;
+        }
+        return Objects.equals(getTransformer().getId(), that.getTransformer().getId()) &&
+            Objects.equals(getRegulationMode(), that.getRegulationMode()) &&
+            Objects.equals(getRegulationValue(), that.getRegulationValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getParent(), getTransformer().getId(), getRegulationMode(), getRegulationValue());
+    }
 }
