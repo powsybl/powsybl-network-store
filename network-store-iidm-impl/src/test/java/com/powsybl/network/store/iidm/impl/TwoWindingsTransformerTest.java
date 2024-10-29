@@ -39,6 +39,7 @@ class TwoWindingsTransformerTest {
     void testPhaseTapChangerEqualsAndHashCode() {
         Network network = createNetwork();
         TwoWindingsTransformer twtWithPhaseTapChanger = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer twtWithRatioTapChanger = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
         Set<PhaseTapChanger> phaseTapChangers = new HashSet<>();
         phaseTapChangers.add(twtWithPhaseTapChanger.getPhaseTapChanger());
 
@@ -46,6 +47,9 @@ class TwoWindingsTransformerTest {
         phaseTapChangers.remove(twtWithPhaseTapChanger.getPhaseTapChanger());
 
         assertEquals(0, phaseTapChangers.size());
+        assertTrue(twtWithPhaseTapChanger.getPhaseTapChanger().equals(twtWithPhaseTapChanger.getPhaseTapChanger()));
+        assertFalse(twtWithPhaseTapChanger.getPhaseTapChanger().equals(null));
+        assertFalse(twtWithPhaseTapChanger.getPhaseTapChanger().equals(twtWithRatioTapChanger.getPhaseTapChanger()));
     }
 
     @Test

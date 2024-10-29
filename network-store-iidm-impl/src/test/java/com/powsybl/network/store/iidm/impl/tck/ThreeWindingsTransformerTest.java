@@ -6,16 +6,15 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tck.AbstractThreeWindingsTransformerTest;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,5 +42,25 @@ class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest 
         assertEquals(List.of(terminal1), ((ThreeWindingsTransformerImpl) twt).getTerminals(ThreeSides.ONE));
         assertEquals(List.of(terminal2), ((ThreeWindingsTransformerImpl) twt).getTerminals(ThreeSides.TWO));
         assertEquals(List.of(terminal3), ((ThreeWindingsTransformerImpl) twt).getTerminals(ThreeSides.THREE));
+    }
+
+    @Test
+    void testPhaseTapChangerEqualsAndHashCode() {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+        Set<RatioTapChanger> ratioTapChangers = new HashSet<>();
+        ratioTapChangers.add(twt.getLeg2().getRatioTapChanger());
+        ratioTapChangers.add(twt.getLeg2().getRatioTapChanger());
+        ratioTapChangers.remove(twt.getLeg3().getRatioTapChanger());
+
+        assertEquals(1, ratioTapChangers.size());
+
+        // use the equals and the hashcode of PhaseTapChangerImpl
+        ratioTapChangers.remove(twt.getLeg2().getRatioTapChanger());
+
+        assertEquals(0, ratioTapChangers.size());
+        assertTrue(twt.getLeg2().getRatioTapChanger().equals(twt.getLeg2().getRatioTapChanger()));
+        assertFalse(twt.getLeg2().getRatioTapChanger().equals(null));
+        assertFalse(twt.getLeg2().getRatioTapChanger().equals(twt.getLeg3().getRatioTapChanger()));
     }
 }
