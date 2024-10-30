@@ -181,6 +181,10 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         AbstractTapChanger.validateStep(step, parent);
     }
 
+    // equals and hashCode are overridden to ensure correct behavior of the RatioTapChanger
+    // in hash table-based collections (e.g., HashSet, HashMap). Without these overrides, the default
+    // implementations include this.attributesGetter, which can lead to incorrect behavior in
+    // hash-based collections by affecting instance identification, retrieval and removal.
     @Override
     public boolean equals(Object o) {
         if (this == o) {

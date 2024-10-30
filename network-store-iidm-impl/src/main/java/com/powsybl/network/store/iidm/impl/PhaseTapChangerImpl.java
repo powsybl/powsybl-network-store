@@ -147,10 +147,10 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         }
     }
 
-      // equals and hashCode are overridden to ensure correct behavior of the PhaseTapChanger 
-      // in hash table-based collections (e.g., HashSet, HashMap). Without these overrides, the default 
-      // implementations include this.attributesGetter, which can lead to incorrect behavior in 
-      // hash-based collections by affecting instance identification, retrieval and removal.
+    // equals and hashCode are overridden to ensure correct behavior of the PhaseTapChanger
+    // in hash table-based collections (e.g., HashSet, HashMap). Without these overrides, the default
+    // implementations include this.attributesGetter, which can lead to incorrect behavior in
+    // hash-based collections by affecting instance identification, retrieval and removal.
     @Override
     public boolean equals(Object o) {
         if (this == o) {
