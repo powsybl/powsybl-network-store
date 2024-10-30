@@ -64,7 +64,7 @@ class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest 
         assertEquals(0, ratioTapChangers.size());
         assertEquals(twt.getLeg2().getRatioTapChanger(), twt.getLeg2().getRatioTapChanger());
         assertNull(twt.getLeg1().getRatioTapChanger());
-        assertNotEquals(null, twt.getLeg2().getRatioTapChanger());
+        assertNotNull(twt.getLeg2().getRatioTapChanger());
         assertNotEquals(twt.getLeg2().getRatioTapChanger(), twt.getLeg3().getRatioTapChanger());
         assertNotEquals(twt2.getRatioTapChanger(), twt.getLeg2().getRatioTapChanger());
         assertNotEquals(twt.getLeg2().getRatioTapChanger(), twt2.getRatioTapChanger());

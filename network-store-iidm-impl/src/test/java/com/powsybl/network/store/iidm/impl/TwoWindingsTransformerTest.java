@@ -47,9 +47,9 @@ class TwoWindingsTransformerTest {
         phaseTapChangers.remove(twtWithPhaseTapChanger.getPhaseTapChanger());
 
         assertEquals(0, phaseTapChangers.size());
-        assertTrue(twtWithPhaseTapChanger.getPhaseTapChanger().equals(twtWithPhaseTapChanger.getPhaseTapChanger()));
-        assertFalse(twtWithPhaseTapChanger.getPhaseTapChanger().equals(null));
-        assertFalse(twtWithPhaseTapChanger.getPhaseTapChanger().equals(twtWithRatioTapChanger.getPhaseTapChanger()));
+        assertEquals(twtWithPhaseTapChanger.getPhaseTapChanger(), twtWithPhaseTapChanger.getPhaseTapChanger());
+        assertNotNull(twtWithPhaseTapChanger.getPhaseTapChanger());
+        assertNotEquals(twtWithPhaseTapChanger.getPhaseTapChanger(), twtWithRatioTapChanger.getPhaseTapChanger());
     }
 
     @Test
