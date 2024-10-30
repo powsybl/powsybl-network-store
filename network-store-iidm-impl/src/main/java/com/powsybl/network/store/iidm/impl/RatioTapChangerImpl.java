@@ -190,10 +190,10 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
             return false;
         }
         RatioTapChangerImpl that = (RatioTapChangerImpl) o;
-        // check phase tap changer are on same leg
         if (!Objects.equals(that.getTransformer().getClass(), getTransformer().getClass())) {
             return false;
         }
+        // check ratio tap changer are on same leg
         if (that.getTransformer() instanceof ThreeWindingsTransformerImpl &&
             !Objects.equals(((ThreeWindingsTransformerImpl.LegImpl) parent).getSide(),
                 ((ThreeWindingsTransformerImpl.LegImpl) that.getParent()).getSide())) {

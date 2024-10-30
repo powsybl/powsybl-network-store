@@ -58,7 +58,7 @@ class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest 
 
         assertEquals(1, ratioTapChangers.size());
 
-        // use the equals and the hashcode of PhaseTapChangerImpl
+        // use the equals and the hashcode of RatioTapChangerImpl
         ratioTapChangers.remove(twt.getLeg2().getRatioTapChanger());
 
         assertEquals(0, ratioTapChangers.size());

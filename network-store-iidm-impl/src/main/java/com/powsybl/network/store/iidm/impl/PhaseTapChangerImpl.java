@@ -148,7 +148,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     }
 
     // equals and hashcode are override because of ValidationUtil.checkPhaseTapChangerRegulation that
-    // remove the tap changer of the list of allRegulatingTapChanger
+    // remove the tap changer of the list of getAllTapChangers()
     // and it does not work if equals and hascode check this.attributesGetter
     @Override
     public boolean equals(Object o) {
@@ -159,10 +159,10 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
             return false;
         }
         PhaseTapChangerImpl that = (PhaseTapChangerImpl) o;
-        // check phase tap changer are on same leg
         if (!Objects.equals(that.getTransformer().getClass(), getTransformer().getClass())) {
             return false;
         }
+        // check phase tap changer are on same leg
         if (that.getTransformer() instanceof ThreeWindingsTransformerImpl &&
             !Objects.equals(((ThreeWindingsTransformerImpl.LegImpl) parent).getSide(),
                 ((ThreeWindingsTransformerImpl.LegImpl) that.getParent()).getSide())) {
