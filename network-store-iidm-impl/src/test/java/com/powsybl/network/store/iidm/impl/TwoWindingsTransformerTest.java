@@ -50,6 +50,7 @@ class TwoWindingsTransformerTest {
         assertEquals(twtWithPhaseTapChanger.getPhaseTapChanger(), twtWithPhaseTapChanger.getPhaseTapChanger());
         assertNotNull(twtWithPhaseTapChanger.getPhaseTapChanger());
         assertNotEquals(twtWithPhaseTapChanger.getPhaseTapChanger(), twtWithRatioTapChanger.getPhaseTapChanger());
+        assertNull(twtWithPhaseTapChanger.getRatioTapChanger());
     }
 
     @Test
