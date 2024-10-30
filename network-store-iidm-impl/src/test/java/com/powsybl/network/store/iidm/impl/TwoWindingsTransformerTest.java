@@ -36,7 +36,7 @@ class TwoWindingsTransformerTest {
     }
 
     @Test
-    void testPhaseTapChangerEqualsAndHashCode() {
+    void testTapChangerEqualsAndHashCode() {
         Network network = createNetwork();
         TwoWindingsTransformer twtWithPhaseTapChanger = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
         TwoWindingsTransformer twtWithRatioTapChanger = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
@@ -47,10 +47,14 @@ class TwoWindingsTransformerTest {
         phaseTapChangers.remove(twtWithPhaseTapChanger.getPhaseTapChanger());
 
         assertEquals(0, phaseTapChangers.size());
-        assertEquals(twtWithPhaseTapChanger.getPhaseTapChanger(), twtWithPhaseTapChanger.getPhaseTapChanger());
-        assertNotNull(twtWithPhaseTapChanger.getPhaseTapChanger());
-        assertNotEquals(twtWithPhaseTapChanger.getPhaseTapChanger(), twtWithRatioTapChanger.getPhaseTapChanger());
-        assertNull(twtWithPhaseTapChanger.getRatioTapChanger());
+        PhaseTapChanger phaseTapChanger = twtWithPhaseTapChanger.getPhaseTapChanger();
+        RatioTapChanger ratioTapChanger = twtWithRatioTapChanger.getRatioTapChanger();
+        assertEquals(phaseTapChanger, phaseTapChanger);
+        assertEquals(ratioTapChanger, ratioTapChanger);
+        assertNotNull(phaseTapChanger);
+        assertNotNull(ratioTapChanger);
+        assertNotEquals(phaseTapChanger, ratioTapChanger);
+        assertNotEquals(ratioTapChanger, phaseTapChanger);
     }
 
     @Test
