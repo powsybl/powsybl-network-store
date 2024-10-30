@@ -62,19 +62,19 @@ class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest 
         ratioTapChangers.remove(twt.getLeg2().getRatioTapChanger());
 
         assertEquals(0, ratioTapChangers.size());
-        assertTrue(twt.getLeg2().getRatioTapChanger().equals(twt.getLeg2().getRatioTapChanger()));
+        assertEquals(twt.getLeg2().getRatioTapChanger(), twt.getLeg2().getRatioTapChanger());
         assertNull(twt.getLeg1().getRatioTapChanger());
-        assertFalse(twt.getLeg2().getRatioTapChanger().equals(null));
-        assertFalse(twt.getLeg2().getRatioTapChanger().equals(twt.getLeg3().getRatioTapChanger()));
-        assertFalse(twt2.getRatioTapChanger().equals(twt.getLeg2().getRatioTapChanger()));
-        assertFalse(twt.getLeg2().getRatioTapChanger().equals(twt2.getRatioTapChanger()));
+        assertNotEquals(null, twt.getLeg2().getRatioTapChanger());
+        assertNotEquals(twt.getLeg2().getRatioTapChanger(), twt.getLeg3().getRatioTapChanger());
+        assertNotEquals(twt2.getRatioTapChanger(), twt.getLeg2().getRatioTapChanger());
+        assertNotEquals(twt.getLeg2().getRatioTapChanger(), twt2.getRatioTapChanger());
 
         createPhaseTapChangers(twt);
         //phase tap changer
-        assertTrue(twt.getLeg1().getPhaseTapChanger().equals(twt.getLeg1().getPhaseTapChanger()));
+        assertEquals(twt.getLeg1().getPhaseTapChanger(), twt.getLeg1().getPhaseTapChanger());
         assertNull(twt.getLeg3().getPhaseTapChanger());
-        assertFalse(twt.getLeg2().getPhaseTapChanger().equals(twt.getLeg1().getPhaseTapChanger()));
-        assertFalse(twt2.getPhaseTapChanger().equals(twt.getLeg1().getPhaseTapChanger()));
+        assertNotEquals(twt.getLeg2().getPhaseTapChanger(), twt.getLeg1().getPhaseTapChanger());
+        assertNotEquals(twt2.getPhaseTapChanger(), twt.getLeg1().getPhaseTapChanger());
     }
 
     private void createPhaseTapChangers(ThreeWindingsTransformer twt) {
