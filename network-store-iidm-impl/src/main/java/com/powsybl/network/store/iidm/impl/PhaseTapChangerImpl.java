@@ -147,9 +147,10 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         }
     }
 
-    // equals and hashcode are override because of ValidationUtil.checkPhaseTapChangerRegulation that
-    // remove the tap changer of the list of getAllTapChangers()
-    // and it does not work if equals and hascode check this.attributesGetter
+      // equals and hashCode are overridden to ensure correct behavior of the PhaseTapChanger 
+      // in hash table-based collections (e.g., HashSet, HashMap). Without these overrides, the default 
+      // implementations include this.attributesGetter, which can lead to incorrect behavior in 
+      // hash-based collections by affecting instance identification, retrieval and removal.
     @Override
     public boolean equals(Object o) {
         if (this == o) {
