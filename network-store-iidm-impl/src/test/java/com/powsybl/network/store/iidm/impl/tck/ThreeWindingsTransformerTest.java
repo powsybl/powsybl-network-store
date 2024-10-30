@@ -74,6 +74,7 @@ class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest 
         assertTrue(twt.getLeg1().getPhaseTapChanger().equals(twt.getLeg1().getPhaseTapChanger()));
         assertNull(twt.getLeg3().getPhaseTapChanger());
         assertFalse(twt.getLeg2().getPhaseTapChanger().equals(twt.getLeg1().getPhaseTapChanger()));
+        assertFalse(twt2.getPhaseTapChanger().equals(twt.getLeg1().getPhaseTapChanger()));
     }
 
     private void createPhaseTapChangers(ThreeWindingsTransformer twt) {
