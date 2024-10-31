@@ -83,6 +83,7 @@ public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterS
         index.notifyAfterRemoval(resource.getId());
     }
 
+    @Override
     public HvdcLine getHvdcLine() {
         // TODO: to optimize later on, this won't work with a lot of HVDC lines
         return index.getHvdcLines()

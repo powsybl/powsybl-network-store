@@ -16,16 +16,18 @@ import java.util.function.Function;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public record RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipment identifiable,
-                              Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
+public final class RegulatingPoint <I extends Injection<I>, D extends InjectionAttributes> {
+    private final NetworkObjectIndex index;
+    private final AbstractRegulatingEquipment<I, D> identifiable;
+    private final Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter;
 
-    public RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipment identifiable, Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
+    public RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipment<I, D> identifiable, Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
         this.index = index;
         this.attributesGetter = Objects.requireNonNull(attributesGetter);
         this.identifiable = identifiable;
     }
 
-    private Resource<AbstractRegulatingEquipmentAttributes> getResource() {
+    private Resource<D> getResource() {
         return identifiable.getResource();
     }
 
@@ -50,9 +52,9 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipm
             oldRegulatingTerminal.removeRegulatingPoint(this);
         }
         regulatingTerminal.setAsRegulatingPoint(this);
-        identifiable.updateResource(res -> getAttributes((Resource<?>) res)
+        identifiable.updateResource(res -> getAttributes(res)
             .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        identifiable.updateResource(res -> getAttributes((Resource<?>) res)
+        identifiable.updateResource(res -> getAttributes(res)
             .setRegulatingResourceType(ResourceType.convert(regulatingTerminal.getConnectable().getType())));
     }
 
@@ -66,25 +68,26 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipm
     }
 
     public void resetRegulationToLocalTerminal() {
-        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
-        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingResourceType(getAttributes().getRegulatingResourceType()));
+        identifiable.updateResource(res -> getAttributes(res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
+        identifiable.updateResource(res -> getAttributes(res).setRegulatingResourceType(getAttributes().getRegulatingResourceType()));
     }
 
     public void setRegulationMode(String regulationModeOrdinal) {
-        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulationMode(regulationModeOrdinal));
+        identifiable.updateResource(res -> getAttributes(res).setRegulationMode(regulationModeOrdinal));
     }
 
     public void removeRegulation() {
-        TerminalImpl localTerminal = (TerminalImpl) TerminalRefUtils.getTerminal(index,
+        Terminal terminal = TerminalRefUtils.getTerminal(index,
             getAttributes().getLocalTerminal());
-        if (localTerminal == null) {
+        if (terminal instanceof TerminalImpl<?> localTerminal) {
+            Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
+            // set local terminal as regulating terminal
+            resetRegulationToLocalTerminal();
+            // rest regulation mode for equipment having one
+            resetRegulationMode(regulatingTerminal, localTerminal);
+        } else {
             throw new PowsyblException("Cannot remove regulation because the local terminal is null");
         }
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
-        // set local terminal as regulating terminal
-        resetRegulationToLocalTerminal();
-        // rest regulation mode for equipment having one
-        resetRegulationMode(regulatingTerminal, localTerminal);
     }
 
     private void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal) {

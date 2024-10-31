@@ -22,11 +22,11 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractRegulatingEquipment<I extends Injection<I>, D extends InjectionAttributes> extends AbstractInjectionImpl<I, D> implements Injection<I> {
 
-    protected final RegulatingPoint regulatingPoint;
+    protected final RegulatingPoint<I, D> regulatingPoint;
 
     protected AbstractRegulatingEquipment(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
-        regulatingPoint = new RegulatingPoint(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
+        regulatingPoint = new RegulatingPoint<>(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
     }
 
     protected void setRegTerminal(Terminal regulatingTerminal) {

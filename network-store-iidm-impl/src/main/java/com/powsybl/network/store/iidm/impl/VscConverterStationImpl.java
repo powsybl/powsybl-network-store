@@ -164,6 +164,7 @@ public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConv
         return this;
     }
 
+    @Override
     public HvdcLine getHvdcLine() {
         // TODO: to optimize later on, this won't work with a lot of HVDC lines
         return index.getHvdcLines()
