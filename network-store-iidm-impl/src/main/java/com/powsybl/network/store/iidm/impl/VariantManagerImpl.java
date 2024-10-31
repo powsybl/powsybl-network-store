@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.model.VariantInfos;
 import com.powsybl.network.store.model.utils.VariantUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +91,7 @@ public class VariantManagerImpl implements VariantManager {
             }
             int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
             // clone resources
-            index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
+            index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId, index.getNetwork().getResource().getAttributes().getVariantMode());
             //If we overwrite the working variant we need to set back the working variant num because it's deleted in the removeVariant method
             if (targetVariantId.equals(workingVariantId)) {
                 index.setWorkingVariantNum(workingVariantNum);

@@ -33,6 +33,12 @@ public class NetworkAttributes extends AbstractIdentifiableAttributes {
     @Schema(description = "Variant ID")
     private String variantId;
 
+    @Schema(description = "Variant mode")
+    private VariantMode variantMode;
+
+    @Schema(description = "Source variant number")
+    private int srcVariantNum;
+
     @Schema(description = "Id by alias")
     private Map<String, String> idByAlias;
 
