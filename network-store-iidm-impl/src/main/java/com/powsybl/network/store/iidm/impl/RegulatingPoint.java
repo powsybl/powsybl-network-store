@@ -55,7 +55,7 @@ public final class RegulatingPoint <I extends Injection<I>, D extends InjectionA
         identifiable.updateResource(res -> getAttributes(res)
             .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
         identifiable.updateResource(res -> getAttributes(res)
-            .setRegulatingResourceType(ResourceType.convert(regulatingTerminal.getConnectable().getType())));
+            .setRegulatedResourceType(ResourceType.convert(regulatingTerminal.getConnectable().getType())));
     }
 
     public void setRegulatingTerminalAsLocalTerminalAndRemoveRegulation() {
@@ -69,7 +69,7 @@ public final class RegulatingPoint <I extends Injection<I>, D extends InjectionA
 
     public void resetRegulationToLocalTerminal() {
         identifiable.updateResource(res -> getAttributes(res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
-        identifiable.updateResource(res -> getAttributes(res).setRegulatingResourceType(getAttributes().getRegulatingResourceType()));
+        identifiable.updateResource(res -> getAttributes(res).setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
     }
 
     public void setRegulationMode(String regulationModeOrdinal) {
@@ -97,7 +97,7 @@ public final class RegulatingPoint <I extends Injection<I>, D extends InjectionA
             switch (getAttributes().getRegulatingResourceType()) {
                 // for svc we set the regulation mode to Off if the regulation was not on the same bus than the svc. If the svc is on the same bus were the equipment was remove we keep the regulation
                 case STATIC_VAR_COMPENSATOR ->
-                    identifiable.updateResource(res -> getAttributes().setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF)), null);
+                    setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF));
                 case GENERATOR, SHUNT_COMPENSATOR, VSC_CONVERTER_STATION -> {
                 }
                 default -> throw new PowsyblException("No regulation for this kind of equipment");
@@ -111,7 +111,7 @@ public final class RegulatingPoint <I extends Injection<I>, D extends InjectionA
     }
 
     public String getRegulatingEquipmentId() {
-        return getAttributes().getRegulatedEquipmentId();
+        return getAttributes().getRegulatingEquipmentId();
     }
 
     public ResourceType getRegulatingEquipmentType() {

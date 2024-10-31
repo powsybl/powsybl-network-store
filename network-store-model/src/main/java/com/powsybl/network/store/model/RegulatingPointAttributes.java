@@ -22,11 +22,11 @@ import lombok.experimental.SuperBuilder;
 @Schema(description = "Regulation Point attributes")
 public class RegulatingPointAttributes extends AbstractAttributes implements Attributes {
 
-    @Schema(description = "Regulated Equipment Id")
-    private String regulatedEquipmentId;
+    @Schema(description = "Regulating Equipment Id")
+    private String regulatingEquipmentId;
 
-    @Schema(description = "Regulated equipment resource type")
-    private ResourceType regulatedResourceType;
+    @Schema(description = "Resource type of the regulating equipment")
+    private ResourceType regulatingResourceType;
 
     @Schema(description = "Local terminal")
     private TerminalRefAttributes localTerminal;
@@ -37,6 +37,6 @@ public class RegulatingPointAttributes extends AbstractAttributes implements Att
     @Schema(description = "Regulation mode ordinal")
     private String regulationMode;
 
-    @Schema(description = "Resource type of the regulating equipment")
-    private ResourceType regulatingResourceType;
+    @Schema(description = "Regulated equipment resource type")
+    private ResourceType regulatedResourceType;
 }
