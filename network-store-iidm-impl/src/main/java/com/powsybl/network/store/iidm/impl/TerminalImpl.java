@@ -572,20 +572,20 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         throw new UnsupportedOperationException("Unimplemented method 'getSide'");
     }
 
-    public void setAsRegulatingPoint(RegulatingPoint regulatingPoint) {
+    public void setAsRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
         getAttributes().getRegulatingEquipments()
             .put(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType());
     }
 
-    public void removeRegulatingPoint(RegulatingPoint regulatingPoint) {
+    public void removeRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
         getAttributes().getRegulatingEquipments()
             .remove(regulatingPoint.getRegulatingEquipmentId());
     }
 
     public void removeAsRegulatingPoint() {
         getAttributes().getRegulatingEquipments().forEach((regulatingEquipmentId, resourceType) -> {
-            Identifiable identifiable = index.getIdentifiable(regulatingEquipmentId);
-            if (identifiable instanceof AbstractRegulatingEquipment regulatingEquipment) {
+            Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentId);
+            if (identifiable instanceof AbstractRegulatingEquipment<?, ?> regulatingEquipment) {
                 regulatingEquipment.getRegulatingPoint().removeRegulation();
             }
 
