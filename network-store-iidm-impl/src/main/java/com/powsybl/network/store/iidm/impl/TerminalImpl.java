@@ -40,8 +40,22 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         this.index = index;
         this.connectable = connectable;
         this.attributesGetter = attributesGetter;
-        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, connectable, attributesGetter);
-        busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter);
+        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, connectable, attributesGetter) {
+            @Override
+            public void moveConnectable(int node, String voltageLevelId) {
+                TopologyPoint oldTopologyPoint = TerminalImpl.this.getTopologyPoint();
+                super.moveConnectable(node, voltageLevelId);
+                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
+            }
+        };
+        busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter) {
+            @Override
+            public void moveConnectable(String busId, boolean connected) {
+                TopologyPoint oldTopologyPoint = TerminalImpl.this.getTopologyPoint();
+                super.moveConnectable(busId, connected);
+                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
+            }
+        };
         busView = new TerminalBusViewImpl<>(index, connectable, attributesGetter);
     }
 
@@ -53,8 +67,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return getTopologyKind() == TopologyKind.NODE_BREAKER;
     }
 
-    private boolean isBusBeakerTopologyKind() {
-        return getTopologyKind() == TopologyKind.BUS_BREAKER;
+    private TopologyPoint getTopologyPoint() {
+        return isNodeBeakerTopologyKind() ? new NodeTopologyPointImpl(getAttributes().getVoltageLevelId(), getNodeBreakerView().getNode()) : new BusTopologyPointImpl(getAttributes().getVoltageLevelId(), getBusBreakerView().getConnectableBus().getId(), isConnected());
     }
 
     @Override
@@ -568,8 +582,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     @Override
     public ThreeSides getSide() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSide'");
+        int terminalIndex = connectable.getTerminals().indexOf(this);
+        if (terminalIndex < 0) {
+            throw new IllegalStateException();
+        }
+        return ThreeSides.valueOf(terminalIndex + 1);
     }
 
     public void setAsRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
