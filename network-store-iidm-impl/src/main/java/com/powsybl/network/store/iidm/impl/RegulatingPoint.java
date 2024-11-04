@@ -72,8 +72,8 @@ public final class RegulatingPoint <I extends Injection<I>, D extends InjectionA
         identifiable.updateResource(res -> getAttributes(res).setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
     }
 
-    public void setRegulationMode(String regulationModeOrdinal) {
-        identifiable.updateResource(res -> getAttributes(res).setRegulationMode(regulationModeOrdinal));
+    public void setRegulationMode(String regulationMode) {
+        identifiable.updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
     }
 
     public void removeRegulation() {
