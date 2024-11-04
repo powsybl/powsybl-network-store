@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.model.VariantInfos;
+import com.powsybl.network.store.model.VariantMode;
 import com.powsybl.network.store.model.utils.VariantUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +81,7 @@ public class VariantManagerImpl implements VariantManager {
         List<VariantInfos> variantsInfos = index.getStoreClient().getVariantsInfos(index.getNetworkUuid());
         int sourceVariantNum = VariantUtils.getVariantNum(sourceVariantId, variantsInfos);
         String workingVariantId = workingVariantNum != -1 ? getWorkingVariantId() : null;
+        VariantMode variantMode = workingVariantNum != -1 ? index.getNetwork().getResource().getAttributes().getVariantMode() : VariantMode.FULL; // issue is in testBugNewVariants where you reclone an existing variant and overwrite it
         for (String targetVariantId : targetVariantIds) {
             Optional<VariantInfos> targetVariant = VariantUtils.getVariant(targetVariantId, variantsInfos);
             if (targetVariant.isPresent()) {
@@ -91,7 +93,7 @@ public class VariantManagerImpl implements VariantManager {
             }
             int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
             // clone resources
-            index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId, index.getNetwork().getResource().getAttributes().getVariantMode());
+            index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId, variantMode);
             //If we overwrite the working variant we need to set back the working variant num because it's deleted in the removeVariant method
             if (targetVariantId.equals(workingVariantId)) {
                 index.setWorkingVariantNum(workingVariantNum);
