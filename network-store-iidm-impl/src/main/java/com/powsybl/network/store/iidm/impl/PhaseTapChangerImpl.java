@@ -9,9 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -147,5 +145,37 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         if (Double.isNaN(step.getAlpha())) {
             throw new ValidationException(parent, "step alpha is not set");
         }
+    }
+
+    // equals and hashCode are overridden to ensure correct behavior of the PhaseTapChanger
+    // in hash table-based collections (e.g., HashSet, HashMap). Without these overrides, the default
+    // implementations include this.attributesGetter, which can lead to incorrect behavior in
+    // hash-based collections by affecting instance identification, retrieval and removal.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PhaseTapChangerImpl that = (PhaseTapChangerImpl) o;
+        if (!Objects.equals(that.getTransformer().getClass(), getTransformer().getClass())) {
+            return false;
+        }
+        // check phase tap changer are on same leg
+        if (that.getTransformer() instanceof ThreeWindingsTransformerImpl &&
+            !Objects.equals(((ThreeWindingsTransformerImpl.LegImpl) parent).getSide(),
+                ((ThreeWindingsTransformerImpl.LegImpl) that.getParent()).getSide())) {
+            return false;
+        }
+        return Objects.equals(getTransformer().getId(), that.getTransformer().getId()) &&
+            Objects.equals(getRegulationMode(), that.getRegulationMode()) &&
+            Objects.equals(getRegulationValue(), that.getRegulationValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getParent(), getTransformer().getId(), getRegulationMode(), getRegulationValue());
     }
 }

@@ -180,4 +180,36 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
         AbstractTapChanger.validateStep(step, parent);
     }
+
+    // equals and hashCode are overridden to ensure correct behavior of the RatioTapChanger
+    // in hash table-based collections (e.g., HashSet, HashMap). Without these overrides, the default
+    // implementations include this.attributesGetter, which can lead to incorrect behavior in
+    // hash-based collections by affecting instance identification, retrieval and removal.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RatioTapChangerImpl that = (RatioTapChangerImpl) o;
+        if (!Objects.equals(that.getTransformer().getClass(), getTransformer().getClass())) {
+            return false;
+        }
+        // check ratio tap changer are on same leg
+        if (that.getTransformer() instanceof ThreeWindingsTransformerImpl &&
+            !Objects.equals(((ThreeWindingsTransformerImpl.LegImpl) parent).getSide(),
+                ((ThreeWindingsTransformerImpl.LegImpl) that.getParent()).getSide())) {
+            return false;
+        }
+        return Objects.equals(getTransformer().getId(), that.getTransformer().getId()) &&
+            Objects.equals(getRegulationMode(), that.getRegulationMode()) &&
+            Objects.equals(getRegulationValue(), that.getRegulationValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getParent(), getTransformer().getId(), getRegulationMode(), getRegulationValue());
+    }
 }
