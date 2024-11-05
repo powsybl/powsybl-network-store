@@ -27,7 +27,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttributes implements Contained, TransformerAttributes, LimitHolder {
+public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttributes implements Contained, TransformerAttributes, LimitHolder, RegulatedEquipmentAttributes {
 
     @Schema(description = "Side 1 active power in MW")
     @Builder.Default

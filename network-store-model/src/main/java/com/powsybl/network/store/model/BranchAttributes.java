@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitHolder {
+public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitHolder, RegulatedEquipmentAttributes {
 
     String getVoltageLevelId1();
 
@@ -80,10 +80,6 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     String getSelectedOperationalLimitsGroupId1();
 
     void setOperationalLimitsGroups1(Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups);
-
-    Map<String, ResourceType> getRegulatingEquipments();
-
-    void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments);
 
     default OperationalLimitsGroupAttributes getOperationalLimitsGroup1(String id) {
         return getOperationalLimitsGroups1().get(id);

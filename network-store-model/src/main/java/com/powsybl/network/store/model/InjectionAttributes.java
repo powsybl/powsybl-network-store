@@ -10,13 +10,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.commons.PowsyblException;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface InjectionAttributes extends IdentifiableAttributes, Contained {
+public interface InjectionAttributes extends IdentifiableAttributes, Contained, RegulatedEquipmentAttributes {
 
     String getVoltageLevelId();
 
@@ -50,10 +49,6 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained {
     default Set<String> getContainerIds() {
         return Collections.singleton(getVoltageLevelId());
     }
-
-    Map<String, ResourceType> getRegulatingEquipments();
-
-    void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments);
 
     @JsonIgnore
     @Override

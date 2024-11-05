@@ -27,7 +27,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Busbar section attributes")
-public class BusbarSectionAttributes extends AbstractIdentifiableAttributes implements Contained {
+public class BusbarSectionAttributes extends AbstractIdentifiableAttributes implements Contained, RegulatedEquipmentAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
