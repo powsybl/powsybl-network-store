@@ -34,9 +34,11 @@ public class NetworkAttributes extends AbstractIdentifiableAttributes {
     private String variantId;
 
     @Schema(description = "Variant mode")
+    // This means: "how do you want to clone this variant"
     private VariantMode variantMode;
 
     @Schema(description = "Source variant number")
+    // this means: "what's the full network clone linked to this variant? If it's -1 the variant if full"
     private int srcVariantNum;
 
     @Schema(description = "Id by alias")

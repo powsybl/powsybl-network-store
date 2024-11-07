@@ -81,7 +81,7 @@ public class VariantManagerImpl implements VariantManager {
         List<VariantInfos> variantsInfos = index.getStoreClient().getVariantsInfos(index.getNetworkUuid());
         int sourceVariantNum = VariantUtils.getVariantNum(sourceVariantId, variantsInfos);
         String workingVariantId = workingVariantNum != -1 ? getWorkingVariantId() : null;
-        VariantMode variantMode = workingVariantNum != -1 ? index.getNetwork().getResource().getAttributes().getVariantMode() : VariantMode.FULL; // issue is in testBugNewVariants where you reclone an existing variant and overwrite it
+        VariantMode variantMode = workingVariantNum != -1 ? index.getNetwork().getResource().getAttributes().getVariantMode() : VariantMode.PARTIAL; // issue is in testBugNewVariants where you reclone an existing variant and overwrite it
         for (String targetVariantId : targetVariantIds) {
             Optional<VariantInfos> targetVariant = VariantUtils.getVariant(targetVariantId, variantsInfos);
             if (targetVariant.isPresent()) {

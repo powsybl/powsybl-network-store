@@ -16,18 +16,21 @@ import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.network.store.client.util.ExecutorUtil;
-import com.powsybl.network.store.iidm.impl.*;
+import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.util.TriFunction;
 import com.powsybl.network.store.model.*;
 import com.powsybl.tools.Version;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -256,12 +259,12 @@ public class NetworkStoreService implements AutoCloseable {
         ExecutorUtil.shutdownAndAwaitTermination(executorService);
     }
 
-    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId) {
-        cloneVariant(networkUuid, sourceVariantId, targetVariantId, false);
+    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId, VariantMode variantMode) {
+        cloneVariant(networkUuid, sourceVariantId, targetVariantId, false, variantMode);
     }
 
-    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
+    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite, VariantMode variantMode) {
         NetworkStoreClient client = new RestNetworkStoreClient(restClient);
-        client.cloneNetwork(networkUuid, sourceVariantId, targetVariantId, mayOverwrite);
+        client.cloneNetwork(networkUuid, sourceVariantId, targetVariantId, mayOverwrite, variantMode);
     }
 }

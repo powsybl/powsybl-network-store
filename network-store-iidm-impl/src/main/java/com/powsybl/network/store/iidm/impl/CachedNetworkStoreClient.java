@@ -329,7 +329,19 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         cloneCollection(substationsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(voltageLevelsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(networksCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
-            networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
+                networkResource -> {
+                    networkResource.getAttributes().setVariantId(targetVariantId);
+                    networkResource.getAttributes().setVariantMode(variantMode);
+                    // add a test for this
+                    Resource<NetworkAttributes> srcNetwork = networksCache.getCollection(networkUuid, sourceVariantNum).getResources(networkUuid, sourceVariantNum).stream().findFirst().orElseThrow();
+                    int srcVariantNum = -1;
+                    if (variantMode == VariantMode.PARTIAL) {
+                        srcVariantNum = srcNetwork.getAttributes().getSrcVariantNum() != -1
+                                ? srcNetwork.getAttributes().getSrcVariantNum()
+                                : sourceVariantNum;
+                    }
+                    networkResource.getAttributes().setSrcVariantNum(srcVariantNum);
+                });
 
         variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
                 .add(new VariantInfos(targetVariantId, targetVariantNum, variantMode, sourceVariantNum));

@@ -44,7 +44,7 @@ public class NetworkFactoryImpl implements NetworkFactory {
                 .attributes(NetworkAttributes.builder()
                                              .uuid(networkUuid)
                                              .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
-                                             .variantMode(VariantMode.FULL)
+                                             .variantMode(VariantMode.PARTIAL)
                                              .srcVariantNum(-1)
                                              .caseDate(ZonedDateTime.now())
                                              .forecastDistance(0)
