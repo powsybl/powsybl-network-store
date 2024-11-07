@@ -64,6 +64,8 @@ public enum ResourceType {
             case SHUNT_COMPENSATOR -> SHUNT_COMPENSATOR;
             case DANGLING_LINE -> DANGLING_LINE;
             case STATIC_VAR_COMPENSATOR -> STATIC_VAR_COMPENSATOR;
+            // for now LCC are not implemented yet but it has to be fixed with the implementation
+            // it will need something to difference both
             case HVDC_CONVERTER_STATION -> VSC_CONVERTER_STATION;
             case GROUND -> GROUND;
             default -> throw new PowsyblException("can not be converted to resourceType");

@@ -29,6 +29,7 @@ public abstract class AbstractRegulatingEquipment<I extends Injection<I>, D exte
         regulatingPoint = new RegulatingPoint<>(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
     }
 
+    // should be setRegulatingTerminal but there is already a method with the same name in the regulating equipments
     protected void setRegTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         if (regulatingTerminal instanceof TerminalImpl<?>) {
