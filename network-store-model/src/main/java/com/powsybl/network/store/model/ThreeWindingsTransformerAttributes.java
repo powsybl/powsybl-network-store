@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +27,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttributes implements Contained, TransformerAttributes, LimitHolder {
+public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttributes implements Contained, TransformerAttributes, LimitHolder, RegulatedEquipmentAttributes {
 
     @Schema(description = "Side 1 active power in MW")
     @Builder.Default
@@ -78,6 +79,10 @@ public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttr
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
 
     @Override
     @JsonIgnore

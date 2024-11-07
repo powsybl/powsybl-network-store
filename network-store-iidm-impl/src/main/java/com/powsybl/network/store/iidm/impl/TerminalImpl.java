@@ -36,8 +36,6 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     private final TerminalBusViewImpl<U> busView;
 
-    private final List<RegulatingPoint> regulated = new ArrayList<>();
-
     public TerminalImpl(NetworkObjectIndex index, Connectable<?> connectable, Function<Resource<U>, InjectionAttributes> attributesGetter) {
         this.index = index;
         this.connectable = connectable;
@@ -591,16 +589,24 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return ThreeSides.valueOf(terminalIndex + 1);
     }
 
-    public void addNewRegulatingPoint(RegulatingPoint regulatingPoint) {
-        regulated.add(regulatingPoint);
+    public void setAsRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
+        getAttributes().getRegulatingEquipments()
+            .put(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType());
     }
 
-    public void removeRegulatingPoint(RegulatingPoint regulatingPoint) {
-        regulated.remove(regulatingPoint);
+    public void removeRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
+        getAttributes().getRegulatingEquipments()
+            .remove(regulatingPoint.getRegulatingEquipmentId());
     }
 
     public void removeAsRegulatingPoint() {
-        regulated.forEach(RegulatingPoint::removeRegulation);
-        regulated.clear();
+        getAttributes().getRegulatingEquipments().forEach((regulatingEquipmentId, resourceType) -> {
+            Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentId);
+            if (identifiable instanceof AbstractRegulatingEquipment<?, ?> regulatingEquipment) {
+                regulatingEquipment.getRegulatingPoint().removeRegulation();
+            }
+
+        });
+        getAttributes().getRegulatingEquipments().clear();
     }
 }
