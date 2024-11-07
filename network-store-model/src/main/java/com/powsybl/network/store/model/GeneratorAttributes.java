@@ -11,6 +11,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -20,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Generator attributes")
-public class GeneratorAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -86,4 +89,8 @@ public class GeneratorAttributes extends AbstractIdentifiableAttributes implemen
 
     @Schema(description = "Condenser")
     private boolean condenser;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
 }

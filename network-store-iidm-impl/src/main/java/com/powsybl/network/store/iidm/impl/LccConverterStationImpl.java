@@ -14,7 +14,7 @@ import com.powsybl.network.store.model.Resource;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation {
+public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation {
 
     public LccConverterStationImpl(NetworkObjectIndex index, Resource<LccConverterStationAttributes> resource) {
         super(index, resource);
@@ -81,5 +81,16 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         invalidateCalculatedBuses(getTerminals());
         index.removeLccConverterStation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public HvdcLine getHvdcLine() {
+        // TODO: to optimize later on, this won't work with a lot of HVDC lines
+        return index.getHvdcLines()
+            .stream()
+            .filter(hvdcLine -> hvdcLine.getConverterStation1().getId().equals(getId())
+                || hvdcLine.getConverterStation2().getId().equals(getId()))
+            .findFirst()
+            .orElse(null);
     }
 }

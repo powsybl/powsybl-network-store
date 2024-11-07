@@ -6,10 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.network.store.model.ExtensionAttributes;
-import com.powsybl.network.store.model.IdentifiableAttributes;
-import com.powsybl.network.store.model.InjectionAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 
 import java.util.Map;
 import java.util.Set;

@@ -117,4 +117,8 @@ public class TwoWindingsTransformerAttributes extends AbstractIdentifiableAttrib
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
 }
