@@ -360,28 +360,28 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     public void setCurrentLimits(Void side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
         var operationalLimitsGroup = getResource().getAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
-        LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
-        LimitsAttributes newValue = mergeLimitsAttribute(oldValue, currentLimits);
-        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(newValue));
-        notifyUpdate("currentLimits", oldValue, currentLimits);
+        LimitsAttributes oldLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
+        LimitsAttributes newLimits = mergeLimitsAttribute(oldLimits, currentLimits);
+        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(newLimits));
+        notifyUpdate("currentLimits", oldLimits, currentLimits);
     }
 
-    private LimitsAttributes mergeLimitsAttribute(LimitsAttributes oldValue, LimitsAttributes completeValue) {
-        if (oldValue == null || completeValue == null) {
+    private LimitsAttributes mergeLimitsAttribute(LimitsAttributes oldLimits, LimitsAttributes completeValue) {
+        if (oldLimits == null || completeValue == null) {
             return completeValue;
-        } else {
-            if (!Double.isNaN(completeValue.getPermanentLimit())) {
-                oldValue.setPermanentLimit(completeValue.getPermanentLimit());
-            }
-            if (completeValue.getTemporaryLimits() != null && !completeValue.getTemporaryLimits().isEmpty()) {
-                if (oldValue.getTemporaryLimits() == null) {
-                    oldValue.setTemporaryLimits(completeValue.getTemporaryLimits());
-                } else {
-                    oldValue.getTemporaryLimits().putAll(completeValue.getTemporaryLimits());
-                }
-            }
-            return oldValue;
         }
+        if (!Double.isNaN(completeValue.getPermanentLimit())) {
+            oldLimits.setPermanentLimit(completeValue.getPermanentLimit());
+        }
+        if (completeValue.getTemporaryLimits() != null && !completeValue.getTemporaryLimits().isEmpty()) {
+            if (oldLimits.getTemporaryLimits() == null) {
+                oldLimits.setTemporaryLimits(completeValue.getTemporaryLimits());
+            } else {
+                oldLimits.getTemporaryLimits().putAll(completeValue.getTemporaryLimits());
+            }
+        }
+        return oldLimits;
+
     }
 
     @Override
