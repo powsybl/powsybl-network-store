@@ -367,7 +367,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     private LimitsAttributes mergeLimitsAttribute(LimitsAttributes oldValue, LimitsAttributes completeValue) {
-        if (oldValue == null) {
+        if (oldValue == null || completeValue == null) {
             return completeValue;
         } else {
             if (!Double.isNaN(completeValue.getPermanentLimit())) {

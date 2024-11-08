@@ -301,7 +301,6 @@ public class LineTest {
 
     }
 
-    // problem with random temporary limit when lauching the test
     @Test
     public void testTieLineLimitsCreation() {
         Properties properties = new Properties();
@@ -311,6 +310,7 @@ public class LineTest {
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
 
         //Test current limit overriding
+        assertTrue(tieLine.getCurrentLimits1().isPresent());
         assertEquals(2, tieLine.getCurrentLimits1().get().getTemporaryLimits().size());
         CurrentLimits currentlimits1 = tieLine.newCurrentLimits1()
                 .setPermanentLimit(10.0)
@@ -321,8 +321,9 @@ public class LineTest {
                 .endTemporaryLimit()
                 .add();
         assertNotNull(currentlimits1);
-        assertEquals(3, tieLine.getCurrentLimits1().get().getTemporaryLimits().size());
+        assertEquals(1, tieLine.getCurrentLimits1().get().getTemporaryLimits().size());
 
+        assertTrue(tieLine.getCurrentLimits2().isPresent());
         assertEquals(2, tieLine.getCurrentLimits2().get().getTemporaryLimits().size());
         CurrentLimits currentlimit2 = tieLine.newCurrentLimits2()
                 .setPermanentLimit(10.0)
@@ -333,7 +334,7 @@ public class LineTest {
                 .endTemporaryLimit()
                 .add();
         assertNotNull(currentlimit2);
-        assertEquals(3, tieLine.getCurrentLimits2().get().getTemporaryLimits().size());
+        assertEquals(1, tieLine.getCurrentLimits2().get().getTemporaryLimits().size());
 
         //Test active power limit overriding
         assertNull(tieLine.getNullableActivePowerLimits1());
@@ -396,6 +397,7 @@ public class LineTest {
         Network network = Importer.find("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
+        assertTrue(tieLine.getCurrentLimits1().isPresent());
         tieLine.getCurrentLimits1().get().getPermanentLimit();
 
         assertFalse(tieLine.checkPermanentLimit(TwoSides.ONE, 2.0f, LimitType.CURRENT));
