@@ -121,14 +121,14 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
         } else {
             LOGGER.warn("Temporary limit value changed from {} to {}, but it is not valid", previousValue, temporaryLimitValue);
         }
-        TemporaryLimitAttributes temporaryLimitAttributes = TemporaryLimitAttributes.builder()
+        TemporaryLimitAttributes newTemporaryLimit = TemporaryLimitAttributes.builder()
             .name(identifiedLimit.getName())
             .value(temporaryLimitValue)
             .acceptableDuration(acceptableDuration)
             .operationalLimitsGroupId(identifiedLimit.getOperationalLimitsGroupId())
             .limitType(identifiedLimit.getLimitType())
             .build();
-        attributes.getTemporaryLimits().put(acceptableDuration, temporaryLimitAttributes);
+        attributes.getTemporaryLimits().put(acceptableDuration, newTemporaryLimit);
         return (T) this;
     }
 
