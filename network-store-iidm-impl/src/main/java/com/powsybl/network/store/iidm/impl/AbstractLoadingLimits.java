@@ -109,17 +109,17 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
         if (identifiedLimit == null) {
             throw new ValidationException(owner, "No temporary limit found for the given acceptable duration");
         }
-        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimitTreeMap = new TreeMap<>(attributes.getTemporaryLimits());
+        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>(attributes.getTemporaryLimits());
         // Creation of index markers
-        Map.Entry<Integer, TemporaryLimitAttributes> biggerDurationEntry = temporaryLimitTreeMap.lowerEntry(acceptableDuration);
-        Map.Entry<Integer, TemporaryLimitAttributes> smallerDurationEntry = temporaryLimitTreeMap.higherEntry(acceptableDuration);
+        Map.Entry<Integer, TemporaryLimitAttributes> biggerDurationEntry = temporaryLimits.lowerEntry(acceptableDuration);
+        Map.Entry<Integer, TemporaryLimitAttributes> smallerDurationEntry = temporaryLimits.higherEntry(acceptableDuration);
 
-        double oldValue = identifiedLimit.getValue();
+        double previousValue = identifiedLimit.getValue();
 
         if (isTemporaryLimitValueValid(biggerDurationEntry, smallerDurationEntry, acceptableDuration, temporaryLimitValue)) {
-            LOGGER.info("Temporary limit value changed from {} to {}", oldValue, temporaryLimitValue);
+            LOGGER.info("Temporary limit value changed from {} to {}", previousValue, temporaryLimitValue);
         } else {
-            LOGGER.warn("Temporary limit value changed from {} to {}, but it is not valid", oldValue, temporaryLimitValue);
+            LOGGER.warn("Temporary limit value changed from {} to {}, but it is not valid", previousValue, temporaryLimitValue);
         }
         TemporaryLimitAttributes temporaryLimitAttributes = TemporaryLimitAttributes.builder()
             .name(identifiedLimit.getName())
@@ -137,16 +137,14 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
                                                  int acceptableDuration,
                                                  double temporaryLimitValue) {
 
-        boolean checkAgainstBigger = true;
-        boolean checkAgainstSmaller = true;
-        if (biggerDurationEntry != null) {
-            checkAgainstBigger = biggerDurationEntry.getValue().getAcceptableDuration() > acceptableDuration
-                && biggerDurationEntry.getValue().getValue() < temporaryLimitValue;
-        }
-        if (smallerDurationEntry != null) {
-            checkAgainstSmaller = smallerDurationEntry.getValue().getAcceptableDuration() < acceptableDuration
-                && smallerDurationEntry.getValue().getValue() > temporaryLimitValue;
-        }
+        boolean checkAgainstSmaller = smallerDurationEntry == null
+            || smallerDurationEntry.getValue() != null
+            && smallerDurationEntry.getValue().getAcceptableDuration() < acceptableDuration
+            && smallerDurationEntry.getValue().getValue() > temporaryLimitValue;
+        boolean checkAgainstBigger = biggerDurationEntry == null
+            || biggerDurationEntry.getValue() != null
+            && biggerDurationEntry.getValue().getAcceptableDuration() > acceptableDuration
+            && biggerDurationEntry.getValue().getValue() < temporaryLimitValue;
         return temporaryLimitValue > attributes.getPermanentLimit() && checkAgainstBigger && checkAgainstSmaller;
     }
 }
