@@ -123,7 +123,6 @@ public class AreaTest extends AbstractAreaTest {
         // FIXME
     }
 
-    @Override
     public void mergeAndFlatten() {
         // FIXME
     }

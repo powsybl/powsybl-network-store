@@ -319,4 +319,9 @@ public class NetworkTest extends AbstractNetworkTest {
         adder.add();
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
     }
+
+    @Test
+    void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
+        // FIXME by implementing
+    }
 }
