@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkTest extends AbstractNetworkTest {
+class NetworkTest extends AbstractNetworkTest {
 
     private static final String REGION1 = "region1";
     private static final String VOLTAGE_LEVEL1_BUSBAR_SECTION2 = "voltageLevel1BusbarSection2";
