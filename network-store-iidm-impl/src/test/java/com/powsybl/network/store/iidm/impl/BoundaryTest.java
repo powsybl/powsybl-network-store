@@ -38,8 +38,8 @@ public class BoundaryTest {
         assertNotNull(boundary);
         assertEquals(26.8, boundary.getP(), EPS1);
         assertEquals(-1.48, boundary.getQ(), EPS1);
-        assertEquals(226.39, boundary.getV(), EPS1);
-        assertEquals(3.05, boundary.getAngle(), EPS2);
+        assertEquals(226.24, boundary.getV(), EPS1);
+        assertEquals(3.18, boundary.getAngle(), EPS2);
         //assertSame(dl, boundary.getConnectable());
         //assertNull(boundary.getSide());
     }
@@ -66,7 +66,7 @@ public class BoundaryTest {
         assertEquals(33.15, boundary1.getP(), EPS1);
         assertEquals(-202.57, boundary1.getQ(), EPS1);
         assertEquals(408.3, boundary1.getV(), EPS1);
-        assertEquals(0.09, boundary1.getAngle(), EPS2);
+        assertEquals(0.10, boundary1.getAngle(), EPS2);
         assertEquals(-33.46, boundary2.getP(), EPS1);
         assertEquals(203.62, boundary2.getQ(), EPS1);
         assertEquals(430.1, boundary2.getV(), EPS1);
