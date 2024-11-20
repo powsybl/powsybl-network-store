@@ -6,14 +6,11 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerAttributes;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,18 +20,20 @@ import java.util.function.Supplier;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> implements Validable {
 
     protected final H parent;
 
     protected final NetworkObjectIndex index;
 
     private final String type;
+    protected final TapChangerRegulatingPoint regulatingPoint;
 
     AbstractTapChanger(H parent, NetworkObjectIndex index, String type) {
         this.parent = parent;
         this.index = index;
         this.type = Objects.requireNonNull(type);
+        regulatingPoint = new TapChangerRegulatingPoint(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
     }
 
     AbstractIdentifiableImpl<?, ?> getTransformer() {
@@ -111,19 +110,18 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return (C) this;
     }
 
-    public Terminal getRegulationTerminal() {
-        TerminalRefAttributes terminalRefAttributes = getAttributes().getRegulatingTerminal();
-        return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
+    public C setRegulationTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
+        if (regulatingTerminal instanceof TerminalImpl<?>) {
+            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
+        } else {
+            regulatingPoint.setRegulatingTerminalAsLocalTerminalAndRemoveRegulation();
+        }
+        return (C) this;
     }
 
-    public C setRegulationTerminal(Terminal regulatingTerminal) {
-        if (regulatingTerminal != null && regulatingTerminal.getVoltageLevel().getNetwork() != parent.getNetwork()) {
-            throw new ValidationException(parent, "regulation terminal is not part of the network");
-        }
-        TerminalRefAttributes oldValue = getAttributes().getRegulatingTerminal();
-        getTransformer().updateResource(res -> getAttributes(res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
-        return (C) this;
+    public Terminal getRegulationTerminal() {
+        return regulatingPoint.getRegulatingTerminal();
     }
 
     public double getTargetDeadband() {
@@ -187,5 +185,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         if (Double.isNaN(step.getB())) {
             throw new ValidationException(parent, "step b is not set");
         }
+    }
+
+    @Override
+    public String getMessageHeader() {
+        return getTransformer().getMessageHeader();
     }
 }
