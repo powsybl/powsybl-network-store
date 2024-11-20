@@ -24,4 +24,9 @@ public class TapChangerTest extends AbstractTapChangerTest {
     //  and isRegulating is not updated either
     @Override
     public void undefinedRegulationValueOnlyWarning() { }
+
+    // today in network store when regulating terminal is set to null it is set to the local terminal
+    // see if we want to change that
+    @Override
+    public void nullRegulatingTerminalOnlyWarning() { }
 }

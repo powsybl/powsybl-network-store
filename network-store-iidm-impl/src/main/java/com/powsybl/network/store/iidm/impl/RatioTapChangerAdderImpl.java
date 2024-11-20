@@ -163,7 +163,11 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         tapChangers.remove(tapChangerParent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
+        String regulationModeStr = regulationMode == null ? null : regulationMode.toString();
+
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), ResourceType.RATIO_TAP_CHANGER,
+            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), ThreeSides.TWO.toString()), terminalRefAttributes, regulationModeStr, ResourceType.RATIO_TAP_CHANGER);
 
         RatioTapChangerAttributes ratioTapChangerAttributes = RatioTapChangerAttributes.builder()
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)
@@ -171,10 +175,9 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .tapPosition(tapPosition)
                 .regulating(regulating)
                 .targetDeadband(targetDeadband)
-                .regulationMode(regulationMode)
                 .regulationValue(regulationValue)
                 .steps(steps)
-                .regulatingTerminal(terminalRefAttributes)
+                .regulatingPoint(regulatingPointAttributes)
                 .build();
         TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().getResource().getAttributes());
         if (tapChangerParentAttributes.getPhaseTapChangerAttributes() != null) {

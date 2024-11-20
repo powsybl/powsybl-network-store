@@ -179,16 +179,17 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), ResourceType.PHASE_TAP_CHANGER,
+            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), ThreeSides.ONE.toString()), terminalRefAttributes, regulationMode.toString(), ResourceType.PHASE_TAP_CHANGER);
 
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
                 .lowTapPosition(lowTapPosition)
                 .regulating(regulating)
-                .regulationMode(regulationMode)
                 .regulationValue(regulationValue)
                 .steps(steps)
                 .tapPosition(tapPosition)
                 .targetDeadband(targetDeadband)
-                .regulatingTerminal(terminalRefAttributes)
+                .regulatingPoint(regulatingPointAttributes)
                 .build();
         TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().getResource().getAttributes());
         if (tapChangerParentAttributes.getRatioTapChangerAttributes() != null) {
@@ -196,7 +197,8 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
 
         tapChangerParent.setPhaseTapChanger(phaseTapChangerAttributes);
-
-        return new PhaseTapChangerImpl(tapChangerParent, index, attributesGetter);
+        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(tapChangerParent, index, attributesGetter);
+        tapChanger.setRegulationTerminal(regulatingTerminal);
+        return tapChanger;
     }
 }
