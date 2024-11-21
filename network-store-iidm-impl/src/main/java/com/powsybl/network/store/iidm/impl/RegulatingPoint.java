@@ -7,35 +7,36 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl identifiable,
-                              Function<Attributes, AbstractIdentifiableAttributes> attributesGetter) {
+public final class RegulatingPoint <I extends Injection<I>, D extends InjectionAttributes> {
+    private final NetworkObjectIndex index;
+    private final AbstractRegulatingEquipment<I, D> identifiable;
+    private final Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter;
 
-    public RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl identifiable, Function<Attributes, AbstractIdentifiableAttributes> attributesGetter) {
+    public RegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipment<I, D> identifiable, Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
         this.index = index;
         this.attributesGetter = Objects.requireNonNull(attributesGetter);
         this.identifiable = identifiable;
     }
 
-    private Resource<AbstractIdentifiableAttributes> getResource() {
+    private Resource<D> getResource() {
         return identifiable.getResource();
     }
 
-    private RegulationPointAttributes getAttributes() {
-        return attributesGetter.apply(getResource().getAttributes()).getRegulationPoint();
+    public RegulatingPointAttributes getAttributes() {
+        return attributesGetter.apply(getResource().getAttributes()).getRegulatingPoint();
     }
 
-    private RegulationPointAttributes getAttributes(Resource<?> resource) {
-        return attributesGetter.apply(resource.getAttributes()).getRegulationPoint();
+    private RegulatingPointAttributes getAttributes(Resource<?> resource) {
+        return attributesGetter.apply(resource.getAttributes()).getRegulatingPoint();
     }
 
     public Terminal getRegulatingTerminal() {
@@ -45,28 +46,58 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
     }
 
     public void setRegulatingTerminal(TerminalImpl<?> regulatingTerminal) {
-        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
-        oldRegulatingTerminal.removeRegulatingPoint(this);
-        regulatingTerminal.addNewRegulatingPoint(this);
-        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
+        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
+            getAttributes().getRegulatingTerminal());
+        if (oldRegulatingTerminal != null) {
+            oldRegulatingTerminal.removeRegulatingPoint(this);
+        }
+        regulatingTerminal.setAsRegulatingPoint(this);
+        identifiable.updateResource(res -> getAttributes(res)
+            .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
+        identifiable.updateResource(res -> getAttributes(res)
+            .setRegulatedResourceType(ResourceType.convert(regulatingTerminal.getConnectable().getType())));
     }
 
-    public void setRegulatingTerminalAsLocalTerminal() {
-        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
+    public void setRegulatingTerminalAsLocalTerminalAndRemoveRegulation() {
+        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
+            getAttributes().getRegulatingTerminal());
+        if (oldRegulatingTerminal != null) {
+            oldRegulatingTerminal.removeRegulatingPoint(this);
+        }
+        resetRegulationToLocalTerminal();
     }
 
-    public void setRegulationMode(String regulationModeOrdinal) {
-        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulationMode(regulationModeOrdinal));
+    public void resetRegulationToLocalTerminal() {
+        identifiable.updateResource(res -> getAttributes(res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
+        identifiable.updateResource(res -> getAttributes(res).setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
+    }
+
+    public void setRegulationMode(String regulationMode) {
+        identifiable.updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
     }
 
     public void removeRegulation() {
-        Terminal localTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getLocalTerminal());
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
-        identifiable.updateResource(res -> getAttributes((Resource<?>) res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(localTerminal)));
-        if (!localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
-            switch (getAttributes().getResourceType()) {
+        Terminal terminal = TerminalRefUtils.getTerminal(index,
+            getAttributes().getLocalTerminal());
+        if (terminal instanceof TerminalImpl<?> localTerminal) {
+            Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
+            // set local terminal as regulating terminal
+            resetRegulationToLocalTerminal();
+            // rest regulation mode for equipment having one
+            resetRegulationMode(regulatingTerminal, localTerminal);
+        } else {
+            throw new PowsyblException("Cannot remove regulation because the local terminal is null");
+        }
+    }
+
+    private void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal) {
+        // if localTerminal or regulatingTerminal is not connected then the bus is null
+        if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected() &&
+            !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
+            switch (getAttributes().getRegulatingResourceType()) {
+                // for svc we set the regulation mode to Off if the regulation was not on the same bus than the svc. If the svc is on the same bus were the equipment was remove we keep the regulation
                 case STATIC_VAR_COMPENSATOR ->
-                    identifiable.updateResource(res -> getAttributes().setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF)), null);
+                    setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF));
                 case GENERATOR, SHUNT_COMPENSATOR, VSC_CONVERTER_STATION -> {
                 }
                 default -> throw new PowsyblException("No regulation for this kind of equipment");
@@ -77,5 +108,13 @@ public record RegulatingPoint(NetworkObjectIndex index, AbstractIdentifiableImpl
     void remove() {
         TerminalImpl<?> regulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         regulatingTerminal.removeRegulatingPoint(this);
+    }
+
+    public String getRegulatingEquipmentId() {
+        return getAttributes().getRegulatingEquipmentId();
+    }
+
+    public ResourceType getRegulatingEquipmentType() {
+        return getAttributes().getRegulatingResourceType();
     }
 }

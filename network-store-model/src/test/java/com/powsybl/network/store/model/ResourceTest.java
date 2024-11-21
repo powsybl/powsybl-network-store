@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -155,6 +157,7 @@ public class ResourceTest {
                         .b1(1)
                         .g2(1)
                         .b2(1)
+                        .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                         .build())
                 .build();
 
@@ -167,10 +170,12 @@ public class ResourceTest {
 
         resourceLine.getAttributes().setP1(100.0);
         assertEquals(100.0, resourceLine.getAttributes().getP1(), 0);
+        assertFalse(resourceLine.getAttributes().getRegulatingEquipments().isEmpty());
+        assertEquals(ResourceType.GENERATOR, resourceLine.getAttributes().getRegulatingEquipments().get("gen1"));
     }
 
     @Test
-    public void twoWindingsTransormer() {
+    public void twoWindingsTransformer() {
         Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder()
                 .id("id2WT")
                 .attributes(TwoWindingsTransformerAttributes.builder()
@@ -187,6 +192,7 @@ public class ResourceTest {
                         .g(1)
                         .ratedU1(1.)
                         .ratedU2(1.)
+                        .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                         .build())
                 .build();
 
@@ -199,15 +205,18 @@ public class ResourceTest {
 
         resourceTransformer.getAttributes().setP1(100.0);
         assertEquals(100.0, resourceTransformer.getAttributes().getP1(), 0);
+        assertFalse(resourceTransformer.getAttributes().getRegulatingEquipments().isEmpty());
+        assertEquals(ResourceType.GENERATOR, resourceTransformer.getAttributes().getRegulatingEquipments().get("gen1"));
     }
 
     @Test
-    public void threeWindingsTransormer() throws IOException {
+    public void threeWindingsTransformer() {
         Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder()
                 .id("id3WT")
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name("id3WT")
                         .ratedU0(1)
+                        .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                         .build())
                 .build();
 
@@ -227,6 +236,8 @@ public class ResourceTest {
         assertEquals(200., resourceTransformer.getAttributes().getP1(), 0);
         assertEquals(500., resourceTransformer.getAttributes().getQ2(), 0);
         assertEquals(700., resourceTransformer.getAttributes().getP3(), 0);
+        assertFalse(resourceTransformer.getAttributes().getRegulatingEquipments().isEmpty());
+        assertEquals(ResourceType.GENERATOR, resourceTransformer.getAttributes().getRegulatingEquipments().get("gen1"));
     }
 
     @Test
@@ -238,6 +249,7 @@ public class ResourceTest {
                 .bus("bus1")
                 .fictitious(false)
                 .node(1)
+                .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                 .build();
 
         Resource<LoadAttributes> resourceLoad = Resource.loadBuilder()
@@ -250,14 +262,16 @@ public class ResourceTest {
 
         assertTrue(Double.isNaN(resourceLoad.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceLoad.getAttributes().getQ()));
+        assertFalse(resourceLoad.getAttributes().getRegulatingEquipments().isEmpty());
+        assertEquals(ResourceType.GENERATOR, resourceLoad.getAttributes().getRegulatingEquipments().get("gen1"));
     }
 
     @Test
     public void generator() {
         TerminalRefAttributes regulatingTerminal = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
-        RegulationPointAttributes regulationPointAttributes = RegulationPointAttributes.builder()
-            .regulatedEquipmentId("gen")
-            .resourceType(ResourceType.GENERATOR)
+        RegulatingPointAttributes regulatingPointAttributes = RegulatingPointAttributes.builder()
+            .regulatingEquipmentId("gen")
+            .regulatingResourceType(ResourceType.GENERATOR)
             .regulatingTerminal(regulatingTerminal)
             .localTerminal(new TerminalRefAttributes("gen", null))
             .build();
@@ -273,7 +287,8 @@ public class ResourceTest {
                 .node(1)
                 .targetP(3)
                 .targetV(4)
-                .regulationPoint(regulationPointAttributes)
+                .regulatingPoint(regulatingPointAttributes)
+                .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                 .build();
 
         Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder()
@@ -291,11 +306,12 @@ public class ResourceTest {
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getQ()));
 
-        assertEquals("idEq", resourceGenerator.getAttributes().getRegulationPoint().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceGenerator.getAttributes().getRegulationPoint().getRegulatingTerminal().getSide());
-        assertEquals("gen", resourceGenerator.getAttributes().getRegulationPoint().getLocalTerminal().getConnectableId());
-        assertNull(resourceGenerator.getAttributes().getRegulationPoint().getLocalTerminal().getSide());
-
+        assertEquals("idEq", resourceGenerator.getAttributes().getRegulatingPoint().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceGenerator.getAttributes().getRegulatingPoint().getRegulatingTerminal().getSide());
+        assertEquals("gen", resourceGenerator.getAttributes().getRegulatingPoint().getLocalTerminal().getConnectableId());
+        assertNull(resourceGenerator.getAttributes().getRegulatingPoint().getLocalTerminal().getSide());
+        assertFalse(resourceGenerator.getAttributes().getRegulatingEquipments().isEmpty());
+        assertEquals(ResourceType.GENERATOR, resourceGenerator.getAttributes().getRegulatingEquipments().get("gen1"));
     }
 
     @Test
@@ -311,6 +327,7 @@ public class ResourceTest {
                 .targetQ(100)
                 .fictitious(false)
                 .node(1)
+                .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                 .build();
 
         Resource<BatteryAttributes> resourceBattery = Resource.batteryBuilder()
@@ -327,6 +344,8 @@ public class ResourceTest {
 
         assertTrue(Double.isNaN(resourceBattery.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceBattery.getAttributes().getQ()));
+        assertFalse(resourceBattery.getAttributes().getRegulatingEquipments().isEmpty());
+        assertEquals(ResourceType.GENERATOR, resourceBattery.getAttributes().getRegulatingEquipments().get("gen1"));
     }
 
     @Test
@@ -339,6 +358,7 @@ public class ResourceTest {
                 .p(250)
                 .q(100)
                 .fictitious(false)
+                .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                 .node(1)
                 .build();
 
@@ -351,6 +371,8 @@ public class ResourceTest {
         assertEquals(250, resourceGround.getAttributes().getP(), 0);
         assertEquals(100, resourceGround.getAttributes().getQ(), 0);
         assertEquals(1, resourceGround.getAttributes().getNode(), 0);
+        assertFalse(resourceGround.getAttributes().getRegulatingEquipments().isEmpty());
+        assertEquals(ResourceType.GENERATOR, resourceGround.getAttributes().getRegulatingEquipments().get("gen1"));
     }
 
     @Test
@@ -373,9 +395,9 @@ public class ResourceTest {
         assertEquals(2, nonLinearModelAttributes.getG(1), 0.1);
 
         TerminalRefAttributes regulatingTerminal = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
-        RegulationPointAttributes regulationPointAttributes = RegulationPointAttributes.builder()
-            .regulatedEquipmentId("shunt")
-            .resourceType(ResourceType.SHUNT_COMPENSATOR)
+        RegulatingPointAttributes regulatingPointAttributes = RegulatingPointAttributes.builder()
+            .regulatingEquipmentId("shunt")
+            .regulatingResourceType(ResourceType.SHUNT_COMPENSATOR)
             .regulatingTerminal(regulatingTerminal)
             .localTerminal(new TerminalRefAttributes("shunt", null))
             .build();
@@ -388,7 +410,8 @@ public class ResourceTest {
                 .q(200)
                 .model(linearModelAttributes)
                 .sectionCount(2)
-                .regulationPoint(regulationPointAttributes)
+                .regulatingPoint(regulatingPointAttributes)
+                .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                 .build();
 
         Resource<ShuntCompensatorAttributes> resourceShunt = Resource.shuntCompensatorBuilder()
@@ -397,10 +420,10 @@ public class ResourceTest {
                 .build();
 
         assertFalse(resourceShunt.getAttributes().isFictitious());
-        assertEquals("idEq", resourceShunt.getAttributes().getRegulationPoint().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceShunt.getAttributes().getRegulationPoint().getRegulatingTerminal().getSide());
-        assertEquals("shunt", resourceShunt.getAttributes().getRegulationPoint().getLocalTerminal().getConnectableId());
-        assertNull(resourceShunt.getAttributes().getRegulationPoint().getLocalTerminal().getSide());
+        assertEquals("idEq", resourceShunt.getAttributes().getRegulatingPoint().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceShunt.getAttributes().getRegulatingPoint().getRegulatingTerminal().getSide());
+        assertEquals("shunt", resourceShunt.getAttributes().getRegulatingPoint().getLocalTerminal().getConnectableId());
+        assertNull(resourceShunt.getAttributes().getRegulatingPoint().getLocalTerminal().getSide());
         assertEquals(100., resourceShunt.getAttributes().getP(), 0.001);
         assertEquals(200, resourceShunt.getAttributes().getQ(), 0.001);
         assertEquals(2, resourceShunt.getAttributes().getSectionCount());
@@ -408,6 +431,8 @@ public class ResourceTest {
         assertEquals(1, ((ShuntCompensatorLinearModelAttributes) resourceShunt.getAttributes().getModel()).getBPerSection(), 0.001);
         assertEquals(2, ((ShuntCompensatorLinearModelAttributes) resourceShunt.getAttributes().getModel()).getGPerSection(), 0.001);
         assertEquals(3, resourceShunt.getAttributes().getModel().getMaximumSectionCount(), 0.001);
+        assertFalse(resourceShunt.getAttributes().getRegulatingEquipments().isEmpty());
+        assertEquals(ResourceType.GENERATOR, resourceShunt.getAttributes().getRegulatingEquipments().get("gen1"));
     }
 
     @Test
@@ -439,6 +464,7 @@ public class ResourceTest {
                 .pairingKey("XN1")
                 .bus("bus1")
                 .tieLineId("idTieLineParent")
+                .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
                 .build();
 
         Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder()
@@ -471,6 +497,8 @@ public class ResourceTest {
 
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
+        assertFalse(resourceDanglingLine.getAttributes().getRegulatingEquipments().isEmpty());
+        assertEquals(ResourceType.GENERATOR, resourceDanglingLine.getAttributes().getRegulatingEquipments().get("gen1"));
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -529,5 +557,48 @@ public class ResourceTest {
         assertTrue(svResource.getAttributes() instanceof InjectionSvAttributes);
         assertEquals(10d, ((InjectionSvAttributes) svResource.getAttributes()).getP(), 0);
         assertEquals(20.4d, ((InjectionSvAttributes) svResource.getAttributes()).getQ(), 0);
+    }
+
+    @Test
+    public void busBarSection() {
+        Resource<BusbarSectionAttributes> resourceTransformer = Resource.busbarSectionBuilder()
+            .id("idBbs")
+            .attributes(BusbarSectionAttributes.builder()
+                .voltageLevelId("vl1")
+                .name("bbs")
+                .regulatingEquipments(Collections.singletonMap("gen1", ResourceType.GENERATOR))
+                .build())
+            .build();
+
+        assertEquals("idBbs", resourceTransformer.getId());
+        assertEquals("vl1", resourceTransformer.getAttributes().getVoltageLevelId());
+        assertEquals("bbs", resourceTransformer.getAttributes().getName());
+        assertFalse(resourceTransformer.getAttributes().getRegulatingEquipments().isEmpty());
+        assertEquals(ResourceType.GENERATOR, resourceTransformer.getAttributes().getRegulatingEquipments().get("gen1"));
+    }
+
+    @Test
+    public void resourceTypeTest() {
+        assertEquals(ResourceType.NETWORK, ResourceType.convert(IdentifiableType.NETWORK));
+        assertEquals(ResourceType.SUBSTATION, ResourceType.convert(IdentifiableType.SUBSTATION));
+        assertEquals(ResourceType.VOLTAGE_LEVEL, ResourceType.convert(IdentifiableType.VOLTAGE_LEVEL));
+        assertThrows(PowsyblException.class, () -> ResourceType.convert(IdentifiableType.AREA));
+        assertEquals(ResourceType.HVDC_LINE, ResourceType.convert(IdentifiableType.HVDC_LINE));
+        assertThrows(PowsyblException.class, () -> ResourceType.convert(IdentifiableType.BUS));
+        assertEquals(ResourceType.SWITCH, ResourceType.convert(IdentifiableType.SWITCH));
+        assertEquals(ResourceType.BUSBAR_SECTION, ResourceType.convert(IdentifiableType.BUSBAR_SECTION));
+        assertEquals(ResourceType.LINE, ResourceType.convert(IdentifiableType.LINE));
+        assertEquals(ResourceType.TIE_LINE, ResourceType.convert(IdentifiableType.TIE_LINE));
+        assertEquals(ResourceType.TWO_WINDINGS_TRANSFORMER, ResourceType.convert(IdentifiableType.TWO_WINDINGS_TRANSFORMER));
+        assertEquals(ResourceType.THREE_WINDINGS_TRANSFORMER, ResourceType.convert(IdentifiableType.THREE_WINDINGS_TRANSFORMER));
+        assertEquals(ResourceType.GENERATOR, ResourceType.convert(IdentifiableType.GENERATOR));
+        assertEquals(ResourceType.BATTERY, ResourceType.convert(IdentifiableType.BATTERY));
+        assertEquals(ResourceType.LOAD, ResourceType.convert(IdentifiableType.LOAD));
+        assertEquals(ResourceType.SHUNT_COMPENSATOR, ResourceType.convert(IdentifiableType.SHUNT_COMPENSATOR));
+        assertEquals(ResourceType.DANGLING_LINE, ResourceType.convert(IdentifiableType.DANGLING_LINE));
+        assertEquals(ResourceType.STATIC_VAR_COMPENSATOR, ResourceType.convert(IdentifiableType.STATIC_VAR_COMPENSATOR));
+        assertEquals(ResourceType.VSC_CONVERTER_STATION, ResourceType.convert(IdentifiableType.HVDC_CONVERTER_STATION));
+        assertThrows(PowsyblException.class, () -> ResourceType.convert(IdentifiableType.OVERLOAD_MANAGEMENT_SYSTEM));
+        assertEquals(ResourceType.GROUND, ResourceType.convert(IdentifiableType.GROUND));
     }
 }

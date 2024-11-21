@@ -24,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // TODO : to remove when Area will be implemented
 
-public class AreaTest {
+class AreaTest {
     @Test
-    public void testUnimplementedAreas() {
+    void testUnimplementedAreas() {
         Network network = EurostagTutorialExample1Factory.create();
         assertTrue(IterableUtils.toList(network.getAreas()).isEmpty());
         assertTrue(network.getAreaStream().toList().isEmpty());

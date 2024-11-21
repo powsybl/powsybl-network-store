@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
@@ -6,6 +12,9 @@ import com.powsybl.iidm.network.util.SV;
 
 import java.util.Objects;
 
+/**
+ * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ */
 class DanglingLineBoundaryImpl implements Boundary {
 
     private final DanglingLine parent;
@@ -17,23 +26,23 @@ class DanglingLineBoundaryImpl implements Boundary {
     @Override
     public double getV() {
         if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+            DanglingLineData danglingLineData = new DanglingLineData(parent);
             return danglingLineData.getBoundaryBusU();
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), TwoSides.ONE).otherSideU(parent, true);
+        return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), TwoSides.ONE).otherSideU(parent, false);
     }
 
     @Override
     public double getAngle() {
         if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+            DanglingLineData danglingLineData = new DanglingLineData(parent);
             return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), TwoSides.ONE).otherSideA(parent, true);
+        return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), TwoSides.ONE).otherSideA(parent, false);
     }
 
     @Override
@@ -43,7 +52,7 @@ class DanglingLineBoundaryImpl implements Boundary {
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), TwoSides.ONE).otherSideP(parent, true);
+        return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), TwoSides.ONE).otherSideP(parent, false);
     }
 
     @Override
@@ -53,7 +62,7 @@ class DanglingLineBoundaryImpl implements Boundary {
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), TwoSides.ONE).otherSideQ(parent, true);
+        return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), TwoSides.ONE).otherSideQ(parent, false);
     }
 
     @Override

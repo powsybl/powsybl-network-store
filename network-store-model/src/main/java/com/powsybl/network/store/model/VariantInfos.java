@@ -7,7 +7,10 @@
 package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,7 +29,7 @@ public class VariantInfos {
     private int num;
 
     @Schema(description = "Variant mode")
-    private VariantMode mode;
+    private VariantMode variantMode;
 
     @Schema(description = "Source variant number")
     private int srcVariantNum;

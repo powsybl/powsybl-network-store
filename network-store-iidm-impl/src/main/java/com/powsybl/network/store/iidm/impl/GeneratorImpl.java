@@ -25,7 +25,7 @@ import java.util.Collection;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAttributes> implements Generator, ReactiveLimitsOwner {
+public class GeneratorImpl extends AbstractRegulatingEquipment<Generator, GeneratorAttributes> implements Generator, ReactiveLimitsOwner {
 
     public GeneratorImpl(NetworkObjectIndex index, Resource<GeneratorAttributes> resource) {
         super(index, resource);

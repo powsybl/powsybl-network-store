@@ -15,7 +15,10 @@ import com.powsybl.iidm.network.EnergySource;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import static com.powsybl.network.store.model.ResourceType.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -91,8 +94,11 @@ public class TopLevelDocumentTest {
     public void testGenerator() throws IOException {
         TerminalRefAttributes regulatedTerminalAttributes =
             TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
-        RegulationPointAttributes regulationPointAttributes = new RegulationPointAttributes("gen1", ResourceType.GENERATOR,
-            new TerminalRefAttributes("gen1", null), regulatedTerminalAttributes, null);
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes("gen1", GENERATOR,
+            new TerminalRefAttributes("gen1", null), regulatedTerminalAttributes, null, GENERATOR);
+        Map<String, ResourceType> regEquipments = new HashMap<>();
+        regEquipments.put("gen1", GENERATOR);
+        regEquipments.put("gen2", GENERATOR);
         GeneratorAttributes generatorAttributes = GeneratorAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -105,7 +111,8 @@ public class TopLevelDocumentTest {
                 .node(1)
                 .targetP(3)
                 .targetV(4)
-                .regulationPoint(regulationPointAttributes)
+                .regulatingPoint(regulatingPointAttributes)
+                .regulatingEquipments(regEquipments)
                 .build();
 
         Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder()
@@ -116,7 +123,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(resourceGenerator);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"regulationPoint\":{\"regulatedEquipmentId\":\"gen1\",\"resourceType\":\"GENERATOR\",\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null},\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\",\"minP\":2.0,\"maxP\":1.0,\"voltageRegulatorOn\":false,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"condenser\":false}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},\"regulatingPoint\":{\"regulatingEquipmentId\":\"gen1\",\"regulatingResourceType\":\"GENERATOR\",\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,\"regulatedResourceType\":\"GENERATOR\"},\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\",\"minP\":2.0,\"maxP\":1.0,\"voltageRegulatorOn\":false,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"condenser\":false,\"regulatingEquipments\":{\"gen1\":\"GENERATOR\",\"gen2\":\"GENERATOR\"}}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resourceGenerator, document2.getData().get(0));

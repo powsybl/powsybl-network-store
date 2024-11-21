@@ -122,4 +122,8 @@ public class AreaTest extends AbstractAreaTest {
     public void removeArea() {
         // FIXME
     }
+
+    public void mergeAndFlatten() {
+        // FIXME
+    }
 }
