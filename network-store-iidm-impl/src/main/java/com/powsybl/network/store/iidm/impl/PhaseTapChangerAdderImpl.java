@@ -178,9 +178,15 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         tapChangers.remove(tapChangerParent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
+        // for three windings transformer the local side will be the leg number
+        // for two windings transformer the ratio is regulating on side 2
+        ThreeSides side = ThreeSides.TWO;
+        if (tapChangerParent instanceof ThreeWindingsTransformerImpl.LegImpl leg) {
+            side = leg.getSide();
+        }
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
         RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), ResourceType.PHASE_TAP_CHANGER,
-            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), ThreeSides.ONE.toString()), terminalRefAttributes, regulationMode.toString(), ResourceType.PHASE_TAP_CHANGER);
+            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), side.toString()), terminalRefAttributes, regulationMode.toString(), ResourceType.PHASE_TAP_CHANGER);
 
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
                 .lowTapPosition(lowTapPosition)
