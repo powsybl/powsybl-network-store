@@ -276,4 +276,16 @@ class TwoWindingsTransformerTest {
         assertEquals(List.of(terminal2), ((TwoWindingsTransformerImpl) twt).getTerminals(ThreeSides.TWO));
         assertEquals(Collections.emptyList(), ((TwoWindingsTransformerImpl) twt).getTerminals(ThreeSides.THREE));
     }
+
+    @Test
+    void testTapChangerRegulation() {
+        Network network = createNetwork();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
+        Load load = network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b");
+        assertEquals("b94318f6-6d24-4f56-96b9-df2531ad6543", twt.getRatioTapChanger().getRegulationTerminal().getConnectable().getId());
+        RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
+        ratioTapChanger.setRegulationTerminal(load.getTerminal());
+        assertEquals("69add5b4-70bd-4360-8a93-286256c0d38b", twt.getRatioTapChanger().getRegulationTerminal().getConnectable().getId());
+
+    }
 }

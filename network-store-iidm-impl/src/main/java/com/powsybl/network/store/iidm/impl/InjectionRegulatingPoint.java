@@ -10,20 +10,16 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.*;
 import java.util.function.Function;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public final class InjectionRegulatingPoint<I extends Injection<I>, D extends InjectionAttributes> implements RegulatingPoint {
-    private final NetworkObjectIndex index;
+public final class InjectionRegulatingPoint<I extends Injection<I>, D extends InjectionAttributes> extends AbstractRegulatingPoint {
     private final AbstractRegulatingEquipment<I, D> identifiable;
-    private final Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter;
 
     public InjectionRegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipment<I, D> identifiable, Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
-        this.index = index;
-        this.attributesGetter = Objects.requireNonNull(attributesGetter);
+        super(index, attributesGetter);
         this.identifiable = identifiable;
     }
 
@@ -31,6 +27,7 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
         return identifiable.getResource();
     }
 
+    @Override
     public RegulatingPointAttributes getAttributes() {
         return attributesGetter.apply(getResource().getAttributes()).getRegulatingPoint();
     }
@@ -39,12 +36,7 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
         return attributesGetter.apply(resource.getAttributes()).getRegulatingPoint();
     }
 
-    public Terminal getRegulatingTerminal() {
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
-        Terminal localTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getLocalTerminal());
-        return regulatingTerminal != null ? regulatingTerminal : localTerminal;
-    }
-
+    @Override
     public void setRegulatingTerminal(TerminalImpl<?> regulatingTerminal) {
         TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
             getAttributes().getRegulatingTerminal());
@@ -58,39 +50,19 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
             .setRegulatedResourceType(ResourceType.convert(regulatingTerminal.getConnectable().getType())));
     }
 
-    public void setRegulatingTerminalAsLocalTerminalAndRemoveRegulation() {
-        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
-            getAttributes().getRegulatingTerminal());
-        if (oldRegulatingTerminal != null) {
-            oldRegulatingTerminal.removeRegulatingPoint(this);
-        }
-        resetRegulationToLocalTerminal();
-    }
-
+    @Override
     public void resetRegulationToLocalTerminal() {
         identifiable.updateResource(res -> getAttributes(res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
         identifiable.updateResource(res -> getAttributes(res).setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
     }
 
+    @Override
     public void setRegulationMode(String regulationMode) {
         identifiable.updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
     }
 
-    public void removeRegulation() {
-        Terminal terminal = TerminalRefUtils.getTerminal(index,
-            getAttributes().getLocalTerminal());
-        if (terminal instanceof TerminalImpl<?> localTerminal) {
-            Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
-            // set local terminal as regulating terminal
-            resetRegulationToLocalTerminal();
-            // rest regulation mode for equipment having one
-            resetRegulationMode(regulatingTerminal, localTerminal);
-        } else {
-            throw new PowsyblException("Cannot remove regulation because the local terminal is null");
-        }
-    }
-
-    private void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal) {
+    @Override
+    protected void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal) {
         // if localTerminal or regulatingTerminal is not connected then the bus is null
         if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected() &&
             !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
@@ -105,15 +77,12 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
         }
     }
 
-    void remove() {
-        TerminalImpl<?> regulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
-        regulatingTerminal.removeRegulatingPoint(this);
-    }
-
+    @Override
     public String getRegulatingEquipmentId() {
         return getAttributes().getRegulatingEquipmentId();
     }
 
+    @Override
     public ResourceType getRegulatingEquipmentType() {
         return getAttributes().getRegulatingResourceType();
     }

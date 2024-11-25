@@ -589,12 +589,12 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return ThreeSides.valueOf(terminalIndex + 1);
     }
 
-    public void setAsRegulatingPoint(RegulatingPoint regulatingPoint) {
+    public void setAsRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
             .put(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType());
     }
 
-    public void removeRegulatingPoint(RegulatingPoint regulatingPoint) {
+    public void removeRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
             .remove(regulatingPoint.getRegulatingEquipmentId());
     }
