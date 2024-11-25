@@ -11,6 +11,7 @@ import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerAttributes;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +28,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     protected final NetworkObjectIndex index;
 
     private final String type;
+    @Getter
     protected final TapChangerRegulatingPoint regulatingPoint;
 
     AbstractTapChanger(H parent, NetworkObjectIndex index, String type) {

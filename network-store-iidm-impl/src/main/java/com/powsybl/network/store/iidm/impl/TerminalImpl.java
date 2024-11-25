@@ -604,6 +604,14 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentId);
             if (identifiable instanceof AbstractRegulatingEquipment<?, ?> regulatingEquipment) {
                 regulatingEquipment.getRegulatingPoint().removeRegulation();
+            } else if (identifiable instanceof TapChangerParent tapChangerParent) {
+                AbstractTapChanger abstractTapChanger;
+                if (resourceType == ResourceType.RATIO_TAP_CHANGER) {
+                    abstractTapChanger = (RatioTapChangerImpl) tapChangerParent.getRatioTapChanger();
+                } else {
+                    abstractTapChanger = (PhaseTapChangerImpl) tapChangerParent.getPhaseTapChanger();
+                }
+                abstractTapChanger.getRegulatingPoint().removeRegulation();
             }
 
         });
