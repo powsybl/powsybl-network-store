@@ -81,7 +81,7 @@ jobs:
 
       - name: Create and push tag
         run: |
-          git tag v${{ steps.versions.outputs.RELEASE_VERSION }} -m "Release v${{ steps.versions.outputs.RELEASE_VERSION }}"
+          git tag v${{ steps.versions.outputs.RELEASE_VERSION }}
           git push origin v${{ steps.versions.outputs.RELEASE_VERSION }}
           git push origin main
 
