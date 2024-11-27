@@ -15,8 +15,7 @@ import com.powsybl.iidm.network.EnergySource;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.powsybl.network.store.model.ResourceType.*;
 import static org.junit.Assert.assertEquals;
@@ -96,9 +95,9 @@ public class TopLevelDocumentTest {
             TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
         RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes("gen1", GENERATOR,
             new TerminalRefAttributes("gen1", null), regulatedTerminalAttributes, null, GENERATOR, true);
-        Map<String, ResourceType> regEquipments = new HashMap<>();
-        regEquipments.put("gen1", GENERATOR);
-        regEquipments.put("gen2", GENERATOR);
+        List<RegulatingEquipmentIdentifier> regEquipments = new ArrayList<>();
+        regEquipments.add(new RegulatingEquipmentIdentifier("gen1", GENERATOR));
+        regEquipments.add(new RegulatingEquipmentIdentifier("gen2", GENERATOR));
         GeneratorAttributes generatorAttributes = GeneratorAttributes
                 .builder()
                 .voltageLevelId("vl1")
