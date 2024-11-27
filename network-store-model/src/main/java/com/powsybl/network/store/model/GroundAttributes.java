@@ -10,8 +10,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -49,5 +49,5 @@ public class GroundAttributes extends AbstractIdentifiableAttributes implements 
 
     @Builder.Default
     @Schema(description = "regulatingEquipments")
-    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
+    private List<RegulatingEquipmentIdentifier> regulatingEquipments = new ArrayList<>();
 }

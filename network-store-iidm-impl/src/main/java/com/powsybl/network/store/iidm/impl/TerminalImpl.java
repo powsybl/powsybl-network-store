@@ -591,22 +591,23 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     public void setAsRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
-            .put(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType());
+            .add(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType()));
     }
 
     public void removeRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
-            .remove(regulatingPoint.getRegulatingEquipmentId());
+            .remove(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(),
+                regulatingPoint.getRegulatingEquipmentType()));
     }
 
     public void removeAsRegulatingPoint() {
-        getAttributes().getRegulatingEquipments().forEach((regulatingEquipmentId, resourceType) -> {
-            Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentId);
+        getAttributes().getRegulatingEquipments().forEach(regulatingEquipmentIdentifier -> {
+            Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());
             if (identifiable instanceof AbstractRegulatingEquipment<?, ?> regulatingEquipment) {
                 regulatingEquipment.getRegulatingPoint().removeRegulation();
             } else if (identifiable instanceof TapChangerParent tapChangerParent) {
                 AbstractTapChanger abstractTapChanger;
-                if (resourceType == ResourceType.RATIO_TAP_CHANGER) {
+                if (regulatingEquipmentIdentifier.getResourceType() == ResourceType.RATIO_TAP_CHANGER) {
                     abstractTapChanger = (RatioTapChangerImpl) tapChangerParent.getRatioTapChanger();
                 } else {
                     abstractTapChanger = (PhaseTapChangerImpl) tapChangerParent.getPhaseTapChanger();
