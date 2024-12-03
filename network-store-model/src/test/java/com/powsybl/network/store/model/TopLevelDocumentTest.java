@@ -93,7 +93,7 @@ public class TopLevelDocumentTest {
     public void testGenerator() throws IOException {
         TerminalRefAttributes regulatedTerminalAttributes =
             TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
-        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes("gen1", GENERATOR,
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes("gen1", GENERATOR, null,
             new TerminalRefAttributes("gen1", null), regulatedTerminalAttributes, null, GENERATOR, true);
         List<RegulatingEquipmentIdentifier> regEquipments = new ArrayList<>();
         regEquipments.add(new RegulatingEquipmentIdentifier("gen1", GENERATOR));

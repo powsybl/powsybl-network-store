@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -1120,7 +1119,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             case CONFIGURED_BUS -> configuredBusesCache;
             case TIE_LINE -> tieLinesCache;
             case GROUND -> groundsCache;
-            case RATIO_TAP_CHANGER, PHASE_TAP_CHANGER -> throw new PowsyblException("no cache for ratio orphase tap changers");
         };
     }
 

@@ -6,9 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -16,16 +14,16 @@ import lombok.Setter;
 @EqualsAndHashCode
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegulatingEquipmentIdentifier {
     private String equipmentId;
     private ResourceType resourceType;
+    private RegulatingTapChangerType regulatingTapChangerType;
 
     public RegulatingEquipmentIdentifier(String equipmentId, ResourceType resourceType) {
         this.equipmentId = equipmentId;
         this.resourceType = resourceType;
-    }
-
-    public RegulatingEquipmentIdentifier() {
-
+        this.regulatingTapChangerType = null;
     }
 }

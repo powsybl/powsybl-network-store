@@ -164,17 +164,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
         String regulationModeStr = regulationMode == null ? null : regulationMode.toString();
-
-        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-
-        // for three windings transformer the local side will be the leg number
-        // for two windings transformer the ratio is regulating on side 2
-        ThreeSides side = ThreeSides.TWO;
-        if (tapChangerParent instanceof ThreeWindingsTransformerImpl.LegImpl leg) {
-            side = leg.getSide();
-        }
-        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), ResourceType.RATIO_TAP_CHANGER,
-            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), side.toString()), terminalRefAttributes, regulationModeStr, ResourceType.RATIO_TAP_CHANGER);
+        RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.RATIO_TAP_CHANGER, regulationModeStr);
 
         RatioTapChangerAttributes ratioTapChangerAttributes = RatioTapChangerAttributes.builder()
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)

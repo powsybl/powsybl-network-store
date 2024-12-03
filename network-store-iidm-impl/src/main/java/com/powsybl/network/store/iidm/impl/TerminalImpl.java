@@ -591,23 +591,27 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     public void setAsRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
-            .add(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType()));
+            .add(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType(),
+                regulatingPoint.getRegulatingResourceSubType()));
     }
 
     public void removeRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
             .remove(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(),
-                regulatingPoint.getRegulatingEquipmentType()));
+                regulatingPoint.getRegulatingEquipmentType(), regulatingPoint.getRegulatingResourceSubType()));
     }
 
     public void removeAsRegulatingPoint() {
         getAttributes().getRegulatingEquipments().forEach(regulatingEquipmentIdentifier -> {
             Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());
-            if (identifiable instanceof AbstractRegulatingEquipment<?, ?> regulatingEquipment) {
+            if (identifiable instanceof AbstractRegulatingInjection<?, ?> regulatingEquipment) {
                 regulatingEquipment.getRegulatingPoint().removeRegulation();
             } else if (identifiable instanceof TapChangerParent tapChangerParent) {
                 AbstractTapChanger abstractTapChanger;
-                if (regulatingEquipmentIdentifier.getResourceType() == ResourceType.RATIO_TAP_CHANGER) {
+                if (regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER ||
+                    regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER_SIDE_ONE ||
+                    regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER_SIDE_TWO ||
+                    regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER_SIDE_THREE) {
                     abstractTapChanger = (RatioTapChangerImpl) tapChangerParent.getRatioTapChanger();
                 } else {
                     abstractTapChanger = (PhaseTapChangerImpl) tapChangerParent.getPhaseTapChanger();

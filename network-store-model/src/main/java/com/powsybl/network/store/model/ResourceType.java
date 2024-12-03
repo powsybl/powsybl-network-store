@@ -34,9 +34,7 @@ public enum ResourceType {
     DANGLING_LINE("Dangling line"),
     GROUND("Ground"),
     CONFIGURED_BUS("Configured bus"),
-    TIE_LINE("Tie line"),
-    RATIO_TAP_CHANGER("Ratio tap changer"),
-    PHASE_TAP_CHANGER("Phase tap changer");
+    TIE_LINE("Tie line");
 
     private final String description;
 

@@ -20,11 +20,11 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public abstract class AbstractRegulatingEquipment<I extends Injection<I>, D extends InjectionAttributes> extends AbstractInjectionImpl<I, D> implements Injection<I> {
+public abstract class AbstractRegulatingInjection<I extends Injection<I>, D extends InjectionAttributes> extends AbstractInjectionImpl<I, D> implements Injection<I> {
 
     protected final InjectionRegulatingPoint<I, D> regulatingPoint;
 
-    protected AbstractRegulatingEquipment(NetworkObjectIndex index, Resource<D> resource) {
+    protected AbstractRegulatingInjection(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
         regulatingPoint = new InjectionRegulatingPoint<>(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
     }

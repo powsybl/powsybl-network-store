@@ -7,6 +7,12 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.network.store.model.RegulatingPointAttributes;
+import com.powsybl.network.store.model.RegulatingTapChangerType;
+import com.powsybl.network.store.model.ResourceType;
+import com.powsybl.network.store.model.TerminalRefAttributes;
+
 import java.util.Objects;
 
 /**
@@ -36,5 +42,20 @@ public abstract class AbstractTapChangerAdder {
         this.tapPosition = tapPosition;
         this.regulating = regulating;
         this.targetDeadband = targetDeadband;
+    }
+
+    protected RegulatingPointAttributes createRegulationPointAttributes(TapChangerParent tapChangerParent, RegulatingTapChangerType regulatingTapChangerType,
+                                                                     String regulationMode) {
+        // for three windings transformer the local side will be the leg number
+        // for two windings transformer the ratio is regulating on side 2
+        ThreeSides side = ThreeSides.TWO;
+        RegulatingTapChangerType finalRegulatingTapChangerType = regulatingTapChangerType;
+        if (tapChangerParent instanceof ThreeWindingsTransformerImpl.LegImpl leg) {
+            side = leg.getSide();
+            finalRegulatingTapChangerType = RegulatingTapChangerType.getThreeWindingType(side, regulatingTapChangerType);
+        }
+        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        return new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), ResourceType.TWO_WINDINGS_TRANSFORMER, finalRegulatingTapChangerType,
+            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), side.toString()), terminalRefAttributes, regulationMode, ResourceType.TWO_WINDINGS_TRANSFORMER);
     }
 }
