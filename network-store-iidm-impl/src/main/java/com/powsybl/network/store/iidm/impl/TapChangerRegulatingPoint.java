@@ -50,13 +50,12 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
         // if localTerminal or regulatingTerminal is not connected then the bus is null
         if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected() &&
             !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
-            switch (getAttributes().getRegulatingResourceType()) {
-                // for svc we set the regulation mode to Off if the regulation was not on the same bus than the svc. If the svc is on the same bus were the equipment was remove we keep the regulation
-                case PHASE_TAP_CHANGER ->
+            switch (getAttributes().getRegulatingResourceSubType()) {
+                // for phase tap changer we reset the regulation mode to Fixed Tap
+                case PHASE_TAP_CHANGER, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE ->
                     setRegulationMode(String.valueOf(PhaseTapChanger.RegulationMode.FIXED_TAP));
-                case RATIO_TAP_CHANGER -> {
+                case RATIO_TAP_CHANGER, RATIO_TAP_CHANGER_SIDE_ONE, RATIO_TAP_CHANGER_SIDE_TWO, RATIO_TAP_CHANGER_SIDE_THREE ->
                     setRegulationMode(null);
-                }
                 default -> throw new PowsyblException("No tap changer regulation for " + getAttributes().getRegulatingResourceType() + " this kind of equipment");
             }
         }

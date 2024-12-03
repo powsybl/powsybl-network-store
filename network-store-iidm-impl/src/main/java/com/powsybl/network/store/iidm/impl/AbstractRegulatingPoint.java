@@ -8,10 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
-import com.powsybl.network.store.model.Attributes;
-import com.powsybl.network.store.model.RegulatingPointAttributes;
-import com.powsybl.network.store.model.ResourceType;
+import com.powsybl.network.store.model.*;
 
 import java.util.function.Function;
 
@@ -34,6 +31,10 @@ public abstract class AbstractRegulatingPoint {
 
     public ResourceType getRegulatingEquipmentType() {
         return getAttributes().getRegulatingResourceType();
+    }
+
+    public RegulatingTapChangerType getRegulatingResourceSubType() {
+        return getAttributes().getRegulatingResourceSubType();
     }
 
     public abstract RegulatingPointAttributes getAttributes();

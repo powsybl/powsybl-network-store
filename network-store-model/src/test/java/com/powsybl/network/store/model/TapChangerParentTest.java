@@ -90,7 +90,8 @@ public class TapChangerParentTest {
     public void twoWindingsTransformertapChangerAttributesTest() {
         RegulatingPointAttributes phaseTapChangerRegulatingPointAttributes = RegulatingPointAttributes.builder()
             .regulatingEquipmentId("id2WT")
-            .regulatingResourceType(ResourceType.PHASE_TAP_CHANGER)
+            .regulatingResourceType(ResourceType.TWO_WINDINGS_TRANSFORMER)
+            .regulatingResourceSubType(RegulatingTapChangerType.PHASE_TAP_CHANGER)
             .regulationMode(RegulationMode.ACTIVE_POWER_CONTROL.toString())
             .regulatingTerminal(TerminalRefAttributes.builder()
                 .connectableId("connectableId")
@@ -100,7 +101,8 @@ public class TapChangerParentTest {
 
         RegulatingPointAttributes ratioTapChangerRegulatingPointAttributes = RegulatingPointAttributes.builder()
             .regulatingEquipmentId("id2WT")
-            .regulatingResourceType(ResourceType.RATIO_TAP_CHANGER)
+            .regulatingResourceType(ResourceType.TWO_WINDINGS_TRANSFORMER)
+            .regulatingResourceSubType(RegulatingTapChangerType.RATIO_TAP_CHANGER)
             .regulatingTerminal(TerminalRefAttributes.builder()
                 .connectableId("connectableId")
                 .side("this side").build())
@@ -175,7 +177,8 @@ public class TapChangerParentTest {
     public void threeWindingsTransformertapChangerAttributesTest() {
         RegulatingPointAttributes phaseTapChangerRegulatingPointAttributes = RegulatingPointAttributes.builder()
             .regulatingEquipmentId("id2WT")
-            .regulatingResourceType(ResourceType.PHASE_TAP_CHANGER)
+            .regulatingResourceType(ResourceType.TWO_WINDINGS_TRANSFORMER)
+            .regulatingResourceSubType(RegulatingTapChangerType.PHASE_TAP_CHANGER)
             .regulationMode(RegulationMode.ACTIVE_POWER_CONTROL.toString())
             .regulatingTerminal(TerminalRefAttributes.builder()
                 .connectableId("connectableId")
@@ -185,7 +188,8 @@ public class TapChangerParentTest {
 
         RegulatingPointAttributes phaseTapChangerRegulatingPointAttributes2 = RegulatingPointAttributes.builder()
             .regulatingEquipmentId("id2WT")
-            .regulatingResourceType(ResourceType.PHASE_TAP_CHANGER)
+            .regulatingResourceType(ResourceType.TWO_WINDINGS_TRANSFORMER)
+            .regulatingResourceSubType(RegulatingTapChangerType.PHASE_TAP_CHANGER)
             .regulationMode(RegulationMode.CURRENT_LIMITER.toString())
             .regulatingTerminal(TerminalRefAttributes.builder()
                 .connectableId("connectableId")
@@ -195,7 +199,8 @@ public class TapChangerParentTest {
 
         RegulatingPointAttributes ratioTapChangerRegulatingPointAttributes = RegulatingPointAttributes.builder()
             .regulatingEquipmentId("id2WT")
-            .regulatingResourceType(ResourceType.RATIO_TAP_CHANGER)
+            .regulatingResourceType(ResourceType.TWO_WINDINGS_TRANSFORMER)
+            .regulatingResourceSubType(RegulatingTapChangerType.RATIO_TAP_CHANGER)
             .regulatingTerminal(TerminalRefAttributes.builder()
                 .connectableId("connectableId")
                 .side("this side").build())

@@ -47,8 +47,6 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                 case GROUND -> GroundAttributes.class;
                 case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
                 case TIE_LINE -> TieLineAttributes.class;
-                case PHASE_TAP_CHANGER -> PhaseTapChangerAttributes.class;
-                case RATIO_TAP_CHANGER -> RatioTapChangerAttributes.class;
             };
         } else {
             if (filter == AttributeFilter.SV) {

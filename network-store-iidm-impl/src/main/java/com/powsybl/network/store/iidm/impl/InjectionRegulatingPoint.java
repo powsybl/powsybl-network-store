@@ -16,15 +16,15 @@ import java.util.function.Function;
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 public final class InjectionRegulatingPoint<I extends Injection<I>, D extends InjectionAttributes> extends AbstractRegulatingPoint {
-    private final AbstractRegulatingEquipment<I, D> identifiable;
+    private final AbstractRegulatingInjection<I, D> injection;
 
-    public InjectionRegulatingPoint(NetworkObjectIndex index, AbstractRegulatingEquipment<I, D> identifiable, Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
+    public InjectionRegulatingPoint(NetworkObjectIndex index, AbstractRegulatingInjection<I, D> injection, Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
         super(index, attributesGetter);
-        this.identifiable = identifiable;
+        this.injection = injection;
     }
 
     private Resource<D> getResource() {
-        return identifiable.getResource();
+        return injection.getResource();
     }
 
     @Override
@@ -44,21 +44,21 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
             oldRegulatingTerminal.removeRegulatingPoint(this);
         }
         regulatingTerminal.setAsRegulatingPoint(this);
-        identifiable.updateResource(res -> getAttributes(res)
+        injection.updateResource(res -> getAttributes(res)
             .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        identifiable.updateResource(res -> getAttributes(res)
+        injection.updateResource(res -> getAttributes(res)
             .setRegulatedResourceType(ResourceType.convert(regulatingTerminal.getConnectable().getType())));
     }
 
     @Override
     public void resetRegulationToLocalTerminal() {
-        identifiable.updateResource(res -> getAttributes(res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
-        identifiable.updateResource(res -> getAttributes(res).setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
+        injection.updateResource(res -> getAttributes(res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
+        injection.updateResource(res -> getAttributes(res).setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
     }
 
     @Override
     public void setRegulationMode(String regulationMode) {
-        identifiable.updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
+        injection.updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
     }
 
     @Override
