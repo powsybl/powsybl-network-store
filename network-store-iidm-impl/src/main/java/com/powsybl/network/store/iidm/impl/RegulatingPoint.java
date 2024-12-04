@@ -85,8 +85,6 @@ public final class RegulatingPoint <I extends Injection<I>, D extends InjectionA
             resetRegulationToLocalTerminal();
             // rest regulation mode for equipment having one
             resetRegulationMode(regulatingTerminal, localTerminal);
-            // the target can be inappropriated if it was a remote regulation
-            setRegulating(false);
         } else {
             throw new PowsyblException("Cannot remove regulation because the local terminal is null");
         }
