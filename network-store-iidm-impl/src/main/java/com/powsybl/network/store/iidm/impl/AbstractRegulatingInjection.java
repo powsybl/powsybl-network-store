@@ -20,13 +20,13 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public abstract class AbstractRegulatingEquipment<I extends Injection<I>, D extends InjectionAttributes> extends AbstractInjectionImpl<I, D> implements Injection<I> {
+public abstract class AbstractRegulatingInjection<I extends Injection<I>, D extends InjectionAttributes> extends AbstractInjectionImpl<I, D> implements Injection<I> {
 
-    protected final RegulatingPoint<I, D> regulatingPoint;
+    protected final InjectionRegulatingPoint<I, D> regulatingPoint;
 
-    protected AbstractRegulatingEquipment(NetworkObjectIndex index, Resource<D> resource) {
+    protected AbstractRegulatingInjection(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
-        regulatingPoint = new RegulatingPoint<>(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
+        regulatingPoint = new InjectionRegulatingPoint<>(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
     }
 
     // should be setRegulatingTerminal but there is already a method with the same name in the regulating equipments
@@ -43,4 +43,11 @@ public abstract class AbstractRegulatingEquipment<I extends Injection<I>, D exte
         return regulatingPoint.getRegulatingTerminal();
     }
 
+    public Boolean isRegulating() {
+        return regulatingPoint.isRegulating();
+    }
+
+    public void setRegulating(boolean regulating) {
+        regulatingPoint.setRegulating(regulating);
+    }
 }

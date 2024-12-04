@@ -10,8 +10,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -53,9 +53,6 @@ public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttri
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @Schema(description = "Voltage regulation status")
-    private boolean voltageRegulatorOn;
-
     @Schema(description = "targetV")
     private double targetV;
 
@@ -64,5 +61,5 @@ public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttri
 
     @Builder.Default
     @Schema(description = "regulatingEquipments")
-    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
+    private List<RegulatingEquipmentIdentifier> regulatingEquipments = new ArrayList<>();
 }

@@ -57,8 +57,8 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         validate();
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(getId(), ResourceType.VSC_CONVERTER_STATION,
-            new TerminalRefAttributes(getId(), null), terminalRefAttributes, null, ResourceType.VSC_CONVERTER_STATION);
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(getId(), ResourceType.VSC_CONVERTER_STATION, null,
+            new TerminalRefAttributes(getId(), null), terminalRefAttributes, null, ResourceType.VSC_CONVERTER_STATION, voltageRegulatorOn);
 
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
@@ -71,7 +71,6 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .bus(getBus())
                         .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .lossFactor(getLossFactor())
-                        .voltageRegulatorOn(voltageRegulatorOn)
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
                         .regulatingPoint(regulatingPointAttributes)

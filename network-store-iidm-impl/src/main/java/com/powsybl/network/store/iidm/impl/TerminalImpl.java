@@ -589,21 +589,34 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return ThreeSides.valueOf(terminalIndex + 1);
     }
 
-    public void setAsRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
+    public void setAsRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
-            .put(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType());
+            .add(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType(),
+                regulatingPoint.getRegulatingResourceSubType()));
     }
 
-    public void removeRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
+    public void removeRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
-            .remove(regulatingPoint.getRegulatingEquipmentId());
+            .remove(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(),
+                regulatingPoint.getRegulatingEquipmentType(), regulatingPoint.getRegulatingResourceSubType()));
     }
 
     public void removeAsRegulatingPoint() {
-        getAttributes().getRegulatingEquipments().forEach((regulatingEquipmentId, resourceType) -> {
-            Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentId);
-            if (identifiable instanceof AbstractRegulatingEquipment<?, ?> regulatingEquipment) {
+        getAttributes().getRegulatingEquipments().forEach(regulatingEquipmentIdentifier -> {
+            Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());
+            if (identifiable instanceof AbstractRegulatingInjection<?, ?> regulatingEquipment) {
                 regulatingEquipment.getRegulatingPoint().removeRegulation();
+            } else if (identifiable instanceof TapChangerParent tapChangerParent) {
+                AbstractTapChanger abstractTapChanger;
+                if (regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER ||
+                    regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER_SIDE_ONE ||
+                    regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER_SIDE_TWO ||
+                    regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER_SIDE_THREE) {
+                    abstractTapChanger = (RatioTapChangerImpl) tapChangerParent.getRatioTapChanger();
+                } else {
+                    abstractTapChanger = (PhaseTapChangerImpl) tapChangerParent.getPhaseTapChanger();
+                }
+                abstractTapChanger.getRegulatingPoint().removeRegulation();
             }
 
         });
