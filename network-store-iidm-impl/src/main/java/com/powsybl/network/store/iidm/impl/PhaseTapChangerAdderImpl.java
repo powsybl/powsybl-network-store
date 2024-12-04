@@ -182,7 +182,6 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
                 .lowTapPosition(lowTapPosition)
-                .regulating(regulating)
                 .regulationValue(regulationValue)
                 .steps(steps)
                 .tapPosition(tapPosition)

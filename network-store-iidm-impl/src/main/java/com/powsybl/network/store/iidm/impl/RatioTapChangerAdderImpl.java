@@ -170,7 +170,6 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)
                 .lowTapPosition(lowTapPosition)
                 .tapPosition(tapPosition)
-                .regulating(regulating)
                 .targetDeadband(targetDeadband)
                 .regulationValue(regulationValue)
                 .steps(steps)

@@ -50,6 +50,8 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
         // if localTerminal or regulatingTerminal is not connected then the bus is null
         if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected() &&
             !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
+            // the target can be inappropriated if it was a remote regulation
+            tapChanger.setRegulating(false);
             switch (getAttributes().getRegulatingResourceSubType()) {
                 // for phase tap changer we reset the regulation mode to Fixed Tap
                 case PHASE_TAP_CHANGER, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE ->
@@ -59,5 +61,14 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
                 default -> throw new PowsyblException("No tap changer regulation for " + getAttributes().getRegulatingResourceType() + " this kind of equipment");
             }
         }
+        // if the regulating equipment was already regulating on his local bus we reallocate the regulating point and we keep the regulation on
+    }
+
+    public Boolean isRegulating() {
+        return getAttributes().getRegulating();
+    }
+
+    public void setRegulating(boolean regulating) {
+        tapChanger.getTransformer().updateResource(res -> getAttributes().setRegulating(regulating));
     }
 }

@@ -99,14 +99,14 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public boolean isRegulating() {
-        return getAttributes().isRegulating();
+        return regulatingPoint.isRegulating();
     }
 
     public C setRegulating(boolean regulating) {
         ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
-        boolean oldValue = getAttributes().isRegulating();
+        boolean oldValue = isRegulating();
         if (regulating != oldValue) {
-            getTransformer().updateResource(res -> getAttributes(res).setRegulating(regulating));
+            regulatingPoint.setRegulating(regulating);
             notifyUpdate(() -> getTapChangerAttribute() + ".regulating", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulating);
         }
         return (C) this;

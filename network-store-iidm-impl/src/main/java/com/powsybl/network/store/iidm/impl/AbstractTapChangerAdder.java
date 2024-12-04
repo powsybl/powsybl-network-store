@@ -56,6 +56,6 @@ public abstract class AbstractTapChangerAdder {
         }
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
         return new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), ResourceType.TWO_WINDINGS_TRANSFORMER, finalRegulatingTapChangerType,
-            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), side.toString()), terminalRefAttributes, regulationMode, ResourceType.TWO_WINDINGS_TRANSFORMER);
+            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), side.toString()), terminalRefAttributes, regulationMode, ResourceType.TWO_WINDINGS_TRANSFORMER, regulating);
     }
 }
