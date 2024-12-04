@@ -33,6 +33,7 @@ public class VoltageLevelTest {
         assertEquals("Voltage should match in BusBreakerView after update in BusView", 222, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
 
         // Set voltage using BusBreakerView configured bus, should set the existing cache of the BusView calculated bus immediately
+        // deterministic when the cache is existing
         l1.getTerminal1().getBusBreakerView().getBus().setV(400.0);
 
         // Verify voltage update in pre-existing cached BusView calculated bus
@@ -50,6 +51,7 @@ public class VoltageLevelTest {
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
         // Update voltage using BusBreakerView calculated bus, with no cache for BusView calculated bus so no immediate update.
+        // non deterministic in general but this test happens to have a one to one mapping between the busview and the busbreakerview
         l1.getTerminal1().getBusBreakerView().getBus().setV(222);
 
         // Verify the voltage update in BusView calculated bus, here it should getV from BusBreakerView calculated bus when creating the cache
@@ -72,7 +74,9 @@ public class VoltageLevelTest {
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
         // Update angle using BusBreakerView configured bus, with no cache for BusView calculated bus so no immediate update.
-        l1.getTerminal1().getBusBreakerView().getBus().setAngle(111);
+        // non deterministic, so we need to update all buses which are actually connected electrically together
+        // In this test, all switches in vl1 are closed so update all the buses
+        l1.getTerminal1().getVoltageLevel().getBusBreakerView().getBuses().forEach(bus -> bus.setAngle(111));
 
         // Verify the angle update in BusView calculated bus, here it should getAngle from BusBreakerView configured bus when creating the cache
         assertEquals("Angle should match in BusView after update in BusBreakerView", 111, l1.getTerminal1().getBusView().getBus().getAngle(), 0.0);
@@ -101,6 +105,7 @@ public class VoltageLevelTest {
         assertEquals("Angle should match in BusBreakerView after second update in BusView", 222, l1.getTerminal1().getBusBreakerView().getBus().getAngle(), 0.0);
 
         // Set angle using BusBreakerView calculated bus, should also setAngle in the existing BusView calculated bus cache immediately
+        // deterministic when the cache is existing
         l1.getTerminal1().getBusBreakerView().getBus().setAngle(400.0);
 
         // Verify angle update in BusBreakerView

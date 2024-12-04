@@ -82,6 +82,61 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         return getResource().getAttributes().getAngle();
     }
 
+    private void setV(double v, boolean updateCalculatedBus) {
+        double oldValue = getResource().getAttributes().getV();
+        if (v != oldValue) {
+            updateResource(res -> res.getAttributes().setV(v));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "v", variantId, oldValue, v);
+
+            if (updateCalculatedBus) {
+                // update V for bus in BusView
+                updateCalculatedBusAttributes(v, getResource().getAttributes().getVoltageLevelId(), this::setVInCalculatedBus);
+            }
+        }
+    }
+
+    // update without the part setting values in calculated buses otherwise
+    // it leads to infinite loops because calculated buses also update configured buses
+    void setConfiguredBusV(double v) {
+        setV(v, false);
+    }
+
+    @Override
+    public Bus setV(double v) {
+        if (v < 0) {
+            throw new ValidationException(this, "voltage cannot be < 0");
+        }
+        setV(v, true);
+        return this;
+    }
+
+    void setAngle(double angle, boolean updateCalculatedBus) {
+        double oldValue = getResource().getAttributes().getAngle();
+        if (angle != oldValue) {
+            updateResource(res -> res.getAttributes().setAngle(angle));
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "angle", variantId, oldValue, angle);
+
+            if (updateCalculatedBus) {
+                // update angle for bus in BusView
+                updateCalculatedBusAttributes(angle, getResource().getAttributes().getVoltageLevelId(), this::setAngleInCalculatedBus);
+            }
+        }
+    }
+
+    // update without the part setting values in calculated buses otherwise
+    // it leads to infinite loops because calculated buses also update configured buses
+    void setConfiguredBusAngle(double angle) {
+        setAngle(angle, false);
+    }
+
+    @Override
+    public Bus setAngle(double angle) {
+        setAngle(angle, true);
+        return this;
+    }
+
     private void setVInCalculatedBus(CalculatedBusAttributes calculatedBusAttributes, double value) {
         calculatedBusAttributes.setV(value);
     }
@@ -93,48 +148,26 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     private void updateCalculatedBusAttributes(double newValue,
                                                String voltageLevelId,
                                                ObjDoubleConsumer<CalculatedBusAttributes> setValue) {
-        index.getVoltageLevel(voltageLevelId).ifPresent(voltageLevel -> {
-            Map<String, Integer> calculatedBuses = voltageLevel.getResource().getAttributes().getBusToCalculatedBusForBusView();
-            if (!MapUtils.isEmpty(calculatedBuses)) {
-                Integer busviewnum = calculatedBuses.get(getId());
-                if (busviewnum != null) {
-                    CalculatedBusAttributes busviewattributes = voltageLevel.getResource().getAttributes().getCalculatedBusesForBusView().get(busviewnum);
-                    setValue.accept(busviewattributes, newValue);
-                    index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
-                }
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(voltageLevelId).orElseThrow();
+        Map<String, Integer> calculatedBuses = voltageLevel.getResource().getAttributes().getBusToCalculatedBusForBusView();
+        // TODO, do we want to update the busview values if the view is invalid ?
+        // if invalid, values will be restored from the configuredbuses on the next
+        // busview computation anyway in the new bus objects and attributes,
+        // but the previous bus objects and attributes may still be used somewhere
+        // so there is a visible effect to choosing to update invalid views or not.
+        if (!MapUtils.isEmpty(calculatedBuses)) {
+            Integer busviewnum = calculatedBuses.get(getId());
+            if (busviewnum != null) {
+                CalculatedBusAttributes busviewattributes = voltageLevel.getResource().getAttributes().getCalculatedBusesForBusView().get(busviewnum);
+                // Same code as the iidm impl for CalculatedBus setV / setAngle
+                // (without the part setting values in configured buses otherwise
+                // it would be an infinite loop), but copy paste here
+                // to avoid creating the object (calculated buses are created on when computing
+                // the bus view, but we want to only update if the busview exist, not force its creation)
+                setValue.accept(busviewattributes, newValue);
+                index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
             }
-        });
-    }
-
-    @Override
-    public Bus setV(double v) {
-        if (v < 0) {
-            throw new ValidationException(this, "voltage cannot be < 0");
         }
-        double oldValue = getResource().getAttributes().getV();
-        if (v != oldValue) {
-            updateResource(res -> res.getAttributes().setV(v));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "v", variantId, oldValue, v);
-
-            // update V for bus in BusView
-            updateCalculatedBusAttributes(v, getResource().getAttributes().getVoltageLevelId(), this::setVInCalculatedBus);
-        }
-        return this;
-    }
-
-    @Override
-    public Bus setAngle(double angle) {
-        double oldValue = getResource().getAttributes().getAngle();
-        if (angle != oldValue) {
-            updateResource(res -> res.getAttributes().setAngle(angle));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "angle", variantId, oldValue, angle);
-
-            // update angle for bus in BusView
-            updateCalculatedBusAttributes(angle, getResource().getAttributes().getVoltageLevelId(), this::setAngleInCalculatedBus);
-        }
-        return this;
     }
 
     @Override
