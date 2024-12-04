@@ -97,6 +97,7 @@ public class TapChangerParentTest {
                 .connectableId("connectableId")
                 .side("this side").build())
             .regulatedResourceType(ResourceType.LOAD)
+            .regulating(true)
             .build();
 
         RegulatingPointAttributes ratioTapChangerRegulatingPointAttributes = RegulatingPointAttributes.builder()
@@ -107,6 +108,7 @@ public class TapChangerParentTest {
                 .connectableId("connectableId")
                 .side("this side").build())
             .regulatedResourceType(ResourceType.LOAD)
+            .regulating(true)
             .build();
         Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder()
                 .id("id2WT")
@@ -126,7 +128,6 @@ public class TapChangerParentTest {
                         .ratedU2(1.)
                         .phaseTapChangerAttributes(PhaseTapChangerAttributes.builder()
                                 .lowTapPosition(1)
-                                .regulating(true)
                                 .regulatingPoint(ratioTapChangerRegulatingPointAttributes)
                                 .regulationValue(10.)
                                 .steps(tapChangerStepsA)
@@ -134,7 +135,6 @@ public class TapChangerParentTest {
                         )
                         .ratioTapChangerAttributes(RatioTapChangerAttributes.builder()
                                 .lowTapPosition(1)
-                                .regulating(true)
                                 .regulatingPoint(phaseTapChangerRegulatingPointAttributes)
                                 .loadTapChangingCapabilities(true)
                                 .targetDeadband(1.)
@@ -184,6 +184,7 @@ public class TapChangerParentTest {
                 .connectableId("connectableId")
                 .side("this side").build())
             .regulatedResourceType(ResourceType.LOAD)
+            .regulating(true)
             .build();
 
         RegulatingPointAttributes phaseTapChangerRegulatingPointAttributes2 = RegulatingPointAttributes.builder()
@@ -195,6 +196,7 @@ public class TapChangerParentTest {
                 .connectableId("connectableId")
                 .side("this side").build())
             .regulatedResourceType(ResourceType.LOAD)
+            .regulating(true)
             .build();
 
         RegulatingPointAttributes ratioTapChangerRegulatingPointAttributes = RegulatingPointAttributes.builder()
@@ -205,6 +207,7 @@ public class TapChangerParentTest {
                 .connectableId("connectableId")
                 .side("this side").build())
             .regulatedResourceType(ResourceType.LOAD)
+            .regulating(true)
             .build();
 
         Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder()
@@ -215,7 +218,6 @@ public class TapChangerParentTest {
                         .leg1(LegAttributes.builder()
                             .phaseTapChangerAttributes(PhaseTapChangerAttributes.builder()
                                 .lowTapPosition(1)
-                                .regulating(true)
                                 .regulatingPoint(phaseTapChangerRegulatingPointAttributes)
                                 .regulationValue(10.)
                                 .steps(tapChangerStepsA)
@@ -226,7 +228,6 @@ public class TapChangerParentTest {
                         .leg2(LegAttributes.builder()
                             .ratioTapChangerAttributes(RatioTapChangerAttributes.builder()
                                 .lowTapPosition(1)
-                                .regulating(true)
                                 .regulatingPoint(ratioTapChangerRegulatingPointAttributes)
                                 .loadTapChangingCapabilities(true)
                                 .targetDeadband(1.)
@@ -239,7 +240,6 @@ public class TapChangerParentTest {
                         .leg3(LegAttributes.builder()
                             .phaseTapChangerAttributes(PhaseTapChangerAttributes.builder()
                                 .lowTapPosition(1)
-                                .regulating(true)
                                 .regulatingPoint(phaseTapChangerRegulatingPointAttributes2)
                                 .regulationValue(20.)
                                 .steps(tapChangerStepsC)

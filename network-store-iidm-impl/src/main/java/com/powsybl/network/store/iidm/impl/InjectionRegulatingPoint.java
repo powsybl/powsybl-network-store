@@ -74,7 +74,10 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
                 }
                 default -> throw new PowsyblException("No regulation for this kind of equipment");
             }
+            // the target can be inappropriated if it was a remote regulation
+            setRegulating(false);
         }
+        // if the regulating equipment was already regulating on his bus we reallocate the regulating point and we keep the regulation on
     }
 
     @Override
@@ -85,5 +88,13 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
     @Override
     public ResourceType getRegulatingEquipmentType() {
         return getAttributes().getRegulatingResourceType();
+    }
+
+    public Boolean isRegulating() {
+        return getAttributes().getRegulating();
+    }
+
+    public void setRegulating(boolean regulating) {
+        injection.updateResource(res -> getAttributes(res).setRegulating(regulating));
     }
 }

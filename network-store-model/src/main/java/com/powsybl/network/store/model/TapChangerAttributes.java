@@ -31,9 +31,6 @@ public class TapChangerAttributes extends AbstractRegulatingEquipmentAttributes 
     @Schema(description = "tapPosition")
     private int tapPosition;
 
-    @Schema(description = "regulating")
-    private boolean regulating;
-
     @Schema(description = "targetDeadband")
     private double targetDeadband;
 
