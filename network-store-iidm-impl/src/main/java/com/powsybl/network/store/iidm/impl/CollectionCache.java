@@ -120,6 +120,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      */
     public void init() {
         fullyLoaded = true;
+        fullyLoadedExtensions = true;
     }
 
     public boolean isFullyLoaded() {
