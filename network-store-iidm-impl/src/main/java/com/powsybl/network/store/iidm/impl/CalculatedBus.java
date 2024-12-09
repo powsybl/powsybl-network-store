@@ -15,9 +15,13 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.model.*;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.function.ObjDoubleConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -131,10 +135,35 @@ public final class CalculatedBus implements BaseBus {
         return getAttributes().getV();
     }
 
+    private void setVInCalculatedBus(CalculatedBusAttributes calculatedBusAttributes, double value) {
+        calculatedBusAttributes.setV(value);
+    }
+
+    private void setVInConfiguredBus(ConfiguredBusImpl configuredBus, double value) {
+        configuredBus.setConfiguredBusV(value);
+    }
+
+    private void setAngleInCalculatedBus(CalculatedBusAttributes calculatedBusAttributes, double value) {
+        calculatedBusAttributes.setAngle(value);
+    }
+
+    private void setAngleInConfiguredBus(ConfiguredBusImpl configuredBus, double value) {
+        configuredBus.setConfiguredBusAngle(value);
+    }
+
     @Override
     public Bus setV(double v) {
         getAttributes().setV(v);
         index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
+
+        if (getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+            // update V in configured buses
+            // this triggers network notifications for 'v' for each configured bus
+            updateConfiguredBuses(v, this::setVInConfiguredBus);
+        } else {
+            // update V for buses in the other view (busView/busBreakerView)
+            updateBusesAttributes(v, this::setVInCalculatedBus);
+        }
         return this;
     }
 
@@ -147,6 +176,15 @@ public final class CalculatedBus implements BaseBus {
     public Bus setAngle(double angle) {
         getAttributes().setAngle(angle);
         index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
+
+        if (getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+            // update angle in configuredBus
+            // this triggers network notifications for 'angle' for each configured bus
+            updateConfiguredBuses(angle, this::setAngleInConfiguredBus);
+        } else {
+            // update angle for buses in the other view (busView/busBreakerView)
+            updateBusesAttributes(angle, this::setAngleInCalculatedBus);
+        }
         return this;
     }
 
@@ -470,5 +508,44 @@ public final class CalculatedBus implements BaseBus {
 
     public int getCalculatedBusNum() {
         return calculatedBusNum;
+    }
+
+    private void updateBusesAttributes(double value, ObjDoubleConsumer<CalculatedBusAttributes> setValue) {
+        // busnum of this bus -> nodes in this bus -> busnums in the other view -> buses of the other view
+        VoltageLevelAttributes vlAttributes = ((VoltageLevelImpl) getVoltageLevel()).getResource().getAttributes();
+        Map<Integer, Integer> nodesToCalculatedBuses = isBusView
+            ? vlAttributes.getNodeToCalculatedBusForBusView()
+            : vlAttributes.getNodeToCalculatedBusForBusBreakerView();
+        Map<Integer, Integer> nodesToCalculatedBusesInOtherView = isBusView
+            ? vlAttributes.getNodeToCalculatedBusForBusBreakerView()
+            : vlAttributes.getNodeToCalculatedBusForBusView();
+        if (!MapUtils.isEmpty(nodesToCalculatedBuses) && !MapUtils.isEmpty(nodesToCalculatedBusesInOtherView)) {
+            for (Entry<Integer, Integer> entry : nodesToCalculatedBuses.entrySet()) {
+                if (getCalculatedBusNum() == entry.getValue()) {
+                    int node = entry.getKey();
+                    if (nodesToCalculatedBusesInOtherView.containsKey(node)) {
+                        int busNumInOtherView = nodesToCalculatedBusesInOtherView.get(node);
+                        List<CalculatedBusAttributes> calculatedBusAttributes = isBusView
+                            ? vlAttributes.getCalculatedBusesForBusBreakerView()
+                            : vlAttributes.getCalculatedBusesForBusView();
+                        if (!CollectionUtils.isEmpty(calculatedBusAttributes)) {
+                            setValue.accept(calculatedBusAttributes.get(busNumInOtherView), value);
+                            index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateConfiguredBuses(double newValue,
+                                       ObjDoubleConsumer<ConfiguredBusImpl> setValue) {
+        VoltageLevelAttributes vlAttributes = ((VoltageLevelImpl) getVoltageLevel()).getResource().getAttributes();
+        for (Entry<String, Integer> entry : vlAttributes.getBusToCalculatedBusForBusView().entrySet()) {
+            if (getCalculatedBusNum() == entry.getValue()) {
+                Bus bus = getVoltageLevel().getBusBreakerView().getBus(entry.getKey());
+                setValue.accept((ConfiguredBusImpl) bus, newValue);
+            }
+        }
     }
 }
