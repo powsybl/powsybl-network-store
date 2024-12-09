@@ -53,9 +53,6 @@ public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttri
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @Schema(description = "Voltage regulation status")
-    private boolean voltageRegulatorOn;
-
     @Schema(description = "targetV")
     private double targetV;
 

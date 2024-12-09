@@ -117,16 +117,16 @@ public class ShuntCompensatorImpl extends AbstractRegulatingEquipment<ShuntCompe
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return getResource().getAttributes().isVoltageRegulatorOn();
+        return this.isRegulating();
     }
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        boolean oldValue = getResource().getAttributes().isVoltageRegulatorOn();
+        boolean oldValue = this.isRegulating();
         if (voltageRegulatorOn != oldValue) {
-            updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
+            this.setRegulating(voltageRegulatorOn);
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         }
