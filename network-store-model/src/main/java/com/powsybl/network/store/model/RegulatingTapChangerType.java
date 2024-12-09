@@ -24,9 +24,9 @@ public enum RegulatingTapChangerType {
 
     public static RegulatingTapChangerType getThreeWindingType(ThreeSides side, RegulatingTapChangerType type) {
         return switch (type) {
-            case RATIO_TAP_CHANGER ->
-                getSideType(side, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE);
             case PHASE_TAP_CHANGER ->
+                getSideType(side, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE);
+            case RATIO_TAP_CHANGER ->
                 getSideType(side, RATIO_TAP_CHANGER_SIDE_ONE, RATIO_TAP_CHANGER_SIDE_TWO, RATIO_TAP_CHANGER_SIDE_THREE);
             default -> throw new PowsyblException("type to select a three winding tap changer type " +
                 "must be RATIO_TAP_CHANGER or PHASE_TAP_CHANGER");
