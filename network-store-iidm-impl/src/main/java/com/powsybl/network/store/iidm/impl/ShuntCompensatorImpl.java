@@ -16,7 +16,7 @@ import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class ShuntCompensatorImpl extends AbstractRegulatingEquipment<ShuntCompensator, ShuntCompensatorAttributes> implements ShuntCompensator {
+public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompensator, ShuntCompensatorAttributes> implements ShuntCompensator {
 
     public ShuntCompensatorImpl(NetworkObjectIndex index, Resource<ShuntCompensatorAttributes> resource) {
         super(index, resource);

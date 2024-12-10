@@ -146,16 +146,17 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RegulationMode getRegulationMode() {
-        return getAttributes().getRegulationMode();
+        String regulationMode = getAttributes().getRegulatingPoint().getRegulationMode();
+        return regulationMode != null ? RegulationMode.valueOf(regulationMode) : null;
     }
 
     @Override
     public RatioTapChanger setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), regulationMode, getTargetV(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
-        RegulationMode oldValue = getAttributes().getRegulationMode();
+        RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
-            getTransformer().updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
-            notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
+            regulatingPoint.setRegulationMode(String.valueOf(regulationMode));
+            notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
         }
         return this;
     }
