@@ -16,33 +16,14 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
         this.tapChanger = tapChanger;
     }
 
+    @Override
     public RegulatingPointAttributes getAttributes() {
         return attributesGetter.apply(tapChanger.getAttributes()).getRegulatingPoint();
     }
 
     @Override
-    public void setRegulatingTerminal(TerminalImpl<?> regulatingTerminal) {
-        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
-            getAttributes().getRegulatingTerminal());
-        if (oldRegulatingTerminal != null) {
-            oldRegulatingTerminal.removeRegulatingPoint(this);
-        }
-        regulatingTerminal.setAsRegulatingPoint(this);
-        tapChanger.getTransformer().updateResource(res -> getAttributes()
-            .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        tapChanger.getTransformer().updateResource(res -> getAttributes()
-            .setRegulatedResourceType(ResourceType.convert(regulatingTerminal.getConnectable().getType())));
-    }
-
-    @Override
-    public void resetRegulationToLocalTerminal() {
-        tapChanger.getTransformer().updateResource(res -> getAttributes().setRegulatingTerminal(getAttributes().getLocalTerminal()));
-        tapChanger.getTransformer().updateResource(res -> getAttributes().setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
-    }
-
-    @Override
-    public void setRegulationMode(String regulationMode) {
-        tapChanger.getTransformer().updateResource(res -> getAttributes().setRegulationMode(regulationMode));
+    protected AbstractIdentifiableImpl getIdentifiable() {
+        return tapChanger.getTransformer();
     }
 
     @Override
@@ -62,13 +43,5 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
             }
         }
         // if the regulating equipment was already regulating on his local bus we reallocate the regulating point and we keep the regulation on
-    }
-
-    public Boolean isRegulating() {
-        return getAttributes().getRegulating();
-    }
-
-    public void setRegulating(boolean regulating) {
-        tapChanger.getTransformer().updateResource(res -> getAttributes().setRegulating(regulating));
     }
 }

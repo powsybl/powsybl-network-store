@@ -54,11 +54,29 @@ public abstract class AbstractRegulatingPoint {
         resetRegulationToLocalTerminal();
     }
 
-    public abstract void resetRegulationToLocalTerminal();
+    public void resetRegulationToLocalTerminal() {
+        getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(getAttributes().getLocalTerminal()));
+        getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
+    }
 
-    public abstract void setRegulationMode(String regulationMode);
+    protected abstract AbstractIdentifiableImpl getIdentifiable();
 
-    public abstract void setRegulatingTerminal(TerminalImpl<?> regulatingTerminal);
+    public void setRegulationMode(String regulationMode) {
+        getIdentifiable().updateResource(res -> getAttributes().setRegulationMode(regulationMode));
+    }
+
+    public void setRegulatingTerminal(TerminalImpl<?> regulatingTerminal) {
+        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
+            getAttributes().getRegulatingTerminal());
+        if (oldRegulatingTerminal != null) {
+            oldRegulatingTerminal.removeRegulatingPoint(this);
+        }
+        regulatingTerminal.setAsRegulatingPoint(this);
+        getIdentifiable().updateResource(res -> getAttributes()
+            .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
+        getIdentifiable().updateResource(res -> getAttributes()
+            .setRegulatedResourceType(ResourceType.convert(regulatingTerminal.getConnectable().getType())));
+    }
 
     protected abstract void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal);
 
@@ -79,5 +97,13 @@ public abstract class AbstractRegulatingPoint {
         } else {
             throw new PowsyblException("Cannot remove regulation because the local terminal is null");
         }
+    }
+
+    public Boolean isRegulating() {
+        return getAttributes().getRegulating();
+    }
+
+    public void setRegulating(boolean regulating) {
+        getIdentifiable().updateResource(res -> getAttributes().setRegulating(regulating));
     }
 }

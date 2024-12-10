@@ -606,16 +606,30 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());
             if (identifiable instanceof AbstractRegulatingInjection<?, ?> regulatingEquipment) {
                 regulatingEquipment.getRegulatingPoint().removeRegulation();
-            } else if (identifiable instanceof TapChangerParent tapChangerParent) {
+            } else if (identifiable instanceof TwoWindingsTransformerImpl twoWindingsTransformer) {
                 AbstractTapChanger abstractTapChanger;
-                if (regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER ||
-                    regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER_SIDE_ONE ||
-                    regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER_SIDE_TWO ||
-                    regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER_SIDE_THREE) {
-                    abstractTapChanger = (RatioTapChangerImpl) tapChangerParent.getRatioTapChanger();
+                if (regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER) {
+                    abstractTapChanger = (RatioTapChangerImpl) twoWindingsTransformer.getRatioTapChanger();
                 } else {
-                    abstractTapChanger = (PhaseTapChangerImpl) tapChangerParent.getPhaseTapChanger();
+                    abstractTapChanger = (PhaseTapChangerImpl) twoWindingsTransformer.getPhaseTapChanger();
                 }
+                abstractTapChanger.getRegulatingPoint().removeRegulation();
+            } else if (identifiable instanceof ThreeWindingsTransformerImpl threeWindingsTransformer) {
+                AbstractTapChanger abstractTapChanger = switch (regulatingEquipmentIdentifier.getRegulatingTapChangerType()) {
+                    case RATIO_TAP_CHANGER_SIDE_ONE ->
+                        (RatioTapChangerImpl) threeWindingsTransformer.getLeg1().getRatioTapChanger();
+                    case RATIO_TAP_CHANGER_SIDE_TWO ->
+                        (RatioTapChangerImpl) threeWindingsTransformer.getLeg2().getRatioTapChanger();
+                    case RATIO_TAP_CHANGER_SIDE_THREE ->
+                        (RatioTapChangerImpl) threeWindingsTransformer.getLeg3().getRatioTapChanger();
+                    case PHASE_TAP_CHANGER_SIDE_ONE ->
+                        (PhaseTapChangerImpl) threeWindingsTransformer.getLeg1().getPhaseTapChanger();
+                    case PHASE_TAP_CHANGER_SIDE_TWO ->
+                        (PhaseTapChangerImpl) threeWindingsTransformer.getLeg2().getPhaseTapChanger();
+                    case PHASE_TAP_CHANGER_SIDE_THREE ->
+                        (PhaseTapChangerImpl) threeWindingsTransformer.getLeg3().getPhaseTapChanger();
+                    default -> throw new PowsyblException("tap changer not found when removing regulation");
+                };
                 abstractTapChanger.getRegulatingPoint().removeRegulation();
             }
 

@@ -32,35 +32,6 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
         return attributesGetter.apply(getResource().getAttributes()).getRegulatingPoint();
     }
 
-    private RegulatingPointAttributes getAttributes(Resource<?> resource) {
-        return attributesGetter.apply(resource.getAttributes()).getRegulatingPoint();
-    }
-
-    @Override
-    public void setRegulatingTerminal(TerminalImpl<?> regulatingTerminal) {
-        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
-            getAttributes().getRegulatingTerminal());
-        if (oldRegulatingTerminal != null) {
-            oldRegulatingTerminal.removeRegulatingPoint(this);
-        }
-        regulatingTerminal.setAsRegulatingPoint(this);
-        injection.updateResource(res -> getAttributes(res)
-            .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        injection.updateResource(res -> getAttributes(res)
-            .setRegulatedResourceType(ResourceType.convert(regulatingTerminal.getConnectable().getType())));
-    }
-
-    @Override
-    public void resetRegulationToLocalTerminal() {
-        injection.updateResource(res -> getAttributes(res).setRegulatingTerminal(getAttributes().getLocalTerminal()));
-        injection.updateResource(res -> getAttributes(res).setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
-    }
-
-    @Override
-    public void setRegulationMode(String regulationMode) {
-        injection.updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
-    }
-
     @Override
     protected void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal) {
         // if localTerminal or regulatingTerminal is not connected then the bus is null
@@ -81,20 +52,7 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
     }
 
     @Override
-    public String getRegulatingEquipmentId() {
-        return getAttributes().getRegulatingEquipmentId();
-    }
-
-    @Override
-    public ResourceType getRegulatingEquipmentType() {
-        return getAttributes().getRegulatingResourceType();
-    }
-
-    public Boolean isRegulating() {
-        return getAttributes().getRegulating();
-    }
-
-    public void setRegulating(boolean regulating) {
-        injection.updateResource(res -> getAttributes(res).setRegulating(regulating));
+    protected AbstractIdentifiableImpl getIdentifiable() {
+        return injection;
     }
 }

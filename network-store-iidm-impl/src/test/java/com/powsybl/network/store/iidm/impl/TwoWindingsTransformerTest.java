@@ -279,20 +279,23 @@ class TwoWindingsTransformerTest {
 
     @Test
     void testTapChangerRegulation() {
+        String loadId = "69add5b4-70bd-4360-8a93-286256c0d38b";
+        String twtId1 = "b94318f6-6d24-4f56-96b9-df2531ad6543";
+        String twtId2 = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
         Network network = createNetwork();
-        RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
-        Load load = network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b");
-        assertEquals("b94318f6-6d24-4f56-96b9-df2531ad6543", ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer(twtId1).getRatioTapChanger();
+        assertEquals(twtId1, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        Load load = network.getLoad(loadId);
         ratioTapChanger.setRegulationTerminal(load.getTerminal());
-        assertEquals("69add5b4-70bd-4360-8a93-286256c0d38b", ratioTapChanger.getRegulationTerminal().getConnectable().getId());
-        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        assertEquals(loadId, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(twtId2).getPhaseTapChanger();
         phaseTapChanger.setRegulationTerminal(load.getTerminal());
-        assertEquals("69add5b4-70bd-4360-8a93-286256c0d38b", phaseTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertEquals(loadId, phaseTapChanger.getRegulationTerminal().getConnectable().getId());
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
         load.remove();
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
-        assertEquals("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", phaseTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertEquals(twtId2, phaseTapChanger.getRegulationTerminal().getConnectable().getId());
         assertNull(ratioTapChanger.getRegulationMode());
-        assertEquals("b94318f6-6d24-4f56-96b9-df2531ad6543", ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertEquals(twtId1, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
     }
 }
