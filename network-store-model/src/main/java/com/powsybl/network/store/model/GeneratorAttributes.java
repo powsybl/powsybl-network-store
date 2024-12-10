@@ -46,9 +46,6 @@ public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes i
     @Schema(description = "Maximum active power in MW")
     private double maxP;
 
-    @Schema(description = "Voltage regulation status")
-    private boolean voltageRegulatorOn;
-
     @Schema(description = "Active power target in MW")
     private double targetP;
 
