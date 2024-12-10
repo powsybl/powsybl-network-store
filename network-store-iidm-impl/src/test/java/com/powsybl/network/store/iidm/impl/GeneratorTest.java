@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class GeneratorTest {
+class GeneratorTest {
 
     @Test
     void testRegulationWhenRegulatedElementIsRemoved() {
