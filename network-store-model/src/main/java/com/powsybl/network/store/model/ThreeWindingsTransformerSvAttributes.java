@@ -9,6 +9,8 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.List;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -43,4 +45,24 @@ public class ThreeWindingsTransformerSvAttributes extends AbstractAttributes imp
     @Schema(description = "Side 3 reactive power in MVar")
     @Builder.Default
     private double q3 = Double.NaN;
+
+    //TODO: add tests
+    // Add requires non null?
+    public static void bindAttributes(ThreeWindingsTransformerSvAttributes attributes, List<Object> values) {
+        values.add(attributes.getP1());
+        values.add(attributes.getQ1());
+        values.add(attributes.getP2());
+        values.add(attributes.getQ2());
+        values.add(attributes.getP3());
+        values.add(attributes.getQ3());
+    }
+
+    public static void updateAttributes(ThreeWindingsTransformerAttributes existingAttributes, ThreeWindingsTransformerSvAttributes newAttributes) {
+        existingAttributes.setP1(newAttributes.getP1());
+        existingAttributes.setQ1(newAttributes.getQ1());
+        existingAttributes.setP1(newAttributes.getP2());
+        existingAttributes.setQ1(newAttributes.getQ2());
+        existingAttributes.setP1(newAttributes.getP3());
+        existingAttributes.setQ1(newAttributes.getQ3());
+    }
 }
