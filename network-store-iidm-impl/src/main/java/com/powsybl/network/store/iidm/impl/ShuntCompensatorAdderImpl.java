@@ -209,7 +209,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(getId(), ResourceType.SHUNT_COMPENSATOR, null,
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(getId(), ResourceType.SHUNT_COMPENSATOR, RegulatingTapChangerType.NO_TAP_CHANGER,
             new TerminalRefAttributes(getId(), null), terminalRefAttributes, null, ResourceType.SHUNT_COMPENSATOR, voltageRegulatorOn);
 
         Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder()

@@ -52,7 +52,7 @@ public abstract class AbstractTapChangerAdder {
         RegulatingTapChangerType finalRegulatingTapChangerType = regulatingTapChangerType;
         if (tapChangerParent instanceof ThreeWindingsTransformerImpl.LegImpl leg) {
             side = leg.getSide();
-            finalRegulatingTapChangerType = RegulatingTapChangerType.getThreeWindingType(side, regulatingTapChangerType);
+            finalRegulatingTapChangerType = RegulatingTapChangerType.getThreeWindingsTransformerTapChangerType(side, regulatingTapChangerType);
         }
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
         return new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), ResourceType.TWO_WINDINGS_TRANSFORMER, finalRegulatingTapChangerType,

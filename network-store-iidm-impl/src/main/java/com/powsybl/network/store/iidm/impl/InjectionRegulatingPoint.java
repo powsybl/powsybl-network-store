@@ -52,7 +52,7 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
     }
 
     @Override
-    protected AbstractIdentifiableImpl getIdentifiable() {
+    protected AbstractRegulatingInjection<I, D> getIdentifiable() {
         return injection;
     }
 }

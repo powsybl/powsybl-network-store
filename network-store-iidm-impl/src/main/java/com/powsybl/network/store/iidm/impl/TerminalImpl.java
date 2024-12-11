@@ -592,13 +592,13 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     public void setAsRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
             .add(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType(),
-                regulatingPoint.getRegulatingResourceSubType()));
+                regulatingPoint.getRegulatingTapChangerType()));
     }
 
     public void removeRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
             .remove(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(),
-                regulatingPoint.getRegulatingEquipmentType(), regulatingPoint.getRegulatingResourceSubType()));
+                regulatingPoint.getRegulatingEquipmentType(), regulatingPoint.getRegulatingTapChangerType()));
     }
 
     public void removeAsRegulatingPoint() {

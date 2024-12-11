@@ -98,6 +98,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
         }
+        regulatingPoint.remove();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeGenerator(resource.getId());

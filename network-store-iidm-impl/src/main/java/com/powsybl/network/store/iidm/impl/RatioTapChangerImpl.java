@@ -132,6 +132,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public void remove() {
+        regulatingPoint.remove();
         parent.setRatioTapChanger(null);
     }
 

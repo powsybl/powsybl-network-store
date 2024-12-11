@@ -28,8 +28,8 @@ public class RegulatingPointAttributes extends AbstractAttributes implements Att
     @Schema(description = "Resource type of the regulating equipment")
     private ResourceType regulatingResourceType;
 
-    @Schema(description = "Resource sub type of the regulating equipment (for tap changer of transformer)")
-    private RegulatingTapChangerType regulatingResourceSubType;
+    @Schema(description = "tap changer type of the regulating equipment (for tap changer of transformer)")
+    private RegulatingTapChangerType regulatingTapChangerType;
 
     @Schema(description = "Local terminal")
     private TerminalRefAttributes localTerminal;

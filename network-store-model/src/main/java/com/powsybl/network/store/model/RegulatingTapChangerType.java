@@ -20,9 +20,10 @@ public enum RegulatingTapChangerType {
     PHASE_TAP_CHANGER,
     PHASE_TAP_CHANGER_SIDE_ONE,
     PHASE_TAP_CHANGER_SIDE_TWO,
-    PHASE_TAP_CHANGER_SIDE_THREE;
+    PHASE_TAP_CHANGER_SIDE_THREE,
+    NO_TAP_CHANGER;
 
-    public static RegulatingTapChangerType getThreeWindingType(ThreeSides side, RegulatingTapChangerType type) {
+    public static RegulatingTapChangerType getThreeWindingsTransformerTapChangerType(ThreeSides side, RegulatingTapChangerType type) {
         return switch (type) {
             case PHASE_TAP_CHANGER ->
                 getSideType(side, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE);
@@ -33,11 +34,12 @@ public enum RegulatingTapChangerType {
         };
     }
 
-    private static RegulatingTapChangerType getSideType(ThreeSides side, RegulatingTapChangerType enum1, RegulatingTapChangerType enum2, RegulatingTapChangerType enum3) {
+    private static RegulatingTapChangerType getSideType(ThreeSides side, RegulatingTapChangerType tapChangerSideOne,
+                                                        RegulatingTapChangerType tapChangerSideTwo, RegulatingTapChangerType tapChangerSideThree) {
         return switch (side) {
-            case ONE -> enum1;
-            case TWO -> enum2;
-            case THREE -> enum3;
+            case ONE -> tapChangerSideOne;
+            case TWO -> tapChangerSideTwo;
+            case THREE -> tapChangerSideThree;
         };
     }
 }

@@ -147,6 +147,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
         }
+        regulatingPoint.remove();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");

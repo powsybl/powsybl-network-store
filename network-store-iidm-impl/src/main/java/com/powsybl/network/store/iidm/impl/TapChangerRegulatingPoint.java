@@ -22,7 +22,7 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
     }
 
     @Override
-    protected AbstractIdentifiableImpl getIdentifiable() {
+    protected AbstractIdentifiableImpl<?, ?> getIdentifiable() {
         return tapChanger.getTransformer();
     }
 
@@ -33,13 +33,13 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
             !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
             // the target can be inappropriated if it was a remote regulation
             tapChanger.setRegulating(false);
-            switch (getAttributes().getRegulatingResourceSubType()) {
+            switch (getAttributes().getRegulatingTapChangerType()) {
                 // for phase tap changer we reset the regulation mode to Fixed Tap
                 case PHASE_TAP_CHANGER, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE ->
                     setRegulationMode(String.valueOf(PhaseTapChanger.RegulationMode.FIXED_TAP));
                 case RATIO_TAP_CHANGER, RATIO_TAP_CHANGER_SIDE_ONE, RATIO_TAP_CHANGER_SIDE_TWO, RATIO_TAP_CHANGER_SIDE_THREE ->
                     setRegulationMode(null);
-                default -> throw new PowsyblException("No tap changer regulation for " + getAttributes().getRegulatingResourceType() + " this kind of equipment");
+                default -> throw new PowsyblException("No tap changer regulation for " + getAttributes().getRegulatingResourceType() + " resource type");
             }
         }
         // if the regulating equipment was already regulating on his local bus we reallocate the regulating point and we keep the regulation on

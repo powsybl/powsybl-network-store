@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.*;
 
@@ -33,8 +34,8 @@ public abstract class AbstractRegulatingPoint {
         return getAttributes().getRegulatingResourceType();
     }
 
-    public RegulatingTapChangerType getRegulatingResourceSubType() {
-        return getAttributes().getRegulatingResourceSubType();
+    public RegulatingTapChangerType getRegulatingTapChangerType() {
+        return getAttributes().getRegulatingTapChangerType();
     }
 
     public abstract RegulatingPointAttributes getAttributes();
@@ -59,7 +60,7 @@ public abstract class AbstractRegulatingPoint {
         getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
     }
 
-    protected abstract AbstractIdentifiableImpl getIdentifiable();
+    protected abstract <I extends Identifiable<I>, D extends IdentifiableAttributes> AbstractIdentifiableImpl<I, D> getIdentifiable();
 
     public void setRegulationMode(String regulationMode) {
         getIdentifiable().updateResource(res -> getAttributes().setRegulationMode(regulationMode));
