@@ -24,6 +24,6 @@ public class RegulatingEquipmentIdentifier {
     public RegulatingEquipmentIdentifier(String equipmentId, ResourceType resourceType) {
         this.equipmentId = equipmentId;
         this.resourceType = resourceType;
-        this.regulatingTapChangerType = null;
+        this.regulatingTapChangerType = RegulatingTapChangerType.NO_TAP_CHANGER;
     }
 }

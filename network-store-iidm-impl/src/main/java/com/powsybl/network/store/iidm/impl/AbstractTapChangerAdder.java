@@ -50,12 +50,15 @@ public abstract class AbstractTapChangerAdder {
         // for two windings transformer the ratio is regulating on side 2
         ThreeSides side = ThreeSides.TWO;
         RegulatingTapChangerType finalRegulatingTapChangerType = regulatingTapChangerType;
+        ResourceType resourceType = ResourceType.TWO_WINDINGS_TRANSFORMER;
         if (tapChangerParent instanceof ThreeWindingsTransformerImpl.LegImpl leg) {
             side = leg.getSide();
             finalRegulatingTapChangerType = RegulatingTapChangerType.getThreeWindingsTransformerTapChangerType(side, regulatingTapChangerType);
+            resourceType = ResourceType.THREE_WINDINGS_TRANSFORMER;
         }
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-        return new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), ResourceType.TWO_WINDINGS_TRANSFORMER, finalRegulatingTapChangerType,
-            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), side.toString()), terminalRefAttributes, regulationMode, ResourceType.TWO_WINDINGS_TRANSFORMER, regulating);
+        return new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), resourceType, finalRegulatingTapChangerType,
+            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), side.toString()),
+            terminalRefAttributes, regulationMode, resourceType, regulating);
     }
 }
