@@ -36,6 +36,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     private final TerminalBusViewImpl<U> busView;
 
+    private final ReferrerManager<Terminal> referrerManager = new ReferrerManager<>(this);
+
     public TerminalImpl(NetworkObjectIndex index, Connectable<?> connectable, Function<Resource<U>, InjectionAttributes> attributesGetter) {
         this.index = index;
         this.connectable = connectable;
@@ -45,7 +47,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             public void moveConnectable(int node, String voltageLevelId) {
                 TopologyPoint oldTopologyPoint = TerminalImpl.this.getTopologyPoint();
                 super.moveConnectable(node, voltageLevelId);
-                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
+                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), index.getNetwork().getVariantManager().getWorkingVariantId(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
             }
         };
         busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter) {
@@ -53,7 +55,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             public void moveConnectable(String busId, boolean connected) {
                 TopologyPoint oldTopologyPoint = TerminalImpl.this.getTopologyPoint();
                 super.moveConnectable(busId, connected);
-                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
+                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), index.getNetwork().getVariantManager().getWorkingVariantId(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
             }
         };
         busView = new TerminalBusViewImpl<>(index, connectable, attributesGetter);
@@ -608,5 +610,14 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
         });
         getAttributes().getRegulatingEquipments().clear();
+    }
+
+    public ReferrerManager<Terminal> getReferrerManager() {
+        return referrerManager;
+    }
+
+    @Override
+    public List<Object> getReferrers() {
+        return referrerManager.getReferrers().stream().map(r -> (Object) r).toList();
     }
 }

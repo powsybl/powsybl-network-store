@@ -47,7 +47,8 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         LoadType oldValue = getResource().getAttributes().getLoadType();
         if (loadType != oldValue) {
             updateResource(r -> r.getAttributes().setLoadType(loadType));
-            index.notifyUpdate(this, "loadType", oldValue, loadType);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "loadType", variantId, oldValue, loadType);
         }
         return this;
     }
@@ -134,6 +135,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());

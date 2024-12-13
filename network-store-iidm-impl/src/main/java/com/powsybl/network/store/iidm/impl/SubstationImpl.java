@@ -53,7 +53,8 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         var resource = getResource();
         Country oldValue = resource.getAttributes().getCountry();
         updateResource(r -> r.getAttributes().setCountry(country));
-        index.notifyUpdate(this, "country", oldValue, country);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "country", variantId, oldValue, country);
         return this;
     }
 
@@ -67,7 +68,8 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         var resource = getResource();
         String oldValue = resource.getAttributes().getTso();
         updateResource(r -> r.getAttributes().setTso(tso));
-        index.notifyUpdate(this, "tso", oldValue, tso);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "tso", variantId, oldValue, tso);
         return this;
     }
 

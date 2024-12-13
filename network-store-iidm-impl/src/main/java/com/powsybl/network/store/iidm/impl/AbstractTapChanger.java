@@ -53,14 +53,6 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected abstract TapChangerAttributes getAttributes(Resource<?> resource);
 
-    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
-        notifyUpdate(attribute.get(), oldValue, newValue);
-    }
-
-    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        index.notifyUpdate(getTransformer(), attribute, oldValue, newValue);
-    }
-
     protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
         index.notifyUpdate(getTransformer(), attribute.get(), variantId, oldValue, newValue);
     }
@@ -73,7 +65,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         int oldValue = getAttributes().getLowTapPosition();
         if (lowTapPosition != oldValue) {
             getTransformer().updateResource(res -> getAttributes(res).setLowTapPosition(lowTapPosition));
-            notifyUpdate(() -> getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
+            notifyUpdate(() -> getTapChangerAttribute() + ".lowTapPosition", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, lowTapPosition);
         }
         return (C) this;
     }
@@ -122,7 +114,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         }
         TerminalRefAttributes oldValue = getAttributes().getRegulatingTerminal();
         getTransformer().updateResource(res -> getAttributes(res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationTerminal", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return (C) this;
     }
 
