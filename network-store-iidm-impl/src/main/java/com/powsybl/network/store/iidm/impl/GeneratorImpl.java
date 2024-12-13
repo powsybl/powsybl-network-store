@@ -25,7 +25,7 @@ import java.util.Collection;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAttributes> implements Generator, ReactiveLimitsOwner {
+public class GeneratorImpl extends AbstractRegulatingEquipment<Generator, GeneratorAttributes> implements Generator, ReactiveLimitsOwner {
 
     public GeneratorImpl(NetworkObjectIndex index, Resource<GeneratorAttributes> resource) {
         super(index, resource);
@@ -106,15 +106,15 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return getResource().getAttributes().isVoltageRegulatorOn();
+        return this.isRegulating();
     }
 
     @Override
     public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        boolean oldValue = getResource().getAttributes().isVoltageRegulatorOn();
+        boolean oldValue = this.isRegulating();
         if (voltageRegulatorOn != oldValue) {
-            updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
+            this.setRegulating(voltageRegulatorOn);
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         }

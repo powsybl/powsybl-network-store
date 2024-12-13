@@ -41,6 +41,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return parent.getTransformer();
     }
 
+    protected H getParent() {
+        return parent;
+    }
+
     protected Resource<?> getResource() {
         return getTransformer().getResource();
     }

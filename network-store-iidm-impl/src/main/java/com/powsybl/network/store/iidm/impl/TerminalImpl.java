@@ -36,14 +36,26 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     private final TerminalBusViewImpl<U> busView;
 
-    private final List<RegulatingPoint> regulated = new ArrayList<>();
-
     public TerminalImpl(NetworkObjectIndex index, Connectable<?> connectable, Function<Resource<U>, InjectionAttributes> attributesGetter) {
         this.index = index;
         this.connectable = connectable;
         this.attributesGetter = attributesGetter;
-        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, connectable, attributesGetter);
-        busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter);
+        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, connectable, attributesGetter) {
+            @Override
+            public void moveConnectable(int node, String voltageLevelId) {
+                TopologyPoint oldTopologyPoint = TerminalImpl.this.getTopologyPoint();
+                super.moveConnectable(node, voltageLevelId);
+                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
+            }
+        };
+        busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter) {
+            @Override
+            public void moveConnectable(String busId, boolean connected) {
+                TopologyPoint oldTopologyPoint = TerminalImpl.this.getTopologyPoint();
+                super.moveConnectable(busId, connected);
+                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
+            }
+        };
         busView = new TerminalBusViewImpl<>(index, connectable, attributesGetter);
     }
 
@@ -55,8 +67,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return getTopologyKind() == TopologyKind.NODE_BREAKER;
     }
 
-    private boolean isBusBeakerTopologyKind() {
-        return getTopologyKind() == TopologyKind.BUS_BREAKER;
+    private TopologyPoint getTopologyPoint() {
+        return isNodeBeakerTopologyKind() ? new NodeTopologyPointImpl(getAttributes().getVoltageLevelId(), getNodeBreakerView().getNode()) : new BusTopologyPointImpl(getAttributes().getVoltageLevelId(), getBusBreakerView().getConnectableBus().getId(), isConnected());
     }
 
     @Override
@@ -570,20 +582,31 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     @Override
     public ThreeSides getSide() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSide'");
+        int terminalIndex = connectable.getTerminals().indexOf(this);
+        if (terminalIndex < 0) {
+            throw new IllegalStateException();
+        }
+        return ThreeSides.valueOf(terminalIndex + 1);
     }
 
-    public void addNewRegulatingPoint(RegulatingPoint regulatingPoint) {
-        regulated.add(regulatingPoint);
+    public void setAsRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
+        getAttributes().getRegulatingEquipments()
+            .put(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType());
     }
 
-    public void removeRegulatingPoint(RegulatingPoint regulatingPoint) {
-        regulated.remove(regulatingPoint);
+    public void removeRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
+        getAttributes().getRegulatingEquipments()
+            .remove(regulatingPoint.getRegulatingEquipmentId());
     }
 
     public void removeAsRegulatingPoint() {
-        regulated.forEach(RegulatingPoint::removeRegulation);
-        regulated.clear();
+        getAttributes().getRegulatingEquipments().forEach((regulatingEquipmentId, resourceType) -> {
+            Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentId);
+            if (identifiable instanceof AbstractRegulatingEquipment<?, ?> regulatingEquipment) {
+                regulatingEquipment.getRegulatingPoint().removeRegulation();
+            }
+
+        });
+        getAttributes().getRegulatingEquipments().clear();
     }
 }
