@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
@@ -20,11 +21,11 @@ import com.powsybl.network.store.model.RemoteReactivePowerControlAttributes;
  */
 public class RemoteReactivePowerControlAdderImpl extends AbstractExtensionAdder<Generator, RemoteReactivePowerControl> implements RemoteReactivePowerControlAdder {
 
-    private double targetQ;
+    private double targetQ = Double.NaN;
 
     private Terminal regulatingTerminal;
 
-    private boolean enabled;
+    private boolean enabled = true;
 
     protected RemoteReactivePowerControlAdderImpl(Generator extendable) {
         super(extendable);
@@ -32,6 +33,12 @@ public class RemoteReactivePowerControlAdderImpl extends AbstractExtensionAdder<
 
     @Override
     protected RemoteReactivePowerControl createExtension(Generator generator) {
+        if (Double.isNaN(targetQ)) {
+            throw new PowsyblException("Reactive power target must be set");
+        }
+        if (regulatingTerminal == null) {
+            throw new PowsyblException("Regulating terminal must be set");
+        }
         RemoteReactivePowerControlAttributes attributes = RemoteReactivePowerControlAttributes.builder()
                 .targetQ(targetQ)
                 .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal))
