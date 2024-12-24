@@ -26,7 +26,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.io.IOException;
@@ -344,9 +343,9 @@ public class RestNetworkStoreClientTest {
         server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"wrongId2\"]"))
-                .andRespond((request -> {
+                .andRespond(request -> {
                     throw new ResourceAccessException("ResourceAccessException error");
-                }));
+                });
         ResourceAccessException httpClientErrorException = assertThrows(ResourceAccessException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of("wrongId2")));
         assertEquals("ResourceAccessException error", httpClientErrorException.getMessage());
         server.verify();
