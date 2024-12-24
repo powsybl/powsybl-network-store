@@ -362,6 +362,82 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return testSwitchFromEdge(edge, SwitchPredicates.IS_OPEN);
     }
 
+    private Set<Integer> getConnectableNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        Set<Integer> busbarSectionNodes = index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+
+        Set<Integer> lineNodes = index.getStoreClient().getVoltageLevelLines(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getVoltageLevelId1().equals(getVoltageLevelId())
+                ? resource.getAttributes().getNode1()
+                : resource.getAttributes().getNode2()
+            )
+            .collect(Collectors.toSet());
+
+        Set<Integer> twoWindingsTransformerNodes = index.getStoreClient().getVoltageLevelTwoWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getVoltageLevelId1().equals(getVoltageLevelId())
+                ? resource.getAttributes().getNode1()
+                : resource.getAttributes().getNode2()
+            )
+            .collect(Collectors.toSet());
+
+        Set<Integer> threeWindingsTransformerNodes = index.getStoreClient().getVoltageLevelThreeWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> {
+                if (resource.getAttributes().getLeg1().getVoltageLevelId().equals(getVoltageLevelId())) {
+                    return resource.getAttributes().getLeg1().getNode();
+                } else if (resource.getAttributes().getLeg2().getVoltageLevelId().equals(getVoltageLevelId())) {
+                    return resource.getAttributes().getLeg2().getNode();
+                } else {
+                    return resource.getAttributes().getLeg3().getNode();
+                }
+            })
+            .collect(Collectors.toSet());
+
+        Set<Integer> generatorNodes = index.getStoreClient().getVoltageLevelGenerators(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> batteryNodes = index.getStoreClient().getVoltageLevelBatteries(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> loadNodes = index.getStoreClient().getVoltageLevelLoads(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> shuntCompensatorNodes = index.getStoreClient().getVoltageLevelShuntCompensators(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> staticVarCompensatorNodes = index.getStoreClient().getVoltageLevelStaticVarCompensators(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> danglingLineNodes = index.getStoreClient().getVoltageLevelDanglingLines(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> lccConverterStationNodes = index.getStoreClient().getVoltageLevelLccConverterStations(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> vscConverterStationNodes = index.getStoreClient().getVoltageLevelVscConverterStations(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> groundNodes = index.getStoreClient().getVoltageLevelGrounds(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+
+        Set<Integer> connectableNodes = new HashSet<>(busbarSectionNodes);
+        connectableNodes.addAll(lineNodes);
+        connectableNodes.addAll(twoWindingsTransformerNodes);
+        connectableNodes.addAll(threeWindingsTransformerNodes);
+        connectableNodes.addAll(generatorNodes);
+        connectableNodes.addAll(batteryNodes);
+        connectableNodes.addAll(loadNodes);
+        connectableNodes.addAll(shuntCompensatorNodes);
+        connectableNodes.addAll(staticVarCompensatorNodes);
+        connectableNodes.addAll(danglingLineNodes);
+        connectableNodes.addAll(lccConverterStationNodes);
+        connectableNodes.addAll(vscConverterStationNodes);
+        connectableNodes.addAll(groundNodes);
+
+        return connectableNodes;
+    }
+
     /**
      * <p>This method is an adaptation of the same method from NodeBreakerVoltageLevel in powsybl-core, in order to keep
      * the same logic and the same results on both sides.</p>
@@ -377,12 +453,12 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         // Node of the present terminal (start of the paths)
         int node = getAttributes().getNode();
 
-        // Nodes of the busbar sections (end of the paths)
-        Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
+        // Nodes of the connectables (end of the paths)
+        Set<Integer> connectableNodes = getConnectableNodes(voltageLevelResource);
 
-        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
+        // find all paths starting from the current terminal to a connectable that does not contain an open switch
         List<List<Edge>> paths = graph.findAllPaths(node,
-            busbarSectionNodes::contains,
+            connectableNodes::contains,
             this::isAnOpenSwitch,
             Comparator.comparing(List::size));
         if (paths.isEmpty()) {
