@@ -36,6 +36,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestNetworkStoreClient.class);
 
     private static final int RESOURCES_CREATION_CHUNK_SIZE = 1000;
+    public static final String RETRYING = "Retrying...";
     private static final String STR_NETWORK = "network";
     private static final String URL_NETWORK_UUID = "/networks/{networkUuid}";
     private static final String STR_SUBSTATION = "substation";
@@ -54,6 +55,9 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private static final String STR_HVDC_LINE = "hvdc line";
     private static final String STR_TIE_LINE = "tie line";
     private static final String STR_GROUND = "ground";
+    public static final String STR_LOAD = "load";
+    public static final String STR_LINE = "line";
+    public static final String STR_CONFIGURED_BUSES = "bus";
 
     private final RestClient restClient;
 
@@ -85,7 +89,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
-                LOGGER.info("Retrying...");
+                LOGGER.info(RETRYING);
                 restClient.createAll(url, resourcePartition, uriVariables);
             }
             stopwatch.stop();
@@ -184,7 +188,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
-                LOGGER.info("Retrying...");
+                LOGGER.info(RETRYING);
                 updatePartition(target, url, attributeFilter, resourcePartition, uriVariables);
             }
             stopwatch.stop();
@@ -209,7 +213,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
-                LOGGER.info("Retrying...");
+                LOGGER.info(RETRYING);
                 restClient.deleteAll(url, idsPartition, networkUuid, variantNum);
             }
             stopwatch.stop();
@@ -392,7 +396,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getAll("load", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/loads", networkUuid, variantNum, voltageLevelId);
+        return getAll(STR_LOAD, "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/loads", networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
@@ -457,12 +461,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getAll("line", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/lines", networkUuid, variantNum, voltageLevelId);
+        return getAll(STR_LINE, "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/lines", networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
     public void removeLines(UUID networkUuid, int variantNum, List<String> linesId) {
-        removeAll("line", "/networks/{networkUuid}/{variantNum}/lines", networkUuid, variantNum, linesId);
+        removeAll(STR_LINE, "/networks/{networkUuid}/{variantNum}/lines", networkUuid, variantNum, linesId);
     }
 
     @Override
@@ -523,27 +527,27 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
-        create("load", "/networks/{networkUuid}/loads", loadResources, networkUuid);
+        create(STR_LOAD, "/networks/{networkUuid}/loads", loadResources, networkUuid);
     }
 
     @Override
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid, int variantNum) {
-        return getAll("load", "/networks/{networkUuid}/{variantNum}/loads", networkUuid, variantNum);
+        return getAll(STR_LOAD, "/networks/{networkUuid}/{variantNum}/loads", networkUuid, variantNum);
     }
 
     @Override
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, int variantNum, String loadId) {
-        return get("load", "/networks/{networkUuid}/{variantNum}/loads/{loadId}", networkUuid, variantNum, loadId);
+        return get(STR_LOAD, "/networks/{networkUuid}/{variantNum}/loads/{loadId}", networkUuid, variantNum, loadId);
     }
 
     @Override
     public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources, AttributeFilter attributeFilter) {
-        updateAll("load", "/networks/{networkUuid}/loads", loadResources, attributeFilter, networkUuid);
+        updateAll(STR_LOAD, "/networks/{networkUuid}/loads", loadResources, attributeFilter, networkUuid);
     }
 
     @Override
     public void removeLoads(UUID networkUuid, int variantNum, List<String> loadsId) {
-        removeAll("load", "/networks/{networkUuid}/{variantNum}/loads", networkUuid, variantNum, loadsId);
+        removeAll(STR_LOAD, "/networks/{networkUuid}/{variantNum}/loads", networkUuid, variantNum, loadsId);
     }
 
     // generator
@@ -638,22 +642,22 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
-        create("line", "/networks/{networkUuid}/lines", lineResources, networkUuid);
+        create(STR_LINE, "/networks/{networkUuid}/lines", lineResources, networkUuid);
     }
 
     @Override
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
-        return getAll("line", "/networks/{networkUuid}/{variantNum}/lines", networkUuid, variantNum);
+        return getAll(STR_LINE, "/networks/{networkUuid}/{variantNum}/lines", networkUuid, variantNum);
     }
 
     @Override
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId) {
-        return get("line", "/networks/{networkUuid}/{variantNum}/lines/{lineId}", networkUuid, variantNum, lineId);
+        return get(STR_LINE, "/networks/{networkUuid}/{variantNum}/lines/{lineId}", networkUuid, variantNum, lineId);
     }
 
     @Override
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources, AttributeFilter attributeFilter) {
-        updateAll("line", "/networks/{networkUuid}/lines", lineResources, attributeFilter, networkUuid);
+        updateAll(STR_LINE, "/networks/{networkUuid}/lines", lineResources, attributeFilter, networkUuid);
     }
 
     // shunt compensator
@@ -802,32 +806,32 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
-        create("bus", "/networks/{networkUuid}/configured-buses", busesResources, networkUuid);
+        create(STR_CONFIGURED_BUSES, "/networks/{networkUuid}/configured-buses", busesResources, networkUuid);
     }
 
     @Override
     public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, int variantNum) {
-        return getAll("bus", "/networks/{networkUuid}/{variantNum}/configured-buses", networkUuid, variantNum);
+        return getAll(STR_CONFIGURED_BUSES, "/networks/{networkUuid}/{variantNum}/configured-buses", networkUuid, variantNum);
     }
 
     @Override
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getAll("bus", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/configured-buses", networkUuid, variantNum, voltageLevelId);
+        return getAll(STR_CONFIGURED_BUSES, "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/configured-buses", networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
     public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, int variantNum, String busId) {
-        return get("bus", "/networks/{networkUuid}/{variantNum}/configured-buses/{busId}", networkUuid, variantNum, busId);
+        return get(STR_CONFIGURED_BUSES, "/networks/{networkUuid}/{variantNum}/configured-buses/{busId}", networkUuid, variantNum, busId);
     }
 
     @Override
     public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources, AttributeFilter attributeFilter) {
-        updateAll("bus", "/networks/{networkUuid}/configured-buses", busesResources, attributeFilter, networkUuid);
+        updateAll(STR_CONFIGURED_BUSES, "/networks/{networkUuid}/configured-buses", busesResources, attributeFilter, networkUuid);
     }
 
     @Override
     public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId) {
-        removeAll("bus", "/networks/{networkUuid}/{variantNum}/configured-buses", networkUuid, variantNum, busesId);
+        removeAll(STR_CONFIGURED_BUSES, "/networks/{networkUuid}/{variantNum}/configured-buses", networkUuid, variantNum, busesId);
     }
 
     @Override
