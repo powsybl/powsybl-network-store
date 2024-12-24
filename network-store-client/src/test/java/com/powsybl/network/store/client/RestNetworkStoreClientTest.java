@@ -24,7 +24,10 @@ import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -336,6 +339,16 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withResourceNotFound());
         PowsyblException powsyblException = assertThrows(PowsyblException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of("wrongId")));
         assertEquals("Fail to delete at /networks/{networkUuid}/{variantNum}/substations, status: 404 NOT_FOUND", powsyblException.getMessage());
+
+        server.reset();
+        server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("[\"wrongId2\"]"))
+                .andRespond((request -> {
+                    throw new ResourceAccessException("ResourceAccessException error");
+                }));
+        ResourceAccessException httpClientErrorException = assertThrows(ResourceAccessException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of("wrongId2")));
+        assertEquals("ResourceAccessException error", httpClientErrorException.getMessage());
         server.verify();
     }
 
