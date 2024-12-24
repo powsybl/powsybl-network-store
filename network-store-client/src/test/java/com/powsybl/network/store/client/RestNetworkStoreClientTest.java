@@ -25,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -35,8 +36,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpMethod.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest;
@@ -229,6 +232,16 @@ public class RestNetworkStoreClientTest {
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/tie-lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(tieLineJson, MediaType.APPLICATION_JSON));
+
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("[\"s1\"]"))
+                .andRespond(withSuccess());
+
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("[]"))
+                .andRespond(withBadRequest());
     }
 
     @Test
@@ -295,6 +308,10 @@ public class RestNetworkStoreClientTest {
             tieLines = network.getTieLineStream().collect(Collectors.toList());
             assertEquals(1, tieLines.size());
             assertEquals("tieLine2", tieLines.get(0).getNameOrId());
+
+            assertDoesNotThrow(() -> restClient.deleteAll("/networks/{networkUuid}/{variantNum}/substations", List.of("s1"), networkUuid, Resource.INITIAL_VARIANT_NUM));
+            HttpClientErrorException httpClientErrorException = assertThrows(HttpClientErrorException.class, () -> restClient.deleteAll("/networks/{networkUuid}/{variantNum}/substations", List.of(), networkUuid, Resource.INITIAL_VARIANT_NUM));
+            assertEquals("400 Bad Request", httpClientErrorException.getMessage());
         }
     }
 }
