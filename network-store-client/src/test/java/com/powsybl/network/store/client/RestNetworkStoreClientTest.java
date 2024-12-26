@@ -305,7 +305,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testDeleteAll() {
+    public void testRemoveAll() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
 
         List<String> ids = List.of("id1", "id2", "id3");
@@ -330,15 +330,26 @@ public class RestNetworkStoreClientTest {
         testDeleteAllByType(ids, "tie-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "grounds", (List<String> identifiableIds) -> restNetworkStoreClient.removeGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
 
-        // test when Exception
+        server.verify();
+    }
+
+    @Test
+    public void testRemoveError() {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.reset();
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"wrongId\"]"))
                 .andRespond(withResourceNotFound());
-        PowsyblException powsyblException = assertThrows(PowsyblException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of("wrongId")));
+        List<String> wrongId = List.of("wrongId");
+        PowsyblException powsyblException = assertThrows(PowsyblException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, wrongId));
         assertEquals("Fail to delete at /networks/{networkUuid}/{variantNum}/substations, status: 404 NOT_FOUND", powsyblException.getMessage());
+        server.verify();
+    }
 
+    @Test
+    public void testRemoveWithResourceAccessException() {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.reset();
         server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
@@ -346,7 +357,8 @@ public class RestNetworkStoreClientTest {
                 .andRespond(request -> {
                     throw new ResourceAccessException("ResourceAccessException error");
                 });
-        ResourceAccessException httpClientErrorException = assertThrows(ResourceAccessException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of("wrongId2")));
+        List<String> wrongId2 = List.of("wrongId2");
+        ResourceAccessException httpClientErrorException = assertThrows(ResourceAccessException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, wrongId2));
         assertEquals("ResourceAccessException error", httpClientErrorException.getMessage());
         server.verify();
     }
