@@ -39,4 +39,7 @@ public class RegulatingPointAttributes extends AbstractAttributes implements Att
 
     @Schema(description = "Regulated equipment resource type")
     private ResourceType regulatedResourceType;
+
+    @Schema(description = "is regulating")
+    private Boolean regulating;
 }
