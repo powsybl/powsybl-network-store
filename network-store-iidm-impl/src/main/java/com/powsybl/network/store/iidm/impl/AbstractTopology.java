@@ -378,7 +378,7 @@ public abstract class AbstractTopology<T> {
             // busNumInOtherView is deterministic for the busbreakerview because all busbreakerviewbuses correspond
             // to the same busviewbus. For the busview, busNumInOtherView will be non deterministic, it will
             // be one of the busbreakerbuses of this busviewbus.
-            Integer node = (Integer) nodes.iterator().next();
+            Integer node = nodes.iterator().next();
             Integer busNumInOtherView = nodesToCalculatedBusesInOtherView.get(node);
             if (busNumInOtherView != null) {
                 return calculatedBusAttributesInOtherView.get(busNumInOtherView);
