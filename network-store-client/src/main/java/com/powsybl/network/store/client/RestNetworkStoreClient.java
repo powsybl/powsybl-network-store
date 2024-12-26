@@ -36,7 +36,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestNetworkStoreClient.class);
 
     private static final int RESOURCES_CREATION_CHUNK_SIZE = 1000;
-    public static final String RETRYING = "Retrying...";
+    public static final String STR_RETRYING = "Retrying...";
     private static final String STR_NETWORK = "network";
     private static final String URL_NETWORK_UUID = "/networks/{networkUuid}";
     private static final String STR_SUBSTATION = "substation";
@@ -86,7 +86,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
-                LOGGER.info(RETRYING);
+                LOGGER.info(STR_RETRYING);
                 restClient.createAll(url, resourcePartition, uriVariables);
             }
             stopwatch.stop();
@@ -185,7 +185,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
-                LOGGER.info(RETRYING);
+                LOGGER.info(STR_RETRYING);
                 updatePartition(target, url, attributeFilter, resourcePartition, uriVariables);
             }
             stopwatch.stop();
@@ -202,7 +202,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private void removeAll(String target, String url, UUID networkUuid, int variantNum, List<String> ids) {
         for (List<String> idsPartition : Lists.partition(ids, RESOURCES_CREATION_CHUNK_SIZE)) {
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("deleting {} {} resources ({})...", ids.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(networkUuid, variantNum));
+                LOGGER.info("Deleting {} {} resources ({})...", ids.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(networkUuid, variantNum));
             }
             Stopwatch stopwatch = Stopwatch.createStarted();
             try {
@@ -210,7 +210,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
-                LOGGER.info(RETRYING);
+                LOGGER.info(STR_RETRYING);
                 restClient.deleteAll(url, idsPartition, networkUuid, variantNum);
             }
             stopwatch.stop();
