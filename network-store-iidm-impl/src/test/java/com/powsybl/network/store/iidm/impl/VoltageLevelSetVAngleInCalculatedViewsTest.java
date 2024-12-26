@@ -364,7 +364,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         for (Map.Entry<String, String > entry : busBreakerViewBusToBusViewBus.entrySet()) {
             String busbreakerviewbusid = entry.getKey();
             String busviewbusid = entry.getValue();
-            setAllBbvbAndBvb(vl, Double.NaN, setter);
+            setAllBusBreakerViewBusAndBusViewBus(vl, Double.NaN, setter);
             setAndCheckBusBreakerBus(vl, busbreakerviewbusid, busviewbusid, getter, setter);
         }
 
@@ -429,7 +429,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             // test one same view
             vl = networkVoltageLevelSupplier.get();
-            setAllBbvb(vl, 1.0, setter);
+            setAllBusBreakerViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
                 assertTrue("case nodebreakertopology " + bbvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view",
@@ -438,7 +438,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
 
             // test one other view
             vl = networkVoltageLevelSupplier.get();
-            setAllBvb(vl, 1.0, setter);
+            setAllBusViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
                 assertTrue("case nodebreakertopology " + bbvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view",
@@ -450,7 +450,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
             // so test only with busview view
             // NOTE: for busbreakertopology we keep the previous values.
             vl = networkVoltageLevelSupplier.get();
-            setAllBvb(vl, 1.0, setter);
+            setAllBusViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
                 if (!busBreakerViewBusToBusViewBus.get(bbvb.getId()).isEmpty()) {
@@ -486,7 +486,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
             String busviewbusid = entry.getKey();
             List<String> busbreakerviewbusids = entry.getValue();
-            setAllBbvbAndBvb(vl, Double.NaN, setter);
+            setAllBusBreakerViewBusAndBusViewBus(vl, Double.NaN, setter);
             setAndCheckBusViewBus(vl, busviewbusid, busbreakerviewbusids, getter, setter);
         }
 
@@ -546,7 +546,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         // test one same view, nodebreakertopology and busbreakertopology behave the same here
         if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             vl = networkVoltageLevelSupplier.get();
-            setAllBvb(vl, 1.0, setter);
+            setAllBusViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bvb : vl.getBusView().getBuses()) {
                 assertTrue("case " + bvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view",
@@ -555,7 +555,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
 
             // test one other view
             vl = networkVoltageLevelSupplier.get();
-            setAllBvb(vl, 1.0, setter);
+            setAllBusViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bvb : vl.getBusView().getBuses()) {
                 assertTrue("case " + bvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view",
@@ -567,7 +567,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
             // so test only with busview view
             // NOTE: for busbreakertopology we keep the previous values.
             vl = networkVoltageLevelSupplier.get();
-            setAllBvb(vl, 1.0, setter);
+            setAllBusViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bvb : vl.getBusView().getBuses()) {
                 assertEquals("case busbreakertopology " + bvb.getId() + " (busbreakerviewbus) is not set but should be copied from configured buses",
@@ -576,20 +576,20 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         }
     }
 
-    private void setAllBbvbAndBvb(VoltageLevel vl, double value, BiConsumer<Bus, Double> setter) {
+    private void setAllBusBreakerViewBusAndBusViewBus(VoltageLevel vl, double value, BiConsumer<Bus, Double> setter) {
         // order doesn't matter when we set everything, some things
         // are set twice but it doesn't matter.
-        setAllBbvb(vl, value, setter);
-        setAllBvb(vl, value, setter);
+        setAllBusBreakerViewBus(vl, value, setter);
+        setAllBusViewBus(vl, value, setter);
     }
 
-    private void setAllBvb(VoltageLevel vl, double value, BiConsumer<Bus, Double> setter) {
+    private void setAllBusViewBus(VoltageLevel vl, double value, BiConsumer<Bus, Double> setter) {
         for (Bus bvb : vl.getBusView().getBuses()) {
             setter.accept(bvb, value);
         }
     }
 
-    private void setAllBbvb(VoltageLevel vl, double value, BiConsumer<Bus, Double> setter) {
+    private void setAllBusBreakerViewBus(VoltageLevel vl, double value, BiConsumer<Bus, Double> setter) {
         for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
             setter.accept(bbvb, value);
         }

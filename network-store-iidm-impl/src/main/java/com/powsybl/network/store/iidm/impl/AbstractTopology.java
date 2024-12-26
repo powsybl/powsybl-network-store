@@ -362,21 +362,26 @@ public abstract class AbstractTopology<T> {
 
     private CalculatedBusAttributes findFirstMatchingNodeBreakerCalculatedBusAttributes(Resource<VoltageLevelAttributes> voltageLevelResource,
             ConnectedSetResult<T> connectedSet, boolean isBusView) {
-        // TODO Some day we may decide to start preserving values in nodebreaker topology after invalidating the views,
-        // so we could remove this check for isCalculatedBusesValid. Here it controls preserving
-        // the value accross the other view, we have it to be consistent with preserving values
-        // from the same view (currently not preserved)
-        if (voltageLevelResource.getAttributes().isCalculatedBusesValid()) {
-            List<CalculatedBusAttributes> calculatedBusAttributes = isBusView ? voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() : voltageLevelResource.getAttributes().getCalculatedBusesForBusView();
-            if (!CollectionUtils.isEmpty(calculatedBusAttributes)) {
-                Map<Integer, Integer> nodesToCalculatedBuses = isBusView ? voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView() : voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView();
-                if (!MapUtils.isEmpty(nodesToCalculatedBuses)) {
-                    Integer node = (Integer) connectedSet.getConnectedNodesOrBuses().iterator().next(); // non deterministic
-                    Integer busNum = nodesToCalculatedBuses.get(node);
-                    if (busNum != null) {
-                        return calculatedBusAttributes.get(busNum);
-                    }
-                }
+        // TODO Some day we may decide to start preserving phase/angle values
+        // in nodebreaker topology even after invalidating the views, so we
+        // could remove the check for isCalculatedBusesValid. Here it controls
+        // whether we preserve or not the phase/angle values accross the other
+        // view. For now we do not preserve to be consistent with the behavior
+        // of not preserving values from the same view after invalidation.
+        List<CalculatedBusAttributes> calculatedBusAttributesInOtherView = isBusView ? voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() : voltageLevelResource.getAttributes().getCalculatedBusesForBusView();
+        Map<Integer, Integer> nodesToCalculatedBusesInOtherView = isBusView ? voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView() : voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView();
+        Set<Integer> nodes = (Set<Integer>) connectedSet.getConnectedNodesOrBuses();
+        if (voltageLevelResource.getAttributes().isCalculatedBusesValid()
+            && !CollectionUtils.isEmpty(calculatedBusAttributesInOtherView)
+            && !MapUtils.isEmpty(nodesToCalculatedBusesInOtherView)
+            && !nodes.isEmpty()) {
+            // busNumInOtherView is deterministic for the busbreakerview because all busbreakerviewbuses correspond
+            // to the same busviewbus. For the busview, busNumInOtherView will be non deterministic, it will
+            // be one of the busbreakerbuses of this busviewbus.
+            Integer node = (Integer) nodes.iterator().next();
+            Integer busNumInOtherView = nodesToCalculatedBusesInOtherView.get(node);
+            if (busNumInOtherView != null) {
+                return calculatedBusAttributesInOtherView.get(busNumInOtherView);
             }
         }
         return null;
@@ -395,13 +400,18 @@ public abstract class AbstractTopology<T> {
                 angle = busAttributes.getAngle();
             }
         } else { // BUS_BREAKER
-            // currently for busbreakertopology the values are always preserved
-            // when using only the busbreakerview. So mimic the behavior and always preserve them
-            // when using the busview: get V and Angle values from configured buses
-            String configuredBusId = ((ConnectedSetResult<String>) connectedSet).getConnectedNodesOrBuses().iterator().next(); // nondeterministic
-            Bus b = index.getConfiguredBus(configuredBusId).orElseThrow();
-            v = b.getV();
-            angle = b.getAngle();
+            // currently for busbreakertopology the phase/angle values are preserved
+            // when set in the busbreakerview which is in a sense always valid.
+            // So mimic the behavior and always preserve them also in the busview
+            // by *not* testing for isCalculatedBusesValid.
+            Set<String> configuredBusesIds = (Set<String>) connectedSet.getConnectedNodesOrBuses();
+            if (!configuredBusesIds.isEmpty()) {
+                // nondeterministic, chooses a random configuredbus in this busviewbus
+                String configuredBusId = configuredBusesIds.iterator().next();
+                Bus b = index.getConfiguredBus(configuredBusId).orElseThrow(IllegalStateException::new);
+                v = b.getV();
+                angle = b.getAngle();
+            }
         }
         return new CalculatedBusAttributes(connectedSet.getConnectedVertices(), null, null, v, angle);
     }

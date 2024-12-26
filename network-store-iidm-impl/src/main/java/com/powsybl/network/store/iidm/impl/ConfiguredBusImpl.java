@@ -28,8 +28,10 @@ import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -96,8 +98,8 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         }
     }
 
-    // update without the part setting values in calculated buses otherwise
-    // it leads to infinite loops because calculated buses also update configured buses
+    // update without the part setting values in calculated buses otherwise it
+    // leads to infinite loops because calculated buses also update configured buses
     void setConfiguredBusV(double v) {
         setV(v, false);
     }
@@ -148,23 +150,26 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     private void updateCalculatedBusAttributes(double newValue,
                                                String voltageLevelId,
                                                ObjDoubleConsumer<CalculatedBusAttributes> setValue) {
-        VoltageLevelImpl voltageLevel = index.getVoltageLevel(voltageLevelId).orElseThrow();
-        Map<String, Integer> calculatedBuses = voltageLevel.getResource().getAttributes().getBusToCalculatedBusForBusView();
-        // TODO, do we want to update the busview values if the view is invalid ?
-        // if invalid, values will be restored from the configuredbuses on the next
-        // busview computation anyway in the new bus objects and attributes,
-        // but the previous bus objects and attributes may still be used somewhere
-        // so there is a visible effect to choosing to update invalid views or not.
-        if (!MapUtils.isEmpty(calculatedBuses)) {
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(voltageLevelId).orElseThrow(IllegalArgumentException::new);
+        VoltageLevelAttributes vlAttributes = voltageLevel.getResource().getAttributes();
+        Map<String, Integer> calculatedBuses = vlAttributes.getBusToCalculatedBusForBusView();
+        List<CalculatedBusAttributes> busViewCalculatedBusesAttributes = vlAttributes.getCalculatedBusesForBusView();
+        // We only update when isCalculatedBusesValid is true, there is no point in updating stale bus objects and
+        // in when isCalculatedBusesValid is not true, we may even update the wrong buses (but not much of a problem
+        // because they are stale objects).
+        // TODO add tests for updates with isCalculatedBusesValid=false
+        if (vlAttributes.isCalculatedBusesValid()
+            && !CollectionUtils.isEmpty(busViewCalculatedBusesAttributes)
+            && !MapUtils.isEmpty(calculatedBuses)) {
             Integer busviewnum = calculatedBuses.get(getId());
             if (busviewnum != null) {
-                CalculatedBusAttributes busviewattributes = voltageLevel.getResource().getAttributes().getCalculatedBusesForBusView().get(busviewnum);
+                CalculatedBusAttributes busViewCalculatedBusAttributes = busViewCalculatedBusesAttributes.get(busviewnum);
                 // Same code as the iidm impl for CalculatedBus setV / setAngle
                 // (without the part setting values in configured buses otherwise
                 // it would be an infinite loop), but copy paste here
                 // to avoid creating the object (calculated buses are created on when computing
                 // the bus view, but we want to only update if the busview exist, not force its creation)
-                setValue.accept(busviewattributes, newValue);
+                setValue.accept(busViewCalculatedBusAttributes, newValue);
                 index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
             }
         }
