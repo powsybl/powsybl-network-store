@@ -243,9 +243,9 @@ public class NetworkStoreService implements AutoCloseable {
         networkImpl.getIndex().getStoreClient().flush(networkImpl.getUuid());
     }
 
-    public void setVariantMode(Network network, VariantMode variantMode) {
+    public void setCloneStrategy(Network network, CloneStrategy cloneStrategy) {
         NetworkImpl networkImpl = getNetworkImpl(network);
-        networkImpl.getResource().getAttributes().setVariantMode(variantMode);
+        networkImpl.getResource().getAttributes().setCloneStrategy(cloneStrategy);
     }
 
     @PostConstruct
@@ -259,12 +259,12 @@ public class NetworkStoreService implements AutoCloseable {
         ExecutorUtil.shutdownAndAwaitTermination(executorService);
     }
 
-    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId, VariantMode variantMode) {
-        cloneVariant(networkUuid, sourceVariantId, targetVariantId, false, variantMode);
+    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId, CloneStrategy cloneStrategy) {
+        cloneVariant(networkUuid, sourceVariantId, targetVariantId, false, cloneStrategy);
     }
 
-    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite, VariantMode variantMode) {
+    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite, CloneStrategy cloneStrategy) {
         NetworkStoreClient client = new RestNetworkStoreClient(restClient);
-        client.cloneNetwork(networkUuid, sourceVariantId, targetVariantId, mayOverwrite, variantMode);
+        client.cloneNetwork(networkUuid, sourceVariantId, targetVariantId, mayOverwrite, cloneStrategy);
     }
 }

@@ -36,9 +36,9 @@ public interface NetworkStoreClient {
 
     void updateNetworks(List<Resource<NetworkAttributes>> networkResources, AttributeFilter attributeFilter);
 
-    void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, VariantMode variantMode);
+    void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, CloneStrategy cloneStrategy);
 
-    void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite, VariantMode variantMode);
+    void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite, CloneStrategy cloneStrategy);
 
     void cloneNetwork(UUID networkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds);
 

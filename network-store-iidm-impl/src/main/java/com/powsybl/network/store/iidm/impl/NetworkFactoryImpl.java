@@ -9,9 +9,9 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.network.store.model.CloneStrategy;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.VariantMode;
 
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -44,8 +44,8 @@ public class NetworkFactoryImpl implements NetworkFactory {
                 .attributes(NetworkAttributes.builder()
                                              .uuid(networkUuid)
                                              .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
-                                             .variantMode(VariantMode.PARTIAL)
-                                             .srcVariantNum(-1)
+                                             .cloneStrategy(CloneStrategy.PARTIAL)
+                                             .fullVariantNum(-1)
                                              .caseDate(ZonedDateTime.now())
                                              .forecastDistance(0)
                                              .sourceFormat(sourceFormat)

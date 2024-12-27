@@ -7,10 +7,9 @@
 package com.powsybl.network.store.model;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
-// Variant clone means how to clone this variant
-public enum VariantMode {
+public enum CloneStrategy {
     FULL,
     PARTIAL
 }

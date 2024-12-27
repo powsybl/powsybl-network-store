@@ -235,8 +235,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             networkContainersCaches.values().forEach(cache -> cache.getCollection(networkUuid, networkResource.getVariantNum()).init());
 
             variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
-                    .add(new VariantInfos(networkResource.getAttributes().getVariantId(), networkResource.getVariantNum(),
-                            networkResource.getAttributes().getVariantMode(), networkResource.getAttributes().getSrcVariantNum()));
+                    .add(new VariantInfos(networkResource.getAttributes().getVariantId(), networkResource.getVariantNum()));
         }
     }
 
@@ -300,8 +299,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, VariantMode variantMode) {
-        delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, variantMode);
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, CloneStrategy cloneStrategy) {
+        delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, cloneStrategy);
 
         var objectMapper = JsonUtil.createObjectMapper()
             .registerModule(new JavaTimeModule())
@@ -331,20 +330,20 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         cloneCollection(networksCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
                 networkResource -> {
                     networkResource.getAttributes().setVariantId(targetVariantId);
-                    networkResource.getAttributes().setVariantMode(variantMode);
+                    networkResource.getAttributes().setCloneStrategy(cloneStrategy);
                     // add a test for this
                     Resource<NetworkAttributes> srcNetwork = networksCache.getCollection(networkUuid, sourceVariantNum).getResources(networkUuid, sourceVariantNum).stream().findFirst().orElseThrow();
-                    int srcVariantNum = -1;
-                    if (variantMode == VariantMode.PARTIAL) {
-                        srcVariantNum = srcNetwork.getAttributes().getSrcVariantNum() != -1
-                                ? srcNetwork.getAttributes().getSrcVariantNum()
+                    int fullVariantNum = -1;
+                    if (cloneStrategy == CloneStrategy.PARTIAL) {
+                        fullVariantNum = srcNetwork.getAttributes().getFullVariantNum() != -1
+                                ? srcNetwork.getAttributes().getFullVariantNum()
                                 : sourceVariantNum;
                     }
-                    networkResource.getAttributes().setSrcVariantNum(srcVariantNum);
+                    networkResource.getAttributes().setFullVariantNum(fullVariantNum);
                 });
 
         variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
-                .add(new VariantInfos(targetVariantId, targetVariantNum, variantMode, sourceVariantNum));
+                .add(new VariantInfos(targetVariantId, targetVariantNum));
     }
 
     @Override

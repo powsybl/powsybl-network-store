@@ -590,8 +590,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
-    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, VariantMode variantMode) {
-        delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, variantMode);
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, CloneStrategy cloneStrategy) {
+        delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, cloneStrategy);
 
         var objectMapper = JsonUtil.createObjectMapper()
             .registerModule(new JavaTimeModule())

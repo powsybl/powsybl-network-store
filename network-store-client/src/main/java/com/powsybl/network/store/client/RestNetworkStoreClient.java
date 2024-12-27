@@ -246,21 +246,18 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, VariantMode variantMode) {
-        LOGGER.info("Cloning network {} variant {} to variant {} (variantId='{}', variantMode={})", networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, variantMode);
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        restClient.put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}&variantMode={variantMode}",
-                networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, variantMode);
-        stopwatch.stop();
-        LOGGER.info("Network {} variant {} cloned to variant {} in {} ms", networkUuid, sourceVariantNum, targetVariantNum, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, CloneStrategy cloneStrategy) {
+        LOGGER.info("Cloning network {} variant {} to variant {} (variantId='{}', cloneStrategy={})", networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, cloneStrategy);
+        restClient.put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}&cloneStrategy={cloneStrategy}",
+                networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, cloneStrategy);
     }
 
     @Override
-    public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite, VariantMode variantMode) {
-        LOGGER.info("Cloning network {} variantId {} to variantId {}, variantMode={}", networkUuid, sourceVariantId, targetVariantId, variantMode);
+    public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite, CloneStrategy cloneStrategy) {
+        LOGGER.info("Cloning network {} variantId {} to variantId {}, cloneStrategy={}", networkUuid, sourceVariantId, targetVariantId, cloneStrategy);
         try {
-            restClient.put("/networks/{networkUuid}/{sourceVariantId}/toId/{targetVariantId}?mayOverwrite={mayOverwrite}&variantMode={variantMode}",
-                    networkUuid, sourceVariantId, targetVariantId, mayOverwrite, variantMode);
+            restClient.put("/networks/{networkUuid}/{sourceVariantId}/toId/{targetVariantId}?mayOverwrite={mayOverwrite}&cloneStrategy={cloneStrategy}",
+                    networkUuid, sourceVariantId, targetVariantId, mayOverwrite, cloneStrategy);
         } catch (HttpClientErrorException ex) {
             String body = ex.getResponseBodyAsString();
             Optional<TopLevelError> optError = RestTemplateResponseErrorHandler.parseJsonApiError(body, objectMapper);
