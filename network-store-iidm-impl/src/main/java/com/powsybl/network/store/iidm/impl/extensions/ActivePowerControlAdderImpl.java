@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
@@ -18,7 +17,7 @@ import com.powsybl.network.store.model.ActivePowerControlAttributes;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class ActivePowerControlAdderImpl<I extends Injection<I>> extends AbstractExtensionAdder<I, ActivePowerControl<I>> implements ActivePowerControlAdder<I> {
+public class ActivePowerControlAdderImpl<I extends Injection<I>> extends AbstractIidmExtensionAdder<I, ActivePowerControl<I>> implements ActivePowerControlAdder<I> {
 
     private boolean participate;
 

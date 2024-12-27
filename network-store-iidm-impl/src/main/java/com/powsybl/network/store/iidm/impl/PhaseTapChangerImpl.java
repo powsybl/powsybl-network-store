@@ -43,7 +43,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
         RegulationMode oldValue = getAttributes().getRegulationMode();
         parent.getTransformer().updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
         return this;
     }
 

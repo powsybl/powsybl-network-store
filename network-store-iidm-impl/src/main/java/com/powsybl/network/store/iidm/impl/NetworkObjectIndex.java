@@ -515,11 +515,11 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+    public void notifyExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : network.getListeners()) {
                 try {
-                    listener.onUpdate(identifiable, attribute, oldValue, newValue);
+                    listener.onExtensionUpdate(extension, attribute, variantId, oldValue, newValue);
                 } catch (Exception e) {
                     LOGGER.error(e.toString(), e);
                 }
@@ -548,7 +548,7 @@ public class NetworkObjectIndex {
     void notifyElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
         for (NetworkListener listener : network.getListeners()) {
             try {
-                listener.onElementAdded(identifiable, attribute, newValue);
+                listener.onPropertyAdded(identifiable, attribute, newValue);
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
             }
@@ -564,7 +564,7 @@ public class NetworkObjectIndex {
     void notifyElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         for (NetworkListener listener : network.getListeners()) {
             try {
-                listener.onElementReplaced(identifiable, attribute, oldValue, newValue);
+                listener.onPropertyReplaced(identifiable, attribute, oldValue, newValue);
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
             }
@@ -580,7 +580,7 @@ public class NetworkObjectIndex {
     void notifyElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
         for (NetworkListener listener : network.getListeners()) {
             try {
-                listener.onElementRemoved(identifiable, attribute, oldValue);
+                listener.onPropertyRemoved(identifiable, attribute, oldValue);
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
             }

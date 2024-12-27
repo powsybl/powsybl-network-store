@@ -49,7 +49,8 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
         double oldValue = getAttributes().getBPerSection();
         if (bPerSection != oldValue) {
             shuntCompensator.updateResource(res -> getAttributes(res).setBPerSection(bPerSection));
-            shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);
+            String variantId = shuntCompensator.index.getNetwork().getVariantManager().getWorkingVariantId();
+            shuntCompensator.notifyUpdate("bPerSection", variantId, oldValue, bPerSection);
         }
         return this;
     }
@@ -64,7 +65,8 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
         double oldValue = getAttributes().getGPerSection();
         if (gPerSection != oldValue) {
             shuntCompensator.updateResource(res -> getAttributes(res).setGPerSection(gPerSection));
-            shuntCompensator.notifyUpdate("gPerSection", oldValue, gPerSection);
+            String variantId = shuntCompensator.index.getNetwork().getVariantManager().getWorkingVariantId();
+            shuntCompensator.notifyUpdate("gPerSection", variantId, oldValue, gPerSection);
         }
         return this;
     }
@@ -75,7 +77,8 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
         int oldValue = getAttributes().getMaximumSectionCount();
         if (maximumSectionCount != oldValue) {
             shuntCompensator.updateResource(res -> getAttributes(res).setMaximumSectionCount(maximumSectionCount));
-            shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
+            String variantId = shuntCompensator.index.getNetwork().getVariantManager().getWorkingVariantId();
+            shuntCompensator.notifyUpdate("maximumSectionCount", variantId, oldValue, maximumSectionCount);
         }
         return this;
     }

@@ -190,8 +190,8 @@ class NetworkTest extends AbstractNetworkTest {
 
         // Changes listener
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(any(), anyString(), any());
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementReplaced(any(), anyString(),
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyAdded(any(), anyString(), any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyReplaced(any(), anyString(),
                 any(), any());
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
 
@@ -220,12 +220,12 @@ class NetworkTest extends AbstractNetworkTest {
 
         // Check notification done
         verify(mockedListener, times(1))
-                .onElementAdded(voltageLevel1, "properties[" + key + "]", value);
+                .onPropertyAdded(voltageLevel1, "properties[" + key + "]", value);
         // Check no notification on same property
         String value2 = "ValueTest2";
         voltageLevel1.setProperty(key, value2);
         verify(mockedListener, times(1))
-                .onElementReplaced(voltageLevel1, "properties[" + key + "]", value, value2);
+                .onPropertyReplaced(voltageLevel1, "properties[" + key + "]", value, value2);
         // Check no notification on same property
         voltageLevel1.setProperty(key, value2);
         verifyNoMoreInteractions(mockedListener);

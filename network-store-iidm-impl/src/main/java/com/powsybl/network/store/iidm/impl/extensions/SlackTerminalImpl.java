@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.network.store.iidm.impl.TerminalImpl;
 import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
 import com.powsybl.network.store.iidm.impl.VoltageLevelImpl;
 
@@ -18,27 +19,28 @@ import java.util.Objects;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class SlackTerminalImpl implements SlackTerminal {
-
-    private VoltageLevelImpl voltageLevel;
-
+public class SlackTerminalImpl extends AbstractIidmExtension<VoltageLevel> implements SlackTerminal {
     public SlackTerminalImpl(VoltageLevelImpl voltageLevel) {
-        this.voltageLevel = Objects.requireNonNull(voltageLevel);
+        super(Objects.requireNonNull(voltageLevel));
+        TerminalImpl<?> terminal = (TerminalImpl<?>) getTerminal();
+        if (terminal != null) {
+            terminal.getReferrerManager().register(this);
+        }
     }
 
     @Override
     public VoltageLevel getExtendable() {
-        return voltageLevel;
+        return super.getExtendable();
     }
 
     @Override
     public void setExtendable(VoltageLevel voltageLevel) {
-        this.voltageLevel = (VoltageLevelImpl) voltageLevel;
+        super.setExtendable(voltageLevel);
     }
 
     @Override
     public Terminal getTerminal() {
-        return voltageLevel.getTerminal(voltageLevel.getResource().getAttributes().getSlackTerminal());
+        return ((VoltageLevelImpl) getExtendable()).getTerminal(((VoltageLevelImpl) getExtendable()).getResource().getAttributes().getSlackTerminal());
     }
 
     @Override
@@ -47,7 +49,16 @@ public class SlackTerminalImpl implements SlackTerminal {
             throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
                     + terminal.getVoltageLevel().getId() + " instead of " + getExtendable().getId() + ")");
         }
-        voltageLevel.updateResource(res -> res.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal)));
+        // Get old terminal and, if not null, unregister the slack terminal from this old terminal
+        Terminal oldTerminal = getTerminal();
+        if (oldTerminal != null) {
+            ((TerminalImpl<?>) oldTerminal).getReferrerManager().unregister(this);
+        }
+        ((VoltageLevelImpl) getExtendable()).updateResource(res -> res.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal)));
+        // register the slack terminal in this new terminal, if not null
+        if (terminal != null) {
+            ((TerminalImpl<?>) terminal).getReferrerManager().register(this);
+        }
         return this;
     }
 
@@ -56,4 +67,26 @@ public class SlackTerminalImpl implements SlackTerminal {
         return Objects.isNull(getTerminal());
     }
 
+    @Override
+    public void onReferencedRemoval(Terminal removedTerminal) {
+        Terminal oldTerminal = getTerminal();
+        if (oldTerminal != null && oldTerminal.getConnectable().getId().equals(removedTerminal.getConnectable().getId())) {
+            setTerminal(null);
+        }
+    }
+
+    @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        Terminal oldTerminal = getTerminal();
+        if (oldTerminal == null || oldTerminal.getConnectable().getId().equals(oldReferenced.getConnectable().getId())) {
+            setTerminal(newReferenced);
+        }
+    }
+
+    @Override
+    public void cleanup() {
+        if (getTerminal() != null) {
+            ((TerminalImpl<?>) getTerminal()).getReferrerManager().unregister(this);
+        }
+    }
 }

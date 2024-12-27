@@ -80,7 +80,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         double oldValue = resource.getAttributes().getNominalV();
         if (nominalV != oldValue) {
             updateResource(res -> res.getAttributes().setNominalV(nominalV));
-            index.notifyUpdate(this, "nominalV", oldValue, nominalV);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "nominalV", variantId, oldValue, nominalV);
         }
         return this;
     }
@@ -97,7 +98,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         double oldValue = resource.getAttributes().getLowVoltageLimit();
         if (lowVoltageLimit != oldValue) {
             updateResource(res -> res.getAttributes().setLowVoltageLimit(lowVoltageLimit));
-            index.notifyUpdate(this, "lowVoltageLimit", oldValue, lowVoltageLimit);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "lowVoltageLimit", variantId, oldValue, lowVoltageLimit);
         }
         return this;
     }
@@ -114,7 +116,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         double oldValue = resource.getAttributes().getHighVoltageLimit();
         if (highVoltageLimit != oldValue) {
             updateResource(res -> res.getAttributes().setHighVoltageLimit(highVoltageLimit));
-            index.notifyUpdate(this, "highVoltageLimit", oldValue, highVoltageLimit);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "highVoltageLimit", variantId, oldValue, highVoltageLimit);
         }
         return this;
     }
@@ -699,5 +702,21 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     public void removeArea(Area area) {
         Objects.requireNonNull(area);
         // TODO
+    }
+
+    private void convertToBusBreakerModel() {
+        // TODO
+    }
+
+    @Override
+    public void convertToTopology(TopologyKind newTopologyKind) {
+        Objects.requireNonNull(newTopologyKind);
+        if (newTopologyKind != getTopologyKind()) {
+            if (newTopologyKind == TopologyKind.NODE_BREAKER) {
+                throw new PowsyblException("Topology model conversion from bus/breaker to node/breaker not yet supported");
+            } else if (newTopologyKind == TopologyKind.BUS_BREAKER) {
+                convertToBusBreakerModel();
+            }
+        }
     }
 }

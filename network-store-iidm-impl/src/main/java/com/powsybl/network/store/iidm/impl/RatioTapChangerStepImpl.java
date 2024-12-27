@@ -48,7 +48,8 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getRho();
         if (rho != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setRho(rho));
-            ratioTapChanger.notifyUpdate("rho", oldValue, rho);
+            String variantId = ratioTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            ratioTapChanger.notifyUpdate(() -> "rho", variantId, oldValue, rho);
         }
         return this;
     }
@@ -63,7 +64,8 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getR();
         if (r != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setR(r));
-            ratioTapChanger.notifyUpdate("r", oldValue, r);
+            String variantId = ratioTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            ratioTapChanger.notifyUpdate(() -> "r", variantId, oldValue, r);
         }
         return this;
     }
@@ -78,7 +80,8 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getX();
         if (x != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setX(x));
-            ratioTapChanger.notifyUpdate("x", oldValue, x);
+            String variantId = ratioTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            ratioTapChanger.notifyUpdate(() -> "x", variantId, oldValue, x);
         }
         return this;
     }
@@ -93,7 +96,8 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getG();
         if (g != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setG(g));
-            ratioTapChanger.notifyUpdate("g", oldValue, g);
+            String variantId = ratioTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            ratioTapChanger.notifyUpdate(() -> "g", variantId, oldValue, g);
         }
         return this;
     }
@@ -108,7 +112,8 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getB();
         if (b != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setB(b));
-            ratioTapChanger.notifyUpdate("b", oldValue, b);
+            String variantId = ratioTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            ratioTapChanger.notifyUpdate(() -> "b", variantId, oldValue, b);
         }
         return this;
     }

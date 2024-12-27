@@ -45,7 +45,7 @@ public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterS
         float oldValue = getResource().getAttributes().getPowerFactor();
         if (powerFactor != oldValue) {
             updateResource(res -> res.getAttributes().setPowerFactor(powerFactor));
-            index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
+            index.notifyUpdate(this, "powerFactor", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, powerFactor);
         }
         return this;
     }
@@ -61,7 +61,7 @@ public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterS
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
             updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
-            index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+            index.notifyUpdate(this, "lossFactor", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, lossFactor);
         }
         return this;
     }
@@ -76,6 +76,7 @@ public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterS
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());

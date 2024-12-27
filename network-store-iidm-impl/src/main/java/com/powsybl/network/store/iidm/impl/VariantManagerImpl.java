@@ -70,6 +70,16 @@ public class VariantManagerImpl implements VariantManager {
         }
     }
 
+    private void notifyVariantOverwritten(String sourceVariantId, String targetVariantId) {
+        for (NetworkListener listener : index.getNetwork().getListeners()) {
+            try {
+                listener.onVariantOverwritten(sourceVariantId, targetVariantId);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
     @Override
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
         Objects.requireNonNull(sourceVariantId);
@@ -82,12 +92,14 @@ public class VariantManagerImpl implements VariantManager {
         int sourceVariantNum = VariantUtils.getVariantNum(sourceVariantId, variantsInfos);
         String workingVariantId = workingVariantNum != -1 ? getWorkingVariantId() : null;
         for (String targetVariantId : targetVariantIds) {
+            boolean variantOverwritten = false;
             Optional<VariantInfos> targetVariant = VariantUtils.getVariant(targetVariantId, variantsInfos);
             if (targetVariant.isPresent()) {
                 if (!mayOverwrite) {
                     throw new PowsyblException("Variant '" + targetVariantId + "' already exists");
                 } else {
-                    removeVariant(targetVariantId);
+                    removeVariant(targetVariantId, false);
+                    variantOverwritten = true;
                 }
             }
             int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
@@ -97,7 +109,11 @@ public class VariantManagerImpl implements VariantManager {
             if (targetVariantId.equals(workingVariantId)) {
                 index.setWorkingVariantNum(workingVariantNum);
             }
-            notifyVariantCreated(sourceVariantId, targetVariantId);
+            if (!variantOverwritten) {
+                notifyVariantCreated(sourceVariantId, targetVariantId);
+            } else {
+                notifyVariantOverwritten(sourceVariantId, targetVariantId);
+            }
         }
     }
 
@@ -123,13 +139,19 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public void removeVariant(String variantId) {
+        removeVariant(variantId, true);
+    }
+
+    public void removeVariant(String variantId, boolean notifyRemoved) {
         if (VariantManagerConstants.INITIAL_VARIANT_ID.equals(variantId)) {
             throw new PowsyblException("Removing initial variant is forbidden");
         }
         int variantNum = VariantUtils.getVariantNum(variantId,
-                index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()));
+            index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()));
         index.getStoreClient().deleteNetwork(index.getNetwork().getUuid(), variantNum);
-        notifyVariantRemoved(variantId);
+        if (notifyRemoved) {
+            notifyVariantRemoved(variantId);
+        }
         if (variantNum == index.getWorkingVariantNum()) {
             index.setWorkingVariantNum(-1);
         }

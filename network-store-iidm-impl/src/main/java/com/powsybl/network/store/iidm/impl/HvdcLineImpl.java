@@ -93,7 +93,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r));
-            index.notifyUpdate(this, "r", oldValue, r);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "r", variantId, oldValue, r);
         }
         return this;
     }
@@ -109,7 +110,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         double oldValue = getResource().getAttributes().getNominalV();
         if (nominalV != oldValue) {
             updateResource(res -> res.getAttributes().setNominalV(nominalV));
-            index.notifyUpdate(this, "nominalV", oldValue, nominalV);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "nominalV", variantId, oldValue, nominalV);
         }
         return this;
     }
@@ -142,7 +144,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         double oldValue = getResource().getAttributes().getMaxP();
         if (maxP != oldValue) {
             updateResource(res -> res.getAttributes().setMaxP(maxP));
-            index.notifyUpdate(this, "maxP", oldValue, maxP);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "maxP", variantId, oldValue, maxP);
         }
         return this;
     }

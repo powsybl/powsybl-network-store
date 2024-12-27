@@ -68,14 +68,14 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     public void setPhaseTapChanger(PhaseTapChangerAttributes attributes) {
         PhaseTapChangerAttributes oldValue = getResource().getAttributes().getPhaseTapChangerAttributes();
         updateResource(res -> res.getAttributes().setPhaseTapChangerAttributes(attributes));
-        index.notifyUpdate(this, "phaseTapChanger", oldValue, attributes);
+        index.notifyUpdate(this, "phaseTapChanger", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, attributes);
     }
 
     @Override
     public void setRatioTapChanger(RatioTapChangerAttributes attributes) {
         RatioTapChangerAttributes oldValue = getResource().getAttributes().getRatioTapChangerAttributes();
         updateResource(res -> res.getAttributes().setRatioTapChangerAttributes(attributes));
-        index.notifyUpdate(this, "ratioTapChanger", oldValue, attributes);
+        index.notifyUpdate(this, "ratioTapChanger", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, attributes);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r));
-            index.notifyUpdate(this, "r", oldValue, r);
+            index.notifyUpdate(this, "r", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, r);
         }
         return this;
     }
@@ -123,7 +123,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getX();
         if (x != oldValue) {
             updateResource(res -> res.getAttributes().setX(x));
-            index.notifyUpdate(this, "x", oldValue, x);
+            index.notifyUpdate(this, "x", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, x);
         }
         return this;
     }
@@ -139,7 +139,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getG();
         if (g != oldValue) {
             updateResource(res -> res.getAttributes().setG(g));
-            index.notifyUpdate(this, "g", oldValue, g);
+            index.notifyUpdate(this, "g", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, g);
         }
         return this;
     }
@@ -155,7 +155,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getB();
         if (b != oldValue) {
             updateResource(res -> res.getAttributes().setB(b));
-            index.notifyUpdate(this, "b", oldValue, b);
+            index.notifyUpdate(this, "b", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, b);
         }
         return this;
     }
@@ -171,7 +171,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getRatedU1();
         if (ratedU1 != oldValue) {
             updateResource(res -> res.getAttributes().setRatedU1(ratedU1));
-            index.notifyUpdate(this, "ratedU1", oldValue, ratedU1);
+            index.notifyUpdate(this, "ratedU1", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, ratedU1);
         }
         return this;
     }
@@ -187,7 +187,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getRatedU2();
         if (ratedU2 != oldValue) {
             updateResource(res -> res.getAttributes().setRatedU2(ratedU2));
-            index.notifyUpdate(this, "ratedU2", oldValue, ratedU2);
+            index.notifyUpdate(this, "ratedU2", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, ratedU2);
         }
         return this;
     }
@@ -203,7 +203,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getRatedS();
         if (Double.compare(ratedS, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setRatedS(ratedS));
-            index.notifyUpdate(this, "ratedS", oldValue, ratedS);
+            index.notifyUpdate(this, "ratedS", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, ratedS);
         }
         return this;
     }
@@ -214,6 +214,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());

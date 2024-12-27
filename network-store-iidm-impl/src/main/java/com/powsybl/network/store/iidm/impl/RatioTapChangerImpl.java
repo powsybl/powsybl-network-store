@@ -60,7 +60,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         boolean oldValue = getAttributes().isLoadTapChangingCapabilities();
         if (status != oldValue) {
             getTransformer().updateResource(res -> getAttributes(res).setLoadTapChangingCapabilities(status));
-            notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", oldValue, status);
+            notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, status);
         }
         return this;
     }
