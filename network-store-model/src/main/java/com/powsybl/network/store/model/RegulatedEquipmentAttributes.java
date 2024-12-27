@@ -6,15 +6,15 @@
  */
 package com.powsybl.network.store.model;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 public interface RegulatedEquipmentAttributes extends Attributes {
 
-    Map<String, ResourceType> getRegulatingEquipments();
+    List<RegulatingEquipmentIdentifier> getRegulatingEquipments();
 
-    void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments);
+    void setRegulatingEquipments(List<RegulatingEquipmentIdentifier> regulatingEquipments);
 
 }

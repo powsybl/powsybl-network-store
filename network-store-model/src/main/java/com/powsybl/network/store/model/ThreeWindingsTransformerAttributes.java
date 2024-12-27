@@ -13,10 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -82,7 +79,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttr
 
     @Builder.Default
     @Schema(description = "regulatingEquipments")
-    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
+    private List<RegulatingEquipmentIdentifier> regulatingEquipments = new ArrayList<>();
 
     @Override
     @JsonIgnore
