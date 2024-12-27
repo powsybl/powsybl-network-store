@@ -619,7 +619,12 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(voltageLevelResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(tieLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(networkResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
-            networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
+                networkResource -> {
+                    networkResource.getAttributes().setVariantId(targetVariantId);
+                    if (cloneStrategy == CloneStrategy.PARTIAL && networkResource.getAttributes().isFullVariant()) {
+                        networkResource.getAttributes().setFullVariantNum(sourceVariantNum);
+                    }
+                });
     }
 
     @Override

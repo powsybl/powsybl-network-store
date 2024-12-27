@@ -46,8 +46,6 @@ public class ThreeWindingsTransformerSvAttributes extends AbstractAttributes imp
     @Builder.Default
     private double q3 = Double.NaN;
 
-    //TODO: add tests
-    // Add requires non null?
     public static void bindAttributes(ThreeWindingsTransformerSvAttributes attributes, List<Object> values) {
         values.add(attributes.getP1());
         values.add(attributes.getQ1());
@@ -60,9 +58,9 @@ public class ThreeWindingsTransformerSvAttributes extends AbstractAttributes imp
     public static void updateAttributes(ThreeWindingsTransformerAttributes existingAttributes, ThreeWindingsTransformerSvAttributes newAttributes) {
         existingAttributes.setP1(newAttributes.getP1());
         existingAttributes.setQ1(newAttributes.getQ1());
-        existingAttributes.setP1(newAttributes.getP2());
-        existingAttributes.setQ1(newAttributes.getQ2());
-        existingAttributes.setP1(newAttributes.getP3());
-        existingAttributes.setQ1(newAttributes.getQ3());
+        existingAttributes.setP2(newAttributes.getP2());
+        existingAttributes.setQ2(newAttributes.getQ2());
+        existingAttributes.setP3(newAttributes.getP3());
+        existingAttributes.setQ3(newAttributes.getQ3());
     }
 }
