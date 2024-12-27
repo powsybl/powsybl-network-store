@@ -27,6 +27,8 @@ import java.util.UUID;
 @Schema(description = "Network attributes")
 public class NetworkAttributes extends AbstractIdentifiableAttributes {
 
+    public static final int FULL_VARIANT_INDICATOR = -1;
+
     @Schema(description = "Network UUID", required = true)
     private UUID uuid;
 
@@ -34,10 +36,12 @@ public class NetworkAttributes extends AbstractIdentifiableAttributes {
     private String variantId;
 
     @Schema(description = "Clone strategy")
-    private CloneStrategy cloneStrategy;
+    @Builder.Default
+    private CloneStrategy cloneStrategy = CloneStrategy.PARTIAL;
 
-    @Schema(description = "Full variant associated to this variant (-1 if the variant is a full variant)")
-    private int fullVariantNum;
+    @Schema(description = "Full variant number")
+    @Builder.Default
+    private int fullVariantNum = FULL_VARIANT_INDICATOR;
 
     @Schema(description = "Id by alias")
     private Map<String, String> idByAlias;
@@ -72,4 +76,13 @@ public class NetworkAttributes extends AbstractIdentifiableAttributes {
 
     @JsonIgnore
     private Map<String, Bus> busCache;
+
+    @JsonIgnore
+    public boolean isFullVariant() {
+        return fullVariantNum == FULL_VARIANT_INDICATOR;
+    }
+
+    public static boolean isFullVariant(int fullVariantNum) {
+        return fullVariantNum == FULL_VARIANT_INDICATOR;
+    }
 }

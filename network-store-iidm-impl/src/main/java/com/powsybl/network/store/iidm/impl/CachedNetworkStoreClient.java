@@ -330,16 +330,9 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         cloneCollection(networksCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
                 networkResource -> {
                     networkResource.getAttributes().setVariantId(targetVariantId);
-                    networkResource.getAttributes().setCloneStrategy(cloneStrategy);
-                    // add a test for this
-                    Resource<NetworkAttributes> srcNetwork = networksCache.getCollection(networkUuid, sourceVariantNum).getResources(networkUuid, sourceVariantNum).stream().findFirst().orElseThrow();
-                    int fullVariantNum = -1;
-                    if (cloneStrategy == CloneStrategy.PARTIAL) {
-                        fullVariantNum = srcNetwork.getAttributes().getFullVariantNum() != -1
-                                ? srcNetwork.getAttributes().getFullVariantNum()
-                                : sourceVariantNum;
+                    if (cloneStrategy == CloneStrategy.PARTIAL && networkResource.getAttributes().isFullVariant()) {
+                        networkResource.getAttributes().setFullVariantNum(sourceVariantNum);
                     }
-                    networkResource.getAttributes().setFullVariantNum(fullVariantNum);
                 });
 
         variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())

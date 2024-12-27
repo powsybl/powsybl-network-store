@@ -187,13 +187,13 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false&cloneStrategy=FULL"))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false&cloneStrategy=PARTIAL"))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
 
         String errorExistingJson = objectMapper
                 .writeValueAsString(TopLevelError.of(ErrorObject.cloneOverExisting(VARIANT1)));
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false&cloneStrategy=FULL"))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false&cloneStrategy=PARTIAL"))
                 .andExpect(method(PUT))
                 .andRespond(withBadRequest().body(errorExistingJson).contentType(MediaType.APPLICATION_JSON));
 
@@ -273,8 +273,8 @@ public class RestNetworkStoreClientTest {
             assertEquals("idLine", lines.get(0).getId());
             assertEquals(100., lines.get(0).getTerminal1().getP(), 0.);
 
-            service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, CloneStrategy.FULL);
-            PowsyblException e1 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, CloneStrategy.FULL));
+            service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, CloneStrategy.PARTIAL);
+            PowsyblException e1 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, CloneStrategy.PARTIAL));
             assertTrue(e1.getMessage().contains("already exists"));
             service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, true, CloneStrategy.FULL);
             PowsyblException e2 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VARIANT1, VariantManagerConstants.INITIAL_VARIANT_ID, true, CloneStrategy.FULL));
