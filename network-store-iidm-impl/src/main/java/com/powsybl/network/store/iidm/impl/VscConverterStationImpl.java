@@ -13,7 +13,7 @@ import com.powsybl.network.store.model.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
+public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
 
     public VscConverterStationImpl(NetworkObjectIndex index, Resource<VscConverterStationAttributes> resource) {
         super(index, resource);
@@ -35,15 +35,15 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return getResource().getAttributes().getVoltageRegulatorOn();
+        return this.isRegulating();
     }
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        boolean oldValue = getResource().getAttributes().getVoltageRegulatorOn();
+        boolean oldValue = this.isRegulating();
         if (voltageRegulatorOn != oldValue) {
-            updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
+            this.setRegulating(voltageRegulatorOn);
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         }
@@ -162,5 +162,16 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     public VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
         setRegTerminal(regulatingTerminal);
         return this;
+    }
+
+    @Override
+    public HvdcLine getHvdcLine() {
+        // TODO: to optimize later on, this won't work with a lot of HVDC lines
+        return index.getHvdcLines()
+            .stream()
+            .filter(hvdcLine -> hvdcLine.getConverterStation1().getId().equals(getId())
+                || hvdcLine.getConverterStation2().getId().equals(getId()))
+            .findFirst()
+            .orElse(null);
     }
 }

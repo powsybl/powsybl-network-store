@@ -9,22 +9,20 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.LegAttributes;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
 
-import java.util.Objects;
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ThreeWindingsTransformerToInjectionAttributesAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<ThreeWindingsTransformerAttributes> {
 
-    private final ThreeWindingsTransformerImpl.LegImpl leg;
-
     private final ThreeSides side;
 
-    public ThreeWindingsTransformerToInjectionAttributesAdapter(ThreeWindingsTransformerImpl.LegImpl leg, ThreeWindingsTransformerAttributes attributes, ThreeSides side) {
+    public ThreeWindingsTransformerToInjectionAttributesAdapter(ThreeWindingsTransformerAttributes attributes, ThreeSides side) {
         super(attributes);
-        this.leg = Objects.requireNonNull(leg);
         this.side = side;
     }
 
@@ -37,7 +35,6 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case ONE -> attributes.getLeg1();
             case TWO -> attributes.getLeg2();
             case THREE -> attributes.getLeg3();
-            default -> throw createUnknownSideException();
         };
     }
 
@@ -68,9 +65,7 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
 
     @Override
     public void setBus(String bus) {
-        String oldValue = getLegAttributes().getBus();
         getLegAttributes().setBus(bus);
-        leg.notifyUpdate("bus", oldValue, bus);
     }
 
     @Override
@@ -89,7 +84,6 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case ONE -> attributes.getP1();
             case TWO -> attributes.getP2();
             case THREE -> attributes.getP3();
-            default -> throw createUnknownSideException();
         };
     }
 
@@ -109,7 +103,6 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case ONE -> attributes.getQ1();
             case TWO -> attributes.getQ2();
             case THREE -> attributes.getQ3();
-            default -> throw createUnknownSideException();
         };
     }
 
@@ -129,7 +122,6 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case ONE -> attributes.getPosition1();
             case TWO -> attributes.getPosition2();
             case THREE -> attributes.getPosition3();
-            default -> throw createUnknownSideException();
         };
     }
 
@@ -141,5 +133,15 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case THREE -> attributes.setPosition3(position);
             default -> throw createUnknownSideException();
         }
+    }
+
+    @Override
+    public Map<String, ResourceType> getRegulatingEquipments() {
+        return attributes.getRegulatingEquipments();
+    }
+
+    @Override
+    public void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments) {
+        attributes.setRegulatingEquipments(regulatingEquipments);
     }
 }

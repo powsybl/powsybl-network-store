@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -19,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "VSC converter station attributes")
-public class VscConverterStationAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class VscConverterStationAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -36,9 +39,6 @@ public class VscConverterStationAttributes extends AbstractIdentifiableAttribute
     @Schema(description = "Loss factor")
     @Builder.Default
     private float lossFactor = Float.NaN;
-
-    @Schema(description = "Voltage regulator status")
-    private Boolean voltageRegulatorOn;
 
     @Schema(description = "Reactive power set point in MVar")
     private double reactivePowerSetPoint;
@@ -59,4 +59,8 @@ public class VscConverterStationAttributes extends AbstractIdentifiableAttribute
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
 }

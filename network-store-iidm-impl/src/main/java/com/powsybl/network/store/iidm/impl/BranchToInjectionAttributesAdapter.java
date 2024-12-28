@@ -9,7 +9,9 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
+import com.powsybl.network.store.model.ResourceType;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -63,13 +65,9 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
     @Override
     public void setBus(String bus) {
         if (side1) {
-            String oldValue = attributes.getBus1();
             attributes.setBus1(bus);
-            branch.notifyUpdate("bus1", oldValue, bus, true);
         } else {
-            String oldValue = attributes.getBus2();
             attributes.setBus2(bus);
-            branch.notifyUpdate("bus2", oldValue, bus, true);
         }
     }
 
@@ -135,5 +133,15 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
         } else {
             attributes.setPosition2(position);
         }
+    }
+
+    @Override
+    public Map<String, ResourceType> getRegulatingEquipments() {
+        return attributes.getRegulatingEquipments();
+    }
+
+    @Override
+    public void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments) {
+        attributes.setRegulatingEquipments(regulatingEquipments);
     }
 }

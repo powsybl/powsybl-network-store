@@ -76,8 +76,9 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-        RegulationPointAttributes regulationPointAttributes = new RegulationPointAttributes(getId(), ResourceType.STATIC_VAR_COMPENSATOR,
-            new TerminalRefAttributes(getId(), null), terminalRefAttributes, String.valueOf(regulationMode));
+        Boolean isRegulating = regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE;
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(getId(), ResourceType.STATIC_VAR_COMPENSATOR,
+            new TerminalRefAttributes(getId(), null), terminalRefAttributes, String.valueOf(regulationMode), ResourceType.STATIC_VAR_COMPENSATOR, isRegulating);
         Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
@@ -92,7 +93,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
                         .bmax(bMax)
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
-                        .regulationPoint(regulationPointAttributes)
+                        .regulatingPoint(regulatingPointAttributes)
                         .build())
                 .build();
         StaticVarCompensatorImpl svc = getIndex().createStaticVarCompensator(resource);

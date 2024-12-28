@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface InjectionAttributes extends IdentifiableAttributes, Contained {
+public interface InjectionAttributes extends IdentifiableAttributes, Contained, RegulatedEquipmentAttributes {
 
     String getVoltageLevelId();
 

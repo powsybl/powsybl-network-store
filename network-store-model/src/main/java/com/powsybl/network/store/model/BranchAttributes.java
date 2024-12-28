@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitHolder {
+public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitHolder, RegulatedEquipmentAttributes {
 
     String getVoltageLevelId1();
 
