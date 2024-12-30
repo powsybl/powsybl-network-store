@@ -133,7 +133,7 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, CloneStrategy cloneStrategy) {
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 

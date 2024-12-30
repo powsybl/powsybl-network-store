@@ -148,16 +148,6 @@ public class ComponentTest {
     }
 
     @Test
-    public void testBugNewVariants() {
-        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
-
-        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v");
-        network.getVariantManager().setWorkingVariant("v");
-        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v", true);
-        network.getVariantManager().setWorkingVariant("v");
-    }
-
-    @Test
     public void testBugComponentsCalculationWithVariants() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 

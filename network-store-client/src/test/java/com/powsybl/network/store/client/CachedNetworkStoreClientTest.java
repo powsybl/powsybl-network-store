@@ -644,11 +644,11 @@ public class CachedNetworkStoreClientTest {
         // Remove extension attributes to check that the removed cache is cloned
         removeExtensionAttributes(networkUuid, identifiableId, cachedClient, OperatingStatus.NAME);
         // When cloning the network, the cached attributes should remained cached
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId + "&cloneStrategy=FULL"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         // Clone network and verify that there is the expected extension in the cloned cache
-        cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId, CloneStrategy.FULL);
+        cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId);
         Optional<ExtensionAttributes> apc1Attributes = cachedClient.getExtensionAttributes(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
         assertTrue(apc1Attributes.isPresent());
         Optional<ExtensionAttributes> os1Attributes = cachedClient.getExtensionAttributes(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId, OperatingStatus.NAME);
@@ -911,6 +911,7 @@ public class CachedNetworkStoreClientTest {
                         .uuid(networkUuid)
                         .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .cloneStrategy(CloneStrategy.FULL)
                         .build())
                 .build();
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
@@ -920,10 +921,10 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
         // Full clone 0 -> 1
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1 + "&cloneStrategy=FULL"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
-        cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1, CloneStrategy.FULL);
+        cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
         Optional<Resource<NetworkAttributes>> networkOpt = cachedClient.getNetwork(networkUuid, targetVariantNum1);
         assertTrue(networkOpt.isPresent());
         NetworkAttributes networkAttributes = networkOpt.get().getAttributes();
@@ -933,10 +934,10 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
         // Partial clone 1 -> 2
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2 + "&cloneStrategy=PARTIAL"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
-        cachedClient.cloneNetwork(networkUuid, targetVariantNum1, targetVariantNum2, targetVariantId2, CloneStrategy.PARTIAL);
+        cachedClient.cloneNetwork(networkUuid, targetVariantNum1, targetVariantNum2, targetVariantId2);
         networkOpt = cachedClient.getNetwork(networkUuid, targetVariantNum2);
         assertTrue(networkOpt.isPresent());
         networkAttributes = networkOpt.get().getAttributes();
@@ -945,10 +946,10 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
         // Partial clone 2 -> 3
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum2 + "/to/" + targetVariantNum3 + "?targetVariantId=" + targetVariantId3 + "&cloneStrategy=PARTIAL"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum2 + "/to/" + targetVariantNum3 + "?targetVariantId=" + targetVariantId3))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
-        cachedClient.cloneNetwork(networkUuid, targetVariantNum2, targetVariantNum3, targetVariantId3, CloneStrategy.PARTIAL);
+        cachedClient.cloneNetwork(networkUuid, targetVariantNum2, targetVariantNum3, targetVariantId3);
         networkOpt = cachedClient.getNetwork(networkUuid, targetVariantNum3);
         assertTrue(networkOpt.isPresent());
         networkAttributes = networkOpt.get().getAttributes();

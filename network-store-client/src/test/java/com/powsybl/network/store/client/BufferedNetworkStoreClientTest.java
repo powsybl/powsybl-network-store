@@ -72,28 +72,29 @@ public class BufferedNetworkStoreClientTest {
                         .uuid(networkUuid)
                         .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .cloneStrategy(CloneStrategy.FULL)
                         .build())
                 .build();
         bufferedClient.updateNetworks(List.of(n1), null);
         // Full clone 0 -> 1
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1 + "&cloneStrategy=FULL"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
-        bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1, CloneStrategy.FULL);
+        bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
         server.verify();
         server.reset();
         // Partial clone 1 -> 2
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2 + "&cloneStrategy=PARTIAL"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
-        bufferedClient.cloneNetwork(networkUuid, targetVariantNum1, targetVariantNum2, targetVariantId2, CloneStrategy.PARTIAL);
+        bufferedClient.cloneNetwork(networkUuid, targetVariantNum1, targetVariantNum2, targetVariantId2);
         server.verify();
         server.reset();
         // Partial clone 2 -> 3
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum2 + "/to/" + targetVariantNum3 + "?targetVariantId=" + targetVariantId3 + "&cloneStrategy=PARTIAL"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum2 + "/to/" + targetVariantNum3 + "?targetVariantId=" + targetVariantId3))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
-        bufferedClient.cloneNetwork(networkUuid, targetVariantNum2, targetVariantNum3, targetVariantId3, CloneStrategy.PARTIAL);
+        bufferedClient.cloneNetwork(networkUuid, targetVariantNum2, targetVariantNum3, targetVariantId3);
         server.verify();
         server.reset();
         // Update again network n1 after clones, it should only update this network, not the clones
@@ -105,6 +106,7 @@ public class BufferedNetworkStoreClientTest {
                         .uuid(networkUuid)
                         .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
                         .caseDate(ZonedDateTime.parse("2018-01-01T00:00:00.000Z"))
+                        .cloneStrategy(CloneStrategy.FULL)
                         .build())
                 .build();
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))

@@ -246,10 +246,10 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, CloneStrategy cloneStrategy) {
-        LOGGER.info("Cloning network {} variant {} to variant {} (variantId='{}', cloneStrategy={})", networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, cloneStrategy);
-        restClient.put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}&cloneStrategy={cloneStrategy}",
-                networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, cloneStrategy);
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+        LOGGER.info("Cloning network {} variant {} to variant {} (variantId='{}')", networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
+        restClient.put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}",
+                networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
     }
 
     @Override

@@ -299,8 +299,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId, CloneStrategy cloneStrategy) {
-        delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId, cloneStrategy);
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+        delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
 
         var objectMapper = JsonUtil.createObjectMapper()
             .registerModule(new JavaTimeModule())
@@ -329,10 +329,13 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         cloneCollection(voltageLevelsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(networksCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
                 networkResource -> {
-                    networkResource.getAttributes().setVariantId(targetVariantId);
-                    if (cloneStrategy == CloneStrategy.PARTIAL && networkResource.getAttributes().isFullVariant()) {
-                        networkResource.getAttributes().setFullVariantNum(sourceVariantNum);
+                    NetworkAttributes networkAttributes = networkResource.getAttributes();
+                    networkAttributes.setVariantId(targetVariantId);
+                    if (networkAttributes.getCloneStrategy() == CloneStrategy.PARTIAL && networkAttributes.isFullVariant()) {
+                        networkAttributes.setFullVariantNum(sourceVariantNum);
                     }
+                    // For a new network (cloned or created), we always set the clone strategy to PARTIAL
+                    networkAttributes.setCloneStrategy(CloneStrategy.PARTIAL);
                 });
 
         variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
