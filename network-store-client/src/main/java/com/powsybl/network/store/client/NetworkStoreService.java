@@ -246,16 +246,8 @@ public class NetworkStoreService implements AutoCloseable {
     public void setCloneStrategy(Network network, CloneStrategy cloneStrategy) {
         NetworkImpl networkImpl = getNetworkImpl(network);
         networkImpl.getResource().getAttributes().setCloneStrategy(cloneStrategy);
-    }
-
-    public CloneStrategy getCloneStrategy(Network network) {
-        NetworkImpl networkImpl = getNetworkImpl(network);
-        return networkImpl.getResource().getAttributes().getCloneStrategy();
-    }
-
-    public int getFullVariantNum(Network network) {
-        NetworkImpl networkImpl = getNetworkImpl(network);
-        return networkImpl.getResource().getAttributes().getFullVariantNum();
+        NetworkStoreClient client = new RestNetworkStoreClient(restClient);
+        client.updateNetworks(List.of(networkImpl.getResource()), null);
     }
 
     @PostConstruct
