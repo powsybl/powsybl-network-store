@@ -96,10 +96,20 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.cloneNetwork(networkUuid, targetVariantNum2, targetVariantNum3, targetVariantId3, CloneStrategy.PARTIAL);
         server.verify();
         server.reset();
+        // Update again network n1 after clones, it should only update this network, not the clones
+        n1.getAttributes().setCaseDate(ZonedDateTime.parse("2018-01-01T00:00:00.000Z"));
         // Flush and check that all the networks are also updated with correct targetVariantId, fullVariantNum and cloneStrategy
+        Resource<NetworkAttributes> n1UpdatedAfterClone = Resource.networkBuilder()
+                .id("n1")
+                .attributes(NetworkAttributes.builder()
+                        .uuid(networkUuid)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2018-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
                 .andExpect(method(PUT))
-                .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1))))
+                .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1UpdatedAfterClone))))
                 .andRespond(withSuccess());
         Resource<NetworkAttributes> n1Clone0to1 = Resource.networkBuilder()
                 .id("n1")
