@@ -928,8 +928,7 @@ public class CachedNetworkStoreClientTest {
         Optional<Resource<NetworkAttributes>> networkOpt = cachedClient.getNetwork(networkUuid, targetVariantNum1);
         assertTrue(networkOpt.isPresent());
         NetworkAttributes networkAttributes = networkOpt.get().getAttributes();
-        // For a new network (cloned or created), we always set the clone strategy to PARTIAL
-        assertEquals(CloneStrategy.PARTIAL, networkAttributes.getCloneStrategy());
+        assertEquals(NetworkAttributes.DEFAULT_CLONE_STRATEGY, networkAttributes.getCloneStrategy());
         assertEquals(NetworkAttributes.FULL_VARIANT_INDICATOR, networkAttributes.getFullVariantNum());
         server.verify();
         server.reset();
@@ -941,7 +940,7 @@ public class CachedNetworkStoreClientTest {
         networkOpt = cachedClient.getNetwork(networkUuid, targetVariantNum2);
         assertTrue(networkOpt.isPresent());
         networkAttributes = networkOpt.get().getAttributes();
-        assertEquals(CloneStrategy.PARTIAL, networkAttributes.getCloneStrategy());
+        assertEquals(NetworkAttributes.DEFAULT_CLONE_STRATEGY, networkAttributes.getCloneStrategy());
         assertEquals(1, networkAttributes.getFullVariantNum());
         server.verify();
         server.reset();
@@ -953,7 +952,7 @@ public class CachedNetworkStoreClientTest {
         networkOpt = cachedClient.getNetwork(networkUuid, targetVariantNum3);
         assertTrue(networkOpt.isPresent());
         networkAttributes = networkOpt.get().getAttributes();
-        assertEquals(CloneStrategy.PARTIAL, networkAttributes.getCloneStrategy());
+        assertEquals(NetworkAttributes.DEFAULT_CLONE_STRATEGY, networkAttributes.getCloneStrategy());
         assertEquals(1, networkAttributes.getFullVariantNum());
         server.verify();
         server.reset();

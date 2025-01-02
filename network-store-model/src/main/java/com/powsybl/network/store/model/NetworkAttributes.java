@@ -29,6 +29,8 @@ public class NetworkAttributes extends AbstractIdentifiableAttributes {
 
     public static final int FULL_VARIANT_INDICATOR = -1;
 
+    public static final CloneStrategy DEFAULT_CLONE_STRATEGY = CloneStrategy.PARTIAL;
+
     @Schema(description = "Network UUID", required = true)
     private UUID uuid;
 
@@ -37,7 +39,7 @@ public class NetworkAttributes extends AbstractIdentifiableAttributes {
 
     @Schema(description = "Clone strategy")
     @Builder.Default
-    private CloneStrategy cloneStrategy = CloneStrategy.PARTIAL;
+    private CloneStrategy cloneStrategy = DEFAULT_CLONE_STRATEGY;
 
     @Schema(description = "Full variant number")
     @Builder.Default

@@ -334,8 +334,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     if (networkAttributes.getCloneStrategy() == CloneStrategy.PARTIAL && networkAttributes.isFullVariant()) {
                         networkAttributes.setFullVariantNum(sourceVariantNum);
                     }
-                    // For a new network (cloned or created), we always set the clone strategy to PARTIAL
-                    networkAttributes.setCloneStrategy(CloneStrategy.PARTIAL);
+                    // For a new network (cloned or created), we reset the clone strategy to default
+                    networkAttributes.setCloneStrategy(NetworkAttributes.DEFAULT_CLONE_STRATEGY);
                 });
 
         variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
