@@ -9,6 +9,8 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.List;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -35,4 +37,18 @@ public class BranchSvAttributes extends AbstractAttributes implements Attributes
     @Schema(description = "Side 2 reactive power in MVar")
     @Builder.Default
     private double q2 = Double.NaN;
+
+    public static void bindAttributes(BranchSvAttributes attributes, List<Object> values) {
+        values.add(attributes.getP1());
+        values.add(attributes.getQ1());
+        values.add(attributes.getP2());
+        values.add(attributes.getQ2());
+    }
+
+    public static void updateAttributes(BranchAttributes existingAttributes, BranchSvAttributes newAttributes) {
+        existingAttributes.setP1(newAttributes.getP1());
+        existingAttributes.setQ1(newAttributes.getQ1());
+        existingAttributes.setP2(newAttributes.getP2());
+        existingAttributes.setQ2(newAttributes.getQ2());
+    }
 }
