@@ -291,7 +291,7 @@ class TwoWindingsTransformerTest {
     }
 
     @Test
-    public void settersTest() {
+    void settersTest() {
         Network network = createNetwork();
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957");
 

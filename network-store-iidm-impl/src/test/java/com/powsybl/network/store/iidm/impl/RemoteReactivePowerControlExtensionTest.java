@@ -18,9 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RemoteReactivePowerControlExtensionTest {
+/**
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ */
+class RemoteReactivePowerControlExtensionTest {
     @Test
-    public void testRemoteReactivePowerControlExtension() {
+    void testRemoteReactivePowerControlExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         Generator g = network.getGenerator("G");

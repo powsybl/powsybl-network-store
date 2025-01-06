@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ConvertTopologyTest extends AbstractConvertTopologyTest {
+class ConvertTopologyTest extends AbstractConvertTopologyTest {
     @Test
     void testNodeBreakerToBusBreaker() {
         // FIXME : to be removed when VoltageLevel.convertToTopology will be implemented
