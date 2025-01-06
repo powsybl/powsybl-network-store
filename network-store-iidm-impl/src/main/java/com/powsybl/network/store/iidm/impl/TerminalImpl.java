@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -421,21 +422,9 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             .stream().map(resource -> resource.getAttributes().getNode())
             .collect(Collectors.toSet());
 
-        Set<Integer> connectableNodes = new HashSet<>(busbarSectionNodes);
-        connectableNodes.addAll(lineNodes);
-        connectableNodes.addAll(twoWindingsTransformerNodes);
-        connectableNodes.addAll(threeWindingsTransformerNodes);
-        connectableNodes.addAll(generatorNodes);
-        connectableNodes.addAll(batteryNodes);
-        connectableNodes.addAll(loadNodes);
-        connectableNodes.addAll(shuntCompensatorNodes);
-        connectableNodes.addAll(staticVarCompensatorNodes);
-        connectableNodes.addAll(danglingLineNodes);
-        connectableNodes.addAll(lccConverterStationNodes);
-        connectableNodes.addAll(vscConverterStationNodes);
-        connectableNodes.addAll(groundNodes);
-
-        return connectableNodes;
+        return Stream.of(busbarSectionNodes, lineNodes, twoWindingsTransformerNodes, threeWindingsTransformerNodes, generatorNodes,
+                  batteryNodes, loadNodes, shuntCompensatorNodes, staticVarCompensatorNodes, danglingLineNodes,
+                  lccConverterStationNodes, vscConverterStationNodes, groundNodes).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     /**
