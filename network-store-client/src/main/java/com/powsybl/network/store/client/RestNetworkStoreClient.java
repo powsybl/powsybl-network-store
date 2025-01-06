@@ -36,6 +36,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestNetworkStoreClient.class);
 
     private static final int RESOURCES_CREATION_CHUNK_SIZE = 1000;
+    public static final String STR_RETRYING = "Retrying...";
     private static final String STR_NETWORK = "network";
     private static final String URL_NETWORK_UUID = "/networks/{networkUuid}";
     private static final String STR_SUBSTATION = "substation";
@@ -85,7 +86,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
-                LOGGER.info("Retrying...");
+                LOGGER.info(STR_RETRYING);
                 restClient.createAll(url, resourcePartition, uriVariables);
             }
             stopwatch.stop();
@@ -184,7 +185,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
-                LOGGER.info("Retrying...");
+                LOGGER.info(STR_RETRYING);
                 updatePartition(target, url, attributeFilter, resourcePartition, uriVariables);
             }
             stopwatch.stop();
@@ -198,9 +199,24 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
-    private void removeAll(String url, UUID networkUuid, int variantNum, List<String> ids) {
-        for (String id : ids) {
-            restClient.delete(url, networkUuid, variantNum, id);
+    private void removeAll(String target, String url, UUID networkUuid, int variantNum, List<String> ids) {
+        for (List<String> idsPartition : Lists.partition(ids, RESOURCES_CREATION_CHUNK_SIZE)) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Deleting {} {} resources ({})...", ids.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(networkUuid, variantNum));
+            }
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            try {
+                restClient.deleteAll(url, idsPartition, networkUuid, variantNum);
+            } catch (ResourceAccessException e) {
+                LOGGER.error(e.toString(), e);
+                // retry only one time
+                LOGGER.info(STR_RETRYING);
+                restClient.deleteAll(url, idsPartition, networkUuid, variantNum);
+            }
+            stopwatch.stop();
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("{} {} resources deleted in {} ms", idsPartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            }
         }
     }
 
@@ -305,7 +321,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     public void removeSubstations(UUID networkUuid, int variantNum, List<String> substationsId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/substations/{substationId}", networkUuid, variantNum, substationsId);
+        removeAll(STR_SUBSTATION, "/networks/{networkUuid}/{variantNum}/substations", networkUuid, variantNum, substationsId);
     }
 
     // voltage level
@@ -337,7 +353,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeVoltageLevels(UUID networkUuid, int variantNum, List<String> voltageLevelsId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}", networkUuid, variantNum, voltageLevelsId);
+        removeAll(STR_VOLTAGE_LEVEL, "/networks/{networkUuid}/{variantNum}/voltage-levels", networkUuid, variantNum, voltageLevelsId);
     }
 
     @Override
@@ -347,7 +363,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeBusBarSections(UUID networkUuid, int variantNum, List<String> busBarSectionsId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/busbar-sections/{busBarSectionId}", networkUuid, variantNum, busBarSectionsId);
+        removeAll(STR_BUSBAR_SECTION, "/networks/{networkUuid}/{variantNum}/busbar-sections", networkUuid, variantNum, busBarSectionsId);
     }
 
     @Override
@@ -362,7 +378,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeGenerators(UUID networkUuid, int variantNum, List<String> generatorsId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/generators/{generatorId}", networkUuid, variantNum, generatorsId);
+        removeAll(STR_GENERATOR, "/networks/{networkUuid}/{variantNum}/generators", networkUuid, variantNum, generatorsId);
     }
 
     @Override
@@ -372,7 +388,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeBatteries(UUID networkUuid, int variantNum, List<String> batteriesId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/batteries/{batteryId}", networkUuid, variantNum, batteriesId);
+        removeAll(STR_BATTERY, "/networks/{networkUuid}/{variantNum}/batteries", networkUuid, variantNum, batteriesId);
     }
 
     @Override
@@ -387,7 +403,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeShuntCompensators(UUID networkUuid, int variantNum, List<String> shuntCompensatorsId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/shunt-compensators/{shuntCompensatorId}", networkUuid, variantNum, shuntCompensatorsId);
+        removeAll(STR_SHUNT_COMPENSATOR, "/networks/{networkUuid}/{variantNum}/shunt-compensators", networkUuid, variantNum, shuntCompensatorsId);
     }
 
     @Override
@@ -397,7 +413,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeVscConverterStations(UUID networkUuid, int variantNum, List<String> vscConverterStationsId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/vsc-converter-stations/{vscConverterStationId}", networkUuid, variantNum, vscConverterStationsId);
+        removeAll(STR_VSC_CONVERTER_STATION, "/networks/{networkUuid}/{variantNum}/vsc-converter-stations", networkUuid, variantNum, vscConverterStationsId);
     }
 
     @Override
@@ -407,7 +423,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeStaticVarCompensators(UUID networkUuid, int variantNum, List<String> staticVarCompensatorsId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/static-var-compensators/{staticVarCompensatorId}", networkUuid, variantNum, staticVarCompensatorsId);
+        removeAll(STR_STATIC_VAR_COMPENSATOR, "/networks/{networkUuid}/{variantNum}/static-var-compensators", networkUuid, variantNum, staticVarCompensatorsId);
     }
 
     @Override
@@ -417,7 +433,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeLccConverterStations(UUID networkUuid, int variantNum, List<String> lccConverterStationsId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/lcc-converter-stations/{lccConverterStationId}", networkUuid, variantNum, lccConverterStationsId);
+        removeAll(STR_LCC_CONVERTER_STATION, "/networks/{networkUuid}/{variantNum}/lcc-converter-stations", networkUuid, variantNum, lccConverterStationsId);
     }
 
     @Override
@@ -427,7 +443,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeTwoWindingsTransformers(UUID networkUuid, int variantNum, List<String> twoWindingsTransformersId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/2-windings-transformers/{twoWindingsTransformerId}", networkUuid, variantNum, twoWindingsTransformersId);
+        removeAll(STR_TWO_WINDINGS_TRANSFORMER, "/networks/{networkUuid}/{variantNum}/2-windings-transformers", networkUuid, variantNum, twoWindingsTransformersId);
     }
 
     @Override
@@ -437,7 +453,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeThreeWindingsTransformers(UUID networkUuid, int variantNum, List<String> threeWindingsTransformersId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, variantNum, threeWindingsTransformersId);
+        removeAll(STR_THREE_WINDINGS_TRANSFORMER, "/networks/{networkUuid}/{variantNum}/3-windings-transformers", networkUuid, variantNum, threeWindingsTransformersId);
     }
 
     @Override
@@ -447,7 +463,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeLines(UUID networkUuid, int variantNum, List<String> linesId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/lines/{lineId}", networkUuid, variantNum, linesId);
+        removeAll("line", "/networks/{networkUuid}/{variantNum}/lines", networkUuid, variantNum, linesId);
     }
 
     @Override
@@ -479,7 +495,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeSwitches(UUID networkUuid, int variantNum, List<String> switchesId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/switches/{switchId}", networkUuid, variantNum, switchesId);
+        removeAll(STR_SWITCH, "/networks/{networkUuid}/{variantNum}/switches", networkUuid, variantNum, switchesId);
     }
 
     // busbar section
@@ -528,7 +544,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeLoads(UUID networkUuid, int variantNum, List<String> loadsId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/loads/{loadId}", networkUuid, variantNum, loadsId);
+        removeAll("load", "/networks/{networkUuid}/{variantNum}/loads", networkUuid, variantNum, loadsId);
     }
 
     // generator
@@ -748,7 +764,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeHvdcLines(UUID networkUuid, int variantNum, List<String> hvdcLinesId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/hvdc-lines/{hvdcLineId}", networkUuid, variantNum, hvdcLinesId);
+        removeAll(STR_HVDC_LINE, "/networks/{networkUuid}/{variantNum}/hvdc-lines", networkUuid, variantNum, hvdcLinesId);
     }
 
     @Override
@@ -775,7 +791,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/dangling-lines/{danglingLineId}", networkUuid, variantNum, danglingLinesId);
+        removeAll(STR_DANGLING_LINE, "/networks/{networkUuid}/{variantNum}/dangling-lines", networkUuid, variantNum, danglingLinesId);
     }
 
     @Override
@@ -812,7 +828,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/configured-buses/{busId}", networkUuid, variantNum, busesId);
+        removeAll("bus", "/networks/{networkUuid}/{variantNum}/configured-buses", networkUuid, variantNum, busesId);
     }
 
     @Override
@@ -832,7 +848,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/tie-lines/{tieLineId}", networkUuid, variantNum, tieLinesId);
+        removeAll(STR_TIE_LINE, "/networks/{networkUuid}/{variantNum}/tie-lines", networkUuid, variantNum, tieLinesId);
     }
 
     @Override
@@ -883,7 +899,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
-        removeAll("/networks/{networkUuid}/{variantNum}/grounds/{groundId}", networkUuid, variantNum, groundsId);
+        removeAll(STR_GROUND, "/networks/{networkUuid}/{variantNum}/grounds", networkUuid, variantNum, groundsId);
     }
 
     @Override
