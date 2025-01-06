@@ -321,6 +321,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (extension == null) {
             return false;
         }
+        extension.cleanup();
         index.notifyExtensionBeforeRemoval(extension);
         index.removeExtensionAttributes(resource.getType(), resource.getId(), extension.getName());
         index.notifyExtensionAfterRemoval(this, extension.getName());
