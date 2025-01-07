@@ -52,9 +52,4 @@ public class ReferenceTerminalsTest extends AbstractReferenceTerminalsTest {
     public void testRemoveEquipment() {
         // FIXME
     }
-
-    @Override
-    public void testCleanup() {
-        // FIXME
-    }
 }

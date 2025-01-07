@@ -76,7 +76,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         double oldValue = getResource().getAttributes().getMinP();
         if (minP != oldValue) {
             updateResource(res -> res.getAttributes().setMinP(minP));
-            index.notifyUpdate(this, "minP", oldValue, minP);
+            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "minP", variantId, oldValue, minP);
         }
         return this;
 
@@ -94,7 +95,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         double oldValue = getResource().getAttributes().getMaxP();
         if (maxP != oldValue) {
             updateResource(res -> res.getAttributes().setMaxP(maxP));
-            index.notifyUpdate(this, "maxP", oldValue, maxP);
+            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "maxP", variantId, oldValue, maxP);
         }
         return this;
 
@@ -106,7 +108,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
         updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
-        index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
+        String variantId = getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "reactiveLimits", variantId, oldValue, reactiveLimits);
     }
 
     @Override
@@ -150,6 +153,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());

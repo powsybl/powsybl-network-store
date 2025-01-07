@@ -62,7 +62,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
         if (oldValue != participate) {
             getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setParticipate(participate));
             String variantId = getInjection().getNetwork().getVariantManager().getWorkingVariantId();
-            getInjection().getNetwork().getIndex().notifyUpdate(getInjection(), "participate", variantId, oldValue, participate);
+            getInjection().getNetwork().getIndex().notifyExtensionUpdate(this, "participate", variantId, oldValue, participate);
         }
     }
 
@@ -77,7 +77,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
         if (oldValue != droop) {
             getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setDroop(droop));
             String variantId = getInjection().getNetwork().getVariantManager().getWorkingVariantId();
-            getInjection().getNetwork().getIndex().notifyUpdate(getInjection(), "droop", variantId, oldValue, droop);
+            getInjection().getNetwork().getIndex().notifyExtensionUpdate(this, "droop", variantId, oldValue, droop);
         }
     }
 
