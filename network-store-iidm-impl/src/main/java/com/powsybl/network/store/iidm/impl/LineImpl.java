@@ -56,7 +56,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = getResource().getAttributes().getX();
         if (x != oldValue) {
             updateResource(res -> res.getAttributes().setX(x));
-            index.notifyUpdate(this, "x", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, x);
+            index.notifyUpdate(this, "x", null, oldValue, x);
         }
         return this;
     }
@@ -72,7 +72,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = getResource().getAttributes().getG1();
         if (g1 != oldValue) {
             updateResource(res -> res.getAttributes().setG1(g1));
-            index.notifyUpdate(this, "g1", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, g1);
+            index.notifyUpdate(this, "g1", null, oldValue, g1);
         }
         return this;
     }
@@ -88,7 +88,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = getResource().getAttributes().getG2();
         if (g2 != oldValue) {
             updateResource(res -> res.getAttributes().setG2(g2));
-            index.notifyUpdate(this, "g2", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, g2);
+            index.notifyUpdate(this, "g2", null, oldValue, g2);
         }
         return this;
     }
@@ -105,7 +105,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = resource.getAttributes().getB1();
         if (b1 != oldValue) {
             updateResource(res -> res.getAttributes().setB1(b1));
-            index.notifyUpdate(this, "b1", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, b1);
+            index.notifyUpdate(this, "b1", null, oldValue, b1);
         }
         return this;
     }
@@ -122,7 +122,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = resource.getAttributes().getB2();
         if (b2 != oldValue) {
             updateResource(res -> res.getAttributes().setB2(b2));
-            index.notifyUpdate(this, "b2", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, b2);
+            index.notifyUpdate(this, "b2", null, oldValue, b2);
         }
         return this;
     }
