@@ -100,7 +100,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         String oldName = getResource().getAttributes().getName();
         if (!Objects.equals(oldName, name)) {
             updateResource(r -> r.getAttributes().setName(name));
-            index.notifyUpdate(this, "name", null, oldName, name);
+            index.notifyUpdate(this, "name", getNetwork().getVariantManager().getWorkingVariantId(), oldName, name);
         }
         return (I) this;
     }
@@ -356,7 +356,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         boolean oldValue = getResource().getAttributes().isFictitious();
         if (fictitious != oldValue) {
             updateResource(r -> r.getAttributes().setFictitious(fictitious));
-            index.notifyUpdate(this, "fictitious", null, oldValue, fictitious);
+            index.notifyUpdate(this, "fictitious", getNetwork().getVariantManager().getWorkingVariantId(), oldValue, fictitious);
         }
     }
 
