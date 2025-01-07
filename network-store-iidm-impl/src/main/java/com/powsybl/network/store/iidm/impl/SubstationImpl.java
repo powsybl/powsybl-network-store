@@ -94,7 +94,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
             throw new ValidationException(this, "geographical tag is null");
         }
         updateResource(r -> r.getAttributes().getGeographicalTags().add(tag));
-        index.notifyElementAdded(this, "geographicalTags", tag);
+        index.notifyPropertyAdded(this, "geographicalTags", tag);
         return this;
     }
 

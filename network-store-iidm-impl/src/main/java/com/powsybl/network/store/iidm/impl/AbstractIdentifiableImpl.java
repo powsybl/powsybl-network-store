@@ -255,9 +255,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         });
 
         if (Objects.isNull(oldValue.getValue())) {
-            index.notifyElementAdded(this, () -> "properties[" + key + "]", value);
+            index.notifyPropertyAdded(this, () -> "properties[" + key + "]", value);
         } else {
-            index.notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue.getValue(), value);
+            index.notifyPropertyReplaced(this, () -> "properties[" + key + "]", oldValue.getValue(), value);
         }
         return oldValue.getValue();
     }
@@ -278,7 +278,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (properties != null && properties.containsKey(key)) {
             String oldValue = properties.get(key);
             updateResource(r -> r.getAttributes().getProperties().remove(key));
-            index.notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
+            index.notifyPropertyRemoved(this, () -> "properties[" + key + "]", oldValue);
             return true;
         }
         return false;

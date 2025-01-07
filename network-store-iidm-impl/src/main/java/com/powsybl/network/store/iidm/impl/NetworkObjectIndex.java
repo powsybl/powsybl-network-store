@@ -539,13 +539,13 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyElementAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object newValue) {
+    void notifyPropertyAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object newValue) {
         if (!network.getListeners().isEmpty()) {
-            notifyElementAdded(identifiable, attribute.get(), newValue);
+            notifyPropertyAdded(identifiable, attribute.get(), newValue);
         }
     }
 
-    void notifyElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
+    void notifyPropertyAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
         for (NetworkListener listener : network.getListeners()) {
             try {
                 listener.onPropertyAdded(identifiable, attribute, newValue);
@@ -555,13 +555,13 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyElementReplaced(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
+    void notifyPropertyReplaced(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
         if (!network.getListeners().isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyElementReplaced(identifiable, attribute.get(), oldValue, newValue);
+            notifyPropertyReplaced(identifiable, attribute.get(), oldValue, newValue);
         }
     }
 
-    void notifyElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+    void notifyPropertyReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         for (NetworkListener listener : network.getListeners()) {
             try {
                 listener.onPropertyReplaced(identifiable, attribute, oldValue, newValue);
@@ -571,13 +571,13 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyElementRemoved(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue) {
+    void notifyPropertyRemoved(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue) {
         if (!network.getListeners().isEmpty()) {
-            notifyElementRemoved(identifiable, attribute.get(), oldValue);
+            notifyPropertyRemoved(identifiable, attribute.get(), oldValue);
         }
     }
 
-    void notifyElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
+    void notifyPropertyRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
         for (NetworkListener listener : network.getListeners()) {
             try {
                 listener.onPropertyRemoved(identifiable, attribute, oldValue);
