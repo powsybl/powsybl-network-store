@@ -385,4 +385,23 @@ public class LineTest {
         assertTrue(l1.connect());
         l1.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
     }
+
+    @Test
+    public void settersTest() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        Line l1 = network.getLine("L1");
+
+        l1.setR(4.);
+        l1.setX(8.);
+        l1.setG1(2.);
+        l1.setG2(3.);
+        l1.setB1(7.);
+        l1.setB2(9.);
+        assertEquals(4., l1.getR());
+        assertEquals(8., l1.getX());
+        assertEquals(2., l1.getG1());
+        assertEquals(3., l1.getG2());
+        assertEquals(7., l1.getB1());
+        assertEquals(9., l1.getB2());
+    }
 }

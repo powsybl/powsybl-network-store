@@ -146,26 +146,28 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         }
         done.add(node);
 
+        Set<Edge> encounteredEdge = new HashSet<>();
+
         for (Edge edge : graph.edgesOf(node)) {
-            NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
-            int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
-            TraverseResult result;
-            if (done.contains(nextNode)) {
-                continue;
-            }
-            if (biConnectable instanceof SwitchAttributes) {
-                result = traverseSwitch(traverser, biConnectable, node, nextNode);
-            } else if (biConnectable instanceof InternalConnectionAttributes) {
-                result = traverser.traverse(node, null, nextNode);
-            } else {
-                throw new AssertionError();
-            }
-            if (result == TraverseResult.CONTINUE) {
-                if (!traverseFromNodeDFS(graph, nextNode, traverser, done)) {
+            if (!encounteredEdge.contains(edge)) {
+                encounteredEdge.add(edge);
+                NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
+                int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
+                TraverseResult result;
+                if (biConnectable instanceof SwitchAttributes) {
+                    result = traverseSwitch(traverser, biConnectable, node, nextNode);
+                } else if (biConnectable instanceof InternalConnectionAttributes) {
+                    result = traverser.traverse(node, null, nextNode);
+                } else {
+                    throw new AssertionError();
+                }
+                if (result == TraverseResult.CONTINUE) {
+                    if (!traverseFromNodeDFS(graph, nextNode, traverser, done)) {
+                        return false;
+                    }
+                } else if (result == TraverseResult.TERMINATE_TRAVERSER) {
                     return false;
                 }
-            } else if (result == TraverseResult.TERMINATE_TRAVERSER) {
-                return false;
             }
         }
         return true;

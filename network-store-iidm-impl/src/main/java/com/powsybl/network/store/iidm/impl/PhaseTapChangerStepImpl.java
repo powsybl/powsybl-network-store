@@ -49,7 +49,8 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getRho();
         if (rho != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setRho(rho));
-            phaseTapChanger.notifyUpdate("rho", oldValue, rho);
+            String variantId = phaseTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            phaseTapChanger.notifyUpdate(() -> "rho", variantId, oldValue, rho);
         }
         return this;
     }
@@ -64,7 +65,8 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getR();
         if (r != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setR(r));
-            phaseTapChanger.notifyUpdate("r", oldValue, r);
+            String variantId = phaseTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            phaseTapChanger.notifyUpdate(() -> "r", variantId, oldValue, r);
         }
         return this;
     }
@@ -79,7 +81,8 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getX();
         if (x != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setX(x));
-            phaseTapChanger.notifyUpdate("x", oldValue, x);
+            String variantId = phaseTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            phaseTapChanger.notifyUpdate(() -> "x", variantId, oldValue, x);
         }
         return this;
     }
@@ -94,7 +97,8 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getB();
         if (b != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setB(b));
-            phaseTapChanger.notifyUpdate("b", oldValue, b);
+            String variantId = phaseTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            phaseTapChanger.notifyUpdate(() -> "b", variantId, oldValue, b);
         }
         return this;
     }
@@ -109,7 +113,8 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getG();
         if (g != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setG(g));
-            phaseTapChanger.notifyUpdate("g", oldValue, g);
+            String variantId = phaseTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            phaseTapChanger.notifyUpdate(() -> "g", variantId, oldValue, g);
         }
         return this;
     }
@@ -124,7 +129,8 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
         double oldValue = getTapChangerStepAttributes().getAlpha();
         if (alpha != oldValue) {
             getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setAlpha(alpha));
-            phaseTapChanger.notifyUpdate("alpha", oldValue, alpha);
+            String variantId = phaseTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
+            phaseTapChanger.notifyUpdate(() -> "alpha", variantId, oldValue, alpha);
         }
         return this;
     }
