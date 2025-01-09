@@ -40,9 +40,9 @@ class ThreeWindingTransformerTest {
         phaseTapChanger.setRegulationValue(225);
         load.remove();
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
-        assertEquals(twtId, phaseTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertNull(phaseTapChanger.getRegulationTerminal());
         assertNull(ratioTapChanger.getRegulationMode());
-        assertEquals(twtId, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertNull(ratioTapChanger.getRegulationTerminal());
     }
 
     private Network createNetwork() {

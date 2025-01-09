@@ -32,11 +32,11 @@ public abstract class AbstractTapChangerAdder {
 
     protected Terminal regulatingTerminal;
 
-    public AbstractTapChangerAdder(NetworkObjectIndex index) {
+    protected AbstractTapChangerAdder(NetworkObjectIndex index) {
         this.index = Objects.requireNonNull(index);
     }
 
-    public AbstractTapChangerAdder(NetworkObjectIndex index, int lowTapPosition, Integer tapPosition, boolean regulating, double targetDeadband) {
+    protected AbstractTapChangerAdder(NetworkObjectIndex index, int lowTapPosition, Integer tapPosition, boolean regulating, double targetDeadband) {
         this.index = Objects.requireNonNull(index);
         this.lowTapPosition = lowTapPosition;
         this.tapPosition = tapPosition;
@@ -46,19 +46,16 @@ public abstract class AbstractTapChangerAdder {
 
     protected RegulatingPointAttributes createRegulationPointAttributes(TapChangerParent tapChangerParent, RegulatingTapChangerType regulatingTapChangerType,
                                                                      String regulationMode) {
-        // for three windings transformer the local side will be the leg number
-        // for two windings transformer the ratio is regulating on side 2
-        ThreeSides side = ThreeSides.TWO;
         RegulatingTapChangerType finalRegulatingTapChangerType = regulatingTapChangerType;
         ResourceType resourceType = ResourceType.TWO_WINDINGS_TRANSFORMER;
         if (tapChangerParent instanceof ThreeWindingsTransformerImpl.LegImpl leg) {
-            side = leg.getSide();
+            ThreeSides side = leg.getSide();
             finalRegulatingTapChangerType = RegulatingTapChangerType.getThreeWindingsTransformerTapChangerType(side, regulatingTapChangerType);
             resourceType = ResourceType.THREE_WINDINGS_TRANSFORMER;
         }
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        // local terminal is null for tapChanger because it has more than one
         return new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), resourceType, finalRegulatingTapChangerType,
-            new TerminalRefAttributes(tapChangerParent.getTransformer().getId(), side.toString()),
-            terminalRefAttributes, regulationMode, resourceType, regulating);
+            null, terminalRefAttributes, regulationMode, resourceType, regulating);
     }
 }

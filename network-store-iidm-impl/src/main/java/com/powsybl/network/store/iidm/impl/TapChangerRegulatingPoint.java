@@ -28,19 +28,16 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
 
     @Override
     protected void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal) {
-        // if localTerminal or regulatingTerminal is not connected then the bus is null
-        if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected() &&
-            !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
-            // the target can be inappropriated if it was a remote regulation
-            tapChanger.setRegulating(false);
-            switch (getAttributes().getRegulatingTapChangerType()) {
-                // for phase tap changer we reset the regulation mode to Fixed Tap
-                case PHASE_TAP_CHANGER, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE ->
-                    setRegulationMode(String.valueOf(PhaseTapChanger.RegulationMode.FIXED_TAP));
-                case RATIO_TAP_CHANGER, RATIO_TAP_CHANGER_SIDE_ONE, RATIO_TAP_CHANGER_SIDE_TWO, RATIO_TAP_CHANGER_SIDE_THREE ->
-                    setRegulationMode(null);
-                default -> throw new PowsyblException("No tap changer regulation for " + getAttributes().getRegulatingResourceType() + " resource type");
-            }
+        // for tap changer the local terminal is null so we deactivate the regulation and reset the regulation mode
+        // the target can be inappropriated if it was a remote regulation
+        setRegulating(false);
+        switch (getAttributes().getRegulatingTapChangerType()) {
+            // for phase tap changer we reset the regulation mode to Fixed Tap
+            case PHASE_TAP_CHANGER, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE ->
+                setRegulationMode(String.valueOf(PhaseTapChanger.RegulationMode.FIXED_TAP));
+            case RATIO_TAP_CHANGER, RATIO_TAP_CHANGER_SIDE_ONE, RATIO_TAP_CHANGER_SIDE_TWO, RATIO_TAP_CHANGER_SIDE_THREE ->
+                setRegulationMode(null);
+            default -> throw new PowsyblException("No tap changer regulation for " + getAttributes().getRegulatingResourceType() + " resource type");
         }
         // if the regulating equipment was already regulating on his local bus we reallocate the regulating point and we keep the regulation on
     }

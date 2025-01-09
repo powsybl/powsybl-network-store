@@ -294,8 +294,8 @@ class TwoWindingsTransformerTest {
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
         load.remove();
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
-        assertEquals(twtId2, phaseTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertNull(phaseTapChanger.getRegulationTerminal());
         assertNull(ratioTapChanger.getRegulationMode());
-        assertEquals(twtId1, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertNull(ratioTapChanger.getRegulationTerminal());
     }
 }

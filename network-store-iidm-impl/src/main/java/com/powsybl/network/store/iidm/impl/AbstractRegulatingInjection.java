@@ -32,11 +32,7 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I>, D exte
     // should be setRegulatingTerminal but there is already a method with the same name in the regulating equipments
     protected void setRegTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        if (regulatingTerminal instanceof TerminalImpl<?>) {
-            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
-        } else {
-            regulatingPoint.setRegulatingTerminalAsLocalTerminalAndRemoveRegulation();
-        }
+        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
     }
 
     public Terminal getRegulatingTerminal() {

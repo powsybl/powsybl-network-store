@@ -114,11 +114,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C setRegulationTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
-        if (regulatingTerminal instanceof TerminalImpl<?>) {
-            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
-        } else {
-            regulatingPoint.setRegulatingTerminalAsLocalTerminalAndRemoveRegulation();
-        }
+        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         return (C) this;
     }
 

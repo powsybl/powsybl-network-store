@@ -48,7 +48,8 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
             // the target can be inappropriated if it was a remote regulation
             setRegulating(false);
         }
-        // if the regulating equipment was already regulating on his bus we reallocate the regulating point and we keep the regulation on
+        // if the regulating equipment was already regulating on his bus but on another element
+        // we reallocate the regulating point and we keep the regulation on
     }
 
     @Override
