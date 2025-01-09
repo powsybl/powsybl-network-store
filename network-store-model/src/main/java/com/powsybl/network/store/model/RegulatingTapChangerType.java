@@ -21,7 +21,7 @@ public enum RegulatingTapChangerType {
     PHASE_TAP_CHANGER_SIDE_ONE,
     PHASE_TAP_CHANGER_SIDE_TWO,
     PHASE_TAP_CHANGER_SIDE_THREE,
-    NO_TAP_CHANGER;
+    NONE;
 
     public static RegulatingTapChangerType getThreeWindingsTransformerTapChangerType(ThreeSides side, RegulatingTapChangerType type) {
         return switch (type) {
