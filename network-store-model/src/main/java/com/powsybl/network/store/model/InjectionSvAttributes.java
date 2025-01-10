@@ -9,6 +9,8 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.List;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -27,4 +29,14 @@ public class InjectionSvAttributes extends AbstractAttributes implements Attribu
     @Schema(description = "Reactive power in MW")
     @Builder.Default
     private double q = Double.NaN;
+
+    public static void bindAttributes(InjectionSvAttributes attributes, List<Object> values) {
+        values.add(attributes.getP());
+        values.add(attributes.getQ());
+    }
+
+    public static void updateAttributes(InjectionAttributes existingAttributes, InjectionSvAttributes newAttributes) {
+        existingAttributes.setP(newAttributes.getP());
+        existingAttributes.setQ(newAttributes.getQ());
+    }
 }

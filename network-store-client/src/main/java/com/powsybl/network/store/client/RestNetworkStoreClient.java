@@ -269,11 +269,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
-        LOGGER.info("Cloning network {} variantId {} to variantId {}", networkUuid, sourceVariantId, targetVariantId);
+    public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite, CloneStrategy cloneStrategy) {
+        LOGGER.info("Cloning network {} variantId {} to variantId {} with cloneStrategy {}", networkUuid, sourceVariantId, targetVariantId, cloneStrategy);
         try {
-            restClient.put("/networks/{networkUuid}/{sourceVariantId}/toId/{targetVariantId}?mayOverwrite={mayOverwrite}",
-                    networkUuid, sourceVariantId, targetVariantId, mayOverwrite);
+            restClient.put("/networks/{networkUuid}/{sourceVariantId}/toId/{targetVariantId}?mayOverwrite={mayOverwrite}&cloneStrategy={cloneStrategy}",
+                    networkUuid, sourceVariantId, targetVariantId, mayOverwrite, cloneStrategy);
         } catch (HttpClientErrorException ex) {
             String body = ex.getResponseBodyAsString();
             Optional<TopLevelError> optError = RestTemplateResponseErrorHandler.parseJsonApiError(body, objectMapper);
