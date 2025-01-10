@@ -44,7 +44,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         PhaseTapChanger.RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
             regulatingPoint.setRegulationMode(String.valueOf(regulationMode));
-            notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
+            notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
         }
         return this;
     }

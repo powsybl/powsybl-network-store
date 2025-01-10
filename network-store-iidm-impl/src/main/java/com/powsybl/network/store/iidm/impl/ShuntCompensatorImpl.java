@@ -97,8 +97,8 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         }
     }
 
-    public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        index.notifyUpdate(this, attribute, oldValue, newValue);
+    public void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+        index.notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
     @Override
@@ -179,6 +179,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         regulatingPoint.remove();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!

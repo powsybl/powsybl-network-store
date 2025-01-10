@@ -95,7 +95,8 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
             updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
-            index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "lossFactor", variantId, oldValue, lossFactor);
         }
         return this;
     }
@@ -104,7 +105,8 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         ReactiveLimitsAttributes oldValue = getResource().getAttributes().getReactiveLimits();
         updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
-        index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "reactiveLimits", variantId, oldValue, reactiveLimits);
     }
 
     @Override
@@ -146,6 +148,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         var resource = getResource();
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         regulatingPoint.remove();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization

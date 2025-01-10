@@ -96,7 +96,8 @@ public final class ConnectDisconnectUtil {
             // Update the resource
             index.updateSwitchResource(switchImpl.getResource());
             // Notify update
-            index.notifyUpdate(index.getSwitch(switchImpl.getResource().getId()).orElseThrow(), "open", true, false);
+            index.notifyUpdate(index.getSwitch(switchImpl.getResource().getId()).orElseThrow(),
+                "open", index.getNetwork().getVariantManager().getWorkingVariantId(), true, false);
         });
     }
 
@@ -168,7 +169,8 @@ public final class ConnectDisconnectUtil {
             // Update the resource
             index.updateSwitchResource(switchImpl.getResource());
             // Notify update
-            index.notifyUpdate(index.getSwitch(switchImpl.getResource().getId()).orElseThrow(), "open", false, true);
+            index.notifyUpdate(index.getSwitch(switchImpl.getResource().getId()).orElseThrow(),
+                "open", index.getNetwork().getVariantManager().getWorkingVariantId(), false, true);
         });
     }
 }
