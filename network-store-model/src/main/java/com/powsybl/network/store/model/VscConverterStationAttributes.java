@@ -40,9 +40,6 @@ public class VscConverterStationAttributes extends AbstractRegulatingEquipmentAt
     @Builder.Default
     private float lossFactor = Float.NaN;
 
-    @Schema(description = "Voltage regulator status")
-    private Boolean voltageRegulatorOn;
-
     @Schema(description = "Reactive power set point in MVar")
     private double reactivePowerSetPoint;
 

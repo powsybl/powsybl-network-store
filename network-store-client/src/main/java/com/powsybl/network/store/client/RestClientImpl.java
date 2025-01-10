@@ -165,4 +165,13 @@ public class RestClientImpl implements RestClient {
             throw createHttpException(url, "delete", response.getStatusCode());
         }
     }
+
+    @Override
+    public void deleteAll(String url, List<String> body, Object... uriVariables) {
+        HttpEntity<List<String>> requestEntity = new HttpEntity<>(body);
+        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class, uriVariables);
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw createHttpException(url, "delete", response.getStatusCode());
+        }
+    }
 }

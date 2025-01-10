@@ -24,7 +24,9 @@ import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -32,14 +34,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpMethod.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withResourceNotFound;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
@@ -296,5 +302,74 @@ public class RestNetworkStoreClientTest {
             assertEquals(1, tieLines.size());
             assertEquals("tieLine2", tieLines.get(0).getNameOrId());
         }
+    }
+
+    @Test
+    public void testRemoveAll() {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+
+        List<String> ids = List.of("id1", "id2", "id3");
+
+        testDeleteAllByType(ids, "substations", (List<String> identifiableIds) -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "voltage-levels", (List<String> identifiableIds) -> restNetworkStoreClient.removeVoltageLevels(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "generators", (List<String> identifiableIds) -> restNetworkStoreClient.removeGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "loads", (List<String> identifiableIds) -> restNetworkStoreClient.removeLoads(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "batteries", (List<String> identifiableIds) -> restNetworkStoreClient.removeBatteries(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "busbar-sections", (List<String> identifiableIds) -> restNetworkStoreClient.removeBusBarSections(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "configured-buses", (List<String> identifiableIds) -> restNetworkStoreClient.removeConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "dangling-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "vsc-converter-stations", (List<String> identifiableIds) -> restNetworkStoreClient.removeVscConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "lcc-converter-stations", (List<String> identifiableIds) -> restNetworkStoreClient.removeLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "shunt-compensators", (List<String> identifiableIds) -> restNetworkStoreClient.removeShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "hvdc-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeHvdcLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "switches", (List<String> identifiableIds) -> restNetworkStoreClient.removeSwitches(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "static-var-compensators", (List<String> identifiableIds) -> restNetworkStoreClient.removeStaticVarCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "2-windings-transformers", (List<String> identifiableIds) -> restNetworkStoreClient.removeTwoWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "3-windings-transformers", (List<String> identifiableIds) -> restNetworkStoreClient.removeThreeWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "tie-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "grounds", (List<String> identifiableIds) -> restNetworkStoreClient.removeGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+
+        server.verify();
+    }
+
+    @Test
+    public void testRemoveError() {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        server.reset();
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("[\"wrongId\"]"))
+                .andRespond(withResourceNotFound());
+        List<String> wrongId = List.of("wrongId");
+        PowsyblException powsyblException = assertThrows(PowsyblException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, wrongId));
+        assertEquals("Fail to delete at /networks/{networkUuid}/{variantNum}/substations, status: 404 NOT_FOUND", powsyblException.getMessage());
+        server.verify();
+    }
+
+    @Test
+    public void testRemoveWithResourceAccessException() {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        server.reset();
+        server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("[\"wrongId2\"]"))
+                .andRespond(request -> {
+                    throw new ResourceAccessException("ResourceAccessException error");
+                });
+        List<String> wrongId2 = List.of("wrongId2");
+        ResourceAccessException httpClientErrorException = assertThrows(ResourceAccessException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, wrongId2));
+        assertEquals("ResourceAccessException error", httpClientErrorException.getMessage());
+        server.verify();
+    }
+
+    private void testDeleteAllByType(List<String> ids, String type, Consumer<List<String>> deleteFunction) {
+        server.reset();
+        String idsStr = String.join("\",\"", ids);
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/" + type))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("[\"" + idsStr + "\"]"))
+                .andRespond(withSuccess());
+        assertDoesNotThrow(() -> deleteFunction.accept(ids));
     }
 }

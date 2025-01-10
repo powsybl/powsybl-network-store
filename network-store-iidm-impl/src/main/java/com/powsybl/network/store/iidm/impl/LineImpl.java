@@ -40,7 +40,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r));
-            index.notifyUpdate(this, "r", oldValue, r);
+            index.notifyUpdate(this, "r", getNetwork().getVariantManager().getWorkingVariantId(), oldValue, r);
         }
         return this;
     }
@@ -56,7 +56,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = getResource().getAttributes().getX();
         if (x != oldValue) {
             updateResource(res -> res.getAttributes().setX(x));
-            index.notifyUpdate(this, "x", oldValue, x);
+            index.notifyUpdate(this, "x", getNetwork().getVariantManager().getWorkingVariantId(), oldValue, x);
         }
         return this;
     }
@@ -72,7 +72,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = getResource().getAttributes().getG1();
         if (g1 != oldValue) {
             updateResource(res -> res.getAttributes().setG1(g1));
-            index.notifyUpdate(this, "g1", oldValue, g1);
+            index.notifyUpdate(this, "g1", getNetwork().getVariantManager().getWorkingVariantId(), oldValue, g1);
         }
         return this;
     }
@@ -88,7 +88,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = getResource().getAttributes().getG2();
         if (g2 != oldValue) {
             updateResource(res -> res.getAttributes().setG2(g2));
-            index.notifyUpdate(this, "g2", oldValue, g2);
+            index.notifyUpdate(this, "g2", getNetwork().getVariantManager().getWorkingVariantId(), oldValue, g2);
         }
         return this;
     }
@@ -105,7 +105,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = resource.getAttributes().getB1();
         if (b1 != oldValue) {
             updateResource(res -> res.getAttributes().setB1(b1));
-            index.notifyUpdate(this, "b1", oldValue, b1);
+            index.notifyUpdate(this, "b1", getNetwork().getVariantManager().getWorkingVariantId(), oldValue, b1);
         }
         return this;
     }
@@ -122,7 +122,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         double oldValue = resource.getAttributes().getB2();
         if (b2 != oldValue) {
             updateResource(res -> res.getAttributes().setB2(b2));
-            index.notifyUpdate(this, "b2", oldValue, b2);
+            index.notifyUpdate(this, "b2", getNetwork().getVariantManager().getWorkingVariantId(), oldValue, b2);
         }
         return this;
     }
@@ -133,6 +133,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());

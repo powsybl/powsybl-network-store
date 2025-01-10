@@ -97,8 +97,8 @@ public class ShuntCompensatorImpl extends AbstractRegulatingEquipment<ShuntCompe
         }
     }
 
-    public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        index.notifyUpdate(this, attribute, oldValue, newValue);
+    public void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+        index.notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
     @Override
@@ -117,16 +117,16 @@ public class ShuntCompensatorImpl extends AbstractRegulatingEquipment<ShuntCompe
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return getResource().getAttributes().isVoltageRegulatorOn();
+        return this.isRegulating();
     }
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        boolean oldValue = getResource().getAttributes().isVoltageRegulatorOn();
+        boolean oldValue = this.isRegulating();
         if (voltageRegulatorOn != oldValue) {
-            updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
+            this.setRegulating(voltageRegulatorOn);
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         }
@@ -179,6 +179,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingEquipment<ShuntCompe
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());

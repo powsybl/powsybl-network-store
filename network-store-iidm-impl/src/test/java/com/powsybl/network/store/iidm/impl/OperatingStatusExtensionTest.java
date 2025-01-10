@@ -223,17 +223,17 @@ public class OperatingStatusExtensionTest {
         }
 
         @Override
-        public void onUpdate(Identifiable identifiable, String s, Object o, Object o1) {
-            throw new UnsupportedOperationException("Unimplemented method");
-        }
-
-        @Override
         public void onVariantCreated(String sourceVariantId, String targetVariantId) {
             throw new UnsupportedOperationException("Unimplemented method");
         }
 
         @Override
         public void onVariantRemoved(String variantId) {
+            throw new UnsupportedOperationException("Unimplemented method");
+        }
+
+        @Override
+        public void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
             throw new UnsupportedOperationException("Unimplemented method");
         }
 
@@ -249,8 +249,23 @@ public class OperatingStatusExtensionTest {
         }
 
         @Override
-        public void onExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+        public void onExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
             throw new UnsupportedOperationException("Unimplemented method 'onExtensionUpdate'");
+        }
+
+        @Override
+        public void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
+            throw new UnsupportedOperationException("Unimplemented method 'onPropertyAdded'");
+        }
+
+        @Override
+        public void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
+            throw new UnsupportedOperationException("Unimplemented method 'onPropertyReplaced'");
+        }
+
+        @Override
+        public void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
+            throw new UnsupportedOperationException("Unimplemented method 'onPropertyRemoved'");
         }
     }
 

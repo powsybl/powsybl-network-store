@@ -35,15 +35,15 @@ public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConv
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return getResource().getAttributes().getVoltageRegulatorOn();
+        return this.isRegulating();
     }
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        boolean oldValue = getResource().getAttributes().getVoltageRegulatorOn();
+        boolean oldValue = this.isRegulating();
         if (voltageRegulatorOn != oldValue) {
-            updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
+            this.setRegulating(voltageRegulatorOn);
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         }
@@ -95,7 +95,8 @@ public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConv
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
             updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
-            index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "lossFactor", variantId, oldValue, lossFactor);
         }
         return this;
     }
@@ -104,7 +105,8 @@ public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConv
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         ReactiveLimitsAttributes oldValue = getResource().getAttributes().getReactiveLimits();
         updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
-        index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "reactiveLimits", variantId, oldValue, reactiveLimits);
     }
 
     @Override
@@ -146,6 +148,7 @@ public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConv
         var resource = getResource();
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {

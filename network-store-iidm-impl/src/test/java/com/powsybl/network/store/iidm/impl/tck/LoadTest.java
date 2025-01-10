@@ -11,10 +11,12 @@ import com.powsybl.iidm.network.tck.AbstractLoadTest;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.network.store.iidm.impl.LoadImpl;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
 
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static com.powsybl.network.store.iidm.impl.CreateNetworksUtil.createNodeBreakerNetworkWithLine;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,5 +52,25 @@ class LoadTest extends AbstractLoadTest {
         assertEquals(List.of(terminal), ((LoadImpl) load).getTerminals(ThreeSides.ONE));
         assertEquals(Collections.emptyList(), ((LoadImpl) load).getTerminals(ThreeSides.TWO));
         assertEquals(Collections.emptyList(), ((LoadImpl) load).getTerminals(ThreeSides.THREE));
+    }
+
+    @Override
+    @Test
+    public void setNameTest() {
+        // This is an adaptation of the same test method in powsybl-core
+        // to be removed when changing the name will notify the update with the variant id provided (instead of null) in powsybl-core
+
+        Network network = FictitiousSwitchFactory.create();
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        network.addListener(mockedListener);
+        Load load = network.getLoad("CE");
+        assertNotNull(load);
+        assertTrue(load.getOptionalName().isEmpty());
+        load.setName("FOO");
+        assertEquals("FOO", load.getOptionalName().orElseThrow());
+
+        // Here is the change from the powsybl-core version
+        //Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "name", null, null, "FOO");
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "name", INITIAL_VARIANT_ID, null, "FOO");
     }
 }

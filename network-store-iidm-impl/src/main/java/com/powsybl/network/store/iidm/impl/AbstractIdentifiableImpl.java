@@ -100,7 +100,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         String oldName = getResource().getAttributes().getName();
         if (!Objects.equals(oldName, name)) {
             updateResource(r -> r.getAttributes().setName(name));
-            index.notifyUpdate(this, "name", oldName, name);
+            index.notifyUpdate(this, "name", getNetwork().getVariantManager().getWorkingVariantId(), oldName, name);
         }
         return (I) this;
     }
@@ -255,9 +255,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         });
 
         if (Objects.isNull(oldValue.getValue())) {
-            index.notifyElementAdded(this, () -> "properties[" + key + "]", value);
+            index.notifyPropertyAdded(this, () -> "properties[" + key + "]", value);
         } else {
-            index.notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue.getValue(), value);
+            index.notifyPropertyReplaced(this, () -> "properties[" + key + "]", oldValue.getValue(), value);
         }
         return oldValue.getValue();
     }
@@ -278,7 +278,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (properties != null && properties.containsKey(key)) {
             String oldValue = properties.get(key);
             updateResource(r -> r.getAttributes().getProperties().remove(key));
-            index.notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
+            index.notifyPropertyRemoved(this, () -> "properties[" + key + "]", oldValue);
             return true;
         }
         return false;
@@ -321,6 +321,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (extension == null) {
             return false;
         }
+        extension.cleanup();
         index.notifyExtensionBeforeRemoval(extension);
         index.removeExtensionAttributes(resource.getType(), resource.getId(), extension.getName());
         index.notifyExtensionAfterRemoval(this, extension.getName());
@@ -355,7 +356,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         boolean oldValue = getResource().getAttributes().isFictitious();
         if (fictitious != oldValue) {
             updateResource(r -> r.getAttributes().setFictitious(fictitious));
-            index.notifyUpdate(this, "fictitious", oldValue, fictitious);
+            index.notifyUpdate(this, "fictitious", getNetwork().getVariantManager().getWorkingVariantId(), oldValue, fictitious);
         }
     }
 
