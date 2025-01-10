@@ -656,21 +656,48 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return ThreeSides.valueOf(terminalIndex + 1);
     }
 
-    public void setAsRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
+    public void setAsRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
-            .put(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType());
+            .add(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType(),
+                regulatingPoint.getRegulatingTapChangerType()));
     }
 
-    public void removeRegulatingPoint(RegulatingPoint<?, ?> regulatingPoint) {
+    public void removeRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
         getAttributes().getRegulatingEquipments()
-            .remove(regulatingPoint.getRegulatingEquipmentId());
+            .remove(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(),
+                regulatingPoint.getRegulatingEquipmentType(), regulatingPoint.getRegulatingTapChangerType()));
     }
 
     public void removeAsRegulatingPoint() {
-        getAttributes().getRegulatingEquipments().forEach((regulatingEquipmentId, resourceType) -> {
-            Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentId);
-            if (identifiable instanceof AbstractRegulatingEquipment<?, ?> regulatingEquipment) {
+        getAttributes().getRegulatingEquipments().forEach(regulatingEquipmentIdentifier -> {
+            Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());
+            if (identifiable instanceof AbstractRegulatingInjection<?, ?> regulatingEquipment) {
                 regulatingEquipment.getRegulatingPoint().removeRegulation();
+            } else if (identifiable instanceof TwoWindingsTransformerImpl twoWindingsTransformer) {
+                AbstractTapChanger abstractTapChanger;
+                if (regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER) {
+                    abstractTapChanger = (RatioTapChangerImpl) twoWindingsTransformer.getRatioTapChanger();
+                } else {
+                    abstractTapChanger = (PhaseTapChangerImpl) twoWindingsTransformer.getPhaseTapChanger();
+                }
+                abstractTapChanger.getRegulatingPoint().removeRegulation();
+            } else if (identifiable instanceof ThreeWindingsTransformerImpl threeWindingsTransformer) {
+                AbstractTapChanger abstractTapChanger = switch (regulatingEquipmentIdentifier.getRegulatingTapChangerType()) {
+                    case RATIO_TAP_CHANGER_SIDE_ONE ->
+                        (RatioTapChangerImpl) threeWindingsTransformer.getLeg1().getRatioTapChanger();
+                    case RATIO_TAP_CHANGER_SIDE_TWO ->
+                        (RatioTapChangerImpl) threeWindingsTransformer.getLeg2().getRatioTapChanger();
+                    case RATIO_TAP_CHANGER_SIDE_THREE ->
+                        (RatioTapChangerImpl) threeWindingsTransformer.getLeg3().getRatioTapChanger();
+                    case PHASE_TAP_CHANGER_SIDE_ONE ->
+                        (PhaseTapChangerImpl) threeWindingsTransformer.getLeg1().getPhaseTapChanger();
+                    case PHASE_TAP_CHANGER_SIDE_TWO ->
+                        (PhaseTapChangerImpl) threeWindingsTransformer.getLeg2().getPhaseTapChanger();
+                    case PHASE_TAP_CHANGER_SIDE_THREE ->
+                        (PhaseTapChangerImpl) threeWindingsTransformer.getLeg3().getPhaseTapChanger();
+                    default -> throw new PowsyblException("tap changer not found when removing regulation");
+                };
+                abstractTapChanger.getRegulatingPoint().removeRegulation();
             }
 
         });

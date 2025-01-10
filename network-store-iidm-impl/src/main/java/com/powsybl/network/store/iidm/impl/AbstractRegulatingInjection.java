@@ -20,23 +20,19 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public abstract class AbstractRegulatingEquipment<I extends Injection<I>, D extends InjectionAttributes> extends AbstractInjectionImpl<I, D> implements Injection<I> {
+public abstract class AbstractRegulatingInjection<I extends Injection<I>, D extends InjectionAttributes> extends AbstractInjectionImpl<I, D> implements Injection<I> {
 
-    protected final RegulatingPoint<I, D> regulatingPoint;
+    protected final InjectionRegulatingPoint<I, D> regulatingPoint;
 
-    protected AbstractRegulatingEquipment(NetworkObjectIndex index, Resource<D> resource) {
+    protected AbstractRegulatingInjection(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
-        regulatingPoint = new RegulatingPoint<>(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
+        regulatingPoint = new InjectionRegulatingPoint<>(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
     }
 
     // should be setRegulatingTerminal but there is already a method with the same name in the regulating equipments
     protected void setRegTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        if (regulatingTerminal instanceof TerminalImpl<?>) {
-            regulatingPoint.setRegulatingTerminal((TerminalImpl<?>) regulatingTerminal);
-        } else {
-            regulatingPoint.setRegulatingTerminalAsLocalTerminalAndRemoveRegulation();
-        }
+        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
     }
 
     public Terminal getRegulatingTerminal() {

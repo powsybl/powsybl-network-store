@@ -20,7 +20,7 @@ import java.util.Collection;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class StaticVarCompensatorImpl extends AbstractRegulatingEquipment<StaticVarCompensator, StaticVarCompensatorAttributes> implements StaticVarCompensator {
+public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<StaticVarCompensator, StaticVarCompensatorAttributes> implements StaticVarCompensator {
 
     public StaticVarCompensatorImpl(NetworkObjectIndex index, Resource<StaticVarCompensatorAttributes> resource) {
         super(index, resource);

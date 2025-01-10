@@ -9,9 +9,9 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
-import com.powsybl.network.store.model.ResourceType;
+import com.powsybl.network.store.model.RegulatingEquipmentIdentifier;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -136,12 +136,12 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
     }
 
     @Override
-    public Map<String, ResourceType> getRegulatingEquipments() {
+    public List<RegulatingEquipmentIdentifier> getRegulatingEquipments() {
         return attributes.getRegulatingEquipments();
     }
 
     @Override
-    public void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments) {
+    public void setRegulatingEquipments(List<RegulatingEquipmentIdentifier> regulatingEquipments) {
         attributes.setRegulatingEquipments(regulatingEquipments);
     }
 }

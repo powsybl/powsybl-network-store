@@ -35,15 +35,17 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public RegulationMode getRegulationMode() {
-        return getAttributes().getRegulationMode();
+        return PhaseTapChanger.RegulationMode.valueOf(getAttributes().getRegulatingPoint().getRegulationMode());
     }
 
     @Override
     public PhaseTapChanger setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
-        RegulationMode oldValue = getAttributes().getRegulationMode();
-        parent.getTransformer().updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
+        PhaseTapChanger.RegulationMode oldValue = getRegulationMode();
+        if (regulationMode != oldValue) {
+            regulatingPoint.setRegulationMode(String.valueOf(regulationMode));
+            notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
+        }
         return this;
     }
 
@@ -128,6 +130,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public void remove() {
+        regulatingPoint.remove();
         parent.setPhaseTapChanger(null);
     }
 

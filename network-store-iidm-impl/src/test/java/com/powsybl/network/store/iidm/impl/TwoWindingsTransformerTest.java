@@ -291,6 +291,28 @@ class TwoWindingsTransformerTest {
     }
 
     @Test
+    void testTapChangerRegulation() {
+        String loadId = "69add5b4-70bd-4360-8a93-286256c0d38b";
+        String twtId1 = "b94318f6-6d24-4f56-96b9-df2531ad6543";
+        String twtId2 = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
+        Network network = createNetwork();
+        RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer(twtId1).getRatioTapChanger();
+        assertEquals(twtId1, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        Load load = network.getLoad(loadId);
+        ratioTapChanger.setRegulationTerminal(load.getTerminal());
+        assertEquals(loadId, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(twtId2).getPhaseTapChanger();
+        phaseTapChanger.setRegulationTerminal(load.getTerminal());
+        assertEquals(loadId, phaseTapChanger.getRegulationTerminal().getConnectable().getId());
+        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        load.remove();
+        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+        assertNull(phaseTapChanger.getRegulationTerminal());
+        assertNull(ratioTapChanger.getRegulationMode());
+        assertNull(ratioTapChanger.getRegulationTerminal());
+    }
+
+    @Test
     void settersTest() {
         Network network = createNetwork();
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957");

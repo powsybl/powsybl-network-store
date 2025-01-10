@@ -13,7 +13,7 @@ import com.powsybl.network.store.model.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
+public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
 
     public VscConverterStationImpl(NetworkObjectIndex index, Resource<VscConverterStationAttributes> resource) {
         super(index, resource);
@@ -150,6 +150,7 @@ public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConv
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
+        regulatingPoint.remove();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
