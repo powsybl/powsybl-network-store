@@ -62,8 +62,8 @@ public abstract class AbstractRegulatingPoint {
         if (oldRegulatingTerminal != null) {
             oldRegulatingTerminal.removeRegulatingPoint(this);
         }
-        // checking if regulating Terminal is not null
-        if (regulatingTerminal instanceof TerminalImpl<?> regulatingTerminal1) {
+        if (regulatingTerminal != null) {
+            TerminalImpl<?> regulatingTerminal1 = (TerminalImpl<?>) regulatingTerminal;
             regulatingTerminal1.setAsRegulatingPoint(this);
             getIdentifiable().updateResource(res -> getAttributes()
                 .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal1)));
