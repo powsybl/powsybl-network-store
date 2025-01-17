@@ -176,9 +176,4 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             throw new ValidationException(parent, "step b is not set");
         }
     }
-
-    @Override
-    public String getMessageHeader() {
-        return getTransformer().getMessageHeader();
-    }
 }
