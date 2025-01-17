@@ -6,6 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.topology.RemoveFeederBayBuilder;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.junit.Test;
@@ -178,5 +181,24 @@ public class VoltageLevelTest {
         busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(-1).withSectionIndex(-1);
         assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",
             assertThrows(ValidationException.class, busbarSectionPositionAdder::add).getMessage());
+    }
+
+    @Test
+    public void testDeleteVoltageLevelWithForkNode() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        assertNotNull(vl1);
+
+        vl1.getConnectables().forEach(connectable -> {
+            if (connectable instanceof Injection) {
+                connectable.remove();
+            } else {
+                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, true, LocalComputationManager.getDefault(), ReportNode.NO_OP);
+            }
+        });
+
+        vl1.remove();
+        vl1 = network.getVoltageLevel("VL1");
+        assertNull(vl1);
     }
 }
