@@ -79,7 +79,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttr
 
     @Builder.Default
     @Schema(description = "regulatingEquipments")
-    private List<RegulatingEquipmentIdentifier> regulatingEquipments = new ArrayList<>();
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 
     @Override
     @JsonIgnore

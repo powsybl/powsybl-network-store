@@ -11,8 +11,8 @@ import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.RegulatingEquipmentIdentifier;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -136,12 +136,12 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
     }
 
     @Override
-    public List<RegulatingEquipmentIdentifier> getRegulatingEquipments() {
+    public Set<RegulatingEquipmentIdentifier> getRegulatingEquipments() {
         return attributes.getRegulatingEquipments();
     }
 
     @Override
-    public void setRegulatingEquipments(List<RegulatingEquipmentIdentifier> regulatingEquipments) {
+    public void setRegulatingEquipments(Set<RegulatingEquipmentIdentifier> regulatingEquipments) {
         attributes.setRegulatingEquipments(regulatingEquipments);
     }
 }

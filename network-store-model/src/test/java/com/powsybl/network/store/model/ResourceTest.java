@@ -155,7 +155,7 @@ public class ResourceTest {
                         .b1(1)
                         .g2(1)
                         .b2(1)
-                        .regulatingEquipments(Collections.singletonList(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                        .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                         .build())
                 .build();
 
@@ -190,7 +190,7 @@ public class ResourceTest {
                         .g(1)
                         .ratedU1(1.)
                         .ratedU2(1.)
-                        .regulatingEquipments(Collections.singletonList(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                        .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                         .build())
                 .build();
 
@@ -214,7 +214,7 @@ public class ResourceTest {
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name("id3WT")
                         .ratedU0(1)
-                    .regulatingEquipments(Collections.singletonList(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                    .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                         .build())
                 .build();
 
@@ -247,7 +247,7 @@ public class ResourceTest {
                 .bus("bus1")
                 .fictitious(false)
                 .node(1)
-                .regulatingEquipments(Collections.singletonList(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
         Resource<LoadAttributes> resourceLoad = Resource.loadBuilder()
@@ -286,7 +286,7 @@ public class ResourceTest {
                 .targetP(3)
                 .targetV(4)
                 .regulatingPoint(regulatingPointAttributes)
-                .regulatingEquipments(Collections.singletonList(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
         Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder()
@@ -325,7 +325,7 @@ public class ResourceTest {
                 .targetQ(100)
                 .fictitious(false)
                 .node(1)
-                .regulatingEquipments(Collections.singletonList(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
         Resource<BatteryAttributes> resourceBattery = Resource.batteryBuilder()
@@ -356,7 +356,7 @@ public class ResourceTest {
                 .p(250)
                 .q(100)
                 .fictitious(false)
-                .regulatingEquipments(Collections.singletonList(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .node(1)
                 .build();
 
@@ -409,7 +409,7 @@ public class ResourceTest {
                 .model(linearModelAttributes)
                 .sectionCount(2)
                 .regulatingPoint(regulatingPointAttributes)
-                .regulatingEquipments(Collections.singletonList(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
         Resource<ShuntCompensatorAttributes> resourceShunt = Resource.shuntCompensatorBuilder()
@@ -462,7 +462,7 @@ public class ResourceTest {
                 .pairingKey("XN1")
                 .bus("bus1")
                 .tieLineId("idTieLineParent")
-                .regulatingEquipments(Collections.singletonList(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
         Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder()
@@ -564,7 +564,7 @@ public class ResourceTest {
             .attributes(BusbarSectionAttributes.builder()
                 .voltageLevelId("vl1")
                 .name("bbs")
-                .regulatingEquipments(Collections.singletonList(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build())
             .build();
 

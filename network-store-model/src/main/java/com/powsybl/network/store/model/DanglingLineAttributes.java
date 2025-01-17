@@ -84,7 +84,7 @@ public class DanglingLineAttributes extends AbstractIdentifiableAttributes imple
 
     @Builder.Default
     @Schema(description = "regulatingEquipments")
-    private List<RegulatingEquipmentIdentifier> regulatingEquipments = new ArrayList<>();
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 
     @Override
     @JsonIgnore

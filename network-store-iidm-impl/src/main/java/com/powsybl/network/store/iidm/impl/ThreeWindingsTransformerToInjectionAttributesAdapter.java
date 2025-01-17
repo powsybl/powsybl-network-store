@@ -9,7 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.network.store.model.*;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -133,12 +133,12 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
     }
 
     @Override
-    public List<RegulatingEquipmentIdentifier> getRegulatingEquipments() {
+    public Set<RegulatingEquipmentIdentifier> getRegulatingEquipments() {
         return attributes.getRegulatingEquipments();
     }
 
     @Override
-    public void setRegulatingEquipments(List<RegulatingEquipmentIdentifier> regulatingEquipments) {
+    public void setRegulatingEquipments(Set<RegulatingEquipmentIdentifier> regulatingEquipments) {
         attributes.setRegulatingEquipments(regulatingEquipments);
     }
 }

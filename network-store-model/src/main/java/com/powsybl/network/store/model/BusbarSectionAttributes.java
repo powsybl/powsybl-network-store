@@ -43,5 +43,5 @@ public class BusbarSectionAttributes extends AbstractIdentifiableAttributes impl
 
     @Builder.Default
     @Schema(description = "regulatingEquipments")
-    private List<RegulatingEquipmentIdentifier> regulatingEquipments = new ArrayList<>();
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

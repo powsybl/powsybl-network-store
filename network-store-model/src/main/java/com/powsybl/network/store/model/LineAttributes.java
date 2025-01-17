@@ -106,5 +106,5 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
 
     @Builder.Default
     @Schema(description = "regulatingEquipments")
-    private List<RegulatingEquipmentIdentifier> regulatingEquipments = new ArrayList<>();
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }
