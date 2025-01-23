@@ -70,8 +70,8 @@ public abstract class AbstractRegulatingPoint {
             getIdentifiable().updateResource(res -> getAttributes()
                 .setRegulatedResourceType(ResourceType.convert(regulatingTerminal1.getConnectable().getType())));
         } else {
-            // if we set regulating terminal to null when getting the regulating Terminal it will return the local terminal
-            // thus the regulatedResourceType is itself type
+            // Setting the regulating terminal to null returns the local terminal upon retrieval.
+            // For consistency with the local terminal, we set the regulatedResourceType to correspond with the resource's own type.
             getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(null));
             getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(getRegulatingEquipmentType()));
         }
