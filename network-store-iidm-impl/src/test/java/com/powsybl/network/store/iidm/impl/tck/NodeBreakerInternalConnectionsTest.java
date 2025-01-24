@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Disabled;
  */
 public class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInternalConnectionsTest {
 
-    @Disabled
+    @Override
+    @Disabled("wrong expected result in powsybl-tck")
     public void testTraversalInternalConnections() {
         // FIXME: Expected result in powsybl-tck is wrong, actual result obtained here is right. Remove this when fixed in powsybl-core.
     }
