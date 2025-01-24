@@ -6,14 +6,12 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
-import com.powsybl.network.store.model.BranchAttributes;
-import com.powsybl.network.store.model.LimitsAttributes;
-import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -162,6 +160,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        loadOperationalLimitsGroup(TwoSides.ONE);
         var group = getResource().getAttributes().getSelectedOperationalLimitsGroup1();
         return group != null && group.getApparentPowerLimits() != null
                 ? new ApparentPowerLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getApparentPowerLimits())
@@ -175,6 +174,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        loadOperationalLimitsGroup(TwoSides.TWO);
         var group = getResource().getAttributes().getSelectedOperationalLimitsGroup2();
         return group != null && group.getApparentPowerLimits() != null
                 ? new ApparentPowerLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getApparentPowerLimits())
@@ -233,6 +233,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits1() {
+        loadOperationalLimitsGroup(TwoSides.ONE);
         var group = getResource().getAttributes().getSelectedOperationalLimitsGroup1();
         return group != null && group.getActivePowerLimits() != null
                 ? new ActivePowerLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getActivePowerLimits())
@@ -246,6 +247,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits2() {
+        loadOperationalLimitsGroup(TwoSides.TWO);
         var group = getResource().getAttributes().getSelectedOperationalLimitsGroup2();
         return group != null && group.getActivePowerLimits() != null
                 ? new ActivePowerLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getActivePowerLimits())
@@ -301,6 +303,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public CurrentLimits getNullableCurrentLimits1() {
+        loadCurrentLimitsGroup(TwoSides.ONE);
         var group = getResource().getAttributes().getSelectedOperationalLimitsGroup1();
         return group != null && group.getCurrentLimits() != null
                 ? new CurrentLimitsImpl<>(this, TwoSides.ONE, group.getId(), group.getCurrentLimits())
@@ -314,6 +317,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public CurrentLimits getNullableCurrentLimits2() {
+        loadCurrentLimitsGroup(TwoSides.TWO);
         var group = getResource().getAttributes().getSelectedOperationalLimitsGroup2();
         return group != null && group.getCurrentLimits() != null
                 ? new CurrentLimitsImpl<>(this, TwoSides.TWO, group.getId(), group.getCurrentLimits())
@@ -377,6 +381,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId1())) {
             resource.getAttributes().setSelectedOperationalLimitsGroupId1(null);
             index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, index.getNetwork().getVariantManager().getWorkingVariantId(), id, null);
+            index.removeOperationalLimitsGroupAttributes(resource.getType(), getId(), id, 1);
         }
         updateResource(res -> res.getAttributes().getOperationalLimitsGroups1().remove(id));
     }
@@ -442,6 +447,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId2())) {
             resource.getAttributes().setSelectedOperationalLimitsGroupId2(null);
             index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, index.getNetwork().getVariantManager().getWorkingVariantId(), id, null);
+            index.removeOperationalLimitsGroupAttributes(resource.getType(), getId(), id, 2);
         }
         updateResource(res -> res.getAttributes().getOperationalLimitsGroups2().remove(id));
 
@@ -609,6 +615,34 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
                 case TWO -> Collections.singletonList(terminal2);
                 default -> Collections.emptyList();
             };
+        }
+    }
+
+    private void loadOperationalLimitsGroup(TwoSides side) {
+        String groupId;
+        if (side == TwoSides.ONE) {
+            groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId1();
+        } else if (side == TwoSides.TWO) {
+            groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId2();
+        } else {
+            throw new PowsyblException("can not load limits on branch for a side null");
+        }
+        if (groupId != null) {
+            index.loadOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), groupId, side.getNum());
+        }
+    }
+
+    private void loadCurrentLimitsGroup(TwoSides side) {
+        String groupId;
+        if (side == TwoSides.ONE) {
+            groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId1();
+        } else if (side == TwoSides.TWO) {
+            groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId2();
+        } else {
+            throw new PowsyblException("can not load limits on branch for a side null");
+        }
+        if (groupId != null) {
+            index.loadCurrentLimitsGroupAttributes(ResourceType.convert(getType()), getId(), groupId, side.getNum());
         }
     }
 }

@@ -37,4 +37,10 @@ public class LimitsAttributes {
     @Schema(description = "List of temporary limits")
     private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
 
+    public void addOneTemporaryLimit(TemporaryLimitAttributes temporaryLimit) {
+        if (temporaryLimits == null) {
+            temporaryLimits = new TreeMap<>();
+        }
+        temporaryLimits.put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
+    }
 }

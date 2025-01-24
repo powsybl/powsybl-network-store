@@ -80,6 +80,31 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     private final Map<String, Set<String>> removedExtensionAttributes = new HashMap<>();
 
     /**
+     * Indicates if all the operational limits groups for this collection have been fully loaded and synchronized with the server.
+     */
+    private boolean isFullyLoadedOperationalLimitsGroup = false;
+
+    private boolean isFullyLoadedCurrentLimitsGroup = false;
+
+    /**
+     * Indicates if all the operational limits groups for a specific identifiable has been fully loaded and synchronized with the server.
+     */
+    private final Set<String> fullyLoadedOperationalLimitsGroupsByBranchIds = new HashSet<>();
+
+    /**
+     * Indicates if all the operational limits groups for a specific identifiable has been fully loaded and synchronized with the server.
+     */
+    private final Set<String> fullyLoadedCurrentLimitsGroupsByBranchIds = new HashSet<>();
+
+    /**
+     * Map storing sets of removed operational limits names associated with identifiable IDs.
+     * The map is organized where:
+     * - The keys are identifiable IDs.
+     * - The values are sets of operational limits groups names that have been removed.
+     */
+    private final Set<OperationalLimitsGroupIdentifier> removedOperationalLimitsGroupsAttributes = new HashSet<>();
+
+    /**
      * A function to load one resource from the server. An optional is returned because resource could not exist on
      * the server.
      */
@@ -350,6 +375,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                 containerClonedResources.put(id, clonedCache.resources.get(id));
             }
         }
+
+        // extensions
         for (Map.Entry<String, Set<String>> entry : removedExtensionAttributes.entrySet()) {
             clonedCache.removedExtensionAttributes.put(entry.getKey(), new HashSet<>(entry.getValue()));
         }
@@ -358,6 +385,13 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         clonedCache.fullyLoadedExtensionsByIdentifiableIds.addAll(fullyLoadedExtensionsByIdentifiableIds);
         clonedCache.fullyLoaded = fullyLoaded;
         clonedCache.fullyLoadedExtensions = fullyLoadedExtensions;
+
+        // limits
+        clonedCache.removedOperationalLimitsGroupsAttributes.addAll(removedOperationalLimitsGroupsAttributes);
+        clonedCache.fullyLoadedOperationalLimitsGroupsByBranchIds.addAll(fullyLoadedOperationalLimitsGroupsByBranchIds);
+        clonedCache.isFullyLoadedOperationalLimitsGroup = isFullyLoadedOperationalLimitsGroup;
+        clonedCache.isFullyLoadedCurrentLimitsGroup = isFullyLoadedCurrentLimitsGroup;
+
         clonedCache.containerFullyLoaded.addAll(containerFullyLoaded);
         clonedCache.removedResources.addAll(removedResources);
         return clonedCache;
@@ -533,5 +567,148 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             removedExtensionAttributes.computeIfAbsent(identifiableId, k -> new HashSet<>()).addAll(removedExtensionNames);
             getCachedExtensionAttributes(identifiableId).clear();
         }
+    }
+
+    // limits
+    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsAttributes(UUID networkUuid, int variantNum, ResourceType type,
+                                                                                     String branchId, String operationalLimitGroupName, int side) {
+        Objects.requireNonNull(branchId);
+        if (isOperationalLimitsGroupAttributesCached(branchId)) {
+            return Optional.ofNullable(getCachedOperationalLimitsGroupAttributes(branchId, side).get(operationalLimitGroupName));
+        }
+
+        if (!isFullyLoadedOperationalLimitsGroup(branchId) && !isRemovedOperationalLimitsGroupAttributes(branchId, operationalLimitGroupName, side)) {
+            return delegate.getOperationalLimitsGroupAttributes(networkUuid, variantNum, type, branchId, operationalLimitGroupName, side)
+                .map(attributes -> {
+                    addOperationalLimitsGroupAttributesToCache(branchId, operationalLimitGroupName, side, attributes);
+                    return attributes;
+                });
+        }
+        return Optional.empty();
+    }
+
+    private Map<String, OperationalLimitsGroupAttributes> getCachedOperationalLimitsGroupAttributes(String branchId, int side) {
+        Resource<T> resource = resources.get(branchId);
+        if (resource != null && resource.getAttributes() instanceof BranchAttributes branchAttributes) {
+            return branchAttributes.getOperationalLimitsGroups(side);
+        } else {
+            throw new PowsyblException("Cannot manipulate operational limits groups for branch (" + branchId + ") as it has not been loaded into the cache.");
+        }
+    }
+
+    private boolean isOperationalLimitsGroupAttributesCached(String branchId) {
+        return (fullyLoadedOperationalLimitsGroupsByBranchIds.contains(branchId) || isFullyLoadedOperationalLimitsGroup) && resources.containsKey(branchId);
+    }
+
+    private boolean isCurrentLimitsGroupAttributesCached(String branchId) {
+        return (fullyLoadedOperationalLimitsGroupsByBranchIds.contains(branchId) || fullyLoadedCurrentLimitsGroupsByBranchIds.contains(branchId) || isFullyLoadedOperationalLimitsGroup || isFullyLoadedCurrentLimitsGroup) && resources.containsKey(branchId);
+    }
+
+    private boolean isFullyLoadedOperationalLimitsGroup(String branchId) {
+        return isFullyLoadedOperationalLimitsGroup || fullyLoadedOperationalLimitsGroupsByBranchIds.contains(branchId);
+    }
+
+    private boolean isRemovedOperationalLimitsGroupAttributes(String branchId, String operationalLimitGroupName, int side) {
+        return removedResources.contains(branchId) || removedOperationalLimitsGroupsAttributes.contains(OperationalLimitsGroupIdentifier.of(branchId, operationalLimitGroupName, side));
+    }
+
+    /**
+     * Add operational limits groups attributes in the cache for single operational limits groups attributes loading.<br/>
+     * This method is only used to get operational limits groups attributes from the server so even if it adds some checks and reduces performance by a tiny bit,
+     * we avoid to overwrite already loaded operational limits groups attributes because they are referenced in the operational limits groups attributes field of the resources or resourcesByContainerId map,
+     * but also directly in any identifiable with the iidm api.
+     */
+    private void addOperationalLimitsGroupAttributesToCache(String branchId, String operationalLimitsGroupName, int side, OperationalLimitsGroupAttributes operationalLimitsGroupAttributes) {
+        Objects.requireNonNull(operationalLimitsGroupAttributes);
+        getCachedOperationalLimitsGroupAttributes(branchId, side).putIfAbsent(operationalLimitsGroupName, operationalLimitsGroupAttributes);
+        OperationalLimitsGroupIdentifier identifier = OperationalLimitsGroupIdentifier.of(branchId, operationalLimitsGroupName, side);
+        removedOperationalLimitsGroupsAttributes.remove(identifier);
+        fullyLoadedOperationalLimitsGroupsByBranchIds.add(branchId);
+    }
+
+    public void removeOperationalLimitsGroupAttributesByName(String branchId, String operationalLimitsGroupName, int side) {
+        Objects.requireNonNull(branchId);
+        Objects.requireNonNull(operationalLimitsGroupName);
+        if (resources.containsKey(branchId)) {
+            getCachedOperationalLimitsGroupAttributes(branchId, side).remove(operationalLimitsGroupName);
+            OperationalLimitsGroupIdentifier identifier = OperationalLimitsGroupIdentifier.of(branchId, operationalLimitsGroupName, side);
+            removedOperationalLimitsGroupsAttributes.add(identifier);
+        }
+    }
+
+    /**
+     * Get all the operational limits group attributes for all the identifiables with specified resource type in the cache
+     */
+    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType type) {
+        if (!isFullyLoadedOperationalLimitsGroup) {
+            // if collection has not yet been fully loaded we load it from the server
+            Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> operationalLimitsGroupAttributesMap =
+                delegate.getAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type);
+
+            // we update the full cache and set it as fully loaded
+            operationalLimitsGroupAttributesMap.forEach(this::addAllOperationalLimitsGroupAttributesToCache);
+            isFullyLoadedOperationalLimitsGroup = true;
+        }
+        return Collections.emptyMap();
+    }
+
+    /**
+     * Get all the operational limits group attributes for all the identifiables with specified resource type in the cache
+     */
+    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType type) {
+        if (!isFullyLoadedCurrentLimitsGroup) {
+            // if collection has not yet been fully loaded we load it from the server
+            Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> operationalLimitsGroupAttributesMap =
+                delegate.getSelectedCurrentLimitsGroupAttributesByResourceType(networkUuid, variantNum, type);
+
+            // we update the full cache and set it as fully loaded
+            operationalLimitsGroupAttributesMap.forEach(this::addAllOperationalLimitsGroupAttributesToCache);
+            isFullyLoadedCurrentLimitsGroup = true;
+        }
+        return Collections.emptyMap();
+    }
+
+    public Optional<OperationalLimitsGroupAttributes> getCurrentLimitsAttributes(UUID networkUuid, int variantNum, ResourceType type,
+                                                                                     String branchId, String operationalLimitGroupName, int side) {
+        Objects.requireNonNull(branchId);
+        if (isCurrentLimitsGroupAttributesCached(branchId)) {
+            return Optional.ofNullable(getCachedOperationalLimitsGroupAttributes(branchId, side).get(operationalLimitGroupName));
+        }
+
+        if (!isFullyLoadedOperationalLimitsGroup(branchId) && !isRemovedOperationalLimitsGroupAttributes(branchId, operationalLimitGroupName, side)) {
+            return delegate.getCurrentLimitsGroupAttributes(networkUuid, variantNum, type, branchId, operationalLimitGroupName, side)
+                .map(attributes -> {
+                    addCurrentLimitsGroupAttributesToCache(branchId, operationalLimitGroupName, side, attributes);
+                    return attributes;
+                });
+        }
+        return Optional.empty();
+    }
+
+    private void addCurrentLimitsGroupAttributesToCache(String branchId, String operationalLimitsGroupName, int side, OperationalLimitsGroupAttributes operationalLimitsGroupAttributes) {
+        Objects.requireNonNull(operationalLimitsGroupAttributes);
+        getCachedOperationalLimitsGroupAttributes(branchId, side).putIfAbsent(operationalLimitsGroupName, operationalLimitsGroupAttributes);
+        OperationalLimitsGroupIdentifier identifier = OperationalLimitsGroupIdentifier.of(branchId, operationalLimitsGroupName, side);
+        removedOperationalLimitsGroupsAttributes.remove(identifier);
+        fullyLoadedCurrentLimitsGroupsByBranchIds.add(branchId);
+    }
+
+    /**
+     * Add operational limits group attributes to the cache when loading all the operational limits group attributes of an identifiable.<br/>
+     * This method is only used to get operational limits group attributes from the server so even if it adds some checks and reduces performance by a tiny bit,
+     * we avoid to overwrite already loaded operational limits group attributes because they are referenced in the extensionAttributes field of the resources or resourcesByContainerId map,
+     * but also directly in any identifiable with the iidm api.
+     */
+    private void addAllOperationalLimitsGroupAttributesToCache(String branchId, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> operationalLimitsGroupAttributesMap) {
+        Objects.requireNonNull(operationalLimitsGroupAttributesMap);
+
+        operationalLimitsGroupAttributesMap.forEach((identifier, limitsGroup) -> {
+            if (limitsGroup != null) {
+                getCachedOperationalLimitsGroupAttributes(identifier.getBranchId(), identifier.getSide())
+                    .putIfAbsent(limitsGroup.getId(), limitsGroup);
+                removedOperationalLimitsGroupsAttributes.remove(identifier);
+            }
+        });
+        fullyLoadedOperationalLimitsGroupsByBranchIds.add(branchId);
     }
 }
