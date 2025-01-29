@@ -8,7 +8,6 @@ package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.network.store.model.CloneStrategy;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.junit.Before;
@@ -63,8 +62,6 @@ public class BufferedNetworkStoreClientTest {
         String targetVariantId1 = "variant1";
         int targetVariantNum2 = 2;
         String targetVariantId2 = "variant2";
-        int targetVariantNum3 = 3;
-        String targetVariantId3 = "variant3";
         // Update network n1
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
@@ -72,11 +69,10 @@ public class BufferedNetworkStoreClientTest {
                         .uuid(networkUuid)
                         .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
-                        .cloneStrategy(CloneStrategy.FULL)
                         .build())
                 .build();
         bufferedClient.updateNetworks(List.of(n1), null);
-        // Full clone 0 -> 1
+        // Partial clone 0 -> 1
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
@@ -90,23 +86,15 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.cloneNetwork(networkUuid, targetVariantNum1, targetVariantNum2, targetVariantId2);
         server.verify();
         server.reset();
-        // Partial clone 2 -> 3
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum2 + "/to/" + targetVariantNum3 + "?targetVariantId=" + targetVariantId3))
-                .andExpect(method(PUT))
-                .andRespond(withSuccess());
-        bufferedClient.cloneNetwork(networkUuid, targetVariantNum2, targetVariantNum3, targetVariantId3);
-        server.verify();
-        server.reset();
         // Update again network n1 after clones, it should only update this network, not the clones
         n1.getAttributes().setCaseDate(ZonedDateTime.parse("2018-01-01T00:00:00.000Z"));
-        // Flush and check that all the networks are also updated with correct targetVariantId, fullVariantNum and cloneStrategy
+        // Flush and check that all the networks are also updated with correct targetVariantId, fullVariantNum
         Resource<NetworkAttributes> n1UpdatedAfterClone = Resource.networkBuilder()
                 .id("n1")
                 .attributes(NetworkAttributes.builder()
                         .uuid(networkUuid)
                         .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
                         .caseDate(ZonedDateTime.parse("2018-01-01T00:00:00.000Z"))
-                        .cloneStrategy(CloneStrategy.FULL)
                         .build())
                 .build();
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
@@ -119,8 +107,7 @@ public class BufferedNetworkStoreClientTest {
                 .attributes(NetworkAttributes.builder()
                         .uuid(networkUuid)
                         .variantId(targetVariantId1)
-                        .cloneStrategy(NetworkAttributes.DEFAULT_CLONE_STRATEGY)
-                        .fullVariantNum(-1)
+                        .fullVariantNum(0)
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
@@ -134,29 +121,13 @@ public class BufferedNetworkStoreClientTest {
                 .attributes(NetworkAttributes.builder()
                         .uuid(networkUuid)
                         .variantId(targetVariantId2)
-                        .cloneStrategy(NetworkAttributes.DEFAULT_CLONE_STRATEGY)
-                        .fullVariantNum(1)
+                        .fullVariantNum(0)
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone1to2))))
-                .andRespond(withSuccess());
-        Resource<NetworkAttributes> n1Clone2to3 = Resource.networkBuilder()
-                .id("n1")
-                .variantNum(targetVariantNum3)
-                .attributes(NetworkAttributes.builder()
-                        .uuid(networkUuid)
-                        .variantId(targetVariantId3)
-                        .cloneStrategy(NetworkAttributes.DEFAULT_CLONE_STRATEGY)
-                        .fullVariantNum(1)
-                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
-                        .build())
-                .build();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
-                .andExpect(method(PUT))
-                .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone2to3))))
                 .andRespond(withSuccess());
         bufferedClient.flush(networkUuid);
         server.verify();

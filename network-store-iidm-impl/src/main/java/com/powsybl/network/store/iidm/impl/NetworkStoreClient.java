@@ -38,7 +38,7 @@ public interface NetworkStoreClient {
 
     void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId);
 
-    void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite, CloneStrategy cloneStrategy);
+    void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite);
 
     void cloneNetwork(UUID networkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds);
 

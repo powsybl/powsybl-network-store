@@ -622,11 +622,9 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                 networkResource -> {
                     NetworkAttributes networkAttributes = networkResource.getAttributes();
                     networkAttributes.setVariantId(targetVariantId);
-                    if (networkAttributes.getCloneStrategy() == CloneStrategy.PARTIAL && networkAttributes.isFullVariant()) {
+                    if (networkAttributes.isFullVariant()) {
                         networkAttributes.setFullVariantNum(sourceVariantNum);
                     }
-                    // For a new network (cloned or created), we reset the clone strategy to default
-                    networkAttributes.setCloneStrategy(NetworkAttributes.DEFAULT_CLONE_STRATEGY);
                 });
     }
 

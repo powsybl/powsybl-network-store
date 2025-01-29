@@ -193,22 +193,22 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false&cloneStrategy=PARTIAL"))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false"))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
 
         String errorExistingJson = objectMapper
                 .writeValueAsString(TopLevelError.of(ErrorObject.cloneOverExisting(VARIANT1)));
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false&cloneStrategy=PARTIAL"))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false"))
                 .andExpect(method(PUT))
                 .andRespond(withBadRequest().body(errorExistingJson).contentType(MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=true&cloneStrategy=FULL"))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=true"))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
 
         String errorInitialJson = objectMapper.writeValueAsString(TopLevelError.of(ErrorObject.cloneOverInitialForbidden()));
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VARIANT1 + "/toId/" + VariantManagerConstants.INITIAL_VARIANT_ID + "?mayOverwrite=true&cloneStrategy=FULL"))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + VARIANT1 + "/toId/" + VariantManagerConstants.INITIAL_VARIANT_ID + "?mayOverwrite=true"))
                 .andExpect(method(PUT))
                 .andRespond(withBadRequest().body(errorInitialJson).contentType(MediaType.APPLICATION_JSON));
 
@@ -279,11 +279,11 @@ public class RestNetworkStoreClientTest {
             assertEquals("idLine", lines.get(0).getId());
             assertEquals(100., lines.get(0).getTerminal1().getP(), 0.);
 
-            service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, CloneStrategy.PARTIAL);
-            PowsyblException e1 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, CloneStrategy.PARTIAL));
+            service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1);
+            PowsyblException e1 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1));
             assertTrue(e1.getMessage().contains("already exists"));
-            service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, true, CloneStrategy.FULL);
-            PowsyblException e2 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VARIANT1, VariantManagerConstants.INITIAL_VARIANT_ID, true, CloneStrategy.FULL));
+            service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, true);
+            PowsyblException e2 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VARIANT1, VariantManagerConstants.INITIAL_VARIANT_ID, true));
             assertTrue(e2.getMessage().contains("forbidden"));
 
             //duplicate network
