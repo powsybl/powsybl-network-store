@@ -18,10 +18,4 @@ public class TapChangerTest extends AbstractTapChangerTest {
     //  and isRegulating is not updated either
     @Override
     public void baseTestsPhaseTapChanger() { }
-
-    // TODO remove this test when regulation are handled properly :
-    //  regulating terminal are not deleted from TapChangers when linked terminals are deleted
-    //  and isRegulating is not updated either
-    @Override
-    public void undefinedRegulationValueOnlyWarning() { }
 }
