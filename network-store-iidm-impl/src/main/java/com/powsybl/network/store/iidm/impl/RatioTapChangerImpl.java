@@ -60,7 +60,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         boolean oldValue = getAttributes().isLoadTapChangingCapabilities();
         if (status != oldValue) {
             getTransformer().updateResource(res -> getAttributes(res).setLoadTapChangingCapabilities(status));
-            notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", oldValue, status);
+            notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, status);
         }
         return this;
     }
@@ -132,6 +132,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public void remove() {
+        regulatingPoint.remove();
         parent.setRatioTapChanger(null);
     }
 
@@ -146,15 +147,16 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RegulationMode getRegulationMode() {
-        return getAttributes().getRegulationMode();
+        String regulationMode = getAttributes().getRegulatingPoint().getRegulationMode();
+        return regulationMode != null ? RegulationMode.valueOf(regulationMode) : null;
     }
 
     @Override
     public RatioTapChanger setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), regulationMode, getTargetV(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
-        RegulationMode oldValue = getAttributes().getRegulationMode();
+        RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
-            getTransformer().updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
+            regulatingPoint.setRegulationMode(String.valueOf(regulationMode));
             notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
         }
         return this;

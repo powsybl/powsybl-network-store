@@ -9,10 +9,10 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
-import com.powsybl.network.store.model.ResourceType;
+import com.powsybl.network.store.model.RegulatingEquipmentIdentifier;
 
-import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -95,11 +95,11 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
         if (side1) {
             double oldValue = attributes.getP1();
             attributes.setP1(p);
-            branch.notifyUpdate("p1", oldValue, p, true);
+            branch.notifyUpdate("p1", oldValue, p);
         } else {
             double oldValue = attributes.getP2();
             attributes.setP2(p);
-            branch.notifyUpdate("p2", oldValue, p, true);
+            branch.notifyUpdate("p2", oldValue, p);
         }
     }
 
@@ -113,11 +113,11 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
         if (side1) {
             double oldValue = attributes.getQ1();
             attributes.setQ1(q);
-            branch.notifyUpdate("q1", oldValue, q, true);
+            branch.notifyUpdate("q1", oldValue, q);
         } else {
             double oldValue = attributes.getQ2();
             attributes.setQ2(q);
-            branch.notifyUpdate("q2", oldValue, q, true);
+            branch.notifyUpdate("q2", oldValue, q);
         }
     }
 
@@ -136,12 +136,12 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
     }
 
     @Override
-    public Map<String, ResourceType> getRegulatingEquipments() {
+    public Set<RegulatingEquipmentIdentifier> getRegulatingEquipments() {
         return attributes.getRegulatingEquipments();
     }
 
     @Override
-    public void setRegulatingEquipments(Map<String, ResourceType> regulatingEquipments) {
+    public void setRegulatingEquipments(Set<RegulatingEquipmentIdentifier> regulatingEquipments) {
         attributes.setRegulatingEquipments(regulatingEquipments);
     }
 }

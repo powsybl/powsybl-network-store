@@ -43,4 +43,5 @@ public interface RestClient {
 
     void post(String url, Object... uriVariables);
 
+    void deleteAll(String url, List<String> ids, Object... uriVariables);
 }

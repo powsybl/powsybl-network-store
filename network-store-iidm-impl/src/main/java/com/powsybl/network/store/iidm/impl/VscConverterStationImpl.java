@@ -13,7 +13,7 @@ import com.powsybl.network.store.model.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
+public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
 
     public VscConverterStationImpl(NetworkObjectIndex index, Resource<VscConverterStationAttributes> resource) {
         super(index, resource);
@@ -95,7 +95,8 @@ public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConv
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
             updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
-            index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "lossFactor", variantId, oldValue, lossFactor);
         }
         return this;
     }
@@ -104,7 +105,8 @@ public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConv
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         ReactiveLimitsAttributes oldValue = getResource().getAttributes().getReactiveLimits();
         updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
-        index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "reactiveLimits", variantId, oldValue, reactiveLimits);
     }
 
     @Override
@@ -146,7 +148,9 @@ public class VscConverterStationImpl extends AbstractRegulatingEquipment<VscConv
         var resource = getResource();
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
+        regulatingPoint.remove();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");

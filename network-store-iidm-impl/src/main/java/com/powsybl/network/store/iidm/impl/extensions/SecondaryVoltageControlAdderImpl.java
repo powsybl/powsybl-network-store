@@ -8,7 +8,6 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ControlZoneAdder;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
@@ -23,7 +22,7 @@ import java.util.Objects;
 /**
  * @author Achour Berrahma <achour.berrahma at rte-france.com>
  */
-public class SecondaryVoltageControlAdderImpl extends AbstractExtensionAdder<Network, SecondaryVoltageControl> implements SecondaryVoltageControlAdder {
+public class SecondaryVoltageControlAdderImpl extends AbstractIidmExtensionAdder<Network, SecondaryVoltageControl> implements SecondaryVoltageControlAdder {
 
     private final List<ControlZoneImpl> controlZones = new ArrayList<>();
 

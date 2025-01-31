@@ -23,7 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TapChangerAttributes {
+public class TapChangerAttributes extends AbstractRegulatingEquipmentAttributes {
 
     @Schema(description = "lowTapPosition")
     private int lowTapPosition;
@@ -31,14 +31,8 @@ public class TapChangerAttributes {
     @Schema(description = "tapPosition")
     private int tapPosition;
 
-    @Schema(description = "regulating")
-    private boolean regulating;
-
     @Schema(description = "targetDeadband")
     private double targetDeadband;
-
-    @Schema(description = "regulatingTerminal")
-    private TerminalRefAttributes regulatingTerminal;
 
     @Schema(description = "steps")
     private List<TapChangerStepAttributes> steps;
