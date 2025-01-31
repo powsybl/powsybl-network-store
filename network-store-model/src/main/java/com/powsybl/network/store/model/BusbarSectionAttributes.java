@@ -14,10 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -46,5 +43,5 @@ public class BusbarSectionAttributes extends AbstractIdentifiableAttributes impl
 
     @Builder.Default
     @Schema(description = "regulatingEquipments")
-    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

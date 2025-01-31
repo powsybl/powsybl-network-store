@@ -122,7 +122,6 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
             ensureNodeOrBusExists(graph, attributes.getNode1());
             ensureNodeOrBusExists(graph, attributes.getNode2());
             graph.addEdge(attributes.getNode1(), attributes.getNode2(), new Edge(attributes));
-            graph.addEdge(attributes.getNode2(), attributes.getNode1(), new Edge(attributes));
         }
     }
 
