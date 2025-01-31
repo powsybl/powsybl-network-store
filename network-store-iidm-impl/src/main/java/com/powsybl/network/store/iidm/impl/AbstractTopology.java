@@ -13,7 +13,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
-import org.jgrapht.graph.DirectedPseudograph;
+import org.jgrapht.graph.Pseudograph;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -165,7 +165,7 @@ public abstract class AbstractTopology<T> {
 
     public Graph<T, Edge> buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
                                      boolean includeOpenSwitches, boolean includeRetainSwitches, Map<T, List<Vertex>> verticesByNodeOrBus) {
-        Graph<T, Edge> graph = new DirectedPseudograph<>(Edge.class);
+        Graph<T, Edge> graph = new Pseudograph<>(Edge.class);
         List<Vertex> vertices = new ArrayList<>();
         buildGraph(index, voltageLevelResource, includeOpenSwitches, includeRetainSwitches, graph, vertices);
         verticesByNodeOrBus.putAll(vertices.stream().collect(Collectors.groupingBy(this::getNodeOrBus)));
@@ -256,7 +256,6 @@ public abstract class AbstractTopology<T> {
             ensureNodeOrBusExists(graph, nodeOrBus2);
             if ((includeOpenSwitches || !resource.getAttributes().isOpen()) && (includeRetainSwitches || !resource.getAttributes().isRetained())) {
                 graph.addEdge(nodeOrBus1, nodeOrBus2, new Edge(resource.getAttributes()));
-                graph.addEdge(nodeOrBus2, nodeOrBus1, new Edge(resource.getAttributes()));
             }
         }
     }
