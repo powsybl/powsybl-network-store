@@ -25,7 +25,7 @@ import java.util.Collection;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class GeneratorImpl extends AbstractRegulatingEquipment<Generator, GeneratorAttributes> implements Generator, ReactiveLimitsOwner {
+public class GeneratorImpl extends AbstractRegulatingInjection<Generator, GeneratorAttributes> implements Generator, ReactiveLimitsOwner {
 
     public GeneratorImpl(NetworkObjectIndex index, Resource<GeneratorAttributes> resource) {
         super(index, resource);
@@ -102,6 +102,7 @@ public class GeneratorImpl extends AbstractRegulatingEquipment<Generator, Genera
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
+        regulatingPoint.remove();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeGenerator(resource.getId());

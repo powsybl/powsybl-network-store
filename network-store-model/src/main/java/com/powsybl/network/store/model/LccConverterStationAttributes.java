@@ -10,8 +10,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -56,5 +56,5 @@ public class LccConverterStationAttributes extends AbstractIdentifiableAttribute
 
     @Builder.Default
     @Schema(description = "regulatingEquipments")
-    private Map<String, ResourceType> regulatingEquipments = new HashMap<>();
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }
