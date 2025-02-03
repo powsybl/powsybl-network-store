@@ -812,6 +812,51 @@ public class CachedNetworkStoreClientTest {
         assertTrue(extensionAttributesResult.isPresent());
     }
 
+    @Test
+    public void testRemovedIdentifiableInCachePresentOnServer() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "GEN";
+
+        // Remove generator
+        cachedClient.removeGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(identifiableId));
+
+        // Load extension from removed identifiable (should not fetch from the server)
+        assertTrue(cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME).isEmpty());
+        server.verify();
+        server.reset();
+
+        // Load all active power control extensions for all generators (should not throw)
+        ActivePowerControlAttributes apc1 = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(0.5)
+                .build();
+        String extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
+        }).writeValueAsString(Map.of(identifiableId, apc1));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/" + ActivePowerControl.NAME))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
+        cachedClient.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, ActivePowerControl.NAME);
+        assertTrue(cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME).isEmpty());
+        server.verify();
+        server.reset();
+
+        // Load all extensions of removed identifiable  (should not fetch from the server)
+        assertTrue(cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId).isEmpty());
+
+        // Load all extensions for all generators (should not throw)
+        extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<String, ExtensionAttributes>>>() {
+        }).writeValueAsString(Map.of(identifiableId, Map.of(ActivePowerControl.NAME, apc1)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
+        cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR);
+        assertTrue(cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME).isEmpty());
+        server.verify();
+        server.reset();
+    }
+
     private void loadGeneratorToCache(String identifiableId, UUID networkUuid, CachedNetworkStoreClient cachedClient) throws JsonProcessingException {
         Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
                 .id(identifiableId)
