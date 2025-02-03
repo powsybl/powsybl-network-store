@@ -459,7 +459,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             return getCachedExtensionAttributes(identifiableId);
         }
 
-        if (!isFullyLoadedIdentifiable(identifiableId)) {
+        if (!isFullyLoadedIdentifiable(identifiableId) && !removedResources.contains(identifiableId)) {
             Map<String, ExtensionAttributes> extensionAttributes = delegate.getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, type, identifiableId);
             if (extensionAttributes != null) {
                 addAllExtensionAttributesToCache(identifiableId, extensionAttributes);
