@@ -57,7 +57,7 @@ public class BufferedNetworkStoreClientTest {
     @Test
     public void testClone() throws IOException {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        UUID networkUuid = UUID.randomUUID();
         int targetVariantNum1 = 1;
         String targetVariantId1 = "variant1";
         int targetVariantNum2 = 2;

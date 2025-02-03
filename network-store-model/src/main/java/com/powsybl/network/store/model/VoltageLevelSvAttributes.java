@@ -27,14 +27,4 @@ public class VoltageLevelSvAttributes extends AbstractAttributes implements Attr
 
     @Schema(description = "Calculated buses for bus breaker view")
     private List<CalculatedBusAttributes> calculatedBusesForBusBreakerView;
-
-    public static void bindAttributes(VoltageLevelSvAttributes attributes, List<Object> values) {
-        values.add(attributes.getCalculatedBusesForBusView());
-        values.add(attributes.getCalculatedBusesForBusBreakerView());
-    }
-
-    public static void updateAttributes(VoltageLevelAttributes existingAttributes, VoltageLevelSvAttributes newAttributes) {
-        existingAttributes.setCalculatedBusesForBusView(newAttributes.getCalculatedBusesForBusView());
-        existingAttributes.setCalculatedBusesForBusBreakerView(newAttributes.getCalculatedBusesForBusBreakerView());
-    }
 }

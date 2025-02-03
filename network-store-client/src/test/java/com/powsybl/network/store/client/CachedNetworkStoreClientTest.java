@@ -790,7 +790,7 @@ public class CachedNetworkStoreClientTest {
      */
     public void testGetExtensionOverwriteCache5() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        UUID networkUuid = UUID.randomUUID();
         String identifiableId = "GEN";
 
         // Load all generators, this should not overwrite existing resource in the cache

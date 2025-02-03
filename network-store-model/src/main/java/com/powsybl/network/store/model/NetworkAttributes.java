@@ -27,7 +27,7 @@ import java.util.UUID;
 @Schema(description = "Network attributes")
 public class NetworkAttributes extends AbstractIdentifiableAttributes {
 
-    public static final int FULL_VARIANT_INDICATOR = -1;
+    private static final int FULL_VARIANT_INDICATOR = -1;
 
     @Schema(description = "Network UUID", required = true)
     private UUID uuid;
