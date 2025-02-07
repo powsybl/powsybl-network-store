@@ -39,6 +39,9 @@ public class ExtensionAttributesIdResolver extends TypeIdResolverBase {
 
     @Override
     public JavaType typeFromId(DatabindContext context, String id) {
+        if (!ExtensionLoaders.loaderExists(id)) {
+            return context.constructSpecializedType(superType, RawExtensionAttributes.class);
+        }
         Class<? extends ExtensionAttributes> subType = ExtensionLoaders.findLoaderByName(id).getAttributesType();
         return context.constructSpecializedType(superType, subType);
     }

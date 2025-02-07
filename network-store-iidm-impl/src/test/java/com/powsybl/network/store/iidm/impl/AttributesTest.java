@@ -8,11 +8,14 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.network.store.model.ExtensionAttributes;
-import com.powsybl.network.store.model.GeneratorStartupAttributes;
+import com.powsybl.network.store.model.*;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
@@ -38,6 +41,30 @@ public class AttributesTest {
         assertEquals(5.0, deserialized.getMarginalCost(), 0.1);
         assertEquals(3.0, deserialized.getPlannedOutageRate(), 0.1);
         assertEquals(5.0, deserialized.getForcedOutageRate(), 0.1);
+    }
+
+    @Test
+    public void testDeserializeExtensionWithNotExistingLoader() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        String json = "{\"extensionName\":\"unknownName\",\"unknownAttribute1\":0.5,\"unknownAttribute2\":10.0,\"unknownAttribute3\":5.0,\"unknownAttribute4\":3.0,\"unknownAttribute5\":5.0}";
+
+        ExtensionAttributes unknownExtensionAttributes = mapper.readValue(json, ExtensionAttributes.class);
+        assertEquals(RawExtensionAttributes.class, unknownExtensionAttributes.getClass());
+        assertEquals("{\"unknownAttribute1\":0.5,\"unknownAttribute2\":10.0,\"unknownAttribute3\":5.0,\"unknownAttribute4\":3.0,\"unknownAttribute5\":5.0}", ((RawExtensionAttributes) unknownExtensionAttributes).getRawJson());
+    }
+
+    @Test
+    public void testGetUnknownExtension() {
+        NetworkImpl network = (NetworkImpl) CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
+        LineImpl line = (LineImpl) network.getLine("LINE1");
+        assertNotNull(line);
+        Resource<LineAttributes> lineResource = line.getResource();
+        assertNotNull(lineResource);
+        // Update line with RawExtensionAttributes
+        lineResource.getAttributes().setExtensionAttributes(Map.of("unknownName", new RawExtensionAttributes("{\"unknownAttribute1\":0.5,\"unknownAttribute2\":10.0,\"unknownAttribute3\":5.0,\"unknownAttribute4\":3.0,\"unknownAttribute5\":5.0}")));
+        line.getIndex().updateLineResource(line.getResource(), null);
+        Assertions.assertEquals(0, line.getExtensions().size());
+        Assertions.assertDoesNotThrow(() -> line.getExtensionByName("unknownName"));
     }
 
 }
