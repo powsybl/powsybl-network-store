@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -18,13 +19,8 @@ import java.util.Map;
 public class RawExtensionAttributesDeserializer extends JsonDeserializer<RawExtensionAttributes> {
 
     @Override
-    public RawExtensionAttributes deserialize(JsonParser p, DeserializationContext context) {
-        Map<String, Object> attributes;
-        try {
-            attributes = p.readValueAs(Map.class);
-        } catch (Exception e) {
-            attributes = Map.of();
-        }
+    public RawExtensionAttributes deserialize(JsonParser p, DeserializationContext context) throws IOException {
+        Map<String, Object> attributes = p.readValueAs(Map.class);
         return new RawExtensionAttributes(attributes);
     }
 }
