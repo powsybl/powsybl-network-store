@@ -46,11 +46,19 @@ public class AttributesTest {
     @Test
     public void testDeserializeExtensionWithNotExistingLoader() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        String json = "{\"extensionName\":\"unknownName\",\"unknownAttribute1\":0.5,\"unknownAttribute2\":10.0,\"unknownAttribute3\":5.0,\"unknownAttribute4\":3.0,\"unknownAttribute5\":5.0}";
+        String json = "{\"extensionName\":\"unknownName\",\"unknownAttribute1\":0.5,\"unknownAttribute2\":10.0,\"unknownAttribute3\": {\"unknownAttribute4\":3.0,\"unknownAttribute5\":5.0}}";
 
         ExtensionAttributes unknownExtensionAttributes = mapper.readValue(json, ExtensionAttributes.class);
         assertEquals(RawExtensionAttributes.class, unknownExtensionAttributes.getClass());
-        assertEquals("{\"unknownAttribute1\":0.5,\"unknownAttribute2\":10.0,\"unknownAttribute3\":5.0,\"unknownAttribute4\":3.0,\"unknownAttribute5\":5.0}", ((RawExtensionAttributes) unknownExtensionAttributes).getRawJson());
+        Map<String, Object> expectedMap = Map.of(
+                "unknownAttribute1", 0.5,
+                "unknownAttribute2", 10.0,
+                "unknownAttribute3", Map.of(
+                        "unknownAttribute4", 3.0,
+                        "unknownAttribute5", 5.0
+                )
+        );
+        assertEquals(expectedMap, ((RawExtensionAttributes) unknownExtensionAttributes).getAttributes());
     }
 
     @Test
@@ -61,7 +69,15 @@ public class AttributesTest {
         Resource<LineAttributes> lineResource = line.getResource();
         assertNotNull(lineResource);
         // Update line with RawExtensionAttributes
-        lineResource.getAttributes().setExtensionAttributes(Map.of("unknownName", new RawExtensionAttributes("{\"unknownAttribute1\":0.5,\"unknownAttribute2\":10.0,\"unknownAttribute3\":5.0,\"unknownAttribute4\":3.0,\"unknownAttribute5\":5.0}")));
+        Map<String, Object> unknownAttributes = Map.of(
+                "unknownAttribute1", 0.5,
+                "unknownAttribute2", 10.0,
+                "unknownAttribute3", Map.of(
+                        "unknownAttribute4", 3.0,
+                        "unknownAttribute5", 5.0
+                )
+        );
+        lineResource.getAttributes().setExtensionAttributes(Map.of("unknownName", new RawExtensionAttributes(unknownAttributes)));
         line.getIndex().updateLineResource(line.getResource(), null);
         Assertions.assertEquals(0, line.getExtensions().size());
         Assertions.assertDoesNotThrow(() -> line.getExtensionByName("unknownName"));

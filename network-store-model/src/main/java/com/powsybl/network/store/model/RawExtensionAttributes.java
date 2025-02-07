@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
@@ -19,5 +21,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonDeserialize(using = RawExtensionAttributesDeserializer.class)
 public class RawExtensionAttributes implements ExtensionAttributes {
-    private String rawJson;
+    private Map<String, Object> attributes;
 }
