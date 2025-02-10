@@ -202,7 +202,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private void removeAll(String target, String url, UUID networkUuid, int variantNum, List<String> ids) {
         for (List<String> idsPartition : Lists.partition(ids, RESOURCES_CREATION_CHUNK_SIZE)) {
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Deleting {} {} resources ({})...", ids.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(networkUuid, variantNum));
+                LOGGER.info("Deleting {} {} resources ({})...", idsPartition.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(networkUuid, variantNum));
             }
             Stopwatch stopwatch = Stopwatch.createStarted();
             try {
