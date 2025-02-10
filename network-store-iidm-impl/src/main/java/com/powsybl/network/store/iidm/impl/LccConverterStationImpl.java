@@ -75,7 +75,7 @@ public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterS
         }
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
-            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint(getId());
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!

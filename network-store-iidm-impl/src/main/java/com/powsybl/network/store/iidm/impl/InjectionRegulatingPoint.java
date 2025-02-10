@@ -7,6 +7,8 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
@@ -33,14 +35,20 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
     }
 
     @Override
-    protected void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal) {
+    protected void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode) {
         // if localTerminal or regulatingTerminal is not connected then the bus is null
         if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected() &&
             !localTerminal.getBusView().getBus().equals(regulatingTerminal.getBusView().getBus())) {
             switch (getAttributes().getRegulatingResourceType()) {
                 // for svc we set the regulation mode to Off if the regulation was not on the same bus than the svc. If the svc is on the same bus were the equipment was remove we keep the regulation
-                case STATIC_VAR_COMPENSATOR ->
+                case STATIC_VAR_COMPENSATOR -> {
                     setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF));
+                    reportNode.newReportNode()
+                        .withMessageTemplate("resetRegulationMode", "regulation mode of " + getRegulatingEquipmentId() +
+                            " has been reset du to target deletion. Its mode is now OFF")
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .add();
+                }
                 case GENERATOR, SHUNT_COMPENSATOR, VSC_CONVERTER_STATION -> {
                 }
                 default -> throw new PowsyblException("No regulation for this kind of equipment");

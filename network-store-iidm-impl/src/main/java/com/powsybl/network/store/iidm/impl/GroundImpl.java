@@ -30,7 +30,7 @@ public class GroundImpl extends AbstractInjectionImpl<Ground, GroundAttributes> 
         var resource = getResource();
         index.notifyBeforeRemoval(this);
         for (Terminal terminalImpl : getTerminals()) {
-            ((TerminalImpl<?>) terminalImpl).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminalImpl).removeAsRegulatingPoint(getId());
             ((TerminalImpl<?>) terminalImpl).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!

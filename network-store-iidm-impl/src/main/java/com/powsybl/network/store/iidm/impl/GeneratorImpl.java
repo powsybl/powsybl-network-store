@@ -99,7 +99,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         var resource = getResource();
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
-            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint(getId());
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         regulatingPoint.remove();
