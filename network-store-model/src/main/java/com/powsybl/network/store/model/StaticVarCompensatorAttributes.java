@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -19,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Static var compensator attributes")
-public class StaticVarCompensatorAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes {
+public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -61,4 +64,8 @@ public class StaticVarCompensatorAttributes extends AbstractIdentifiableAttribut
 
     @Schema(description = "Standby automaton")
     private StandbyAutomatonAttributes standbyAutomaton;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

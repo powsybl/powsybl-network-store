@@ -7,9 +7,9 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.network.store.model.ConnectablePositionAttributes;
-import com.powsybl.network.store.model.LegAttributes;
-import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
+import com.powsybl.network.store.model.*;
+
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -130,5 +130,15 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter extends Abstra
             case THREE -> attributes.setPosition3(position);
             default -> throw createUnknownSideException();
         }
+    }
+
+    @Override
+    public Set<RegulatingEquipmentIdentifier> getRegulatingEquipments() {
+        return attributes.getRegulatingEquipments();
+    }
+
+    @Override
+    public void setRegulatingEquipments(Set<RegulatingEquipmentIdentifier> regulatingEquipments) {
+        attributes.setRegulatingEquipments(regulatingEquipments);
     }
 }

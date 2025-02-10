@@ -173,6 +173,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
+        getDanglingLine1().getCurrentLimits().ifPresent(OperationalLimits::remove);
         return getDanglingLine1().newCurrentLimits();
     }
 
@@ -218,6 +219,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
+        getDanglingLine2().getCurrentLimits().ifPresent(OperationalLimits::remove);
         return getDanglingLine2().newCurrentLimits();
     }
 

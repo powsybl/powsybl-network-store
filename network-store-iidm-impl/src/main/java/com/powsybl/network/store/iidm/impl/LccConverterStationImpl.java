@@ -14,7 +14,7 @@ import com.powsybl.network.store.model.Resource;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation {
+public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation {
 
     public LccConverterStationImpl(NetworkObjectIndex index, Resource<LccConverterStationAttributes> resource) {
         super(index, resource);
@@ -45,7 +45,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         float oldValue = getResource().getAttributes().getPowerFactor();
         if (powerFactor != oldValue) {
             updateResource(res -> res.getAttributes().setPowerFactor(powerFactor));
-            index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
+            index.notifyUpdate(this, "powerFactor", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, powerFactor);
         }
         return this;
     }
@@ -61,7 +61,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
             updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
-            index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+            index.notifyUpdate(this, "lossFactor", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, lossFactor);
         }
         return this;
     }
@@ -76,10 +76,22 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeLccConverterStation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public HvdcLine getHvdcLine() {
+        // TODO: to optimize later on, this won't work with a lot of HVDC lines
+        return index.getHvdcLines()
+            .stream()
+            .filter(hvdcLine -> hvdcLine.getConverterStation1().getId().equals(getId())
+                || hvdcLine.getConverterStation2().getId().equals(getId()))
+            .findFirst()
+            .orElse(null);
     }
 }

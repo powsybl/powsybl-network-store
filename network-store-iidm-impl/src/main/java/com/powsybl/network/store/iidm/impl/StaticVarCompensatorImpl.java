@@ -20,7 +20,7 @@ import java.util.Collection;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCompensator, StaticVarCompensatorAttributes> implements StaticVarCompensator {
+public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<StaticVarCompensator, StaticVarCompensatorAttributes> implements StaticVarCompensator {
 
     public StaticVarCompensatorImpl(NetworkObjectIndex index, Resource<StaticVarCompensatorAttributes> resource) {
         super(index, resource);
@@ -46,7 +46,8 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         double oldValue = getResource().getAttributes().getBmin();
         if (bMin != oldValue) {
             updateResource(res -> res.getAttributes().setBmin(bMin));
-            index.notifyUpdate(this, "bMin", oldValue, bMin);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "bMin", variantId, oldValue, bMin);
         }
         return this;
     }
@@ -62,7 +63,8 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         double oldValue = getResource().getAttributes().getBmax();
         if (bMax != oldValue) {
             updateResource(res -> res.getAttributes().setBmax(bMax));
-            index.notifyUpdate(this, "bMax", oldValue, bMax);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "bMax", variantId, oldValue, bMax);
         }
         return this;
     }
@@ -103,7 +105,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public RegulationMode getRegulationMode() {
-        return RegulationMode.valueOf(getResource().getAttributes().getRegulationPoint().getRegulationMode());
+        return RegulationMode.valueOf(getResource().getAttributes().getRegulatingPoint().getRegulationMode());
     }
 
     @Override
@@ -184,6 +186,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         regulatingPoint.remove();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!

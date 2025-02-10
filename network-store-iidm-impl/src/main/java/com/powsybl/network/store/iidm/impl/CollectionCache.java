@@ -120,6 +120,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      */
     public void init() {
         fullyLoaded = true;
+        fullyLoadedExtensions = true;
     }
 
     public boolean isFullyLoaded() {
@@ -413,6 +414,11 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     private void addExtensionAttributesToCache(String identifiableId, String extensionName, ExtensionAttributes extensionAttributes) {
         Objects.requireNonNull(extensionAttributes);
 
+        // if the resource has been removed from the cache but not yet on server, don't add extensions to it
+        if (removedResources.contains(identifiableId)) {
+            return;
+        }
+
         getCachedExtensionAttributes(identifiableId).putIfAbsent(extensionName, extensionAttributes);
         Set<String> extensions = removedExtensionAttributes.get(identifiableId);
         if (extensions != null) {
@@ -446,7 +452,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             return getCachedExtensionAttributes(identifiableId);
         }
 
-        if (!isFullyLoadedIdentifiable(identifiableId)) {
+        if (!isFullyLoadedIdentifiable(identifiableId) && !removedResources.contains(identifiableId)) {
             Map<String, ExtensionAttributes> extensionAttributes = delegate.getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, type, identifiableId);
             if (extensionAttributes != null) {
                 addAllExtensionAttributesToCache(identifiableId, extensionAttributes);
@@ -472,6 +478,11 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      */
     private void addAllExtensionAttributesToCache(String id, Map<String, ExtensionAttributes> extensionAttributes) {
         Objects.requireNonNull(extensionAttributes);
+
+        // if the resource has been removed from the cache but not yet on server, don't add extensions to it
+        if (removedResources.contains(id)) {
+            return;
+        }
 
         extensionAttributes.forEach(getCachedExtensionAttributes(id)::putIfAbsent);
         fullyLoadedExtensionsByIdentifiableIds.add(id);
@@ -506,6 +517,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         if (resources.containsKey(identifiableId)) {
             Set<String> removedExtensionNames = getCachedExtensionAttributes(identifiableId).keySet();
             removedExtensionAttributes.computeIfAbsent(identifiableId, k -> new HashSet<>()).addAll(removedExtensionNames);
+            getCachedExtensionAttributes(identifiableId).clear();
         }
     }
 }

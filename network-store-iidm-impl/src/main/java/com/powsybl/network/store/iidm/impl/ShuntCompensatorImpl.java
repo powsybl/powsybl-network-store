@@ -16,7 +16,7 @@ import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator, ShuntCompensatorAttributes> implements ShuntCompensator {
+public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompensator, ShuntCompensatorAttributes> implements ShuntCompensator {
 
     public ShuntCompensatorImpl(NetworkObjectIndex index, Resource<ShuntCompensatorAttributes> resource) {
         super(index, resource);
@@ -97,8 +97,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         }
     }
 
-    public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        index.notifyUpdate(this, attribute, oldValue, newValue);
+    public void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+        index.notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
     @Override
@@ -117,16 +117,16 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return getResource().getAttributes().isVoltageRegulatorOn();
+        return this.isRegulating();
     }
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        boolean oldValue = getResource().getAttributes().isVoltageRegulatorOn();
+        boolean oldValue = this.isRegulating();
         if (voltageRegulatorOn != oldValue) {
-            updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
+            this.setRegulating(voltageRegulatorOn);
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         }
@@ -179,7 +179,9 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
+        regulatingPoint.remove();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeShuntCompensator(resource.getId());

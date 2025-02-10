@@ -9,9 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -37,15 +35,17 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public RegulationMode getRegulationMode() {
-        return getAttributes().getRegulationMode();
+        return PhaseTapChanger.RegulationMode.valueOf(getAttributes().getRegulatingPoint().getRegulationMode());
     }
 
     @Override
     public PhaseTapChanger setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
-        RegulationMode oldValue = getAttributes().getRegulationMode();
-        parent.getTransformer().updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
+        PhaseTapChanger.RegulationMode oldValue = getRegulationMode();
+        if (regulationMode != oldValue) {
+            regulatingPoint.setRegulationMode(String.valueOf(regulationMode));
+            notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
+        }
         return this;
     }
 
@@ -130,6 +130,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public void remove() {
+        regulatingPoint.remove();
         parent.setPhaseTapChanger(null);
     }
 
@@ -147,5 +148,37 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         if (Double.isNaN(step.getAlpha())) {
             throw new ValidationException(parent, "step alpha is not set");
         }
+    }
+
+    // equals and hashCode are overridden to ensure correct behavior of the PhaseTapChanger
+    // in hash table-based collections (e.g., HashSet, HashMap). Without these overrides, the default
+    // implementations include this.attributesGetter, which can lead to incorrect behavior in
+    // hash-based collections by affecting instance identification, retrieval and removal.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PhaseTapChangerImpl that = (PhaseTapChangerImpl) o;
+        if (!Objects.equals(that.getTransformer().getClass(), getTransformer().getClass())) {
+            return false;
+        }
+        // check phase tap changer are on same leg
+        if (that.getTransformer() instanceof ThreeWindingsTransformerImpl &&
+            !Objects.equals(((ThreeWindingsTransformerImpl.LegImpl) parent).getSide(),
+                ((ThreeWindingsTransformerImpl.LegImpl) that.getParent()).getSide())) {
+            return false;
+        }
+        return Objects.equals(getTransformer().getId(), that.getTransformer().getId()) &&
+            Objects.equals(getRegulationMode(), that.getRegulationMode()) &&
+            Objects.equals(getRegulationValue(), that.getRegulationValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getParent(), getTransformer().getId(), getRegulationMode(), getRegulationValue());
     }
 }

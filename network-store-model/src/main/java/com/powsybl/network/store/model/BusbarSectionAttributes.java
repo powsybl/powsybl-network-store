@@ -9,12 +9,12 @@ package com.powsybl.network.store.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,7 +24,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Busbar section attributes")
-public class BusbarSectionAttributes extends AbstractIdentifiableAttributes implements Contained {
+public class BusbarSectionAttributes extends AbstractIdentifiableAttributes implements Contained, RegulatedEquipmentAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -40,4 +40,8 @@ public class BusbarSectionAttributes extends AbstractIdentifiableAttributes impl
     public Set<String> getContainerIds() {
         return Collections.singleton(voltageLevelId);
     }
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

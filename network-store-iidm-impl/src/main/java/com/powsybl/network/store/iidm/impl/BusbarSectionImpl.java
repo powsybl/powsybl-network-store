@@ -43,6 +43,10 @@ public class BusbarSectionImpl extends AbstractConnectableImpl<BusbarSection, Bu
     public void remove() {
         var resource = getResource();
         index.notifyBeforeRemoval(this);
+        for (Terminal terminalImpl : getTerminals()) {
+            ((TerminalImpl<?>) terminalImpl).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminalImpl).getReferrerManager().notifyOfRemoval();
+        }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeBusBarSection(resource.getId());

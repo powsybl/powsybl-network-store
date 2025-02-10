@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -19,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Shunt compensator attributes")
-public class ShuntCompensatorAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes {
+public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -50,12 +53,13 @@ public class ShuntCompensatorAttributes extends AbstractIdentifiableAttributes i
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @Schema(description = "Voltage regulation status")
-    private boolean voltageRegulatorOn;
-
     @Schema(description = "targetV")
     private double targetV;
 
     @Schema(description = "targetDeadband")
     private double targetDeadband;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

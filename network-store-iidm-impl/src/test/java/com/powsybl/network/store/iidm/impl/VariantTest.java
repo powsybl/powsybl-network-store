@@ -164,11 +164,6 @@ public class VariantTest {
         }
 
         @Override
-        public void onUpdate(Identifiable identifiable, String s, Object o, Object o1) {
-            // Not tested here
-        }
-
-        @Override
         public void onVariantCreated(String sourceVariantId, String targetVariantId) {
             nbCreatedVariant++;
         }
@@ -176,6 +171,11 @@ public class VariantTest {
         @Override
         public void onVariantRemoved(String variantId) {
             nbRemovedVariant++;
+        }
+
+        @Override
+        public void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
+            // Not tested here
         }
 
         public int getNbCreatedVariant() {
@@ -212,9 +212,24 @@ public class VariantTest {
         }
 
         @Override
-        public void onExtensionUpdate(Extension<?> extendable, String attribute, Object oldValue, Object newValue) {
+        public void onExtensionUpdate(Extension<?> extendable, String attribute, String variantId, Object oldValue, Object newValue) {
             // TODO Auto-generated method stub
             throw new UnsupportedOperationException("Unimplemented method 'onExtensionUpdate'");
+        }
+
+        @Override
+        public void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
+            throw new UnsupportedOperationException("Unimplemented method 'onPropertyAdded'");
+        }
+
+        @Override
+        public void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
+            throw new UnsupportedOperationException("Unimplemented method 'onPropertyReplaced'");
+        }
+
+        @Override
+        public void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
+            throw new UnsupportedOperationException("Unimplemented method 'onPropertyRemoved'");
         }
     }
 }

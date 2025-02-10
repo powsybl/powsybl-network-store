@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -36,14 +37,28 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     private final TerminalBusViewImpl<U> busView;
 
-    private final List<RegulatingPoint> regulated = new ArrayList<>();
+    private final ReferrerManager<Terminal> referrerManager = new ReferrerManager<>(this);
 
     public TerminalImpl(NetworkObjectIndex index, Connectable<?> connectable, Function<Resource<U>, InjectionAttributes> attributesGetter) {
         this.index = index;
         this.connectable = connectable;
         this.attributesGetter = attributesGetter;
-        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, connectable, attributesGetter);
-        busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter);
+        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, connectable, attributesGetter) {
+            @Override
+            public void moveConnectable(int node, String voltageLevelId) {
+                TopologyPoint oldTopologyPoint = TerminalImpl.this.getTopologyPoint();
+                super.moveConnectable(node, voltageLevelId);
+                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), index.getNetwork().getVariantManager().getWorkingVariantId(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
+            }
+        };
+        busBreakerView = new TerminalBusBreakerViewImpl<>(index, connectable, attributesGetter) {
+            @Override
+            public void moveConnectable(String busId, boolean connected) {
+                TopologyPoint oldTopologyPoint = TerminalImpl.this.getTopologyPoint();
+                super.moveConnectable(busId, connected);
+                index.notifyUpdate(connectable, "terminal" + getSide().getNum(), index.getNetwork().getVariantManager().getWorkingVariantId(), oldTopologyPoint, TerminalImpl.this.getTopologyPoint());
+            }
+        };
         busView = new TerminalBusViewImpl<>(index, connectable, attributesGetter);
     }
 
@@ -55,8 +70,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return getTopologyKind() == TopologyKind.NODE_BREAKER;
     }
 
-    private boolean isBusBeakerTopologyKind() {
-        return getTopologyKind() == TopologyKind.BUS_BREAKER;
+    private TopologyPoint getTopologyPoint() {
+        return isNodeBeakerTopologyKind() ? new NodeTopologyPointImpl(getAttributes().getVoltageLevelId(), getNodeBreakerView().getNode()) : new BusTopologyPointImpl(getAttributes().getVoltageLevelId(), getBusBreakerView().getConnectableBus().getId(), isConnected());
     }
 
     @Override
@@ -348,6 +363,70 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         return testSwitchFromEdge(edge, SwitchPredicates.IS_OPEN);
     }
 
+    private Set<Integer> getConnectableNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        Set<Integer> busbarSectionNodes = index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+
+        Set<Integer> lineNodes = index.getStoreClient().getVoltageLevelLines(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getVoltageLevelId1().equals(getVoltageLevelId())
+                ? resource.getAttributes().getNode1()
+                : resource.getAttributes().getNode2()
+            )
+            .collect(Collectors.toSet());
+
+        Set<Integer> twoWindingsTransformerNodes = index.getStoreClient().getVoltageLevelTwoWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getVoltageLevelId1().equals(getVoltageLevelId())
+                ? resource.getAttributes().getNode1()
+                : resource.getAttributes().getNode2()
+            )
+            .collect(Collectors.toSet());
+
+        Set<Integer> threeWindingsTransformerNodes = index.getStoreClient().getVoltageLevelThreeWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> {
+                if (resource.getAttributes().getLeg1().getVoltageLevelId().equals(getVoltageLevelId())) {
+                    return resource.getAttributes().getLeg1().getNode();
+                } else if (resource.getAttributes().getLeg2().getVoltageLevelId().equals(getVoltageLevelId())) {
+                    return resource.getAttributes().getLeg2().getNode();
+                } else {
+                    return resource.getAttributes().getLeg3().getNode();
+                }
+            })
+            .collect(Collectors.toSet());
+
+        Set<Integer> generatorNodes = index.getStoreClient().getVoltageLevelGenerators(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> batteryNodes = index.getStoreClient().getVoltageLevelBatteries(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> loadNodes = index.getStoreClient().getVoltageLevelLoads(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> shuntCompensatorNodes = index.getStoreClient().getVoltageLevelShuntCompensators(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> staticVarCompensatorNodes = index.getStoreClient().getVoltageLevelStaticVarCompensators(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> danglingLineNodes = index.getStoreClient().getVoltageLevelDanglingLines(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> lccConverterStationNodes = index.getStoreClient().getVoltageLevelLccConverterStations(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> vscConverterStationNodes = index.getStoreClient().getVoltageLevelVscConverterStations(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+        Set<Integer> groundNodes = index.getStoreClient().getVoltageLevelGrounds(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+            .stream().map(resource -> resource.getAttributes().getNode())
+            .collect(Collectors.toSet());
+
+        return Stream.of(busbarSectionNodes, lineNodes, twoWindingsTransformerNodes, threeWindingsTransformerNodes, generatorNodes,
+                  batteryNodes, loadNodes, shuntCompensatorNodes, staticVarCompensatorNodes, danglingLineNodes,
+                  lccConverterStationNodes, vscConverterStationNodes, groundNodes).flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+
     /**
      * <p>This method is an adaptation of the same method from NodeBreakerVoltageLevel in powsybl-core, in order to keep
      * the same logic and the same results on both sides.</p>
@@ -363,12 +442,12 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         // Node of the present terminal (start of the paths)
         int node = getAttributes().getNode();
 
-        // Nodes of the busbar sections (end of the paths)
-        Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
+        // Nodes of the connectables (end of the paths)
+        Set<Integer> connectableNodes = getConnectableNodes(voltageLevelResource);
 
-        // find all paths starting from the current terminal to a busbar section that does not contain an open switch
+        // find all paths starting from the current terminal to a connectable that does not contain an open switch
         List<List<Edge>> paths = graph.findAllPaths(node,
-            busbarSectionNodes::contains,
+            connectableNodes::contains,
             this::isAnOpenSwitch,
             Comparator.comparing(List::size));
         if (paths.isEmpty()) {
@@ -570,20 +649,67 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     @Override
     public ThreeSides getSide() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSide'");
+        int terminalIndex = connectable.getTerminals().indexOf(this);
+        if (terminalIndex < 0) {
+            throw new IllegalStateException();
+        }
+        return ThreeSides.valueOf(terminalIndex + 1);
     }
 
-    public void addNewRegulatingPoint(RegulatingPoint regulatingPoint) {
-        regulated.add(regulatingPoint);
+    public void setAsRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
+        getAttributes().getRegulatingEquipments()
+            .add(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(), regulatingPoint.getRegulatingEquipmentType(),
+                regulatingPoint.getRegulatingTapChangerType()));
     }
 
-    public void removeRegulatingPoint(RegulatingPoint regulatingPoint) {
-        regulated.remove(regulatingPoint);
+    public void removeRegulatingPoint(AbstractRegulatingPoint regulatingPoint) {
+        getAttributes().getRegulatingEquipments()
+            .remove(new RegulatingEquipmentIdentifier(regulatingPoint.getRegulatingEquipmentId(),
+                regulatingPoint.getRegulatingEquipmentType(), regulatingPoint.getRegulatingTapChangerType()));
     }
 
     public void removeAsRegulatingPoint() {
-        regulated.forEach(RegulatingPoint::removeRegulation);
-        regulated.clear();
+        getAttributes().getRegulatingEquipments().forEach(regulatingEquipmentIdentifier -> {
+            Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());
+            if (identifiable instanceof AbstractRegulatingInjection<?, ?> regulatingEquipment) {
+                regulatingEquipment.getRegulatingPoint().removeRegulation();
+            } else if (identifiable instanceof TwoWindingsTransformerImpl twoWindingsTransformer) {
+                AbstractTapChanger abstractTapChanger;
+                if (regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER) {
+                    abstractTapChanger = (RatioTapChangerImpl) twoWindingsTransformer.getRatioTapChanger();
+                } else {
+                    abstractTapChanger = (PhaseTapChangerImpl) twoWindingsTransformer.getPhaseTapChanger();
+                }
+                abstractTapChanger.getRegulatingPoint().removeRegulation();
+            } else if (identifiable instanceof ThreeWindingsTransformerImpl threeWindingsTransformer) {
+                AbstractTapChanger abstractTapChanger = switch (regulatingEquipmentIdentifier.getRegulatingTapChangerType()) {
+                    case RATIO_TAP_CHANGER_SIDE_ONE ->
+                        (RatioTapChangerImpl) threeWindingsTransformer.getLeg1().getRatioTapChanger();
+                    case RATIO_TAP_CHANGER_SIDE_TWO ->
+                        (RatioTapChangerImpl) threeWindingsTransformer.getLeg2().getRatioTapChanger();
+                    case RATIO_TAP_CHANGER_SIDE_THREE ->
+                        (RatioTapChangerImpl) threeWindingsTransformer.getLeg3().getRatioTapChanger();
+                    case PHASE_TAP_CHANGER_SIDE_ONE ->
+                        (PhaseTapChangerImpl) threeWindingsTransformer.getLeg1().getPhaseTapChanger();
+                    case PHASE_TAP_CHANGER_SIDE_TWO ->
+                        (PhaseTapChangerImpl) threeWindingsTransformer.getLeg2().getPhaseTapChanger();
+                    case PHASE_TAP_CHANGER_SIDE_THREE ->
+                        (PhaseTapChangerImpl) threeWindingsTransformer.getLeg3().getPhaseTapChanger();
+                    default -> throw new PowsyblException("tap changer not found when removing regulation");
+                };
+                abstractTapChanger.getRegulatingPoint().removeRegulation();
+            }
+
+        });
+        getAttributes().getRegulatingEquipments().clear();
+    }
+
+    public ReferrerManager<Terminal> getReferrerManager() {
+        return referrerManager;
+    }
+
+    @Override
+    public List<Object> getReferrers() {
+        return referrerManager.getReferrers().stream().map(r -> (Object) r).toList();
     }
 }

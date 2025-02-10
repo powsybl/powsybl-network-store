@@ -115,9 +115,10 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         checkBusBreakerTopology();
 
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource(), true, true);
-        Set<Integer> done = new HashSet<>();
+        Set<Integer> encounteredVertices = new HashSet<>();
+        Set<Edge> encounteredEdges = new HashSet<>();
         for (int node : nodes) {
-            if (!traverseFromNodeDFS(graph, node, traverser, done)) {
+            if (!traverseFromNodeDFS(graph, node, traverser, encounteredVertices, encounteredEdges)) {
                 break;
             }
         }
@@ -133,39 +134,38 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     boolean traverseFromNode(int node, TraversalType traversalType, VoltageLevel.NodeBreakerView.TopologyTraverser traverser) {
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource(), true, true);
         if (traversalType == TraversalType.DEPTH_FIRST) {   // traversal by depth first
-            Set<Integer> done = new HashSet<>();
-            return traverseFromNodeDFS(graph, node, traverser, done);
+            return traverseFromNodeDFS(graph, node, traverser, new HashSet<>(), new HashSet<>());
         } else {
             return traverseFromNodeBFS(graph, node, traverser);
         }
     }
 
-    private boolean traverseFromNodeDFS(Graph<Integer, Edge> graph, int node, VoltageLevel.NodeBreakerView.TopologyTraverser traverser, Set<Integer> done) {
-        if (done.contains(node)) {
+    private boolean traverseFromNodeDFS(Graph<Integer, Edge> graph, int node, TopologyTraverser traverser, Set<Integer> encounteredVertices, Set<Edge> encounteredEdges) {
+        if (encounteredVertices.contains(node)) {
             return true;
         }
-        done.add(node);
+        encounteredVertices.add(node);
 
         for (Edge edge : graph.edgesOf(node)) {
-            NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
-            int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
-            TraverseResult result;
-            if (done.contains(nextNode)) {
-                continue;
-            }
-            if (biConnectable instanceof SwitchAttributes) {
-                result = traverseSwitch(traverser, biConnectable, node, nextNode);
-            } else if (biConnectable instanceof InternalConnectionAttributes) {
-                result = traverser.traverse(node, null, nextNode);
-            } else {
-                throw new AssertionError();
-            }
-            if (result == TraverseResult.CONTINUE) {
-                if (!traverseFromNodeDFS(graph, nextNode, traverser, done)) {
+            if (!encounteredEdges.contains(edge)) {
+                encounteredEdges.add(edge);
+                NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
+                int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
+                TraverseResult result;
+                if (biConnectable instanceof SwitchAttributes) {
+                    result = traverseSwitch(traverser, biConnectable, node, nextNode);
+                } else if (biConnectable instanceof InternalConnectionAttributes) {
+                    result = traverser.traverse(node, null, nextNode);
+                } else {
+                    throw new AssertionError();
+                }
+                if (result == TraverseResult.CONTINUE) {
+                    if (!traverseFromNodeDFS(graph, nextNode, traverser, encounteredVertices, encounteredEdges)) {
+                        return false;
+                    }
+                } else if (result == TraverseResult.TERMINATE_TRAVERSER) {
                     return false;
                 }
-            } else if (result == TraverseResult.TERMINATE_TRAVERSER) {
-                return false;
             }
         }
         return true;

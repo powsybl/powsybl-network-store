@@ -6,14 +6,12 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerAttributes;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,22 +21,29 @@ import java.util.function.Supplier;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> implements Validable {
 
     protected final H parent;
 
     protected final NetworkObjectIndex index;
 
     private final String type;
+    @Getter
+    protected final TapChangerRegulatingPoint regulatingPoint;
 
     AbstractTapChanger(H parent, NetworkObjectIndex index, String type) {
         this.parent = parent;
         this.index = index;
         this.type = Objects.requireNonNull(type);
+        regulatingPoint = new TapChangerRegulatingPoint(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
     }
 
     AbstractIdentifiableImpl<?, ?> getTransformer() {
         return parent.getTransformer();
+    }
+
+    protected H getParent() {
+        return parent;
     }
 
     protected Resource<?> getResource() {
@@ -48,14 +53,6 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     protected abstract TapChangerAttributes getAttributes();
 
     protected abstract TapChangerAttributes getAttributes(Resource<?> resource);
-
-    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
-        notifyUpdate(attribute.get(), oldValue, newValue);
-    }
-
-    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        index.notifyUpdate(getTransformer(), attribute, oldValue, newValue);
-    }
 
     protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
         index.notifyUpdate(getTransformer(), attribute.get(), variantId, oldValue, newValue);
@@ -69,7 +66,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         int oldValue = getAttributes().getLowTapPosition();
         if (lowTapPosition != oldValue) {
             getTransformer().updateResource(res -> getAttributes(res).setLowTapPosition(lowTapPosition));
-            notifyUpdate(() -> getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
+            notifyUpdate(() -> getTapChangerAttribute() + ".lowTapPosition", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, lowTapPosition);
         }
         return (C) this;
     }
@@ -94,32 +91,27 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public boolean isRegulating() {
-        return getAttributes().isRegulating();
+        return regulatingPoint.isRegulating();
     }
 
     public C setRegulating(boolean regulating) {
         ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
-        boolean oldValue = getAttributes().isRegulating();
+        boolean oldValue = isRegulating();
         if (regulating != oldValue) {
-            getTransformer().updateResource(res -> getAttributes(res).setRegulating(regulating));
+            regulatingPoint.setRegulating(regulating);
             notifyUpdate(() -> getTapChangerAttribute() + ".regulating", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulating);
         }
         return (C) this;
     }
 
-    public Terminal getRegulationTerminal() {
-        TerminalRefAttributes terminalRefAttributes = getAttributes().getRegulatingTerminal();
-        return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
+    public C setRegulationTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(parent, regulatingTerminal, parent.getNetwork());
+        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
+        return (C) this;
     }
 
-    public C setRegulationTerminal(Terminal regulatingTerminal) {
-        if (regulatingTerminal != null && regulatingTerminal.getVoltageLevel().getNetwork() != parent.getNetwork()) {
-            throw new ValidationException(parent, "regulation terminal is not part of the network");
-        }
-        TerminalRefAttributes oldValue = getAttributes().getRegulatingTerminal();
-        getTransformer().updateResource(res -> getAttributes(res).setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
-        return (C) this;
+    public Terminal getRegulationTerminal() {
+        return regulatingPoint.getRegulatingTerminal();
     }
 
     public double getTargetDeadband() {

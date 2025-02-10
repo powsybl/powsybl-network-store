@@ -10,8 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -104,4 +103,8 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
 
     @Schema(description = "selected OperationalLimitsGroupId2")
     private String selectedOperationalLimitsGroupId2;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

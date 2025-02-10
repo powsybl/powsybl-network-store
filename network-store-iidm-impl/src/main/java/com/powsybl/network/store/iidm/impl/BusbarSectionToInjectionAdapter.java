@@ -8,6 +8,9 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
+import com.powsybl.network.store.model.RegulatingEquipmentIdentifier;
+
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -86,5 +89,15 @@ public class BusbarSectionToInjectionAdapter extends AbstractIdentifiableToInjec
     @Override
     public void setPosition(ConnectablePositionAttributes position) {
         throw new AssertionError();
+    }
+
+    @Override
+    public Set<RegulatingEquipmentIdentifier> getRegulatingEquipments() {
+        return attributes.getRegulatingEquipments();
+    }
+
+    @Override
+    public void setRegulatingEquipments(Set<RegulatingEquipmentIdentifier> regulatingEquipments) {
+        attributes.setRegulatingEquipments(regulatingEquipments);
     }
 }

@@ -810,6 +810,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
+    public void flatten() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
     public void addListener(NetworkListener listener) {
         listeners.add(listener);
     }
@@ -1105,6 +1110,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     public Stream<Area> getAreaStream() {
         // TODO
         return Stream.empty();
+    }
+
+    @Override
+    public Network setMinimumAcceptableValidationLevel(ValidationLevel minLevel) {
+        // TODO implement this to comply with the test in AbstractNetworkTest testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork()
+        return this;
     }
 
     @Override

@@ -11,9 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -83,6 +81,10 @@ public class DanglingLineAttributes extends AbstractIdentifiableAttributes imple
 
     @Schema(description = "Tie line ID in case of a paired dangling line")
     private String tieLineId;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 
     @Override
     @JsonIgnore

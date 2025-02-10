@@ -11,6 +11,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashSet;
+import java.util.Set;
+
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -56,4 +60,8 @@ public class LoadAttributes extends AbstractIdentifiableAttributes implements In
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -65,7 +66,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
             double oldValue = getAttributes().getMaxP();
             if (maxP != oldValue) {
                 danglingLine.updateResource(res -> getAttributes(res).setMaxP(maxP));
-                danglingLine.notifyUpdate("maxP", oldValue, maxP);
+                String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
+                danglingLine.notifyUpdate("maxP", variantId, oldValue, maxP);
             }
             return this;
         }
@@ -82,7 +84,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
             double oldValue = getAttributes().getMinP();
             if (minP != oldValue) {
                 danglingLine.updateResource(res -> getAttributes(res).setMinP(minP));
-                danglingLine.notifyUpdate("minP", oldValue, minP);
+                String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
+                danglingLine.notifyUpdate("minP", variantId, oldValue, minP);
             }
             return this;
         }
@@ -115,7 +118,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
             boolean oldValue = getAttributes().isVoltageRegulationOn();
             if (voltageRegulationOn != oldValue) {
                 danglingLine.updateResource(res -> getAttributes(res).setVoltageRegulationOn(voltageRegulationOn));
-                danglingLine.notifyUpdate("voltageRegulationOn", oldValue, voltageRegulationOn);
+                String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
+                danglingLine.notifyUpdate("voltageRegulationOn", variantId, oldValue, voltageRegulationOn);
             }
             return this;
         }
@@ -151,7 +155,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
             ReactiveLimitsAttributes oldValue = getAttributes().getReactiveLimits();
             danglingLine.updateResource(res -> getAttributes(res).setReactiveLimits(reactiveLimits));
-            danglingLine.notifyUpdate("reactiveLimits", oldValue, reactiveLimits);
+            String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
+            danglingLine.notifyUpdate("reactiveLimits", variantId, oldValue, reactiveLimits);
         }
 
         @Override
@@ -197,10 +202,6 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         return new DanglingLineImpl(index, resource);
     }
 
-    public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        index.notifyUpdate(this, attribute, oldValue, newValue);
-    }
-
     public void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
         index.notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
@@ -211,6 +212,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
@@ -273,7 +275,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r));
-            notifyUpdate("r", oldValue, r);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            notifyUpdate("r", variantId, oldValue, r);
         }
         return this;
     }
@@ -289,7 +292,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         double oldValue = getResource().getAttributes().getX();
         if (x != oldValue) {
             updateResource(res -> res.getAttributes().setX(x));
-            notifyUpdate("x", oldValue, x);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            notifyUpdate("x", variantId, oldValue, x);
         }
         return this;
     }
@@ -305,7 +309,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         double oldValue = getResource().getAttributes().getG();
         if (g != oldValue) {
             updateResource(res -> res.getAttributes().setG(g));
-            notifyUpdate("g", oldValue, g);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            notifyUpdate("g", variantId, oldValue, g);
         }
         return this;
     }
@@ -321,7 +326,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         double oldValue = getResource().getAttributes().getB();
         if (b != oldValue) {
             updateResource(res -> res.getAttributes().setB(b));
-            notifyUpdate("b", oldValue, b);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            notifyUpdate("b", variantId, oldValue, b);
         }
         return this;
     }
@@ -360,9 +366,29 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     public void setCurrentLimits(Void side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
         var operationalLimitsGroup = getResource().getAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
-        LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
-        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(currentLimits));
-        notifyUpdate("currentLimits", oldValue, currentLimits);
+        LimitsAttributes oldLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
+        LimitsAttributes newLimits = mergeLimitsAttribute(oldLimits, currentLimits);
+        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(newLimits));
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        notifyUpdate("currentLimits", variantId, oldLimits, currentLimits);
+    }
+
+    private LimitsAttributes mergeLimitsAttribute(LimitsAttributes oldLimits, LimitsAttributes completeValue) {
+        if (oldLimits == null || completeValue == null) {
+            return completeValue;
+        }
+        if (!Double.isNaN(completeValue.getPermanentLimit())) {
+            oldLimits.setPermanentLimit(completeValue.getPermanentLimit());
+        }
+        if (completeValue.getTemporaryLimits() != null && !completeValue.getTemporaryLimits().isEmpty()) {
+            if (oldLimits.getTemporaryLimits() == null) {
+                oldLimits.setTemporaryLimits(completeValue.getTemporaryLimits());
+            } else {
+                oldLimits.getTemporaryLimits().putAll(completeValue.getTemporaryLimits());
+            }
+        }
+        return oldLimits;
+
     }
 
     @Override
@@ -437,16 +463,20 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     public void setApparentPowerLimits(Void unused, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId) {
         var operationalLimitsGroup = getResource().getAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
         LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
-        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes));
-        notifyUpdate("apparentLimits", oldValue, apparentPowerLimitsAttributes);
+        LimitsAttributes newValue = mergeLimitsAttribute(oldValue, apparentPowerLimitsAttributes);
+        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(newValue));
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        notifyUpdate("apparentLimits", variantId, oldValue, apparentPowerLimitsAttributes);
     }
 
     @Override
     public void setActivePowerLimits(Void unused, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId) {
         var operationalLimitsGroup = getResource().getAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
         LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
-        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes));
-        notifyUpdate("activeLimits", oldValue, activePowerLimitsAttributes);
+        LimitsAttributes newValue = mergeLimitsAttribute(oldValue, activePowerLimitsAttributes);
+        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(newValue));
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        notifyUpdate("activeLimits", variantId, oldValue, activePowerLimitsAttributes);
     }
 
     @Override
@@ -460,7 +490,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         String tieLineId = tieLine != null ? tieLine.getId() : null;
         updateResource(res -> res.getAttributes().setTieLineId(tieLineId));
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        notifyUpdate("tieLineId", oldValue, tieLineId);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        notifyUpdate("tieLineId", variantId, oldValue, tieLineId);
     }
 
     void removeTieLine() {
@@ -512,7 +543,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
         if (!id.equals(oldValue)) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(id));
-            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, id);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, variantId, oldValue, id);
         }
     }
 
@@ -524,7 +556,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
         if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId())) {
             resource.getAttributes().setSelectedOperationalLimitsGroupId(null);
-            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, null);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, variantId, id, null);
         }
         updateResource(res -> res.getAttributes().getOperationalLimitsGroups().remove(id));
     }
@@ -535,7 +568,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
         if (oldValue != null) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(null));
-            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID, variantId, oldValue, null);
         }
     }
 }
