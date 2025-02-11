@@ -147,7 +147,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
     public void remove() {
         var resource = getResource();
         for (Terminal terminal : getTerminals()) {
-            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint(getId());
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         regulatingPoint.remove();

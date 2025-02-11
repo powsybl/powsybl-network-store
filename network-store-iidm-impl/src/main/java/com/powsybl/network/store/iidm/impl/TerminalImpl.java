@@ -669,11 +669,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                 regulatingPoint.getRegulatingEquipmentType(), regulatingPoint.getRegulatingTapChangerType()));
     }
 
-    public void removeAsRegulatingPoint(String regulatedEquipmentId) {
+    public void removeAsRegulatingPoint() {
         getAttributes().getRegulatingEquipments().forEach(regulatingEquipmentIdentifier -> {
             Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());
             if (identifiable instanceof AbstractRegulatingInjection<?, ?> regulatingEquipment) {
-                regulatingEquipment.getRegulatingPoint().removeRegulation(index.getNetwork().getReportNodeContext().getReportNode());
+                regulatingEquipment.getRegulatingPoint().removeRegulation(connectable.getNetwork().getReportNodeContext().getReportNode());
             } else if (identifiable instanceof TwoWindingsTransformerImpl twoWindingsTransformer) {
                 AbstractTapChanger abstractTapChanger;
                 if (regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER) {
@@ -681,7 +681,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                 } else {
                     abstractTapChanger = (PhaseTapChangerImpl) twoWindingsTransformer.getPhaseTapChanger();
                 }
-                abstractTapChanger.getRegulatingPoint().removeRegulation(index.getNetwork().getReportNodeContext().getReportNode());
+                abstractTapChanger.getRegulatingPoint().removeRegulation(connectable.getNetwork().getReportNodeContext().getReportNode());
             } else if (identifiable instanceof ThreeWindingsTransformerImpl threeWindingsTransformer) {
                 AbstractTapChanger abstractTapChanger = switch (regulatingEquipmentIdentifier.getRegulatingTapChangerType()) {
                     case RATIO_TAP_CHANGER_SIDE_ONE ->
@@ -698,16 +698,16 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                         (PhaseTapChangerImpl) threeWindingsTransformer.getLeg3().getPhaseTapChanger();
                     default -> throw new PowsyblException("tap changer not found when removing regulation");
                 };
-                abstractTapChanger.getRegulatingPoint().removeRegulation(index.getNetwork().getReportNodeContext().getReportNode());
+                abstractTapChanger.getRegulatingPoint().removeRegulation(connectable.getNetwork().getReportNodeContext().getReportNode());
             }
 
         });
         String regulatingEquiments = getAttributes().getRegulatingEquipments().stream()
             .map(RegulatingEquipmentIdentifier::getEquipmentId).collect(Collectors.joining(", "));
-        index.getNetwork().getReportNodeContext().getReportNode().newReportNode()
+        connectable.getNetwork().getReportNodeContext().getReportNode().newReportNode()
             .withMessageTemplate("regulatedTerminalDeleted", "${identifiableId} has been deleted and it was regulated. " +
-                "the following regulating equipments have their regulation set to Local : [${regulatingEquipments}] ")
-            .withUntypedValue("identifiableId", regulatedEquipmentId)
+                "The following regulating equipments have their regulation set to Local : [${regulatingEquipments}] ")
+            .withUntypedValue("identifiableId", connectable.getId())
             .withUntypedValue("regulatingEquipments", regulatingEquiments)
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();

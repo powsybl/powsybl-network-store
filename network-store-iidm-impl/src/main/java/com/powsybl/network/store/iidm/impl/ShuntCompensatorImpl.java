@@ -178,7 +178,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         var resource = getResource();
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
-            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint(getId());
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         regulatingPoint.remove();

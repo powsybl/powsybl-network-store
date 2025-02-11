@@ -211,7 +211,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         var resource = getResource();
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
-            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint(getId());
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
