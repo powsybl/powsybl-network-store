@@ -38,8 +38,8 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
             case PHASE_TAP_CHANGER, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE -> {
                 setRegulationMode(String.valueOf(PhaseTapChanger.RegulationMode.FIXED_TAP));
                 reportNode.newReportNode()
-                    .withMessageTemplate("resetRegulationMode", "regulation mode of phase tap changer of " + getRegulatingEquipmentId() +
-                        " has been reset du to target deletion. Its mode is now FIXED TAP")
+                    .withMessageTemplate("resetRegulationMode", "regulation mode of phase tap changer of ${identifiableId} has been reset to FIXED TAP due to deletion of his regulating terminal")
+                    .withUntypedValue("identifiableId", getRegulatingEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
             }

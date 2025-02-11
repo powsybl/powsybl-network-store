@@ -44,8 +44,8 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
                 case STATIC_VAR_COMPENSATOR -> {
                     setRegulationMode(String.valueOf(StaticVarCompensator.RegulationMode.OFF));
                     reportNode.newReportNode()
-                        .withMessageTemplate("resetRegulationMode", "regulation mode of " + getRegulatingEquipmentId() +
-                            " has been reset du to target deletion. Its mode is now OFF")
+                        .withMessageTemplate("resetRegulationMode", "regulation mode of ${identifiableId} has been reset to OFF due to deletion of its regulating terminal")
+                        .withUntypedValue("identifiableId", getRegulatingEquipmentId())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
                 }
