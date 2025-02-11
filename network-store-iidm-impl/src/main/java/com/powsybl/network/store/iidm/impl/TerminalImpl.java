@@ -702,13 +702,13 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             }
 
         });
-
+        String regulatingEquiments = getAttributes().getRegulatingEquipments().stream()
+            .map(RegulatingEquipmentIdentifier::getEquipmentId).collect(Collectors.joining(", "));
         index.getNetwork().getReportNodeContext().getReportNode().newReportNode()
             .withMessageTemplate("regulatedTerminalDeleted", "${identifiableId} has been deleted and it was regulated. " +
-                "the following regulating equipments have their regulation set to Local : " +
-                getAttributes().getRegulatingEquipments().stream()
-                    .map(RegulatingEquipmentIdentifier::getEquipmentId).collect(Collectors.joining(", ")))
+                "the following regulating equipments have their regulation set to Local : [${regulatingEquipments}] ")
             .withUntypedValue("identifiableId", regulatedEquipmentId)
+            .withUntypedValue("regulatingEquipments", regulatingEquiments)
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
         getAttributes().getRegulatingEquipments().clear();
