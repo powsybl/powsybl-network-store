@@ -331,6 +331,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     public <E extends Extension<I>> Collection<E> getExtensions() {
         index.loadAllExtensionsAttributesByIdentifiableId(resource.getType(), resource.getId());
         return resource.getAttributes().getExtensionAttributes().keySet().stream()
+                .filter(ExtensionLoaders::loaderExists)
                 .map(name -> (E) ExtensionLoaders.findLoaderByName(name).load(this))
                 .collect(Collectors.toList());
     }
