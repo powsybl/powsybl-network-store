@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
@@ -30,6 +31,7 @@ import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -933,6 +935,53 @@ public class CachedNetworkStoreClientTest {
                 .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
         Optional<ExtensionAttributes> extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
         assertTrue(extensionAttributesResult.isPresent());
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testClone() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.randomUUID();
+        int targetVariantNum1 = 1;
+        String targetVariantId1 = "variant1";
+        int targetVariantNum2 = 2;
+        String targetVariantId2 = "variant2";
+        // Load network to cache
+        Resource<NetworkAttributes> n1 = Resource.networkBuilder()
+                .id("n1")
+                .attributes(NetworkAttributes.builder()
+                        .uuid(networkUuid)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n1)), MediaType.APPLICATION_JSON));
+        cachedClient.getNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        server.verify();
+        server.reset();
+        // Partial clone 0 -> 1
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
+        Optional<Resource<NetworkAttributes>> networkOpt = cachedClient.getNetwork(networkUuid, targetVariantNum1);
+        assertTrue(networkOpt.isPresent());
+        NetworkAttributes networkAttributes = networkOpt.get().getAttributes();
+        assertEquals(0, networkAttributes.getFullVariantNum());
+        server.verify();
+        server.reset();
+        // Partial clone 1 -> 2
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        cachedClient.cloneNetwork(networkUuid, targetVariantNum1, targetVariantNum2, targetVariantId2);
+        networkOpt = cachedClient.getNetwork(networkUuid, targetVariantNum2);
+        assertTrue(networkOpt.isPresent());
+        networkAttributes = networkOpt.get().getAttributes();
+        assertEquals(0, networkAttributes.getFullVariantNum());
         server.verify();
         server.reset();
     }
