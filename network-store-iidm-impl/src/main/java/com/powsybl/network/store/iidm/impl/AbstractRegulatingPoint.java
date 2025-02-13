@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.*;
@@ -77,7 +78,7 @@ public abstract class AbstractRegulatingPoint {
         }
     }
 
-    protected abstract void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal);
+    protected abstract void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode);
 
     void remove() {
         TerminalImpl<?> regulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
@@ -87,14 +88,14 @@ public abstract class AbstractRegulatingPoint {
         }
     }
 
-    public void removeRegulation() {
+    public void removeRegulation(ReportNode reportNode) {
         Terminal localTerminal = TerminalRefUtils.getTerminal(index,
             getAttributes().getLocalTerminal());
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         // set local terminal as regulating terminal
         resetRegulationToLocalTerminal();
         // rest regulation mode for equipment having one
-        resetRegulationMode(regulatingTerminal, localTerminal);
+        resetRegulationMode(regulatingTerminal, localTerminal, reportNode);
     }
 
     public Boolean isRegulating() {
