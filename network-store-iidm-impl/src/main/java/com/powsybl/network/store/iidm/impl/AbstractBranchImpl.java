@@ -620,12 +620,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     private void loadOperationalLimitsGroup(TwoSides side) {
         String groupId;
-        if (side == TwoSides.ONE) {
-            groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId1();
-        } else if (side == TwoSides.TWO) {
-            groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId2();
-        } else {
-            throw new PowsyblException("can not load limits on branch for a side null");
+        switch (side) {
+            case TwoSides.ONE -> groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId1();
+            case TwoSides.TWO -> groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId2();
+            default -> throw new PowsyblException("can not load limits on branch for a side null");
         }
         if (groupId != null) {
             index.loadOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), groupId, side.getNum());
@@ -634,12 +632,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     private void loadCurrentLimitsGroup(TwoSides side) {
         String groupId;
-        if (side == TwoSides.ONE) {
-            groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId1();
-        } else if (side == TwoSides.TWO) {
-            groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId2();
-        } else {
-            throw new PowsyblException("can not load limits on branch for a side null");
+        switch (side) {
+            case TwoSides.ONE -> groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId1();
+            case TwoSides.TWO -> groupId = getResource().getAttributes().getSelectedOperationalLimitsGroupId2();
+            default -> throw new PowsyblException("can not load limits on branch for a side null");
         }
         if (groupId != null) {
             index.loadCurrentLimitsGroupAttributes(ResourceType.convert(getType()), getId(), groupId, side.getNum());
