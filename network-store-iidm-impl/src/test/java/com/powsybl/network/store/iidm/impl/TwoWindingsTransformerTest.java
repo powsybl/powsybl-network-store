@@ -333,4 +333,54 @@ class TwoWindingsTransformerTest {
         assertEquals(14., twt.getRatedU2());
         assertEquals(16., twt.getRatedS());
     }
+
+    @Test
+    void createWithVoltageRegulationTest() {
+        Network network = createNetwork();
+        network.getSubstation("37e14a0f-5e34-4647-a062-8bfd9305fa9d")
+            .newTwoWindingsTransformer()
+            .setId("test")
+            .setVoltageLevel1("b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c")
+            .setConnectableBus1("99b219f3-4593-428b-a4da-124a54630178")
+            .setVoltageLevel2("469df5f7-058f-4451-a998-57a48e8a56fe")
+            .setConnectableBus2("e44141af-f1dc-44d3-bfa4-b674e5c953d7")
+            .setR(250)
+            .setX(100)
+            .setG(52)
+            .setB(12)
+            .setRatedU1(225)
+            .setRatedU2(380)
+            .add();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("test");
+        twt.newRatioTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(0)
+            .setRegulating(false)
+            .setRegulationTerminal(network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b").getTerminal())
+            .setTargetDeadband(22)
+            .setTargetV(220)
+            .beginStep()
+            .setRho(0.99)
+            .setR(1.)
+            .setX(4.)
+            .setG(0.5)
+            .setB(1.5)
+            .endStep()
+            .beginStep()
+            .setRho(1)
+            .setR(1.1)
+            .setX(4.1)
+            .setG(0.6)
+            .setB(1.6)
+            .endStep()
+            .beginStep()
+            .setRho(1.01)
+            .setR(1.2)
+            .setX(4.2)
+            .setG(0.7)
+            .setB(1.7)
+            .endStep()
+            .add();
+        assertEquals(network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b").getTerminal(), twt.getRatioTapChanger().getRegulationTerminal());
+    }
 }

@@ -13,12 +13,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>15</version>
+        <version>21</version>
         <relativePath/>
     </parent>
 
     <artifactId>powsybl-network-store-client-parent</artifactId>
-    <version>1.23.0-SNAPSHOT</version>
+    <version>1.24.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
     <name>Network store client parent</name>

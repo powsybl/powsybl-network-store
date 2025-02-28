@@ -181,8 +181,9 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
 
         tapChangerParent.setRatioTapChanger(ratioTapChangerAttributes);
-
-        return new RatioTapChangerImpl(tapChangerParent, index, attributesGetter);
+        RatioTapChangerImpl ratioTapChanger = new RatioTapChangerImpl(tapChangerParent, index, attributesGetter);
+        ratioTapChanger.setRegulationTerminal(regulatingTerminal);
+        return ratioTapChanger;
     }
 
     @Override
