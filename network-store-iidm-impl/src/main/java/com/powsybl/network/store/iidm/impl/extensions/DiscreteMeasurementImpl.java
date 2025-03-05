@@ -28,6 +28,8 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
 
     AbstractIdentifiableImpl<?, ?> abstractIdentifiable;
 
+    private static final String VALUE_FOR = "value for ";
+
     public DiscreteMeasurementImpl(DiscreteMeasurements<?> discreteMeasurements, AbstractIdentifiableImpl<?, ?> abstractIdentifiable, DiscreteMeasurementAttributes discreteMeasurementAttributes) {
         this.discreteMeasurements = discreteMeasurements;
         this.discreteMeasurementAttributes = discreteMeasurementAttributes;
@@ -124,7 +126,7 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
         discreteMeasurementAttributes.setValueType(ValueType.STRING);
         discreteMeasurementAttributes.setValue(value);
         updateResource();
-        this.abstractIdentifiable.notifyExtensionUpdate(discreteMeasurements, "value for " + getInfo(), oldValue, value);
+        this.abstractIdentifiable.notifyExtensionUpdate(discreteMeasurements, VALUE_FOR + getInfo(), oldValue, value);
         return this;
     }
 
@@ -134,7 +136,7 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
         discreteMeasurementAttributes.setValueType(ValueType.INT);
         discreteMeasurementAttributes.setValue(value);
         updateResource();
-        this.abstractIdentifiable.notifyExtensionUpdate(discreteMeasurements, "value for " + getInfo(), oldValue, value);
+        this.abstractIdentifiable.notifyExtensionUpdate(discreteMeasurements, VALUE_FOR + getInfo(), oldValue, value);
         return this;
     }
 
@@ -144,7 +146,7 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
         discreteMeasurementAttributes.setValueType(ValueType.BOOLEAN);
         discreteMeasurementAttributes.setValue(value);
         updateResource();
-        this.abstractIdentifiable.notifyExtensionUpdate(discreteMeasurements, "value for " + getInfo(), oldValue, value);
+        this.abstractIdentifiable.notifyExtensionUpdate(discreteMeasurements, VALUE_FOR + getInfo(), oldValue, value);
         return this;
     }
 
