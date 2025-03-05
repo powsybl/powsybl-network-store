@@ -10,7 +10,6 @@ import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
@@ -18,7 +17,7 @@ import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class CimCharacteristicsAdderImpl extends AbstractExtensionAdder<Network, CimCharacteristics> implements CimCharacteristicsAdder {
+public class CimCharacteristicsAdderImpl extends AbstractIidmExtensionAdder<Network, CimCharacteristics> implements CimCharacteristicsAdder {
     private CgmesTopologyKind cgmesTopologyKind;
     private Integer cimVersion;
 

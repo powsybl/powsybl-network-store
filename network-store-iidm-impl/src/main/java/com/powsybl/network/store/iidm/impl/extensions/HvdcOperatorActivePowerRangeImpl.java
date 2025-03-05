@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.network.store.iidm.impl.HvdcLineImpl;
+import com.powsybl.network.store.model.HvdcOperatorActivePowerRangeAttributes;
 
 import java.util.Objects;
 
@@ -21,41 +22,43 @@ import java.util.Objects;
  */
 public class HvdcOperatorActivePowerRangeImpl extends AbstractExtension<HvdcLine> implements HvdcOperatorActivePowerRange {
 
-    private HvdcLineImpl hvdcLine;
-
     public HvdcOperatorActivePowerRangeImpl(HvdcLineImpl hvdcLine) {
-        this.hvdcLine = Objects.requireNonNull(hvdcLine);
+        super(Objects.requireNonNull(hvdcLine));
     }
 
-    @Override
-    public HvdcLine getExtendable() {
-        return hvdcLine;
+    private HvdcLineImpl getHvdcLine() {
+        return (HvdcLineImpl) getExtendable();
     }
 
-    @Override
-    public void setExtendable(HvdcLine hvdcLine) {
-        this.hvdcLine = (HvdcLineImpl) hvdcLine;
+    private HvdcOperatorActivePowerRangeAttributes getHvdcOperatorActivePowerRangeAttributes() {
+        return getHvdcLine().getResource().getAttributes().getHvdcOperatorActivePowerRange();
     }
 
     @Override
     public float getOprFromCS1toCS2() {
-        return hvdcLine.getResource().getAttributes().getHvdcOperatorActivePowerRange().getOprFromCS1toCS2();
+        return getHvdcOperatorActivePowerRangeAttributes().getOprFromCS1toCS2();
     }
 
     @Override
     public float getOprFromCS2toCS1() {
-        return hvdcLine.getResource().getAttributes().getHvdcOperatorActivePowerRange().getOprFromCS2toCS1();
+        return getHvdcOperatorActivePowerRangeAttributes().getOprFromCS2toCS1();
     }
 
     @Override
     public HvdcOperatorActivePowerRangeImpl setOprFromCS1toCS2(float oprFromCS1toCS2) {
-        hvdcLine.updateResource(res -> res.getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS1toCS2(checkOPR(oprFromCS1toCS2, getExtendable().getConverterStation1(), getExtendable().getConverterStation2())));
+        float oldValue = getOprFromCS1toCS2();
+        if (oldValue != oprFromCS1toCS2) {
+            getHvdcLine().updateResourceExtension(this, res -> res.getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS1toCS2(checkOPR(oprFromCS1toCS2, getHvdcLine().getConverterStation1(), getHvdcLine().getConverterStation2())), "oprFromCS1toCS2", oldValue, oprFromCS1toCS2);
+        }
         return this;
     }
 
     @Override
     public HvdcOperatorActivePowerRangeImpl setOprFromCS2toCS1(float oprFromCS2toCS1) {
-        hvdcLine.updateResource(res -> res.getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS2toCS1(checkOPR(oprFromCS2toCS1, getExtendable().getConverterStation1(), getExtendable().getConverterStation2())));
+        float oldValue = getOprFromCS2toCS1();
+        if (oldValue != oprFromCS2toCS1) {
+            getHvdcLine().updateResourceExtension(this, res -> res.getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS2toCS1(checkOPR(oprFromCS2toCS1, getHvdcLine().getConverterStation1(), getHvdcLine().getConverterStation2())), "oprFromCS2toCS1", oldValue, oprFromCS2toCS1);
+        }
         return this;
     }
 

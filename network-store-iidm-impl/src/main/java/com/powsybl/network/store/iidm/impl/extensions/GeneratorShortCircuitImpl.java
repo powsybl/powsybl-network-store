@@ -34,7 +34,10 @@ public class GeneratorShortCircuitImpl extends AbstractExtension<Generator> impl
 
     @Override
     public GeneratorShortCircuit setDirectSubtransX(double directSubtransX) {
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorShortCircuitAttributes().setDirectSubtransX(directSubtransX));
+        double oldValue = getDirectSubtransX();
+        if (oldValue != directSubtransX) {
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getGeneratorShortCircuitAttributes().setDirectSubtransX(directSubtransX), "directSubtransX", oldValue, directSubtransX);
+        }
         return this;
     }
 
@@ -48,7 +51,10 @@ public class GeneratorShortCircuitImpl extends AbstractExtension<Generator> impl
         if (Double.isNaN(directTransX)) {
             throw new PowsyblException("Undefined directTransX");
         }
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorShortCircuitAttributes().setDirectTransX(directTransX));
+        double oldValue = getDirectTransX();
+        if (oldValue != directTransX) {
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getGeneratorShortCircuitAttributes().setDirectTransX(directTransX), "directTransX", oldValue, directTransX);
+        }
         return this;
     }
 
@@ -60,7 +66,10 @@ public class GeneratorShortCircuitImpl extends AbstractExtension<Generator> impl
 
     @Override
     public GeneratorShortCircuit setStepUpTransformerX(double stepUpTransformerX) {
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorShortCircuitAttributes().setStepUpTransformerX(stepUpTransformerX));
+        double oldValue = getStepUpTransformerX();
+        if (oldValue != stepUpTransformerX) {
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getGeneratorShortCircuitAttributes().setStepUpTransformerX(stepUpTransformerX), "stepUpTransformerX", oldValue, stepUpTransformerX);
+        }
         return this;
     }
 }

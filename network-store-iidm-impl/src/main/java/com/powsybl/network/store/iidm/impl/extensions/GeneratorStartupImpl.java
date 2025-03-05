@@ -36,8 +36,10 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setPlannedActivePowerSetpoint(double predefinedActivePowerSetpoint) {
-        getGenerator().updateResource(res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)
-        ).setPlannedActivePowerSetpoint(predefinedActivePowerSetpoint));
+        double oldValue = getPlannedActivePowerSetpoint();
+        if (oldValue != predefinedActivePowerSetpoint) {
+            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setPlannedActivePowerSetpoint(predefinedActivePowerSetpoint), "plannedActivePowerSetpoint", oldValue, predefinedActivePowerSetpoint);
+        }
         return this;
     }
 
@@ -48,9 +50,10 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartup setStartupCost(double startUpCost) {
-        getGenerator().updateResource(res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)
-        )
-                .setStartupCost(startUpCost));
+        double oldValue = getStartupCost();
+        if (oldValue != startUpCost) {
+            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setStartupCost(startUpCost), "startupCost", oldValue, startUpCost);
+        }
         return this;
     }
 
@@ -61,9 +64,10 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setMarginalCost(double marginalCost) {
-        getGenerator().updateResource(res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)
-        )
-                .setMarginalCost(marginalCost));
+        double oldValue = getMarginalCost();
+        if (oldValue != marginalCost) {
+            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setMarginalCost(marginalCost), "marginalCost", oldValue, marginalCost);
+        }
         return this;
     }
 
@@ -74,9 +78,10 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setPlannedOutageRate(double plannedOutageRate) {
-        getGenerator().updateResource(res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)
-        )
-                .setPlannedOutageRate(plannedOutageRate));
+        double oldValue = getPlannedOutageRate();
+        if (oldValue != plannedOutageRate) {
+            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setPlannedOutageRate(plannedOutageRate), "plannedOutageRate", oldValue, plannedOutageRate);
+        }
         return this;
     }
 
@@ -87,9 +92,10 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setForcedOutageRate(double forcedOutageRate) {
-        getGenerator().updateResource(res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)
-        )
-                .setForcedOutageRate(forcedOutageRate));
+        double oldValue = getPlannedOutageRate();
+        if (oldValue != forcedOutageRate) {
+            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setForcedOutageRate(forcedOutageRate), "forcedOutageRate", oldValue, forcedOutageRate);
+        }
         return this;
     }
 }

@@ -60,7 +60,7 @@ public class PilotPointAdderImpl implements PilotPointAdder {
                 .targetV(targetV)
                 .build();
         NetworkImpl network = parent.getNetwork();
-        parent.setPilotPoint(new PilotPointImpl(network, pilotPointAttributes));
+        parent.setPilotPoint(new PilotPointImpl(null, null, network, pilotPointAttributes));
         return parent;
     }
 }

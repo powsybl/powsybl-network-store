@@ -20,11 +20,14 @@ import java.util.Set;
  */
 public class MeasurementImpl implements Measurement {
 
+    private final Measurements<?> measurements;
+
     private final MeasurementAttributes measurementAttributes;
 
     AbstractIdentifiableImpl<?, ?> abstractIdentifiable;
 
-    public MeasurementImpl(AbstractIdentifiableImpl abstractIdentifiable, MeasurementAttributes measurementAttributes) {
+    public MeasurementImpl(Measurements<?> measurements, AbstractIdentifiableImpl<?, ?> abstractIdentifiable, MeasurementAttributes measurementAttributes) {
+        this.measurements = measurements;
         this.measurementAttributes = measurementAttributes;
         this.abstractIdentifiable = abstractIdentifiable;
     }
@@ -58,22 +61,28 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public Measurement putProperty(String name, String property) {
+        String oldValue = getProperty(name);
         this.measurementAttributes.getProperties().put(name, property);
         updateResource();
+        this.abstractIdentifiable.notifyExtensionUpdate(measurements, "property " + name + " for " + getInfo(), oldValue, property);
         return this;
     }
 
     @Override
     public Measurement removeProperty(String id) {
+        String oldValue = getProperty(id);
         this.measurementAttributes.getProperties().remove(id);
         updateResource();
+        this.abstractIdentifiable.notifyExtensionUpdate(measurements, "property " + id + " for " + getInfo(), oldValue, null);
         return this;
     }
 
     @Override
     public Measurement setValue(double value) {
+        double oldValue = getValue();
         this.measurementAttributes.setValue(value);
         updateResource();
+        this.abstractIdentifiable.notifyExtensionUpdate(measurements, "value for " + getInfo(), oldValue, value);
         return this;
     }
 
@@ -84,8 +93,10 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public Measurement setStandardDeviation(double standardDeviation) {
+        double oldValue = getStandardDeviation();
         this.measurementAttributes.setStandardDeviation(standardDeviation);
         updateResource();
+        this.abstractIdentifiable.notifyExtensionUpdate(measurements, "standard deviation for " + getInfo(), oldValue, standardDeviation);
         return this;
     }
 
@@ -101,8 +112,10 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public Measurement setValid(boolean b) {
+        boolean oldValue = isValid();
         this.measurementAttributes.setValid(b);
         updateResource();
+        this.abstractIdentifiable.notifyExtensionUpdate(measurements, "validity for " + getInfo(), oldValue, b);
         return this;
     }
 
@@ -116,5 +129,9 @@ public class MeasurementImpl implements Measurement {
     public void remove() {
         this.abstractIdentifiable.updateResource(resource ->
                 ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().remove(this.measurementAttributes));
+    }
+
+    private String getInfo() {
+        return "measurement(id=" + getId() + ", type=" + getType() + ", side=" + getSide() + ")";
     }
 }

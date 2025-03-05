@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
@@ -17,7 +16,7 @@ import com.powsybl.network.store.model.CoordinatedReactiveControlAttributes;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class CoordinatedReactiveControlAdderImpl extends AbstractExtensionAdder<Generator, CoordinatedReactiveControl> implements CoordinatedReactiveControlAdder {
+public class CoordinatedReactiveControlAdderImpl extends AbstractIidmExtensionAdder<Generator, CoordinatedReactiveControl> implements CoordinatedReactiveControlAdder {
 
     private double qPercent;
 

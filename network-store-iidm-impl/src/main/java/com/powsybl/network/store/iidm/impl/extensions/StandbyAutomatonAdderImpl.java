@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
@@ -15,7 +14,7 @@ import com.powsybl.network.store.iidm.impl.StaticVarCompensatorImpl;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StandbyAutomatonAdderImpl extends AbstractExtensionAdder<StaticVarCompensator, StandbyAutomaton>
+public class StandbyAutomatonAdderImpl extends AbstractIidmExtensionAdder<StaticVarCompensator, StandbyAutomaton>
         implements StandbyAutomatonAdder {
 
     private double b0;

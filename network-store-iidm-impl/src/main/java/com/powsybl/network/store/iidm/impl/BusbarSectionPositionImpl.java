@@ -52,7 +52,10 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
 
     @Override
     public BusbarSectionPosition setBusbarIndex(int busbarIndex) {
-        getBusbarSection().updateResource(res -> getPositionAttributes(res).setBusbarIndex(checkIndex(getBusbarSection(), busbarIndex, "Busbar")));
+        int oldValue = getBusbarIndex();
+        if (oldValue != busbarIndex) {
+            getBusbarSection().updateResourceExtension(this, res -> getPositionAttributes(res).setBusbarIndex(checkIndex(getBusbarSection(), busbarIndex, "Busbar")), "Busbar index", oldValue, busbarIndex);
+        }
         return this;
     }
 
@@ -63,7 +66,10 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
 
     @Override
     public BusbarSectionPosition setSectionIndex(int sectionIndex) {
-        getBusbarSection().updateResource(res -> getPositionAttributes(res).setSectionIndex(checkIndex(getBusbarSection(), sectionIndex, "Section")));
+        int oldValue = getSectionIndex();
+        if (oldValue != sectionIndex) {
+            getBusbarSection().updateResourceExtension(this, res -> getPositionAttributes(res).setSectionIndex(checkIndex(getBusbarSection(), sectionIndex, "Section")), "Section index", oldValue, sectionIndex);
+        }
         return this;
     }
 }

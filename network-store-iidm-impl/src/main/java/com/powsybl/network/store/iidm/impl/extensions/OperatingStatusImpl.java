@@ -29,7 +29,10 @@ public class OperatingStatusImpl<I extends Identifiable<I>> extends AbstractExte
 
     @Override
     public OperatingStatus<I> setStatus(Status status) {
-        ((AbstractIdentifiableImpl<?, ?>) getExtendable()).updateResource(res -> ((OperatingStatusAttributes) res.getAttributes().getExtensionAttributes().get(OperatingStatus.NAME)).setOperatingStatus(status.name()));
+        Status oldValue = getStatus();
+        if (oldValue != status) {
+            ((AbstractIdentifiableImpl<?, ?>) getExtendable()).updateResourceExtension(this, res -> ((OperatingStatusAttributes) res.getAttributes().getExtensionAttributes().get(OperatingStatus.NAME)).setOperatingStatus(status.name()), "status", oldValue, status);
+        }
         return this;
     }
 }

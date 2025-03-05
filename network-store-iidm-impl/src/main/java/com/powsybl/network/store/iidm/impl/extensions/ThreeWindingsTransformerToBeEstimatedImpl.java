@@ -38,7 +38,10 @@ public class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension
 
     @Override
     public ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger1(boolean toBeEstimated) {
-        getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setRtc1Status(toBeEstimated));
+        boolean oldValue = shouldEstimateRatioTapChanger1();
+        if (oldValue != toBeEstimated) {
+            getThreeWindingsTransformer().updateResourceExtension(this, res -> getThreeWindingsTransformerAttributes().setRtc1Status(toBeEstimated), "rtc1Status", oldValue, toBeEstimated);
+        }
         return this;
     }
 
@@ -49,7 +52,10 @@ public class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension
 
     @Override
     public ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger2(boolean toBeEstimated) {
-        getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setRtc2Status(toBeEstimated));
+        boolean oldValue = shouldEstimateRatioTapChanger2();
+        if (oldValue != toBeEstimated) {
+            getThreeWindingsTransformer().updateResourceExtension(this, res -> getThreeWindingsTransformerAttributes().setRtc2Status(toBeEstimated), "rtc2Status", oldValue, toBeEstimated);
+        }
         return this;
     }
 
@@ -60,7 +66,10 @@ public class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension
 
     @Override
     public ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger3(boolean toBeEstimated) {
-        getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setRtc3Status(toBeEstimated));
+        boolean oldValue = shouldEstimateRatioTapChanger3();
+        if (oldValue != toBeEstimated) {
+            getThreeWindingsTransformer().updateResourceExtension(this, res -> getThreeWindingsTransformerAttributes().setRtc3Status(toBeEstimated), "rtc3Status", oldValue, toBeEstimated);
+        }
         return this;
     }
 
@@ -77,11 +86,11 @@ public class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension
     public ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger(boolean toBeEstimated, ThreeSides side) {
         switch (side) {
             case ONE ->
-                getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setRtc1Status(toBeEstimated));
+                shouldEstimateRatioTapChanger1(toBeEstimated);
             case TWO ->
-                getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setRtc2Status(toBeEstimated));
+                shouldEstimateRatioTapChanger2(toBeEstimated);
             case THREE ->
-                getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setRtc3Status(toBeEstimated));
+                shouldEstimateRatioTapChanger3(toBeEstimated);
         }
         return this;
     }
@@ -93,7 +102,10 @@ public class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension
 
     @Override
     public ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger1(boolean toBeEstimated) {
-        getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setPtc1Status(toBeEstimated));
+        boolean oldValue = shouldEstimatePhaseTapChanger1();
+        if (oldValue != toBeEstimated) {
+            getThreeWindingsTransformer().updateResourceExtension(this, res -> getThreeWindingsTransformerAttributes().setPtc1Status(toBeEstimated), "ptc1Status", oldValue, toBeEstimated);
+        }
         return this;
     }
 
@@ -104,7 +116,10 @@ public class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension
 
     @Override
     public ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger2(boolean toBeEstimated) {
-        getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setPtc2Status(toBeEstimated));
+        boolean oldValue = shouldEstimatePhaseTapChanger2();
+        if (oldValue != toBeEstimated) {
+            getThreeWindingsTransformer().updateResourceExtension(this, res -> getThreeWindingsTransformerAttributes().setPtc2Status(toBeEstimated), "ptc2Status", oldValue, toBeEstimated);
+        }
         return this;
     }
 
@@ -115,7 +130,10 @@ public class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension
 
     @Override
     public ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger3(boolean toBeEstimated) {
-        getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setPtc3Status(toBeEstimated));
+        boolean oldValue = shouldEstimatePhaseTapChanger3();
+        if (oldValue != toBeEstimated) {
+            getThreeWindingsTransformer().updateResourceExtension(this, res -> getThreeWindingsTransformerAttributes().setPtc3Status(toBeEstimated), "ptc3Status", oldValue, toBeEstimated);
+        }
         return this;
     }
 
@@ -132,11 +150,11 @@ public class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension
     public ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger(boolean toBeEstimated, ThreeSides side) {
         switch (side) {
             case ONE ->
-                getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setPtc1Status(toBeEstimated));
+                shouldEstimatePhaseTapChanger1(toBeEstimated);
             case TWO ->
-                getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setPtc2Status(toBeEstimated));
+                shouldEstimatePhaseTapChanger2(toBeEstimated);
             case THREE ->
-                getThreeWindingsTransformer().updateResource(res -> getThreeWindingsTransformerAttributes().setPtc3Status(toBeEstimated));
+                shouldEstimatePhaseTapChanger3(toBeEstimated);
         }
         return this;
     }

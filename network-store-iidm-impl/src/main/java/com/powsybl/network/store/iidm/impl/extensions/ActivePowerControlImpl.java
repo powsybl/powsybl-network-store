@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.network.store.iidm.impl.AbstractInjectionImpl;
-import com.powsybl.network.store.iidm.impl.PhaseTapChangerAdderImpl;
 import com.powsybl.network.store.model.ActivePowerControlAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,7 @@ import java.util.OptionalDouble;
  */
 public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExtension<I> implements ActivePowerControl<I> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PhaseTapChangerAdderImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActivePowerControlImpl.class);
 
     record PLimits(double minP, double maxP) { }
 
@@ -57,12 +56,9 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public void setParticipate(boolean participate) {
-        ActivePowerControlAttributes activePowerControlAttributes = (ActivePowerControlAttributes) getInjection().getResource().getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME);
-        boolean oldValue = activePowerControlAttributes.isParticipate();
+        boolean oldValue = isParticipate();
         if (oldValue != participate) {
-            getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setParticipate(participate));
-            String variantId = getInjection().getNetwork().getVariantManager().getWorkingVariantId();
-            getInjection().getNetwork().getIndex().notifyExtensionUpdate(this, "participate", variantId, oldValue, participate);
+            getInjection().updateResourceExtension(this, res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setParticipate(participate), "participate", oldValue, participate);
         }
     }
 
@@ -73,11 +69,9 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public void setDroop(double droop) {
-        double oldValue = getActivePowerControlAttributes().getDroop();
+        double oldValue = getDroop();
         if (oldValue != droop) {
-            getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setDroop(droop));
-            String variantId = getInjection().getNetwork().getVariantManager().getWorkingVariantId();
-            getInjection().getNetwork().getIndex().notifyExtensionUpdate(this, "droop", variantId, oldValue, droop);
+            getInjection().updateResourceExtension(this, res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setDroop(droop), "droop", oldValue, droop);
         }
     }
 
@@ -88,7 +82,10 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
 
     @Override
     public void setParticipationFactor(double participationFactor) {
-        getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setParticipationFactor(participationFactor));
+        double oldValue = getParticipationFactor();
+        if (oldValue != participationFactor) {
+            getInjection().updateResourceExtension(this, res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setParticipationFactor(participationFactor), "participationFactor", oldValue, participationFactor);
+        }
     }
 
     private double withinPMinMax(double value, I injection) {
@@ -128,7 +125,10 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
     @Override
     public void setMinTargetP(double minTargetP) {
         checkLimitOrder(minTargetP, getMaxTargetP().orElse(Double.NaN));
-        getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setMinTargetP(checkTargetPLimit(minTargetP, "minTargetP", getExtendable())));
+        double oldValue = getMinTargetP().orElse(Double.NaN);
+        if (oldValue != minTargetP) {
+            getInjection().updateResourceExtension(this, res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setMinTargetP(checkTargetPLimit(minTargetP, "minTargetP", getExtendable())), "minTargetP", oldValue, minTargetP);
+        }
     }
 
     @Override
@@ -140,7 +140,10 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
     @Override
     public void setMaxTargetP(double maxTargetP) {
         checkLimitOrder(getMinTargetP().orElse(Double.NaN), maxTargetP);
-        getInjection().updateResource(res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setMaxTargetP(checkTargetPLimit(maxTargetP, "maxTargetP", getExtendable())));
+        double oldValue = getMaxTargetP().orElse(Double.NaN);
+        if (oldValue != maxTargetP) {
+            getInjection().updateResourceExtension(this, res -> ((ActivePowerControlAttributes) res.getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME)).setMaxTargetP(checkTargetPLimit(maxTargetP, "maxTargetP", getExtendable())), "maxTargetP", oldValue, maxTargetP);
+        }
     }
 
     private AbstractInjectionImpl<?, ?> getInjection() {

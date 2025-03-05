@@ -32,8 +32,10 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
         private static final String UNEXPECTED_EXTENDABLE = "Unexpected extendable instance: ";
         private final ThreeSides side;
         private final Function<Connectable<C>, ConnectablePositionAttributes> getter;
+        private final ConnectablePosition<C> connectablePosition;
 
-        public FeederImpl(Function<Connectable<C>, ConnectablePositionAttributes> getter, ThreeSides side) {
+        public FeederImpl(ConnectablePosition<C> connectablePosition, Function<Connectable<C>, ConnectablePositionAttributes> getter, ThreeSides side) {
+            this.connectablePosition = connectablePosition;
             this.getter = Objects.requireNonNull(getter);
             this.side = side;
         }
@@ -89,7 +91,6 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                 if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
                     updateInjectionOrderResource(injection, order);
                     notifyUpdate(injection, ORDER, oldValue, order);
-
                 } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
                     updateBranchOrderResource(branch, order);
                     notifyUpdate(branch, ORDER, oldValue, order);
@@ -230,8 +231,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
         }
 
         private void notifyUpdate(AbstractConnectableImpl<?, ?> connectable, String attribute, Object oldValue, Object newValue) {
-            String variantId = connectable.getNetwork().getVariantManager().getWorkingVariantId();
-            connectable.getNetwork().getIndex().notifyUpdate(getExtendable(), attribute, variantId, oldValue, newValue);
+            connectable.notifyExtensionUpdate(connectablePosition, attribute, oldValue, newValue);
         }
     }
 
@@ -254,7 +254,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
     private FeederImpl getFeeder(Function<Connectable<C>, ConnectablePositionAttributes> positionAttributesGetter, ThreeSides side) {
         return (positionAttributesGetter != null && positionAttributesGetter.apply(getExtendable()) != null) ?
-                new FeederImpl(positionAttributesGetter, side) : null;
+                new FeederImpl(this, positionAttributesGetter, side) : null;
     }
 
     @Override
