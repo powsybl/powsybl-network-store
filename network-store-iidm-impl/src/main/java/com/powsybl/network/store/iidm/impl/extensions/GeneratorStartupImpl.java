@@ -92,7 +92,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setForcedOutageRate(double forcedOutageRate) {
-        double oldValue = getPlannedOutageRate();
+        double oldValue = getForcedOutageRate();
         if (oldValue != forcedOutageRate) {
             getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setForcedOutageRate(forcedOutageRate), "forcedOutageRate", oldValue, forcedOutageRate);
         }
