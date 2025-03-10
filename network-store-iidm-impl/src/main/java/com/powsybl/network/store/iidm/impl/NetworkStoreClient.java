@@ -335,9 +335,8 @@ public interface NetworkStoreClient {
 
     // Limits Attributes
     /**
-     * For one identifiable with a specific identifiable id, retrieves one extension attributes by its extension name.
-     * @return {@link LimitsAttributes} which is a subset of an identifiable resource. The extension attributes can be put in the
-     * extensionAttributes map of an {@link IdentifiableAttributes} or used to load an extension.
+     * For one identifiable with a specific identifiable id, retrieves one operational limits group attributes by its name.
+     * @return {@link LimitsAttributes} which is a subset of an identifiable resource.
      */
     Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side);
 

@@ -245,4 +245,16 @@ public class LimitHolderTest {
         assertEquals(3, new ThreeWindingsTransformerAttributes().getSideList().size());
         assertEquals(1, new DanglingLineAttributes().getSideList().size());
     }
+
+    @Test
+    public void testAddTemporaryLimit() {
+        assertEquals(2, limitsAttributesA.getTemporaryLimits().size());
+        assertEquals(2, tempLimitsA.size());
+        limitsAttributesA.addTemporaryLimit(TemporaryLimitAttributes.builder()
+            .acceptableDuration(25)
+            .value(1000)
+            .build());
+        assertEquals(3, limitsAttributesA.getTemporaryLimits().size());
+        assertEquals(3, tempLimitsA.size());
+    }
 }
