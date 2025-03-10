@@ -256,5 +256,9 @@ public class LimitHolderTest {
             .build());
         assertEquals(3, limitsAttributesA.getTemporaryLimits().size());
         assertEquals(3, tempLimitsA.size());
+
+        limitsAttributesB.addTemporaryLimit(null);
+        assertEquals(1, limitsAttributesB.getTemporaryLimits().size());
+        assertEquals(1, tempLimitsB.size());
     }
 }

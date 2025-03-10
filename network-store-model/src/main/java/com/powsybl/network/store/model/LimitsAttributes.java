@@ -38,8 +38,8 @@ public class LimitsAttributes {
     private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
 
     public void addTemporaryLimit(TemporaryLimitAttributes temporaryLimit) {
-        if (temporaryLimits == null) {
-            temporaryLimits = new TreeMap<>();
+        if (temporaryLimit == null) {
+            return;
         }
         temporaryLimits.put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
     }

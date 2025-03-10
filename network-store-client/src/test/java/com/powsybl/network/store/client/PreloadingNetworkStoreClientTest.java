@@ -1225,4 +1225,65 @@ public class PreloadingNetworkStoreClientTest {
         server.verify();
         server.reset();
     }
+
+    @Test
+    public void testGetCurrentLimitsGroupCache() throws IOException {
+        String identifiableId1 = "lineId";
+        String identifiableId2 = "LINE1";
+
+        // Load the identifiables in the cache
+        loadTwoLinesToCache(identifiableId1, identifiableId2);
+
+        // Two successive Operational limits groups retrieval, only the first should send a REST request, the second uses the cache
+        String operationalLimitsGroup1 = "olg1";
+        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits1 = new TreeMap<>();
+        temporaryLimits1.put(10, TemporaryLimitAttributes.builder()
+            .operationalLimitsGroupId(operationalLimitsGroup1)
+            .limitType(LimitType.CURRENT)
+            .value(12)
+            .name("temporarylimit1")
+            .acceptableDuration(10)
+            .fictitious(false)
+            .side(1)
+            .build());
+        OperationalLimitsGroupAttributes olg1 = OperationalLimitsGroupAttributes.builder()
+            .id(operationalLimitsGroup1)
+            .currentLimits(LimitsAttributes.builder()
+                .permanentLimit(1)
+                .temporaryLimits(temporaryLimits1)
+                .operationalLimitsGroupId(operationalLimitsGroup1)
+                .build())
+            .build();
+
+        OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
+        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>>() {
+        }).writeValueAsString(Map.of(identifiableId1, Map.of(olgi1, olg1)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/currentLimits/"))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(operationalLimitsGroupAttributes, MediaType.APPLICATION_JSON));
+
+        Optional<OperationalLimitsGroupAttributes> olg1Attributes = cachedClient.getCurrentLimitsGroupAttributes(networkUuid,
+            Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup1, 1);
+        assertTrue(olg1Attributes.isPresent());
+        OperationalLimitsGroupAttributes operationalLimitsGroupAttributes1 = (OperationalLimitsGroupAttributes) olg1Attributes.get();
+        assertEquals(operationalLimitsGroup1, operationalLimitsGroupAttributes1.getId());
+        assertEquals(1, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().size());
+        assertNotNull(operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10));
+        assertEquals("temporarylimit1", operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getName());
+        assertEquals(12, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getValue(), 0.001);
+
+        olg1Attributes = cachedClient.getCurrentLimitsGroupAttributes(networkUuid,
+            Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup1, 1);
+        assertTrue(olg1Attributes.isPresent());
+        operationalLimitsGroupAttributes1 = (OperationalLimitsGroupAttributes) olg1Attributes.get();
+        assertEquals(operationalLimitsGroup1, operationalLimitsGroupAttributes1.getId());
+        assertEquals(1, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().size());
+        assertNotNull(operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10));
+        assertEquals("temporarylimit1", operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getName());
+        assertEquals(12, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getValue(), 0.001);
+
+        server.verify();
+        server.reset();
+    }
 }
