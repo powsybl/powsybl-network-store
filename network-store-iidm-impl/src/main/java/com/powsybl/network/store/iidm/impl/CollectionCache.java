@@ -659,7 +659,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         if (!isFullyLoadedCurrentLimitsGroup) {
             // if collection has not yet been fully loaded we load it from the server
             Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> operationalLimitsGroupAttributesMap =
-                delegate.getSelectedCurrentLimitsGroupAttributesByResourceType(networkUuid, variantNum, type);
+                delegate.getAllSelectedCurrentLimitsGroupAttributesByResourceType(networkUuid, variantNum, type);
 
             // we update the full cache and set it as fully loaded
             operationalLimitsGroupAttributesMap.forEach(this::addAllOperationalLimitsGroupAttributesToCache);

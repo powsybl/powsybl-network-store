@@ -361,7 +361,7 @@ public interface NetworkStoreClient {
      * Used for preloading collection strategy.
      * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
      */
-    Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
+    Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
 
     Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
 

@@ -989,7 +989,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/currentLimits/",
             networkUuid, variantNum, resourceType);
     }
