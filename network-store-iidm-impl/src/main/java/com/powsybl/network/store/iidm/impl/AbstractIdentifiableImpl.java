@@ -68,10 +68,6 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         notifyExtensionUpdate(extension, attribute, oldValue, newValue);
     }
 
-    public void notifyExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
-        getIndex().notifyExtensionAfterRemoval(identifiable, extensionName);
-    }
-
     public Resource<D> getNullableResource() {
         return resource;
     }

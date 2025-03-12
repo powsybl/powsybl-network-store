@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -58,14 +59,11 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
             String oldValue = getAttributes().getLabel();
             if (!Objects.equals(oldValue, name)) {
                 if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
-                    updateInjectionLabelResource(injection, name);
-                    notifyUpdate(injection, LABEL, oldValue, name);
+                    updateInjectionLabelResource(connectablePosition, injection, name, oldValue, name);
                 } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
-                    updateBranchLabelResource(branch, name);
-                    notifyUpdate(branch, LABEL, oldValue, name);
+                    updateBranchLabelResource(connectablePosition, branch, name, oldValue, name);
                 } else if (getExtendable() instanceof ThreeWindingsTransformerImpl windingsTransformer) {
-                    updateTransformerLabelResource(windingsTransformer, name);
-                    notifyUpdate(windingsTransformer, LABEL, oldValue, name);
+                    updateTransformerLabelResource(connectablePosition, windingsTransformer, name, oldValue, name);
                 } else {
                     throw new AssertionError(UNEXPECTED_EXTENDABLE + getExtendable().getClass());
                 }
@@ -89,14 +87,11 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
             Integer oldValue = getAttributes().getOrder();
             if (!Objects.equals(oldValue, order)) {
                 if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
-                    updateInjectionOrderResource(injection, order);
-                    notifyUpdate(injection, ORDER, oldValue, order);
+                    updateInjectionOrderResource(connectablePosition, injection, order, oldValue, order);
                 } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
-                    updateBranchOrderResource(branch, order);
-                    notifyUpdate(branch, ORDER, oldValue, order);
+                    updateBranchOrderResource(connectablePosition, branch, order, oldValue, order);
                 } else if (getExtendable() instanceof ThreeWindingsTransformerImpl windingsTransformer) {
-                    updateTransformerOrderResource(windingsTransformer, order);
-                    notifyUpdate(windingsTransformer, ORDER, oldValue, order);
+                    updateTransformerOrderResource(connectablePosition, windingsTransformer, order, oldValue, order);
                 } else {
                     throw new AssertionError(UNEXPECTED_EXTENDABLE + getExtendable().getClass());
                 }
@@ -114,14 +109,11 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
             Direction oldValue = getAttributes().getDirection();
             if (!Objects.equals(oldValue, direction)) {
                 if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
-                    updateInjectionDirectionResource(injection, direction);
-                    notifyUpdate(injection, DIRECTION, oldValue, direction);
+                    updateInjectionDirectionResource(connectablePosition, injection, direction, oldValue, direction);
                 } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
-                    updateBranchDirectionResource(branch, direction);
-                    notifyUpdate(branch, DIRECTION, oldValue, direction);
+                    updateBranchDirectionResource(connectablePosition, branch, direction, oldValue, direction);
                 } else if (getExtendable() instanceof ThreeWindingsTransformerImpl windingsTransformer) {
-                    updateTransformerDirectionResource(windingsTransformer, direction);
-                    notifyUpdate(windingsTransformer, DIRECTION, oldValue, direction);
+                    updateTransformerDirectionResource(connectablePosition, windingsTransformer, direction, oldValue, direction);
                 } else {
                     throw new AssertionError(UNEXPECTED_EXTENDABLE + getExtendable().getClass());
                 }
@@ -129,14 +121,16 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
             return this;
         }
 
-        private void updateInjectionLabelResource(AbstractInjectionImpl<?, ?> injection, String name) {
-            injection.updateResource(res -> res.getAttributes().getPosition().setLabel(Objects.requireNonNull(name)));
+        private void updateInjectionLabelResource(Extension<?> extension, AbstractInjectionImpl<?, ?> injection, String name, Object oldValue, Object newValue) {
+            injection.updateResourceExtension(extension,
+                res -> res.getAttributes().getPosition().setLabel(Objects.requireNonNull(name)),
+                LABEL, oldValue, newValue);
         }
 
-        private void updateBranchLabelResource(AbstractBranchImpl<?, ?> branch, String name) {
+        private void updateBranchLabelResource(Extension<?> extension, AbstractBranchImpl<?, ?> branch, String name, Object oldValue, Object newValue) {
             Objects.requireNonNull(name);
             ThreeSides sides = Objects.requireNonNull(getSide());
-            branch.updateResource(res -> {
+            branch.updateResourceExtension(extension, res -> {
                 if (sides == ThreeSides.ONE) {
                     res.getAttributes().getPosition1().setLabel(name);
                 } else if (sides == ThreeSides.TWO) {
@@ -144,13 +138,13 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                 } else {
                     throw new PowsyblException(NOT_SUPPORTED);
                 }
-            });
+            }, LABEL, oldValue, newValue);
         }
 
-        private void updateTransformerLabelResource(ThreeWindingsTransformerImpl windingsTransformer, String name) {
+        private void updateTransformerLabelResource(Extension<?> extension, ThreeWindingsTransformerImpl windingsTransformer, String name, Object oldValue, Object newValue) {
             Objects.requireNonNull(name);
             ThreeSides sides = Objects.requireNonNull(getSide());
-            windingsTransformer.updateResource(res -> {
+            windingsTransformer.updateResourceExtension(extension, res -> {
                 if (sides == ThreeSides.ONE) {
                     res.getAttributes().getPosition1().setLabel(name);
                 } else if (sides == ThreeSides.TWO) {
@@ -160,50 +154,55 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                 } else {
                     throw new PowsyblException(NOT_SUPPORTED);
                 }
-            });
+            }, LABEL, oldValue, newValue);
         }
 
-        private void updateInjectionOrderResource(AbstractInjectionImpl<?, ?> injection, int order) {
-            injection.updateResource(res -> res.getAttributes().getPosition().setOrder(order));
+        private void updateInjectionOrderResource(Extension<?> extension, AbstractInjectionImpl<?, ?> injection, int order, Object oldValue, Object newValue) {
+            injection.updateResourceExtension(extension,
+                res -> res.getAttributes().getPosition().setOrder(order),
+                ORDER, oldValue, newValue);
         }
 
-        private void updateBranchOrderResource(AbstractBranchImpl<?, ?> branch, int order) {
+        private void updateBranchOrderResource(Extension<?> extension, AbstractBranchImpl<?, ?> branch, int order, Object oldValue, Object newValue) {
             ThreeSides sides = Objects.requireNonNull(getSide());
-            branch.updateResource(res -> {
-                if (sides == ThreeSides.ONE) {
-                    res.getAttributes().getPosition1().setOrder(order);
-                } else if (sides == ThreeSides.TWO) {
-                    res.getAttributes().getPosition2().setOrder(order);
-                } else {
-                    throw new PowsyblException(NOT_SUPPORTED);
-                }
-            });
+            branch.updateResourceExtension(extension,
+                res -> {
+                    if (sides == ThreeSides.ONE) {
+                        res.getAttributes().getPosition1().setOrder(order);
+                    } else if (sides == ThreeSides.TWO) {
+                        res.getAttributes().getPosition2().setOrder(order);
+                    } else {
+                        throw new PowsyblException(NOT_SUPPORTED);
+                    }
+                }, ORDER, oldValue, newValue);
         }
 
-        private void updateTransformerOrderResource(ThreeWindingsTransformerImpl windingsTransformer, int order) {
+        private void updateTransformerOrderResource(Extension<?> extension, ThreeWindingsTransformerImpl windingsTransformer, int order, Object oldValue, Object newValue) {
             ThreeSides sides = Objects.requireNonNull(getSide());
-            windingsTransformer.updateResource(res -> {
-                if (sides == ThreeSides.ONE) {
-                    res.getAttributes().getPosition1().setOrder(order);
-                } else if (sides == ThreeSides.TWO) {
-                    res.getAttributes().getPosition2().setOrder(order);
-                } else if (sides == ThreeSides.THREE) {
-                    res.getAttributes().getPosition3().setOrder(order);
-                } else {
-                    throw new PowsyblException(NOT_SUPPORTED);
-                }
-            });
+            windingsTransformer.updateResourceExtension(extension,
+                res -> {
+                    if (sides == ThreeSides.ONE) {
+                        res.getAttributes().getPosition1().setOrder(order);
+                    } else if (sides == ThreeSides.TWO) {
+                        res.getAttributes().getPosition2().setOrder(order);
+                    } else if (sides == ThreeSides.THREE) {
+                        res.getAttributes().getPosition3().setOrder(order);
+                    } else {
+                        throw new PowsyblException(NOT_SUPPORTED);
+                    }
+                }, ORDER, oldValue, newValue);
         }
 
-        private void updateInjectionDirectionResource(AbstractInjectionImpl<?, ?> injection, Direction direction) {
-            injection.updateResource(res -> res.getAttributes().getPosition()
-                    .setDirection(Direction.valueOf(Objects.requireNonNull(direction).name())));
+        private void updateInjectionDirectionResource(Extension<?> extension, AbstractInjectionImpl<?, ?> injection, Direction direction, Object oldValue, Object newValue) {
+            injection.updateResourceExtension(extension, res -> res.getAttributes().getPosition()
+                .setDirection(Direction.valueOf(Objects.requireNonNull(direction).name())),
+                    DIRECTION, oldValue, newValue);
         }
 
-        private void updateBranchDirectionResource(AbstractBranchImpl<?, ?> branch, Direction direction) {
+        private void updateBranchDirectionResource(Extension<?> extension, AbstractBranchImpl<?, ?> branch, Direction direction, Object oldValue, Object newValue) {
             Objects.requireNonNull(direction);
             ThreeSides sides = Objects.requireNonNull(getSide());
-            branch.updateResource(res -> {
+            branch.updateResourceExtension(extension, res -> {
                 if (sides == ThreeSides.ONE) {
                     res.getAttributes().getPosition1().setDirection(direction);
                 } else if (sides == ThreeSides.TWO) {
@@ -211,13 +210,13 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                 } else {
                     throw new PowsyblException(NOT_SUPPORTED);
                 }
-            });
+            }, DIRECTION, oldValue, newValue);
         }
 
-        private void updateTransformerDirectionResource(ThreeWindingsTransformerImpl windingsTransformer, Direction direction) {
+        private void updateTransformerDirectionResource(Extension<?> extension, ThreeWindingsTransformerImpl windingsTransformer, Direction direction, Object oldValue, Object newValue) {
             Objects.requireNonNull(direction);
             ThreeSides sides = Objects.requireNonNull(getSide());
-            windingsTransformer.updateResource(res -> {
+            windingsTransformer.updateResourceExtension(extension, res -> {
                 if (sides == ThreeSides.ONE) {
                     res.getAttributes().getPosition1().setDirection(direction);
                 } else if (sides == ThreeSides.TWO) {
@@ -227,11 +226,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                 } else {
                     throw new PowsyblException(NOT_SUPPORTED);
                 }
-            });
-        }
-
-        private void notifyUpdate(AbstractConnectableImpl<?, ?> connectable, String attribute, Object oldValue, Object newValue) {
-            connectable.notifyExtensionUpdate(connectablePosition, attribute, oldValue, newValue);
+            }, DIRECTION, oldValue, newValue);
         }
     }
 
