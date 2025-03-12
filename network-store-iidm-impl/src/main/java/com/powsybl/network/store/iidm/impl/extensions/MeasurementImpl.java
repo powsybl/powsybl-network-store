@@ -32,13 +32,6 @@ public class MeasurementImpl implements Measurement {
         this.abstractIdentifiable = abstractIdentifiable;
     }
 
-    private void updateResource() {
-        this.abstractIdentifiable.updateResource(resource ->
-                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().remove(this.measurementAttributes));
-        this.abstractIdentifiable.updateResource(resource ->
-                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().add(this.measurementAttributes));
-    }
-
     @Override
     public String getId() {
         return measurementAttributes.getId();
@@ -62,27 +55,30 @@ public class MeasurementImpl implements Measurement {
     @Override
     public Measurement putProperty(String name, String property) {
         String oldValue = getProperty(name);
-        this.measurementAttributes.getProperties().put(name, property);
-        updateResource();
-        this.abstractIdentifiable.notifyExtensionUpdate(measurements, "property " + name + " for " + getInfo(), oldValue, property);
+        this.abstractIdentifiable.updateResourceExtension(measurements,
+            resource -> {
+                int index = ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().indexOf(this.measurementAttributes);
+                if (index != -1) {
+                    this.measurementAttributes.getProperties().put(name, property);
+                    ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().set(index, this.measurementAttributes);
+                }
+            }, "property " + name + " for " + getInfo(), oldValue, property);
         return this;
     }
 
     @Override
     public Measurement removeProperty(String id) {
         String oldValue = getProperty(id);
-        this.measurementAttributes.getProperties().remove(id);
-        updateResource();
-        this.abstractIdentifiable.notifyExtensionUpdate(measurements, "property " + id + " for " + getInfo(), oldValue, null);
+        this.abstractIdentifiable.updateResourceExtension(measurements,
+            resource -> this.measurementAttributes.getProperties().remove(id), "property " + id + " for " + getInfo(), oldValue, null);
         return this;
     }
 
     @Override
     public Measurement setValue(double value) {
         double oldValue = getValue();
-        this.measurementAttributes.setValue(value);
-        updateResource();
-        this.abstractIdentifiable.notifyExtensionUpdate(measurements, "value for " + getInfo(), oldValue, value);
+        this.abstractIdentifiable.updateResourceExtension(measurements,
+            resource -> this.measurementAttributes.setValue(value), "value for " + getInfo(), oldValue, value);
         return this;
     }
 
@@ -94,9 +90,8 @@ public class MeasurementImpl implements Measurement {
     @Override
     public Measurement setStandardDeviation(double standardDeviation) {
         double oldValue = getStandardDeviation();
-        this.measurementAttributes.setStandardDeviation(standardDeviation);
-        updateResource();
-        this.abstractIdentifiable.notifyExtensionUpdate(measurements, "standard deviation for " + getInfo(), oldValue, standardDeviation);
+        this.abstractIdentifiable.updateResourceExtension(measurements,
+            resource -> this.measurementAttributes.setStandardDeviation(standardDeviation), "standard deviation for " + getInfo(), oldValue, standardDeviation);
         return this;
     }
 
@@ -113,9 +108,8 @@ public class MeasurementImpl implements Measurement {
     @Override
     public Measurement setValid(boolean b) {
         boolean oldValue = isValid();
-        this.measurementAttributes.setValid(b);
-        updateResource();
-        this.abstractIdentifiable.notifyExtensionUpdate(measurements, "validity for " + getInfo(), oldValue, b);
+        this.abstractIdentifiable.updateResourceExtension(measurements,
+            resource -> this.measurementAttributes.setValid(b), "validity for " + getInfo(), oldValue, b);
         return this;
     }
 
