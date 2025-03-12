@@ -121,8 +121,9 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public void remove() {
-        this.abstractIdentifiable.updateResource(resource ->
-                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().remove(this.measurementAttributes));
+        this.abstractIdentifiable.updateResourceExtension(measurements, resource ->
+                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().remove(this.measurementAttributes),
+            getInfo(), this.measurementAttributes, null);
     }
 
     private String getInfo() {

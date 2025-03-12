@@ -165,8 +165,9 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
 
     @Override
     public void remove() {
-        this.abstractIdentifiable.updateResource(resource ->
-                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().remove(this.discreteMeasurementAttributes));
+        this.abstractIdentifiable.updateResourceExtension(discreteMeasurements, resource ->
+                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().remove(this.discreteMeasurementAttributes),
+            getInfo(), this.discreteMeasurementAttributes, null);
     }
 
     private String getInfo() {
