@@ -157,7 +157,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(String urlTemplate, Object... uriVariables) {
         logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = restClient.getOneOperationalLimitsGroupAttributes(urlTemplate, uriVariables);
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = restClient.getOperationalLimitsGroupAttributes(urlTemplate, uriVariables);
         stopwatch.stop();
         logGetOperationalLimitsGroupAttributesTime(operationalLimitsGroupAttributes.isPresent() ? 1 : 0, stopwatch.elapsed(TimeUnit.MILLISECONDS));
 

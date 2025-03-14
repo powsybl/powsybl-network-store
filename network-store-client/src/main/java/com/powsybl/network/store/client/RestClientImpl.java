@@ -106,7 +106,7 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public Optional<OperationalLimitsGroupAttributes> getOneOperationalLimitsGroupAttributes(String url, Object... uriVariables) {
+    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(String url, Object... uriVariables) {
         return getOneDocument(url, new ParameterizedTypeReference<OperationalLimitsGroupAttributesTopLevelDocument>() {
         }, uriVariables);
     }
