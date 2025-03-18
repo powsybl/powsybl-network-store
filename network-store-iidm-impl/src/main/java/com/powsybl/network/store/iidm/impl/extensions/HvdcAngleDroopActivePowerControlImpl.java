@@ -8,63 +8,70 @@
 
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.network.store.iidm.impl.HvdcLineImpl;
+import com.powsybl.network.store.model.HvdcAngleDroopActivePowerControlAttributes;
 
 import java.util.Objects;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class HvdcAngleDroopActivePowerControlImpl implements HvdcAngleDroopActivePowerControl {
-
-    private HvdcLineImpl hvdcLine;
+public class HvdcAngleDroopActivePowerControlImpl extends AbstractExtension<HvdcLine> implements HvdcAngleDroopActivePowerControl {
 
     public HvdcAngleDroopActivePowerControlImpl(HvdcLineImpl hvdcLine) {
-        this.hvdcLine = Objects.requireNonNull(hvdcLine);
+        super(Objects.requireNonNull(hvdcLine));
     }
 
-    @Override
-    public HvdcLine getExtendable() {
-        return hvdcLine;
+    private HvdcLineImpl getHvdcLine() {
+        return (HvdcLineImpl) getExtendable();
     }
 
-    @Override
-    public void setExtendable(HvdcLine hvdcLine) {
-        this.hvdcLine = (HvdcLineImpl) hvdcLine;
+    private HvdcAngleDroopActivePowerControlAttributes getHvdcAngleDroopActivePowerControlAttributes() {
+        return getHvdcLine().getResource().getAttributes().getHvdcAngleDroopActivePowerControl();
     }
 
     @Override
     public float getP0() {
-        return hvdcLine.getResource().getAttributes().getHvdcAngleDroopActivePowerControl().getP0();
+        return getHvdcAngleDroopActivePowerControlAttributes().getP0();
     }
 
     @Override
     public float getDroop() {
-        return hvdcLine.getResource().getAttributes().getHvdcAngleDroopActivePowerControl().getDroop();
+        return getHvdcAngleDroopActivePowerControlAttributes().getDroop();
     }
 
     @Override
     public boolean isEnabled() {
-        return hvdcLine.getResource().getAttributes().getHvdcAngleDroopActivePowerControl().isEnabled();
+        return getHvdcAngleDroopActivePowerControlAttributes().isEnabled();
     }
 
     @Override
     public HvdcAngleDroopActivePowerControl setP0(float p0) {
-        hvdcLine.updateResource(res -> res.getAttributes().getHvdcAngleDroopActivePowerControl().setP0(checkP0(p0)));
+        float oldValue = getP0();
+        if (oldValue != p0) {
+            getHvdcLine().updateResourceExtension(this, res -> res.getAttributes().getHvdcAngleDroopActivePowerControl().setP0(checkP0(p0)), "p0", oldValue, p0);
+        }
         return this;
     }
 
     @Override
     public HvdcAngleDroopActivePowerControl setDroop(float droop) {
-        hvdcLine.updateResource(res -> res.getAttributes().getHvdcAngleDroopActivePowerControl().setDroop(checkDroop(droop)));
+        float oldValue = getDroop();
+        if (oldValue != droop) {
+            getHvdcLine().updateResourceExtension(this, res -> res.getAttributes().getHvdcAngleDroopActivePowerControl().setDroop(checkDroop(droop)), "droop", oldValue, droop);
+        }
         return this;
     }
 
     @Override
     public HvdcAngleDroopActivePowerControl setEnabled(boolean enabled) {
-        hvdcLine.updateResource(res -> res.getAttributes().getHvdcAngleDroopActivePowerControl().setEnabled(enabled));
+        boolean oldValue = isEnabled();
+        if (oldValue != enabled) {
+            getHvdcLine().updateResourceExtension(this, res -> res.getAttributes().getHvdcAngleDroopActivePowerControl().setEnabled(enabled), "enabled", oldValue, enabled);
+        }
         return this;
     }
 
@@ -72,7 +79,7 @@ public class HvdcAngleDroopActivePowerControlImpl implements HvdcAngleDroopActiv
         if (Float.isNaN(p0)) {
             throw new IllegalArgumentException(String.format("p0 value (%s) is invalid for HVDC line %s",
                     p0,
-                    hvdcLine.getId()));
+                    getHvdcLine().getId()));
         }
         return p0;
     }
@@ -81,7 +88,7 @@ public class HvdcAngleDroopActivePowerControlImpl implements HvdcAngleDroopActiv
         if (Float.isNaN(droop)) {
             throw new IllegalArgumentException(String.format("droop value (%s) is invalid for HVDC line %s",
                     droop,
-                    hvdcLine.getId()));
+                    getHvdcLine().getId()));
         }
         return droop;
     }

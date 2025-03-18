@@ -51,7 +51,7 @@ public class ControlUnitAdderImpl implements ControlUnitAdder {
                 .participate(participate)
                 .build();
         NetworkImpl network = parent.getNetwork();
-        parent.addControlUnit(new ControlUnitImpl(network, controlUnitAttributes));
+        parent.addControlUnit(new ControlUnitImpl(null, null, network, controlUnitAttributes));
         return parent;
     }
 }

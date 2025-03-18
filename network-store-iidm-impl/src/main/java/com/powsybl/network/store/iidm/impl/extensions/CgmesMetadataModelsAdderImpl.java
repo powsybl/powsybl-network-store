@@ -13,7 +13,6 @@ import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesMetadataModelImpl;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.model.CgmesMetadataModelAttributes;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * @author Etienne HOMER {@literal <etienne.homer at rte-france.com>}
  */
-public class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, CgmesMetadataModels> implements CgmesMetadataModelsAdder {
+public class CgmesMetadataModelsAdderImpl extends AbstractIidmExtensionAdder<Network, CgmesMetadataModels> implements CgmesMetadataModelsAdder {
 
     class ModelAdderImpl implements ModelAdder {
         private CgmesSubset subset;

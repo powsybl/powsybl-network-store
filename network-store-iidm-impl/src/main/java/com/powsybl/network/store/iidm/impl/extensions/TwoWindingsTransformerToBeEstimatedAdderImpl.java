@@ -7,7 +7,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
@@ -17,7 +16,7 @@ import com.powsybl.network.store.model.TwoWindingsTransformerToBeEstimatedAttrib
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class TwoWindingsTransformerToBeEstimatedAdderImpl extends AbstractExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerToBeEstimated>
+public class TwoWindingsTransformerToBeEstimatedAdderImpl extends AbstractIidmExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerToBeEstimated>
         implements TwoWindingsTransformerToBeEstimatedAdder {
 
     private boolean rtcStatus = false;

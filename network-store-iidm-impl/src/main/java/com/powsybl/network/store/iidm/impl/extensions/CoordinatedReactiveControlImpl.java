@@ -33,7 +33,10 @@ public class CoordinatedReactiveControlImpl extends AbstractExtension<Generator>
     @Override
     public void setQPercent(double qPercent) {
         checkQPercent(qPercent);
-        getGenerator().updateResource(res -> res.getAttributes().getCoordinatedReactiveControl().setQPercent(qPercent));
+        double oldValue = getQPercent();
+        if (oldValue != qPercent) {
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getCoordinatedReactiveControl().setQPercent(qPercent), "qPercent", oldValue, qPercent);
+        }
     }
 
     private void checkQPercent(double qPercent) {

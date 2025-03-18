@@ -8,7 +8,9 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.extensions.ControlZone;
 import com.powsybl.iidm.network.extensions.PilotPoint;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.model.PilotPointAttributes;
 
@@ -20,12 +22,17 @@ import java.util.Objects;
  * @author Achour Berrahma <achour.berrahma at rte-france.com>
  */
 class PilotPointImpl implements PilotPoint {
+    private final SecondaryVoltageControl secondaryVoltageControl;
+
+    private final ControlZone controlZone;
 
     private final NetworkImpl network;
 
     private final PilotPointAttributes pilotPointAttributes;
 
-    PilotPointImpl(NetworkImpl network, PilotPointAttributes pilotPointAttributes) {
+    PilotPointImpl(SecondaryVoltageControl secondaryVoltageControl, ControlZone controlZone, NetworkImpl network, PilotPointAttributes pilotPointAttributes) {
+        this.secondaryVoltageControl = secondaryVoltageControl;
+        this.controlZone = controlZone;
         this.pilotPointAttributes = Objects.requireNonNull(pilotPointAttributes);
         this.network = Objects.requireNonNull(network);
     }
@@ -52,6 +59,9 @@ class PilotPointImpl implements PilotPoint {
         if (Double.isNaN(targetV)) {
             throw new PowsyblException("Invalid pilot point target voltage'");
         }
-        network.updateResource(res -> pilotPointAttributes.setTargetV(targetV));
+        double oldValue = getTargetV();
+        if (oldValue != targetV) {
+            network.updateResourceExtension(secondaryVoltageControl, res -> pilotPointAttributes.setTargetV(targetV), "targetV for pilot point in control zone " + controlZone.getName(), oldValue, targetV);
+        }
     }
 }

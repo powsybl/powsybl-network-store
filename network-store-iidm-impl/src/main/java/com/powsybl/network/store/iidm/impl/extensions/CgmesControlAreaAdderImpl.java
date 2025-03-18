@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.cgmes.extensions.CgmesControlAreaAdder;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.model.CgmesControlAreaAttributes;
@@ -20,6 +21,8 @@ import java.util.Objects;
  */
 class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
 
+    private final CgmesControlAreas parent;
+
     private final NetworkImpl network;
 
     private String id;
@@ -32,7 +35,8 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
 
     private double pTolerance = Double.NaN;
 
-    CgmesControlAreaAdderImpl(NetworkImpl network) {
+    CgmesControlAreaAdderImpl(CgmesControlAreas parent, NetworkImpl network) {
+        this.parent = parent;
         this.network = Objects.requireNonNull(network);
     }
 
@@ -75,6 +79,6 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
         List<CgmesControlAreaAttributes> controlAreas = network.getResource().getAttributes().getCgmesControlAreas().getControlAreas();
         int index = controlAreas.size();
         controlAreas.add(attributes);
-        return new CgmesControlAreaImpl(network, index);
+        return new CgmesControlAreaImpl(parent, network, index);
     }
 }

@@ -77,7 +77,7 @@ public class ControlZoneAdderImpl implements ControlZoneAdder {
                 .pilotPoint(pilotPoint.getPilotPointAttributes())
                 .controlUnits(controlUnits.stream().map(ControlUnitImpl::getControlUnitAttributes).toList())
                 .build();
-        ControlZoneImpl controlZone = new ControlZoneImpl(getNetwork(), controlZoneAttributes);
+        ControlZoneImpl controlZone = new ControlZoneImpl(null, getNetwork(), controlZoneAttributes);
         parent.addControlZone(controlZone);
         return parent;
     }

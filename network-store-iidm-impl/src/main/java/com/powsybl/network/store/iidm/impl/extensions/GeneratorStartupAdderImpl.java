@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
@@ -16,7 +15,7 @@ import com.powsybl.network.store.model.GeneratorStartupAttributes;
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
-public class GeneratorStartupAdderImpl extends AbstractExtensionAdder<Generator, GeneratorStartup> implements GeneratorStartupAdder {
+public class GeneratorStartupAdderImpl extends AbstractIidmExtensionAdder<Generator, GeneratorStartup> implements GeneratorStartupAdder {
 
     private double plannedActivePowerSetpoint = Double.NaN;
 

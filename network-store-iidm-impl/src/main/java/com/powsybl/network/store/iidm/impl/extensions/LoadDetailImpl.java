@@ -6,74 +6,84 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.network.store.iidm.impl.LoadImpl;
+import com.powsybl.network.store.model.LoadDetailAttributes;
 
 import java.util.Objects;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class LoadDetailImpl implements LoadDetail {
-
-    private LoadImpl load;
+public class LoadDetailImpl extends AbstractExtension<Load> implements LoadDetail {
 
     public LoadDetailImpl(LoadImpl load) {
-        this.load = Objects.requireNonNull(load);
+        super(Objects.requireNonNull(load));
     }
 
-    @Override
-    public Load getExtendable() {
-        return load;
+    private LoadImpl getLoad() {
+        return (LoadImpl) getExtendable();
     }
 
-    @Override
-    public void setExtendable(Load load) {
-        this.load = (LoadImpl) load;
+    private LoadDetailAttributes getLoadDetailAttributes() {
+        return getLoad().getResource().getAttributes().getLoadDetail();
     }
 
     @Override
     public double getFixedActivePower() {
-        return load.getResource().getAttributes().getLoadDetail().getFixedActivePower();
+        return getLoadDetailAttributes().getFixedActivePower();
     }
 
     @Override
     public LoadDetail setFixedActivePower(double fixedActivePower) {
-        load.updateResource(res -> res.getAttributes().getLoadDetail().setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower")));
+        double oldValue = getFixedActivePower();
+        if (oldValue != fixedActivePower) {
+            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower")), "fixedActivePower", oldValue, fixedActivePower);
+        }
         return this;
     }
 
     @Override
     public double getFixedReactivePower() {
-        return load.getResource().getAttributes().getLoadDetail().getFixedReactivePower();
+        return getLoadDetailAttributes().getFixedReactivePower();
     }
 
     @Override
     public LoadDetail setFixedReactivePower(double fixedReactivePower) {
-        load.updateResource(res -> res.getAttributes().getLoadDetail().setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower")));
+        double oldValue = getFixedReactivePower();
+        if (oldValue != fixedReactivePower) {
+            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower")), "fixedReactivePower", oldValue, fixedReactivePower);
+        }
         return this;
     }
 
     @Override
     public double getVariableActivePower() {
-        return load.getResource().getAttributes().getLoadDetail().getVariableActivePower();
+        return getLoadDetailAttributes().getVariableActivePower();
     }
 
     @Override
     public LoadDetail setVariableActivePower(double variableActivePower) {
-        load.updateResource(res -> res.getAttributes().getLoadDetail().setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower")));
+        double oldValue = getVariableActivePower();
+        if (oldValue != variableActivePower) {
+            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower")), "variableActivePower", oldValue, variableActivePower);
+        }
         return this;
     }
 
     @Override
     public double getVariableReactivePower() {
-        return load.getResource().getAttributes().getLoadDetail().getVariableReactivePower();
+        return getLoadDetailAttributes().getVariableReactivePower();
     }
 
     @Override
     public LoadDetail setVariableReactivePower(double variableReactivePower) {
-        load.updateResource(res -> res.getAttributes().getLoadDetail().setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower")));
+        double oldValue = getVariableReactivePower();
+        if (oldValue != variableReactivePower) {
+            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower")), "variableReactivePower", oldValue, variableReactivePower);
+        }
         return this;
     }
 

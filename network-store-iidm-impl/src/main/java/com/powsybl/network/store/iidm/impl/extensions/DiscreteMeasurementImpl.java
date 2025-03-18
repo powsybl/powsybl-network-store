@@ -22,20 +22,18 @@ import static com.powsybl.iidm.network.extensions.util.DiscreteMeasurementValida
  */
 public class DiscreteMeasurementImpl implements DiscreteMeasurement {
 
+    private final DiscreteMeasurements<?> discreteMeasurements;
+
     private final DiscreteMeasurementAttributes discreteMeasurementAttributes;
 
     AbstractIdentifiableImpl<?, ?> abstractIdentifiable;
 
-    public DiscreteMeasurementImpl(AbstractIdentifiableImpl abstractIdentifiable, DiscreteMeasurementAttributes discreteMeasurementAttributes) {
+    private static final String VALUE_FOR = "value for ";
+
+    public DiscreteMeasurementImpl(DiscreteMeasurements<?> discreteMeasurements, AbstractIdentifiableImpl<?, ?> abstractIdentifiable, DiscreteMeasurementAttributes discreteMeasurementAttributes) {
+        this.discreteMeasurements = discreteMeasurements;
         this.discreteMeasurementAttributes = discreteMeasurementAttributes;
         this.abstractIdentifiable = abstractIdentifiable;
-    }
-
-    private void updateResource() {
-        this.abstractIdentifiable.updateResource(resource ->
-                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().remove(this.discreteMeasurementAttributes));
-        this.abstractIdentifiable.updateResource(resource ->
-                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().add(this.discreteMeasurementAttributes));
     }
 
     @Override
@@ -65,15 +63,23 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
 
     @Override
     public DiscreteMeasurement putProperty(String name, String value) {
-        discreteMeasurementAttributes.getProperties().put(name, value);
-        updateResource();
+        String oldValue = getProperty(name);
+        this.abstractIdentifiable.updateResourceExtension(discreteMeasurements,
+            resource -> {
+                int index = ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().indexOf(this.discreteMeasurementAttributes);
+                if (index != -1) {
+                    this.discreteMeasurementAttributes.getProperties().put(name, value);
+                    ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().set(index, this.discreteMeasurementAttributes);
+                }
+            }, "property " + name + " for " + getInfo(), oldValue, value);
         return this;
     }
 
     @Override
     public DiscreteMeasurement removeProperty(String name) {
-        discreteMeasurementAttributes.getProperties().remove(name);
-        updateResource();
+        String oldValue = getProperty(name);
+        this.abstractIdentifiable.updateResourceExtension(discreteMeasurements,
+            resource -> this.discreteMeasurementAttributes.getProperties().remove(name), "property " + name + " for " + getInfo(), oldValue, null);
         return this;
     }
 
@@ -106,28 +112,41 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
         throw new PowsyblException("Value type is not BOOLEAN but is: " + discreteMeasurementAttributes.getType().name());
     }
 
+    private Object getValue() {
+        return discreteMeasurementAttributes.getValue();
+    }
+
     @Override
     public DiscreteMeasurement setValue(String value) {
+        Object oldValue = getValue();
         checkValue(value, discreteMeasurementAttributes.isValid());
-        discreteMeasurementAttributes.setValueType(ValueType.STRING);
-        discreteMeasurementAttributes.setValue(value);
-        updateResource();
+        this.abstractIdentifiable.updateResourceExtension(discreteMeasurements,
+            resource -> {
+                this.discreteMeasurementAttributes.setValueType(ValueType.STRING);
+                this.discreteMeasurementAttributes.setValue(value);
+            }, VALUE_FOR + getInfo(), oldValue, value);
         return this;
     }
 
     @Override
     public DiscreteMeasurement setValue(int value) {
-        discreteMeasurementAttributes.setValueType(ValueType.INT);
-        discreteMeasurementAttributes.setValue(value);
-        updateResource();
+        Object oldValue = getValue();
+        this.abstractIdentifiable.updateResourceExtension(discreteMeasurements,
+            resource -> {
+                this.discreteMeasurementAttributes.setValueType(ValueType.INT);
+                this.discreteMeasurementAttributes.setValue(value);
+            }, VALUE_FOR + getInfo(), oldValue, value);
         return this;
     }
 
     @Override
     public DiscreteMeasurement setValue(boolean value) {
-        discreteMeasurementAttributes.setValueType(ValueType.BOOLEAN);
-        discreteMeasurementAttributes.setValue(value);
-        updateResource();
+        Object oldValue = getValue();
+        this.abstractIdentifiable.updateResourceExtension(discreteMeasurements,
+            resource -> {
+                this.discreteMeasurementAttributes.setValueType(ValueType.BOOLEAN);
+                this.discreteMeasurementAttributes.setValue(value);
+            }, VALUE_FOR + getInfo(), oldValue, value);
         return this;
     }
 
@@ -138,14 +157,21 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
 
     @Override
     public DiscreteMeasurement setValid(boolean valid) {
-        discreteMeasurementAttributes.setValid(valid);
-        updateResource();
+        boolean oldValue = isValid();
+        this.abstractIdentifiable.updateResourceExtension(discreteMeasurements,
+            resource -> this.discreteMeasurementAttributes.setValid(valid), "validity for " + getInfo(), oldValue, valid);
         return this;
     }
 
     @Override
     public void remove() {
-        this.abstractIdentifiable.updateResource(resource ->
-                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().remove(this.discreteMeasurementAttributes));
+        this.abstractIdentifiable.updateResourceExtension(discreteMeasurements, resource ->
+                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().remove(this.discreteMeasurementAttributes),
+            getInfo(), this.discreteMeasurementAttributes, null);
+    }
+
+    private String getInfo() {
+        return "discreteMeasurement(id=" + getId() + ", type=" + getType() +
+            (getTapChanger() != null ? ", tap changer=" + getTapChanger() : "") + ")";
     }
 }

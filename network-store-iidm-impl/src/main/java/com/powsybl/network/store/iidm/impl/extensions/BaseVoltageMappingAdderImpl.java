@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.cgmes.extensions.BaseVoltageMapping;
 import com.powsybl.cgmes.extensions.BaseVoltageMappingAdder;
 import com.powsybl.cgmes.extensions.Source;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
@@ -21,7 +20,7 @@ import java.util.Map;
 /**
  * @author Jacques Borsenberger <jacques.borsenberger at rte-france.com>
  */
-public class BaseVoltageMappingAdderImpl extends AbstractExtensionAdder<Network, BaseVoltageMapping> implements BaseVoltageMappingAdder {
+public class BaseVoltageMappingAdderImpl extends AbstractIidmExtensionAdder<Network, BaseVoltageMapping> implements BaseVoltageMappingAdder {
 
     private final Map<Double, BaseVoltageSourceAttribute> baseVoltageSourceAttributeMap = new HashMap<>();
 

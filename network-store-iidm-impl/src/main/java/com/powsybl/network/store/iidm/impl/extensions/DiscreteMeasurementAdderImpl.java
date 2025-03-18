@@ -111,6 +111,6 @@ public class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
                 .valid(valid)
                 .build();
         discreteMeasurements.getMeasurementsAttributes().getDiscreteMeasurementAttributes().add(discreteMeasurementAttributes);
-        return new DiscreteMeasurementImpl((AbstractIdentifiableImpl) discreteMeasurements.getExtendable(), discreteMeasurementAttributes);
+        return new DiscreteMeasurementImpl(discreteMeasurements, (AbstractIdentifiableImpl) discreteMeasurements.getExtendable(), discreteMeasurementAttributes);
     }
 }
