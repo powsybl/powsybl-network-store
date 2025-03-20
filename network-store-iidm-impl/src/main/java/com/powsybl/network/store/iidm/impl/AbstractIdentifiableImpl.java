@@ -39,6 +39,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     private Resource<D> resource;
 
+    private String idIfRemoved;
+
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
         this.resource = resource;
@@ -69,6 +71,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public void setResource(Resource<D> resource) {
+        if (resource == null) {
+            idIfRemoved = this.resource.getId();
+        }
         this.resource = resource;
     }
 
@@ -87,7 +92,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public String getId() {
-        return getResource().getId();
+        return resource == null ? idIfRemoved : resource.getId();
     }
 
     @Deprecated
@@ -296,7 +301,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public NetworkImpl getNetwork() {
-        getResource();
+        if (resource == null) {
+            throw new PowsyblException("Cannot access network of removed equipment " + getId());
+        }
         return index.getNetwork();
     }
 
