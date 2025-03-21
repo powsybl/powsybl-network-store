@@ -71,9 +71,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public void setResource(Resource<D> resource) {
-        if (resource == null) {
-            idIfRemoved = this.resource.getId();
-        }
+        idIfRemoved = resource == null ? this.resource.getId() : null;
         this.resource = resource;
     }
 
