@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.model.IdentifiableAttributes;
@@ -64,13 +65,16 @@ class TerminalBusViewImpl<U extends IdentifiableAttributes> implements Terminal.
 
     @Override
     public Bus getBus() {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access bus of removed equipment " + connectable.getId());
+        }
         return calculateBus();
     }
 
     @Override
     public Bus getConnectableBus() {
         if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
-            return null;
+            throw new PowsyblException("Cannot access bus of removed equipment " + connectable.getId());
         }
 
         var attributes = getAttributes();

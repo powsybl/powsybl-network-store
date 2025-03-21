@@ -63,7 +63,18 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
+    public NetworkImpl getNetwork() {
+        if (getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access network of removed voltage level " + getId());
+        }
+        return super.getNetwork();
+    }
+
+    @Override
     public Optional<Substation> getSubstation() {
+        if (getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access substation of removed voltage level " + getId());
+        }
         String substationId = getResource().getAttributes().getSubstationId();
         return substationId == null ? Optional.empty() : index.getSubstation(substationId).map(Function.identity());
     }

@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.Lists;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeAreaImpl;
@@ -36,6 +37,14 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     @Override
     public ContainerType getContainerType() {
         return ContainerType.SUBSTATION;
+    }
+
+    @Override
+    public NetworkImpl getNetwork() {
+        if (getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access network of removed substation " + getId());
+        }
+        return super.getNetwork();
     }
 
     @Override
@@ -93,7 +102,9 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         if (tag == null) {
             throw new ValidationException(this, "geographical tag is null");
         }
+        Set<String> oldGeographicalTags = new HashSet<>(getResource().getAttributes().getGeographicalTags());
         updateResource(r -> r.getAttributes().getGeographicalTags().add(tag));
+        index.notifyUpdate(this, "geographicalTags", null, oldGeographicalTags, getResource().getAttributes().getGeographicalTags());
         index.notifyPropertyAdded(this, "geographicalTags", tag);
         return this;
     }
