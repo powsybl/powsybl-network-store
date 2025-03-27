@@ -58,13 +58,14 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
 
     private ConnectablePositionImpl<C> createInjectionExtension(C extendable) {
         if (feederAdder != null) {
-            ((AbstractInjectionImpl<?, ?>) extendable).updateResource(res -> {
-                res.getAttributes().setPosition(ConnectablePositionAttributes.builder()
-                        .label(feederAdder.name)
-                        .order(feederAdder.order)
-                        .direction(feederAdder.direction)
-                        .build());
-            });
+            ConnectablePositionAttributes oldValue = ((AbstractInjectionImpl<?, ?>) extendable).getResource().getAttributes().getPosition();
+            ConnectablePositionAttributes attributes = ConnectablePositionAttributes.builder()
+                .label(feederAdder.name)
+                .order(feederAdder.order)
+                .direction(feederAdder.direction)
+                .build();
+            ((AbstractInjectionImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().setPosition(attributes),
+                "connectablePosition", oldValue, attributes);
         }
         return new ConnectablePositionImpl<>(extendable,
             connectable -> ((AbstractInjectionImpl<?, ?>) connectable).getResource().getAttributes().getPosition(),
@@ -74,22 +75,28 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
     }
 
     private ConnectablePositionImpl<C> createBranchExtension(C extendable) {
-        ((AbstractBranchImpl<?, ?>) extendable).updateResource(res -> {
-            if (feederAdder1 != null) {
-                res.getAttributes().setPosition1(ConnectablePositionAttributes.builder()
-                        .label(feederAdder1.name)
-                        .order(feederAdder1.order)
-                        .direction(feederAdder1.direction)
-                        .build());
-            }
-            if (feederAdder2 != null) {
-                res.getAttributes().setPosition2(ConnectablePositionAttributes.builder()
-                        .label(feederAdder2.name)
-                        .order(feederAdder2.order)
-                        .direction(feederAdder2.direction)
-                        .build());
-            }
-        });
+        if (feederAdder1 != null) {
+            var oldValue = ((AbstractBranchImpl<?, ?>) extendable).getResource().getAttributes().getPosition1();
+            var connectablePosition1 = ConnectablePositionAttributes.builder()
+                .label(feederAdder1.name)
+                .order(feederAdder1.order)
+                .direction(feederAdder1.direction)
+                .build();
+            ((AbstractBranchImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().setPosition1(connectablePosition1),
+                "connectablePosition1", oldValue, connectablePosition1);
+        }
+
+        if (feederAdder2 != null) {
+            var oldValue = ((AbstractBranchImpl<?, ?>) extendable).getResource().getAttributes().getPosition2();
+            var connectablePosition2 = ConnectablePositionAttributes.builder()
+                .label(feederAdder2.name)
+                .order(feederAdder2.order)
+                .direction(feederAdder2.direction)
+                .build();
+            ((AbstractBranchImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().setPosition2(connectablePosition2),
+                "connectablePosition2", oldValue, connectablePosition2);
+        }
+
         return new ConnectablePositionImpl<>(extendable,
             null,
             connectable -> ((AbstractBranchImpl<?, ?>) connectable).getResource().getAttributes().getPosition1(),
@@ -98,29 +105,37 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
     }
 
     private ConnectablePositionImpl<C> createThreeWindingsTransformerExtension(C extendable) {
-        ((ThreeWindingsTransformerImpl) extendable).updateResource(res -> {
-            if (feederAdder1 != null) {
-                res.getAttributes().setPosition1(ConnectablePositionAttributes.builder()
-                        .label(feederAdder1.name)
-                        .order(feederAdder1.order)
-                        .direction(feederAdder1.direction)
-                        .build());
-            }
-            if (feederAdder2 != null) {
-                res.getAttributes().setPosition2(ConnectablePositionAttributes.builder()
-                        .label(feederAdder2.name)
-                        .order(feederAdder2.order)
-                        .direction(feederAdder2.direction)
-                        .build());
-            }
-            if (feederAdder3 != null) {
-                res.getAttributes().setPosition3(ConnectablePositionAttributes.builder()
-                        .label(feederAdder3.name)
-                        .order(feederAdder3.order)
-                        .direction(feederAdder3.direction)
-                        .build());
-            }
-        });
+        if (feederAdder1 != null) {
+            var oldValue = ((ThreeWindingsTransformerImpl) extendable).getResource().getAttributes().getPosition1();
+            var connectablePosition1 = ConnectablePositionAttributes.builder()
+                .label(feederAdder1.name)
+                .order(feederAdder1.order)
+                .direction(feederAdder1.direction)
+                .build();
+            ((ThreeWindingsTransformerImpl) extendable).updateResource(res -> res.getAttributes().setPosition1(connectablePosition1),
+                "connectablePosition1", oldValue, connectablePosition1);
+        }
+        if (feederAdder2 != null) {
+            var oldValue = ((ThreeWindingsTransformerImpl) extendable).getResource().getAttributes().getPosition2();
+            var connectablePosition2 = ConnectablePositionAttributes.builder()
+                .label(feederAdder2.name)
+                .order(feederAdder2.order)
+                .direction(feederAdder2.direction)
+                .build();
+            ((ThreeWindingsTransformerImpl) extendable).updateResource(res -> res.getAttributes().setPosition2(connectablePosition2),
+                "connectablePosition2", oldValue, connectablePosition2);
+        }
+        if (feederAdder3 != null) {
+            var oldValue = ((ThreeWindingsTransformerImpl) extendable).getResource().getAttributes().getPosition3();
+            var connectablePosition3 = ConnectablePositionAttributes.builder()
+                .label(feederAdder3.name)
+                .order(feederAdder3.order)
+                .direction(feederAdder3.direction)
+                .build();
+            ((ThreeWindingsTransformerImpl) extendable).updateResource(res -> res.getAttributes().setPosition3(connectablePosition3),
+                "connectablePosition3", oldValue, connectablePosition3);
+        }
+
         return new ConnectablePositionImpl<>(extendable,
             null,
             connectable -> ((ThreeWindingsTransformerImpl) connectable).getResource().getAttributes().getPosition1(),

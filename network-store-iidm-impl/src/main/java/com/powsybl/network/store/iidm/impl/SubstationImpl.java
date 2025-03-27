@@ -52,9 +52,8 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     public Substation setCountry(Country country) {
         var resource = getResource();
         Country oldValue = resource.getAttributes().getCountry();
-        updateResource(r -> r.getAttributes().setCountry(country));
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "country", variantId, oldValue, country);
+        updateResource(r -> r.getAttributes().setCountry(country),
+            "country", oldValue, country);
         return this;
     }
 
@@ -67,9 +66,8 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     public Substation setTso(String tso) {
         var resource = getResource();
         String oldValue = resource.getAttributes().getTso();
-        updateResource(r -> r.getAttributes().setTso(tso));
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "tso", variantId, oldValue, tso);
+        updateResource(r -> r.getAttributes().setTso(tso),
+            "tso", oldValue, tso);
         return this;
     }
 
@@ -93,8 +91,9 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         if (tag == null) {
             throw new ValidationException(this, "geographical tag is null");
         }
-        updateResource(r -> r.getAttributes().getGeographicalTags().add(tag));
-        index.notifyPropertyAdded(this, "geographicalTags", tag);
+        Set<String> oldValue = getGeographicalTags();
+        updateResource(r -> r.getAttributes().getGeographicalTags().add(tag),
+            "geographicalTags", oldValue, this::getGeographicalTags);
         return this;
     }
 
@@ -155,13 +154,12 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     @Override
     public <E extends Extension<Substation>> void addExtension(Class<? super E> type, E extension) {
         if (type == EntsoeArea.class) {
+            EntsoeAreaAttributes oldValue = getResource().getAttributes().getEntsoeArea();
             EntsoeArea entsoeArea = (EntsoeArea) extension;
-            updateResource(r -> {
-                r.getAttributes().setEntsoeArea(
-                        EntsoeAreaAttributes.builder()
-                                .code(entsoeArea.getCode().toString())
-                                .build());
-            });
+            EntsoeAreaAttributes attributes = EntsoeAreaAttributes.builder()
+                .code(entsoeArea.getCode().toString())
+                .build();
+            updateResource(r -> r.getAttributes().setEntsoeArea(attributes), "entsoeArea", oldValue, attributes);
         }
         super.addExtension(type, extension);
     }

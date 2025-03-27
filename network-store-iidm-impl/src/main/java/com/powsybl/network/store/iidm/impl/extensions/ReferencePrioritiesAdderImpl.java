@@ -27,19 +27,25 @@ class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractIid
 
     @Override
     protected ReferencePriorities<C> createExtension(C extendable) {
-        ReferencePriorities<C> referencePriorities = new ReferencePrioritiesImpl<>(extendable);
+        ReferencePrioritiesImpl<C> referencePriorities = new ReferencePrioritiesImpl<>(extendable);
+        ReferencePrioritiesAttributes oldValue = referencePriorities.getAttributes();
+        ReferencePrioritiesAttributes attributes = new ReferencePrioritiesAttributes();
         if (extendable instanceof BusbarSectionImpl) {
             ((BusbarSectionImpl) extendable).updateResource(res ->
-                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
+                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, attributes),
+                "referencePriorities", oldValue, attributes);
         } else if (extendable instanceof AbstractInjectionImpl) {
             ((AbstractInjectionImpl<?, ?>) extendable).updateResource(res ->
-                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
+                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, attributes),
+                "referencePriorities", oldValue, attributes);
         } else if (extendable instanceof AbstractBranchImpl) {
             ((AbstractBranchImpl<?, ?>) extendable).updateResource(res ->
-                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
+                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, attributes),
+                "referencePriorities", oldValue, attributes);
         } else if (extendable instanceof ThreeWindingsTransformerImpl) {
             ((ThreeWindingsTransformerImpl) extendable).updateResource(res ->
-                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
+                res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, attributes),
+                "referencePriorities", oldValue, attributes);
         }
         return referencePriorities;
     }

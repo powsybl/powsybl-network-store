@@ -116,7 +116,8 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
         }
 
         var attributes = getAttributes();
-        if (attributes.getConnectableBus().equals(busId)) {
+        String oldConnectableBusId = attributes.getConnectableBus();
+        if (oldConnectableBusId.equals(busId)) {
             return;
         }
 
@@ -126,7 +127,7 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
             if (a.getBus() != null) {
                 a.setBus(busId);
             }
-        });
+        }, "connectableBus", oldConnectableBusId, busId);
 
         getVoltageLevel().invalidateCalculatedBuses();
     }
@@ -154,7 +155,7 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
             attr.setBus(connected ? busId : null);
             attr.setNode(null);
             attr.setVoltageLevelId(voltageLevel.getId());
-        });
+        }, "injectionAttributes", attributes, () -> getAttributes(getAbstractIdentifiable().getResource()));
         oldVoltageLevel.invalidateCalculatedBuses();
         voltageLevel.invalidateCalculatedBuses();
     }

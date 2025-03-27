@@ -28,7 +28,10 @@ public class ThreeWindingsTransformerPhaseAngleClockAdderImpl extends AbstractIi
     @Override
     protected ThreeWindingsTransformerPhaseAngleClock createExtension(ThreeWindingsTransformer threeWindingsTransformer) {
         checkPhaseAngleClock();
-        ((ThreeWindingsTransformerImpl) threeWindingsTransformer).updateResource(res -> res.getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3)));
+        ThreeWindingsTransformerPhaseAngleClockAttributes oldValue = ((ThreeWindingsTransformerImpl) threeWindingsTransformer).getResource().getAttributes().getPhaseAngleClock();
+        ThreeWindingsTransformerPhaseAngleClockAttributes attributes = new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3);
+        ((ThreeWindingsTransformerImpl) threeWindingsTransformer).updateResource(res -> res.getAttributes().setPhaseAngleClock(attributes),
+            "phaseAngleClock", oldValue, attributes);
         return new ThreeWindingsTransformerPhaseAngleClockImpl((ThreeWindingsTransformerImpl) threeWindingsTransformer);
     }
 

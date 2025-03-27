@@ -125,7 +125,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, " cannot set active power on a busbar section");
         }
-        getAbstractIdentifiable().updateResource(r -> getAttributes().setP(p), AttributeFilter.SV);
+        double oldValue = getP();
+        if (oldValue != p) {
+            getAbstractIdentifiable().updateResource(r -> getAttributes().setP(p), AttributeFilter.SV,
+                "p", oldValue, () -> p);
+        }
         return this;
     }
 
@@ -139,7 +143,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, " cannot set reactive power on a busbar section");
         }
-        getAbstractIdentifiable().updateResource(r -> getAttributes().setQ(q), AttributeFilter.SV);
+        double oldValue = getQ();
+        if (oldValue != q) {
+            getAbstractIdentifiable().updateResource(r -> getAttributes().setQ(q), AttributeFilter.SV,
+                "q", oldValue, () -> q);
+        }
         return this;
     }
 
@@ -268,14 +276,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     protected void connectBusBreaker() {
+        String side = Terminal.getConnectableSide(this).map(s -> Integer.toString(s.getNum())).orElse("");
         getAbstractIdentifiable().updateResource(r -> {
             var a = getAttributes(r);
             a.setBus(a.getConnectableBus());
-
-            // Notification to the listeners
-            String side = Terminal.getConnectableSide(this).map(s -> Integer.toString(s.getNum())).orElse("");
-            index.notifyUpdate(getConnectable(), "connected" + side, index.getNetwork().getVariantManager().getWorkingVariantId(), false, true);
-        });
+        }, "connected" + side, false, true);
     }
 
     /**
@@ -485,14 +490,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     protected boolean disconnectBusBreaker() {
         var attributes = getAttributes();
         if (attributes.getBus() != null) {
+            String side = Terminal.getConnectableSide(this).map(s -> Integer.toString(s.getNum())).orElse("");
             getAbstractIdentifiable().updateResource(resource -> {
                 var a = getAttributes(resource);
                 a.setBus(null);
-
-                // Notification to the listeners
-                String side = Terminal.getConnectableSide(this).map(s -> Integer.toString(s.getNum())).orElse("");
-                index.notifyUpdate(getConnectable(), "connected" + side, index.getNetwork().getVariantManager().getWorkingVariantId(), true, false);
-            });
+            }, "connected" + side, true, false);
             return true;
         }
         return false;

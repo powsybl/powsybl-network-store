@@ -23,9 +23,10 @@ public class MeasurementsAdderImpl<C extends Connectable<C>> extends AbstractIid
 
     @Override
     protected Measurements<C> createExtension(C connectable) {
-        MeasurementsAttributes measurementsAttributes = MeasurementsAttributes.builder()
-                .build();
-        ((AbstractIdentifiableImpl<?, ?>) connectable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(Measurements.NAME, measurementsAttributes));
+        MeasurementsAttributes oldValue = (MeasurementsAttributes) ((AbstractIdentifiableImpl<?, ?>) connectable).getResource().getAttributes().getExtensionAttributes().get(Measurements.NAME);
+        MeasurementsAttributes measurementsAttributes = MeasurementsAttributes.builder().build();
+        ((AbstractIdentifiableImpl<?, ?>) connectable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(Measurements.NAME, measurementsAttributes),
+            "measurements", oldValue, measurementsAttributes);
         return new MeasurementsImpl< >(connectable);
     }
 }

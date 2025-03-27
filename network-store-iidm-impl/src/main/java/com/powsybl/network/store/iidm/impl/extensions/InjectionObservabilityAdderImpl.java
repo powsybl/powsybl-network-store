@@ -41,6 +41,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
 
     @Override
     protected InjectionObservability<I> createExtension(I injection) {
+        InjectionObservabilityAttributes oldValue = (InjectionObservabilityAttributes) ((AbstractIdentifiableImpl<?, ?>) extendable).getResource().getAttributes().getExtensionAttributes().get(InjectionObservability.NAME);
         InjectionObservabilityAttributes attributes = InjectionObservabilityAttributes.builder()
             .observable(observable)
             .qualityP(!Double.isNaN(standardDeviationP) ? ObservabilityQualityAttributes.builder()
@@ -56,7 +57,8 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
                 .redundant(redundantV)
                 .build() : null)
             .build();
-        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(InjectionObservability.NAME, attributes));
+        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(InjectionObservability.NAME, attributes),
+            "injectionObservability", oldValue, attributes);
         return new InjectionObservabilityImpl<>(injection);
     }
 

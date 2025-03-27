@@ -34,6 +34,7 @@ public class ThreeWindingsTransformerToBeEstimatedAdderImpl extends AbstractIidm
 
     @Override
     protected ThreeWindingsTransformerToBeEstimated createExtension(ThreeWindingsTransformer threeWindingsTransformer) {
+        ThreeWindingsTransformerToBeEstimatedAttributes oldValue = (ThreeWindingsTransformerToBeEstimatedAttributes) ((ThreeWindingsTransformerImpl) threeWindingsTransformer).getResource().getAttributes().getExtensionAttributes().get(ThreeWindingsTransformerToBeEstimated.NAME);
         ThreeWindingsTransformerToBeEstimatedAttributes attributes = ThreeWindingsTransformerToBeEstimatedAttributes.builder()
             .rtc1Status(rtc1Status)
             .rtc2Status(rtc2Status)
@@ -42,7 +43,8 @@ public class ThreeWindingsTransformerToBeEstimatedAdderImpl extends AbstractIidm
             .ptc2Status(ptc2Status)
             .ptc3Status(ptc3Status)
             .build();
-        ((ThreeWindingsTransformerImpl) threeWindingsTransformer).updateResource(res -> res.getAttributes().getExtensionAttributes().put(ThreeWindingsTransformerToBeEstimated.NAME, attributes));
+        ((ThreeWindingsTransformerImpl) threeWindingsTransformer).updateResource(res -> res.getAttributes().getExtensionAttributes().put(ThreeWindingsTransformerToBeEstimated.NAME, attributes),
+            "toBeEstimated", oldValue, attributes);
         return new ThreeWindingsTransformerToBeEstimatedImpl(threeWindingsTransformer);
     }
 

@@ -29,12 +29,14 @@ public class GeneratorShortCircuitAdderImpl extends AbstractIidmExtensionAdder<G
     }
 
     protected GeneratorShortCircuit createExtension(Generator generator) {
-        var attributes = GeneratorShortCircuitAttributes.builder()
+        GeneratorShortCircuitAttributes oldValue = ((GeneratorImpl) generator).getResource().getAttributes().getGeneratorShortCircuitAttributes();
+        GeneratorShortCircuitAttributes attributes = GeneratorShortCircuitAttributes.builder()
                 .directSubtransX(directSubtransX)
                 .directTransX(directTransX)
                 .stepUpTransformerX(stepUpTransformerX)
                 .build();
-        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setGeneratorShortCircuitAttributes(attributes));
+        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setGeneratorShortCircuitAttributes(attributes),
+            "generatorShortCircuit", oldValue, attributes);
         return new GeneratorShortCircuitImpl((GeneratorImpl) generator);
     }
 

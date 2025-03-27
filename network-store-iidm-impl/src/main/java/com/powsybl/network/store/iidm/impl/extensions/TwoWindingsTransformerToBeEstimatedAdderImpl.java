@@ -29,11 +29,13 @@ public class TwoWindingsTransformerToBeEstimatedAdderImpl extends AbstractIidmEx
 
     @Override
     protected TwoWindingsTransformerToBeEstimated createExtension(TwoWindingsTransformer twoWindingsTransformer) {
+        TwoWindingsTransformerToBeEstimatedAttributes oldValue = (TwoWindingsTransformerToBeEstimatedAttributes) ((TwoWindingsTransformerImpl) twoWindingsTransformer).getResource().getAttributes().getExtensionAttributes().get(TwoWindingsTransformerToBeEstimated.NAME);
         TwoWindingsTransformerToBeEstimatedAttributes attributes = TwoWindingsTransformerToBeEstimatedAttributes.builder()
             .rtcStatus(rtcStatus)
             .ptcStatus(ptcStatus)
             .build();
-        ((TwoWindingsTransformerImpl) twoWindingsTransformer).updateResource(res -> res.getAttributes().getExtensionAttributes().put(TwoWindingsTransformerToBeEstimated.NAME, attributes));
+        ((TwoWindingsTransformerImpl) twoWindingsTransformer).updateResource(res -> res.getAttributes().getExtensionAttributes().put(TwoWindingsTransformerToBeEstimated.NAME, attributes),
+            "toBeEstimated", oldValue, attributes);
         return new TwoWindingsTransformerToBeEstimatedImpl(twoWindingsTransformer);
     }
 
