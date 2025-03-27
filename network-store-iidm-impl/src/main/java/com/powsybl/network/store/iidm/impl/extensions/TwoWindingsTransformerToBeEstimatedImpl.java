@@ -37,7 +37,10 @@ public class TwoWindingsTransformerToBeEstimatedImpl extends AbstractExtension<T
 
     @Override
     public TwoWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger(boolean toBeEstimated) {
-        getTwoWindingsTransformer().updateResource(res -> getTwoWindingsTransformerAttributes().setRtcStatus(toBeEstimated));
+        boolean oldValue = shouldEstimateRatioTapChanger();
+        if (oldValue != toBeEstimated) {
+            getTwoWindingsTransformer().updateResourceExtension(this, res -> getTwoWindingsTransformerAttributes().setRtcStatus(toBeEstimated), "rtcStatus", oldValue, toBeEstimated);
+        }
         return this;
     }
 
@@ -48,7 +51,10 @@ public class TwoWindingsTransformerToBeEstimatedImpl extends AbstractExtension<T
 
     @Override
     public TwoWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger(boolean toBeEstimated) {
-        getTwoWindingsTransformer().updateResource(res -> getTwoWindingsTransformerAttributes().setPtcStatus(toBeEstimated));
+        boolean oldValue = shouldEstimatePhaseTapChanger();
+        if (oldValue != toBeEstimated) {
+            getTwoWindingsTransformer().updateResourceExtension(this, res -> getTwoWindingsTransformerAttributes().setPtcStatus(toBeEstimated), "ptcStatus", oldValue, toBeEstimated);
+        }
         return this;
     }
 }

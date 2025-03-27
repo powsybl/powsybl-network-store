@@ -29,16 +29,6 @@ public class SlackTerminalImpl extends AbstractIidmExtension<VoltageLevel> imple
     }
 
     @Override
-    public VoltageLevel getExtendable() {
-        return super.getExtendable();
-    }
-
-    @Override
-    public void setExtendable(VoltageLevel voltageLevel) {
-        super.setExtendable(voltageLevel);
-    }
-
-    @Override
     public Terminal getTerminal() {
         return ((VoltageLevelImpl) getExtendable()).getTerminal(((VoltageLevelImpl) getExtendable()).getResource().getAttributes().getSlackTerminal());
     }
@@ -54,7 +44,7 @@ public class SlackTerminalImpl extends AbstractIidmExtension<VoltageLevel> imple
         if (oldTerminal != null) {
             ((TerminalImpl<?>) oldTerminal).getReferrerManager().unregister(this);
         }
-        ((VoltageLevelImpl) getExtendable()).updateResource(res -> res.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal)));
+        ((VoltageLevelImpl) getExtendable()).updateResourceExtension(this, res -> res.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal)), "terminal", TerminalRefUtils.getTerminalRefAttributes(oldTerminal), TerminalRefUtils.getTerminalRefAttributes(terminal));
         // register the slack terminal in this new terminal, if not null
         if (terminal != null) {
             ((TerminalImpl<?>) terminal).getReferrerManager().register(this);

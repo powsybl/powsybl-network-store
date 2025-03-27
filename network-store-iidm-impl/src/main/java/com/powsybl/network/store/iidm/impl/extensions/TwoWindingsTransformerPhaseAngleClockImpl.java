@@ -33,7 +33,10 @@ public class TwoWindingsTransformerPhaseAngleClockImpl extends AbstractExtension
     @Override
     public void setPhaseAngleClock(int phaseAngleClock) {
         checkPhaseAngleClock(phaseAngleClock);
-        getTwoWindingsTransformer().updateResource(res -> res.getAttributes().getPhaseAngleClockAttributes().setPhaseAngleClock(phaseAngleClock));
+        int oldValue = getPhaseAngleClock();
+        if (oldValue != phaseAngleClock) {
+            getTwoWindingsTransformer().updateResourceExtension(this, res -> res.getAttributes().getPhaseAngleClockAttributes().setPhaseAngleClock(phaseAngleClock), "phaseAngleClock", oldValue, phaseAngleClock);
+        }
     }
 
     private void checkPhaseAngleClock(int phaseAngleClock) {

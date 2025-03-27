@@ -527,6 +527,16 @@ public class NetworkObjectIndex {
         }
     }
 
+    public void notifyExtensionCreation(Extension<?> extension) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onExtensionCreation(extension);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
     public void notifyUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : network.getListeners()) {

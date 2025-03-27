@@ -7,12 +7,14 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.cgmes.extensions.CgmesControlArea;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
 import com.powsybl.network.store.model.CgmesControlAreaAttributes;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 
 import java.util.Objects;
 import java.util.Set;
@@ -23,11 +25,14 @@ import java.util.stream.Collectors;
  */
 public class CgmesControlAreaImpl implements CgmesControlArea {
 
+    private final CgmesControlAreas parent;
+
     private final NetworkImpl network;
 
     private final int index;
 
-    CgmesControlAreaImpl(NetworkImpl network, int index) {
+    CgmesControlAreaImpl(CgmesControlAreas parent, NetworkImpl network, int index) {
+        this.parent = parent;
         this.network = Objects.requireNonNull(network);
         this.index = index;
     }
@@ -87,12 +92,16 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
 
     @Override
     public void setNetInterchange(double netInterchange) {
-        network.updateResource(res -> getAttributes(res).setNetInterchange(netInterchange));
+        double oldValue = getNetInterchange();
+        if (oldValue != netInterchange) {
+            network.updateResourceExtension(parent, res -> getAttributes(res).setNetInterchange(netInterchange), "netInterchange", oldValue, netInterchange);
+        }
     }
 
     @Override
     public void add(Terminal terminal) {
-        network.updateResource(res -> getAttributes(res).getTerminals().add(TerminalRefUtils.getTerminalRefAttributes(terminal)));
+        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(terminal);
+        network.updateResourceExtension(parent, res -> getAttributes(res).getTerminals().add(terminalRefAttributes), "terminal", null, terminalRefAttributes);
     }
 
     public static Terminal getBoundaryTerminal(Boundary boundary) {
@@ -107,7 +116,8 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
     @Override
     public void add(Boundary boundary) {
         Terminal terminal = getBoundaryTerminal(boundary);
-        network.updateResource(res -> getAttributes(res).getBoundaries().add(TerminalRefUtils.getTerminalRefAttributes(terminal)));
+        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(terminal);
+        network.updateResourceExtension(parent, res -> getAttributes(res).getBoundaries().add(terminalRefAttributes), "boundary", null, terminalRefAttributes);
     }
 
     @Override
@@ -117,6 +127,9 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
 
     @Override
     public void setPTolerance(double pTolerance) {
-        network.updateResource(res -> getAttributes(res).setPTolerance(pTolerance));
+        double oldValue = getPTolerance();
+        if (oldValue != pTolerance) {
+            network.updateResourceExtension(parent, res -> getAttributes(res).setPTolerance(pTolerance), "pTolerance", oldValue, pTolerance);
+        }
     }
 }

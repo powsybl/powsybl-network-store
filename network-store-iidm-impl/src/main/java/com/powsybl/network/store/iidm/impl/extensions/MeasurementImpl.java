@@ -20,20 +20,16 @@ import java.util.Set;
  */
 public class MeasurementImpl implements Measurement {
 
+    private final Measurements<?> measurements;
+
     private final MeasurementAttributes measurementAttributes;
 
     AbstractIdentifiableImpl<?, ?> abstractIdentifiable;
 
-    public MeasurementImpl(AbstractIdentifiableImpl abstractIdentifiable, MeasurementAttributes measurementAttributes) {
+    public MeasurementImpl(Measurements<?> measurements, AbstractIdentifiableImpl<?, ?> abstractIdentifiable, MeasurementAttributes measurementAttributes) {
+        this.measurements = measurements;
         this.measurementAttributes = measurementAttributes;
         this.abstractIdentifiable = abstractIdentifiable;
-    }
-
-    private void updateResource() {
-        this.abstractIdentifiable.updateResource(resource ->
-                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().remove(this.measurementAttributes));
-        this.abstractIdentifiable.updateResource(resource ->
-                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().add(this.measurementAttributes));
     }
 
     @Override
@@ -58,22 +54,31 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public Measurement putProperty(String name, String property) {
-        this.measurementAttributes.getProperties().put(name, property);
-        updateResource();
+        String oldValue = getProperty(name);
+        this.abstractIdentifiable.updateResourceExtension(measurements,
+            resource -> {
+                int index = ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().indexOf(this.measurementAttributes);
+                if (index != -1) {
+                    this.measurementAttributes.getProperties().put(name, property);
+                    ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().set(index, this.measurementAttributes);
+                }
+            }, "property " + name + " for " + getInfo(), oldValue, property);
         return this;
     }
 
     @Override
     public Measurement removeProperty(String id) {
-        this.measurementAttributes.getProperties().remove(id);
-        updateResource();
+        String oldValue = getProperty(id);
+        this.abstractIdentifiable.updateResourceExtension(measurements,
+            resource -> this.measurementAttributes.getProperties().remove(id), "property " + id + " for " + getInfo(), oldValue, null);
         return this;
     }
 
     @Override
     public Measurement setValue(double value) {
-        this.measurementAttributes.setValue(value);
-        updateResource();
+        double oldValue = getValue();
+        this.abstractIdentifiable.updateResourceExtension(measurements,
+            resource -> this.measurementAttributes.setValue(value), "value for " + getInfo(), oldValue, value);
         return this;
     }
 
@@ -84,8 +89,9 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public Measurement setStandardDeviation(double standardDeviation) {
-        this.measurementAttributes.setStandardDeviation(standardDeviation);
-        updateResource();
+        double oldValue = getStandardDeviation();
+        this.abstractIdentifiable.updateResourceExtension(measurements,
+            resource -> this.measurementAttributes.setStandardDeviation(standardDeviation), "standard deviation for " + getInfo(), oldValue, standardDeviation);
         return this;
     }
 
@@ -101,8 +107,9 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public Measurement setValid(boolean b) {
-        this.measurementAttributes.setValid(b);
-        updateResource();
+        boolean oldValue = isValid();
+        this.abstractIdentifiable.updateResourceExtension(measurements,
+            resource -> this.measurementAttributes.setValid(b), "validity for " + getInfo(), oldValue, b);
         return this;
     }
 
@@ -114,7 +121,12 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public void remove() {
-        this.abstractIdentifiable.updateResource(resource ->
-                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().remove(this.measurementAttributes));
+        this.abstractIdentifiable.updateResourceExtension(measurements, resource ->
+                ((MeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(Measurements.NAME)).getMeasurementAttributes().remove(this.measurementAttributes),
+            getInfo(), this.measurementAttributes, null);
+    }
+
+    private String getInfo() {
+        return "measurement(id=" + getId() + ", type=" + getType() + ", side=" + getSide() + ")";
     }
 }

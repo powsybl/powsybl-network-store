@@ -31,7 +31,7 @@ public class DiscreteMeasurementsImpl<I extends Identifiable<I>> extends Abstrac
     @Override
     public Collection<DiscreteMeasurement> getDiscreteMeasurements() {
         return getMeasurementsAttributes().getDiscreteMeasurementAttributes().stream()
-                .map(discreteMeasurementAttributes -> new DiscreteMeasurementImpl(getIdentifiable(), discreteMeasurementAttributes))
+                .map(discreteMeasurementAttributes -> new DiscreteMeasurementImpl(this, getIdentifiable(), discreteMeasurementAttributes))
                 .collect(Collectors.toList());
     }
 
@@ -39,7 +39,7 @@ public class DiscreteMeasurementsImpl<I extends Identifiable<I>> extends Abstrac
     public Collection<DiscreteMeasurement> getDiscreteMeasurements(DiscreteMeasurement.Type type) {
         return getMeasurementsAttributes().getDiscreteMeasurementAttributes().stream()
                 .filter(discreteMeasurementAttributes -> type.equals(discreteMeasurementAttributes.getType()))
-                .map(discreteMeasurementAttributes -> new DiscreteMeasurementImpl(getIdentifiable(), discreteMeasurementAttributes))
+                .map(discreteMeasurementAttributes -> new DiscreteMeasurementImpl(this, getIdentifiable(), discreteMeasurementAttributes))
                 .collect(Collectors.toList());
     }
 
@@ -47,7 +47,7 @@ public class DiscreteMeasurementsImpl<I extends Identifiable<I>> extends Abstrac
     public DiscreteMeasurement getDiscreteMeasurement(String id) {
         return getMeasurementsAttributes().getDiscreteMeasurementAttributes().stream()
                 .filter(discreteMeasurementAttributes -> id.equals(discreteMeasurementAttributes.getId()))
-                .map(discreteMeasurementAttributes -> new DiscreteMeasurementImpl(getIdentifiable(), discreteMeasurementAttributes))
+                .map(discreteMeasurementAttributes -> new DiscreteMeasurementImpl(this, getIdentifiable(), discreteMeasurementAttributes))
                 .findFirst().orElse(null);
     }
 

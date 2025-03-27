@@ -59,11 +59,14 @@ public class BaseVoltageMappingImpl extends AbstractExtension<Network> implement
     public BaseVoltageMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source) {
         Map<Double, BaseVoltageSourceAttribute> resourcesBaseVoltages = getResourcesBaseVoltages();
         if (resourcesBaseVoltages.containsKey(nominalVoltage)) {
-            if (resourcesBaseVoltages.get(nominalVoltage).getSource().equals(Source.IGM) && source.equals(Source.BOUNDARY)) {
-                getNetwork().updateResource(res -> res.getAttributes().getBaseVoltageMapping().getBaseVoltages().put(nominalVoltage, new BaseVoltageSourceAttribute(baseVoltageId, nominalVoltage, source)));
+            BaseVoltageSourceAttribute oldValue = resourcesBaseVoltages.get(nominalVoltage);
+            if (oldValue.getSource().equals(Source.IGM) && source.equals(Source.BOUNDARY)) {
+                BaseVoltageSourceAttribute attributes = new BaseVoltageSourceAttribute(baseVoltageId, nominalVoltage, source);
+                getNetwork().updateResourceExtension(this, res -> res.getAttributes().getBaseVoltageMapping().getBaseVoltages().put(nominalVoltage, attributes), "base voltage(id=" + baseVoltageId + ", nominalVoltage=" + nominalVoltage + ")", oldValue, attributes);
             }
         } else {
-            getNetwork().updateResource(res -> res.getAttributes().getBaseVoltageMapping().getBaseVoltages().put(nominalVoltage, new BaseVoltageSourceAttribute(baseVoltageId, nominalVoltage, source)));
+            BaseVoltageSourceAttribute attributes = new BaseVoltageSourceAttribute(baseVoltageId, nominalVoltage, source);
+            getNetwork().updateResourceExtension(this, res -> res.getAttributes().getBaseVoltageMapping().getBaseVoltages().put(nominalVoltage, attributes), "base voltage(id=" + baseVoltageId + ", nominalVoltage=" + nominalVoltage + ")", null, attributes);
         }
         return this;
     }

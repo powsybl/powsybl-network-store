@@ -105,7 +105,10 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
 
     @Override
     public StandbyAutomatonImpl setB0(double b0) {
-        getSvc().updateResource(res -> getAttributes(res).setB0(checkB0(getSvc(), b0)));
+        double oldValue = getB0();
+        if (oldValue != b0) {
+            getSvc().updateResourceExtension(this, res -> getAttributes(res).setB0(checkB0(getSvc(), b0)), "b0", oldValue, b0);
+        }
         return this;
     }
 
@@ -117,7 +120,10 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
     @Override
     public StandbyAutomatonImpl setHighVoltageSetpoint(double highVoltageSetpoint) {
         checkVoltageConfig(getSvc(), getLowVoltageSetpoint(), highVoltageSetpoint, getLowVoltageThreshold(), getHighVoltageThreshold());
-        getSvc().updateResource(res -> getAttributes(res).setHighVoltageSetpoint(highVoltageSetpoint));
+        double oldValue = getHighVoltageSetpoint();
+        if (oldValue != highVoltageSetpoint) {
+            getSvc().updateResourceExtension(this, res -> getAttributes(res).setHighVoltageSetpoint(highVoltageSetpoint), "highVoltageSetpoint", oldValue, highVoltageSetpoint);
+        }
         return this;
     }
 
@@ -129,7 +135,10 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
     @Override
     public StandbyAutomatonImpl setHighVoltageThreshold(double highVoltageThreshold) {
         checkVoltageConfig(getSvc(), getLowVoltageSetpoint(), getHighVoltageSetpoint(), getLowVoltageThreshold(), highVoltageThreshold);
-        getSvc().updateResource(res -> getAttributes(res).setHighVoltageThreshold(highVoltageThreshold));
+        double oldValue = getHighVoltageThreshold();
+        if (oldValue != highVoltageThreshold) {
+            getSvc().updateResourceExtension(this, res -> getAttributes(res).setHighVoltageThreshold(highVoltageThreshold), "highVoltageThreshold", oldValue, highVoltageThreshold);
+        }
         return this;
     }
 
@@ -141,7 +150,10 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
     @Override
     public StandbyAutomatonImpl setLowVoltageSetpoint(double lowVoltageSetpoint) {
         checkVoltageConfig(getSvc(), lowVoltageSetpoint, getHighVoltageSetpoint(), getLowVoltageThreshold(), getHighVoltageThreshold());
-        getSvc().updateResource(res -> getAttributes(res).setLowVoltageSetpoint(lowVoltageSetpoint));
+        double oldValue = getLowVoltageSetpoint();
+        if (oldValue != lowVoltageSetpoint) {
+            getSvc().updateResourceExtension(this, res -> getAttributes(res).setLowVoltageSetpoint(lowVoltageSetpoint), "lowVoltageSetpoint", oldValue, lowVoltageSetpoint);
+        }
         return this;
     }
 
@@ -153,7 +165,10 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
     @Override
     public StandbyAutomatonImpl setLowVoltageThreshold(double lowVoltageThreshold) {
         checkVoltageConfig(getSvc(), getLowVoltageSetpoint(), getHighVoltageSetpoint(), lowVoltageThreshold, getHighVoltageThreshold());
-        getSvc().updateResource(res -> getAttributes(res).setLowVoltageThreshold(lowVoltageThreshold));
+        double oldValue = getLowVoltageThreshold();
+        if (oldValue != lowVoltageThreshold) {
+            getSvc().updateResourceExtension(this, res -> getAttributes(res).setLowVoltageThreshold(lowVoltageThreshold), "lowVoltageThreshold", oldValue, lowVoltageThreshold);
+        }
         return this;
     }
 }

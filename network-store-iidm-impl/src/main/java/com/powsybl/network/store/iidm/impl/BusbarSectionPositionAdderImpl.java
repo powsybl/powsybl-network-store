@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
+import com.powsybl.network.store.iidm.impl.extensions.AbstractIidmExtensionAdder;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
@@ -15,7 +15,7 @@ import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
-public class BusbarSectionPositionAdderImpl extends AbstractExtensionAdder<BusbarSection, BusbarSectionPosition>
+public class BusbarSectionPositionAdderImpl extends AbstractIidmExtensionAdder<BusbarSection, BusbarSectionPosition>
         implements BusbarSectionPositionAdder {
 
     private int busbarIndex = -1;

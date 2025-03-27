@@ -43,7 +43,10 @@ public class InjectionObservabilityImpl<I extends Injection<I>> extends Abstract
 
     @Override
     public InjectionObservability<I> setObservable(boolean observable) {
-        getInjection().updateResource(res -> getInjectionObservabilityAttributes().setObservable(observable));
+        boolean oldValue = isObservable();
+        if (oldValue != observable) {
+            getInjection().updateResourceExtension(this, res -> getInjectionObservabilityAttributes().setObservable(observable), "observable", oldValue, observable);
+        }
         return this;
     }
 
@@ -78,60 +81,58 @@ public class InjectionObservabilityImpl<I extends Injection<I>> extends Abstract
 
     private InjectionObservability<I> setQuality(final double standardDeviation, final Boolean redundant,
                                                  final @NonNull BiConsumer<InjectionObservabilityAttributes,
-                                                 ObservabilityQualityAttributes> setterQuality) {
-        getInjection().updateResource(res -> setterQuality.accept(
-            (InjectionObservabilityAttributes) res.getAttributes().getExtensionAttributes().get(InjectionObservability.NAME),
-            ObservabilityQualityAttributes.builder()
-                .standardDeviation(standardDeviation)
-                .redundant(redundant)
-                .build()));
+                                                 ObservabilityQualityAttributes> setterQuality,
+                                                 final @NonNull Function<InjectionObservabilityAttributes, ObservabilityQualityAttributes> getterQuality,
+                                                 String suffix) {
+        ObservabilityQualityAttributes oldValue = getterQuality.apply(getInjectionObservabilityAttributes());
+        ObservabilityQualityAttributes qualityAttributes = ObservabilityQualityAttributes.builder().standardDeviation(standardDeviation).redundant(redundant).build();
+        getInjection().updateResourceExtension(this, res -> setterQuality.accept(getInjectionObservabilityAttributes(), qualityAttributes), "quality" + suffix, oldValue, qualityAttributes);
         return this;
     }
 
     @Override
     public InjectionObservability<I> setQualityP(final double standardDeviation, final Boolean redundant) {
-        return setQuality(standardDeviation, redundant, InjectionObservabilityAttributes::setQualityP);
+        return setQuality(standardDeviation, redundant, InjectionObservabilityAttributes::setQualityP, InjectionObservabilityAttributes::getQualityP, "P");
     }
 
     @Override
     public InjectionObservability<I> setQualityQ(final double standardDeviation, final Boolean redundant) {
-        return setQuality(standardDeviation, redundant, InjectionObservabilityAttributes::setQualityQ);
+        return setQuality(standardDeviation, redundant, InjectionObservabilityAttributes::setQualityQ, InjectionObservabilityAttributes::getQualityQ, "Q");
     }
 
     @Override
     public InjectionObservability<I> setQualityV(final double standardDeviation, final Boolean redundant) {
-        return setQuality(standardDeviation, redundant, InjectionObservabilityAttributes::setQualityV);
+        return setQuality(standardDeviation, redundant, InjectionObservabilityAttributes::setQualityV, InjectionObservabilityAttributes::getQualityV, "V");
     }
 
     private InjectionObservability<I> setQuality(final double standardDeviation,
                                                  final @NonNull Function<InjectionObservabilityAttributes,
                                                  ObservabilityQualityAttributes> getterQuality,
                                                  final @NonNull BiConsumer<InjectionObservabilityAttributes,
-                                                 ObservabilityQualityAttributes> setterQuality) {
-        getInjection().updateResource(res -> {
-            final InjectionObservabilityAttributes injectionObservabilityAttributes = getInjectionObservabilityAttributes();
-            final ObservabilityQualityAttributes qualityAttr = getterQuality.apply(injectionObservabilityAttributes);
-            ObservabilityQualityAttributes.ObservabilityQualityAttributesBuilder builder = ObservabilityQualityAttributes.builder().standardDeviation(standardDeviation);
-            if (qualityAttr != null) {
-                builder = builder.redundant(qualityAttr.getRedundant());
-            }
-            setterQuality.accept(injectionObservabilityAttributes, builder.build());
-        });
+                                                 ObservabilityQualityAttributes> setterQuality,
+                                                 String suffix) {
+        ObservabilityQualityAttributes oldValue = getterQuality.apply(getInjectionObservabilityAttributes());
+        ObservabilityQualityAttributes.ObservabilityQualityAttributesBuilder builder = ObservabilityQualityAttributes.builder().standardDeviation(standardDeviation);
+        if (oldValue != null) {
+            builder = builder.redundant(oldValue.getRedundant());
+        }
+        ObservabilityQualityAttributes qualityAttributes = builder.build();
+        getInjection().updateResourceExtension(this, res -> setterQuality.accept(getInjectionObservabilityAttributes(), qualityAttributes), "quality" + suffix, oldValue, qualityAttributes);
         return this;
     }
 
     @Override
     public InjectionObservability<I> setQualityP(final double standardDeviation) {
-        return setQuality(standardDeviation, InjectionObservabilityAttributes::getQualityP, InjectionObservabilityAttributes::setQualityP);
+        return setQuality(standardDeviation, InjectionObservabilityAttributes::getQualityP, InjectionObservabilityAttributes::setQualityP, "P");
     }
 
     @Override
     public InjectionObservability<I> setQualityQ(final double standardDeviation) {
-        return setQuality(standardDeviation, InjectionObservabilityAttributes::getQualityQ, InjectionObservabilityAttributes::setQualityQ);
+        return setQuality(standardDeviation, InjectionObservabilityAttributes::getQualityQ, InjectionObservabilityAttributes::setQualityQ, "Q");
     }
 
     @Override
     public InjectionObservability<I> setQualityV(final double standardDeviation) {
-        return setQuality(standardDeviation, InjectionObservabilityAttributes::getQualityV, InjectionObservabilityAttributes::setQualityV);
+        return setQuality(standardDeviation, InjectionObservabilityAttributes::getQualityV, InjectionObservabilityAttributes::setQualityV, "V");
     }
 }

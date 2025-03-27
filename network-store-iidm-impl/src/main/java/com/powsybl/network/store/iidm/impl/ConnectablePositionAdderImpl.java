@@ -6,17 +6,17 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.network.store.iidm.impl.extensions.AbstractIidmExtensionAdder;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
 public class ConnectablePositionAdderImpl<C extends Connectable<C>>
-        extends AbstractExtensionAdder<C, ConnectablePosition<C>> implements ConnectablePositionAdder<C> {
+        extends AbstractIidmExtensionAdder<C, ConnectablePosition<C>> implements ConnectablePositionAdder<C> {
 
     private FeederAdderImpl feederAdder;
     private FeederAdderImpl feederAdder1;

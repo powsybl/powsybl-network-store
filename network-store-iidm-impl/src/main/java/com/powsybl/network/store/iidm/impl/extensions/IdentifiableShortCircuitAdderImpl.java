@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
@@ -16,7 +15,7 @@ import com.powsybl.network.store.model.IdentifiableShortCircuitAttributes;
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class IdentifiableShortCircuitAdderImpl<I extends Identifiable<I>> extends AbstractExtensionAdder<I, IdentifiableShortCircuit<I>>
+public class IdentifiableShortCircuitAdderImpl<I extends Identifiable<I>> extends AbstractIidmExtensionAdder<I, IdentifiableShortCircuit<I>>
         implements IdentifiableShortCircuitAdder<I> {
 
     private double ipMin; // Minimum allowable peak short-circuit current

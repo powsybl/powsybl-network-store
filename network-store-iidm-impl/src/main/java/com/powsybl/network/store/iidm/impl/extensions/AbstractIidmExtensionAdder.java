@@ -10,10 +10,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.NetworkListener;
-import com.powsybl.network.store.iidm.impl.NetworkImpl;
-
-import java.util.List;
+import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -27,10 +24,7 @@ public abstract class AbstractIidmExtensionAdder<I extends Identifiable<I>, E ex
     @Override
     public E add() {
         E extension = super.add();
-        List<NetworkListener> listeners = ((NetworkImpl) extendable.getNetwork()).getListeners();
-        for (NetworkListener listener : listeners) {
-            listener.onExtensionCreation(extension);
-        }
+        ((AbstractIdentifiableImpl<?, ?>) extendable).notifyExtensionCreation(extension);
         return extension;
     }
 }

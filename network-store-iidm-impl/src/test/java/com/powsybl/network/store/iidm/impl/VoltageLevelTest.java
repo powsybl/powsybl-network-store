@@ -10,6 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.RemoveFeederBayBuilder;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.junit.Test;
 
@@ -157,6 +158,14 @@ public class VoltageLevelTest {
         bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(0).withSectionIndex(0).add();
         assertNotNull(network.getVoltageLevel("VL"));
         assertNotNull(network.getVoltageLevel("VL").getNodeBreakerView().getBusbarSection("idBBS"));
+
+        BusbarSectionPosition bbsPosition = bbs.getExtension(BusbarSectionPosition.class);
+        assertNotNull(bbsPosition);
+        bbsPosition.setBusbarIndex(2);
+        bbsPosition.setSectionIndex(3);
+        bbsPosition = bbs.getExtension(BusbarSectionPosition.class);
+        assertEquals(2, bbsPosition.getBusbarIndex());
+        assertEquals(3, bbsPosition.getSectionIndex());
 
         BusbarSectionPositionAdder busbarSectionPositionAdder = bbs.newExtension(BusbarSectionPositionAdder.class);
         assertEquals("Busbar section 'idBBS': Busbar index has to be greater or equals to zero",

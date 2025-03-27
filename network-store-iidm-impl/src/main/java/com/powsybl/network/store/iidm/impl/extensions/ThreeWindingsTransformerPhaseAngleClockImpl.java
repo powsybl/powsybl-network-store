@@ -38,13 +38,19 @@ public class ThreeWindingsTransformerPhaseAngleClockImpl extends AbstractExtensi
     @Override
     public void setPhaseAngleClockLeg2(int phaseAngleClockLeg2) {
         checkPhaseAngleClock(phaseAngleClockLeg2);
-        getThreeWindingsTransformer().updateResource(res -> res.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(phaseAngleClockLeg2));
+        int oldValue = getPhaseAngleClockLeg2();
+        if (oldValue != phaseAngleClockLeg2) {
+            getThreeWindingsTransformer().updateResourceExtension(this, res -> res.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(phaseAngleClockLeg2), "phaseAngleClockLeg2", oldValue, phaseAngleClockLeg2);
+        }
     }
 
     @Override
     public void setPhaseAngleClockLeg3(int phaseAngleClockLeg3) {
         checkPhaseAngleClock(phaseAngleClockLeg3);
-        getThreeWindingsTransformer().updateResource(res -> res.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg3(phaseAngleClockLeg3));
+        int oldValue = getPhaseAngleClockLeg3();
+        if (oldValue != phaseAngleClockLeg3) {
+            getThreeWindingsTransformer().updateResourceExtension(this, res -> res.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg3(phaseAngleClockLeg3), "phaseAngleClockLeg3", oldValue, phaseAngleClockLeg3);
+        }
     }
 
     private void checkPhaseAngleClock(int phaseAngleClock) {

@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -17,7 +16,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CgmesTapChangersAdderImpl<C extends Connectable<C>> extends AbstractExtensionAdder<C, CgmesTapChangers<C>> implements CgmesTapChangersAdder<C> {
+class CgmesTapChangersAdderImpl<C extends Connectable<C>> extends AbstractIidmExtensionAdder<C, CgmesTapChangers<C>> implements CgmesTapChangersAdder<C> {
 
     CgmesTapChangersAdderImpl(C extendable) {
         super(extendable);
@@ -26,7 +25,7 @@ class CgmesTapChangersAdderImpl<C extends Connectable<C>> extends AbstractExtens
     @Override
     protected CgmesTapChangers<C> createExtension(C extendable) {
         if (extendable instanceof TwoWindingsTransformer || extendable instanceof ThreeWindingsTransformer) {
-            return new CgmesTapChangersImpl<C>(extendable);
+            return new CgmesTapChangersImpl<>(extendable);
         }
         throw new PowsyblException("CGMES Tap Changers can only be added on transformers");
     }

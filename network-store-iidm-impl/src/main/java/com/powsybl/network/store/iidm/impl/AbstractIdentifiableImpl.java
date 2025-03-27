@@ -53,6 +53,17 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         index.updateResource(resource, attributeFilter);
     }
 
+    public void notifyExtensionCreation(Extension<?> extension) {
+        getIndex().notifyExtensionCreation(extension);
+    }
+
+    public void updateResourceExtension(Extension<?> extension, Consumer<Resource<D>> modifier, String attribute, Object oldValue, Object newValue) {
+        modifier.accept(resource);
+        index.updateResource(resource, null);
+        String variantId = getNetwork().getVariantManager().getWorkingVariantId();
+        getIndex().notifyExtensionUpdate(extension, attribute, variantId, oldValue, newValue);
+    }
+
     public Resource<D> getNullableResource() {
         return resource;
     }

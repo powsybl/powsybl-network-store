@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesControlAreasAdder;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.model.CgmesControlAreasAttributes;
@@ -16,7 +15,7 @@ import com.powsybl.network.store.model.CgmesControlAreasAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CgmesControlAreasAdderImpl extends AbstractExtensionAdder<Network, CgmesControlAreas> implements CgmesControlAreasAdder {
+class CgmesControlAreasAdderImpl extends AbstractIidmExtensionAdder<Network, CgmesControlAreas> implements CgmesControlAreasAdder {
 
     CgmesControlAreasAdderImpl(Network extendable) {
         super(extendable);
