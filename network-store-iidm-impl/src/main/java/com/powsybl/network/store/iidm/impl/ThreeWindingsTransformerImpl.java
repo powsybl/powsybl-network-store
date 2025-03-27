@@ -362,10 +362,6 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             return tapChangers;
         }
 
-//        public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-//            index.notifyUpdate(transformer, getLegAttribute() + "." + attribute, index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, newValue);
-//        }
-
         @Override
         public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
             return getLegAttributes().getOperationalLimitsGroups().values().stream()
