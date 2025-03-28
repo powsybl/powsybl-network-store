@@ -100,17 +100,23 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     private InjectionAttributes getAttributes(Resource<U> r) {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment " + connectable.getId());
+        }
         return attributesGetter.apply(r);
     }
 
     private InjectionAttributes getAttributes() {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment " + connectable.getId());
+        }
         return getAttributes(getAbstractIdentifiable().getResource());
     }
 
     @Override
     public VoltageLevelImpl getVoltageLevel() {
         if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
-            return null;
+            throw new PowsyblException("Cannot access voltage level of removed equipment " + connectable.getId());
         }
         return index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(AssertionError::new);
     }
@@ -294,37 +300,29 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
         boolean done = false;
 
-        try {
-            Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
-            VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
-            boolean connectedBefore = isConnected();
-            index.notifyUpdate(getConnectable(), "beginConnect", index.getNetwork().getVariantManager().getWorkingVariantId(), connectedBefore, null);
-            if (isNodeBeakerTopologyKind()) {
-                if (connectNodeBreaker(isTypeSwitchToOperate)) {
-                    done = true;
-                }
-            } else { // TopologyKind.BUS_BREAKER
-                // Check that the bus-breaker terminal has no bus defined (i.e. it is disconnected)
-                if (getAttributes().getBus() == null) {
-                    connectBusBreaker();
-                    done = true;
-                }
+        Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
+        VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
+        boolean connectedBefore = isConnected();
+        index.notifyUpdate(getConnectable(), "beginConnect", index.getNetwork().getVariantManager().getWorkingVariantId(), connectedBefore, null);
+        if (isNodeBeakerTopologyKind()) {
+            if (connectNodeBreaker(isTypeSwitchToOperate)) {
+                done = true;
             }
+        } else { // TopologyKind.BUS_BREAKER
+            // Check that the bus-breaker terminal has no bus defined (i.e. it is disconnected)
+            if (getAttributes().getBus() == null) {
+                connectBusBreaker();
+                done = true;
+            }
+        }
 
-            boolean connectedAfter = isConnected();
-            index.notifyUpdate(getConnectable(), "endConnect", index.getNetwork().getVariantManager().getWorkingVariantId(), null, connectedAfter);
+        boolean connectedAfter = isConnected();
+        index.notifyUpdate(getConnectable(), "endConnect", index.getNetwork().getVariantManager().getWorkingVariantId(), null, connectedAfter);
 
-            if (done) {
-                // to invalidate calculated buses
-                voltageLevelAttributes.setCalculatedBusesValid(false);
-                index.updateVoltageLevelResource(voltageLevelResource);
-            }
-        } catch (PowsyblException exception) {
-            if (exception.getMessage().contains("Object has been removed in current variant")) {
-                throw new PowsyblException("Cannot modify removed equipment", exception);
-            } else {
-                throw exception;
-            }
+        if (done) {
+            // to invalidate calculated buses
+            voltageLevelAttributes.setCalculatedBusesValid(false);
+            index.updateVoltageLevelResource(voltageLevelResource);
         }
 
         return done;
@@ -511,35 +509,27 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         boolean done = false;
 
-        try {
-            Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
-            VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
-            boolean disconnectedBefore = !isConnected();
-            index.notifyUpdate(getConnectable(), "beginDisconnect", index.getNetwork().getVariantManager().getWorkingVariantId(), disconnectedBefore, null);
-            if (isNodeBeakerTopologyKind()) {
-                if (disconnectNodeBreaker(isSwitchOpenable)) {
-                    done = true;
-                }
-            } else { // TopologyKind.BUS_BREAKER
-                if (disconnectBusBreaker()) {
-                    done = true;
-                }
+        Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
+        VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
+        boolean disconnectedBefore = !isConnected();
+        index.notifyUpdate(getConnectable(), "beginDisconnect", index.getNetwork().getVariantManager().getWorkingVariantId(), disconnectedBefore, null);
+        if (isNodeBeakerTopologyKind()) {
+            if (disconnectNodeBreaker(isSwitchOpenable)) {
+                done = true;
             }
+        } else { // TopologyKind.BUS_BREAKER
+            if (disconnectBusBreaker()) {
+                done = true;
+            }
+        }
 
-            boolean disconnectedAfter = !isConnected();
-            index.notifyUpdate(getConnectable(), "endDisconnect", index.getNetwork().getVariantManager().getWorkingVariantId(), null, disconnectedAfter);
+        boolean disconnectedAfter = !isConnected();
+        index.notifyUpdate(getConnectable(), "endDisconnect", index.getNetwork().getVariantManager().getWorkingVariantId(), null, disconnectedAfter);
 
-            if (done) {
-                // to invalidate calculated buses
-                voltageLevelAttributes.setCalculatedBusesValid(false);
-                index.updateVoltageLevelResource(voltageLevelResource);
-            }
-        } catch (PowsyblException exception) {
-            if (exception.getMessage().contains("Object has been removed in current variant")) {
-                throw new PowsyblException("Cannot modify removed equipment", exception);
-            } else {
-                throw exception;
-            }
+        if (done) {
+            // to invalidate calculated buses
+            voltageLevelAttributes.setCalculatedBusesValid(false);
+            index.updateVoltageLevelResource(voltageLevelResource);
         }
 
         return done;
@@ -558,6 +548,9 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     @Override
     public boolean isConnected() {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access connectivity status of removed equipment " + connectable.getId());
+        }
         if (isNodeBeakerTopologyKind()) {
             return this.getBusView().getBus() != null;
         } else {
@@ -580,7 +573,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     public void traverse(Terminal.TopologyTraverser traverser, TraversalType traversalType) {
         Set<Terminal> traversedTerminals = new HashSet<>();
         if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
-            throw new PowsyblException("Associated equipment is removed");
+            throw new PowsyblException(String.format("Associated equipment %s is removed", connectable.getId()));
         }
 
         // One side

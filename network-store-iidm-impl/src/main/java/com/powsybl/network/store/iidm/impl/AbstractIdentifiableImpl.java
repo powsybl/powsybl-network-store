@@ -41,6 +41,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     private Resource<D> resource;
 
+    // When we remove an identifiable, we need to access to the id
+    // Needed to generate the exception message when accessing a removed identifiable
+    private String idBeforeRemoval;
+
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
         this.resource = resource;
@@ -59,6 +63,12 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         index.updateResource(resource, attributeFilter);
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, attribute, variantId, oldValue, newValueSupplier.get());
+    }
+
+    public void updateResourceWithoutVariantOnNotify(Consumer<Resource<D>> modifier, String attribute, Object oldValue, Supplier<Object> newValueSupplier) {
+        modifier.accept(resource);
+        index.updateResource(resource, null);
+        index.notifyUpdate(this, attribute, null, oldValue, newValueSupplier.get());
     }
 
     public void updateResourcePropertyAdded(Consumer<Resource<D>> modifier, String attribute, Object newValue) {
@@ -95,6 +105,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public void setResource(Resource<D> resource) {
+        idBeforeRemoval = resource == null ? this.resource.getId() : null;
         this.resource = resource;
     }
 
@@ -113,7 +124,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public String getId() {
-        return getResource().getId();
+        return resource == null ? idBeforeRemoval : resource.getId();
     }
 
     @Deprecated
@@ -320,7 +331,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public NetworkImpl getNetwork() {
-        getResource();
+        if (resource == null) {
+            throw new PowsyblException("Cannot access network of removed equipment " + getId());
+        }
         return index.getNetwork();
     }
 
