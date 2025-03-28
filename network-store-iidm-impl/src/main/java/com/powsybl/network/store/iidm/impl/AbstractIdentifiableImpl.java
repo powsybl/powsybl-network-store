@@ -65,7 +65,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         index.notifyUpdate(this, attribute, variantId, oldValue, newValueSupplier.get());
     }
 
-    public void updateResourceWithoutVariantOnNotify(Consumer<Resource<D>> modifier, String attribute, Object oldValue, Supplier<Object> newValueSupplier) {
+    public void updateResourceAndNotifyWithNullVariant(Consumer<Resource<D>> modifier, String attribute, Object oldValue, Supplier<Object> newValueSupplier) {
         modifier.accept(resource);
         index.updateResource(resource, null);
         index.notifyUpdate(this, attribute, null, oldValue, newValueSupplier.get());
