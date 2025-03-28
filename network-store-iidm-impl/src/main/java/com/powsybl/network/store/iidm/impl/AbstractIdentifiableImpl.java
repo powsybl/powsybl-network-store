@@ -45,6 +45,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     // Needed to generate the exception message when accessing a removed identifiable
     private String idBeforeRemoval;
 
+    private static final String PROPERTIES = "properties";
+
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
         this.resource = resource;
@@ -300,10 +302,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         Map<String, String> finalProperties = properties;
         if (Objects.isNull(oldValue.getValue())) {
             updateResourcePropertyAdded(r -> r.getAttributes().setProperties(finalProperties),
-                "properties[" + key + "]", value);
+                PROPERTIES + "[" + key + "]", value);
         } else {
             updateResourcePropertyReplaced(r -> r.getAttributes().setProperties(finalProperties),
-                "properties[" + key + "]", oldValue.getValue(), value);
+                PROPERTIES + "[" + key + "]", oldValue.getValue(), value);
         }
         return oldValue.getValue();
     }
@@ -324,7 +326,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (properties != null && properties.containsKey(key)) {
             String oldValue = properties.get(key);
             updateResourcePropertyRemoved(r -> r.getAttributes().getProperties().remove(key),
-                "properties[" + key + "]", oldValue);
+                PROPERTIES + "[" + key + "]", oldValue);
             return true;
         }
         return false;

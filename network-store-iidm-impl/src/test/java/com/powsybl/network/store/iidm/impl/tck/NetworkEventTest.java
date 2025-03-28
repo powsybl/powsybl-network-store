@@ -31,11 +31,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class NetworkEventTest extends AbstractNetworkEventTest {
+class NetworkEventTest extends AbstractNetworkEventTest {
     @Test
     // Test override from powsybl-core, to add the notification on 'activePowerControl' attribute change for the generator,
     // in addition to the ActivePowerControl extension creation notification
-    public void testNotif() {
+    void testNotif() {
         Network network = EurostagTutorialExample1Factory.create();
         NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
         network.addListener(eventRecorder);

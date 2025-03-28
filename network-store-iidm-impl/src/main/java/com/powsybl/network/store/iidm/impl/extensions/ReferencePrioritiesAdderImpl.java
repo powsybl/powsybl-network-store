@@ -21,6 +21,8 @@ import com.powsybl.network.store.model.ReferencePrioritiesAttributes;
  */
 class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractIidmExtensionAdder<C, ReferencePriorities<C>> implements ReferencePrioritiesAdder<C> {
 
+    private static final String REFERENCE_PRIORITIES = "referencePriorities";
+
     ReferencePrioritiesAdderImpl(C extendable) {
         super(extendable);
     }
@@ -33,19 +35,19 @@ class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractIid
         if (extendable instanceof BusbarSectionImpl) {
             ((BusbarSectionImpl) extendable).updateResource(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, attributes),
-                "referencePriorities", oldValue, attributes);
+                REFERENCE_PRIORITIES, oldValue, attributes);
         } else if (extendable instanceof AbstractInjectionImpl) {
             ((AbstractInjectionImpl<?, ?>) extendable).updateResource(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, attributes),
-                "referencePriorities", oldValue, attributes);
+                REFERENCE_PRIORITIES, oldValue, attributes);
         } else if (extendable instanceof AbstractBranchImpl) {
             ((AbstractBranchImpl<?, ?>) extendable).updateResource(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, attributes),
-                "referencePriorities", oldValue, attributes);
+                REFERENCE_PRIORITIES, oldValue, attributes);
         } else if (extendable instanceof ThreeWindingsTransformerImpl) {
             ((ThreeWindingsTransformerImpl) extendable).updateResource(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, attributes),
-                "referencePriorities", oldValue, attributes);
+                REFERENCE_PRIORITIES, oldValue, attributes);
         }
         return referencePriorities;
     }
