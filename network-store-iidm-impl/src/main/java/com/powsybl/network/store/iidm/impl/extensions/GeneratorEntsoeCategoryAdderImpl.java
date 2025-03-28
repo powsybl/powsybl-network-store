@@ -27,8 +27,10 @@ public class GeneratorEntsoeCategoryAdderImpl extends AbstractIidmExtensionAdder
 
     @Override
     protected GeneratorEntsoeCategory createExtension(Generator generator) {
+        GeneratorEntsoeCategoryAttributes oldValue = ((GeneratorImpl) generator).getResource().getAttributes().getEntsoeCategoryAttributes();
         var attributes = GeneratorEntsoeCategoryAttributes.builder().code(code).build();
-        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setEntsoeCategoryAttributes(attributes));
+        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setEntsoeCategoryAttributes(attributes),
+            "entsoeCategory", oldValue, attributes);
         return new GeneratorEntsoeCategoryImpl((GeneratorImpl) generator);
     }
 

@@ -36,6 +36,7 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
     @Override
     protected ActivePowerControl<I> createExtension(I injection) {
         if (injection instanceof GeneratorImpl || injection instanceof BatteryImpl) {
+            var oldValue = ((AbstractInjectionImpl<?, ?>) injection).getResource().getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME);
             ActivePowerControlAttributes attributes = ActivePowerControlAttributes.builder()
                     .droop(droop)
                     .participate(participate)
@@ -43,7 +44,8 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
                     .minTargetP(minTargetP)
                     .maxTargetP(maxTargetP)
                     .build();
-            ((AbstractInjectionImpl<?, ?>) injection).updateResource(res -> res.getAttributes().getExtensionAttributes().put(ActivePowerControl.NAME, attributes));
+            ((AbstractInjectionImpl<?, ?>) injection).updateResource(res -> res.getAttributes().getExtensionAttributes().put(ActivePowerControl.NAME, attributes),
+                "activePowerControl", oldValue, attributes);
             return new ActivePowerControlImpl<>(injection);
         } else {
             throw new UnsupportedOperationException("Cannot set ActivePowerControl on this kind of component");

@@ -71,11 +71,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public void addAlias(String alias, String id) {
-        updateResource(res -> getIdByAlias(res).put(alias, id));
+        var oldValue = new HashMap<>(getResource().getAttributes().getIdByAlias());
+        updateResource(res -> getIdByAlias(res).put(alias, id),
+            "alias", oldValue, () -> getIdByAlias(getResource()));
     }
 
     public void removeAlias(String alias) {
-        updateResource(res -> getIdByAlias(res).remove(alias));
+        var oldValue = new HashMap<>(getResource().getAttributes().getIdByAlias());
+        updateResource(res -> getIdByAlias(res).remove(alias),
+            "alias", oldValue, () -> getIdByAlias(getResource()));
     }
 
     public boolean checkAliasUnicity(AbstractIdentifiableImpl<?, ?> obj, String alias) {
@@ -211,7 +215,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public Network setCaseDate(ZonedDateTime date) {
         ValidationUtil.checkCaseDate(this, date);
-        updateResource(res -> res.getAttributes().setCaseDate(date));
+        ZonedDateTime oldValue = getCaseDate();
+        updateResource(res -> res.getAttributes().setCaseDate(date),
+            "caseDate", oldValue, date);
         return this;
     }
 
@@ -223,7 +229,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public Network setForecastDistance(int forecastDistance) {
         ValidationUtil.checkForecastDistance(this, forecastDistance);
-        updateResource(res -> res.getAttributes().setForecastDistance(forecastDistance));
+        int oldValue = getForecastDistance();
+        updateResource(res -> res.getAttributes().setForecastDistance(forecastDistance),
+            "forecastDistance", oldValue, forecastDistance);
         return this;
     }
 
@@ -940,7 +948,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         var resource = getResource();
         if (!resource.getAttributes().isConnectedComponentsValid()) {
             update(ComponentType.CONNECTED, isBusView);
-            updateResource(res -> res.getAttributes().setConnectedComponentsValid(true));
+            updateResource(res -> res.getAttributes().setConnectedComponentsValid(true),
+                "connectedComponentsValid", false, true);
         }
     }
 
@@ -948,15 +957,19 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         var resource = getResource();
         if (!resource.getAttributes().isSynchronousComponentsValid()) {
             update(ComponentType.SYNCHRONOUS, isBusView);
-            updateResource(res -> res.getAttributes().setSynchronousComponentsValid(true));
+            updateResource(res -> res.getAttributes().setSynchronousComponentsValid(true),
+                "synchronousComponentsValid", false, true);
         }
     }
 
     void invalidateComponents() {
-        updateResource(res -> {
-            res.getAttributes().setConnectedComponentsValid(false);
-            res.getAttributes().setSynchronousComponentsValid(false);
-        });
+        var oldConnectedComponentsValid = getResource().getAttributes().isConnectedComponentsValid();
+        updateResource(res -> res.getAttributes().setConnectedComponentsValid(false),
+            "connectedComponentsValid", oldConnectedComponentsValid, false);
+
+        var oldSynchronousComponentsValid = getResource().getAttributes().isSynchronousComponentsValid();
+        updateResource(res -> res.getAttributes().setSynchronousComponentsValid(false),
+            "synchronousComponentsValid", oldSynchronousComponentsValid, false);
     }
 
     void invalidateCalculatedBuses() {

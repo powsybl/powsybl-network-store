@@ -27,11 +27,13 @@ public class IdentifiableShortCircuitAdderImpl<I extends Identifiable<I>> extend
 
     @Override
     protected IdentifiableShortCircuit<I> createExtension(I extendable) {
+        IdentifiableShortCircuitAttributes oldValue = ((VoltageLevelImpl) extendable).getResource().getAttributes().getIdentifiableShortCircuitAttributes();
         var attributes = IdentifiableShortCircuitAttributes.builder()
                 .ipMin(ipMin)
                 .ipMax(ipMax)
                 .build();
-        ((VoltageLevelImpl) extendable).updateResource(res -> res.getAttributes().setIdentifiableShortCircuitAttributes(attributes));
+        ((VoltageLevelImpl) extendable).updateResource(res -> res.getAttributes().setIdentifiableShortCircuitAttributes(attributes),
+            "identifiableShortCircuit", oldValue, attributes);
         return new IdentifiableShortCircuitImpl<>(extendable);
     }
 

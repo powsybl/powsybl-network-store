@@ -27,10 +27,12 @@ public class VoltagePerReactivePowerControlAdderImpl extends AbstractIidmExtensi
     @Override
     protected VoltagePerReactivePowerControl createExtension(StaticVarCompensator staticVarCompensator) {
         checkSlope();
+        VoltagePerReactivePowerControlAttributes oldValue = ((StaticVarCompensatorImpl) staticVarCompensator).getResource().getAttributes().getVoltagePerReactiveControl();
         VoltagePerReactivePowerControlAttributes attributes = VoltagePerReactivePowerControlAttributes.builder()
                 .slope(slope)
                 .build();
-        ((StaticVarCompensatorImpl) staticVarCompensator).updateResource(res -> res.getAttributes().setVoltagePerReactiveControl(attributes));
+        ((StaticVarCompensatorImpl) staticVarCompensator).updateResource(res -> res.getAttributes().setVoltagePerReactiveControl(attributes),
+            "voltagePerReactiveControl", oldValue, attributes);
         return new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) staticVarCompensator);
     }
 

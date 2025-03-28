@@ -47,7 +47,11 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
         @Override
         public Section setB(double b) {
             ValidationUtil.checkB(shuntCompensator, b);
-            shuntCompensator.updateResource(res -> getSectionAttributes().setB(b));
+            double oldValue = getB();
+            if (b != oldValue) {
+                shuntCompensator.updateResource(res -> getSectionAttributes().setB(b),
+                    "b", oldValue, b);
+            }
             return this;
         }
 
@@ -59,7 +63,11 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
         @Override
         public Section setG(double g) {
             ValidationUtil.checkG(shuntCompensator, g);
-            shuntCompensator.updateResource(res -> getSectionAttributes().setG(g));
+            double oldValue = getG();
+            if (g != oldValue) {
+                shuntCompensator.updateResource(res -> getSectionAttributes().setG(g),
+                    "g", oldValue, g);
+            }
             return this;
         }
     }

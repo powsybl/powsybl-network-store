@@ -75,9 +75,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkConvertersMode(this, mode, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ConvertersMode oldValue = getResource().getAttributes().getConvertersMode();
         if (mode != oldValue) {
-            updateResource(res -> res.getAttributes().setConvertersMode(mode));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "convertersMode", variantId, oldValue, mode);
+            updateResource(res -> res.getAttributes().setConvertersMode(mode),
+                "convertersMode", oldValue, mode);
         }
         return this;
     }
@@ -92,9 +91,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkR(this, r);
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
-            updateResource(res -> res.getAttributes().setR(r));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "r", variantId, oldValue, r);
+            updateResource(res -> res.getAttributes().setR(r),
+                "r", oldValue, r);
         }
         return this;
     }
@@ -109,9 +107,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = getResource().getAttributes().getNominalV();
         if (nominalV != oldValue) {
-            updateResource(res -> res.getAttributes().setNominalV(nominalV));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "nominalV", variantId, oldValue, nominalV);
+            updateResource(res -> res.getAttributes().setNominalV(nominalV),
+                "nominalV", oldValue, nominalV);
         }
         return this;
     }
@@ -126,9 +123,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getActivePowerSetpoint();
         if (activePowerSetpoint != oldValue) {
-            updateResource(res -> res.getAttributes().setActivePowerSetpoint(activePowerSetpoint));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
+            updateResource(res -> res.getAttributes().setActivePowerSetpoint(activePowerSetpoint),
+                "activePowerSetpoint", oldValue, activePowerSetpoint);
         }
         return this;
     }
@@ -143,9 +139,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkHvdcMaxP(this, maxP);
         double oldValue = getResource().getAttributes().getMaxP();
         if (maxP != oldValue) {
-            updateResource(res -> res.getAttributes().setMaxP(maxP));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "maxP", variantId, oldValue, maxP);
+            updateResource(res -> res.getAttributes().setMaxP(maxP),
+                "maxP", oldValue, maxP);
         }
         return this;
     }

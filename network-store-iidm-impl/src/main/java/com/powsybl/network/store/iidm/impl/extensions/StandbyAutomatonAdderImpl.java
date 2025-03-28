@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import com.powsybl.network.store.iidm.impl.StaticVarCompensatorImpl;
+import com.powsybl.network.store.model.StandbyAutomatonAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,9 +36,11 @@ public class StandbyAutomatonAdderImpl extends AbstractIidmExtensionAdder<Static
 
     @Override
     protected StandbyAutomaton createExtension(StaticVarCompensator svc) {
+        StandbyAutomatonAttributes oldValue = ((StaticVarCompensatorImpl) svc).getResource().getAttributes().getStandbyAutomaton();
         var attributes = StandbyAutomatonImpl.createAttributes((StaticVarCompensatorImpl) svc, b0, standby,
                 lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold);
-        ((StaticVarCompensatorImpl) svc).updateResource(res -> res.getAttributes().setStandbyAutomaton(attributes));
+        ((StaticVarCompensatorImpl) svc).updateResource(res -> res.getAttributes().setStandbyAutomaton(attributes),
+            "standbyAutomaton", oldValue, attributes);
         return new StandbyAutomatonImpl(svc);
     }
 

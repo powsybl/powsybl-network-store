@@ -87,10 +87,8 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     private void setV(double v, boolean updateCalculatedBus) {
         double oldValue = getResource().getAttributes().getV();
         if (v != oldValue) {
-            updateResource(res -> res.getAttributes().setV(v));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "v", variantId, oldValue, v);
-
+            updateResource(res -> res.getAttributes().setV(v),
+                "v", oldValue, v);
             if (updateCalculatedBus) {
                 // update V for bus in BusView
                 updateCalculatedBusAttributes(v, getResource().getAttributes().getVoltageLevelId(), this::setVInCalculatedBus);
@@ -116,10 +114,8 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     void setAngle(double angle, boolean updateCalculatedBus) {
         double oldValue = getResource().getAttributes().getAngle();
         if (angle != oldValue) {
-            updateResource(res -> res.getAttributes().setAngle(angle));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "angle", variantId, oldValue, angle);
-
+            updateResource(res -> res.getAttributes().setAngle(angle),
+                "angle", oldValue, angle);
             if (updateCalculatedBus) {
                 // update angle for bus in BusView
                 updateCalculatedBusAttributes(angle, getResource().getAttributes().getVoltageLevelId(), this::setAngleInCalculatedBus);
@@ -184,9 +180,8 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     public Bus setFictitiousP0(double p0) {
         double oldValue = getResource().getAttributes().getFictitiousP0();
         if (p0 != oldValue) {
-            updateResource(res -> res.getAttributes().setFictitiousP0(p0));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "fictitiousP0", variantId, oldValue, p0);
+            updateResource(res -> res.getAttributes().setFictitiousP0(p0),
+                "fictitiousP0", oldValue, p0);
         }
         return this;
     }
@@ -200,9 +195,8 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     public Bus setFictitiousQ0(double q0) {
         double oldValue = getResource().getAttributes().getFictitiousQ0();
         if (q0 != oldValue) {
-            updateResource(res -> res.getAttributes().setFictitiousQ0(q0));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "fictitiousQ0", variantId, oldValue, q0);
+            updateResource(res -> res.getAttributes().setFictitiousQ0(q0),
+                "fictitiousQ0", oldValue, q0);
         }
         return this;
     }

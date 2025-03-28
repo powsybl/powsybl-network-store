@@ -50,9 +50,8 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         ValidationUtil.checkEnergySource(this, energySource);
         EnergySource oldValue = getResource().getAttributes().getEnergySource();
         if (energySource != oldValue) {
-            updateResource(res -> res.getAttributes().setEnergySource(energySource));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "energySource", variantId, oldValue.toString(), energySource.toString());
+            updateResource(res -> res.getAttributes().setEnergySource(energySource),
+                "energySource", oldValue, energySource);
         }
         return this;
     }
@@ -68,9 +67,8 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP);
         double oldValue = getResource().getAttributes().getMaxP();
         if (maxP != oldValue) {
-            updateResource(res -> res.getAttributes().setMaxP(maxP));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "maxP", variantId, oldValue, maxP);
+            updateResource(res -> res.getAttributes().setMaxP(maxP),
+                "maxP", oldValue, maxP);
         }
         return this;
     }
@@ -87,9 +85,8 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         ValidationUtil.checkActivePowerLimits(this, minP, getMaxP());
         double oldValue = resource.getAttributes().getMinP();
         if (minP != oldValue) {
-            updateResource(res -> res.getAttributes().setMinP(minP));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "minP", variantId, oldValue, minP);
+            updateResource(res -> res.getAttributes().setMinP(minP),
+                "minP", oldValue, minP);
         }
         return this;
     }
@@ -142,9 +139,8 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetV();
         if (Double.compare(targetV, oldValue) != 0) { // could be nan
-            updateResource(res -> res.getAttributes().setTargetV(targetV));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
+            updateResource(res -> res.getAttributes().setTargetV(targetV),
+                "targetV", oldValue, targetV);
         }
         return this;
     }
@@ -159,9 +155,8 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         ValidationUtil.checkActivePowerSetpoint(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetP();
         if (targetP != oldValue) {
-            updateResource(res -> res.getAttributes().setTargetP(targetP));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetP", variantId, oldValue, targetP);
+            updateResource(res -> res.getAttributes().setTargetP(targetP),
+                "targetP", oldValue, targetP);
         }
         return this;
     }
@@ -177,9 +172,8 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getTargetV(), targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = resource.getAttributes().getTargetQ();
         if (Double.compare(targetQ, oldValue) != 0) { // could be nan
-            updateResource(res -> res.getAttributes().setTargetQ(targetQ));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
+            updateResource(res -> res.getAttributes().setTargetQ(targetQ),
+                "targetQ", oldValue, targetQ);
         }
         return this;
     }
@@ -194,16 +188,17 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         ValidationUtil.checkRatedS(this, ratedS);
         double oldValue = getResource().getAttributes().getRatedS();
         if (Double.compare(ratedS, oldValue) != 0) { // could be nan
-            updateResource(res -> res.getAttributes().setRatedS(ratedS));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "ratedS", variantId, oldValue, ratedS);
+            updateResource(res -> res.getAttributes().setRatedS(ratedS),
+                "ratedS", oldValue, ratedS);
         }
         return this;
     }
 
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
-        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
+        ReactiveLimitsAttributes oldValue = getResource().getAttributes().getReactiveLimits();
+        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits),
+            "reactiveLimits", oldValue, reactiveLimits);
     }
 
     @Override

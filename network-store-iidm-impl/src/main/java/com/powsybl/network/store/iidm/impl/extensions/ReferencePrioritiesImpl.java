@@ -32,7 +32,7 @@ public class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractE
         super(extendable);
     }
 
-    private ReferencePrioritiesAttributes getAttributes() {
+    public ReferencePrioritiesAttributes getAttributes() {
         if (getExtendable() instanceof BusbarSectionImpl) {
             return (ReferencePrioritiesAttributes) ((BusbarSectionImpl) getExtendable()).getResource().getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
         } else if (getExtendable() instanceof AbstractInjectionImpl) {

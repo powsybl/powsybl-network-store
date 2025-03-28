@@ -46,11 +46,10 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
     @Override
     public ShuntCompensatorLinearModel setBPerSection(double bPerSection) {
         ValidationUtil.checkBPerSection(shuntCompensator, bPerSection);
-        double oldValue = getAttributes().getBPerSection();
+        double oldValue = getBPerSection();
         if (bPerSection != oldValue) {
-            shuntCompensator.updateResource(res -> getAttributes(res).setBPerSection(bPerSection));
-            String variantId = shuntCompensator.index.getNetwork().getVariantManager().getWorkingVariantId();
-            shuntCompensator.notifyUpdate("bPerSection", variantId, oldValue, bPerSection);
+            shuntCompensator.updateResource(res -> getAttributes(res).setBPerSection(bPerSection),
+                "bPerSection", oldValue, bPerSection);
         }
         return this;
     }
@@ -64,9 +63,8 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
     public ShuntCompensatorLinearModel setGPerSection(double gPerSection) {
         double oldValue = getAttributes().getGPerSection();
         if (gPerSection != oldValue) {
-            shuntCompensator.updateResource(res -> getAttributes(res).setGPerSection(gPerSection));
-            String variantId = shuntCompensator.index.getNetwork().getVariantManager().getWorkingVariantId();
-            shuntCompensator.notifyUpdate("gPerSection", variantId, oldValue, gPerSection);
+            shuntCompensator.updateResource(res -> getAttributes(res).setGPerSection(gPerSection),
+                "gPerSection", oldValue, gPerSection);
         }
         return this;
     }
@@ -76,9 +74,8 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
         ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount, ValidationLevel.STEADY_STATE_HYPOTHESIS, shuntCompensator.getNetwork().getReportNodeContext().getReportNode());
         int oldValue = getAttributes().getMaximumSectionCount();
         if (maximumSectionCount != oldValue) {
-            shuntCompensator.updateResource(res -> getAttributes(res).setMaximumSectionCount(maximumSectionCount));
-            String variantId = shuntCompensator.index.getNetwork().getVariantManager().getWorkingVariantId();
-            shuntCompensator.notifyUpdate("maximumSectionCount", variantId, oldValue, maximumSectionCount);
+            shuntCompensator.updateResource(res -> getAttributes(res).setMaximumSectionCount(maximumSectionCount),
+                "maximumSectionCount", oldValue, maximumSectionCount);
         }
         return this;
     }
