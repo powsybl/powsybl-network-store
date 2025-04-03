@@ -44,13 +44,11 @@ public class CimCharacteristicsAdderImpl extends AbstractIidmExtensionAdder<Netw
         } else if (this.cimVersion == null) {
             throw new PowsyblException("CimCharacteristics.cimVersion is undefined");
         } else {
-            CimCharacteristicsAttributes oldValue = ((NetworkImpl) network).getResource().getAttributes().getCimCharacteristics();
-            CimCharacteristicsAttributes attributes = CimCharacteristicsAttributes.builder()
+            var attributes = CimCharacteristicsAttributes.builder()
                     .cgmesTopologyKind(cgmesTopologyKind)
                     .cimVersion(cimVersion)
                     .build();
-            ((NetworkImpl) network).updateResource(res -> res.getAttributes().setCimCharacteristics(attributes),
-                "cimCharacteristics", oldValue, attributes);
+            ((NetworkImpl) network).updateResourceWithoutNotification(res -> res.getAttributes().setCimCharacteristics(attributes));
             return new CimCharacteristicsImpl((NetworkImpl) network);
         }
     }

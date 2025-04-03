@@ -53,12 +53,10 @@ public class SecondaryVoltageControlAdderImpl extends AbstractIidmExtensionAdder
         if (controlZones.isEmpty()) {
             throw new PowsyblException("Empty control zone list");
         }
-        SecondaryVoltageControlAttributes oldValue = (SecondaryVoltageControlAttributes) ((NetworkImpl) network).getResource().getAttributes().getExtensionAttributes().get(SecondaryVoltageControl.NAME);
         SecondaryVoltageControlAttributes attributes = SecondaryVoltageControlAttributes.builder()
                 .controlZones(controlZones.stream().map(ControlZoneImpl::getControlZoneAttributes).toList())
                 .build();
-        ((NetworkImpl) network).updateResource(res -> res.getAttributes().getExtensionAttributes().put(SecondaryVoltageControl.NAME, attributes),
-            "secondaryVoltageControl", oldValue, attributes);
+        ((NetworkImpl) network).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(SecondaryVoltageControl.NAME, attributes));
         return new SecondaryVoltageControlImpl(network);
     }
 }

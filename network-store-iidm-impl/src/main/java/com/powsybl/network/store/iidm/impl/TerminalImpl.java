@@ -134,7 +134,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         double oldValue = getP();
         if (oldValue != p) {
             getAbstractIdentifiable().updateResource(r -> getAttributes().setP(p), AttributeFilter.SV,
-                "p", oldValue, () -> p);
+                "p" + getSide().getNum(), oldValue, p);
         }
         return this;
     }
@@ -152,7 +152,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         double oldValue = getQ();
         if (oldValue != q) {
             getAbstractIdentifiable().updateResource(r -> getAttributes().setQ(q), AttributeFilter.SV,
-                "q", oldValue, () -> q);
+                "q" + getSide().getNum(), oldValue, q);
         }
         return this;
     }

@@ -94,7 +94,7 @@ class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements T
             attr.setBus(null);
             attr.setNode(node);
             attr.setVoltageLevelId(voltageLevelId);
-        }, "injectionAttributes", attributes, () -> getAttributes(getAbstractIdentifiable().getResource()));
+        }, "injectionAttributes", attributes, getAttributes(getAbstractIdentifiable().getResource()));
         oldVoltageLevel.invalidateCalculatedBuses();
         voltageLevel.invalidateCalculatedBuses();
     }

@@ -50,12 +50,14 @@ public abstract class AbstractRegulatingPoint {
 
     public void resetRegulationToLocalTerminal() {
         var oldRegulatingTerminal = getAttributes().getRegulatingTerminal();
-        getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(getAttributes().getLocalTerminal()),
-            REGULATING_TERMINAL, oldRegulatingTerminal, () -> getAttributes().getRegulatingTerminal());
+        var localTerminal = getAttributes().getLocalTerminal();
+        getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(localTerminal),
+            REGULATING_TERMINAL, oldRegulatingTerminal, localTerminal);
 
         var oldRegulatedResourceType = getAttributes().getRegulatedResourceType();
-        getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(getAttributes().getRegulatingResourceType()),
-            REGULATED_RESOURCE_TYPE, oldRegulatedResourceType, () -> getAttributes().getRegulatedResourceType());
+        var resourceType = getAttributes().getRegulatingResourceType();
+        getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(resourceType),
+            REGULATED_RESOURCE_TYPE, oldRegulatedResourceType, resourceType);
     }
 
     protected abstract <I extends Identifiable<I>, D extends IdentifiableAttributes> AbstractIdentifiableImpl<I, D> getIdentifiable();
@@ -89,11 +91,12 @@ public abstract class AbstractRegulatingPoint {
             // For consistency with the local terminal, we set the regulatedResourceType to correspond with the resource's own type.
             var oldRegulatingTerminalAttributes = getAttributes().getRegulatingTerminal();
             getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(null),
-                REGULATING_TERMINAL, oldRegulatingTerminalAttributes, () -> null);
+                REGULATING_TERMINAL, oldRegulatingTerminalAttributes, null);
 
             var oldRegulatedResourceType = getAttributes().getRegulatedResourceType();
-            getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(getRegulatingEquipmentType()),
-                REGULATED_RESOURCE_TYPE, oldRegulatedResourceType, () -> getAttributes().getRegulatedResourceType());
+            var regulatingEquipmentType = getRegulatingEquipmentType();
+            getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(regulatingEquipmentType),
+                REGULATED_RESOURCE_TYPE, oldRegulatedResourceType, regulatingEquipmentType);
         }
     }
 

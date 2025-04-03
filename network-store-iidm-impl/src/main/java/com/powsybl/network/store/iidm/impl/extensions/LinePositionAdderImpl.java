@@ -30,10 +30,8 @@ public class LinePositionAdderImpl<T extends Identifiable<T>> extends AbstractIi
 
     @Override
     protected LinePosition<T> createExtension(T extendable) {
-        LinePositionAttributes oldValue = (LinePositionAttributes) ((AbstractIdentifiableImpl<?, ?>) extendable).getResource().getAttributes().getExtensionAttributes().get(LinePosition.NAME);
-        LinePositionAttributes attributes = new LinePositionAttributes(coordinates);
-        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(LinePosition.NAME, attributes),
-            "linePosition", oldValue, attributes);
+        var attributes = new LinePositionAttributes(coordinates);
+        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(LinePosition.NAME, attributes));
         return new LinePositionImpl<>(extendable);
     }
 

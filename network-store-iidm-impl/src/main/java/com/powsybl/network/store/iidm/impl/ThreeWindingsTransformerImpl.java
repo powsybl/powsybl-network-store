@@ -416,7 +416,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
                 index.notifyUpdate(transformer, getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, index.getNetwork().getVariantManager().getWorkingVariantId(), id, null);
             }
             transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOperationalLimitsGroups().remove(id),
-                getLegAttribute() + ".operationalLimitsGroupId", oldLimits, () -> null);
+                getLegAttribute() + ".operationalLimitsGroupId", oldLimits, null);
         }
 
         @Override
@@ -425,7 +425,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             String oldValue = resource.getSelectedOperationalLimitsGroupId();
             if (oldValue != null) {
                 transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(null),
-                    getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, () -> null);
+                    getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
             }
         }
     }

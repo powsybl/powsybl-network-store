@@ -71,15 +71,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public void addAlias(String alias, String id) {
-        var oldValue = new HashMap<>(getResource().getAttributes().getIdByAlias());
+        var oldValue = alias + ":" + (getResource().getAttributes().getIdByAlias() != null ? getResource().getAttributes().getIdByAlias().get(alias) : null);
         updateResource(res -> getIdByAlias(res).put(alias, id),
-            "alias", oldValue, () -> getIdByAlias(getResource()));
+            "alias", oldValue, alias + ":" + id);
     }
 
     public void removeAlias(String alias) {
-        var oldValue = new HashMap<>(getResource().getAttributes().getIdByAlias());
+        var oldValue = alias + ":" + (getResource().getAttributes().getIdByAlias() != null ? getResource().getAttributes().getIdByAlias().get(alias) : null);
         updateResource(res -> getIdByAlias(res).remove(alias),
-            "alias", oldValue, () -> getIdByAlias(getResource()));
+            "alias", oldValue, null);
     }
 
     public boolean checkAliasUnicity(AbstractIdentifiableImpl<?, ?> obj, String alias) {

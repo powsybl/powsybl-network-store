@@ -45,7 +45,6 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
 
     @Override
     protected BranchObservability<B> createExtension(B branch) {
-        var oldValue = ((AbstractBranchImpl<?, ?>) branch).getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
         BranchObservabilityAttributes attributes = BranchObservabilityAttributes.builder()
             .observable(observable)
             .qualityP1(!Double.isNaN(standardDeviationP1) ? ObservabilityQualityAttributes.builder()
@@ -65,8 +64,7 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
                 .redundant(redundantQ2)
                 .build() : null)
             .build();
-        ((AbstractBranchImpl<?, ?>) branch).updateResource(res -> res.getAttributes().getExtensionAttributes().put(BranchObservability.NAME, attributes),
-            "branchObservability", oldValue, attributes);
+        ((AbstractBranchImpl<?, ?>) branch).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(BranchObservability.NAME, attributes));
         return new BranchObservabilityImpl<>(branch);
     }
 

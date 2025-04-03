@@ -21,7 +21,6 @@ import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.ExtensionLoaders;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
-import lombok.NonNull;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
@@ -52,25 +51,30 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         this.resource = resource;
     }
 
+    public void updateResourceWithoutNotification(Consumer<Resource<D>> modifier) {
+        updateResourceWithoutNotification(modifier, null);
+    }
+
+    public void updateResourceWithoutNotification(Consumer<Resource<D>> modifier, AttributeFilter attributeFilter) {
+        modifier.accept(resource);
+        index.updateResource(resource, attributeFilter);
+    }
+
     public void updateResource(Consumer<Resource<D>> modifier, String attribute, Object oldValue, Object newValue) {
-        updateResource(modifier, null, attribute, oldValue, () -> newValue);
+        updateResource(modifier, null, attribute, oldValue, newValue);
     }
 
-    public void updateResource(Consumer<Resource<D>> modifier, String attribute, Object oldValue, @NonNull Supplier<Object> newValueSupplier) {
-        updateResource(modifier, null, attribute, oldValue, newValueSupplier);
-    }
-
-    public void updateResource(Consumer<Resource<D>> modifier, AttributeFilter attributeFilter, String attribute, Object oldValue, Supplier<Object> newValueSupplier) {
+    public void updateResource(Consumer<Resource<D>> modifier, AttributeFilter attributeFilter, String attribute, Object oldValue, Object newValue) {
         modifier.accept(resource);
         index.updateResource(resource, attributeFilter);
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, attribute, variantId, oldValue, newValueSupplier.get());
+        index.notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
-    public void updateResourceAndNotifyWithNullVariant(Consumer<Resource<D>> modifier, String attribute, Object oldValue, Supplier<Object> newValueSupplier) {
+    public void updateResource(Consumer<Resource<D>> modifier, String attribute, String variantId, Object oldValue, Supplier<Object> newValueSupplier) {
         modifier.accept(resource);
         index.updateResource(resource, null);
-        index.notifyUpdate(this, attribute, null, oldValue, newValueSupplier.get());
+        index.notifyUpdate(this, attribute, variantId, oldValue, newValueSupplier.get());
     }
 
     public void updateResourcePropertyAdded(Consumer<Resource<D>> modifier, String attribute, Object newValue) {
@@ -255,7 +259,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
                 }
                 aliasesWithoutType.remove(alias);
             }
-        }, "alias", alias, () -> null);
+        }, "alias", alias, null);
         getNetwork().removeAlias(alias);
     }
 

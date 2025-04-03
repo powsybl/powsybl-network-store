@@ -31,15 +31,13 @@ public class LoadDetailAdderImpl extends AbstractIidmExtensionAdder<Load, LoadDe
 
     @Override
     protected LoadDetail createExtension(Load load) {
-        LoadDetailAttributes oldValue = ((LoadImpl) load).getResource().getAttributes().getLoadDetail();
         LoadDetailAttributes attributes = LoadDetailAttributes.builder()
                 .fixedActivePower(fixedActivePower)
                 .fixedReactivePower(fixedReactivePower)
                 .variableActivePower(variableActivePower)
                 .variableReactivePower(variableReactivePower)
                 .build();
-        ((LoadImpl) load).updateResource(res -> res.getAttributes().setLoadDetail(attributes),
-            "loadDetail", oldValue, attributes);
+        ((LoadImpl) load).updateResourceWithoutNotification(res -> res.getAttributes().setLoadDetail(attributes));
         return new LoadDetailImpl((LoadImpl) load);
     }
 

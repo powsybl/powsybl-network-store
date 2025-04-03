@@ -539,11 +539,11 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
         if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId())) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(null),
-                SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, () -> null);
+                SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, null);
         }
         var oldValue = getResource().getAttributes().getOperationalLimitsGroups();
         updateResource(res -> res.getAttributes().getOperationalLimitsGroups().remove(id),
-            "operationalLimitsGroups", oldValue, () -> getResource().getAttributes().getOperationalLimitsGroups());
+            "operationalLimitsGroups", oldValue, null);
     }
 
     @Override
@@ -552,7 +552,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
         if (oldValue != null) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(null),
-                SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, () -> null);
+                SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
         }
     }
 }

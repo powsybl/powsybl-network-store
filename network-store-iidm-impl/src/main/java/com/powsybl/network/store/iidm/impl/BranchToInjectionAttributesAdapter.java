@@ -93,13 +93,9 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
     @Override
     public void setP(double p) {
         if (side1) {
-            double oldValue = attributes.getP1();
             attributes.setP1(p);
-            branch.notifyUpdate("p1", oldValue, p);
         } else {
-            double oldValue = attributes.getP2();
             attributes.setP2(p);
-            branch.notifyUpdate("p2", oldValue, p);
         }
     }
 
@@ -111,13 +107,9 @@ public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToIn
     @Override
     public void setQ(double q) {
         if (side1) {
-            double oldValue = attributes.getQ1();
             attributes.setQ1(q);
-            branch.notifyUpdate("q1", oldValue, q);
         } else {
-            double oldValue = attributes.getQ2();
             attributes.setQ2(q);
-            branch.notifyUpdate("q2", oldValue, q);
         }
     }
 

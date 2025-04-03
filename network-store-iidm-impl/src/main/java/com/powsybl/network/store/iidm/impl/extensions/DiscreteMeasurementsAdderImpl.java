@@ -23,11 +23,9 @@ public class DiscreteMeasurementsAdderImpl<I extends Identifiable<I>> extends Ab
 
     @Override
     protected DiscreteMeasurements<I> createExtension(I extendable) {
-        DiscreteMeasurementsAttributes oldValue = (DiscreteMeasurementsAttributes) ((AbstractIdentifiableImpl<?, ?>) extendable).getResource().getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME);
         DiscreteMeasurementsAttributes discreteMeasurementsAttributes = DiscreteMeasurementsAttributes.builder()
                 .build();
-        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(DiscreteMeasurements.NAME, discreteMeasurementsAttributes),
-            "discreteMeasurements", oldValue, discreteMeasurementsAttributes);
+        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(DiscreteMeasurements.NAME, discreteMeasurementsAttributes));
         return new DiscreteMeasurementsImpl<>(extendable);
     }
 }

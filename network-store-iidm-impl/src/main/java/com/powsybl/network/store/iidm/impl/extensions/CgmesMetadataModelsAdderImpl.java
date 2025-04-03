@@ -129,16 +129,16 @@ public class CgmesMetadataModelsAdderImpl extends AbstractIidmExtensionAdder<Net
         if (models.isEmpty()) {
             throw new PowsyblException("Must contain at least one model");
         }
-        CgmesMetadataModelsAttributes oldValue = (CgmesMetadataModelsAttributes) ((NetworkImpl) network).getResource().getAttributes().getExtensionAttributes().get(CgmesMetadataModels.NAME);
-        CgmesMetadataModelsAttributes attributes = CgmesMetadataModelsAttributes.builder()
+
+        var attributes = CgmesMetadataModelsAttributes.builder()
             .models(models.stream().map(m ->
                 new CgmesMetadataModelAttributes(m.getSubset(),
                     m.getId(), m.getDescription(), m.getVersion(), m.getModelingAuthoritySet(),
                     new ArrayList<>(m.getProfiles()), new ArrayList<>(m.getDependentOn()), new ArrayList<>(m.getSupersedes())))
             .collect(Collectors.toList()))
             .build();
-        ((NetworkImpl) network).updateResource(res -> res.getAttributes().getExtensionAttributes().put(CgmesMetadataModels.NAME, attributes),
-            "cgmesMetadataModels", oldValue, attributes);
+        ((NetworkImpl) network).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(CgmesMetadataModels.NAME, attributes));
+
         return new CgmesMetadataModelsImpl(network);
     }
 }

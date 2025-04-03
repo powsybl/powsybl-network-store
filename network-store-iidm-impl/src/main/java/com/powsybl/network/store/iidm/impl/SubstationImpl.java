@@ -101,9 +101,8 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
             throw new ValidationException(this, "geographical tag is null");
         }
         Set<String> oldGeographicalTags = new HashSet<>(getResource().getAttributes().getGeographicalTags());
-        updateResourceAndNotifyWithNullVariant(r -> r.getAttributes().getGeographicalTags().add(tag),
-            "geographicalTags", oldGeographicalTags, this::getGeographicalTags);
-        index.notifyPropertyAdded(this, "geographicalTags", tag);
+        updateResource(r -> r.getAttributes().getGeographicalTags().add(tag),
+            "geographicalTags", null, oldGeographicalTags, this::getGeographicalTags);
         return this;
     }
 

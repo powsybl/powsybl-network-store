@@ -29,14 +29,13 @@ public class OperatingStatusAdderImpl<I extends Identifiable<I>>
 
     @Override
     protected OperatingStatus<I> createExtension(I identifiable) {
-        OperatingStatusAttributes oldValue = (OperatingStatusAttributes) ((AbstractIdentifiableImpl<?, ?>) identifiable).getResource().getAttributes().getExtensionAttributes().get(OperatingStatus.NAME);
-        OperatingStatusAttributes attributes = new OperatingStatusAttributes(status.name());
-        ((AbstractIdentifiableImpl<?, ?>) identifiable).updateResource(res -> {
+        ((AbstractIdentifiableImpl<?, ?>) identifiable).updateResourceWithoutNotification(res -> {
             if (!OperatingStatus.isAllowedIdentifiable(identifiable)) {
                 throw new PowsyblException("Operating status extension is not allowed on identifiable type: " + identifiable.getType());
             }
+            var attributes = new OperatingStatusAttributes(status.name());
             res.getAttributes().getExtensionAttributes().put(OperatingStatus.NAME, attributes);
-        }, "operatingStatus", oldValue, attributes);
+        });
         return new OperatingStatusImpl<>(identifiable);
     }
 

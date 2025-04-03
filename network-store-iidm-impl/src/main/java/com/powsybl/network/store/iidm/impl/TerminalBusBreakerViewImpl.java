@@ -165,7 +165,7 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
             attr.setBus(connected ? busId : null);
             attr.setNode(null);
             attr.setVoltageLevelId(voltageLevel.getId());
-        }, "injectionAttributes", attributes, () -> getAttributes(getAbstractIdentifiable().getResource()));
+        }, "injectionAttributes", attributes, getAttributes(getAbstractIdentifiable().getResource()));
         oldVoltageLevel.invalidateCalculatedBuses();
         voltageLevel.invalidateCalculatedBuses();
     }

@@ -27,12 +27,10 @@ public class CoordinatedReactiveControlAdderImpl extends AbstractIidmExtensionAd
     @Override
     protected CoordinatedReactiveControl createExtension(Generator generator) {
         checkQPercent();
-        CoordinatedReactiveControlAttributes oldValue = ((GeneratorImpl) generator).getResource().getAttributes().getCoordinatedReactiveControl();
         CoordinatedReactiveControlAttributes attributes = CoordinatedReactiveControlAttributes.builder()
                 .qPercent(qPercent)
                 .build();
-        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setCoordinatedReactiveControl(attributes),
-            "coordinatedReactiveControl", oldValue, attributes);
+        ((GeneratorImpl) generator).updateResourceWithoutNotification(res -> res.getAttributes().setCoordinatedReactiveControl(attributes));
         return new CoordinatedReactiveControlImpl((GeneratorImpl) generator);
     }
 

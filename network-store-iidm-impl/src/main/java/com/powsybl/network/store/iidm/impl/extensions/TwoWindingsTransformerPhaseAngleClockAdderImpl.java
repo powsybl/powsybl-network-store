@@ -27,12 +27,10 @@ public class TwoWindingsTransformerPhaseAngleClockAdderImpl extends AbstractIidm
     @Override
     protected TwoWindingsTransformerPhaseAngleClock createExtension(TwoWindingsTransformer twoWindingsTransformer) {
         checkPhaseAngleClock();
-        TwoWindingsTransformerPhaseAngleClockAttributes oldValue = ((TwoWindingsTransformerImpl) twoWindingsTransformer).getResource().getAttributes().getPhaseAngleClockAttributes();
         var attributes = TwoWindingsTransformerPhaseAngleClockAttributes.builder()
                 .phaseAngleClock(phaseAngleClock)
                 .build();
-        ((TwoWindingsTransformerImpl) twoWindingsTransformer).updateResource(res -> res.getAttributes().setPhaseAngleClockAttributes(attributes),
-            "phaseAngleClock", oldValue, attributes);
+        ((TwoWindingsTransformerImpl) twoWindingsTransformer).updateResourceWithoutNotification(res -> res.getAttributes().setPhaseAngleClockAttributes(attributes));
         return new TwoWindingsTransformerPhaseAngleClockImpl((TwoWindingsTransformerImpl) twoWindingsTransformer);
     }
 

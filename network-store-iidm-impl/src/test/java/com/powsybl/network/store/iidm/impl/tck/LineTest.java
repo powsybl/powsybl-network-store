@@ -22,7 +22,6 @@ import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -110,7 +109,7 @@ public class LineTest extends AbstractLineTest {
         acLine.getTerminal1().setQ(Math.sqrt(2.0));
         // Case when no listener is registered
         network.removeListener(mockedListener);
-        reset(mockedListener);
+        //reset(mockedListener);
         acLine.getTerminal1().setP(2.0);
         acLine.getTerminal1().setQ(1.0);
 

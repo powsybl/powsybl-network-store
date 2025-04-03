@@ -33,10 +33,8 @@ public class GeneratorStartupAdderImpl extends AbstractIidmExtensionAdder<Genera
 
     @Override
     protected GeneratorStartup createExtension(Generator generator) {
-        GeneratorStartupAttributes oldValue = (GeneratorStartupAttributes) ((GeneratorImpl) generator).getResource().getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME);
         var attributes = new GeneratorStartupAttributes(plannedActivePowerSetpoint, startupCost, marginalCost, plannedOutageRate, forcedOutageRate);
-        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().getExtensionAttributes().put(GeneratorStartup.NAME, attributes),
-            "generatorStartup", oldValue, attributes);
+        ((GeneratorImpl) generator).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(GeneratorStartup.NAME, attributes));
         return new GeneratorStartupImpl((GeneratorImpl) generator);
     }
 

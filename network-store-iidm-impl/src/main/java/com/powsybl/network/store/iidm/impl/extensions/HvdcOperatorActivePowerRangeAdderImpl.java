@@ -30,13 +30,11 @@ public class HvdcOperatorActivePowerRangeAdderImpl extends AbstractIidmExtension
 
     @Override
     protected HvdcOperatorActivePowerRange createExtension(HvdcLine hvdcLine) {
-        HvdcOperatorActivePowerRangeAttributes oldValue = ((HvdcLineImpl) hvdcLine).getResource().getAttributes().getHvdcOperatorActivePowerRange();
-        HvdcOperatorActivePowerRangeAttributes attributes = HvdcOperatorActivePowerRangeAttributes.builder()
+        ((HvdcLineImpl) hvdcLine).updateResourceWithoutNotification(res -> res.getAttributes().setHvdcOperatorActivePowerRange(
+                HvdcOperatorActivePowerRangeAttributes.builder()
                         .oprFromCS1toCS2(oprFromCS1toCS2)
                         .oprFromCS2toCS1(oprFromCS2toCS1)
-                        .build();
-        ((HvdcLineImpl) hvdcLine).updateResource(res -> res.getAttributes().setHvdcOperatorActivePowerRange(attributes),
-            "hvdcOperatorActivePowerRange", oldValue, attributes);
+                        .build()));
         return new HvdcOperatorActivePowerRangeImpl((HvdcLineImpl) hvdcLine);
     }
 
