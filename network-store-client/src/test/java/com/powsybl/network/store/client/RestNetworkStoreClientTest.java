@@ -14,6 +14,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.network.store.model.*;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -30,10 +31,7 @@ import org.springframework.web.client.ResourceAccessException;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -41,12 +39,8 @@ import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpMethod.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withResourceNotFound;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -371,5 +365,63 @@ public class RestNetworkStoreClientTest {
                 .andExpect(content().string("[\"" + idsStr + "\"]"))
                 .andRespond(withSuccess());
         assertDoesNotThrow(() -> deleteFunction.accept(ids));
+    }
+
+    @Test
+    public void testRawExtensionAttributes() {
+        server.reset();
+        String identifiableId = "identifiableId";
+        String extensionName = "extensionName1";
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{\"data\":[{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}],\"meta\":{}}", MediaType.APPLICATION_JSON));
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        Optional<ExtensionAttributes> result = restNetworkStoreClient.getExtensionAttributes(networkUuid, 0, ResourceType.NETWORK, identifiableId, extensionName);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testRawExtensionAttributesByIdentifiableId() {
+        server.reset();
+        String identifiableId = "identifiableId";
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0},\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}}", MediaType.APPLICATION_JSON));
+
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        Map<String, ExtensionAttributes> result = restNetworkStoreClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, 0, ResourceType.GENERATOR, identifiableId);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertTrue(result.containsKey("activePowerControl"));
+    }
+
+    @Test
+    public void testRawExtensionAttributesByResourceTypeAndExtensionName() {
+        server.reset();
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/" + ActivePowerControl.NAME))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{\"identifiableId1\":{\"extensionName\":\"unknownExtension\",\"attribute1\":true}}", MediaType.APPLICATION_JSON));
+
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        Map<String, ExtensionAttributes> result = restNetworkStoreClient.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, 0, ResourceType.GENERATOR, ActivePowerControl.NAME);
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testRawExtensionAttributesByResourceType() {
+        server.reset();
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{\"identifiableId2\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}},\"identifiableId1\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0},\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0}}}", MediaType.APPLICATION_JSON));
+
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        Map<String, Map<String, ExtensionAttributes>> result = restNetworkStoreClient.getAllExtensionsAttributesByResourceType(networkUuid, 0, ResourceType.GENERATOR);
+        assertNotNull(result);
+        // Identifiables with empty maps are filtered (like identifiableId2)
+        assertEquals(1, result.size());
+        Map<String, ExtensionAttributes> resultIdentifiable1 = result.get("identifiableId1");
+        assertEquals(1, resultIdentifiable1.size());
+        assertTrue(resultIdentifiable1.containsKey("activePowerControl"));
     }
 }
