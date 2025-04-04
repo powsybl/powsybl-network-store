@@ -7,6 +7,7 @@
 
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -29,7 +30,6 @@ import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Consumer;
@@ -64,17 +64,20 @@ public class RestNetworkStoreClientTest {
     private final UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         objectMapper.registerModule(new JavaTimeModule())
-            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+                .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+                .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    }
+
+    private void setupNetworkStubs() throws JsonProcessingException {
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
                 .attributes(NetworkAttributes.builder()
-                                             .uuid(networkUuid)
-                                             .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
-                                             .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
-                                             .build())
+                        .uuid(networkUuid)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
                 .build();
 
         UUID clonedNetworkUuid = UUID.fromString("2c28af2e-286c-4cb2-a5fc-a82cd4d40631");
@@ -98,9 +101,9 @@ public class RestNetworkStoreClientTest {
         Resource<SubstationAttributes> s1 = Resource.substationBuilder()
                 .id("s1")
                 .attributes(SubstationAttributes.builder()
-                                                    .country(Country.FR)
-                                                    .tso("RTE")
-                                                    .build())
+                        .country(Country.FR)
+                        .tso("RTE")
+                        .build())
                 .build();
         String substationsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(s1)));
 
@@ -232,7 +235,8 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws JsonProcessingException {
+        setupNetworkStubs();
         try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE)) {
             assertEquals(Collections.singletonMap(networkUuid, "n1"), service.getNetworkIds());
             Network network = service.getNetwork(networkUuid);
@@ -330,7 +334,6 @@ public class RestNetworkStoreClientTest {
     @Test
     public void testRemoveError() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
-        server.reset();
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"wrongId\"]"))
@@ -344,7 +347,6 @@ public class RestNetworkStoreClientTest {
     @Test
     public void testRemoveWithResourceAccessException() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
-        server.reset();
         server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"wrongId2\"]"))
@@ -358,18 +360,17 @@ public class RestNetworkStoreClientTest {
     }
 
     private void testDeleteAllByType(List<String> ids, String type, Consumer<List<String>> deleteFunction) {
-        server.reset();
         String idsStr = String.join("\",\"", ids);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/" + type))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"" + idsStr + "\"]"))
                 .andRespond(withSuccess());
         assertDoesNotThrow(() -> deleteFunction.accept(ids));
+        server.reset();
     }
 
     @Test
     public void testRawExtensionAttributes() {
-        server.reset();
         String identifiableId = "identifiableId";
         String extensionName = "extensionName1";
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
@@ -382,7 +383,6 @@ public class RestNetworkStoreClientTest {
 
     @Test
     public void testRawExtensionAttributesByIdentifiableId() {
-        server.reset();
         String identifiableId = "identifiableId";
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
                 .andExpect(method(GET))
@@ -397,7 +397,6 @@ public class RestNetworkStoreClientTest {
 
     @Test
     public void testRawExtensionAttributesByResourceTypeAndExtensionName() {
-        server.reset();
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/" + ActivePowerControl.NAME))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("{\"identifiableId1\":{\"extensionName\":\"unknownExtension\",\"attribute1\":true}}", MediaType.APPLICATION_JSON));
@@ -410,7 +409,6 @@ public class RestNetworkStoreClientTest {
 
     @Test
     public void testRawExtensionAttributesByResourceType() {
-        server.reset();
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("{\"identifiableId2\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}},\"identifiableId1\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0},\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0}}}", MediaType.APPLICATION_JSON));
