@@ -7,6 +7,7 @@
 
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.network.store.model.*;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -28,12 +30,8 @@ import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -41,12 +39,8 @@ import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpMethod.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withResourceNotFound;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -70,17 +64,20 @@ public class RestNetworkStoreClientTest {
     private final UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         objectMapper.registerModule(new JavaTimeModule())
-            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+                .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+                .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    }
+
+    private void setupNetworkStubs() throws JsonProcessingException {
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
                 .attributes(NetworkAttributes.builder()
-                                             .uuid(networkUuid)
-                                             .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
-                                             .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
-                                             .build())
+                        .uuid(networkUuid)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
                 .build();
 
         UUID clonedNetworkUuid = UUID.fromString("2c28af2e-286c-4cb2-a5fc-a82cd4d40631");
@@ -104,9 +101,9 @@ public class RestNetworkStoreClientTest {
         Resource<SubstationAttributes> s1 = Resource.substationBuilder()
                 .id("s1")
                 .attributes(SubstationAttributes.builder()
-                                                    .country(Country.FR)
-                                                    .tso("RTE")
-                                                    .build())
+                        .country(Country.FR)
+                        .tso("RTE")
+                        .build())
                 .build();
         String substationsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(s1)));
 
@@ -238,7 +235,8 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws JsonProcessingException {
+        setupNetworkStubs();
         try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE)) {
             assertEquals(Collections.singletonMap(networkUuid, "n1"), service.getNetworkIds());
             Network network = service.getNetwork(networkUuid);
@@ -336,7 +334,6 @@ public class RestNetworkStoreClientTest {
     @Test
     public void testRemoveError() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
-        server.reset();
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"wrongId\"]"))
@@ -350,7 +347,6 @@ public class RestNetworkStoreClientTest {
     @Test
     public void testRemoveWithResourceAccessException() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
-        server.reset();
         server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"wrongId2\"]"))
@@ -364,12 +360,66 @@ public class RestNetworkStoreClientTest {
     }
 
     private void testDeleteAllByType(List<String> ids, String type, Consumer<List<String>> deleteFunction) {
-        server.reset();
         String idsStr = String.join("\",\"", ids);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/" + type))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"" + idsStr + "\"]"))
                 .andRespond(withSuccess());
         assertDoesNotThrow(() -> deleteFunction.accept(ids));
+        server.reset();
+    }
+
+    @Test
+    public void testRawExtensionAttributes() {
+        String identifiableId = "identifiableId";
+        String extensionName = "extensionName1";
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{\"data\":[{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}],\"meta\":{}}", MediaType.APPLICATION_JSON));
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        Optional<ExtensionAttributes> result = restNetworkStoreClient.getExtensionAttributes(networkUuid, 0, ResourceType.NETWORK, identifiableId, extensionName);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testRawExtensionAttributesByIdentifiableId() {
+        String identifiableId = "identifiableId";
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0},\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}}", MediaType.APPLICATION_JSON));
+
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        Map<String, ExtensionAttributes> result = restNetworkStoreClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, 0, ResourceType.GENERATOR, identifiableId);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertTrue(result.containsKey("activePowerControl"));
+    }
+
+    @Test
+    public void testRawExtensionAttributesByResourceTypeAndExtensionName() {
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/" + ActivePowerControl.NAME))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{\"identifiableId1\":{\"extensionName\":\"unknownExtension\",\"attribute1\":true}}", MediaType.APPLICATION_JSON));
+
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        Map<String, ExtensionAttributes> result = restNetworkStoreClient.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, 0, ResourceType.GENERATOR, ActivePowerControl.NAME);
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testRawExtensionAttributesByResourceType() {
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{\"identifiableId2\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}},\"identifiableId1\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0},\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0}}}", MediaType.APPLICATION_JSON));
+
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        Map<String, Map<String, ExtensionAttributes>> result = restNetworkStoreClient.getAllExtensionsAttributesByResourceType(networkUuid, 0, ResourceType.GENERATOR);
+        assertNotNull(result);
+        // Identifiables with empty maps are filtered (like identifiableId2)
+        assertEquals(1, result.size());
+        Map<String, ExtensionAttributes> resultIdentifiable1 = result.get("identifiableId1");
+        assertEquals(1, resultIdentifiable1.size());
+        assertTrue(resultIdentifiable1.containsKey("activePowerControl"));
     }
 }

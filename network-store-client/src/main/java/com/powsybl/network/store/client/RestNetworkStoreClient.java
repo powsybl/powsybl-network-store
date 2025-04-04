@@ -119,7 +119,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private Optional<ExtensionAttributes> getExtensionAttributes(String urlTemplate, Object... uriVariables) {
         logGetExtensionAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<ExtensionAttributes> extensionAttributes = restClient.getOneExtensionAttributes(urlTemplate, uriVariables);
+        Optional<ExtensionAttributes> extensionAttributes = restClient.getOneExtensionAttributes(urlTemplate, uriVariables)
+                .filter(attr -> !(attr instanceof RawExtensionAttributes));
         stopwatch.stop();
         logGetExtensionAttributesTime(extensionAttributes.isPresent() ? 1 : 0, stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
@@ -129,7 +130,10 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private Map<String, ExtensionAttributes> getExtensionAttributesMap(String urlTemplate, Object... uriVariables) {
         logGetExtensionAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<String, ExtensionAttributes> extensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        Map<String, ExtensionAttributes> extensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<Map<String, ExtensionAttributes>>() { }, uriVariables)
+                .entrySet().stream()
+                .filter(entry -> !(entry.getValue() instanceof RawExtensionAttributes))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         stopwatch.stop();
         logGetExtensionAttributesTime(extensionAttributes.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
@@ -139,7 +143,17 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private Map<String, Map<String, ExtensionAttributes>> getExtensionAttributesNestedMap(String urlTemplate, Object... uriVariables) {
         logGetExtensionAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<String, Map<String, ExtensionAttributes>> extensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        Map<String, Map<String, ExtensionAttributes>> extensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<Map<String, Map<String, ExtensionAttributes>>>() { }, uriVariables)
+                .entrySet().stream()
+                .map(entry -> {
+                    Map<String, ExtensionAttributes> innerMap = entry.getValue();
+                    Map<String, ExtensionAttributes> filteredInnerMap = innerMap.entrySet().stream()
+                            .filter(innerEntry -> !(innerEntry.getValue() instanceof RawExtensionAttributes))
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    return Map.entry(entry.getKey(), filteredInnerMap);
+                })
+                .filter(entry -> !entry.getValue().isEmpty())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         stopwatch.stop();
         long loadedAttributesCount = extensionAttributes.values().stream()
                 .mapToLong(innerMap -> innerMap.values().size())
