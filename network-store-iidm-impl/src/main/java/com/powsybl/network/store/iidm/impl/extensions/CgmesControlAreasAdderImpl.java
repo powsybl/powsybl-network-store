@@ -23,7 +23,7 @@ class CgmesControlAreasAdderImpl extends AbstractIidmExtensionAdder<Network, Cgm
 
     @Override
     protected CgmesControlAreas createExtension(Network extendable) {
-        ((NetworkImpl) extendable).updateResource(res -> res.getAttributes().setCgmesControlAreas(new CgmesControlAreasAttributes()));
+        ((NetworkImpl) extendable).updateResourceWithoutNotification(res -> res.getAttributes().setCgmesControlAreas(new CgmesControlAreasAttributes()));
         return new CgmesControlAreasImpl((NetworkImpl) extendable);
     }
 }

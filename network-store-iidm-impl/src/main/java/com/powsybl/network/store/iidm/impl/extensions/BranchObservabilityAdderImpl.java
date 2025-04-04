@@ -64,7 +64,7 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
                 .redundant(redundantQ2)
                 .build() : null)
             .build();
-        ((AbstractBranchImpl<?, ?>) branch).updateResource(res -> res.getAttributes().getExtensionAttributes().put(BranchObservability.NAME, attributes));
+        ((AbstractBranchImpl<?, ?>) branch).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(BranchObservability.NAME, attributes));
         return new BranchObservabilityImpl<>(branch);
     }
 

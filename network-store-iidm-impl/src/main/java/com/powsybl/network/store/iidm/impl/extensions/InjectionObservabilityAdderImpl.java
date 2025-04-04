@@ -56,7 +56,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
                 .redundant(redundantV)
                 .build() : null)
             .build();
-        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(InjectionObservability.NAME, attributes));
+        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(InjectionObservability.NAME, attributes));
         return new InjectionObservabilityImpl<>(injection);
     }
 

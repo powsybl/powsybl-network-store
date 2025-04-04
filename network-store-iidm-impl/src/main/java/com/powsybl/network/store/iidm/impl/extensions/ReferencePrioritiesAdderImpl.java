@@ -29,16 +29,16 @@ class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractIid
     protected ReferencePriorities<C> createExtension(C extendable) {
         ReferencePriorities<C> referencePriorities = new ReferencePrioritiesImpl<>(extendable);
         if (extendable instanceof BusbarSectionImpl) {
-            ((BusbarSectionImpl) extendable).updateResource(res ->
+            ((BusbarSectionImpl) extendable).updateResourceWithoutNotification(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         } else if (extendable instanceof AbstractInjectionImpl) {
-            ((AbstractInjectionImpl<?, ?>) extendable).updateResource(res ->
+            ((AbstractInjectionImpl<?, ?>) extendable).updateResourceWithoutNotification(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         } else if (extendable instanceof AbstractBranchImpl) {
-            ((AbstractBranchImpl<?, ?>) extendable).updateResource(res ->
+            ((AbstractBranchImpl<?, ?>) extendable).updateResourceWithoutNotification(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         } else if (extendable instanceof ThreeWindingsTransformerImpl) {
-            ((ThreeWindingsTransformerImpl) extendable).updateResource(res ->
+            ((ThreeWindingsTransformerImpl) extendable).updateResourceWithoutNotification(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         }
         return referencePriorities;

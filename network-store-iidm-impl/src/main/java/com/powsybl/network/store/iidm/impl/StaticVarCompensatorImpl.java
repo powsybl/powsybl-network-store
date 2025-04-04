@@ -45,9 +45,8 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         ValidationUtil.checkBmin(this, bMin);
         double oldValue = getResource().getAttributes().getBmin();
         if (bMin != oldValue) {
-            updateResource(res -> res.getAttributes().setBmin(bMin));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "bMin", variantId, oldValue, bMin);
+            updateResource(res -> res.getAttributes().setBmin(bMin),
+                "bMin", oldValue, bMin);
         }
         return this;
     }
@@ -62,9 +61,8 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         ValidationUtil.checkBmax(this, bMax);
         double oldValue = getResource().getAttributes().getBmax();
         if (bMax != oldValue) {
-            updateResource(res -> res.getAttributes().setBmax(bMax));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "bMax", variantId, oldValue, bMax);
+            updateResource(res -> res.getAttributes().setBmax(bMax),
+                "bMax", oldValue, bMax);
         }
         return this;
     }
@@ -79,9 +77,8 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getVoltageSetPoint();
         if (Double.compare(voltageSetPoint, oldValue) != 0) { // could be nan
-            updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetPoint));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetPoint);
+            updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetPoint),
+                "voltageSetpoint", oldValue, voltageSetPoint);
         }
         return this;
     }
@@ -96,9 +93,8 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
         if (Double.compare(reactivePowerSetPoint, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetPoint);
+            updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint),
+                "reactivePowerSetpoint", oldValue, reactivePowerSetPoint);
         }
         return this;
     }
@@ -113,9 +109,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
-            regulatingPoint.setRegulationMode(String.valueOf(regulationMode));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "regulationMode", variantId, oldValue, regulationMode);
+            regulatingPoint.setRegulationMode("regulationMode", String.valueOf(regulationMode));
         }
         return this;
     }

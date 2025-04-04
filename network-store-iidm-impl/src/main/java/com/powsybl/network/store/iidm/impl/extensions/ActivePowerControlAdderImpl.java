@@ -43,7 +43,7 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
                     .minTargetP(minTargetP)
                     .maxTargetP(maxTargetP)
                     .build();
-            ((AbstractInjectionImpl<?, ?>) injection).updateResource(res -> res.getAttributes().getExtensionAttributes().put(ActivePowerControl.NAME, attributes));
+            ((AbstractInjectionImpl<?, ?>) injection).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(ActivePowerControl.NAME, attributes));
             return new ActivePowerControlImpl<>(injection);
         } else {
             throw new UnsupportedOperationException("Cannot set ActivePowerControl on this kind of component");

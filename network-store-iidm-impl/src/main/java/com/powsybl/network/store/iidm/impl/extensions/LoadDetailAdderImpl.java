@@ -37,7 +37,7 @@ public class LoadDetailAdderImpl extends AbstractIidmExtensionAdder<Load, LoadDe
                 .variableActivePower(variableActivePower)
                 .variableReactivePower(variableReactivePower)
                 .build();
-        ((LoadImpl) load).updateResource(res -> res.getAttributes().setLoadDetail(attributes));
+        ((LoadImpl) load).updateResourceWithoutNotification(res -> res.getAttributes().setLoadDetail(attributes));
         return new LoadDetailImpl((LoadImpl) load);
     }
 

@@ -44,8 +44,8 @@ public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterS
         ValidationUtil.checkPowerFactor(this, powerFactor);
         float oldValue = getResource().getAttributes().getPowerFactor();
         if (powerFactor != oldValue) {
-            updateResource(res -> res.getAttributes().setPowerFactor(powerFactor));
-            index.notifyUpdate(this, "powerFactor", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, powerFactor);
+            updateResource(res -> res.getAttributes().setPowerFactor(powerFactor),
+                "powerFactor", oldValue, powerFactor);
         }
         return this;
     }
@@ -60,8 +60,8 @@ public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterS
         ValidationUtil.checkLossFactor(this, lossFactor, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
-            updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
-            index.notifyUpdate(this, "lossFactor", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, lossFactor);
+            updateResource(res -> res.getAttributes().setLossFactor(lossFactor),
+                "lossFactor", oldValue, lossFactor);
         }
         return this;
     }

@@ -137,7 +137,7 @@ public class CgmesMetadataModelsAdderImpl extends AbstractIidmExtensionAdder<Net
                     new ArrayList<>(m.getProfiles()), new ArrayList<>(m.getDependentOn()), new ArrayList<>(m.getSupersedes())))
             .collect(Collectors.toList()))
             .build();
-        ((NetworkImpl) network).updateResource(res -> res.getAttributes().getExtensionAttributes().put(CgmesMetadataModels.NAME, attributes));
+        ((NetworkImpl) network).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(CgmesMetadataModels.NAME, attributes));
 
         return new CgmesMetadataModelsImpl(network);
     }

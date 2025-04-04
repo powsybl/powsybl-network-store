@@ -42,7 +42,7 @@ public class ThreeWindingsTransformerToBeEstimatedAdderImpl extends AbstractIidm
             .ptc2Status(ptc2Status)
             .ptc3Status(ptc3Status)
             .build();
-        ((ThreeWindingsTransformerImpl) threeWindingsTransformer).updateResource(res -> res.getAttributes().getExtensionAttributes().put(ThreeWindingsTransformerToBeEstimated.NAME, attributes));
+        ((ThreeWindingsTransformerImpl) threeWindingsTransformer).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(ThreeWindingsTransformerToBeEstimated.NAME, attributes));
         return new ThreeWindingsTransformerToBeEstimatedImpl(threeWindingsTransformer);
     }
 
