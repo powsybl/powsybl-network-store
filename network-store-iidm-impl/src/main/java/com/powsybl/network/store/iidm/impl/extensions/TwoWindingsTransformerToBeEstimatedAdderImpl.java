@@ -33,7 +33,7 @@ public class TwoWindingsTransformerToBeEstimatedAdderImpl extends AbstractIidmEx
             .rtcStatus(rtcStatus)
             .ptcStatus(ptcStatus)
             .build();
-        ((TwoWindingsTransformerImpl) twoWindingsTransformer).updateResource(res -> res.getAttributes().getExtensionAttributes().put(TwoWindingsTransformerToBeEstimated.NAME, attributes));
+        ((TwoWindingsTransformerImpl) twoWindingsTransformer).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(TwoWindingsTransformerToBeEstimated.NAME, attributes));
         return new TwoWindingsTransformerToBeEstimatedImpl(twoWindingsTransformer);
     }
 

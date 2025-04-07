@@ -115,5 +115,4 @@ public class LineTest extends AbstractLineTest {
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
     }
-
 }

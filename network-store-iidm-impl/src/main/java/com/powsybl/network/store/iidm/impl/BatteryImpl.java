@@ -37,11 +37,10 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     public Battery setTargetP(double targetP) {
         ValidationUtil.checkP0(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP());
-        double oldValue = getResource().getAttributes().getTargetP();
+        double oldValue = getTargetP();
         if (targetP != oldValue) {
-            updateResource(res -> res.getAttributes().setTargetP(targetP));
-            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetP", variantId, oldValue, targetP);
+            updateResource(res -> res.getAttributes().setTargetP(targetP),
+                "targetP", oldValue, targetP);
         }
         return this;
     }
@@ -56,9 +55,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkQ0(this, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetQ();
         if (targetQ != oldValue) {
-            updateResource(res -> res.getAttributes().setTargetQ(targetQ));
-            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
+            updateResource(res -> res.getAttributes().setTargetQ(targetQ),
+                "targetQ", oldValue, targetQ);
         }
         return this;
 
@@ -75,9 +73,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, minP, getMaxP());
         double oldValue = getResource().getAttributes().getMinP();
         if (minP != oldValue) {
-            updateResource(res -> res.getAttributes().setMinP(minP));
-            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "minP", variantId, oldValue, minP);
+            updateResource(res -> res.getAttributes().setMinP(minP),
+                "minP", oldValue, minP);
         }
         return this;
 
@@ -94,9 +91,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP);
         double oldValue = getResource().getAttributes().getMaxP();
         if (maxP != oldValue) {
-            updateResource(res -> res.getAttributes().setMaxP(maxP));
-            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "maxP", variantId, oldValue, maxP);
+            updateResource(res -> res.getAttributes().setMaxP(maxP),
+                "maxP", oldValue, maxP);
         }
         return this;
 
@@ -107,9 +103,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         var resource = getResource();
         ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
-        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
-        String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "reactiveLimits", variantId, oldValue, reactiveLimits);
+        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits),
+            "reactiveLimits", oldValue, reactiveLimits);
     }
 
     @Override

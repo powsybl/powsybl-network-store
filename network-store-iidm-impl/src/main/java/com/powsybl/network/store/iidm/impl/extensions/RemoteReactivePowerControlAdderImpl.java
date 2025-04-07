@@ -43,7 +43,7 @@ public class RemoteReactivePowerControlAdderImpl extends AbstractIidmExtensionAd
                 .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal))
                 .enabled(enabled)
                 .build();
-        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setRemoteReactivePowerControl(attributes));
+        ((GeneratorImpl) generator).updateResourceWithoutNotification(res -> res.getAttributes().setRemoteReactivePowerControl(attributes));
         return new RemoteReactivePowerControlImpl((GeneratorImpl) generator);
     }
 

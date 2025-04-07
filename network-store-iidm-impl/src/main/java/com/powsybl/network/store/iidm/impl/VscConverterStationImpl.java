@@ -60,9 +60,8 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getVoltageSetPoint();
         if (Double.compare(voltageSetpoint, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetpoint));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetpoint);
+            updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetpoint),
+                "voltageSetpoint", oldValue, voltageSetpoint);
         }
         return this;
     }
@@ -77,9 +76,8 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
         if (Double.compare(reactivePowerSetpoint, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
+            updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint),
+                "reactivePowerSetpoint", oldValue, reactivePowerSetpoint);
         }
         return this;
     }
@@ -94,9 +92,8 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         ValidationUtil.checkLossFactor(this, lossFactor, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
-            updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "lossFactor", variantId, oldValue, lossFactor);
+            updateResource(res -> res.getAttributes().setLossFactor(lossFactor),
+                "lossFactor", oldValue, lossFactor);
         }
         return this;
     }
@@ -104,9 +101,8 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         ReactiveLimitsAttributes oldValue = getResource().getAttributes().getReactiveLimits();
-        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "reactiveLimits", variantId, oldValue, reactiveLimits);
+        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits),
+            "reactiveLimits", oldValue, reactiveLimits);
     }
 
     @Override
