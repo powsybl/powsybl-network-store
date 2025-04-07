@@ -31,8 +31,8 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     protected AbstractBranchImpl(NetworkObjectIndex index, Resource<U> resource) {
         super(index, resource);
-        terminal1 = new TerminalImpl<>(index, this, r -> new BranchToInjectionAttributesAdapter(this, r.getAttributes(), true));
-        terminal2 = new TerminalImpl<>(index, this, r -> new BranchToInjectionAttributesAdapter(this, r.getAttributes(), false));
+        terminal1 = new TerminalImpl<>(index, this, r -> new BranchToInjectionAttributesAdapter(r.getAttributes(), true));
+        terminal2 = new TerminalImpl<>(index, this, r -> new BranchToInjectionAttributesAdapter(r.getAttributes(), false));
     }
 
     private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";

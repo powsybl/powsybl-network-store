@@ -109,7 +109,6 @@ public class LineTest extends AbstractLineTest {
         acLine.getTerminal1().setQ(Math.sqrt(2.0));
         // Case when no listener is registered
         network.removeListener(mockedListener);
-        //reset(mockedListener);
         acLine.getTerminal1().setP(2.0);
         acLine.getTerminal1().setQ(1.0);
 

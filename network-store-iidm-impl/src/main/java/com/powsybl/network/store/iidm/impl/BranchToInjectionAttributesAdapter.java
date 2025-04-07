@@ -6,12 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.RegulatingEquipmentIdentifier;
 
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -19,13 +17,10 @@ import java.util.Set;
  */
 public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<BranchAttributes> {
 
-    private final AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch;
-
     private final boolean side1;
 
-    public BranchToInjectionAttributesAdapter(AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch, BranchAttributes attributes, boolean side1) {
+    public BranchToInjectionAttributesAdapter(BranchAttributes attributes, boolean side1) {
         super(attributes);
-        this.branch = Objects.requireNonNull(branch);
         this.side1 = side1;
     }
 

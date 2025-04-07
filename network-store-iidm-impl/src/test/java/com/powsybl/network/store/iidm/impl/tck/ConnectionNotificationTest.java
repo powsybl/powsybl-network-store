@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class ConnectionNotificationTest extends AbstractConnectionNotificationTest {
+    @Override
     @Test
     // Test overrided from powsybl-core, to add the notification on 'calculatedBusesValid' attribute change
     public void nodeBreakerTest() {
