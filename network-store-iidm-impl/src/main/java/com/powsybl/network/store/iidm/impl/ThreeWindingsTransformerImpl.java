@@ -412,8 +412,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             }
             OperationalLimitsGroup oldLimits = getOperationalLimitsGroup(id).orElse(null);
             if (id.equals(resource.getSelectedOperationalLimitsGroupId())) {
-                resource.setSelectedOperationalLimitsGroupId(null);
-                index.notifyUpdate(transformer, getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, index.getNetwork().getVariantManager().getWorkingVariantId(), id, null);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(null),
+                    getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, null);
             }
             transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOperationalLimitsGroups().remove(id),
                 getLegAttribute() + ".operationalLimitsGroupId", oldLimits, null);
