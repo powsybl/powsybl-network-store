@@ -610,6 +610,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return new LineAdderImpl(index);
     }
 
+    @Override
+    public LineAdder newLine(Line line) {
+        return LineAdder.fillLineAdder(newLine(), line);
+    }
+
     // 2 windings transformer
 
     @Override

@@ -55,11 +55,6 @@ class NetworkTest extends AbstractNetworkTest {
         // FIXME
     }
 
-    @Test
-    public void testStreams() {
-        // FIXME remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3020
-    }
-
     // see FIXME-Override below
     @Override
     @Test

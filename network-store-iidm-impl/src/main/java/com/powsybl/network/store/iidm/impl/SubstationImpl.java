@@ -115,6 +115,11 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     }
 
     @Override
+    public TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer) {
+        return TwoWindingsTransformerAdder.fillTwoWindingsTransformerAdder(newTwoWindingsTransformer(), twoWindingsTransformer);
+    }
+
+    @Override
     public List<TwoWindingsTransformer> getTwoWindingsTransformers() {
         Set<TwoWindingsTransformer> twoWindingsTransformers = new LinkedHashSet<>();
         for (VoltageLevel vl : getVoltageLevels()) {
