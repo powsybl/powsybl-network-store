@@ -42,7 +42,7 @@ public class BaseVoltageMappingAdderImpl extends AbstractIidmExtensionAdder<Netw
 
     @Override
     protected BaseVoltageMapping createExtension(Network network) {
-        ((NetworkImpl) network).updateResource(res -> res.getAttributes().setBaseVoltageMapping(new BaseVoltageMappingAttributes(baseVoltageSourceAttributeMap)));
+        ((NetworkImpl) network).updateResourceWithoutNotification(res -> res.getAttributes().setBaseVoltageMapping(new BaseVoltageMappingAttributes(baseVoltageSourceAttributeMap)));
         return new BaseVoltageMappingImpl(network);
     }
 

@@ -43,8 +43,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
         PhaseTapChanger.RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
-            regulatingPoint.setRegulationMode(String.valueOf(regulationMode));
-            notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
+            regulatingPoint.setRegulationMode(getTapChangerAttribute() + ".regulationMode", String.valueOf(regulationMode));
         }
         return this;
     }
@@ -58,8 +57,8 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     public PhaseTapChanger setRegulationValue(double regulationValue) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), regulationValue, isRegulating(), getRegulationTerminal(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getAttributes().getRegulationValue();
-        parent.getTransformer().updateResource(res -> getAttributes(res).setRegulationValue(regulationValue));
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationValue);
+        parent.getTransformer().updateResource(res -> getAttributes(res).setRegulationValue(regulationValue),
+            getTapChangerAttribute() + ".regulationValue", oldValue, regulationValue);
         return this;
     }
 

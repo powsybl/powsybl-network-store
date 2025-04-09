@@ -29,7 +29,7 @@ public class OperatingStatusAdderImpl<I extends Identifiable<I>>
 
     @Override
     protected OperatingStatus<I> createExtension(I identifiable) {
-        ((AbstractIdentifiableImpl<?, ?>) identifiable).updateResource(res -> {
+        ((AbstractIdentifiableImpl<?, ?>) identifiable).updateResourceWithoutNotification(res -> {
             if (!OperatingStatus.isAllowedIdentifiable(identifiable)) {
                 throw new PowsyblException("Operating status extension is not allowed on identifiable type: " + identifiable.getType());
             }
