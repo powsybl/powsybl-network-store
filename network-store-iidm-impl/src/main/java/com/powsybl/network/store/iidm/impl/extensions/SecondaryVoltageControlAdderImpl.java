@@ -56,7 +56,7 @@ public class SecondaryVoltageControlAdderImpl extends AbstractIidmExtensionAdder
         SecondaryVoltageControlAttributes attributes = SecondaryVoltageControlAttributes.builder()
                 .controlZones(controlZones.stream().map(ControlZoneImpl::getControlZoneAttributes).toList())
                 .build();
-        ((NetworkImpl) network).updateResource(res -> res.getAttributes().getExtensionAttributes().put(SecondaryVoltageControl.NAME, attributes));
+        ((NetworkImpl) network).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(SecondaryVoltageControl.NAME, attributes));
         return new SecondaryVoltageControlImpl(network);
     }
 }

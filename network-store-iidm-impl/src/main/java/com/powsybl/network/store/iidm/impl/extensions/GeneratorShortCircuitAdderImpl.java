@@ -34,7 +34,7 @@ public class GeneratorShortCircuitAdderImpl extends AbstractIidmExtensionAdder<G
                 .directTransX(directTransX)
                 .stepUpTransformerX(stepUpTransformerX)
                 .build();
-        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setGeneratorShortCircuitAttributes(attributes));
+        ((GeneratorImpl) generator).updateResourceWithoutNotification(res -> res.getAttributes().setGeneratorShortCircuitAttributes(attributes));
         return new GeneratorShortCircuitImpl((GeneratorImpl) generator);
     }
 

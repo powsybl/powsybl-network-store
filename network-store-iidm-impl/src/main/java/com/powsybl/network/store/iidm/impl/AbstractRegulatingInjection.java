@@ -44,6 +44,6 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I>, D exte
     }
 
     public void setRegulating(boolean regulating) {
-        regulatingPoint.setRegulating(regulating);
+        regulatingPoint.setRegulating("regulating", regulating);
     }
 }
