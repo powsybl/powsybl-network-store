@@ -55,6 +55,11 @@ class NetworkTest extends AbstractNetworkTest {
         // FIXME
     }
 
+    @Test
+    public void testStreams() {
+        // problem with java.lang.NoClassDefFoundError: org/assertj/core/api/Assertions
+    }
+
     // see FIXME-Override below
     @Override
     @Test

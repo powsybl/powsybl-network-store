@@ -115,8 +115,8 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     }
 
     @Override
-    public TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer) {
-        return TwoWindingsTransformerAdder.fillTwoWindingsTransformerAdder(newTwoWindingsTransformer(), twoWindingsTransformer);
+    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer) {
+        return new TwoWindingsTransformerAdderImpl(index, this, twoWindingsTransformer);
     }
 
     @Override
