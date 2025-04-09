@@ -57,7 +57,7 @@ class NetworkTest extends AbstractNetworkTest {
 
     @Test
     public void testStreams() {
-        // problem with java.lang.NoClassDefFoundError: org/assertj/core/api/Assertions
+        // still problem with order in stream
     }
 
     // see FIXME-Override below
