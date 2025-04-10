@@ -52,7 +52,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     private final boolean allCollectionsNeededForBusView;
 
     private final ExecutorService executorService;
-
+    //TODO: Need to be by networkuuid/variantNum + not sure it's a good idea to use both ensureCached and ensureAllCollectionForBusViewCached
     private boolean allCollectionsNeededForBusViewLoaded = false;
 
     public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
