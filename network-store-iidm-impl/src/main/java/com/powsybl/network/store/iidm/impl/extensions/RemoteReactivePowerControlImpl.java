@@ -50,7 +50,10 @@ public class RemoteReactivePowerControlImpl extends AbstractIidmExtension<Genera
 
     @Override
     public RemoteReactivePowerControl setTargetQ(double targetQ) {
-        getGenerator().updateResource(res -> res.getAttributes().getRemoteReactivePowerControl().setTargetQ(targetQ));
+        double oldValue = getTargetQ();
+        if (oldValue != targetQ) {
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getRemoteReactivePowerControl().setTargetQ(targetQ), "targetQ", oldValue, targetQ);
+        }
         return this;
     }
 
@@ -61,7 +64,10 @@ public class RemoteReactivePowerControlImpl extends AbstractIidmExtension<Genera
 
     @Override
     public RemoteReactivePowerControl setEnabled(boolean enabled) {
-        getGenerator().updateResource(res -> res.getAttributes().getRemoteReactivePowerControl().setEnabled(enabled));
+        boolean oldValue = isEnabled();
+        if (oldValue != enabled) {
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getRemoteReactivePowerControl().setEnabled(enabled), "enabled", oldValue, enabled);
+        }
         return this;
     }
 
@@ -84,8 +90,7 @@ public class RemoteReactivePowerControlImpl extends AbstractIidmExtension<Genera
         if (attributes != null) {
             TerminalRefAttributes oldValue = attributes.getRegulatingTerminal();
             TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-            getGenerator().updateResource(res -> res.getAttributes().getRemoteReactivePowerControl().setRegulatingTerminal(terminalRefAttributes));
-            getGenerator().getIndex().notifyUpdate(getGenerator(), "regulatingTerminal", getGenerator().getNetwork().getVariantManager().getWorkingVariantId(), oldValue, terminalRefAttributes);
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getRemoteReactivePowerControl().setRegulatingTerminal(terminalRefAttributes), "regulatingTerminal", oldValue, terminalRefAttributes);
         }
         return this;
     }

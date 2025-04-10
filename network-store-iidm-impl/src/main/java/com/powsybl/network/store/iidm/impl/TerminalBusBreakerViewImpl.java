@@ -42,10 +42,16 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
     }
 
     private InjectionAttributes getAttributes(Resource<U> resource) {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment " + connectable.getId());
+        }
         return attributesGetter.apply(resource);
     }
 
     private InjectionAttributes getAttributes() {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment " + connectable.getId());
+        }
         return getAttributes(getAbstractIdentifiable().getResource());
     }
 
@@ -81,7 +87,9 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
 
     @Override
     public Bus getBus() {
-        getAbstractIdentifiable().getResource();
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access bus of removed equipment " + connectable.getId());
+        }
         if (isNodeBeakerTopologyKind()) { // calculated bus
             return calculateBus();
         } else {  // configured bus
@@ -92,7 +100,9 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
 
     @Override
     public Bus getConnectableBus() {
-        getAbstractIdentifiable().getResource();
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access bus of removed equipment " + connectable.getId());
+        }
         if (isBusBeakerTopologyKind()) { // Configured bus
             String busId = getAttributes().getConnectableBus();
             return index.getConfiguredBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND));
@@ -116,7 +126,8 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
         }
 
         var attributes = getAttributes();
-        if (attributes.getConnectableBus().equals(busId)) {
+        String oldConnectableBusId = attributes.getConnectableBus();
+        if (oldConnectableBusId.equals(busId)) {
             return;
         }
 
@@ -126,7 +137,7 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
             if (a.getBus() != null) {
                 a.setBus(busId);
             }
-        });
+        }, "connectableBus", oldConnectableBusId, busId);
 
         getVoltageLevel().invalidateCalculatedBuses();
     }
@@ -154,7 +165,7 @@ public class TerminalBusBreakerViewImpl<U extends IdentifiableAttributes> implem
             attr.setBus(connected ? busId : null);
             attr.setNode(null);
             attr.setVoltageLevelId(voltageLevel.getId());
-        });
+        }, "injectionAttributes", attributes, getAttributes(getAbstractIdentifiable().getResource()));
         oldVoltageLevel.invalidateCalculatedBuses();
         voltageLevel.invalidateCalculatedBuses();
     }

@@ -37,7 +37,7 @@ public class MeasurementsImpl<C extends Connectable<C>> extends AbstractExtensio
     @Override
     public Collection<Measurement> getMeasurements() {
         return getMeasurementsAttributes().getMeasurementAttributes().stream()
-                .map(measurementAttributes -> new MeasurementImpl(getIdentifiable(), measurementAttributes))
+                .map(measurementAttributes -> new MeasurementImpl(this, getIdentifiable(), measurementAttributes))
                 .collect(Collectors.toList());
     }
 
@@ -45,7 +45,7 @@ public class MeasurementsImpl<C extends Connectable<C>> extends AbstractExtensio
     public Collection<Measurement> getMeasurements(Measurement.Type type) {
         return getMeasurementsAttributes().getMeasurementAttributes().stream()
                 .filter(measurementAttributes -> measurementAttributes.getType().equals(type))
-                .map(measurementAttributes -> new MeasurementImpl(getIdentifiable(), measurementAttributes))
+                .map(measurementAttributes -> new MeasurementImpl(this, getIdentifiable(), measurementAttributes))
                 .collect(Collectors.toList());
     }
 
@@ -53,7 +53,7 @@ public class MeasurementsImpl<C extends Connectable<C>> extends AbstractExtensio
     public Measurement getMeasurement(String id) {
         return getMeasurementsAttributes().getMeasurementAttributes().stream()
                 .filter(measurementAttributes -> id.equals(measurementAttributes.getId()))
-                .map(measurementAttributes -> new MeasurementImpl(getIdentifiable(), measurementAttributes))
+                .map(measurementAttributes -> new MeasurementImpl(this, getIdentifiable(), measurementAttributes))
                 .findFirst().orElse(null);
     }
 

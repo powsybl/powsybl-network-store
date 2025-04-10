@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.math.graph.TraversalType;
@@ -99,17 +100,23 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     private InjectionAttributes getAttributes(Resource<U> r) {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment " + connectable.getId());
+        }
         return attributesGetter.apply(r);
     }
 
     private InjectionAttributes getAttributes() {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment " + connectable.getId());
+        }
         return getAttributes(getAbstractIdentifiable().getResource());
     }
 
     @Override
     public VoltageLevelImpl getVoltageLevel() {
         if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
-            return null;
+            throw new PowsyblException("Cannot access voltage level of removed equipment " + connectable.getId());
         }
         return index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(AssertionError::new);
     }
@@ -124,7 +131,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, " cannot set active power on a busbar section");
         }
-        getAbstractIdentifiable().updateResource(r -> getAttributes().setP(p), AttributeFilter.SV);
+        double oldValue = getP();
+        if (oldValue != p) {
+            getAbstractIdentifiable().updateResource(r -> getAttributes().setP(p), AttributeFilter.SV,
+                "p" + getSide().getNum(), oldValue, p);
+        }
         return this;
     }
 
@@ -138,7 +149,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, " cannot set reactive power on a busbar section");
         }
-        getAbstractIdentifiable().updateResource(r -> getAttributes().setQ(q), AttributeFilter.SV);
+        double oldValue = getQ();
+        if (oldValue != q) {
+            getAbstractIdentifiable().updateResource(r -> getAttributes().setQ(q), AttributeFilter.SV,
+                "q" + getSide().getNum(), oldValue, q);
+        }
         return this;
     }
 
@@ -267,14 +282,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     protected void connectBusBreaker() {
+        String side = Terminal.getConnectableSide(this).map(s -> Integer.toString(s.getNum())).orElse("");
         getAbstractIdentifiable().updateResource(r -> {
             var a = getAttributes(r);
             a.setBus(a.getConnectableBus());
-
-            // Notification to the listeners
-            String side = Terminal.getConnectableSide(this).map(s -> Integer.toString(s.getNum())).orElse("");
-            index.notifyUpdate(getConnectable(), "connected" + side, index.getNetwork().getVariantManager().getWorkingVariantId(), false, true);
-        });
+        }, "connected" + side, false, true);
     }
 
     /**
@@ -288,37 +300,29 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
         boolean done = false;
 
-        try {
-            Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
-            VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
-            boolean connectedBefore = isConnected();
-            index.notifyUpdate(getConnectable(), "beginConnect", index.getNetwork().getVariantManager().getWorkingVariantId(), connectedBefore, null);
-            if (isNodeBeakerTopologyKind()) {
-                if (connectNodeBreaker(isTypeSwitchToOperate)) {
-                    done = true;
-                }
-            } else { // TopologyKind.BUS_BREAKER
-                // Check that the bus-breaker terminal has no bus defined (i.e. it is disconnected)
-                if (getAttributes().getBus() == null) {
-                    connectBusBreaker();
-                    done = true;
-                }
+        Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
+        VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
+        boolean connectedBefore = isConnected();
+        index.notifyUpdate(getConnectable(), "beginConnect", index.getNetwork().getVariantManager().getWorkingVariantId(), connectedBefore, null);
+        if (isNodeBeakerTopologyKind()) {
+            if (connectNodeBreaker(isTypeSwitchToOperate)) {
+                done = true;
             }
+        } else { // TopologyKind.BUS_BREAKER
+            // Check that the bus-breaker terminal has no bus defined (i.e. it is disconnected)
+            if (getAttributes().getBus() == null) {
+                connectBusBreaker();
+                done = true;
+            }
+        }
 
-            boolean connectedAfter = isConnected();
-            index.notifyUpdate(getConnectable(), "endConnect", index.getNetwork().getVariantManager().getWorkingVariantId(), null, connectedAfter);
+        boolean connectedAfter = isConnected();
+        index.notifyUpdate(getConnectable(), "endConnect", index.getNetwork().getVariantManager().getWorkingVariantId(), null, connectedAfter);
 
-            if (done) {
-                // to invalidate calculated buses
-                voltageLevelAttributes.setCalculatedBusesValid(false);
-                index.updateVoltageLevelResource(voltageLevelResource);
-            }
-        } catch (PowsyblException exception) {
-            if (exception.getMessage().contains("Object has been removed in current variant")) {
-                throw new PowsyblException("Cannot modify removed equipment", exception);
-            } else {
-                throw exception;
-            }
+        if (done) {
+            // to invalidate calculated buses
+            voltageLevelAttributes.setCalculatedBusesValid(false);
+            index.updateVoltageLevelResource(voltageLevelResource);
         }
 
         return done;
@@ -484,14 +488,11 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     protected boolean disconnectBusBreaker() {
         var attributes = getAttributes();
         if (attributes.getBus() != null) {
+            String side = Terminal.getConnectableSide(this).map(s -> Integer.toString(s.getNum())).orElse("");
             getAbstractIdentifiable().updateResource(resource -> {
                 var a = getAttributes(resource);
                 a.setBus(null);
-
-                // Notification to the listeners
-                String side = Terminal.getConnectableSide(this).map(s -> Integer.toString(s.getNum())).orElse("");
-                index.notifyUpdate(getConnectable(), "connected" + side, index.getNetwork().getVariantManager().getWorkingVariantId(), true, false);
-            });
+            }, "connected" + side, true, false);
             return true;
         }
         return false;
@@ -508,35 +509,27 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         boolean done = false;
 
-        try {
-            Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
-            VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
-            boolean disconnectedBefore = !isConnected();
-            index.notifyUpdate(getConnectable(), "beginDisconnect", index.getNetwork().getVariantManager().getWorkingVariantId(), disconnectedBefore, null);
-            if (isNodeBeakerTopologyKind()) {
-                if (disconnectNodeBreaker(isSwitchOpenable)) {
-                    done = true;
-                }
-            } else { // TopologyKind.BUS_BREAKER
-                if (disconnectBusBreaker()) {
-                    done = true;
-                }
+        Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
+        VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
+        boolean disconnectedBefore = !isConnected();
+        index.notifyUpdate(getConnectable(), "beginDisconnect", index.getNetwork().getVariantManager().getWorkingVariantId(), disconnectedBefore, null);
+        if (isNodeBeakerTopologyKind()) {
+            if (disconnectNodeBreaker(isSwitchOpenable)) {
+                done = true;
             }
+        } else { // TopologyKind.BUS_BREAKER
+            if (disconnectBusBreaker()) {
+                done = true;
+            }
+        }
 
-            boolean disconnectedAfter = !isConnected();
-            index.notifyUpdate(getConnectable(), "endDisconnect", index.getNetwork().getVariantManager().getWorkingVariantId(), null, disconnectedAfter);
+        boolean disconnectedAfter = !isConnected();
+        index.notifyUpdate(getConnectable(), "endDisconnect", index.getNetwork().getVariantManager().getWorkingVariantId(), null, disconnectedAfter);
 
-            if (done) {
-                // to invalidate calculated buses
-                voltageLevelAttributes.setCalculatedBusesValid(false);
-                index.updateVoltageLevelResource(voltageLevelResource);
-            }
-        } catch (PowsyblException exception) {
-            if (exception.getMessage().contains("Object has been removed in current variant")) {
-                throw new PowsyblException("Cannot modify removed equipment", exception);
-            } else {
-                throw exception;
-            }
+        if (done) {
+            // to invalidate calculated buses
+            voltageLevelAttributes.setCalculatedBusesValid(false);
+            index.updateVoltageLevelResource(voltageLevelResource);
         }
 
         return done;
@@ -555,6 +548,9 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     @Override
     public boolean isConnected() {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access connectivity status of removed equipment " + connectable.getId());
+        }
         if (isNodeBeakerTopologyKind()) {
             return this.getBusView().getBus() != null;
         } else {
@@ -577,7 +573,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     public void traverse(Terminal.TopologyTraverser traverser, TraversalType traversalType) {
         Set<Terminal> traversedTerminals = new HashSet<>();
         if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
-            throw new PowsyblException("Associated equipment is removed");
+            throw new PowsyblException(String.format("Associated equipment %s is removed", connectable.getId()));
         }
 
         // One side
@@ -672,7 +668,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         getAttributes().getRegulatingEquipments().forEach(regulatingEquipmentIdentifier -> {
             Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());
             if (identifiable instanceof AbstractRegulatingInjection<?, ?> regulatingEquipment) {
-                regulatingEquipment.getRegulatingPoint().removeRegulation();
+                regulatingEquipment.getRegulatingPoint().removeRegulation(connectable.getNetwork().getReportNodeContext().getReportNode());
             } else if (identifiable instanceof TwoWindingsTransformerImpl twoWindingsTransformer) {
                 AbstractTapChanger abstractTapChanger;
                 if (regulatingEquipmentIdentifier.getRegulatingTapChangerType() == RegulatingTapChangerType.RATIO_TAP_CHANGER) {
@@ -680,7 +676,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                 } else {
                     abstractTapChanger = (PhaseTapChangerImpl) twoWindingsTransformer.getPhaseTapChanger();
                 }
-                abstractTapChanger.getRegulatingPoint().removeRegulation();
+                abstractTapChanger.getRegulatingPoint().removeRegulation(connectable.getNetwork().getReportNodeContext().getReportNode());
             } else if (identifiable instanceof ThreeWindingsTransformerImpl threeWindingsTransformer) {
                 AbstractTapChanger abstractTapChanger = switch (regulatingEquipmentIdentifier.getRegulatingTapChangerType()) {
                     case RATIO_TAP_CHANGER_SIDE_ONE ->
@@ -697,11 +693,22 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                         (PhaseTapChangerImpl) threeWindingsTransformer.getLeg3().getPhaseTapChanger();
                     default -> throw new PowsyblException("tap changer not found when removing regulation");
                 };
-                abstractTapChanger.getRegulatingPoint().removeRegulation();
+                abstractTapChanger.getRegulatingPoint().removeRegulation(connectable.getNetwork().getReportNodeContext().getReportNode());
             }
 
         });
-        getAttributes().getRegulatingEquipments().clear();
+        if (!getAttributes().getRegulatingEquipments().isEmpty()) {
+            String regulatingEquiments = getAttributes().getRegulatingEquipments().stream()
+                .map(RegulatingEquipmentIdentifier::getEquipmentId).collect(Collectors.joining(", "));
+            connectable.getNetwork().getReportNodeContext().getReportNode().newReportNode()
+                .withMessageTemplate("regulatedTerminalDeleted", "${identifiableId} has been deleted and it was regulated. " +
+                    "The following regulating equipments have their regulation set to Local : [${regulatingEquipments}] ")
+                .withUntypedValue("identifiableId", connectable.getId())
+                .withUntypedValue("regulatingEquipments", regulatingEquiments)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+            getAttributes().getRegulatingEquipments().clear();
+        }
     }
 
     public ReferrerManager<Terminal> getReferrerManager() {

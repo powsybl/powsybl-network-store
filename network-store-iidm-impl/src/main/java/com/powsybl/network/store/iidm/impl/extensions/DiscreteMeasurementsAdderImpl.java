@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
@@ -16,7 +15,7 @@ import com.powsybl.network.store.model.DiscreteMeasurementsAttributes;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class DiscreteMeasurementsAdderImpl<I extends Identifiable<I>> extends AbstractExtensionAdder<I, DiscreteMeasurements<I>> implements DiscreteMeasurementsAdder<I> {
+public class DiscreteMeasurementsAdderImpl<I extends Identifiable<I>> extends AbstractIidmExtensionAdder<I, DiscreteMeasurements<I>> implements DiscreteMeasurementsAdder<I> {
 
     DiscreteMeasurementsAdderImpl(I extendable) {
         super(extendable);
@@ -26,7 +25,7 @@ public class DiscreteMeasurementsAdderImpl<I extends Identifiable<I>> extends Ab
     protected DiscreteMeasurements<I> createExtension(I extendable) {
         DiscreteMeasurementsAttributes discreteMeasurementsAttributes = DiscreteMeasurementsAttributes.builder()
                 .build();
-        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(DiscreteMeasurements.NAME, discreteMeasurementsAttributes));
+        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(DiscreteMeasurements.NAME, discreteMeasurementsAttributes));
         return new DiscreteMeasurementsImpl<>(extendable);
     }
 }

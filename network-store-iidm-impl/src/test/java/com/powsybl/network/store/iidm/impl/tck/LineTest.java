@@ -37,11 +37,6 @@ public class LineTest extends AbstractLineTest {
     }
 
     @Override
-    public void testRemoveAcLine() {
-        // FIXME remove this test when exception msg are homogenized with the powsybl-core
-    }
-
-    @Override
     @Test
     public void testChangesNotification() {
         // This is an adaptation of the same test method in powsybl-core
@@ -120,5 +115,4 @@ public class LineTest extends AbstractLineTest {
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
     }
-
 }

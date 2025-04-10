@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
@@ -19,7 +18,7 @@ import com.powsybl.network.store.model.RemoteReactivePowerControlAttributes;
 /**
  * @author Jon Harper <jon.harper at rte-france.com.com>
  */
-public class RemoteReactivePowerControlAdderImpl extends AbstractExtensionAdder<Generator, RemoteReactivePowerControl> implements RemoteReactivePowerControlAdder {
+public class RemoteReactivePowerControlAdderImpl extends AbstractIidmExtensionAdder<Generator, RemoteReactivePowerControl> implements RemoteReactivePowerControlAdder {
 
     private double targetQ = Double.NaN;
 
@@ -44,7 +43,7 @@ public class RemoteReactivePowerControlAdderImpl extends AbstractExtensionAdder<
                 .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal))
                 .enabled(enabled)
                 .build();
-        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setRemoteReactivePowerControl(attributes));
+        ((GeneratorImpl) generator).updateResourceWithoutNotification(res -> res.getAttributes().setRemoteReactivePowerControl(attributes));
         return new RemoteReactivePowerControlImpl((GeneratorImpl) generator);
     }
 

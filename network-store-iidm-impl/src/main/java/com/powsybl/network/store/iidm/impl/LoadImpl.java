@@ -46,9 +46,8 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         ValidationUtil.checkLoadType(this, loadType);
         LoadType oldValue = getResource().getAttributes().getLoadType();
         if (loadType != oldValue) {
-            updateResource(r -> r.getAttributes().setLoadType(loadType));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "loadType", variantId, oldValue, loadType);
+            updateResource(r -> r.getAttributes().setLoadType(loadType),
+                "loadType", oldValue, loadType);
         }
         return this;
     }
@@ -63,9 +62,8 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getP0();
         if (p0 != oldValue) {
-            updateResource(r -> r.getAttributes().setP0(p0));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "p0", variantId, oldValue, p0);
+            updateResource(r -> r.getAttributes().setP0(p0),
+                "p0", oldValue, p0);
         }
         return this;
     }
@@ -80,9 +78,8 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getQ0();
         if (q0 != oldValue) {
-            updateResource(r -> r.getAttributes().setQ0(q0));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "q0", variantId, oldValue, q0);
+            updateResource(r -> r.getAttributes().setQ0(q0),
+                "q0", oldValue, q0);
         }
         return this;
     }

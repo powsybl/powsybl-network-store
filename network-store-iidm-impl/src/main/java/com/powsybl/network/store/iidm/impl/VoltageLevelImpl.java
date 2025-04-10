@@ -53,7 +53,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     void invalidateCalculatedBuses() {
-        updateResource(res -> res.getAttributes().setCalculatedBusesValid(false));
+        updateResource(res -> res.getAttributes().setCalculatedBusesValid(false),
+            "calculatedBusesValid", getResource().getAttributes().isCalculatedBusesValid(), false);
         getNetwork().invalidateCalculatedBuses();
     }
 
@@ -63,7 +64,18 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
+    public NetworkImpl getNetwork() {
+        if (getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access network of removed voltage level " + getId());
+        }
+        return super.getNetwork();
+    }
+
+    @Override
     public Optional<Substation> getSubstation() {
+        if (getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access substation of removed voltage level " + getId());
+        }
         String substationId = getResource().getAttributes().getSubstationId();
         return substationId == null ? Optional.empty() : index.getSubstation(substationId).map(Function.identity());
     }
@@ -79,9 +91,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = resource.getAttributes().getNominalV();
         if (nominalV != oldValue) {
-            updateResource(res -> res.getAttributes().setNominalV(nominalV));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "nominalV", variantId, oldValue, nominalV);
+            updateResource(res -> res.getAttributes().setNominalV(nominalV),
+                "nominalV", oldValue, nominalV);
         }
         return this;
     }
@@ -97,9 +108,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, getHighVoltageLimit());
         double oldValue = resource.getAttributes().getLowVoltageLimit();
         if (lowVoltageLimit != oldValue) {
-            updateResource(res -> res.getAttributes().setLowVoltageLimit(lowVoltageLimit));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "lowVoltageLimit", variantId, oldValue, lowVoltageLimit);
+            updateResource(res -> res.getAttributes().setLowVoltageLimit(lowVoltageLimit),
+                "lowVoltageLimit", oldValue, lowVoltageLimit);
         }
         return this;
     }
@@ -115,9 +125,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkVoltageLimits(this, getLowVoltageLimit(), highVoltageLimit);
         double oldValue = resource.getAttributes().getHighVoltageLimit();
         if (highVoltageLimit != oldValue) {
-            updateResource(res -> res.getAttributes().setHighVoltageLimit(highVoltageLimit));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "highVoltageLimit", variantId, oldValue, highVoltageLimit);
+            updateResource(res -> res.getAttributes().setHighVoltageLimit(highVoltageLimit),
+                "highVoltageLimit", oldValue, highVoltageLimit);
         }
         return this;
     }

@@ -7,7 +7,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
@@ -19,7 +18,7 @@ import com.powsybl.network.store.model.ObservabilityQualityAttributes;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class BranchObservabilityAdderImpl<B extends Branch<B>>
-        extends AbstractExtensionAdder<B, BranchObservability<B>>
+        extends AbstractIidmExtensionAdder<B, BranchObservability<B>>
         implements BranchObservabilityAdder<B> {
 
     private boolean observable = false;
@@ -65,7 +64,7 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
                 .redundant(redundantQ2)
                 .build() : null)
             .build();
-        ((AbstractBranchImpl<?, ?>) branch).updateResource(res -> res.getAttributes().getExtensionAttributes().put(BranchObservability.NAME, attributes));
+        ((AbstractBranchImpl<?, ?>) branch).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(BranchObservability.NAME, attributes));
         return new BranchObservabilityImpl<>(branch);
     }
 

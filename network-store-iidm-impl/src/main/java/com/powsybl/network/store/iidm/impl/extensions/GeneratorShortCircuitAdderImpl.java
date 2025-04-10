@@ -8,7 +8,6 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
@@ -19,7 +18,7 @@ import com.powsybl.network.store.model.GeneratorShortCircuitAttributes;
  * @author Seddik Yengui <seddik.yengui at rte-france.com>
  */
 
-public class GeneratorShortCircuitAdderImpl extends AbstractExtensionAdder<Generator, GeneratorShortCircuit> implements GeneratorShortCircuitAdder {
+public class GeneratorShortCircuitAdderImpl extends AbstractIidmExtensionAdder<Generator, GeneratorShortCircuit> implements GeneratorShortCircuitAdder {
 
     private double directTransX = 0.0D;
     private double directSubtransX = Double.NaN;
@@ -35,7 +34,7 @@ public class GeneratorShortCircuitAdderImpl extends AbstractExtensionAdder<Gener
                 .directTransX(directTransX)
                 .stepUpTransformerX(stepUpTransformerX)
                 .build();
-        ((GeneratorImpl) generator).updateResource(res -> res.getAttributes().setGeneratorShortCircuitAttributes(attributes));
+        ((GeneratorImpl) generator).updateResourceWithoutNotification(res -> res.getAttributes().setGeneratorShortCircuitAttributes(attributes));
         return new GeneratorShortCircuitImpl((GeneratorImpl) generator);
     }
 

@@ -8,7 +8,6 @@
 
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
@@ -18,7 +17,7 @@ import com.powsybl.network.store.model.HvdcOperatorActivePowerRangeAttributes;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class HvdcOperatorActivePowerRangeAdderImpl extends AbstractExtensionAdder<HvdcLine, HvdcOperatorActivePowerRange>
+public class HvdcOperatorActivePowerRangeAdderImpl extends AbstractIidmExtensionAdder<HvdcLine, HvdcOperatorActivePowerRange>
         implements HvdcOperatorActivePowerRangeAdder {
 
     private float oprFromCS1toCS2;
@@ -31,7 +30,7 @@ public class HvdcOperatorActivePowerRangeAdderImpl extends AbstractExtensionAdde
 
     @Override
     protected HvdcOperatorActivePowerRange createExtension(HvdcLine hvdcLine) {
-        ((HvdcLineImpl) hvdcLine).updateResource(res -> res.getAttributes().setHvdcOperatorActivePowerRange(
+        ((HvdcLineImpl) hvdcLine).updateResourceWithoutNotification(res -> res.getAttributes().setHvdcOperatorActivePowerRange(
                 HvdcOperatorActivePowerRangeAttributes.builder()
                         .oprFromCS1toCS2(oprFromCS1toCS2)
                         .oprFromCS2toCS1(oprFromCS2toCS1)

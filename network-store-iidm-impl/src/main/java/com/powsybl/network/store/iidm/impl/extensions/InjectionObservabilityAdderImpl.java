@@ -7,7 +7,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
@@ -19,7 +18,7 @@ import com.powsybl.network.store.model.ObservabilityQualityAttributes;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class InjectionObservabilityAdderImpl<I extends Injection<I>>
-        extends AbstractExtensionAdder<I, InjectionObservability<I>>
+        extends AbstractIidmExtensionAdder<I, InjectionObservability<I>>
         implements InjectionObservabilityAdder<I> {
 
     private boolean observable = false;
@@ -57,7 +56,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
                 .redundant(redundantV)
                 .build() : null)
             .build();
-        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(InjectionObservability.NAME, attributes));
+        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(InjectionObservability.NAME, attributes));
         return new InjectionObservabilityImpl<>(injection);
     }
 

@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
@@ -17,7 +16,7 @@ import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttr
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class TwoWindingsTransformerPhaseAngleClockAdderImpl extends AbstractExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerPhaseAngleClock> implements TwoWindingsTransformerPhaseAngleClockAdder {
+public class TwoWindingsTransformerPhaseAngleClockAdderImpl extends AbstractIidmExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerPhaseAngleClock> implements TwoWindingsTransformerPhaseAngleClockAdder {
 
     private int phaseAngleClock = -1;
 
@@ -31,7 +30,7 @@ public class TwoWindingsTransformerPhaseAngleClockAdderImpl extends AbstractExte
         var attributes = TwoWindingsTransformerPhaseAngleClockAttributes.builder()
                 .phaseAngleClock(phaseAngleClock)
                 .build();
-        ((TwoWindingsTransformerImpl) twoWindingsTransformer).updateResource(res -> res.getAttributes().setPhaseAngleClockAttributes(attributes));
+        ((TwoWindingsTransformerImpl) twoWindingsTransformer).updateResourceWithoutNotification(res -> res.getAttributes().setPhaseAngleClockAttributes(attributes));
         return new TwoWindingsTransformerPhaseAngleClockImpl((TwoWindingsTransformerImpl) twoWindingsTransformer);
     }
 

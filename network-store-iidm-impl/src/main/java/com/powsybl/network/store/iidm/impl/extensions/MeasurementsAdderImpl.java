@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
@@ -16,7 +15,7 @@ import com.powsybl.network.store.model.MeasurementsAttributes;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class MeasurementsAdderImpl<C extends Connectable<C>> extends AbstractExtensionAdder<C, Measurements<C>> implements MeasurementsAdder<C> {
+public class MeasurementsAdderImpl<C extends Connectable<C>> extends AbstractIidmExtensionAdder<C, Measurements<C>> implements MeasurementsAdder<C> {
 
     protected MeasurementsAdderImpl(C extendable) {
         super(extendable);
@@ -26,7 +25,7 @@ public class MeasurementsAdderImpl<C extends Connectable<C>> extends AbstractExt
     protected Measurements<C> createExtension(C connectable) {
         MeasurementsAttributes measurementsAttributes = MeasurementsAttributes.builder()
                 .build();
-        ((AbstractIdentifiableImpl<?, ?>) connectable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(Measurements.NAME, measurementsAttributes));
+        ((AbstractIdentifiableImpl<?, ?>) connectable).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(Measurements.NAME, measurementsAttributes));
         return new MeasurementsImpl< >(connectable);
     }
 }

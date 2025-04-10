@@ -7,7 +7,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePrioritiesAdder;
@@ -20,7 +19,7 @@ import com.powsybl.network.store.model.ReferencePrioritiesAttributes;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractExtensionAdder<C, ReferencePriorities<C>> implements ReferencePrioritiesAdder<C> {
+class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractIidmExtensionAdder<C, ReferencePriorities<C>> implements ReferencePrioritiesAdder<C> {
 
     ReferencePrioritiesAdderImpl(C extendable) {
         super(extendable);
@@ -30,16 +29,16 @@ class ReferencePrioritiesAdderImpl<C extends Connectable<C>> extends AbstractExt
     protected ReferencePriorities<C> createExtension(C extendable) {
         ReferencePriorities<C> referencePriorities = new ReferencePrioritiesImpl<>(extendable);
         if (extendable instanceof BusbarSectionImpl) {
-            ((BusbarSectionImpl) extendable).updateResource(res ->
+            ((BusbarSectionImpl) extendable).updateResourceWithoutNotification(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         } else if (extendable instanceof AbstractInjectionImpl) {
-            ((AbstractInjectionImpl<?, ?>) extendable).updateResource(res ->
+            ((AbstractInjectionImpl<?, ?>) extendable).updateResourceWithoutNotification(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         } else if (extendable instanceof AbstractBranchImpl) {
-            ((AbstractBranchImpl<?, ?>) extendable).updateResource(res ->
+            ((AbstractBranchImpl<?, ?>) extendable).updateResourceWithoutNotification(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         } else if (extendable instanceof ThreeWindingsTransformerImpl) {
-            ((ThreeWindingsTransformerImpl) extendable).updateResource(res ->
+            ((ThreeWindingsTransformerImpl) extendable).updateResourceWithoutNotification(res ->
                 res.getAttributes().getExtensionAttributes().put(ReferencePriorities.NAME, new ReferencePrioritiesAttributes()));
         }
         return referencePriorities;

@@ -40,10 +40,16 @@ class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements T
     }
 
     private InjectionAttributes getAttributes() {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment " + connectable.getId());
+        }
         return getAttributes(getAbstractIdentifiable().getResource());
     }
 
     private InjectionAttributes getAttributes(Resource<U> resource) {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment " + connectable.getId());
+        }
         return attributesGetter.apply(resource);
     }
 
@@ -53,6 +59,9 @@ class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements T
 
     @Override
     public int getNode() {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access node of removed equipment " + connectable.getId());
+        }
         Integer node = getAttributes().getNode();
         if (node == null) {
             throw new PowsyblException("Not supported in a bus breaker topology");
@@ -85,7 +94,7 @@ class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements T
             attr.setBus(null);
             attr.setNode(node);
             attr.setVoltageLevelId(voltageLevelId);
-        });
+        }, "injectionAttributes", attributes, getAttributes(getAbstractIdentifiable().getResource()));
         oldVoltageLevel.invalidateCalculatedBuses();
         voltageLevel.invalidateCalculatedBuses();
     }

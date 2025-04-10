@@ -35,7 +35,7 @@ public class CgmesControlAreasImpl extends AbstractExtension<Network> implements
 
     @Override
     public CgmesControlAreaAdder newCgmesControlArea() {
-        return new CgmesControlAreaAdderImpl(getNetwork());
+        return new CgmesControlAreaAdderImpl(this, getNetwork());
     }
 
     @Override
@@ -47,7 +47,7 @@ public class CgmesControlAreasImpl extends AbstractExtension<Network> implements
                 .getControlAreas();
         return IntStream.range(0, cgmesControlAreaAttributes.size())
                 .boxed()
-                .map(index -> new CgmesControlAreaImpl(getNetwork(), index))
+                .map(index -> new CgmesControlAreaImpl(this, getNetwork(), index))
                 .collect(Collectors.toSet());
     }
 
@@ -61,7 +61,7 @@ public class CgmesControlAreasImpl extends AbstractExtension<Network> implements
                 .getControlAreas();
         return IntStream.range(0, cgmesControlAreaAttributes.size())
                 .boxed()
-                .map(index -> new CgmesControlAreaImpl(getNetwork(), index))
+                .map(index -> new CgmesControlAreaImpl(this, getNetwork(), index))
                 .filter(area -> area.getId().equals(controlAreaId))
                 .findFirst()
                 .orElse(null);
