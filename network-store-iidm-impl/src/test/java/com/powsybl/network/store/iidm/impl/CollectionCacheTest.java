@@ -343,9 +343,9 @@ public class CollectionCacheTest {
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeCalled());
         collectionCache.init(); // it means we trust cache content and no more server loading
         collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1", "activePowerControl");
-        collectionCache.getAllExtensionsAttributesByResourceTypeAndExtensionName(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "activePowerControl");
+        collectionCache.loadAllExtensionsAttributesByResourceTypeAndExtensionName(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "activePowerControl");
         collectionCache.getAllExtensionsAttributesByIdentifiableId(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1");
-        collectionCache.getAllExtensionsAttributesByResourceType(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD);
+        collectionCache.loadAllExtensionsAttributesByResourceType(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD);
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByIdCalled());
