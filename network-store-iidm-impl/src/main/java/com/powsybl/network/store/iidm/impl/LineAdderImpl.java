@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -30,8 +31,17 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     private double b2 = 0;
 
+    private final Line copiedLine;
+
     LineAdderImpl(NetworkObjectIndex index) {
         super(index);
+        this.copiedLine = null;
+    }
+
+    LineAdderImpl(NetworkObjectIndex index, Line copiedLine) {
+        super(index);
+        this.copiedLine = copiedLine;
+        LineAdder.fillLineAdder(this, copiedLine);
     }
 
     @Override
@@ -110,6 +120,24 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         LineImpl line = getIndex().createLine(resource);
         line.getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
         line.getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
+        if (copiedLine != null) {
+            copiedLine.getOperationalLimitsGroups1().forEach(groupToCopy -> {
+                OperationalLimitsGroup copy1 = line.newOperationalLimitsGroup1(groupToCopy.getId());
+                groupToCopy.getCurrentLimits().ifPresent(limit -> copy1.newCurrentLimits(limit).add());
+                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy1.newActivePowerLimits(limit).add());
+                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy1.newApparentPowerLimits(limit).add());
+            });
+
+            copiedLine.getOperationalLimitsGroups2().forEach(groupToCopy -> {
+                OperationalLimitsGroup copy2 = line.newOperationalLimitsGroup2(groupToCopy.getId());
+                groupToCopy.getCurrentLimits().ifPresent(limit -> copy2.newCurrentLimits(limit).add());
+                groupToCopy.getActivePowerLimits().ifPresent(limit -> copy2.newActivePowerLimits(limit).add());
+                groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy2.newApparentPowerLimits(limit).add());
+            });
+
+            copiedLine.getSelectedOperationalLimitsGroupId1().ifPresent(line::setSelectedOperationalLimitsGroup1);
+            copiedLine.getSelectedOperationalLimitsGroupId2().ifPresent(line::setSelectedOperationalLimitsGroup2);
+        }
         return line;
     }
 

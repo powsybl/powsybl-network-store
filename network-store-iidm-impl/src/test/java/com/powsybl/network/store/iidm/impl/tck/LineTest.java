@@ -32,11 +32,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 public class LineTest extends AbstractLineTest {
 
     @Override
-    public void baseAcLineTests() {
-        // FIXME remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3022
-    }
-
-    @Override
     @Test
     public void testChangesNotification() {
         // This is an adaptation of the same test method in powsybl-core

@@ -78,6 +78,22 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     }
 
     @Override
+    public double getMinQ(double p, boolean extrapolateReactiveLimitSlope) {
+        if (extrapolateReactiveLimitSlope) {
+            throw new UnsupportedOperationException("TODO");
+        }
+        return getMinQ(p);
+    }
+
+    @Override
+    public double getMaxQ(double p, boolean extrapolateReactiveLimitSlope) {
+        if (extrapolateReactiveLimitSlope) {
+            throw new UnsupportedOperationException("TODO");
+        }
+        return getMaxQ(p);
+    }
+
+    @Override
     public ReactiveLimitsKind getKind() {
         return ReactiveLimitsKind.CURVE;
     }

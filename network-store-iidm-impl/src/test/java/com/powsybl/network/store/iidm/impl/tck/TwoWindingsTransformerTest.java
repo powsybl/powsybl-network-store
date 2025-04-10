@@ -12,8 +12,4 @@ import com.powsybl.iidm.network.tck.AbstractTwoWindingsTransformerTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class TwoWindingsTransformerTest extends AbstractTwoWindingsTransformerTest {
-    @Override
-    public void baseTests() {
-        // FIXME : remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3019
-    }
 }

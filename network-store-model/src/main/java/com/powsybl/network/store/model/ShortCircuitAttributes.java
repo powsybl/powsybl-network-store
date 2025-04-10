@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Schema(description = "Generator Short Circuit attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GeneratorShortCircuitAttributes {
+public class ShortCircuitAttributes {
     private double directSubtransX;
 
     private double directTransX;

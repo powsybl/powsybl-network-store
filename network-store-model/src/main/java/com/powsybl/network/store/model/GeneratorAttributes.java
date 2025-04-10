@@ -82,7 +82,7 @@ public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes i
     private GeneratorEntsoeCategoryAttributes entsoeCategoryAttributes;
 
     @Schema(description = "Generator short circuit attributes")
-    private GeneratorShortCircuitAttributes generatorShortCircuitAttributes;
+    private ShortCircuitAttributes generatorShortCircuitAttributes;
 
     @Schema(description = "Condenser")
     private boolean condenser;

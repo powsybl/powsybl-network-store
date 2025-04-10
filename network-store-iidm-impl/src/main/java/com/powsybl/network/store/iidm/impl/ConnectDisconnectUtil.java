@@ -50,7 +50,7 @@ public final class ConnectDisconnectUtil {
             if (terminal.isConnected()) {
                 // If the terminal is already connected, log and continue on other terminals
                 reportNode.newReportNode()
-                    .withMessageTemplate("alreadyConnectedTerminal", "A terminal of identifiable ${identifiable} is already connected.")
+                    .withMessageTemplate("core.iidm.network.alreadyConnectedTerminal")
                     .withUntypedValue("identifiable", identifiable.getId())
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .add();
@@ -124,7 +124,7 @@ public final class ConnectDisconnectUtil {
             // Check if the terminal is already disconnected
             if (!terminal.isConnected()) {
                 reportNode.newReportNode()
-                    .withMessageTemplate("alreadyDisconnectedTerminal", "A terminal of identifiable ${identifiable} is already disconnected.")
+                    .withMessageTemplate("core.iidm.network.alreadyDisconnectedTerminal")
                     .withUntypedValue("identifiable", identifiable.getId())
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .add();
