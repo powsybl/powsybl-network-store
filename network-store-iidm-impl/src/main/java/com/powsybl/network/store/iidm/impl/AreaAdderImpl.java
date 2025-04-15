@@ -62,7 +62,6 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
             .attributes(AreaAttributes.builder()
                 .name(getName())
                 .fictitious(isFictitious())
-                .networkUuid(index.getNetworkUuid())
                 .areaType(areaType)
                 .interchangeTarget(interchangeTarget)
                 .voltageLevelIds(new LinkedHashSet<>())

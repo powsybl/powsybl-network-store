@@ -15,7 +15,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -35,9 +34,6 @@ public class AreaAttributes extends AbstractIdentifiableAttributes {
 
     @Schema(description = "area boundaries")
     private List<AreaBoundaryAttributes> areaBoundaries;
-
-    @Schema(description = "Network UUID")
-    private UUID networkUuid;
 
     @Schema(description = "interchange target")
     private Double interchangeTarget;
