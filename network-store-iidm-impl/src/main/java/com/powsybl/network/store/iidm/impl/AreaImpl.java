@@ -24,6 +24,9 @@ import java.util.stream.Stream;
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> implements Area {
+
+    private static final String AREA_BOUNDARIES = "area_boundaries";
+
     protected AreaImpl(NetworkObjectIndex index, Resource<AreaAttributes> resource) {
         super(index, resource);
     }
@@ -88,19 +91,15 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
             .areaId(areaBoundary.getArea().getId());
         boundary.ifPresent(b -> {
             checkBoundaryNetwork(b.getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + b.getDanglingLine().getId());
-            // no idea if it is usefull
-            // ((DanglingLineBoundaryImpl) b).getReferrerManager().register(boundaryReferrer);
             areaBoundaryBuilder.boundaryDanglingLineId(b.getDanglingLine().getId());
         });
         terminal.ifPresent(t -> {
             checkBoundaryNetwork(t.getConnectable().getParentNetwork(), "Terminal of connectable " + t.getConnectable().getId());
-            //  no idea if it is usefull
-            // ((TerminalExt) t).getReferrerManager().register(terminalReferrer);
             areaBoundaryBuilder.terminal(TerminalRefUtils.getTerminalRefAttributes(t));
         });
         List<AreaBoundaryAttributes> oldAreaBoundaries = getResource().getAttributes().getAreaBoundaries();
         updateResource(r -> r.getAttributes().getAreaBoundaries().add(areaBoundaryBuilder.build()),
-            "areaBoundaries", null, oldAreaBoundaries, this::getAreaBoundaries);
+            AREA_BOUNDARIES, null, oldAreaBoundaries, this::getAreaBoundaries);
     }
 
     void checkBoundaryNetwork(Network network, String boundaryTypeAndId) {
@@ -116,7 +115,7 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
         List<AreaBoundaryAttributes> oldAreaBoundaries = getResource().getAttributes().getAreaBoundaries();
         updateResource(r -> r.getAttributes().getAreaBoundaries().removeIf(b ->
                 Objects.equals(b.getTerminal(), terminalRefAttributes)),
-            "areaBoundaries", null, oldAreaBoundaries, this::getAreaBoundaries);
+            AREA_BOUNDARIES, null, oldAreaBoundaries, this::getAreaBoundaries);
         return this;
     }
 
@@ -126,7 +125,7 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
         List<AreaBoundaryAttributes> oldAreaBoundaries = getResource().getAttributes().getAreaBoundaries();
         updateResource(r -> r.getAttributes().getAreaBoundaries().removeIf(b ->
                 Objects.equals(b.getBoundaryDanglingLineId(), boundary.getDanglingLine().getId())),
-            "areaBoundaries", null, oldAreaBoundaries, this::getAreaBoundaries);
+            AREA_BOUNDARIES, null, oldAreaBoundaries, this::getAreaBoundaries);
         return this;
     }
 

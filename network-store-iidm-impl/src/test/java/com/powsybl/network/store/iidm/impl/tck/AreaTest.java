@@ -15,12 +15,12 @@ import com.powsybl.iidm.network.tck.AbstractAreaTest;
 public class AreaTest extends AbstractAreaTest {
     @Override
     public void mergeAndFlatten() {
-
+        // merge is not implemented
     }
 
     @Override
     public void throwAddVoltageLevelOtherNetwork() {
-
+        // problem
     }
 
     @Override

@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest {
 
-    @Test
+    @Override
     public void baseTests() {
         // problem on hash code egality on current limit impl
     }
