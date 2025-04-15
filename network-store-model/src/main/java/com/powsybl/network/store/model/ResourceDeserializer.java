@@ -47,6 +47,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                 case GROUND -> GroundAttributes.class;
                 case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
                 case TIE_LINE -> TieLineAttributes.class;
+                case AREA -> AreaAttributes.class;
             };
         } else {
             if (filter == AttributeFilter.SV) {

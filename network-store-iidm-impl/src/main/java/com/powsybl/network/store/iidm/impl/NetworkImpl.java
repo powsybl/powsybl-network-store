@@ -1094,7 +1094,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public AreaAdder newArea() {
         // TODO
-        return null;
+        return new AreaAdderImpl(index);
     }
 
     @Override
@@ -1105,7 +1105,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public Stream<Area> getAreaStream() {
         // TODO
-        return Stream.empty();
+        return index.getAreas().stream();
     }
 
     @Override
@@ -1116,8 +1116,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Area getArea(String id) {
-        // TODO
-        return getAreaStream().filter(a -> a.getId().equals(id)).findFirst().orElse(null);
+        return index.getArea(getIdFromAlias(id)).orElse(null);
     }
 
     @Override

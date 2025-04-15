@@ -278,6 +278,18 @@ public interface NetworkStoreClient {
 
     void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources, AttributeFilter attributeFilter);
 
+    // Area
+
+    void createAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources);
+
+    List<Resource<AreaAttributes>> getAreas(UUID networkUuid, int variantNum);
+
+    Optional<Resource<AreaAttributes>> getArea(UUID networkUuid, int variantNum, String areaId);
+
+    void removeAreas(UUID networkUuid, int variantNum, List<String> areasId);
+
+    void updateAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources, AttributeFilter attributeFilter);
+
     // Bus
 
     void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources);

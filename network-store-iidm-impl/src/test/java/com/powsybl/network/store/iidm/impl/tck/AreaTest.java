@@ -14,116 +14,42 @@ import com.powsybl.iidm.network.tck.AbstractAreaTest;
 // FIXME remove all the overridden test in this class when Areas are implemented
 public class AreaTest extends AbstractAreaTest {
     @Override
-    public void areaAttributes() {
-        // FIXME
-    }
+    public void mergeAndFlatten() {
 
-    @Override
-    public void testSetterGetter() {
-        // FIXME
-    }
-
-    @Override
-    public void testChangesNotification() {
-        // FIXME
-    }
-
-    @Override
-    public void testSetterGetterInMultiVariants() {
-        // FIXME
-    }
-
-    @Override
-    public void testGetAreaBoundary() {
-        // FIXME
-    }
-
-    @Override
-    public void areaInterchangeComputation() {
-        // FIXME
-    }
-
-    @Override
-    public void areaIterableAndStreamGetterCheck() {
-        // FIXME
-    }
-
-    @Override
-    public void addVoltageLevelsToArea() {
-        // FIXME
-    }
-
-    @Override
-    public void addSameVoltageLevelToArea() {
-        // FIXME
-    }
-
-    @Override
-    public void testWithTerminals() {
-        // FIXME
-    }
-
-    @Override
-    public void testAddSameBoundary() {
-        // FIXME
-    }
-
-    @Override
-    public void testWithDc() {
-        // FIXME
-    }
-
-    @Override
-    public void testRemoveVoltageLevel() {
-        // FIXME
-    }
-
-    @Override
-    public void throwAddNewAreaSameType() {
-        // FIXME
-    }
-
-    @Override
-    public void throwRemovedVoltageLevel() {
-        // FIXME
     }
 
     @Override
     public void throwAddVoltageLevelOtherNetwork() {
-        // FIXME
-    }
 
-    @Override
-    public void removeAreaBoundaries() {
-        // FIXME
-    }
-
-    @Override
-    public void removeEquipmentRemovesAreaBoundary() {
-        // FIXME
-    }
-
-    @Override
-    public void removeEquipmentRemovesAreaBoundaryMergeAndDetach() {
-        // FIXME
-    }
-
-    @Override
-    public void throwBoundaryOtherNetwork() {
-        // FIXME
-    }
-
-    @Override
-    public void throwBoundaryAttributeNotSet() {
-        // FIXME
     }
 
     @Override
     public void removeArea() {
-        // FIXME
+        // removed equipments is managed differently in powsybl core implementation
     }
 
-    public void mergeAndFlatten() {
-        // FIXME
+    @Override
+    public void throwRemovedVoltageLevel() {
+        // removed equipments is managed differently in powsybl core implementation
+    }
+
+    @Override
+    public void testGetAreaBoundary() {
+        // problem with removal
+    }
+
+    @Override
+    public void testSetterGetterInMultiVariants() {
+        // problem with removal
+    }
+
+    @Override
+    public void throwBoundaryOtherNetwork() {
+        // creation of subnetwork needed
+    }
+
+    @Override
+    public void removeEquipmentRemovesAreaBoundaryMergeAndDetach() {
+        // merge is not implemented
     }
 }
