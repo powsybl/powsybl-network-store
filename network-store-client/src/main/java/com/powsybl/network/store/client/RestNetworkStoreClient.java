@@ -860,22 +860,22 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     // Areas
     @Override
     public void createAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources) {
-        create(STR_AREA, "/networks/{networkUuid}/tie-lines", areaResources, networkUuid);
+        create(STR_AREA, "/networks/{networkUuid}/areas", areaResources, networkUuid);
     }
 
     @Override
     public List<Resource<AreaAttributes>> getAreas(UUID networkUuid, int variantNum) {
-        return getAll(STR_AREA, "/networks/{networkUuid}/{variantNum}/tie-lines", networkUuid, variantNum);
+        return getAll(STR_AREA, "/networks/{networkUuid}/{variantNum}/areas", networkUuid, variantNum);
     }
 
     @Override
     public Optional<Resource<AreaAttributes>> getArea(UUID networkUuid, int variantNum, String areaId) {
-        return get(STR_AREA, "/networks/{networkUuid}/{variantNum}/tie-lines/{AreaId}", networkUuid, variantNum, areaId);
+        return get(STR_AREA, "/networks/{networkUuid}/{variantNum}/areas/{AreaId}", networkUuid, variantNum, areaId);
     }
 
     @Override
     public void removeAreas(UUID networkUuid, int variantNum, List<String> areasId) {
-        removeAll(STR_AREA, "/networks/{networkUuid}/{variantNum}/tie-lines", networkUuid, variantNum, areasId);
+        removeAll(STR_AREA, "/networks/{networkUuid}/{variantNum}/areas", networkUuid, variantNum, areasId);
     }
 
     @Override
