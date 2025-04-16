@@ -120,34 +120,52 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private Optional<ExtensionAttributes> getExtensionAttributes(String urlTemplate, Object... uriVariables) {
         logGetExtensionAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<ExtensionAttributes> extensionAttributes = restClient.getOneExtensionAttributes(urlTemplate, uriVariables);
+        Optional<ExtensionAttributes> rawExtensionAttributes = restClient.getOneExtensionAttributes(urlTemplate, uriVariables);
+        boolean wasFiltered = rawExtensionAttributes.filter(RawExtensionAttributes.class::isInstance).isPresent();
+        Optional<ExtensionAttributes> filteredExtensionAttributes = rawExtensionAttributes.filter(attr -> !(attr instanceof RawExtensionAttributes));
         stopwatch.stop();
-        logGetExtensionAttributesTime(extensionAttributes.isPresent() ? 1 : 0, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        logGetExtensionAttributesTime(filteredExtensionAttributes.isPresent() ? 1 : 0, stopwatch.elapsed(TimeUnit.MILLISECONDS), wasFiltered ? 1 : 0);
 
-        return extensionAttributes;
+        return filteredExtensionAttributes;
     }
 
     private Map<String, ExtensionAttributes> getExtensionAttributesMap(String urlTemplate, Object... uriVariables) {
         logGetExtensionAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<String, ExtensionAttributes> extensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
-        stopwatch.stop();
-        logGetExtensionAttributesTime(extensionAttributes.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        Map<String, ExtensionAttributes> rawExtensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        Map<String, ExtensionAttributes> filteredExtensionAttributes = filterRawExtensionAttributes(rawExtensionAttributes);
+        int filteredCount = rawExtensionAttributes.size() - filteredExtensionAttributes.size();
 
-        return extensionAttributes;
+        stopwatch.stop();
+        logGetExtensionAttributesTime(filteredExtensionAttributes.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS), filteredCount);
+
+        return filteredExtensionAttributes;
     }
 
     private Map<String, Map<String, ExtensionAttributes>> getExtensionAttributesNestedMap(String urlTemplate, Object... uriVariables) {
         logGetExtensionAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<String, Map<String, ExtensionAttributes>> extensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        Map<String, Map<String, ExtensionAttributes>> rawExtensionAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        Map<String, Map<String, ExtensionAttributes>> filteredExtensionAttributes = new HashMap<>();
+        long filteredAttributesCount = 0;
+        for (Map.Entry<String, Map<String, ExtensionAttributes>> entry : rawExtensionAttributes.entrySet()) {
+            Map<String, ExtensionAttributes> filteredInnerMap = filterRawExtensionAttributes(entry.getValue());
+            if (!filteredInnerMap.isEmpty()) {
+                filteredExtensionAttributes.put(entry.getKey(), filteredInnerMap);
+            }
+            filteredAttributesCount += entry.getValue().size() - filteredInnerMap.size();
+        }
         stopwatch.stop();
-        long loadedAttributesCount = extensionAttributes.values().stream()
-                .mapToLong(innerMap -> innerMap.values().size())
-                .sum();
-        logGetExtensionAttributesTime(loadedAttributesCount, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        long loadedAttributesCount = filteredExtensionAttributes.values().stream().mapToLong(Map::size).sum();
+        logGetExtensionAttributesTime(loadedAttributesCount, stopwatch.elapsed(TimeUnit.MILLISECONDS), filteredAttributesCount);
 
-        return extensionAttributes;
+        return filteredExtensionAttributes;
+    }
+
+    private static Map<String, ExtensionAttributes> filterRawExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes) {
+        return extensionAttributes.entrySet().stream()
+                .filter(entry -> !(entry.getValue() instanceof RawExtensionAttributes))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private static void logGetExtensionAttributesUrl(String urlTemplate, Object... uriVariables) {
@@ -156,8 +174,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
-    private static void logGetExtensionAttributesTime(long loadedAttributesCount, long timeElapsed) {
-        LOGGER.info("{} extension attributes loaded in {} ms", loadedAttributesCount, timeElapsed);
+    private static void logGetExtensionAttributesTime(long loadedAttributesCount, long timeElapsed, long filteredAttributesCount) {
+        if (filteredAttributesCount > 0) {
+            LOGGER.info("{} extension attributes loaded in {} ms ({} ignored due to missing deserializer in classpath)", loadedAttributesCount, timeElapsed, filteredAttributesCount);
+        } else {
+            LOGGER.info("{} extension attributes loaded in {} ms", loadedAttributesCount, timeElapsed);
+        }
     }
 
     private <T extends IdentifiableAttributes> void updatePartition(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
