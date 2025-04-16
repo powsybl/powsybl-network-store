@@ -880,7 +880,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources, AttributeFilter attributeFilter) {
-        updateAll(STR_AREA, "/networks/{networkUuid}/tie-lines", areaResources, attributeFilter, networkUuid);
+        updateAll(STR_AREA, "/networks/{networkUuid}/areas", areaResources, attributeFilter, networkUuid);
     }
 
     @Override
