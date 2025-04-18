@@ -33,7 +33,7 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
     }
 
     private static void checkVoltageConfig(Validable validable, double lowVoltageSetpoint, double highVoltageSetpoint,
-                                           double lowVoltageThreshold, double highVoltageThreshold, boolean standby, String id) {
+                                           double lowVoltageThreshold, double highVoltageThreshold, boolean standby, String svcId) {
         if (Double.isNaN(lowVoltageSetpoint)) {
             throw new ValidationException(validable, "lowVoltageSetpoint is invalid");
         }
@@ -49,10 +49,10 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
         if (lowVoltageThreshold >= highVoltageThreshold) {
             if (standby) {
                 throw new IllegalArgumentException(String.format("Inconsistent low (%s) and high (%s) voltage thresholds for StaticVarCompensator %s",
-                    lowVoltageThreshold, highVoltageThreshold, id));
+                    lowVoltageThreshold, highVoltageThreshold, svcId));
             } else {
                 LOGGER.warn("Inconsistent low {} and high ({}) voltage thresholds for StaticVarCompensator {}",
-                    lowVoltageSetpoint, lowVoltageThreshold, id);
+                    lowVoltageSetpoint, lowVoltageThreshold, svcId);
             }
         }
         if (lowVoltageSetpoint < lowVoltageThreshold) {
@@ -64,8 +64,8 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
     }
 
     public static StandbyAutomatonAttributes createAttributes(Validable validable, double b0, boolean standby, double lowVoltageSetpoint, double highVoltageSetpoint,
-                                                              double lowVoltageThreshold, double highVoltageThreshold, String id) {
-        checkVoltageConfig(validable, lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold, standby, id);
+                                                              double lowVoltageThreshold, double highVoltageThreshold, String svcId) {
+        checkVoltageConfig(validable, lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold, standby, svcId);
         checkB0(validable, b0);
         return StandbyAutomatonAttributes.builder()
                 .b0(b0)

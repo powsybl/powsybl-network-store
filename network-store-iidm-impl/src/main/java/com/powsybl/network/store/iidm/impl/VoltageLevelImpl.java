@@ -684,8 +684,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public Iterable<Area> getAreas() {
-        return getAreasStream()
-            .collect(Collectors.toSet());
+        return getAreasStream().collect(Collectors.toSet());
     }
 
     @Override
