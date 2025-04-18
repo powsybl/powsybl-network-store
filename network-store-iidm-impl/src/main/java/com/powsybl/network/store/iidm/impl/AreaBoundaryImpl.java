@@ -6,7 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Area;
+import com.powsybl.iidm.network.AreaBoundary;
+import com.powsybl.iidm.network.Boundary;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 import com.powsybl.network.store.model.AreaBoundaryAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
@@ -59,17 +62,11 @@ public class AreaBoundaryImpl implements AreaBoundary {
 
     @Override
     public double getP() {
-        if (getBoundary().isPresent()) {
-            return getBoundary().get().getP();
-        }
-        return getRefTerminal().getP();
+        return getBoundary().map(Boundary::getP).orElseGet(() -> getRefTerminal().getP());
     }
 
     @Override
     public double getQ() {
-        if (getBoundary().isPresent()) {
-            return getBoundary().get().getQ();
-        }
-        return getRefTerminal().getQ();
+        return getBoundary().map(Boundary::getQ).orElseGet(() -> getRefTerminal().getQ());
     }
 }
