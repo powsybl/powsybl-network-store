@@ -30,20 +30,20 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     private final Map<UUID, List<VariantInfos>> variantsInfosByNetworkUuid = new HashMap<>();
 
     private final NetworkCollectionIndex<CollectionCache<NetworkAttributes>> networksCache =
-            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-                (networkUuid, variantNum, id) -> delegate.getNetwork(networkUuid, variantNum),
-                null,
-                (networkUuid, variantNum) -> delegate.getNetwork(networkUuid, variantNum).stream().collect(Collectors.toList()),
-                delegate)
-            );
+                new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    (networkUuid, variantNum, id) -> delegate.getNetwork(networkUuid, variantNum),
+                    null,
+                    (networkUuid, variantNum) -> delegate.getNetwork(networkUuid, variantNum).stream().collect(Collectors.toList()),
+                    delegate)
+                );
 
     private final NetworkCollectionIndex<CollectionCache<SubstationAttributes>> substationsCache =
-            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-                delegate::getSubstation,
-                null,
-                delegate::getSubstations,
-                delegate)
-            );
+                new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getSubstation,
+                    null,
+                    delegate::getSubstations,
+                    delegate)
+                );
 
     private final NetworkCollectionIndex<CollectionCache<VoltageLevelAttributes>> voltageLevelsCache =
             new NetworkCollectionIndex<>(() -> new CollectionCache<>(
