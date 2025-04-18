@@ -64,9 +64,6 @@ public class NetworkAttributes extends AbstractIdentifiableAttributes {
     @Schema(description = "CIM characteristics")
     private CimCharacteristicsAttributes cimCharacteristics;
 
-    @Schema(description = "CGMES control areas")
-    private CgmesControlAreasAttributes cgmesControlAreas;
-
     @Schema(description = "Base voltage mapping")
     private BaseVoltageMappingAttributes baseVoltageMapping;
 

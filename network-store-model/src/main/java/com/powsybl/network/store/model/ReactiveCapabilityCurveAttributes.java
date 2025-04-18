@@ -31,4 +31,7 @@ public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttribut
     @Schema(description = "curve points")
     private TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points;
 
+    @Schema(description = "owner description")
+    private String ownerDescription;
+
 }

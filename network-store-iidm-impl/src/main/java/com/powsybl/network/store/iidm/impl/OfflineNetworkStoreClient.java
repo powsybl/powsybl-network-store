@@ -662,4 +662,29 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
             AttributeFilter attributeFilter) {
         // nothing to do
     }
+
+    @Override
+    public void createAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources) {
+        // nothing to do
+    }
+
+    @Override
+    public List<Resource<AreaAttributes>> getAreas(UUID networkUuid, int variantNum) {
+        return List.of();
+    }
+
+    @Override
+    public Optional<Resource<AreaAttributes>> getArea(UUID networkUuid, int variantNum, String areaId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void removeAreas(UUID networkUuid, int variantNum, List<String> areasId) {
+        // nothing to do
+    }
+
+    @Override
+    public void updateAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources, AttributeFilter attributeFilter) {
+        // nothing to do
+    }
 }

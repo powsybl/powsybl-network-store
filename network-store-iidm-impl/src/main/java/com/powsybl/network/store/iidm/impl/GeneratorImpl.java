@@ -259,7 +259,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
     private <E extends Extension<Generator>> E createGeneratorShortCircuitExtension() {
         E extension = null;
         var resource = getResource();
-        GeneratorShortCircuitAttributes attributes = resource.getAttributes().getGeneratorShortCircuitAttributes();
+        ShortCircuitAttributes attributes = resource.getAttributes().getGeneratorShortCircuitAttributes();
         if (attributes != null) {
             extension = (E) new GeneratorShortCircuitImpl((GeneratorImpl) getInjection());
         }

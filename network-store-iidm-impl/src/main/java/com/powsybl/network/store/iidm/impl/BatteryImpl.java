@@ -7,8 +7,13 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
+import com.powsybl.network.store.iidm.impl.extensions.BatteryShortCircuitImpl;
 import com.powsybl.network.store.model.*;
+
+import java.util.Collection;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -135,6 +140,47 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
         return new ReactiveCapabilityCurveAdderImpl<>(this);
+    }
+
+    @Override
+    public <E extends Extension<Battery>> E getExtension(Class<? super E> type) {
+        E extension = super.getExtension(type);
+        if (type == BatteryShortCircuit.class) {
+            extension = createBatteryShortCircuitExtension();
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Battery>> E getExtensionByName(String name) {
+        E extension = super.getExtensionByName(name);
+        if (name.equals("batteryShortCircuit")) {
+            extension = createBatteryShortCircuitExtension();
+        }
+        return extension;
+    }
+
+    private <E extends Extension<Battery>> E createBatteryShortCircuitExtension() {
+        E extension = null;
+        var resource = getResource();
+        ShortCircuitAttributes attributes = resource.getAttributes().getBatteryShortCircuitAttributes();
+        if (attributes != null) {
+            extension = (E) new BatteryShortCircuitImpl((BatteryImpl) getInjection());
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Battery>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        addIfNotNull(extensions, createBatteryShortCircuitExtension());
+        return extensions;
+    }
+
+    private <E extends Extension<Battery>> void addIfNotNull(Collection<E> list, E extension) {
+        if (extension != null) {
+            list.add(extension);
+        }
     }
 
     @Override

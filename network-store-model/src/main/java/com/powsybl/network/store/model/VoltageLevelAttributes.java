@@ -79,6 +79,9 @@ public class VoltageLevelAttributes extends AbstractIdentifiableAttributes imple
     @Schema(description = "Node to fictitious Q0")
     private Map<Integer, Double> nodeToFictitiousQ0;
 
+    @Schema(description = "Area ids")
+    private Set<String> areaIds;
+
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {

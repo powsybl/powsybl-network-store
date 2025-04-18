@@ -701,8 +701,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             String regulatingEquiments = getAttributes().getRegulatingEquipments().stream()
                 .map(RegulatingEquipmentIdentifier::getEquipmentId).collect(Collectors.joining(", "));
             connectable.getNetwork().getReportNodeContext().getReportNode().newReportNode()
-                .withMessageTemplate("regulatedTerminalDeleted", "${identifiableId} has been deleted and it was regulated. " +
-                    "The following regulating equipments have their regulation set to Local : [${regulatingEquipments}] ")
+                .withMessageTemplate("regulatedTerminalDeleted")
                 .withUntypedValue("identifiableId", connectable.getId())
                 .withUntypedValue("regulatingEquipments", regulatingEquiments)
                 .withSeverity(TypedValue.INFO_SEVERITY)
