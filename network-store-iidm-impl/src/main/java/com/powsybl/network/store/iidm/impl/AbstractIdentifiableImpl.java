@@ -116,8 +116,12 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public Resource<D> getResource() {
+        return getResource("Object has been removed in current variant");
+    }
+
+    public Resource<D> getResource(String errorMessageIfResourceNull) {
         if (resource == null) {
-            throw new PowsyblException("Object has been removed in current variant");
+            throw new PowsyblException(errorMessageIfResourceNull);
         }
         if (index.getWorkingVariantNum() == -1) {
             throw new PowsyblException("Variant index not set");

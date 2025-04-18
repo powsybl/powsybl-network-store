@@ -690,7 +690,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public Stream<Area> getAreasStream() {
-        return getResource()
+        return getResource("Cannot access areas of removed voltage level " + getId())
             .getAttributes()
             .getAreaIds()
             .stream()
@@ -706,7 +706,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @Override
     public void addArea(Area area) {
         Objects.requireNonNull(area);
-        Set<String> oldAreaIds = getResource().getAttributes().getAreaIds();
+        Set<String> oldAreaIds = getResource("Cannot add areas to removed voltage level " + getId())
+            .getAttributes().getAreaIds();
         if (oldAreaIds.contains(area.getId())) {
             return;
         }

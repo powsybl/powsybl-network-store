@@ -37,7 +37,8 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
 
     @Override
     public String getAreaType() {
-        return getResource().getAttributes().getAreaType();
+        return getResource("Cannot access area type of removed area " + getId())
+            .getAttributes().getAreaType();
     }
 
     @Override
@@ -47,7 +48,7 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return getResource()
+        return getResource("Cannot access voltage levels of removed area " + getId())
             .getAttributes()
             .getVoltageLevelIds()
             .stream()
@@ -155,7 +156,7 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
 
     @Override
     public Stream<AreaBoundary> getAreaBoundaryStream() {
-        return getResource()
+        return getResource("Cannot access area boundaries of removed area " + getId())
             .getAttributes()
             .getAreaBoundaries()
             .stream()
@@ -164,7 +165,8 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
 
     @Override
     public OptionalDouble getInterchangeTarget() {
-        double target = getResource().getAttributes().getInterchangeTarget();
+        double target = getResource("Cannot access interchange target of removed area " + getId())
+            .getAttributes().getInterchangeTarget();
         if (Double.isNaN(target)) {
             return OptionalDouble.empty();
         }
@@ -181,16 +183,19 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
 
     @Override
     public double getAcInterchange() {
+        getResource("Cannot access AC interchange of removed area " + getId());
         return getInterchange(AreaBoundary::isAc);
     }
 
     @Override
     public double getDcInterchange() {
+        getResource("Cannot access DC interchange of removed area " + getId());
         return getInterchange(areaBoundary -> !areaBoundary.isAc());
     }
 
     @Override
     public double getInterchange() {
+        getResource("Cannot access total interchange of removed area " + getId());
         return getInterchange(areaBoundary -> true);
     }
 

@@ -1093,7 +1093,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public AreaAdder newArea() {
-        // TODO
         return new AreaAdderImpl(index);
     }
 
@@ -1104,7 +1103,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Stream<Area> getAreaStream() {
-        // TODO
         return index.getAreas().stream();
     }
 
