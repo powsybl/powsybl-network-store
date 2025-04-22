@@ -896,8 +896,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeAreas(UUID networkUuid, int variantNum, List<String> areasId) {
-        removeAll(STR_AREA, "/networks/{networkUuid}/{variantNum}/areas", networkUuid, variantNum, areasId);
+    public void removeAreas(UUID networkUuid, int variantNum, List<String> areasIds) {
+        removeAll(STR_AREA, "/networks/{networkUuid}/{variantNum}/areas", networkUuid, variantNum, areasIds);
     }
 
     @Override

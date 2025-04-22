@@ -109,8 +109,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     private final NetworkCollectionIndex<CollectionBuffer<GroundAttributes>> groundResourcesToFlush
             = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createGrounds,
-            delegate::updateGrounds,
-            delegate::removeGrounds));
+                delegate::updateGrounds,
+                delegate::removeGrounds));
 
     private final NetworkCollectionIndex<CollectionBuffer<TwoWindingsTransformerAttributes>> twoWindingsTransformerResourcesToFlush
             = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createTwoWindingsTransformers,
@@ -134,13 +134,13 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     private final NetworkCollectionIndex<CollectionBuffer<TieLineAttributes>> tieLineResourcesToFlush
             = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createTieLines,
-            delegate::updateTieLines,
-            delegate::removeTieLines));
+                delegate::updateTieLines,
+                delegate::removeTieLines));
 
     private final NetworkCollectionIndex<CollectionBuffer<AreaAttributes>> areaResourcesToFlush
-        = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createAreas,
-        delegate::updateAreas,
-        delegate::removeAreas));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createAreas,
+                delegate::updateAreas,
+                delegate::removeAreas));
 
     private final List<NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = List.of(
             networkResourcesToFlush,

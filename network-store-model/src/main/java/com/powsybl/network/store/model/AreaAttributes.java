@@ -7,10 +7,7 @@
 package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
@@ -24,6 +21,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "Area attributes")
 public class AreaAttributes extends AbstractIdentifiableAttributes {
     @Schema(description = "Area Type")
