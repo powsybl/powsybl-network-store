@@ -31,7 +31,7 @@ public class SubstationPositionAdderImpl extends AbstractIidmExtensionAdder<Subs
     @Override
     protected SubstationPosition createExtension(Substation substation) {
         var attributes = new SubstationPositionAttributes(coordinate);
-        ((SubstationImpl) substation).updateResource(res -> res.getAttributes().getExtensionAttributes().put(SubstationPosition.NAME, attributes));
+        ((SubstationImpl) substation).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(SubstationPosition.NAME, attributes));
         return new SubstationPositionImpl(substation);
     }
 

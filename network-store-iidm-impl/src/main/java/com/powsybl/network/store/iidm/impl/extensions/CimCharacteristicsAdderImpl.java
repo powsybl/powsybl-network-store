@@ -48,7 +48,7 @@ public class CimCharacteristicsAdderImpl extends AbstractIidmExtensionAdder<Netw
                     .cgmesTopologyKind(cgmesTopologyKind)
                     .cimVersion(cimVersion)
                     .build();
-            ((NetworkImpl) network).updateResource(res -> res.getAttributes().setCimCharacteristics(attributes));
+            ((NetworkImpl) network).updateResourceWithoutNotification(res -> res.getAttributes().setCimCharacteristics(attributes));
             return new CimCharacteristicsImpl((NetworkImpl) network);
         }
     }

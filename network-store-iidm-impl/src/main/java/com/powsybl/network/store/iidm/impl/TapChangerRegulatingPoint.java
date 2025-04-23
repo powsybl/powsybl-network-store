@@ -32,11 +32,11 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
     protected void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode) {
         // for tap changer the local terminal is null so we deactivate the regulation and reset the regulation mode
         // the target can be inappropriated if it was a remote regulation
-        setRegulating(false);
+        setRegulating("regulating", false);
         switch (getAttributes().getRegulatingTapChangerType()) {
             // for phase tap changer we reset the regulation mode to Fixed Tap
             case PHASE_TAP_CHANGER, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE -> {
-                setRegulationMode(String.valueOf(PhaseTapChanger.RegulationMode.FIXED_TAP));
+                setRegulationMode("regulationMode", String.valueOf(PhaseTapChanger.RegulationMode.FIXED_TAP));
                 reportNode.newReportNode()
                     .withMessageTemplate("resetPhaseTapChangerRegulationMode", "Regulation mode of phase tap changer of ${identifiableId} has been reset to FIXED TAP due to deletion of its regulating terminal")
                     .withUntypedValue("identifiableId", getRegulatingEquipmentId())
@@ -45,7 +45,7 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
             }
 
             case RATIO_TAP_CHANGER, RATIO_TAP_CHANGER_SIDE_ONE, RATIO_TAP_CHANGER_SIDE_TWO, RATIO_TAP_CHANGER_SIDE_THREE ->
-                setRegulationMode(null);
+                setRegulationMode("regulationMode", null);
             default -> throw new PowsyblException("No tap changer regulation for " + getAttributes().getRegulatingResourceType() + " resource type");
         }
         // if the regulating equipment was already regulating on his local bus we reallocate the regulating point and we keep the regulation on

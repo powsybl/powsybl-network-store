@@ -20,6 +20,8 @@ public abstract class AbstractRegulatingPoint {
 
     protected final NetworkObjectIndex index;
     protected final Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter;
+    private static final String REGULATING_TERMINAL = "regulatingTerminal";
+    private static final String REGULATED_RESOURCE_TYPE = "regulatedResourceType";
 
     protected AbstractRegulatingPoint(NetworkObjectIndex index, Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
         this.index = index;
@@ -47,34 +49,54 @@ public abstract class AbstractRegulatingPoint {
     }
 
     public void resetRegulationToLocalTerminal() {
-        getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(getAttributes().getLocalTerminal()));
-        getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(getAttributes().getRegulatingResourceType()));
+        var oldRegulatingTerminal = getAttributes().getRegulatingTerminal();
+        var localTerminal = getAttributes().getLocalTerminal();
+        getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(localTerminal),
+            REGULATING_TERMINAL, oldRegulatingTerminal, localTerminal);
+
+        var oldRegulatedResourceType = getAttributes().getRegulatedResourceType();
+        var resourceType = getAttributes().getRegulatingResourceType();
+        getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(resourceType),
+            REGULATED_RESOURCE_TYPE, oldRegulatedResourceType, resourceType);
     }
 
     protected abstract <I extends Identifiable<I>, D extends IdentifiableAttributes> AbstractIdentifiableImpl<I, D> getIdentifiable();
 
-    public void setRegulationMode(String regulationMode) {
-        getIdentifiable().updateResource(res -> getAttributes().setRegulationMode(regulationMode));
+    public void setRegulationMode(String attribute, String regulationMode) {
+        String oldValue = getAttributes().getRegulationMode();
+        getIdentifiable().updateResource(res -> getAttributes().setRegulationMode(regulationMode),
+            attribute, oldValue, regulationMode);
     }
 
     public void setRegulatingTerminal(Terminal regulatingTerminal) {
-        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index,
-            getAttributes().getRegulatingTerminal());
+        TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         if (oldRegulatingTerminal != null) {
             oldRegulatingTerminal.removeRegulatingPoint(this);
         }
         if (regulatingTerminal != null) {
             TerminalImpl<?> regulatingTerminal1 = (TerminalImpl<?>) regulatingTerminal;
             regulatingTerminal1.setAsRegulatingPoint(this);
-            getIdentifiable().updateResource(res -> getAttributes()
-                .setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal1)));
-            getIdentifiable().updateResource(res -> getAttributes()
-                .setRegulatedResourceType(ResourceType.convert(regulatingTerminal1.getConnectable().getType())));
+
+            var oldRegulatingTerminalAttributes = getAttributes().getRegulatingTerminal();
+            TerminalRefAttributes attributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal1);
+            getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(attributes),
+                REGULATING_TERMINAL, oldRegulatingTerminalAttributes, attributes);
+
+            var oldRegulatedResourceType = getAttributes().getRegulatedResourceType();
+            ResourceType newRegulatedResourceType = ResourceType.convert(regulatingTerminal1.getConnectable().getType());
+            getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(newRegulatedResourceType),
+                REGULATED_RESOURCE_TYPE, oldRegulatedResourceType, newRegulatedResourceType);
         } else {
             // Setting the regulating terminal to null returns the local terminal upon retrieval.
             // For consistency with the local terminal, we set the regulatedResourceType to correspond with the resource's own type.
-            getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(null));
-            getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(getRegulatingEquipmentType()));
+            var oldRegulatingTerminalAttributes = getAttributes().getRegulatingTerminal();
+            getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(null),
+                REGULATING_TERMINAL, oldRegulatingTerminalAttributes, null);
+
+            var oldRegulatedResourceType = getAttributes().getRegulatedResourceType();
+            var regulatingEquipmentType = getRegulatingEquipmentType();
+            getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(regulatingEquipmentType),
+                REGULATED_RESOURCE_TYPE, oldRegulatedResourceType, regulatingEquipmentType);
         }
     }
 
@@ -89,8 +111,7 @@ public abstract class AbstractRegulatingPoint {
     }
 
     public void removeRegulation(ReportNode reportNode) {
-        Terminal localTerminal = TerminalRefUtils.getTerminal(index,
-            getAttributes().getLocalTerminal());
+        Terminal localTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getLocalTerminal());
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         // set local terminal as regulating terminal
         resetRegulationToLocalTerminal();
@@ -102,7 +123,9 @@ public abstract class AbstractRegulatingPoint {
         return getAttributes().getRegulating();
     }
 
-    public void setRegulating(boolean regulating) {
-        getIdentifiable().updateResource(res -> getAttributes().setRegulating(regulating));
+    public void setRegulating(String attribute, boolean regulating) {
+        Boolean oldValue = getAttributes().getRegulating();
+        getIdentifiable().updateResource(res -> getAttributes().setRegulating(regulating),
+            attribute, oldValue, regulating);
     }
 }

@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractNetworkEventTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class NetworkEventTest extends AbstractNetworkEventTest {
+class NetworkEventTest extends AbstractNetworkEventTest {
 }
