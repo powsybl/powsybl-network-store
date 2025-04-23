@@ -49,15 +49,11 @@ public abstract class AbstractRegulatingPoint {
     }
 
     public void resetRegulationToLocalTerminal() {
-        var oldRegulatingTerminal = getAttributes().getRegulatingTerminal();
         var localTerminal = getAttributes().getLocalTerminal();
-        getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(localTerminal),
-            REGULATING_TERMINAL, oldRegulatingTerminal, localTerminal);
+        getIdentifiable().updateResourceWithoutNotification(res -> getAttributes().setRegulatingTerminal(localTerminal));
 
-        var oldRegulatedResourceType = getAttributes().getRegulatedResourceType();
         var resourceType = getAttributes().getRegulatingResourceType();
-        getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(resourceType),
-            REGULATED_RESOURCE_TYPE, oldRegulatedResourceType, resourceType);
+        getIdentifiable().updateResourceWithoutNotification(res -> getAttributes().setRegulatedResourceType(resourceType));
     }
 
     protected abstract <I extends Identifiable<I>, D extends IdentifiableAttributes> AbstractIdentifiableImpl<I, D> getIdentifiable();
