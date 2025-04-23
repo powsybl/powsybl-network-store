@@ -64,6 +64,10 @@ public abstract class AbstractRegulatingPoint {
             attribute, oldValue, regulationMode);
     }
 
+    public void resetRegulationModeWithoutNotification(String regulationMode) {
+        getIdentifiable().updateResourceWithoutNotification(res -> getAttributes().setRegulationMode(regulationMode));
+    }
+
     public void setRegulatingTerminal(Terminal regulatingTerminal) {
         TerminalImpl<?> oldRegulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         if (oldRegulatingTerminal != null) {
@@ -123,5 +127,9 @@ public abstract class AbstractRegulatingPoint {
         Boolean oldValue = getAttributes().getRegulating();
         getIdentifiable().updateResource(res -> getAttributes().setRegulating(regulating),
             attribute, oldValue, regulating);
+    }
+
+    public void resetRegulatingWithoutNotification(boolean regulating) {
+        getIdentifiable().updateResourceWithoutNotification(res -> getAttributes().setRegulating(regulating));
     }
 }

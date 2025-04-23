@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.events.RemovalNetworkEvent;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -382,5 +383,20 @@ class TwoWindingsTransformerTest {
             .endStep()
             .add();
         assertEquals(network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b").getTerminal(), twt.getRatioTapChanger().getRegulationTerminal());
+    }
+
+    @Test
+    void testTwoWindingsTransformerRemovalEvents() {
+        Network network = createNetwork();
+        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
+        network.addListener(eventRecorder);
+
+        assertNotNull(network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543"));
+        network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").remove();
+        assertNull(network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543"));
+        assertEquals(List.of(
+                 new RemovalNetworkEvent("b94318f6-6d24-4f56-96b9-df2531ad6543", false),
+                 new RemovalNetworkEvent("b94318f6-6d24-4f56-96b9-df2531ad6543", true)),
+            eventRecorder.getEvents());
     }
 }
