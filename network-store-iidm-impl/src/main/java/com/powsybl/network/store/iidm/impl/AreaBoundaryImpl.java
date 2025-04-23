@@ -37,8 +37,7 @@ public class AreaBoundaryImpl implements AreaBoundary {
 
     @Override
     public Optional<Terminal> getTerminal() {
-        Terminal terminal = TerminalRefUtils.getTerminal(index, areaBoundaryAttributes.getTerminal());
-        return Optional.ofNullable(terminal);
+        return Optional.ofNullable(getRefTerminal());
     }
 
     private Terminal getRefTerminal() {

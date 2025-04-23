@@ -1008,10 +1008,6 @@ public class NetworkObjectIndex {
         return areaCache.getAll().collect(Collectors.toList());
     }
 
-    List<Area> getAreas(String voltageLevelId) {
-        return areaCache.getSome(voltageLevelId).collect(Collectors.toList());
-    }
-
     public AreaImpl createArea(Resource<AreaAttributes> resource) {
         return areaCache.create(resource);
     }

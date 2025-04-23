@@ -716,7 +716,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             throw new PowsyblException("VoltageLevel " + getId() + " is already in Area of the same type=" + previousArea.get().getAreaType() + " with id=" + previousArea.get().getId());
         }
         updateResource(r -> r.getAttributes().getAreaIds().add(area.getId()),
-            "areas", null, oldAreaIds, this::getAreas);
+            "areaIds", null, oldAreaIds, this::getAreas);
         area.addVoltageLevel(this);
     }
 

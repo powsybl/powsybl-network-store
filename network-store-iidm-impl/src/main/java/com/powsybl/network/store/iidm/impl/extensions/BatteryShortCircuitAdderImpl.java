@@ -27,7 +27,7 @@ public class BatteryShortCircuitAdderImpl extends AbstractShortCircuitAdderImpl<
 
     @Override
     protected BatteryShortCircuit createExtension(Battery battery) {
-        var attributes = ShortCircuitAttributes.builder()
+        ShortCircuitAttributes attributes = ShortCircuitAttributes.builder()
             .directSubtransX(directSubtransX)
             .directTransX(directTransX)
             .stepUpTransformerX(stepUpTransformerX)

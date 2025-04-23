@@ -116,7 +116,7 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         // Third case : searched point is outside minP and maxP
         if (extrapolateReactiveLimitSlope) {
             ReactiveCapabilityCurvePointAttributes extrapolatedPoint = ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(p,
-                attributes.getPoints(), ReactiveCapabilityCurvePointAttributes::new, "ownerDescription");
+                attributes.getPoints(), ReactiveCapabilityCurvePointAttributes::new, attributes.getOwnerDescription());
             return getMinOrMaxQ.applyAsDouble(extrapolatedPoint);
         } else {
             if (p < this.getMinP()) { // p < minP
@@ -131,7 +131,7 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     private static void checkPointsSize(TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points) {
         if (points.size() < 2) {
-            throw new IllegalStateException("points size should be >= 2");
+            throw new IllegalStateException("a reactive capability curve should have at least two points");
         }
     }
 

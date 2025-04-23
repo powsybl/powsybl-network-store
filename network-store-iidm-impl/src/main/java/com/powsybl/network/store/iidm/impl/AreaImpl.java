@@ -25,7 +25,7 @@ import java.util.stream.Stream;
  */
 public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> implements Area {
 
-    private static final String AREA_BOUNDARIES = "area_boundaries";
+    private static final String AREA_BOUNDARIES = "areaBoundaries";
 
     protected AreaImpl(NetworkObjectIndex index, Resource<AreaAttributes> resource) {
         super(index, resource);
@@ -61,7 +61,7 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
         Set<String> oldVoltageLevelIds = getResource().getAttributes().getVoltageLevelIds();
         AtomicBoolean isAdded = new AtomicBoolean(false);
         updateResource(r -> isAdded.set(r.getAttributes().getVoltageLevelIds().add(voltageLevel.getId())),
-            "VoltageLevelIds", null, oldVoltageLevelIds, this::getVoltageLevels);
+            "voltageLevelIds", null, oldVoltageLevelIds, this::getVoltageLevels);
         if (isAdded.get()) {
             voltageLevel.addArea(this);
         }
@@ -72,7 +72,7 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
     public Area removeVoltageLevel(VoltageLevel voltageLevel) {
         Set<String> oldVoltageLevelIds = getResource().getAttributes().getVoltageLevelIds();
         updateResource(r -> r.getAttributes().getVoltageLevelIds().remove(voltageLevel.getId()),
-            "VoltageLevelIds", null, oldVoltageLevelIds, this::getVoltageLevels);
+            "voltageLevelIds", null, oldVoltageLevelIds, this::getVoltageLevels);
         if (Iterables.contains(voltageLevel.getAreas(), this)) {
             voltageLevel.removeArea(this);
         }

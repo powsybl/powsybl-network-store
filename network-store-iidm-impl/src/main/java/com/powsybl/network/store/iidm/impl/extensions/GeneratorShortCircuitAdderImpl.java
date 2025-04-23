@@ -30,7 +30,7 @@ public class GeneratorShortCircuitAdderImpl extends AbstractShortCircuitAdderImp
 
     @Override
     protected GeneratorShortCircuit createExtension(Generator generator) {
-        var attributes = ShortCircuitAttributes.builder()
+        ShortCircuitAttributes attributes = ShortCircuitAttributes.builder()
                 .directSubtransX(directSubtransX)
                 .directTransX(directTransX)
                 .stepUpTransformerX(stepUpTransformerX)
