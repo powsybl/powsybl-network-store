@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.tck.AbstractAreaTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-// FIXME remove all the overridden test in this class when Areas are implemented
 public class AreaTest extends AbstractAreaTest {
     @Override
     public void mergeAndFlatten() {
