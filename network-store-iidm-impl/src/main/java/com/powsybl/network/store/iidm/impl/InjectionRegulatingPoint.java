@@ -9,9 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
 import java.util.function.Function;
@@ -44,7 +42,7 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
             switch (getAttributes().getRegulatingResourceType()) {
                 // for svc we set the regulation mode to Off if the regulation was not on the same bus than the svc. If the svc is on the same bus were the equipment was remove we keep the regulation
                 case STATIC_VAR_COMPENSATOR -> {
-                    resetRegulationModeWithoutNotification(String.valueOf(StaticVarCompensator.RegulationMode.OFF));
+                    setRegulationMode("regulationMode", String.valueOf(StaticVarCompensator.RegulationMode.OFF));
                     reportNode.newReportNode()
                         .withMessageTemplate("resetSVCRegulationMode", "Regulation mode of static var compensator ${identifiableId} has been reset to OFF due to deletion of its regulating terminal")
                         .withUntypedValue("identifiableId", getRegulatingEquipmentId())
@@ -56,7 +54,7 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
                 default -> throw new PowsyblException("No regulation for this kind of equipment");
             }
             // the target can be inappropriated if it was a remote regulation
-            resetRegulatingWithoutNotification(false);
+            setRegulating("regulating", false);
         }
         // if the regulating equipment was already regulating on his bus but on another element
         // we reallocate the regulating point and we keep the regulation on

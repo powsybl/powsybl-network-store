@@ -10,6 +10,9 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.events.RemovalNetworkEvent;
+import com.powsybl.iidm.network.events.UpdateNetworkEvent;
+import com.powsybl.network.store.model.ResourceType;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -388,15 +391,31 @@ class TwoWindingsTransformerTest {
     @Test
     void testTwoWindingsTransformerRemovalEvents() {
         Network network = createNetwork();
+        String twoWindingsTransformerId = "b94318f6-6d24-4f56-96b9-df2531ad6543";
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(twoWindingsTransformerId);
+        assertNotNull(twoWindingsTransformer);
+        String generatorId = "550ebe0d-f2b2-48c1-991f-cebea43a21aa";
+        Generator generator = network.getGenerator(generatorId);
+        assertNotNull(generator);
+
+        // Add regulation to the generator
+        generator.setRegulatingTerminal(twoWindingsTransformer.getTerminal(TwoSides.ONE));
+
+        // Add event listener on 2WT removal
         NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
         network.addListener(eventRecorder);
-
-        assertNotNull(network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543"));
-        network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").remove();
-        assertNull(network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543"));
-        assertEquals(List.of(
-                 new RemovalNetworkEvent("b94318f6-6d24-4f56-96b9-df2531ad6543", false),
-                 new RemovalNetworkEvent("b94318f6-6d24-4f56-96b9-df2531ad6543", true)),
-            eventRecorder.getEvents());
+        twoWindingsTransformer.remove();
+        assertNull(network.getTwoWindingsTransformer(twoWindingsTransformerId));
+        List<? extends Record> expectedEvents = List.of(
+                new RemovalNetworkEvent(twoWindingsTransformerId, false),
+                new UpdateNetworkEvent(twoWindingsTransformerId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
+                new UpdateNetworkEvent(twoWindingsTransformerId, "regulationMode", VariantManagerConstants.INITIAL_VARIANT_ID, RatioTapChanger.RegulationMode.VOLTAGE.name(), null),
+                new UpdateNetworkEvent(generatorId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.ONE.name()).build(), TerminalRefAttributes.builder().connectableId(generatorId).build()),
+                new UpdateNetworkEvent(generatorId, "regulatedResourceType", VariantManagerConstants.INITIAL_VARIANT_ID, ResourceType.TWO_WINDINGS_TRANSFORMER, ResourceType.GENERATOR),
+                new UpdateNetworkEvent(generatorId, "regulating", VariantManagerConstants.INITIAL_VARIANT_ID, true, false),
+                new RemovalNetworkEvent(twoWindingsTransformerId, true));
+        // Order is not guaranteed with regulation events as we use Set for regulating equipments
+        assertTrue(eventRecorder.getEvents().containsAll(expectedEvents));
+        assertEquals(expectedEvents.size(), eventRecorder.getEvents().size());
     }
 }

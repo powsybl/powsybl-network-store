@@ -49,11 +49,15 @@ public abstract class AbstractRegulatingPoint {
     }
 
     public void resetRegulationToLocalTerminal() {
+        var oldRegulatingTerminal = getAttributes().getRegulatingTerminal();
         var localTerminal = getAttributes().getLocalTerminal();
-        getIdentifiable().updateResourceWithoutNotification(res -> getAttributes().setRegulatingTerminal(localTerminal));
+        getIdentifiable().updateResource(res -> getAttributes().setRegulatingTerminal(localTerminal),
+            REGULATING_TERMINAL, oldRegulatingTerminal, localTerminal);
 
+        var oldRegulatedResourceType = getAttributes().getRegulatedResourceType();
         var resourceType = getAttributes().getRegulatingResourceType();
-        getIdentifiable().updateResourceWithoutNotification(res -> getAttributes().setRegulatedResourceType(resourceType));
+        getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(resourceType),
+            REGULATED_RESOURCE_TYPE, oldRegulatedResourceType, resourceType);
     }
 
     protected abstract <I extends Identifiable<I>, D extends IdentifiableAttributes> AbstractIdentifiableImpl<I, D> getIdentifiable();
@@ -62,10 +66,6 @@ public abstract class AbstractRegulatingPoint {
         String oldValue = getAttributes().getRegulationMode();
         getIdentifiable().updateResource(res -> getAttributes().setRegulationMode(regulationMode),
             attribute, oldValue, regulationMode);
-    }
-
-    public void resetRegulationModeWithoutNotification(String regulationMode) {
-        getIdentifiable().updateResourceWithoutNotification(res -> getAttributes().setRegulationMode(regulationMode));
     }
 
     public void setRegulatingTerminal(Terminal regulatingTerminal) {
@@ -127,9 +127,5 @@ public abstract class AbstractRegulatingPoint {
         Boolean oldValue = getAttributes().getRegulating();
         getIdentifiable().updateResource(res -> getAttributes().setRegulating(regulating),
             attribute, oldValue, regulating);
-    }
-
-    public void resetRegulatingWithoutNotification(boolean regulating) {
-        getIdentifiable().updateResourceWithoutNotification(res -> getAttributes().setRegulating(regulating));
     }
 }
