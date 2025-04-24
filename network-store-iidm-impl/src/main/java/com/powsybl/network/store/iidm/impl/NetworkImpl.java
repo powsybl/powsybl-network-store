@@ -951,8 +951,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         var resource = getResource();
         if (!resource.getAttributes().isConnectedComponentsValid()) {
             update(ComponentType.CONNECTED, isBusView);
-            updateResource(res -> res.getAttributes().setConnectedComponentsValid(true),
-                "connectedComponentsValid", false, true);
+            updateResourceWithoutNotification(res -> res.getAttributes().setConnectedComponentsValid(true));
         }
     }
 
@@ -960,19 +959,13 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         var resource = getResource();
         if (!resource.getAttributes().isSynchronousComponentsValid()) {
             update(ComponentType.SYNCHRONOUS, isBusView);
-            updateResource(res -> res.getAttributes().setSynchronousComponentsValid(true),
-                "synchronousComponentsValid", false, true);
+            updateResourceWithoutNotification(res -> res.getAttributes().setSynchronousComponentsValid(true));
         }
     }
 
     void invalidateComponents() {
-        var oldConnectedComponentsValid = getResource().getAttributes().isConnectedComponentsValid();
-        updateResource(res -> res.getAttributes().setConnectedComponentsValid(false),
-            "connectedComponentsValid", oldConnectedComponentsValid, false);
-
-        var oldSynchronousComponentsValid = getResource().getAttributes().isSynchronousComponentsValid();
-        updateResource(res -> res.getAttributes().setSynchronousComponentsValid(false),
-            "synchronousComponentsValid", oldSynchronousComponentsValid, false);
+        updateResourceWithoutNotification(res -> res.getAttributes().setConnectedComponentsValid(false));
+        updateResourceWithoutNotification(res -> res.getAttributes().setSynchronousComponentsValid(false));
     }
 
     void invalidateCalculatedBuses() {
