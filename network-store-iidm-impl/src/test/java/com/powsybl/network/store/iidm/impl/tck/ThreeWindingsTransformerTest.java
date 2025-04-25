@@ -27,7 +27,7 @@ class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest 
 
     @Override
     public void baseTests() {
-        // problem on hash code egality on current limit impl
+        // problem on hash code equality on current limit impl
     }
 
     @Test
