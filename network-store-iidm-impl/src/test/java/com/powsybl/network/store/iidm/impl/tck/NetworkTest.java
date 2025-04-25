@@ -55,6 +55,11 @@ class NetworkTest extends AbstractNetworkTest {
         // FIXME
     }
 
+    @Test
+    public void testStreams() {
+        // still problem with order in stream
+    }
+
     // see FIXME-Override below
     @Override
     @Test
