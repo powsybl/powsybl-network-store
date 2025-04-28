@@ -172,4 +172,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             throw new ValidationException(parent, "step b is not set");
         }
     }
+
+    protected void throwIncorrectTapPosition(int tapPosition, int lowTapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect tap position "
+            + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + "]");
+    }
 }
