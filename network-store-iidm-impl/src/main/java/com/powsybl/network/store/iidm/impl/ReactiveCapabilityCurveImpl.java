@@ -17,6 +17,8 @@ import java.util.TreeMap;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
+import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -49,6 +51,9 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
             return attributes.getMaxQ();
         }
 
+        protected ReactiveCapabilityCurvePointAttributes getAttributes() {
+            return attributes;
+        }
     }
 
     private final ReactiveCapabilityCurveAttributes attributes;
@@ -115,9 +120,14 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
         // Third case : searched point is outside minP and maxP
         if (extrapolateReactiveLimitSlope) {
-            ReactiveCapabilityCurvePointAttributes extrapolatedPoint = ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(p,
-                attributes.getPoints(), ReactiveCapabilityCurvePointAttributes::new, attributes.getOwnerDescription());
-            return getMinOrMaxQ.applyAsDouble(extrapolatedPoint);
+            // Points map
+            TreeMap<Double, ReactiveCapabilityCurve.Point> pointsMap = new TreeMap<>();
+            attributes.getPoints().forEach((k, point) -> pointsMap.put(k, PointImpl.create(point)));
+
+            PointImpl extrapolatedPoint = (PointImpl) ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(p,
+                pointsMap, (localP, minQ, maxQ) -> PointImpl.create(new ReactiveCapabilityCurvePointAttributes(localP, minQ, maxQ)),
+                attributes.getOwnerDescription());
+            return getMinOrMaxQ.applyAsDouble(extrapolatedPoint.getAttributes());
         } else {
             if (p < this.getMinP()) { // p < minP
                 ReactiveCapabilityCurvePointAttributes pMin = attributes.getPoints().firstEntry().getValue();
