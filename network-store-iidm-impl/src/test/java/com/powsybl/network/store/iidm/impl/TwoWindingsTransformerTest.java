@@ -433,5 +433,10 @@ class TwoWindingsTransformerTest {
         phaseTapChanger.setLowTapPosition(2);
         assertEquals(2, phaseTapChanger.getLowTapPosition());
         assertEquals(11, phaseTapChanger.getTapPosition());
+
+        RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
+        assertEquals(25, ratioTapChanger.getStepCount());
+        message = assertThrows(ValidationException.class, () -> ratioTapChanger.getStep(26)).getMessage();
+        assertEquals("2 windings transformer 'b94318f6-6d24-4f56-96b9-df2531ad6543': incorrect tap position 26 [1, 25]", message);
     }
 }
