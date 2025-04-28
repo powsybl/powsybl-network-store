@@ -418,4 +418,20 @@ class TwoWindingsTransformerTest {
         assertTrue(eventRecorder.getEvents().containsAll(expectedEvents));
         assertEquals(expectedEvents.size(), eventRecorder.getEvents().size());
     }
+
+    @Test
+    void testChecks() {
+        Network network = createNetwork();
+        TwoWindingsTransformer twtWithPhaseTapChanger = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        assertNotNull(twtWithPhaseTapChanger.getPhaseTapChanger());
+        PhaseTapChanger phaseTapChanger = twtWithPhaseTapChanger.getPhaseTapChanger();
+        assertEquals(25, phaseTapChanger.getStepCount());
+        String message = assertThrows(ValidationException.class, () -> phaseTapChanger.getStep(26)).getMessage();
+        assertEquals("2 windings transformer 'a708c3bc-465d-4fe7-b6ef-6fa6408a62b0': incorrect tap position 26 [1, 25]", message);
+
+        assertEquals(10, phaseTapChanger.getTapPosition());
+        phaseTapChanger.setLowTapPosition(2);
+        assertEquals(2, phaseTapChanger.getLowTapPosition());
+        assertEquals(11, phaseTapChanger.getTapPosition());
+    }
 }
