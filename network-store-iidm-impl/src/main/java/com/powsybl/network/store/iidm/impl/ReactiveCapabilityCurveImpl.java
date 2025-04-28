@@ -128,14 +128,13 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
                 pointsMap, (localP, minQ, maxQ) -> PointImpl.create(new ReactiveCapabilityCurvePointAttributes(localP, minQ, maxQ)),
                 attributes.getOwnerDescription());
             return getMinOrMaxQ.applyAsDouble(extrapolatedPoint.getAttributes());
-        } else {
-            if (p < this.getMinP()) { // p < minP
-                ReactiveCapabilityCurvePointAttributes pMin = attributes.getPoints().firstEntry().getValue();
-                return getMinOrMaxQ.applyAsDouble(pMin);
-            } else { // p > maxP
-                ReactiveCapabilityCurvePointAttributes pMax = attributes.getPoints().lastEntry().getValue();
-                return getMinOrMaxQ.applyAsDouble(pMax);
-            }
+        }
+        if (p < this.getMinP()) { // p < minP
+            ReactiveCapabilityCurvePointAttributes pMin = attributes.getPoints().firstEntry().getValue();
+            return getMinOrMaxQ.applyAsDouble(pMin);
+        } else { // p > maxP
+            ReactiveCapabilityCurvePointAttributes pMax = attributes.getPoints().lastEntry().getValue();
+            return getMinOrMaxQ.applyAsDouble(pMax);
         }
     }
 
