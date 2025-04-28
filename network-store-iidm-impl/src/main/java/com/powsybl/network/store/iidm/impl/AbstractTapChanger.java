@@ -63,6 +63,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             getTransformer().updateResource(res -> getAttributes(res).setLowTapPosition(lowTapPosition),
                 getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
         }
+        Integer position = getTapPosition();
+        setTapPosition(position != null ? position + (getLowTapPosition() - oldValue) : null);
         return (C) this;
     }
 

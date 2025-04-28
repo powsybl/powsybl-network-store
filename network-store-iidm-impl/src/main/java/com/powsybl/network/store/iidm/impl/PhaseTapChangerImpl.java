@@ -93,6 +93,9 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     @Override
     public PhaseTapChangerStep getStep(int tapPosition) {
         var attributes = getAttributes();
+        if (tapPosition < attributes.getLowTapPosition() || tapPosition > getHighTapPosition()) {
+            throwIncorrectTapPosition(tapPosition, attributes.getLowTapPosition(), getHighTapPosition());
+        }
         int tapPositionIndex = tapPosition - attributes.getLowTapPosition();
         return new PhaseTapChangerStepImpl(this, tapPositionIndex);
     }
@@ -179,5 +182,11 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     @Override
     public int hashCode() {
         return Objects.hash(getParent(), getTransformer().getId(), getRegulationMode(), getRegulationValue());
+    }
+
+    private void throwIncorrectTapPosition(int tapPosition, int lowTapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect tap position "
+            + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + "]");
     }
 }
