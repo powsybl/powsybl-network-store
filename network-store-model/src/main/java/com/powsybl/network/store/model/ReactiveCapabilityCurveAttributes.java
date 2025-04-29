@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Comparator;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 /**
@@ -54,11 +55,11 @@ public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttribut
     public static class ReactiveCapabilityCurveAttributesBuilder {
         private TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points;
 
-        public ReactiveCapabilityCurveAttributesBuilder points(TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points) {
+        public ReactiveCapabilityCurveAttributesBuilder points(NavigableMap<Double, ReactiveCapabilityCurvePointAttributes> points) {
             if (points == null) {
                 this.points = null;
-            } else if (points.comparator() == COMPARATOR) {
-                this.points = points;
+            } else if (points.comparator() == COMPARATOR && points instanceof TreeMap<Double, ReactiveCapabilityCurvePointAttributes> treeMap) {
+                this.points = treeMap;
             } else {
                 this.points = new TreeMap<>(COMPARATOR);
                 this.points.putAll(points);
