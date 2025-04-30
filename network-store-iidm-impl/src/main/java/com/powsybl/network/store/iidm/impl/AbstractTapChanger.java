@@ -20,7 +20,7 @@ import java.util.OptionalInt;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> implements Validable {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A, S>, A extends TapChangerAttributes, S extends TapChangerStep> implements Validable {
 
     protected final H parent;
 
@@ -154,6 +154,17 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             getTapChangerAttribute() + ".steps", oldValue, steps);
         return (C) this;
     }
+
+    public S getStep(int tapPosition) {
+        var attributes = getAttributes();
+        if (tapPosition < attributes.getLowTapPosition() || tapPosition > getHighTapPosition()) {
+            throwIncorrectTapPosition(tapPosition, attributes.getLowTapPosition(), getHighTapPosition());
+        }
+        int tapPositionIndex = tapPosition - attributes.getLowTapPosition();
+        return createStep(tapPositionIndex);
+    }
+
+    abstract S createStep(int tapPosition);
 
     public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
         if (Double.isNaN(step.getRho())) {

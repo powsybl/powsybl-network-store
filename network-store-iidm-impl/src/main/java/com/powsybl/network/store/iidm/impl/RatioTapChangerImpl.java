@@ -18,7 +18,7 @@ import java.util.function.Function;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, RatioTapChangerImpl, RatioTapChangerAttributes> implements RatioTapChanger, Validable {
+public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, RatioTapChangerImpl, RatioTapChangerAttributes, RatioTapChangerStepImpl> implements RatioTapChanger, Validable {
 
     private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
@@ -97,13 +97,8 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
-    public RatioTapChangerStep getStep(int tapPosition) {
-        var attributes = getAttributes();
-        if (tapPosition < attributes.getLowTapPosition() || tapPosition > getHighTapPosition()) {
-            throwIncorrectTapPosition(tapPosition, attributes.getLowTapPosition(), getHighTapPosition());
-        }
-        int tapPositionIndex = tapPosition - attributes.getLowTapPosition();
-        return new RatioTapChangerStepImpl(this, tapPositionIndex);
+    protected RatioTapChangerStepImpl createStep(int tapPosition) {
+        return new RatioTapChangerStepImpl(this, tapPosition);
     }
 
     @Override
