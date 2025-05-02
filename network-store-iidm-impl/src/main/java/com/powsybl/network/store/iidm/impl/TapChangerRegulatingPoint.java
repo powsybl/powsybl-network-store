@@ -38,7 +38,7 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
             case PHASE_TAP_CHANGER, PHASE_TAP_CHANGER_SIDE_ONE, PHASE_TAP_CHANGER_SIDE_TWO, PHASE_TAP_CHANGER_SIDE_THREE -> {
                 setRegulationMode("regulationMode", String.valueOf(PhaseTapChanger.RegulationMode.FIXED_TAP));
                 reportNode.newReportNode()
-                    .withMessageTemplate("resetPhaseTapChangerRegulationMode")
+                    .withMessageTemplate("network.store.resetPhaseTapChangerRegulationMode")
                     .withUntypedValue("identifiableId", getRegulatingEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
