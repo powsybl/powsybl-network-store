@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
 
+import static com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes.COMPARATOR;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -121,7 +123,7 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         // Third case : searched point is outside minP and maxP
         if (extrapolateReactiveLimitSlope) {
             // Points map
-            TreeMap<Double, ReactiveCapabilityCurve.Point> pointsMap = new TreeMap<>();
+            TreeMap<Double, ReactiveCapabilityCurve.Point> pointsMap = new TreeMap<>(COMPARATOR);
             attributes.getPoints().forEach((k, point) -> pointsMap.put(k, PointImpl.create(point)));
 
             PointImpl extrapolatedPoint = (PointImpl) ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(p,

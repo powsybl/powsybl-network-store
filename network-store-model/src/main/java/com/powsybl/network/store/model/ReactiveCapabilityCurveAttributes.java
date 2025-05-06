@@ -38,7 +38,7 @@ public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttribut
      * <p>Note: it throws a {@link NullPointerException} when one of the Doubles are null,
      * similarly as the default Double comparator. But in our use case, this cannot happen.</p>
      */
-    private static final Comparator<Double> COMPARATOR = (d1, d2) -> d1 - d2 == 0 ? 0 : Double.compare(d1, d2);
+    public static final Comparator<Double> COMPARATOR = (d1, d2) -> d1 - d2 == 0 ? 0 : Double.compare(d1, d2);
 
     @Schema(description = "Kind of reactive limit")
     private final ReactiveLimitsKind kind = ReactiveLimitsKind.CURVE;
