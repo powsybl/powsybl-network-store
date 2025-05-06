@@ -125,7 +125,7 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
             attributes.getPoints().forEach((k, point) -> pointsMap.put(k, PointImpl.create(point)));
 
             PointImpl extrapolatedPoint = (PointImpl) ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(p,
-                pointsMap, (localP, minQ, maxQ) -> PointImpl.create(new ReactiveCapabilityCurvePointAttributes(localP, minQ, maxQ)),
+                pointsMap, (localP, minQ, maxQ) -> PointImpl.create(ReactiveCapabilityCurvePointAttributes.builder().p(localP).minQ(minQ).maxQ(maxQ).build()),
                 attributes.getOwnerDescription());
             return getMinOrMaxQ.applyAsDouble(extrapolatedPoint.getAttributes());
         }

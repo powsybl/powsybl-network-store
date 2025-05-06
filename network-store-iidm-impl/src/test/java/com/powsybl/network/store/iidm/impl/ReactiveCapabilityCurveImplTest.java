@@ -37,8 +37,11 @@ class ReactiveCapabilityCurveImplTest {
 
     @Test
     void testReactiveCapabilityCurve() {
-        ReactiveCapabilityCurveImpl curve = createCurve(new ReactiveCapabilityCurvePointAttributes(100.0, 200.0, 300.0),
-            new ReactiveCapabilityCurvePointAttributes(200.0, 300.0, 400.0));
+        ReactiveCapabilityCurvePointAttributes.ReactiveCapabilityCurvePointAttributesBuilder builder1 = ReactiveCapabilityCurvePointAttributes.builder();
+        builder1.p(100.0).minQ(200.0).maxQ(300.0);
+        ReactiveCapabilityCurvePointAttributes.ReactiveCapabilityCurvePointAttributesBuilder builder2 = ReactiveCapabilityCurvePointAttributes.builder();
+        builder2.p(200.0).minQ(300.0).maxQ(400.0);
+        ReactiveCapabilityCurveImpl curve = createCurve(builder1.build(), builder2.build());
         // bounds test
         assertEquals(200.0, curve.getMinQ(100.0), 0.0);
         assertEquals(300.0, curve.getMaxQ(100.0), 0.0);
@@ -61,10 +64,15 @@ class ReactiveCapabilityCurveImplTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void testReactiveCapabilityCurveWithReactiveLimitsExtrapolation(boolean extrapolate) {
-        ReactiveCapabilityCurveImpl curve = createCurve(new ReactiveCapabilityCurvePointAttributes(100.0, 200.0, 300.0),
-            new ReactiveCapabilityCurvePointAttributes(200.0, 300.0, 400.0),
-            new ReactiveCapabilityCurvePointAttributes(300.0, 300.0, 400.0),
-            new ReactiveCapabilityCurvePointAttributes(400.0, 310.0, 390.0));
+        ReactiveCapabilityCurvePointAttributes.ReactiveCapabilityCurvePointAttributesBuilder builder1 = ReactiveCapabilityCurvePointAttributes.builder();
+        builder1.p(100.0).minQ(200.0).maxQ(300.0);
+        ReactiveCapabilityCurvePointAttributes.ReactiveCapabilityCurvePointAttributesBuilder builder2 = ReactiveCapabilityCurvePointAttributes.builder();
+        builder2.p(200.0).minQ(300.0).maxQ(400.0);
+        ReactiveCapabilityCurvePointAttributes.ReactiveCapabilityCurvePointAttributesBuilder builder3 = ReactiveCapabilityCurvePointAttributes.builder();
+        builder3.p(300.0).minQ(300.0).maxQ(400.0);
+        ReactiveCapabilityCurvePointAttributes.ReactiveCapabilityCurvePointAttributesBuilder builder4 = ReactiveCapabilityCurvePointAttributes.builder();
+        builder4.p(400.0).minQ(310.0).maxQ(390.0);
+        ReactiveCapabilityCurveImpl curve = createCurve(builder1.build(), builder2.build(), builder3.build(), builder4.build());
         // bounds test
         assertEquals(200.0, curve.getMinQ(100.0, extrapolate), 0.0);
         assertEquals(300.0, curve.getMaxQ(100.0, extrapolate), 0.0);
@@ -90,8 +98,11 @@ class ReactiveCapabilityCurveImplTest {
 
     @Test
     void testWithNegativeZeroValue() {
-        ReactiveCapabilityCurveImpl curve = createCurve(new ReactiveCapabilityCurvePointAttributes(0.0, 200.0, 300.0),
-            new ReactiveCapabilityCurvePointAttributes(200.0, 300.0, 400.0));
+        ReactiveCapabilityCurvePointAttributes.ReactiveCapabilityCurvePointAttributesBuilder builder1 = ReactiveCapabilityCurvePointAttributes.builder();
+        builder1.p(100.0).minQ(200.0).maxQ(300.0);
+        ReactiveCapabilityCurvePointAttributes.ReactiveCapabilityCurvePointAttributesBuilder builder2 = ReactiveCapabilityCurvePointAttributes.builder();
+        builder2.p(200.0).minQ(300.0).maxQ(400.0);
+        ReactiveCapabilityCurveImpl curve = createCurve(builder1.build(), builder2.build());
         // "-0.0 == 0.0" (JLS), but "Double.compareTo(-0.0, 0.0) = -1"
         // This test asserts that -0.0 is considered as equal to 0.0 by the reactive capability curve.
         assertEquals(200.0, curve.getMinQ(-0.0), 0.0);
