@@ -53,8 +53,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     void invalidateCalculatedBuses() {
-        updateResource(res -> res.getAttributes().setCalculatedBusesValid(false),
-            "calculatedBusesValid", getResource().getAttributes().isCalculatedBusesValid(), false);
+        updateResourceWithoutNotification(res -> res.getAttributes().setCalculatedBusesValid(false));
         getNetwork().invalidateCalculatedBuses();
     }
 

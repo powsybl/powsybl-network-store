@@ -85,10 +85,6 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     @Override
     protected void validate() {
         super.validate();
-        // FIXME this is a workaround for an issue in powsybl core 4.7.0
-        if (voltageRegulatorOn == null) {
-            throw new ValidationException(this, "voltage regulator status is not set");
-        }
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
     }

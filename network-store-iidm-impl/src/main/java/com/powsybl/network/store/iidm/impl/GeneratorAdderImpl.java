@@ -114,10 +114,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerSetpoint(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        // FIXME this is a workaround for an issue in powsybl core 4.7.0
-        if (voltageRegulatorOn == null) {
-            throw new ValidationException(this, "voltage regulator status is not set");
-        }
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
