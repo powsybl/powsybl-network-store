@@ -8,10 +8,8 @@ package com.powsybl.network.store.model;
 
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Comparator;
 import java.util.NavigableMap;
@@ -21,8 +19,6 @@ import java.util.TreeMap;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder(builderClassName = "ReactiveCapabilityCurveAttributesBuilder")
 @Schema(description = "Reactive capability curve attributes")
 public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttributes {
@@ -49,6 +45,32 @@ public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttribut
     @Schema(description = "owner description")
     private String ownerDescription;
 
+    public ReactiveCapabilityCurveAttributes() {
+        this.points = new TreeMap<>(COMPARATOR);
+        this.ownerDescription = null;
+    }
+
+    public ReactiveCapabilityCurveAttributes(NavigableMap<Double, ReactiveCapabilityCurvePointAttributes> points, String ownerDescription) {
+        this.points = getTreeMapWithComparator(points);
+        this.ownerDescription = ownerDescription;
+    }
+
+    public void setPoints(NavigableMap<Double, ReactiveCapabilityCurvePointAttributes> points) {
+        this.points = getTreeMapWithComparator(points);
+    }
+
+    private static TreeMap<Double, ReactiveCapabilityCurvePointAttributes> getTreeMapWithComparator(NavigableMap<Double, ReactiveCapabilityCurvePointAttributes> points) {
+        if (points == null) {
+            return null;
+        } else if (points.comparator() == COMPARATOR && points instanceof TreeMap<Double, ReactiveCapabilityCurvePointAttributes> treeMap) {
+            return treeMap;
+        } else {
+            TreeMap<Double, ReactiveCapabilityCurvePointAttributes> treeMap = new TreeMap<>(COMPARATOR);
+            treeMap.putAll(points);
+            return treeMap;
+        }
+    }
+
     /**
      * <p>Specific builder for ReactiveCapabilityCurveAttributes to handle the -0.0 == 0.0 case</p>
      */
@@ -56,14 +78,7 @@ public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttribut
         private TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points;
 
         public ReactiveCapabilityCurveAttributesBuilder points(NavigableMap<Double, ReactiveCapabilityCurvePointAttributes> points) {
-            if (points == null) {
-                this.points = null;
-            } else if (points.comparator() == COMPARATOR && points instanceof TreeMap<Double, ReactiveCapabilityCurvePointAttributes> treeMap) {
-                this.points = treeMap;
-            } else {
-                this.points = new TreeMap<>(COMPARATOR);
-                this.points.putAll(points);
-            }
+            this.points = getTreeMapWithComparator(points);
             return this;
         }
 
