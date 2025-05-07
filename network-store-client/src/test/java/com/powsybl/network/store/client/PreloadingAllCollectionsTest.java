@@ -6,16 +6,11 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.OfflineNetworkStoreClient;
-import com.powsybl.network.store.model.NetworkAttributes;
-import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 import org.junit.Test;
 
-import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
@@ -28,39 +23,29 @@ import static org.junit.Assert.assertTrue;
 public class PreloadingAllCollectionsTest {
 
     @Test
-    public void testWithAllCollections() {
-        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), true, ForkJoinPool.commonPool());
+    public void test() {
+        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        assertTrue(client.shouldLoadAllCollectionsNeededForBusView(ResourceType.SUBSTATION));
         client.getSubstations(networkUuid, 0);
-        assertFalse(client.shouldLoadAllCollectionsNeededForBusView(ResourceType.SUBSTATION));
+        assertTrue(client.isResourceTypeCached(networkUuid, 0, ResourceType.SUBSTATION));
+        for (ResourceType resourceType : ResourceType.values()) {
+            if (resourceType != ResourceType.SUBSTATION) {
+                assertFalse(client.isResourceTypeCached(networkUuid, 0, ResourceType.GENERATOR));
+            }
+        }
     }
 
     @Test
-    public void testWithAllCollectionsDeleteNetwork() {
+    public void testWithAllCollections() {
         var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), true, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        Resource<NetworkAttributes> n1 = Resource.networkBuilder()
-                .id("n1")
-                .attributes(NetworkAttributes.builder()
-                        .uuid(networkUuid)
-                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
-                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
-                        .build())
-                .build();
-        client.createNetworks(List.of(n1));
-        assertTrue(client.shouldLoadAllCollectionsNeededForBusView(ResourceType.SUBSTATION));
         client.getSubstations(networkUuid, 0);
-        assertFalse(client.shouldLoadAllCollectionsNeededForBusView(ResourceType.SUBSTATION));
-        // When we delete the network, we should load again all collection needed for bus view on next get
-        client.deleteNetwork(networkUuid);
-        assertTrue(client.shouldLoadAllCollectionsNeededForBusView(ResourceType.SUBSTATION));
-        client.createNetworks(List.of(n1));
-        assertTrue(client.shouldLoadAllCollectionsNeededForBusView(ResourceType.SUBSTATION));
-        client.getSubstations(networkUuid, 0);
-        assertFalse(client.shouldLoadAllCollectionsNeededForBusView(ResourceType.SUBSTATION));
-        // When we delete the network variant, we should load again all collection needed for bus view on next get
-        client.deleteNetwork(networkUuid, 0);
-        assertTrue(client.shouldLoadAllCollectionsNeededForBusView(ResourceType.SUBSTATION));
+        for (ResourceType resourceType : ResourceType.values()) {
+            if (PreloadingNetworkStoreClient.RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW.contains(resourceType)) {
+                assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
+            } else {
+                assertFalse(client.isResourceTypeCached(networkUuid, 0, resourceType));
+            }
+        }
     }
 }
