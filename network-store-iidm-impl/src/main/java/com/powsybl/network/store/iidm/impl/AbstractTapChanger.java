@@ -20,7 +20,7 @@ import java.util.OptionalInt;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> implements Validable {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A, S>, A extends TapChangerAttributes, S extends TapChangerStep> implements Validable {
 
     protected final H parent;
 
@@ -63,6 +63,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             getTransformer().updateResource(res -> getAttributes(res).setLowTapPosition(lowTapPosition),
                 getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
         }
+        setTapPosition(getTapPosition() + getLowTapPosition() - oldValue);
         return (C) this;
     }
 
@@ -153,6 +154,17 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return (C) this;
     }
 
+    public S getStep(int tapPosition) {
+        var attributes = getAttributes();
+        if (tapPosition < attributes.getLowTapPosition() || tapPosition > getHighTapPosition()) {
+            throwIncorrectTapPosition(tapPosition, attributes.getLowTapPosition(), getHighTapPosition());
+        }
+        int tapPositionIndex = tapPosition - attributes.getLowTapPosition();
+        return createStep(tapPositionIndex);
+    }
+
+    abstract S createStep(int tapPosition);
+
     public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
         if (Double.isNaN(step.getRho())) {
             throw new ValidationException(parent, "step rho is not set");
@@ -169,5 +181,11 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         if (Double.isNaN(step.getB())) {
             throw new ValidationException(parent, "step b is not set");
         }
+    }
+
+    protected void throwIncorrectTapPosition(int tapPosition, int lowTapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect tap position "
+            + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + "]");
     }
 }

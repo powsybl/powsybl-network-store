@@ -418,4 +418,39 @@ class TwoWindingsTransformerTest {
         assertTrue(eventRecorder.getEvents().containsAll(expectedEvents));
         assertEquals(expectedEvents.size(), eventRecorder.getEvents().size());
     }
+
+    @Test
+    void testPhaseTapChangerPositionsChecks() {
+        Network network = createNetwork();
+        TwoWindingsTransformer twtWithPhaseTapChanger = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        assertNotNull(twtWithPhaseTapChanger.getPhaseTapChanger());
+        PhaseTapChanger phaseTapChanger = twtWithPhaseTapChanger.getPhaseTapChanger();
+        assertEquals(25, phaseTapChanger.getStepCount());
+        String message = assertThrows(ValidationException.class, () -> phaseTapChanger.getStep(26)).getMessage();
+        assertEquals("2 windings transformer 'a708c3bc-465d-4fe7-b6ef-6fa6408a62b0': incorrect tap position 26 [1, 25]", message);
+        message = assertThrows(ValidationException.class, () -> phaseTapChanger.getStep(-1)).getMessage();
+        assertEquals("2 windings transformer 'a708c3bc-465d-4fe7-b6ef-6fa6408a62b0': incorrect tap position -1 [1, 25]", message);
+
+        assertEquals(10, phaseTapChanger.getTapPosition());
+        phaseTapChanger.setLowTapPosition(2);
+        assertEquals(2, phaseTapChanger.getLowTapPosition());
+        assertEquals(11, phaseTapChanger.getTapPosition());
+    }
+
+    @Test
+    void testRatioTapChangerPositionsChecks() {
+        Network network = createNetwork();
+
+        RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
+        assertEquals(25, ratioTapChanger.getStepCount());
+        String message = assertThrows(ValidationException.class, () -> ratioTapChanger.getStep(26)).getMessage();
+        assertEquals("2 windings transformer 'b94318f6-6d24-4f56-96b9-df2531ad6543': incorrect tap position 26 [1, 25]", message);
+        message = assertThrows(ValidationException.class, () -> ratioTapChanger.getStep(-1)).getMessage();
+        assertEquals("2 windings transformer 'b94318f6-6d24-4f56-96b9-df2531ad6543': incorrect tap position -1 [1, 25]", message);
+
+        assertEquals(10, ratioTapChanger.getTapPosition());
+        ratioTapChanger.setLowTapPosition(2);
+        assertEquals(2, ratioTapChanger.getLowTapPosition());
+        assertEquals(11, ratioTapChanger.getTapPosition());
+    }
 }

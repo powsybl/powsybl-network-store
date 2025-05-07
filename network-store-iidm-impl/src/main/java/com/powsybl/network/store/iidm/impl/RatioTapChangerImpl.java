@@ -9,13 +9,16 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, RatioTapChangerImpl, RatioTapChangerAttributes> implements RatioTapChanger, Validable {
+public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, RatioTapChangerImpl, RatioTapChangerAttributes, RatioTapChangerStepImpl> implements RatioTapChanger, Validable {
 
     private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
@@ -94,10 +97,8 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
-    public RatioTapChangerStep getStep(int tapPosition) {
-        var attributes = getAttributes();
-        int tapPositionIndex = tapPosition - attributes.getLowTapPosition();
-        return new RatioTapChangerStepImpl(this, tapPositionIndex);
+    protected RatioTapChangerStepImpl createStep(int tapPosition) {
+        return new RatioTapChangerStepImpl(this, tapPosition);
     }
 
     @Override
