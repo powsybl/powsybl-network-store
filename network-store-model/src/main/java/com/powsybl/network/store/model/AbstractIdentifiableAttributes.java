@@ -7,10 +7,7 @@
 package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
@@ -24,6 +21,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractIdentifiableAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
     @Schema(description = "Name")

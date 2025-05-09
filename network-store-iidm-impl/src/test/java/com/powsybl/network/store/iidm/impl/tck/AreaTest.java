@@ -11,119 +11,24 @@ import com.powsybl.iidm.network.tck.AbstractAreaTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-// FIXME remove all the overridden test in this class when Areas are implemented
 public class AreaTest extends AbstractAreaTest {
     @Override
-    public void areaAttributes() {
-        // FIXME
-    }
-
-    @Override
-    public void testSetterGetter() {
-        // FIXME
-    }
-
-    @Override
-    public void testChangesNotification() {
-        // FIXME
-    }
-
-    @Override
-    public void testSetterGetterInMultiVariants() {
-        // FIXME
-    }
-
-    @Override
-    public void testGetAreaBoundary() {
-        // FIXME
-    }
-
-    @Override
-    public void areaInterchangeComputation() {
-        // FIXME
-    }
-
-    @Override
-    public void areaIterableAndStreamGetterCheck() {
-        // FIXME
-    }
-
-    @Override
-    public void addVoltageLevelsToArea() {
-        // FIXME
-    }
-
-    @Override
-    public void addSameVoltageLevelToArea() {
-        // FIXME
-    }
-
-    @Override
-    public void testWithTerminals() {
-        // FIXME
-    }
-
-    @Override
-    public void testAddSameBoundary() {
-        // FIXME
-    }
-
-    @Override
-    public void testWithDc() {
-        // FIXME
-    }
-
-    @Override
-    public void testRemoveVoltageLevel() {
-        // FIXME
-    }
-
-    @Override
-    public void throwAddNewAreaSameType() {
-        // FIXME
-    }
-
-    @Override
-    public void throwRemovedVoltageLevel() {
-        // FIXME
-    }
-
-    @Override
-    public void throwAddVoltageLevelOtherNetwork() {
-        // FIXME
-    }
-
-    @Override
-    public void removeAreaBoundaries() {
-        // FIXME
-    }
-
-    @Override
-    public void removeEquipmentRemovesAreaBoundary() {
-        // FIXME
-    }
-
-    @Override
-    public void removeEquipmentRemovesAreaBoundaryMergeAndDetach() {
-        // FIXME
+    public void mergeAndFlatten() {
+        // merge is not implemented
     }
 
     @Override
     public void throwBoundaryOtherNetwork() {
-        // FIXME
+        // creation of subnetwork needed
     }
 
     @Override
-    public void throwBoundaryAttributeNotSet() {
-        // FIXME
+    public void throwAddVoltageLevelOtherNetwork() {
+        // creation of subnetwork needed
     }
 
     @Override
-    public void removeArea() {
-        // FIXME
-    }
-
-    public void mergeAndFlatten() {
-        // FIXME
+    public void removeEquipmentRemovesAreaBoundaryMergeAndDetach() {
+        // merge is not implemented
     }
 }

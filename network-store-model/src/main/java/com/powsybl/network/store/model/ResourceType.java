@@ -34,7 +34,8 @@ public enum ResourceType {
     DANGLING_LINE("Dangling line"),
     GROUND("Ground"),
     CONFIGURED_BUS("Configured bus"),
-    TIE_LINE("Tie line");
+    TIE_LINE("Tie line"),
+    AREA("Area");
 
     private final String description;
 
@@ -68,6 +69,7 @@ public enum ResourceType {
             // it will need something to difference both
             case HVDC_CONVERTER_STATION -> VSC_CONVERTER_STATION;
             case GROUND -> GROUND;
+            case AREA -> AREA;
             default -> throw new PowsyblException("can not be converted to resourceType");
         };
     }

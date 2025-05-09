@@ -653,6 +653,31 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void createAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
+    public List<Resource<AreaAttributes>> getAreas(UUID networkUuid, int variantNum) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
+    public Optional<Resource<AreaAttributes>> getArea(UUID networkUuid, int variantNum, String areaId) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
+    public void removeAreas(UUID networkUuid, int variantNum, List<String> areasId) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
+    public void updateAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources, AttributeFilter attributeFilter) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
         throw new UnsupportedOperationException("Unimplemented method");
     }

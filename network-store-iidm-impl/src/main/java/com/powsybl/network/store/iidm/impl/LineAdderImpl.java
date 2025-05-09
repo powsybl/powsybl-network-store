@@ -13,6 +13,8 @@ import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -30,8 +32,17 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     private double b2 = 0;
 
+    private final Line copiedLine;
+
     LineAdderImpl(NetworkObjectIndex index) {
         super(index);
+        this.copiedLine = null;
+    }
+
+    LineAdderImpl(NetworkObjectIndex index, Line copiedLine) {
+        super(index);
+        this.copiedLine = copiedLine;
+        LineAdder.fillLineAdder(this, copiedLine);
     }
 
     @Override
@@ -108,6 +119,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
                         .build())
                 .build();
         LineImpl line = getIndex().createLine(resource);
+        copyOperationalLimits(copiedLine, line);
         line.getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
         line.getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
         return line;
