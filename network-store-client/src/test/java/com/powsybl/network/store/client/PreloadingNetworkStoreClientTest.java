@@ -102,6 +102,29 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1, cachedClient.getSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("sub1"));
         assertEquals(0, cachedClient.getSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // Recreate substation
+        cachedClient.createSubstations(networkUuid, List.of(substation));
+        List<Resource<SubstationAttributes>> substations = cachedClient.getSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, substations.size());
+        assertNotNull(substations.get(0));
+        assertEquals(Boolean.TRUE, substations.get(0).getAttributes().getName().equals("SUB1"));
+
+        // Update substation
+        Resource<SubstationAttributes> updateSubstation = Resource.substationBuilder()
+                .id("sub1")
+                .attributes(SubstationAttributes.builder()
+                        .country(Country.FR)
+                        .tso("TSO_FR")
+                        .name("SUB2")
+                        .build())
+                .build();
+        cachedClient.updateSubstations(networkUuid, List.of(updateSubstation), null);
+        substations = cachedClient.getSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, substations.size());
+        assertNotNull(substations.get(0));
+        assertEquals(Boolean.TRUE, substations.get(0).getAttributes().getName().equals("SUB2"));
+
         server.verify();
     }
 
@@ -139,6 +162,29 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1, cachedClient.getVoltageLevels(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeVoltageLevels(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("vl1"));
         assertEquals(0, cachedClient.getVoltageLevels(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // Recreate voltage level
+        cachedClient.createVoltageLevels(networkUuid, List.of(vl));
+        List<Resource<VoltageLevelAttributes>> voltageLevels = cachedClient.getVoltageLevels(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, voltageLevels.size());
+        assertNotNull(voltageLevels.get(0));
+        assertEquals(Boolean.TRUE, voltageLevels.get(0).getAttributes().getName().equals("VL1"));
+
+        // Update voltage level
+        Resource<VoltageLevelAttributes> updateVl = Resource.voltageLevelBuilder()
+                .id("vl1")
+                .attributes(VoltageLevelAttributes.builder()
+                        .name("VL2")
+                        .lowVoltageLimit(100)
+                        .highVoltageLimit(200)
+                        .build())
+                .build();
+        cachedClient.updateVoltageLevels(networkUuid, List.of(updateVl), null);
+        voltageLevels = cachedClient.getVoltageLevels(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, voltageLevels.size());
+        assertNotNull(voltageLevels.get(0));
+        assertEquals(Boolean.TRUE, voltageLevels.get(0).getAttributes().getName().equals("VL2"));
+
         server.verify();
     }
 
@@ -180,6 +226,34 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1, cachedClient.getSwitches(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeSwitches(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("b1"));
         assertEquals(0, cachedClient.getSwitches(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // Recreate switch
+        cachedClient.createSwitches(networkUuid, List.of(breaker));
+        assertEquals(1, cachedClient.getVoltageLevelSwitches(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<SwitchAttributes>> switches = cachedClient.getSwitches(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, switches.size());
+        assertNotNull(switches.get(0));
+        assertEquals(Boolean.FALSE, switches.get(0).getAttributes().isOpen());
+
+        // Update switch
+        Resource<SwitchAttributes> updateBreaker = Resource.switchBuilder()
+                .id("b1")
+                .attributes(SwitchAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .kind(SwitchKind.BREAKER)
+                        .node1(1)
+                        .node2(2)
+                        .open(true)
+                        .retained(false)
+                        .fictitious(false)
+                        .build())
+                .build();
+        cachedClient.updateSwitches(networkUuid, List.of(updateBreaker), null);
+        switches = cachedClient.getSwitches(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, switches.size());
+        assertNotNull(switches.get(0));
+        assertEquals(Boolean.TRUE, switches.get(0).getAttributes().isOpen());
+
         server.verify();
     }
 
@@ -217,6 +291,29 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1, cachedClient.getGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("g1"));
         assertEquals(0, cachedClient.getGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // Recreate generator
+        cachedClient.createGenerators(networkUuid, List.of(generator));
+        assertEquals(1, cachedClient.getVoltageLevelGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<GeneratorAttributes>> generators = cachedClient.getGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, generators.size());
+        assertNotNull(generators.get(0));
+        assertEquals(200., generators.get(0).getAttributes().getP(), 0.001);
+
+        // Update generator
+        Resource<GeneratorAttributes> updateGenerator = Resource.generatorBuilder()
+                .id("g1")
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("g1")
+                        .p(300.)
+                        .build())
+                .build();
+        cachedClient.updateGenerators(networkUuid, List.of(updateGenerator), null);
+        generators = cachedClient.getGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, generators.size());
+        assertNotNull(generators.get(0));
+        assertEquals(300., generators.get(0).getAttributes().getP(), 0.001);
 
         server.verify();
     }
@@ -260,6 +357,32 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.removeBatteries(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("b1"));
         assertEquals(0, cachedClient.getBatteries(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
+        // Recreate battery
+        cachedClient.createBatteries(networkUuid, List.of(battery));
+        assertEquals(1, cachedClient.getVoltageLevelBatteries(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<BatteryAttributes>> batteries = cachedClient.getBatteries(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, batteries.size());
+        assertNotNull(batteries.get(0));
+        assertEquals(250., batteries.get(0).getAttributes().getP(), 0.001);
+        assertEquals(120., batteries.get(0).getAttributes().getQ(), 0.001);
+
+        // Update battery
+        Resource<BatteryAttributes> updateBattery = Resource.batteryBuilder()
+                .id("b1")
+                .attributes(BatteryAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("b1")
+                        .p(300)
+                        .q(150)
+                        .build())
+                .build();
+        cachedClient.updateBatteries(networkUuid, List.of(updateBattery), null);
+        batteries = cachedClient.getBatteries(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, batteries.size());
+        assertNotNull(batteries.get(0));
+        assertEquals(300., batteries.get(0).getAttributes().getP(), 0.001);
+        assertEquals(150., batteries.get(0).getAttributes().getQ(), 0.001);
+
         server.verify();
     }
 
@@ -302,6 +425,32 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.removeLoads(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("l1"));
         assertEquals(0, cachedClient.getLoads(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
+        // Recreate load
+        cachedClient.createLoads(networkUuid, List.of(load));
+        assertEquals(1, cachedClient.getVoltageLevelLoads(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<LoadAttributes>> loads = cachedClient.getLoads(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, loads.size());
+        assertNotNull(loads.get(0));
+        assertEquals(LoadType.AUXILIARY, loads.get(0).getAttributes().getLoadType());
+        assertEquals(100., loads.get(0).getAttributes().getP0(), 0.001);
+
+        // Update battery
+        Resource<LoadAttributes> updateLoad = Resource.loadBuilder()
+                .id("l1")
+                .attributes(LoadAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("l1")
+                        .loadType(LoadType.FICTITIOUS)
+                        .p0(2000.)
+                        .build())
+                .build();
+        cachedClient.updateLoads(networkUuid, List.of(updateLoad), null);
+        loads = cachedClient.getLoads(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, loads.size());
+        assertNotNull(loads.get(0));
+        assertEquals(LoadType.FICTITIOUS, loads.get(0).getAttributes().getLoadType());
+        assertEquals(2000., loads.get(0).getAttributes().getP0(), 0.001);
+
         server.verify();
     }
 
@@ -339,6 +488,29 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1, cachedClient.getShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("sc1"));
         assertEquals(0, cachedClient.getShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // Recreate shunt compensator
+        cachedClient.createShuntCompensators(networkUuid, List.of(shuntCompensator));
+        assertEquals(1, cachedClient.getVoltageLevelShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<ShuntCompensatorAttributes>> shuntCompensators = cachedClient.getShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, shuntCompensators.size());
+        assertNotNull(shuntCompensators.get(0));
+        assertEquals(5, shuntCompensators.get(0).getAttributes().getSectionCount());
+
+        // Update shunt compensator
+        Resource<ShuntCompensatorAttributes> updateShuntCompensator = Resource.shuntCompensatorBuilder()
+                .id("sc1")
+                .attributes(ShuntCompensatorAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("sc1")
+                        .sectionCount(8)
+                        .build())
+                .build();
+        cachedClient.updateShuntCompensators(networkUuid, List.of(updateShuntCompensator), null);
+        shuntCompensators = cachedClient.getShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, shuntCompensators.size());
+        assertNotNull(shuntCompensators.get(0));
+        assertEquals(8, shuntCompensators.get(0).getAttributes().getSectionCount());
 
         server.verify();
     }
@@ -382,6 +554,32 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.removeStaticVarCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("svc1"));
         assertEquals(0, cachedClient.getStaticVarCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
+        // Recreate static var compensator
+        cachedClient.createStaticVarCompensators(networkUuid, List.of(staticVarCompensator));
+        assertEquals(1, cachedClient.getVoltageLevelStaticVarCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<StaticVarCompensatorAttributes>> staticVarCompensators = cachedClient.getStaticVarCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, staticVarCompensators.size());
+        assertNotNull(staticVarCompensators.get(0));
+        assertEquals(20., staticVarCompensators.get(0).getAttributes().getBmax(), 0.001);
+        assertEquals(100., staticVarCompensators.get(0).getAttributes().getReactivePowerSetPoint(), 0.001);
+
+        // Update static var compensator
+        Resource<StaticVarCompensatorAttributes> updateStaticVarCompensator = Resource.staticVarCompensatorBuilder()
+                .id("svc1")
+                .attributes(StaticVarCompensatorAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("svc1")
+                        .bmax(50)
+                        .reactivePowerSetPoint(1500)
+                        .build())
+                .build();
+        cachedClient.updateStaticVarCompensators(networkUuid, List.of(updateStaticVarCompensator), null);
+        staticVarCompensators = cachedClient.getStaticVarCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, staticVarCompensators.size());
+        assertNotNull(staticVarCompensators.get(0));
+        assertEquals(50., staticVarCompensators.get(0).getAttributes().getBmax(), 0.001);
+        assertEquals(1500., staticVarCompensators.get(0).getAttributes().getReactivePowerSetPoint(), 0.001);
+
         server.verify();
     }
 
@@ -420,6 +618,29 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.removeVscConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("vsc1"));
         assertEquals(0, cachedClient.getVscConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
+        // Recreate vsc converter station
+        cachedClient.createVscConverterStations(networkUuid, List.of(vscConverterStation));
+        assertEquals(1, cachedClient.getVoltageLevelVscConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<VscConverterStationAttributes>> vscConverterStations = cachedClient.getVscConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, vscConverterStations.size());
+        assertNotNull(vscConverterStations.get(0));
+        assertEquals(0.6, vscConverterStations.get(0).getAttributes().getLossFactor(), 0.001);
+
+        // Update vsc converter station
+        Resource<VscConverterStationAttributes> updateVscConverterStation = Resource.vscConverterStationBuilder()
+                .id("vsc1")
+                .attributes(VscConverterStationAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("vsc1")
+                        .lossFactor(0.8F)
+                        .build())
+                .build();
+        cachedClient.updateVscConverterStations(networkUuid, List.of(updateVscConverterStation), null);
+        vscConverterStations = cachedClient.getVscConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, vscConverterStations.size());
+        assertNotNull(vscConverterStations.get(0));
+        assertEquals(0.8, vscConverterStations.get(0).getAttributes().getLossFactor(), 0.001);
+
         server.verify();
     }
 
@@ -457,6 +678,29 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1, cachedClient.getLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("lcc1"));
         assertEquals(0, cachedClient.getLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // Recreate lcc converter station
+        cachedClient.createLccConverterStations(networkUuid, List.of(lccConverterStation));
+        assertEquals(1, cachedClient.getVoltageLevelLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<LccConverterStationAttributes>> lccConverterStations = cachedClient.getLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, lccConverterStations.size());
+        assertNotNull(lccConverterStations.get(0));
+        assertEquals(250., lccConverterStations.get(0).getAttributes().getPowerFactor(), 0.001);
+
+        // Update lcc converter station
+        Resource<LccConverterStationAttributes> updateLccConverterStation = Resource.lccConverterStationBuilder()
+                .id("lcc1")
+                .attributes(LccConverterStationAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("lcc1")
+                        .powerFactor(400)
+                        .build())
+                .build();
+        cachedClient.updateLccConverterStations(networkUuid, List.of(updateLccConverterStation), null);
+        lccConverterStations = cachedClient.getLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, lccConverterStations.size());
+        assertNotNull(lccConverterStations.get(0));
+        assertEquals(400., lccConverterStations.get(0).getAttributes().getPowerFactor(), 0.001);
 
         server.verify();
     }
@@ -573,6 +817,32 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.removeTwoWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("tw1"));
         assertEquals(0, cachedClient.getTwoWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
+        // Recreate two windings transformer
+        cachedClient.createTwoWindingsTransformers(networkUuid, List.of(twoWindingsTransformer));
+        assertEquals(1, cachedClient.getVoltageLevelTwoWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformers = cachedClient.getTwoWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, twoWindingsTransformers.size());
+        assertNotNull(twoWindingsTransformers.get(0));
+        assertEquals(2., twoWindingsTransformers.get(0).getAttributes().getR(), 0.001);
+        assertEquals(3., twoWindingsTransformers.get(0).getAttributes().getX(), 0.001);
+
+        // Update two windings transformer
+        Resource<TwoWindingsTransformerAttributes> updateTwoWindingsTransformer = Resource.twoWindingsTransformerBuilder()
+                .id("tw1")
+                .attributes(TwoWindingsTransformerAttributes.builder()
+                        .voltageLevelId1("vl1")
+                        .voltageLevelId2("vl2")
+                        .r(5)
+                        .x(9)
+                        .build())
+                .build();
+        cachedClient.updateTwoWindingsTransformers(networkUuid, List.of(updateTwoWindingsTransformer), null);
+        twoWindingsTransformers = cachedClient.getTwoWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, twoWindingsTransformers.size());
+        assertNotNull(twoWindingsTransformers.get(0));
+        assertEquals(5., twoWindingsTransformers.get(0).getAttributes().getR(), 0.001);
+        assertEquals(9., twoWindingsTransformers.get(0).getAttributes().getX(), 0.001);
+
         server.verify();
     }
 
@@ -625,6 +895,42 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.removeThreeWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("tw1"));
         assertEquals(0, cachedClient.getThreeWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
+        // Recreate two windings transformer
+        cachedClient.createThreeWindingsTransformers(networkUuid, List.of(threeWindingsTransformer));
+        assertEquals(1, cachedClient.getVoltageLevelThreeWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformers = cachedClient.getThreeWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, threeWindingsTransformers.size());
+        assertNotNull(threeWindingsTransformers.get(0));
+        assertEquals(50., threeWindingsTransformers.get(0).getAttributes().getP2(), 0.001);
+        assertEquals(60., threeWindingsTransformers.get(0).getAttributes().getQ3(), 0.001);
+
+        // Update two windings transformer
+        Resource<ThreeWindingsTransformerAttributes> updateThreeWindingsTransformer = Resource.threeWindingsTransformerBuilder()
+                .id("tw1")
+                .attributes(ThreeWindingsTransformerAttributes.builder()
+                        .leg1(LegAttributes.builder()
+                                .legNumber(1)
+                                .voltageLevelId("vl1")
+                                .build())
+                        .leg2(LegAttributes.builder()
+                                .legNumber(2)
+                                .voltageLevelId("vl2")
+                                .build())
+                        .p2(200)
+                        .leg3(LegAttributes.builder()
+                                .legNumber(3)
+                                .voltageLevelId("vl3")
+                                .build())
+                        .q3(550)
+                        .build())
+                .build();
+        cachedClient.updateThreeWindingsTransformers(networkUuid, List.of(updateThreeWindingsTransformer), null);
+        threeWindingsTransformers = cachedClient.getThreeWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, threeWindingsTransformers.size());
+        assertNotNull(threeWindingsTransformers.get(0));
+        assertEquals(200., threeWindingsTransformers.get(0).getAttributes().getP2(), 0.001);
+        assertEquals(550., threeWindingsTransformers.get(0).getAttributes().getQ3(), 0.001);
+
         server.verify();
     }
 
@@ -664,6 +970,30 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.removeLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("l1"));
         assertEquals(0, cachedClient.getLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
+        // Recreate line
+        cachedClient.createLines(networkUuid, List.of(line));
+        assertEquals(1, cachedClient.getVoltageLevelLines(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<LineAttributes>> lines = cachedClient.getLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, lines.size());
+        assertNotNull(lines.get(0));
+        assertEquals(50., lines.get(0).getAttributes().getP1(), 0.001);
+
+        // Update line
+        Resource<LineAttributes> updateLine = Resource.lineBuilder()
+                .id("l1")
+                .attributes(LineAttributes.builder()
+                        .voltageLevelId1("vl1")
+                        .voltageLevelId2("vl2")
+                        .name("l1")
+                        .p1(1000)
+                        .build())
+                .build();
+        cachedClient.updateLines(networkUuid, List.of(updateLine), null);
+        lines = cachedClient.getLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, lines.size());
+        assertNotNull(lines.get(0));
+        assertEquals(1000., lines.get(0).getAttributes().getP1(), 0.001);
+
         server.verify();
     }
 
@@ -697,9 +1027,35 @@ public class PreloadingNetworkStoreClientTest {
         hvdcLineAttributesResource = cachedClient.getHvdcLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "hvdc1").orElse(null);
         assertNotNull(hvdcLineAttributesResource);
         assertEquals(3000., hvdcLineAttributesResource.getAttributes().getMaxP(), 0.001);
+
+        // Remove component
         assertEquals(1, cachedClient.getHvdcLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeHvdcLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("hvdc1"));
         assertEquals(0, cachedClient.getHvdcLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // Recreate line
+        cachedClient.createHvdcLines(networkUuid, List.of(hvdcLine));
+        List<Resource<HvdcLineAttributes>> hvdcLines = cachedClient.getHvdcLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, hvdcLines.size());
+        assertNotNull(hvdcLines.get(0));
+        assertEquals(1000., hvdcLines.get(0).getAttributes().getMaxP(), 0.001);
+
+        // Update line
+        Resource<HvdcLineAttributes> updateHvdcLine = Resource.hvdcLineBuilder()
+                .id("hvdc1")
+                .attributes(HvdcLineAttributes.builder()
+                        .converterStationId1("c1")
+                        .converterStationId2("c2")
+                        .name("hvdc1")
+                        .maxP(3000)
+                        .build())
+                .build();
+        cachedClient.updateHvdcLines(networkUuid, List.of(updateHvdcLine), null);
+        hvdcLines = cachedClient.getHvdcLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, hvdcLines.size());
+        assertNotNull(hvdcLines.get(0));
+        assertEquals(3000., hvdcLines.get(0).getAttributes().getMaxP(), 0.001);
+
         server.verify();
     }
 
@@ -732,6 +1088,33 @@ public class PreloadingNetworkStoreClientTest {
         danglingLineAttributesResource = cachedClient.getDanglingLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
         assertNotNull(danglingLineAttributesResource);
         assertEquals(60., danglingLineAttributesResource.getAttributes().getQ0(), 0.001);
+
+        // Remove component
+        assertEquals(1, cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        cachedClient.removeDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("dl1"));
+        assertEquals(0, cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // Recreate line
+        cachedClient.createDanglingLines(networkUuid, List.of(danglingLine));
+        List<Resource<DanglingLineAttributes>> danglingLines = cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, danglingLines.size());
+        assertNotNull(danglingLines.get(0));
+        assertEquals(10., danglingLines.get(0).getAttributes().getQ0(), 0.001);
+
+        // Update line
+        Resource<DanglingLineAttributes> updateDanglingLine = Resource.danglingLineBuilder()
+                .id("dl1")
+                .attributes(DanglingLineAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("dl1")
+                        .q0(60)
+                        .build())
+                .build();
+        cachedClient.updateDanglingLines(networkUuid, List.of(updateDanglingLine), null);
+        danglingLines = cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, danglingLines.size());
+        assertNotNull(danglingLines.get(0));
+        assertEquals(60., danglingLines.get(0).getAttributes().getQ0(), 0.001);
 
         server.verify();
     }
@@ -771,6 +1154,28 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.removeTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("tieLine1"));
         assertEquals(0, cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
+        // Recreate line
+        cachedClient.createTieLines(networkUuid, List.of(tieLine));
+        List<Resource<TieLineAttributes>> tieLines = cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, tieLines.size());
+        assertNotNull(tieLines.get(0));
+        assertEquals("dl1", tieLines.get(0).getAttributes().getDanglingLine1Id());
+
+        // Update line
+        Resource<TieLineAttributes> updateTieLine = Resource.tieLineBuilder()
+                .id("tieLine1")
+                .attributes(TieLineAttributes.builder()
+                        .name("tieLine1")
+                        .danglingLine1Id("dll1")
+                        .danglingLine2Id("dl2")
+                        .build())
+                .build();
+        cachedClient.updateTieLines(networkUuid, List.of(updateTieLine), null);
+        tieLines = cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, tieLines.size());
+        assertNotNull(tieLines.get(0));
+        assertEquals("dll1", tieLines.get(0).getAttributes().getDanglingLine1Id());
+
         server.verify();
     }
 
@@ -804,9 +1209,34 @@ public class PreloadingNetworkStoreClientTest {
         assertNotNull(configuredBusAttributesResource);
         assertEquals(5., configuredBusAttributesResource.getAttributes().getAngle(), 0.001);
 
+        // Remove component
         assertEquals(1, cachedClient.getConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("cb1"));
         assertEquals(0, cachedClient.getConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+
+        // Recreate line
+        cachedClient.createConfiguredBuses(networkUuid, List.of(configuredBus));
+        assertEquals(1, cachedClient.getVoltageLevelConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        List<Resource<ConfiguredBusAttributes>> configuredBuses = cachedClient.getConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, configuredBuses.size());
+        assertNotNull(configuredBuses.get(0));
+        assertEquals(3., configuredBuses.get(0).getAttributes().getAngle(), 0.001);
+
+        // Update line
+        Resource<ConfiguredBusAttributes> updateConfiguredBus = Resource.configuredBusBuilder()
+                .id("cb1")
+                .attributes(ConfiguredBusAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("cb1")
+                        .angle(5)
+                        .build())
+                .build();
+        cachedClient.updateConfiguredBuses(networkUuid, List.of(updateConfiguredBus), null);
+        configuredBuses = cachedClient.getConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, configuredBuses.size());
+        assertNotNull(configuredBuses.get(0));
+        assertEquals(5., configuredBuses.get(0).getAttributes().getAngle(), 0.001);
+
         server.verify();
     }
 
@@ -997,7 +1427,7 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
-        cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR);
+        cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
         server.verify();
         server.reset();
 
@@ -1008,9 +1438,8 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId);
 
         // Verify that the cache is copied and there is no new fetch
-        cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, targetVariantNum, ResourceType.GENERATOR);
-        Map<String, ExtensionAttributes> extensionAttributesByExtensionNameMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId1);
-        assertEquals(2, extensionAttributesByExtensionNameMap.size());
+        Map<String, ExtensionAttributes> extensionAttributesByIdentifiableId = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId1);
+        assertEquals(2, extensionAttributesByIdentifiableId.size());
         server.verify();
         server.reset();
     }

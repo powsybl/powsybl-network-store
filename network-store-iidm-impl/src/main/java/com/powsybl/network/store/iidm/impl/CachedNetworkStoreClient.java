@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
+public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient<NetworkStoreClient> implements NetworkStoreClient {
 
     private static final int MAX_GET_IDENTIFIABLE_CALL_COUNT = 10;
 
@@ -1127,9 +1127,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         return getCache(resourceType).getCollection(networkUuid, variantNum).getExtensionAttributes(networkUuid, variantNum, resourceType, identifiableId, extensionName);
     }
 
-    @Override
-    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
-        return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
+    public void loadAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
     }
 
     @Override
@@ -1137,9 +1136,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, resourceType, identifiableId);
     }
 
-    @Override
-    public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
+    public void loadAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
     }
 
     @Override

@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
+public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStoreClient<CachedNetworkStoreClient> implements NetworkStoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PreloadingNetworkStoreClient.class);
 
@@ -874,13 +874,13 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     @Override
     public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
-        delegate.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
+        delegate.loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
         return delegate.getExtensionAttributes(networkUuid, variantNum, resourceType, identifiableId, extensionName);
     }
 
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String id) {
-        delegate.getAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
+        delegate.loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
         return delegate.getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, resourceType, id);
     }
 }
