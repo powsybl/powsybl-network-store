@@ -655,9 +655,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             getBusBreakerView().removeAllSwitches();
             getBusBreakerView().removeAllBuses();
         } else if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            getNodeBreakerView().getSwitches().forEach(s -> {
-                getNodeBreakerView().removeSwitch(s.getId());
-            });
+            getNodeBreakerView().getSwitches().forEach(s -> getNodeBreakerView().removeSwitch(s.getId()));
         }
     }
 
@@ -688,7 +686,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public Stream<Area> getAreasStream() {
-        return getResource("Cannot access areas of removed voltage level " + getId())
+        return getOptionalResource().orElseThrow(() -> new PowsyblException("Cannot access areas of removed voltage level " + getId()))
             .getAttributes()
             .getAreaIds()
             .stream()
@@ -704,7 +702,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @Override
     public void addArea(Area area) {
         Objects.requireNonNull(area);
-        Set<String> oldAreaIds = getResource("Cannot add areas to removed voltage level " + getId())
+        Set<String> oldAreaIds = getOptionalResource().orElseThrow(() -> new PowsyblException("Cannot add areas to removed voltage level " + getId()))
             .getAttributes().getAreaIds();
         if (oldAreaIds.contains(area.getId())) {
             return;

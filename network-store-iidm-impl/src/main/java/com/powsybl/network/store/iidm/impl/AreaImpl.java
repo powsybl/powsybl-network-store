@@ -37,7 +37,7 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
 
     @Override
     public String getAreaType() {
-        return getResource("Cannot access area type of removed area " + getId())
+        return getOptionalResource().orElseThrow(() -> throwRemoved("area type"))
             .getAttributes().getAreaType();
     }
 
@@ -48,7 +48,7 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return getResource("Cannot access voltage levels of removed area " + getId())
+        return getOptionalResource().orElseThrow(() -> throwRemoved("voltage levels"))
             .getAttributes()
             .getVoltageLevelIds()
             .stream()
@@ -156,7 +156,7 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
 
     @Override
     public Stream<AreaBoundary> getAreaBoundaryStream() {
-        return getResource("Cannot access area boundaries of removed area " + getId())
+        return getOptionalResource().orElseThrow(() -> throwRemoved("area boundaries"))
             .getAttributes()
             .getAreaBoundaries()
             .stream()
@@ -165,7 +165,7 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
 
     @Override
     public OptionalDouble getInterchangeTarget() {
-        double target = getResource("Cannot access interchange target of removed area " + getId())
+        double target = getOptionalResource().orElseThrow(() -> throwRemoved("interchange target"))
             .getAttributes().getInterchangeTarget();
         if (Double.isNaN(target)) {
             return OptionalDouble.empty();
@@ -183,24 +183,28 @@ public class AreaImpl extends AbstractIdentifiableImpl<Area, AreaAttributes> imp
 
     @Override
     public double getAcInterchange() {
-        getResource("Cannot access AC interchange of removed area " + getId());
+        getOptionalResource().orElseThrow(() -> throwRemoved("AC interchange"));
         return getInterchange(AreaBoundary::isAc);
     }
 
     @Override
     public double getDcInterchange() {
-        getResource("Cannot access DC interchange of removed area " + getId());
+        getOptionalResource().orElseThrow(() -> throwRemoved("DC interchange"));
         return getInterchange(areaBoundary -> !areaBoundary.isAc());
     }
 
     @Override
     public double getInterchange() {
-        getResource("Cannot access total interchange of removed area " + getId());
+        getOptionalResource().orElseThrow(() -> throwRemoved("total interchange"));
         return getInterchange(areaBoundary -> true);
     }
 
     double getInterchange(Predicate<AreaBoundary> predicate) {
         return getAreaBoundaryStream().filter(predicate).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
+    }
+
+    private PowsyblException throwRemoved(String attribute) {
+        return new PowsyblException("Cannot access " + attribute + " of removed area " + getId());
     }
 
     @Override
