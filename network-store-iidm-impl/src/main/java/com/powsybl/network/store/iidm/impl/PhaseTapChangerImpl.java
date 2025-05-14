@@ -18,7 +18,7 @@ import java.util.function.Function;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, PhaseTapChangerImpl, PhaseTapChangerAttributes, PhaseTapChangerStepImpl> implements PhaseTapChanger, Validable {
+public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, PhaseTapChangerImpl, PhaseTapChangerAttributes> implements PhaseTapChanger, Validable {
 
     private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
@@ -94,8 +94,9 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     }
 
     @Override
-    protected PhaseTapChangerStepImpl createStep(int tapPosition) {
-        return new PhaseTapChangerStepImpl(this, tapPosition);
+    public PhaseTapChangerStep getStep(int tapPosition) {
+        int tapPositionIndex = getTapPositionIndex(tapPosition);
+        return new PhaseTapChangerStepImpl(this, tapPositionIndex);
     }
 
     @Override

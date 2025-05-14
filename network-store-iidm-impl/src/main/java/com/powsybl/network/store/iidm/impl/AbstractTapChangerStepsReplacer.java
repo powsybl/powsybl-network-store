@@ -18,11 +18,11 @@ import java.util.List;
  */
 abstract class AbstractTapChangerStepsReplacer<S extends AbstractTapChangerStepsReplacer<S>> {
 
-    private final AbstractTapChanger<?, ?, ?, ?> stepHolder;
+    private final AbstractTapChanger<?, ?, ?> stepHolder;
 
     protected List<TapChangerStepAttributes> steps = new ArrayList<>();
 
-    protected AbstractTapChangerStepsReplacer(AbstractTapChanger<?, ?, ?, ?> stepHolder) {
+    protected AbstractTapChangerStepsReplacer(AbstractTapChanger<?, ?, ?> stepHolder) {
         this.stepHolder = stepHolder;
     }
 
