@@ -14,6 +14,6 @@ import com.powsybl.iidm.network.tck.AbstractSwitchSetRetainedTest;
 public class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest {
     @Override
     public void test() {
-        // FIXME when support multi-thread access
+        // FIXME when https://github.com/powsybl/powsybl-core/pull/3435 will be merged
     }
 }
