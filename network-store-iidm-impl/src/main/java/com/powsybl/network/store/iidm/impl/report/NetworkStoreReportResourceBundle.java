@@ -14,9 +14,10 @@ import com.powsybl.commons.report.ReportResourceBundle;
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 @AutoService(ReportResourceBundle.class)
-public class NetworkStoreReportResourceBundle {
+public class NetworkStoreReportResourceBundle implements ReportResourceBundle {
     public static final String BASE_NAME = "com.powsybl.network.store.reports";
 
+    @Override
     public String getBaseName() {
         return BASE_NAME;
     }
