@@ -31,9 +31,4 @@ public class AreaTest extends AbstractAreaTest {
     public void removeEquipmentRemovesAreaBoundaryMergeAndDetach() {
         // merge is not implemented
     }
-
-    @Override
-    public void testSetterGetterInMultiVariants() {
-        // when variant is set and then deleted if a attribute is gotten it does not fail with network store
-    }
 }
