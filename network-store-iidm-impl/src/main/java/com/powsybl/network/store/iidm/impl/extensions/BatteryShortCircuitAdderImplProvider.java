@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 @AutoService(ExtensionAdderProvider.class)
 public class BatteryShortCircuitAdderImplProvider implements ExtensionAdderProvider<Battery, BatteryShortCircuit, BatteryShortCircuitAdder> {
 
+    @Override
     public String getImplementationName() {
         return "NetworkStore";
     }
@@ -29,10 +30,12 @@ public class BatteryShortCircuitAdderImplProvider implements ExtensionAdderProvi
         return BatteryShortCircuit.NAME;
     }
 
+    @Override
     public Class<BatteryShortCircuitAdder> getAdderClass() {
         return BatteryShortCircuitAdder.class;
     }
 
+    @Override
     public BatteryShortCircuitAdder newAdder(Battery extendable) {
         return new BatteryShortCircuitAdderImpl(extendable);
     }

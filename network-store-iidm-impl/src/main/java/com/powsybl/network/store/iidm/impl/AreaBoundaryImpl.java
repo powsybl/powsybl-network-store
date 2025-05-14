@@ -21,7 +21,7 @@ import java.util.Optional;
  */
 public class AreaBoundaryImpl implements AreaBoundary {
 
-    protected final NetworkObjectIndex index;
+    private final NetworkObjectIndex index;
 
     private final AreaBoundaryAttributes areaBoundaryAttributes;
 
