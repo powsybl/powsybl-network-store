@@ -107,25 +107,26 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public Resource<D> getNullableResource() {
-        return resource;
+        return getOptionalResource().orElse(null);
     }
 
     public void setResource(Resource<D> resource) {
-        idBeforeRemoval = resource == null ? this.resource.getId() : null;
         this.resource = resource;
     }
 
+    public void removeResource() {
+        idBeforeRemoval = resource.getId();
+        this.resource = null;
+    }
+
     public Resource<D> getResource() {
-        if (resource == null) {
-            throw new PowsyblException("Object has been removed in current variant");
-        }
-        if (index.getWorkingVariantNum() == -1) {
-            throw new PowsyblException("Variant index not set");
-        }
-        return resource;
+        return getOptionalResource().orElseThrow(() -> new PowsyblException("Object has been removed in current variant"));
     }
 
     protected Optional<Resource<D>> getOptionalResource() {
+        if (index.getWorkingVariantNum() == -1) {
+            throw new PowsyblException("Variant index not set");
+        }
         return Optional.ofNullable(resource);
     }
 

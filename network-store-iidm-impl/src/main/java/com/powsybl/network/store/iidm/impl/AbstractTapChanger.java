@@ -63,6 +63,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             getTransformer().updateResource(res -> getAttributes(res).setLowTapPosition(lowTapPosition),
                 getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
         }
+        setTapPosition(getTapPosition() + getLowTapPosition() - oldValue);
         return (C) this;
     }
 
@@ -153,6 +154,13 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return (C) this;
     }
 
+    protected int getTapPositionIndex(int tapPosition) {
+        if (tapPosition < getLowTapPosition() || tapPosition > getHighTapPosition()) {
+            throwIncorrectTapPosition(tapPosition, getLowTapPosition(), getHighTapPosition());
+        }
+        return tapPosition - getLowTapPosition();
+    }
+
     public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
         if (Double.isNaN(step.getRho())) {
             throw new ValidationException(parent, "step rho is not set");
@@ -169,5 +177,11 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         if (Double.isNaN(step.getB())) {
             throw new ValidationException(parent, "step b is not set");
         }
+    }
+
+    protected void throwIncorrectTapPosition(int tapPosition, int lowTapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect tap position "
+            + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + "]");
     }
 }

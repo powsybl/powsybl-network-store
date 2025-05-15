@@ -190,6 +190,14 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate)
             );
 
+    private final NetworkCollectionIndex<CollectionCache<AreaAttributes>> areasCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getArea,
+                    null,
+                    delegate::getAreas,
+                    delegate)
+            );
+
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = new EnumMap<>(ResourceType.class);
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCaches = new EnumMap<>(ResourceType.class);
@@ -221,6 +229,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         networkContainersCaches.put(ResourceType.SUBSTATION, substationsCache);
         networkContainersCaches.put(ResourceType.VOLTAGE_LEVEL, voltageLevelsCache);
         networkContainersCaches.put(ResourceType.TIE_LINE, tieLinesCache);
+        networkContainersCaches.put(ResourceType.AREA, areasCache);
     }
 
     @Override
@@ -326,6 +335,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         cloneCollection(hvdcLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(danglingLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(tieLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(areasCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(configuredBusesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(groundsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(substationsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
@@ -1009,6 +1019,41 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         }
     }
 
+    // Area
+    @Override
+    public void createAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources) {
+        delegate.createAreas(networkUuid, areaResources);
+        for (Resource<AreaAttributes> areaResource : areaResources) {
+            areasCache.getCollection(networkUuid, areaResource.getVariantNum()).createResource(areaResource);
+            addIdentifiableId(networkUuid, areaResource);
+        }
+    }
+
+    @Override
+    public List<Resource<AreaAttributes>> getAreas(UUID networkUuid, int variantNum) {
+        return areasCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<AreaAttributes>> getArea(UUID networkUuid, int variantNum, String areaId) {
+        return areasCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, areaId);
+    }
+
+    @Override
+    public void removeAreas(UUID networkUuid, int variantNum, List<String> areaIds) {
+        delegate.removeAreas(networkUuid, variantNum, areaIds);
+        areasCache.getCollection(networkUuid, variantNum).removeResources(areaIds);
+        removeIdentifiableIds(networkUuid, variantNum, areaIds);
+    }
+
+    @Override
+    public void updateAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources, AttributeFilter attributeFilter) {
+        delegate.updateAreas(networkUuid, areaResources, attributeFilter);
+        for (Resource<AreaAttributes> areaResource : areaResources) {
+            areasCache.getCollection(networkUuid, areaResource.getVariantNum()).updateResource(areaResource);
+        }
+    }
+
     @Override
     public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
         delegate.createGrounds(networkUuid, groundResources);
@@ -1147,6 +1192,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             case CONFIGURED_BUS -> configuredBusesCache;
             case TIE_LINE -> tieLinesCache;
             case GROUND -> groundsCache;
+            case AREA -> areasCache;
         };
     }
 

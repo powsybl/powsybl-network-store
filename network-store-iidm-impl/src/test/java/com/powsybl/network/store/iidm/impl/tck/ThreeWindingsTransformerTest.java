@@ -24,9 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest {
+
     @Override
     public void baseTests() {
-        // FIXME : remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3019
+        // problem on hash code equality on current limit impl
     }
 
     @Test
