@@ -146,6 +146,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     public void init() {
         fullyLoaded = true;
         fullyLoadedExtensions = true;
+        isFullyLoadedOperationalLimitsGroup = true;
+        isFullyLoadedCurrentLimitsGroup = true;
     }
 
     public boolean isFullyLoaded() {

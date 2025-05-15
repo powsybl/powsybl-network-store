@@ -175,7 +175,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(String urlTemplate, Object... uriVariables) {
         logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = restClient.getOperationalLimitsGroupAttributes(urlTemplate, uriVariables);
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = restClient.getOneOperationalLimitsGroupAttributes(urlTemplate, uriVariables);
         stopwatch.stop();
         logGetOperationalLimitsGroupAttributesTime(operationalLimitsGroupAttributes.isPresent() ? 1 : 0, stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
@@ -997,11 +997,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
         return getOperationalLimitsGroupAttributes("/networks/{networkUuid}/{variantNum}/branch/{branchId}/types/{resourceType}/operationalLimitsGroup/{operationalLimitsGroupId}/side/{side}",
             networkUuid, variantNum, branchId, resourceType, operationalLimitsGroupId, side);
-    }
-
-    @Override
-    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String operationalLimitGroupName, int side) {
-
     }
 
     @Override

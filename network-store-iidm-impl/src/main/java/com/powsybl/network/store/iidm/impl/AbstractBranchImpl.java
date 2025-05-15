@@ -376,7 +376,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId1())) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId1(null),
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, id, null);
-            index.removeOperationalLimitsGroupAttributes(resource.getType(), getId(), id, 1);
         }
         var oldValue = getResource().getAttributes().getOperationalLimitsGroups1().get(id);
         updateResource(res -> res.getAttributes().getOperationalLimitsGroups1().remove(id),
@@ -444,7 +443,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId2())) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId2(null),
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, id, null);
-            index.notifyUpdate(this, SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, index.getNetwork().getVariantManager().getWorkingVariantId(), id, null);
         }
         var oldValue = getResource().getAttributes().getOperationalLimitsGroups2().get(id);
         updateResource(res -> res.getAttributes().getOperationalLimitsGroups2().remove(id),

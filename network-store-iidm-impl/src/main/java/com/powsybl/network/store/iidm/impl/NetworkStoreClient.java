@@ -21,7 +21,6 @@ import java.util.UUID;
 public interface NetworkStoreClient {
 
     // network
-
     List<NetworkInfos> getNetworksInfos();
 
     void createNetworks(List<Resource<NetworkAttributes>> networkResources);
@@ -339,8 +338,6 @@ public interface NetworkStoreClient {
      * @return {@link LimitsAttributes} which is a subset of an identifiable resource.
      */
     Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side);
-
-    void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String operationalLimitGroupName, int side);
 
     /**
      * For all the identifiables of a specific resource type, retrieves all extension attributes of this identifiable.

@@ -32,7 +32,7 @@ public interface RestClient {
      * Retrieves one operational limit group attributes from the server.
      * @return {@link OperationalLimitsGroupAttributes} which is a subset of a branch resource there is a list each side of a branch.
      */
-    Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(String url, Object... uriVariables);
+    Optional<OperationalLimitsGroupAttributes> getOneOperationalLimitsGroupAttributes(String url, Object... uriVariables);
 
     <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables);
 
