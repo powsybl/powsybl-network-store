@@ -18,7 +18,7 @@ import java.util.List;
  */
 abstract class AbstractTapChangerStepsReplacer<S extends AbstractTapChangerStepsReplacer<S>> {
 
-    private AbstractTapChanger<?, ?, ?> stepHolder;
+    private final AbstractTapChanger<?, ?, ?> stepHolder;
 
     protected List<TapChangerStepAttributes> steps = new ArrayList<>();
 
