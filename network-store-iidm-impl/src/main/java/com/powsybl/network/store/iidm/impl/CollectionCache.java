@@ -614,16 +614,6 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         fullyLoadedOperationalLimitsGroupsByBranchIds.add(branchId);
     }
 
-    public void removeOperationalLimitsGroupAttributesByName(String branchId, String operationalLimitsGroupName, int side) {
-        Objects.requireNonNull(branchId);
-        Objects.requireNonNull(operationalLimitsGroupName);
-        if (resources.containsKey(branchId)) {
-            getCachedOperationalLimitsGroupAttributes(branchId, side).remove(operationalLimitsGroupName);
-            OperationalLimitsGroupIdentifier identifier = OperationalLimitsGroupIdentifier.of(branchId, operationalLimitsGroupName, side);
-            removedOperationalLimitsGroupsAttributes.add(identifier);
-        }
-    }
-
     /**
      * Get all the operational limits group attributes for all the identifiables with specified resource type in the cache
      */
