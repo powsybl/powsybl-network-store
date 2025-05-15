@@ -206,6 +206,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
+        index.getAreas().forEach(area -> area.removeAreaBoundary(new DanglingLineBoundaryImpl(this)));
         index.removeDanglingLine(resource.getId());
         index.notifyAfterRemoval(resource.getId());
     }

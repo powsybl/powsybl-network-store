@@ -580,7 +580,7 @@ public class ResourceTest {
         assertEquals(ResourceType.NETWORK, ResourceType.convert(IdentifiableType.NETWORK));
         assertEquals(ResourceType.SUBSTATION, ResourceType.convert(IdentifiableType.SUBSTATION));
         assertEquals(ResourceType.VOLTAGE_LEVEL, ResourceType.convert(IdentifiableType.VOLTAGE_LEVEL));
-        assertThrows(PowsyblException.class, () -> ResourceType.convert(IdentifiableType.AREA));
+        assertEquals(ResourceType.AREA, ResourceType.convert(IdentifiableType.AREA));
         assertEquals(ResourceType.HVDC_LINE, ResourceType.convert(IdentifiableType.HVDC_LINE));
         assertThrows(PowsyblException.class, () -> ResourceType.convert(IdentifiableType.BUS));
         assertEquals(ResourceType.SWITCH, ResourceType.convert(IdentifiableType.SWITCH));

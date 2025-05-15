@@ -196,6 +196,10 @@ public class Resource<T extends Attributes> implements Validable {
         return new Builder<>(ResourceType.CONFIGURED_BUS);
     }
 
+    public static Builder<AreaAttributes> areaBuilder() {
+        return new Builder<>(ResourceType.AREA);
+    }
+
     public static <T extends IdentifiableAttributes> List<Resource<T>> cloneResourcesToVariant(
         Collection<Resource<T>> resources, int newVariantNum,
         ObjectMapper objectMapper, Consumer<Resource<T>> resourcePostProcessor) {

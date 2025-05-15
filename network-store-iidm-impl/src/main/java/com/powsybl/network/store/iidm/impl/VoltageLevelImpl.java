@@ -655,9 +655,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             getBusBreakerView().removeAllSwitches();
             getBusBreakerView().removeAllBuses();
         } else if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            getNodeBreakerView().getSwitches().forEach(s -> {
-                getNodeBreakerView().removeSwitch(s.getId());
-            });
+            getNodeBreakerView().getSwitches().forEach(s -> getNodeBreakerView().removeSwitch(s.getId()));
         }
     }
 
@@ -683,33 +681,49 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public Iterable<Area> getAreas() {
-        // TODO
-        return Collections.emptyList();
+        return getAreasStream().collect(Collectors.toSet());
     }
 
     @Override
     public Stream<Area> getAreasStream() {
-        // TODO
-        return Stream.empty();
+        return getOptionalResource().orElseThrow(() -> new PowsyblException("Cannot access areas of removed voltage level " + getId()))
+            .getAttributes()
+            .getAreaIds()
+            .stream()
+            .map(areaId -> index.getArea(areaId).orElse(null));
     }
 
     @Override
     public Optional<Area> getArea(String areaType) {
         Objects.requireNonNull(areaType);
-        // TODO
-        return Optional.empty();
+        return getAreasStream().filter(area -> Objects.equals(area.getAreaType(), areaType)).findFirst();
     }
 
     @Override
     public void addArea(Area area) {
         Objects.requireNonNull(area);
-        // TODO
+        Set<String> oldAreaIds = getOptionalResource().orElseThrow(() -> new PowsyblException("Cannot add areas to removed voltage level " + getId()))
+            .getAttributes().getAreaIds();
+        if (oldAreaIds.contains(area.getId())) {
+            return;
+        }
+        final Optional<Area> previousArea = getArea(area.getAreaType());
+        if (previousArea.isPresent() && previousArea.get() != area) {
+            // This instance already has a different area with the same AreaType
+            throw new PowsyblException("VoltageLevel " + getId() + " is already in Area of the same type=" + previousArea.get().getAreaType() + " with id=" + previousArea.get().getId());
+        }
+        updateResource(r -> r.getAttributes().getAreaIds().add(area.getId()),
+            "areaIds", null, oldAreaIds, this::getAreas);
+        area.addVoltageLevel(this);
     }
 
     @Override
     public void removeArea(Area area) {
         Objects.requireNonNull(area);
-        // TODO
+        Set<String> oldAreaIds = getResource().getAttributes().getAreaIds();
+        updateResource(r -> r.getAttributes().getAreaIds().remove(area.getId()),
+            "areas", null, oldAreaIds, this::getAreas);
+        area.removeVoltageLevel(this);
     }
 
     private void convertToBusBreakerModel() {

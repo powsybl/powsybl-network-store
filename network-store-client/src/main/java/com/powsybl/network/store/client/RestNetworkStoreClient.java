@@ -54,6 +54,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private static final String STR_DANGLING_LINE = "dangling line";
     private static final String STR_HVDC_LINE = "hvdc line";
     private static final String STR_TIE_LINE = "tie line";
+    private static final String STR_AREA = "area";
     private static final String STR_GROUND = "ground";
 
     private final RestClient restClient;
@@ -876,6 +877,32 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateTieLines(UUID networkUuid, List<Resource<TieLineAttributes>> tieLineResources, AttributeFilter attributeFilter) {
         updateAll(STR_TIE_LINE, "/networks/{networkUuid}/tie-lines", tieLineResources, attributeFilter, networkUuid);
+    }
+
+    // Areas
+    @Override
+    public void createAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources) {
+        create(STR_AREA, "/networks/{networkUuid}/areas", areaResources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<AreaAttributes>> getAreas(UUID networkUuid, int variantNum) {
+        return getAll(STR_AREA, "/networks/{networkUuid}/{variantNum}/areas", networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<AreaAttributes>> getArea(UUID networkUuid, int variantNum, String areaId) {
+        return get(STR_AREA, "/networks/{networkUuid}/{variantNum}/areas/{AreaId}", networkUuid, variantNum, areaId);
+    }
+
+    @Override
+    public void removeAreas(UUID networkUuid, int variantNum, List<String> areasIds) {
+        removeAll(STR_AREA, "/networks/{networkUuid}/{variantNum}/areas", networkUuid, variantNum, areasIds);
+    }
+
+    @Override
+    public void updateAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources, AttributeFilter attributeFilter) {
+        updateAll(STR_AREA, "/networks/{networkUuid}/areas", areaResources, attributeFilter, networkUuid);
     }
 
     @Override

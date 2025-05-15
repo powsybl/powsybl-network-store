@@ -9,7 +9,10 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -92,8 +95,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public PhaseTapChangerStep getStep(int tapPosition) {
-        var attributes = getAttributes();
-        int tapPositionIndex = tapPosition - attributes.getLowTapPosition();
+        int tapPositionIndex = getTapPositionIndex(tapPosition);
         return new PhaseTapChangerStepImpl(this, tapPositionIndex);
     }
 

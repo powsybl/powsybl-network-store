@@ -62,6 +62,9 @@ public class BatteryAttributes extends AbstractIdentifiableAttributes implements
     @Schema(description = "reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
+    @Schema(description = "Battery short circuit attributes")
+    private ShortCircuitAttributes batteryShortCircuitAttributes;
+
     @Builder.Default
     @Schema(description = "regulatingEquipments")
     private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
