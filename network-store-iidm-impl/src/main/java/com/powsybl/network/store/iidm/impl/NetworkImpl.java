@@ -11,14 +11,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import com.powsybl.cgmes.extensions.BaseVoltageMapping;
-import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
-import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
@@ -620,6 +618,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return new LineAdderImpl(index);
     }
 
+    @Override
+    public LineAdder newLine(Line line) {
+        return new LineAdderImpl(index, line);
+    }
+
     // 2 windings transformer
 
     @Override
@@ -977,10 +980,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (extension != null) {
             extensions.add(extension);
         }
-        extension = createCgmesControlAreas();
-        if (extension != null) {
-            extensions.add(extension);
-        }
         return extensions;
     }
 
@@ -988,9 +987,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     public <E extends Extension<Network>> E getExtension(Class<? super E> type) {
         if (type == CimCharacteristics.class) {
             return createCimCharacteristics();
-        }
-        if (type == CgmesControlAreas.class) {
-            return createCgmesControlAreas();
         }
         if (type == BaseVoltageMapping.class) {
             return createBaseVoltageMapping();
@@ -1002,9 +998,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     public <E extends Extension<Network>> E getExtensionByName(String name) {
         if (name.equals("cimCharacteristics")) {
             return createCimCharacteristics();
-        }
-        if (name.equals("cgmesControlAreas")) {
-            return createCgmesControlAreas();
         }
         if (name.equals("baseVoltageMapping")) {
             return createBaseVoltageMapping();
@@ -1018,16 +1011,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         CimCharacteristicsAttributes attributes = resource.getAttributes().getCimCharacteristics();
         if (attributes != null) {
             extension = (E) new CimCharacteristicsImpl(this);
-        }
-        return extension;
-    }
-
-    private <E extends Extension<Network>> E createCgmesControlAreas() {
-        E extension = null;
-        var resource = getResource();
-        CgmesControlAreasAttributes attributes = resource.getAttributes().getCgmesControlAreas();
-        if (attributes != null) {
-            extension = (E) new CgmesControlAreasImpl(this);
         }
         return extension;
     }
@@ -1103,8 +1086,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public AreaAdder newArea() {
-        // TODO
-        return null;
+        return new AreaAdderImpl(index);
     }
 
     @Override
@@ -1114,8 +1096,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Stream<Area> getAreaStream() {
-        // TODO
-        return Stream.empty();
+        return index.getAreas().stream();
     }
 
     @Override
@@ -1126,8 +1107,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Area getArea(String id) {
-        // TODO
-        return getAreaStream().filter(a -> a.getId().equals(id)).findFirst().orElse(null);
+        return index.getArea(getIdFromAlias(id)).orElse(null);
     }
 
     @Override

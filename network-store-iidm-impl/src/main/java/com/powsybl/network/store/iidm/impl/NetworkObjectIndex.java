@@ -279,6 +279,8 @@ public class NetworkObjectIndex {
 
     private final ObjectCache<Bus, ConfiguredBusImpl, ConfiguredBusAttributes> configuredBusCache;
 
+    private final ObjectCache<Area, AreaImpl, AreaAttributes> areaCache;
+
     private final Map<ResourceType, ObjectCache> objectCachesByResourceType = new EnumMap<>(ResourceType.class);
 
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
@@ -397,6 +399,12 @@ public class NetworkObjectIndex {
             () -> storeClient.getTieLines(network.getUuid(), workingVariantNum),
             id -> storeClient.removeTieLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> TieLineImpl.create(NetworkObjectIndex.this, resource));
+        areaCache = new ObjectCache<>(resource -> storeClient.createAreas(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getArea(network.getUuid(), workingVariantNum, id),
+            null,
+            () -> storeClient.getAreas(network.getUuid(), workingVariantNum),
+            id -> storeClient.removeAreas(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            resource -> AreaImpl.create(NetworkObjectIndex.this, resource));
 
         objectCachesByResourceType.put(ResourceType.SUBSTATION, substationCache);
         objectCachesByResourceType.put(ResourceType.VOLTAGE_LEVEL, voltageLevelCache);
@@ -417,6 +425,7 @@ public class NetworkObjectIndex {
         objectCachesByResourceType.put(ResourceType.GROUND, groundCache);
         objectCachesByResourceType.put(ResourceType.CONFIGURED_BUS, configuredBusCache);
         objectCachesByResourceType.put(ResourceType.TIE_LINE, tieLineCache);
+        objectCachesByResourceType.put(ResourceType.AREA, areaCache);
     }
 
     public NetworkStoreClient getStoreClient() {
@@ -462,6 +471,7 @@ public class NetworkObjectIndex {
             danglingLineCache.setResourcesToObjects();
             groundCache.setResourcesToObjects();
             configuredBusCache.setResourcesToObjects();
+            areaCache.setResourcesToObjects();
         }
     }
 
@@ -988,6 +998,24 @@ public class NetworkObjectIndex {
         groundCache.remove(groundId);
     }
 
+    // Area
+
+    Optional<AreaImpl> getArea(String id) {
+        return areaCache.getOne(id);
+    }
+
+    List<Area> getAreas() {
+        return areaCache.getAll().collect(Collectors.toList());
+    }
+
+    public AreaImpl createArea(Resource<AreaAttributes> resource) {
+        return areaCache.create(resource);
+    }
+
+    public void removeArea(String areaId) {
+        areaCache.remove(areaId);
+    }
+
     public Collection<Identifiable<?>> getIdentifiables() {
         return ImmutableList.<Identifiable<?>>builder()
                 .addAll(getSubstations())
@@ -1007,6 +1035,7 @@ public class NetworkObjectIndex {
                 .addAll(getHvdcLines())
                 .addAll(getDanglingLines())
                 .addAll(getGrounds())
+                .addAll(getAreas())
                 .addAll(getConfiguredBuses())
                 .build();
     }
@@ -1137,6 +1166,7 @@ public class NetworkObjectIndex {
             case GROUND -> updateGroundResource((Resource<GroundAttributes>) resource, attributeFilter);
             case CONFIGURED_BUS -> updateConfiguredBusResource((Resource<ConfiguredBusAttributes>) resource, attributeFilter);
             case TIE_LINE -> updateTieLineResource((Resource<TieLineAttributes>) resource, attributeFilter);
+            case AREA -> updateAreaResource((Resource<AreaAttributes>) resource, attributeFilter);
             default -> throw new IllegalStateException("Unknown resource type: " + resource.getType());
         }
     }
@@ -1179,6 +1209,10 @@ public class NetworkObjectIndex {
 
     void updateGroundResource(Resource<GroundAttributes> resource, AttributeFilter attributeFilter) {
         storeClient.updateGrounds(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    }
+
+    void updateAreaResource(Resource<AreaAttributes> resource, AttributeFilter attributeFilter) {
+        storeClient.updateAreas(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
     void updateTieLineResource(Resource<TieLineAttributes> resource, AttributeFilter attributeFilter) {
