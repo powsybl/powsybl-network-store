@@ -66,14 +66,31 @@ class GeneratorTest {
     void testIdBeforeRemovalMultipleVariants() {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
-        Generator generator = network.getGenerator("GH3");
-        assertNotNull(generator);
-        generator.remove();
-        assertEquals("GH3", generator.getId());
-
         VariantManager variantManager = network.getVariantManager();
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "variant1");
         variantManager.setWorkingVariant("variant1");
+
+        // Remove generator in variant1
+        Generator generator = network.getGenerator("GH3");
+        assertNotNull(generator);
+        generator.remove();
+        assertNull(network.getGenerator("GH3"));
+        assertEquals("GH3", generator.getId());
+
+        // Clone variant1 and switch to variant2 with removed generator
+        variantManager.cloneVariant("variant1", "variant2");
+        variantManager.setWorkingVariant("variant2");
+        assertNull(network.getGenerator("GH3"));
+        assertEquals("GH3", generator.getId());
+
+        // Switch to initial variant with existing generator
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNotNull(network.getGenerator("GH3"));
+        assertEquals("GH3", generator.getId());
+
+        // Switch again to variant1 with removed generator
+        variantManager.setWorkingVariant("variant1");
+        assertNull(network.getGenerator("GH3"));
         assertEquals("GH3", generator.getId());
     }
 }
