@@ -312,7 +312,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
         SimpleModule module = new SimpleModule();
-        module.addKeyDeserializer(OperationalLimitsGroupIdentifier.class, new OperationalLimitsGroupIdentifierDeserializer());
         var objectMapper = JsonUtil.createObjectMapper()
             .registerModule(new JavaTimeModule())
             .registerModule(module)
@@ -1156,12 +1155,12 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Map<String, Map<Integer, OperationalLimitsGroupAttributes>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return getCache(resourceType).getCollection(networkUuid, variantNum).getAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
     }
 
     @Override
-    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Map<String, Map<Integer, OperationalLimitsGroupAttributes>> getAllSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return getCache(resourceType).getCollection(networkUuid, variantNum).getSelectedCurrentLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
     }
 

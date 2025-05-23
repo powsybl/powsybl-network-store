@@ -50,7 +50,6 @@ public class RestClientImpl implements RestClient {
     private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addKeyDeserializer(OperationalLimitsGroupIdentifier.class, new OperationalLimitsGroupIdentifierDeserializer());
         objectMapper.registerModule(new JavaTimeModule())
             .registerModule(module)
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)

@@ -9,9 +9,11 @@ package com.powsybl.network.store.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
@@ -65,8 +67,6 @@ public class PreloadingNetworkStoreClientTest {
         restStoreClient = new RestNetworkStoreClient(restClient);
         cachedClient = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool())), false, ForkJoinPool.commonPool());
         networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        objectMapper.registerModule(new SimpleModule().addKeyDeserializer(OperationalLimitsGroupIdentifier.class,
-            new OperationalLimitsGroupIdentifierDeserializer()));
     }
 
     @Test
@@ -1492,10 +1492,8 @@ public class PreloadingNetworkStoreClientTest {
                 .operationalLimitsGroupId(operationalLimitsGroup2)
                 .build())
             .build();
-        OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
-        OperationalLimitsGroupIdentifier olgi2 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroup2, 2);
-        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>>() {
-        }).writeValueAsString(Map.of(identifiableId1, Map.of(olgi1, olg1), identifiableId2, Map.of(olgi2, olg2)));
+        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, OperationalLimitsGroupAttributes>>>() {
+        }).writeValueAsString(Map.of(identifiableId1, Map.of(1, olg1), identifiableId2, Map.of(2, olg2)));
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
             .andExpect(method(GET))
@@ -1514,7 +1512,7 @@ public class PreloadingNetworkStoreClientTest {
         olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
             Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup1, 1);
         assertTrue(olg1Attributes.isPresent());
-        operationalLimitsGroupAttributes1 = (OperationalLimitsGroupAttributes) olg1Attributes.get();
+        operationalLimitsGroupAttributes1 = olg1Attributes.get();
         assertEquals(operationalLimitsGroup1, operationalLimitsGroupAttributes1.getId());
         assertEquals(1, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().size());
         assertNotNull(operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10));
@@ -1553,7 +1551,7 @@ public class PreloadingNetworkStoreClientTest {
     public void testGetOperationalLimitsGroupEmptyExtensionAttributesCache() throws IOException {
         // Two successive ExtensionAttributes retrieval, only the first should send a REST request, the second uses the cache
         String identifiableId1 = "GEN";
-        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>>() {
+        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, OperationalLimitsGroupAttributes>>>() {
         }).writeValueAsString(Map.of());
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
@@ -1622,10 +1620,8 @@ public class PreloadingNetworkStoreClientTest {
                 .operationalLimitsGroupId(operationalLimitsGroup2)
                 .build())
             .build();
-        OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
-        OperationalLimitsGroupIdentifier olgi2 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroup2, 2);
-        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>>() {
-        }).writeValueAsString(Map.of(identifiableId1, Map.of(olgi1, olg1), identifiableId2, Map.of(olgi2, olg2)));
+        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, OperationalLimitsGroupAttributes>>>() {
+        }).writeValueAsString(Map.of(identifiableId1, Map.of(1, olg1), identifiableId2, Map.of(2, olg2)));
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
             .andExpect(method(GET))
@@ -1684,9 +1680,8 @@ public class PreloadingNetworkStoreClientTest {
                 .build())
             .build();
 
-        OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
-        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>>() {
-        }).writeValueAsString(Map.of(identifiableId1, Map.of(olgi1, olg1)));
+        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, OperationalLimitsGroupAttributes>>>() {
+        }).writeValueAsString(Map.of(identifiableId1, Map.of(1, olg1)));
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/currentLimits/"))
             .andExpect(method(GET))

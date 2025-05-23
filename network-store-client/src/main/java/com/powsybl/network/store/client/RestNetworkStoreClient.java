@@ -16,7 +16,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
-import com.powsybl.network.store.model.OperationalLimitsGroupIdentifier;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +70,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         this.restClient = Objects.requireNonNull(restClient);
         this.objectMapper = Objects.requireNonNull(objectMapper);
         SimpleModule module = new SimpleModule();
-        module.addKeyDeserializer(OperationalLimitsGroupIdentifier.class, new OperationalLimitsGroupIdentifierDeserializer());
         objectMapper.registerModule(new JavaTimeModule())
             .registerModule(module)
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
@@ -183,10 +181,10 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return operationalLimitsGroupAttributes;
     }
 
-    private Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getOperationalLimitsGroupAttributesNestedMap(String urlTemplate, Object... uriVariables) {
+    private Map<String, Map<Integer, OperationalLimitsGroupAttributes>> getOperationalLimitsGroupAttributesNestedMap(String urlTemplate, Object... uriVariables) {
         logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> operationalLimitsGroupAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        Map<String, Map<Integer, OperationalLimitsGroupAttributes>> operationalLimitsGroupAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
         stopwatch.stop();
         long loadedAttributesCount = operationalLimitsGroupAttributes.values().stream()
             .mapToLong(innerMap -> innerMap.values().size())
@@ -1027,13 +1025,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Map<String, Map<Integer, OperationalLimitsGroupAttributes>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/",
             networkUuid, variantNum, resourceType);
     }
 
     @Override
-    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Map<String, Map<Integer, OperationalLimitsGroupAttributes>> getAllSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/currentLimits/",
             networkUuid, variantNum, resourceType);
     }
