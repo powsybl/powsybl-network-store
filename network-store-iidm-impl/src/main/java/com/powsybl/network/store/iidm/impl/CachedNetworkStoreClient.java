@@ -1157,7 +1157,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     @Override
     public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String operationalLimitGroupName, int side) {
-        return getCache(resourceType).getCollection(networkUuid, variantNum).getOperationalLimitsAttributes(networkUuid, variantNum, resourceType, identifiableId, operationalLimitGroupName, side);
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getSelectedOperationalLimitsAttributes(networkUuid, variantNum, resourceType, identifiableId, operationalLimitGroupName, side);
     }
 
     @Override

@@ -560,6 +560,21 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         }
     }
 
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsAttributes(UUID networkUuid, int variantNum, ResourceType type,
+                                                                                     String branchId, String operationalLimitGroupName, int side) {
+        Objects.requireNonNull(branchId);
+        OperationalLimitsGroupIdentifier identifier = new OperationalLimitsGroupIdentifier(branchId, operationalLimitGroupName, side);
+        if (isSelectedOperationalLimitsGroupAttributesCached(identifier)) {
+            return Optional.ofNullable(getCachedOperationalLimitsGroupAttributes(branchId, side).get(operationalLimitGroupName));
+        } else {
+            return delegate.getSelectedOperationalLimitsGroupAttributes(networkUuid, variantNum, type, branchId, operationalLimitGroupName, side)
+                .map(attributes -> {
+                    addOperationalLimitsGroupAttributesToCache(branchId, operationalLimitGroupName, side, attributes);
+                    return attributes;
+                });
+        }
+    }
+
     private Map<String, OperationalLimitsGroupAttributes> getCachedOperationalLimitsGroupAttributes(String branchId, int side) {
         Resource<T> resource = resources.get(branchId);
         if (resource != null && resource.getAttributes() instanceof BranchAttributes branchAttributes) {
@@ -571,6 +586,10 @@ public class CollectionCache<T extends IdentifiableAttributes> {
 
     private boolean isOperationalLimitsGroupAttributesCached(OperationalLimitsGroupIdentifier identifier) {
         return isFullyLoadedOperationalLimitsGroup || loadedOperationalLimitsGroups.contains(identifier);
+    }
+
+    private boolean isSelectedOperationalLimitsGroupAttributesCached(OperationalLimitsGroupIdentifier identifier) {
+        return isFullyLoadedSelectedOperationalLimitsGroup || isOperationalLimitsGroupAttributesCached(identifier);
     }
 
     /**
