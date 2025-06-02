@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VariantManagerConstants;
@@ -1007,7 +1008,6 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
 
-        // When removing the line, the operational Limits Group attributes should be removed from the cache as well
         String oneOperationalLimitsGroupAttributes = objectMapper.writeValueAsString(OperationalLimitsGroupAttributesTopLevelDocument.of(olg1));
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/" + "1"))
             .andExpect(method(GET))
@@ -1016,9 +1016,10 @@ public class CachedNetworkStoreClientTest {
         Optional<OperationalLimitsGroupAttributes> olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1);
         assertTrue(olg1Attributes.isPresent());
 
+        // if the line is removed, getting the operational limits group must throw
         cachedClient.removeLines(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(identifiableId));
-        olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1);
-        assertFalse(olg1Attributes.isPresent());
+        String message = assertThrows(PowsyblException.class, () -> cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1)).getMessage();
+        assertEquals("Cannot manipulate operational limits groups for branch (LINE) as it has not been loaded into the cache.", message);
     }
 
     private void getOperationalLimitsGroup(OperationalLimitsGroupAttributes operationalLimitsGroupAttributes, UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient, String operationalLimitsGroupId, int side) throws JsonProcessingException {

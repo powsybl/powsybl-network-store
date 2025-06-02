@@ -1156,18 +1156,18 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String operationalLimitGroupName, int side) {
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getOperationalLimitsAttributes(networkUuid, variantNum, resourceType, identifiableId, operationalLimitGroupName, side);
+    }
+
+    @Override
+    public Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return getCache(resourceType).getCollection(networkUuid, variantNum).getAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
     }
 
     @Override
-    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        return getCache(resourceType).getCollection(networkUuid, variantNum).getSelectedCurrentLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
-    }
-
-    @Override
-    public Optional<OperationalLimitsGroupAttributes> getCurrentLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String operationalLimitGroupName, int side) {
-        return getCache(resourceType).getCollection(networkUuid, variantNum).getCurrentLimitsAttributes(networkUuid, variantNum, resourceType, identifiableId, operationalLimitGroupName, side);
+    public Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
     }
 
     private NetworkCollectionIndex<? extends CollectionCache<?>> getCache(ResourceType resourceType) {

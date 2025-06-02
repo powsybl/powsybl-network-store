@@ -891,8 +891,8 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public Optional<OperationalLimitsGroupAttributes> getCurrentLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupId, int side) {
-        delegate.getAllSelectedCurrentLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
-        return delegate.getOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitGroupId, side);
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupId, int side) {
+        delegate.getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
+        return delegate.getSelectedOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitGroupId, side);
     }
 }

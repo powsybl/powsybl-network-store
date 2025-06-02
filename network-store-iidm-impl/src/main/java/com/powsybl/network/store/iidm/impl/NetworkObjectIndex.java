@@ -1279,7 +1279,7 @@ public class NetworkObjectIndex {
         storeClient.getOperationalLimitsGroupAttributes(network.getUuid(), workingVariantNum, type, branchId, operationalLimitGroupName, side);
     }
 
-    public void loadCurrentLimitsGroupAttributes(ResourceType type, String branchId, String operationalLimitGroupName, int side) {
-        storeClient.getCurrentLimitsGroupAttributes(network.getUuid(), workingVariantNum, type, branchId, operationalLimitGroupName, side);
+    public void loadSelectedOperationalLimitsGroupAttributes(ResourceType type, String branchId, String operationalLimitGroupName, int side) {
+        storeClient.getSelectedOperationalLimitsGroupAttributes(network.getUuid(), workingVariantNum, type, branchId, operationalLimitGroupName, side);
     }
 }

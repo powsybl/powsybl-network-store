@@ -183,14 +183,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return operationalLimitsGroupAttributes;
     }
 
-    private Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getOperationalLimitsGroupAttributesNestedMap(String urlTemplate, Object... uriVariables) {
+    private Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesNestedMap(String urlTemplate, Object... uriVariables) {
         logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> operationalLimitsGroupAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
         stopwatch.stop();
-        long loadedAttributesCount = operationalLimitsGroupAttributes.values().stream()
-            .mapToLong(innerMap -> innerMap.values().size())
-            .sum();
+        long loadedAttributesCount = operationalLimitsGroupAttributes.size();
         logGetOperationalLimitsGroupAttributesTime(loadedAttributesCount, stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
         return operationalLimitsGroupAttributes;
@@ -1027,20 +1025,19 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
+        return getOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitsGroupId, side);
+    }
+
+    @Override
+    public Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/",
             networkUuid, variantNum, resourceType);
     }
 
     @Override
-    public Map<String, Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>> getAllSelectedCurrentLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/currentLimits/",
+    public Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/selected/",
             networkUuid, variantNum, resourceType);
-    }
-
-    @Override
-    public Optional<OperationalLimitsGroupAttributes> getCurrentLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
-        return getOperationalLimitsGroupAttributes("/networks/{networkUuid}/{variantNum}/branch/{branchId}/types/{resourceType}/operationalLimitsGroup/currentLimits/{operationalLimitsGroupId}/side/{side}",
-            networkUuid, variantNum, branchId, resourceType, operationalLimitsGroupId, side);
     }
 }
