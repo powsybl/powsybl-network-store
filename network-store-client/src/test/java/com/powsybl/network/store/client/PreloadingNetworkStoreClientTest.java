@@ -1635,11 +1635,25 @@ public class PreloadingNetworkStoreClientTest {
             .andExpect(method(PUT))
             .andRespond(withSuccess());
         cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId);
+        server.verify();
+        server.reset();
 
         // Verify that the cache is copied and there is no new fetch
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/1"
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(operationalLimitsGroupAttributes, MediaType.APPLICATION_JSON));
         cachedClient.getAllOperationalLimitsGroupAttributesByResourceType(networkUuid, targetVariantNum, ResourceType.LINE);
+        server.verify();
+        server.reset();
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(operationalLimitsGroupAttributes, MediaType.APPLICATION_JSON));
         Optional<OperationalLimitsGroupAttributes> olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
             Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup1, 1);
+        server.verify();
+        server.reset();
         assertTrue(olg1Attributes.isPresent());
         OperationalLimitsGroupAttributes operationalLimitsGroupAttributes1 = (OperationalLimitsGroupAttributes) olg1Attributes.get();
         assertEquals(operationalLimitsGroup1, operationalLimitsGroupAttributes1.getId());

@@ -1015,7 +1015,7 @@ public class CachedNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected/"))
             .andExpect(method(GET))
             .andRespond(withSuccess(selectedOperationalLimitsGroup, MediaType.APPLICATION_JSON));
-        cachedClient.getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE);
+        cachedClient.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE);
         server.verify();
         server.reset();
 
