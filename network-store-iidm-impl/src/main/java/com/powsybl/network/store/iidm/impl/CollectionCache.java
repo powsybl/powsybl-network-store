@@ -563,7 +563,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         if (loadedOperationalLimitsGroups.contains(identifier)) {
             return Optional.ofNullable(getCachedOperationalLimitsGroupAttributes(branchId, side).get(operationalLimitGroupName));
         } else {
-            if (limitsFullyLoaded) {
+            if (!limitsFullyLoaded) {
                 return delegate.getOperationalLimitsGroupAttributes(networkUuid, variantNum, type, branchId, operationalLimitGroupName, side)
                     .map(attributes -> {
                         addOperationalLimitsGroupAttributesToCache(branchId, operationalLimitGroupName, side, attributes);
@@ -582,14 +582,6 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         } else {
             throw new PowsyblException("Cannot manipulate operational limits groups for branch (" + branchId + ") as it has not been loaded into the cache.");
         }
-    }
-
-    private boolean isOperationalLimitsGroupAttributesCached(OperationalLimitsGroupIdentifier identifier) {
-        return fullyLoadedOperationalLimitsGroup || loadedOperationalLimitsGroups.contains(identifier);
-    }
-
-    private boolean isSelectedOperationalLimitsGroupAttributesCached(OperationalLimitsGroupIdentifier identifier) {
-        return fullyLoadedSelectedOperationalLimitsGroup || isOperationalLimitsGroupAttributesCached(identifier);
     }
 
     /**
