@@ -10,19 +10,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-@Getter
-@EqualsAndHashCode
-public class OperationalLimitsGroupIdentifier {
-    String operationalLimitsGroupId;
-    String branchId;
-    int side;
-
+public record OperationalLimitsGroupIdentifier(String branchId, String operationalLimitsGroupId, int side) {
     @JsonCreator
     public OperationalLimitsGroupIdentifier(@JsonProperty("branchId") String branchId,
                                             @JsonProperty("operationalLimitsGroupId") String operationalLimitsGroupId,
