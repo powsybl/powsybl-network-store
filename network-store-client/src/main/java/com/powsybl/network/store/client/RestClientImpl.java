@@ -9,6 +9,7 @@ package com.powsybl.network.store.client;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
@@ -48,7 +49,10 @@ public class RestClientImpl implements RestClient {
 
     private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(OperationalLimitsGroupIdentifier.class, new OperationalLimitsGroupIdentifierDeserializer());
         objectMapper.registerModule(new JavaTimeModule())
+            .registerModule(module)
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         return objectMapper;
@@ -98,6 +102,12 @@ public class RestClientImpl implements RestClient {
     @Override
     public Optional<ExtensionAttributes> getOneExtensionAttributes(String url, Object... uriVariables) {
         return getOneDocument(url, new ParameterizedTypeReference<ExtensionAttributesTopLevelDocument>() {
+        }, uriVariables);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroupAttributes> getOneOperationalLimitsGroupAttributes(String url, Object... uriVariables) {
+        return getOneDocument(url, new ParameterizedTypeReference<OperationalLimitsGroupAttributesTopLevelDocument>() {
         }, uriVariables);
     }
 

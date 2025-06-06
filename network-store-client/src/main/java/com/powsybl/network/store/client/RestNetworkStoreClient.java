@@ -10,11 +10,13 @@ package com.powsybl.network.store.client;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.model.OperationalLimitsGroupIdentifier;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +70,10 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     public RestNetworkStoreClient(RestClient restClient, ObjectMapper objectMapper) {
         this.restClient = Objects.requireNonNull(restClient);
         this.objectMapper = Objects.requireNonNull(objectMapper);
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(OperationalLimitsGroupIdentifier.class, new OperationalLimitsGroupIdentifierDeserializer());
         objectMapper.registerModule(new JavaTimeModule())
+            .registerModule(module)
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
 
@@ -168,6 +173,37 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    private Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(String urlTemplate, Object... uriVariables) {
+        logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = restClient.getOneOperationalLimitsGroupAttributes(urlTemplate, uriVariables);
+        stopwatch.stop();
+        logGetOperationalLimitsGroupAttributesTime(operationalLimitsGroupAttributes.isPresent() ? 1 : 0, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return operationalLimitsGroupAttributes;
+    }
+
+    private List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranch(String urlTemplate, Object... uriVariables) {
+        logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        List<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributesList = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        stopwatch.stop();
+        logGetOperationalLimitsGroupAttributesTime(operationalLimitsGroupAttributesList.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return operationalLimitsGroupAttributesList;
+    }
+
+    private Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesNestedMap(String urlTemplate, Object... uriVariables) {
+        logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        stopwatch.stop();
+        long loadedAttributesCount = operationalLimitsGroupAttributes.size();
+        logGetOperationalLimitsGroupAttributesTime(loadedAttributesCount, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return operationalLimitsGroupAttributes;
+    }
+
     private static void logGetExtensionAttributesUrl(String urlTemplate, Object... uriVariables) {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Loading extension attributes {}", UriComponentsBuilder.fromUriString(urlTemplate).build(uriVariables));
@@ -180,6 +216,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         } else {
             LOGGER.info("{} extension attributes loaded in {} ms", loadedAttributesCount, timeElapsed);
         }
+    }
+
+    private static void logGetOperationalLimitsGroupAttributesUrl(String urlTemplate, Object... uriVariables) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Loading operational limits group attributes {}", UriComponentsBuilder.fromUriString(urlTemplate).build(uriVariables));
+        }
+    }
+
+    private static void logGetOperationalLimitsGroupAttributesTime(long loadedAttributesCount, long timeElapsed) {
+        LOGGER.info("{} operational limits group attributes loaded in {} ms", loadedAttributesCount, timeElapsed);
     }
 
     private <T extends IdentifiableAttributes> void updatePartition(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
@@ -980,5 +1026,34 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
         restClient.delete("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions/{extensionName}", networkUuid, variantNum, identifiableId, extensionName);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
+        return getOperationalLimitsGroupAttributes("/networks/{networkUuid}/{variantNum}/branch/{branchId}/types/{resourceType}/operationalLimitsGroup/{operationalLimitsGroupId}/side/{side}",
+            networkUuid, variantNum, branchId, resourceType, operationalLimitsGroupId, side);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
+        return getOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitsGroupId, side);
+    }
+
+    @Override
+    public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
+        return getOperationalLimitsGroupAttributesForBranch("/networks/{networkUuid}/{variantNum}/branch/{branchId}/types/{resourceType}/side/{side}/operationalLimitsGroup",
+            networkUuid, variantNum, branchId, resourceType, side);
+    }
+
+    @Override
+    public Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup",
+            networkUuid, variantNum, resourceType);
+    }
+
+    @Override
+    public Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/selected",
+            networkUuid, variantNum, resourceType);
     }
 }
