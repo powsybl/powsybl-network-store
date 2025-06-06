@@ -11,7 +11,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
@@ -1452,49 +1455,16 @@ public class PreloadingNetworkStoreClientTest {
         // Load the identifiables in the cache
         loadTwoLinesToCache(identifiableId1, identifiableId2);
 
-        // Two successive Operational limits groups retrieval, only the first should send a REST request, the second uses the cache
         String operationalLimitsGroup1 = "olg1";
         String operationalLimitsGroup2 = "olg2";
-        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits1 = new TreeMap<>();
-        temporaryLimits1.put(10, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroup1)
-            .limitType(LimitType.CURRENT)
-            .value(12)
-            .name("temporarylimit1")
-            .acceptableDuration(10)
-            .fictitious(false)
-            .side(1)
-            .build());
-        OperationalLimitsGroupAttributes olg1 = OperationalLimitsGroupAttributes.builder()
-            .id(operationalLimitsGroup1)
-            .currentLimits(LimitsAttributes.builder()
-                .permanentLimit(1)
-                .temporaryLimits(temporaryLimits1)
-                .operationalLimitsGroupId(operationalLimitsGroup1)
-                .build())
-            .build();
-        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits2 = new TreeMap<>();
-        temporaryLimits2.put(10, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroup2)
-            .limitType(LimitType.CURRENT)
-            .value(12)
-            .name("temporarylimit2")
-            .acceptableDuration(10)
-            .fictitious(false)
-            .side(2)
-            .build());
-        OperationalLimitsGroupAttributes olg2 = OperationalLimitsGroupAttributes.builder()
-            .id(operationalLimitsGroup2)
-            .currentLimits(LimitsAttributes.builder()
-                .permanentLimit(1)
-                .temporaryLimits(temporaryLimits2)
-                .operationalLimitsGroupId(operationalLimitsGroup2)
-                .build())
-            .build();
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroup1);
+        OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroup2);
         OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
         OperationalLimitsGroupIdentifier olgi2 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroup2, 2);
         String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
         }).writeValueAsString(Map.of(olgi1, olg1, olgi2, olg2));
+
+        // first call, it get all the operational limits groups in the cache
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
             .andExpect(method(GET))
@@ -1502,23 +1472,34 @@ public class PreloadingNetworkStoreClientTest {
 
         Optional<OperationalLimitsGroupAttributes> olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
             Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup1, 1);
+        server.verify();
+        server.reset();
         assertTrue(olg1Attributes.isPresent());
-        OperationalLimitsGroupAttributes operationalLimitsGroupAttributes1 = (OperationalLimitsGroupAttributes) olg1Attributes.get();
-        assertEquals(operationalLimitsGroup1, operationalLimitsGroupAttributes1.getId());
-        assertEquals(1, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().size());
-        assertNotNull(operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10));
-        assertEquals("temporarylimit1", operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getName());
-        assertEquals(12, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getValue(), 0.001);
+
+        // getting the same olg will not call the rest api
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+            .andExpect(method(GET));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup1 + "/side/" + "1"))
+            .andExpect(method(GET));
 
         olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
             Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup1, 1);
         assertTrue(olg1Attributes.isPresent());
-        operationalLimitsGroupAttributes1 = (OperationalLimitsGroupAttributes) olg1Attributes.get();
-        assertEquals(operationalLimitsGroup1, operationalLimitsGroupAttributes1.getId());
-        assertEquals(1, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().size());
-        assertNotNull(operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10));
-        assertEquals("temporarylimit1", operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getName());
-        assertEquals(12, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getValue(), 0.001);
+
+        server.verify();
+        server.reset();
+
+        // getting another olg will not call the rest api
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+            .andExpect(method(GET));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/" + "2"))
+            .andExpect(method(GET));
+
+        Optional<OperationalLimitsGroupAttributes> olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
+            Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId2, operationalLimitsGroup2, 2);
+        assertTrue(olg2Attributes.isPresent());
 
         server.verify();
         server.reset();
@@ -1582,42 +1563,8 @@ public class PreloadingNetworkStoreClientTest {
         // Two successive Operational limits groups retrieval, only the first should send a REST request, the second uses the cache
         String operationalLimitsGroup1 = "olg1";
         String operationalLimitsGroup2 = "olg2";
-        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits1 = new TreeMap<>();
-        temporaryLimits1.put(10, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroup1)
-            .limitType(LimitType.CURRENT)
-            .value(12)
-            .name("temporarylimit1")
-            .acceptableDuration(10)
-            .fictitious(false)
-            .side(1)
-            .build());
-        OperationalLimitsGroupAttributes olg1 = OperationalLimitsGroupAttributes.builder()
-            .id(operationalLimitsGroup1)
-            .currentLimits(LimitsAttributes.builder()
-                .permanentLimit(1)
-                .temporaryLimits(temporaryLimits1)
-                .operationalLimitsGroupId(operationalLimitsGroup1)
-                .build())
-            .build();
-        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits2 = new TreeMap<>();
-        temporaryLimits2.put(10, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroup2)
-            .limitType(LimitType.CURRENT)
-            .value(12)
-            .name("temporarylimit2")
-            .acceptableDuration(10)
-            .fictitious(false)
-            .side(2)
-            .build());
-        OperationalLimitsGroupAttributes olg2 = OperationalLimitsGroupAttributes.builder()
-            .id(operationalLimitsGroup2)
-            .currentLimits(LimitsAttributes.builder()
-                .permanentLimit(1)
-                .temporaryLimits(temporaryLimits2)
-                .operationalLimitsGroupId(operationalLimitsGroup2)
-                .build())
-            .build();
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroup1);
+        OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroup2);
         OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
         OperationalLimitsGroupIdentifier olgi2 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroup2, 2);
         String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
@@ -1646,6 +1593,7 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.getAllOperationalLimitsGroupAttributesByResourceType(networkUuid, targetVariantNum, ResourceType.LINE);
         server.verify();
         server.reset();
+
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
             .andExpect(method(GET))
@@ -1655,29 +1603,70 @@ public class PreloadingNetworkStoreClientTest {
         server.verify();
         server.reset();
         assertTrue(olg1Attributes.isPresent());
-        OperationalLimitsGroupAttributes operationalLimitsGroupAttributes1 = (OperationalLimitsGroupAttributes) olg1Attributes.get();
-        assertEquals(operationalLimitsGroup1, operationalLimitsGroupAttributes1.getId());
-        assertEquals(1, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().size());
-        assertNotNull(operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10));
-        assertEquals("temporarylimit1", operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getName());
-        assertEquals(12, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getValue(), 0.001);
-        server.verify();
-        server.reset();
     }
 
     @Test
     public void testGetSelectedLimitsGroupCache() throws IOException {
-        String identifiableId1 = "lineId";
-        String identifiableId2 = "LINE1";
+        String identifiableId1 = "line1";
+        String identifiableId2 = "line2";
 
         // Load the identifiables in the cache
         loadTwoLinesToCache(identifiableId1, identifiableId2);
 
-        // Two successive Operational limits groups retrieval, only the first should send a REST request, the second uses the cache
-        String operationalLimitsGroup1 = "olg1";
-        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits1 = new TreeMap<>();
-        temporaryLimits1.put(10, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroup1)
+        String operationalLimitsGroup1 = "selectedLine1";
+        String operationalLimitsGroup2 = "other";
+        String operationalLimitsGroup3 = "selectedLine2";
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroup1);
+        OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroup3);
+        OperationalLimitsGroupAttributes olg3 = createOperationalLimitsGroupAttributes(operationalLimitsGroup2);
+        OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
+        OperationalLimitsGroupIdentifier olgi2 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup2, 1);
+        OperationalLimitsGroupIdentifier olgi3 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroup3, 1);
+
+        String allSelectedOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
+        }).writeValueAsString(Map.of(olgi1, olg1, olgi3, olg3));
+        String allOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
+        }).writeValueAsString(Map.of(olgi1, olg1, olgi2, olg2, olgi3, olg3));
+
+        // getting a selected olg will load all selected
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected/"))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(allSelectedOperationalLimitsGroups, MediaType.APPLICATION_JSON));
+        Optional<OperationalLimitsGroupAttributes> olg1Attributes = cachedClient.getSelectedOperationalLimitsGroupAttributes(networkUuid,
+            Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup1, 1);
+        server.verify();
+        server.reset();
+
+        assertTrue(olg1Attributes.isPresent());
+
+        // getting another selected olg will not call the api
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
+            .andExpect(method(GET));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
+            .andExpect(method(GET));
+        olg1Attributes = cachedClient.getSelectedOperationalLimitsGroupAttributes(networkUuid,
+            Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId2, operationalLimitsGroup3, 1);
+        assertTrue(olg1Attributes.isPresent());
+        server.verify();
+        server.reset();
+
+        // calling a non selected olg will load everything
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+            .andExpect(method(GET)).andRespond(withSuccess(allOperationalLimitsGroups, MediaType.APPLICATION_JSON));
+        olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
+            Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup2, 1);
+        assertTrue(olg1Attributes.isPresent());
+        server.verify();
+        server.reset();
+    }
+
+    private OperationalLimitsGroupAttributes createOperationalLimitsGroupAttributes(String operationalLimitsGroupId) {
+        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
+        temporaryLimits.put(10, TemporaryLimitAttributes.builder()
+            .operationalLimitsGroupId(operationalLimitsGroupId)
             .limitType(LimitType.CURRENT)
             .value(12)
             .name("temporarylimit1")
@@ -1685,43 +1674,55 @@ public class PreloadingNetworkStoreClientTest {
             .fictitious(false)
             .side(1)
             .build());
-        OperationalLimitsGroupAttributes olg1 = OperationalLimitsGroupAttributes.builder()
-            .id(operationalLimitsGroup1)
+        return OperationalLimitsGroupAttributes.builder()
+            .id(operationalLimitsGroupId)
             .currentLimits(LimitsAttributes.builder()
                 .permanentLimit(1)
-                .temporaryLimits(temporaryLimits1)
-                .operationalLimitsGroupId(operationalLimitsGroup1)
+                .temporaryLimits(temporaryLimits)
+                .operationalLimitsGroupId(operationalLimitsGroupId)
                 .build())
             .build();
+    }
 
+    @Test
+    public void testGetLimitsGroupBranchCache() throws IOException {
+        String identifiableId1 = "line1";
+        String identifiableId2 = "line2";
+
+        // Load the identifiables in the cache
+        loadTwoLinesToCache(identifiableId1, identifiableId2);
+
+        String operationalLimitsGroup1 = "selectedLine1";
+        String operationalLimitsGroup2 = "other";
+        String operationalLimitsGroup3 = "selectedLine2";
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroup1);
+        OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroup3);
+        OperationalLimitsGroupAttributes olg3 = createOperationalLimitsGroupAttributes(operationalLimitsGroup2);
         OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
-        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
-        }).writeValueAsString(Map.of(olgi1, olg1));
+        OperationalLimitsGroupIdentifier olgi2 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup2, 1);
+        OperationalLimitsGroupIdentifier olgi3 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroup3, 1);
+
+        String allOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
+        }).writeValueAsString(Map.of(olgi1, olg1, olgi2, olg2, olgi3, olg3));
+
+        // getting a branch olg will load all olg
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
-                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected/"))
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
             .andExpect(method(GET))
-            .andRespond(withSuccess(operationalLimitsGroupAttributes, MediaType.APPLICATION_JSON));
+            .andRespond(withSuccess(allOperationalLimitsGroups, MediaType.APPLICATION_JSON));
+        List<OperationalLimitsGroupAttributes> olgList = cachedClient.getOperationalLimitsGroupAttributesForBranchSide(networkUuid,
+            Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, 1);
+        server.verify();
+        server.reset();
+        assertEquals(2, olgList.size());
 
-        Optional<OperationalLimitsGroupAttributes> olg1Attributes = cachedClient.getSelectedOperationalLimitsGroupAttributes(networkUuid,
-            Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup1, 1);
-        assertTrue(olg1Attributes.isPresent());
-        OperationalLimitsGroupAttributes operationalLimitsGroupAttributes1 = olg1Attributes.get();
-        assertEquals(operationalLimitsGroup1, operationalLimitsGroupAttributes1.getId());
-        assertEquals(1, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().size());
-        assertNotNull(operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10));
-        assertEquals("temporarylimit1", operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getName());
-        assertEquals(12, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getValue(), 0.001);
-
-        olg1Attributes = cachedClient.getSelectedOperationalLimitsGroupAttributes(networkUuid,
-            Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup1, 1);
-        assertTrue(olg1Attributes.isPresent());
-        operationalLimitsGroupAttributes1 = olg1Attributes.get();
-        assertEquals(operationalLimitsGroup1, operationalLimitsGroupAttributes1.getId());
-        assertEquals(1, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().size());
-        assertNotNull(operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10));
-        assertEquals("temporarylimit1", operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getName());
-        assertEquals(12, operationalLimitsGroupAttributes1.getCurrentLimits().getTemporaryLimits().get(10).getValue(), 0.001);
-
+        // getting olg from another branch will load nothing as everything has already been loaded
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+            .andExpect(method(GET));
+        List<OperationalLimitsGroupAttributes> olgList2 = cachedClient.getOperationalLimitsGroupAttributesForBranchSide(networkUuid,
+            Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId2, 1);
+        assertEquals(1, olgList2.size());
         server.verify();
         server.reset();
     }
