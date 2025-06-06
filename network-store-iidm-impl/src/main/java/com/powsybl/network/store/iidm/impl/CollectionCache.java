@@ -556,7 +556,6 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
         Objects.requireNonNull(branchId);
         if (fullyLoadedOperationalLimitsGroup || loadedOperationalLimitsGroupsForBranches.contains(Pair.of(branchId, side))) {
-            Map<String, OperationalLimitsGroupAttributes> test = getCachedOperationalLimitsGroupAttributes(branchId, side);
             return getCachedOperationalLimitsGroupAttributes(branchId, side).values().stream().toList();
         } else {
             List<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributesList = delegate
