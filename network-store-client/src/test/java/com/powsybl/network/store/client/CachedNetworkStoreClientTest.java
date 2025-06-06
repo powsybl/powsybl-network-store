@@ -1008,7 +1008,7 @@ public class CachedNetworkStoreClientTest {
         String selectedOperationalLimitsGroup = objectMapper.writeValueAsString(Map.of(identifier1, olg1));
         String otherOperationalLimitsGroup = objectMapper.writeValueAsString(OperationalLimitsGroupAttributesTopLevelDocument.of(olg2));
         // load all selected operational limits group
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected/"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
             .andExpect(method(GET))
             .andRespond(withSuccess(selectedOperationalLimitsGroup, MediaType.APPLICATION_JSON));
         cachedClient.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE);
@@ -1210,7 +1210,7 @@ public class CachedNetworkStoreClientTest {
         String allOperationalLimitsGroup = objectMapper.writeValueAsString(Map.of(identifier1, olg1, identifier2, olg2, identifier3, olg3));
 
         // load all operational limits groups to cache
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
             .andExpect(method(GET))
             .andRespond(withSuccess(allOperationalLimitsGroup, MediaType.APPLICATION_JSON));
         cachedClient.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE);
@@ -1226,7 +1226,7 @@ public class CachedNetworkStoreClientTest {
         server.reset();
 
         // loading all selected operational limits groups won't load anything as everything is already loaded
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected/"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
             .andExpect(method(GET));
         cachedClient.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE);
         server.verify();
