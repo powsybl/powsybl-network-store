@@ -1160,6 +1160,11 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         return getCache(resourceType).getCollection(networkUuid, variantNum).getSelectedOperationalLimitsAttributes(networkUuid, variantNum, resourceType, identifiableId, operationalLimitGroupName, side);
     }
 
+    @Override
+    public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getOperationalLimitsGroupAttributesForBranchSide(networkUuid, variantNum, resourceType, branchId, side);
+    }
+
     public void loadAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         getCache(resourceType).getCollection(networkUuid, variantNum).loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
     }

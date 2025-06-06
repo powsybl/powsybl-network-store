@@ -108,6 +108,11 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
+        return List.of();
+    }
+
+    @Override
     public Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return Map.of();
     }

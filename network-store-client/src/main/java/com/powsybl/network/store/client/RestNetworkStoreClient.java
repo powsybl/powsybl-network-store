@@ -183,6 +183,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return operationalLimitsGroupAttributes;
     }
 
+    private List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranch(String urlTemplate, Object... uriVariables) {
+        logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        List<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributesList = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
+        stopwatch.stop();
+        logGetOperationalLimitsGroupAttributesTime(operationalLimitsGroupAttributesList.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return operationalLimitsGroupAttributesList;
+    }
+
     private Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesNestedMap(String urlTemplate, Object... uriVariables) {
         logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -1027,6 +1037,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
         return getOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitsGroupId, side);
+    }
+
+    @Override
+    public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
+        return getOperationalLimitsGroupAttributesForBranch("/networks/{networkUuid}/{variantNum}/branch/{branchId}/types/{resourceType}/side/{side}/operationalLimitsGroup",
+            networkUuid, variantNum, branchId, resourceType, side);
     }
 
     @Override

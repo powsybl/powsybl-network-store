@@ -314,6 +314,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     // operational limits group
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
+        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 1);
         return getResource().getAttributes().getOperationalLimitsGroups1().values().stream()
             .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, group))
             .collect(Collectors.toList());
@@ -346,7 +347,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id) {
-        index.loadOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), id, 1);
         return getOperationalLimitsGroups1().stream()
                 .filter(group -> group.getId().equals(id))
                 .findFirst();
@@ -355,9 +355,14 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1() {
         loadSelectedOperationalLimitsGroup(TwoSides.ONE);
-        return getOperationalLimitsGroups1().stream()
-            .filter(group -> group.getId().equals(getOperationalLimitsGroupId1()))
-            .findFirst();
+        String selectedOperationalLimitsGroupId1 = getOperationalLimitsGroupId1();
+        if (selectedOperationalLimitsGroupId1 == null) {
+            return Optional.empty();
+        }
+        OperationalLimitsGroupAttributes operationalLimitsGroupAttributes = getResource().getAttributes().getOperationalLimitsGroups1().get(selectedOperationalLimitsGroupId1);
+        return operationalLimitsGroupAttributes != null ?
+            Optional.of(new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, operationalLimitsGroupAttributes)) :
+            Optional.empty();
     }
 
     @Override
@@ -405,6 +410,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
+        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 2);
         return getResource().getAttributes().getOperationalLimitsGroups2().values().stream()
                 .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, group))
                 .collect(Collectors.toList());
@@ -430,9 +436,15 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2() {
         loadSelectedOperationalLimitsGroup(TwoSides.TWO);
-        return getOperationalLimitsGroups2().stream()
-            .filter(group -> group.getId().equals(getOperationalLimitsGroupId2()))
-            .findFirst();
+        String selectedOperationalLimitsGroupId2 = getOperationalLimitsGroupId2();
+        if (selectedOperationalLimitsGroupId2 == null) {
+            return Optional.empty();
+        }
+        OperationalLimitsGroupAttributes operationalLimitsGroupAttributes = getResource().getAttributes()
+            .getOperationalLimitsGroups2().get(selectedOperationalLimitsGroupId2);
+        return operationalLimitsGroupAttributes != null ?
+            Optional.of(new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, operationalLimitsGroupAttributes)) :
+            Optional.empty();
     }
 
     @Override
