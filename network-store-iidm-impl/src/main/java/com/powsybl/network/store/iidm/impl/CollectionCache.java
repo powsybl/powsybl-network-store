@@ -386,6 +386,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
 
         // limits
         clonedCache.loadedOperationalLimitsGroups.addAll(loadedOperationalLimitsGroups);
+        clonedCache.loadedOperationalLimitsGroupsForBranches.addAll(loadedOperationalLimitsGroupsForBranches);
         clonedCache.fullyLoadedOperationalLimitsGroup = fullyLoadedOperationalLimitsGroup;
         clonedCache.fullyLoadedSelectedOperationalLimitsGroup = fullyLoadedSelectedOperationalLimitsGroup;
 
