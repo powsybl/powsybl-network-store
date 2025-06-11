@@ -6,28 +6,26 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.*;
 
 import java.io.UncheckedIOException;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public record OperationalLimitsGroupIdentifier(String branchId, String operationalLimitsGroupId, int side) {
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+@EqualsAndHashCode
+public class OperationalLimitsGroupIdentifier {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    @JsonCreator
-    public OperationalLimitsGroupIdentifier(@JsonProperty("branchId") String branchId,
-                                            @JsonProperty("operationalLimitsGroupId") String operationalLimitsGroupId,
-                                            @JsonProperty("side") int side) {
-        this.branchId = branchId;
-        this.operationalLimitsGroupId = operationalLimitsGroupId;
-        this.side = side;
-    }
+    private String branchId;
+    private String operationalLimitsGroupId;
+    private int side;
 
     public static OperationalLimitsGroupIdentifier of(String branchId, String operationalLimitsGroupId, int side) {
         return new OperationalLimitsGroupIdentifier(branchId, operationalLimitsGroupId, side);

@@ -658,8 +658,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         Map<Pair<String, Integer>, Map<String, OperationalLimitsGroupAttributes>> groupedOperationalLimitsGroupAttributes = new HashMap<>();
         operationalLimitsGroupAttributesMap.forEach((identifier, attributes) ->
             groupedOperationalLimitsGroupAttributes
-                .computeIfAbsent(Pair.of(identifier.branchId(), identifier.side()), k -> new HashMap<>())
-                .put(identifier.operationalLimitsGroupId(), attributes));
+                .computeIfAbsent(Pair.of(identifier.getBranchId(), identifier.getSide()), k -> new HashMap<>())
+                .put(identifier.getOperationalLimitsGroupId(), attributes));
         groupedOperationalLimitsGroupAttributes.forEach((pair, attributes) -> {
             Resource<T> resource = resources.get(pair.getFirst());
             if (resource != null && resource.getAttributes() instanceof BranchAttributes branchAttributes) {

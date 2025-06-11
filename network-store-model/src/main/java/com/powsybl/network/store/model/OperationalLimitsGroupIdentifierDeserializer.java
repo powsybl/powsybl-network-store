@@ -17,10 +17,9 @@ import java.io.IOException;
  */
 public class OperationalLimitsGroupIdentifierDeserializer extends KeyDeserializer {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     @Override
-    public OperationalLimitsGroupIdentifier deserializeKey(String s, DeserializationContext deserializationContext) throws IOException {
-        return MAPPER.readValue(s, OperationalLimitsGroupIdentifier.class);
+    public OperationalLimitsGroupIdentifier deserializeKey(String s, DeserializationContext context) throws IOException {
+        ObjectMapper mapper = (ObjectMapper) context.getParser().getCodec();
+        return mapper.readValue(s, OperationalLimitsGroupIdentifier.class);
     }
 }
