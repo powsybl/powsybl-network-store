@@ -11,10 +11,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.UncheckedIOException;
+
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 public record OperationalLimitsGroupIdentifier(String branchId, String operationalLimitsGroupId, int side) {
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     @JsonCreator
     public OperationalLimitsGroupIdentifier(@JsonProperty("branchId") String branchId,
                                             @JsonProperty("operationalLimitsGroupId") String operationalLimitsGroupId,
@@ -30,11 +35,10 @@ public record OperationalLimitsGroupIdentifier(String branchId, String operation
 
     @Override
     public String toString() {
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.writeValueAsString(this);
+            return MAPPER.writeValueAsString(this);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 }

@@ -561,10 +561,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         } else {
             List<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributesList = delegate
                 .getOperationalLimitsGroupAttributesForBranchSide(networkUuid, variantNum, resourceType, branchId, side);
-            if (!fullyLoadedOperationalLimitsGroup) {
-                operationalLimitsGroupAttributesList.forEach(attributes ->
-                    addOperationalLimitsGroupAttributesToCache(branchId, attributes.getId(), side, attributes));
-            }
+            operationalLimitsGroupAttributesList.forEach(attributes ->
+                addOperationalLimitsGroupAttributesToCache(branchId, attributes.getId(), side, attributes));
             loadedOperationalLimitsGroupsForBranches.add(Pair.of(branchId, side));
             return operationalLimitsGroupAttributesList;
         }
