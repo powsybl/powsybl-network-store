@@ -8,9 +8,10 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+
+import static com.powsybl.network.store.model.OperationalLimitsGroupIdentifier.KEY_MAPPER;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -19,7 +20,6 @@ public class OperationalLimitsGroupIdentifierDeserializer extends KeyDeserialize
 
     @Override
     public OperationalLimitsGroupIdentifier deserializeKey(String s, DeserializationContext context) throws IOException {
-        ObjectMapper mapper = (ObjectMapper) context.getParser().getCodec();
-        return mapper.readValue(s, OperationalLimitsGroupIdentifier.class);
+        return KEY_MAPPER.readValue(s, OperationalLimitsGroupIdentifier.class);
     }
 }

@@ -22,7 +22,15 @@ import java.io.UncheckedIOException;
 @EqualsAndHashCode
 public class OperationalLimitsGroupIdentifier {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    // used for serialization in toString() and for deserialization in OperationalLimitsGroupIdentifierDeserializer
+    // The serialized json looks like this :
+    //    // {
+    //    //   "{\"branchId\":\"line1\",\"groupId\":\"name1\",\"side\":1}": {...}
+    //    //   "{\"branchId\":\"line1\",\"groupId\":\"name1\",\"side\":1}": {...}
+    //    // }
+    //    // each key is actually a nested json just to have a simple deterministic simple escaping.
+    //    // Not very nice but works.
+    public static final ObjectMapper KEY_MAPPER = new ObjectMapper();
     private String branchId;
     private String operationalLimitsGroupId;
     private int side;
@@ -32,9 +40,12 @@ public class OperationalLimitsGroupIdentifier {
     }
 
     @Override
+    // only used to have Jackson create the string keys during serialization.
+    // toString() is not meant to be used for this but it seems to be the easiest way with Jackson.
+    // is there a better way ?
     public String toString() {
         try {
-            return MAPPER.writeValueAsString(this);
+            return KEY_MAPPER.writeValueAsString(this);
         } catch (JsonProcessingException e) {
             throw new UncheckedIOException(e);
         }
