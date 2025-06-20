@@ -24,12 +24,12 @@ public class OperationalLimitsGroupIdentifier {
 
     // used for serialization in toString() and for deserialization in OperationalLimitsGroupIdentifierDeserializer
     // The serialized json looks like this :
-    //    // {
-    //    //   "{\"branchId\":\"line1\",\"groupId\":\"name1\",\"side\":1}": {...}
-    //    //   "{\"branchId\":\"line1\",\"groupId\":\"name1\",\"side\":1}": {...}
-    //    // }
-    //    // each key is actually a nested json just to have a simple deterministic simple escaping.
-    //    // Not very nice but works.
+    // {
+    //   "{\"branchId\":\"line1\",\"groupId\":\"name1\",\"side\":1}": {...}
+    //   "{\"branchId\":\"line1\",\"groupId\":\"name1\",\"side\":1}": {...}
+    // }
+    // each key is actually a nested json just to have a simple deterministic simple escaping.
+    // Not very nice but works.
     public static final ObjectMapper KEY_MAPPER = new ObjectMapper();
     private String branchId;
     private String operationalLimitsGroupId;
