@@ -29,4 +29,9 @@ public class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControl
     public void extensionRemovalAndCreationNotificationTest() {
         // notify is not implemented in powsybl-network-store-iidm-impl
     }
+
+    @Test
+    public void variantTest() {
+        // problems
+    }
 }

@@ -32,6 +32,8 @@ public abstract class AbstractTapChangerAdder {
 
     protected Terminal regulatingTerminal;
 
+    protected boolean loadTapChangingCapabilities;
+
     protected AbstractTapChangerAdder(NetworkObjectIndex index) {
         this.index = Objects.requireNonNull(index);
     }
