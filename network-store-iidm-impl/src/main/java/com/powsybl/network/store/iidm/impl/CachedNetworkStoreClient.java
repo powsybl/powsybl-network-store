@@ -312,7 +312,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
         SimpleModule module = new SimpleModule();
-        module.addKeyDeserializer(OperationalLimitsGroupIdentifier.class, new OperationalLimitsGroupIdentifierDeserializer());
         var objectMapper = JsonUtil.createObjectMapper()
             .registerModule(new JavaTimeModule())
             .registerModule(module)

@@ -67,8 +67,7 @@ public class PreloadingNetworkStoreClientTest {
         RestNetworkStoreClient restStoreClient = new RestNetworkStoreClient(restClient);
         cachedClient = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool())), false, ForkJoinPool.commonPool());
         networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        objectMapper.registerModule(new SimpleModule().addKeyDeserializer(OperationalLimitsGroupIdentifier.class,
-            new OperationalLimitsGroupIdentifierDeserializer()));
+        objectMapper.registerModule(new SimpleModule());
     }
 
     @Test

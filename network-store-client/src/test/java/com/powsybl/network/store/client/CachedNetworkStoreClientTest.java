@@ -70,8 +70,7 @@ public class CachedNetworkStoreClientTest {
     @Before
     public void setUp() throws IOException {
         restStoreClient = new RestNetworkStoreClient(restClient);
-        objectMapper.registerModule(new SimpleModule()
-            .addKeyDeserializer(OperationalLimitsGroupIdentifier.class, new OperationalLimitsGroupIdentifierDeserializer()));
+        objectMapper.registerModule(new SimpleModule());
     }
 
     @Test

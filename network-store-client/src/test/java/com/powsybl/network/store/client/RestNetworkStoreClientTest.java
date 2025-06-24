@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
@@ -67,8 +66,6 @@ public class RestNetworkStoreClientTest {
     @Before
     public void setUp() {
         objectMapper.registerModule(new JavaTimeModule())
-            .registerModule(new SimpleModule().addKeyDeserializer(OperationalLimitsGroupIdentifier.class,
-                new OperationalLimitsGroupIdentifierDeserializer()))
                 .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
                 .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
     }
@@ -430,7 +427,7 @@ public class RestNetworkStoreClientTest {
     public void testOperationalLimitsGroupAttributesByResourceType() {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
             .andExpect(method(GET))
-            .andRespond(withSuccess("{\"{\\\"branchId\\\":\\\"branchId\\\",\\\"operationalLimitsGroupId\\\":\\\"selected\\\",\\\"side\\\":1}\":{\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false},\"15\":{\"name\":\"temporarylimit2\",\"value\":9.0,\"acceptableDuration\":15,\"fictitious\":false}}}}}", MediaType.APPLICATION_JSON));
+            .andRespond(withSuccess("{\"branchId\\u001Fselected\\u001F1\":{\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false},\"15\":{\"name\":\"temporarylimit2\",\"value\":9.0,\"acceptableDuration\":15,\"fictitious\":false}}}}}", MediaType.APPLICATION_JSON));
 
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> result = restNetworkStoreClient.getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, 0, ResourceType.LINE);

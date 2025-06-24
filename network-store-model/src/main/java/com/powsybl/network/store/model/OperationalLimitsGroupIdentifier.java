@@ -6,48 +6,46 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.*;
 
-import java.io.UncheckedIOException;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 @AllArgsConstructor
-@NoArgsConstructor
-@Setter
 @Getter
 @EqualsAndHashCode
-public class OperationalLimitsGroupIdentifier {
+public final class OperationalLimitsGroupIdentifier {
 
-    // used for serialization in toString() and for deserialization in OperationalLimitsGroupIdentifierDeserializer
-    // The serialized json looks like this :
-    // {
-    //   "{\"branchId\":\"line1\",\"groupId\":\"name1\",\"side\":1}": {...}
-    //   "{\"branchId\":\"line1\",\"groupId\":\"name1\",\"side\":1}": {...}
-    // }
-    // each key is actually a nested json just to have a simple deterministic simple escaping.
-    // Not very nice but works.
-    public static final ObjectMapper KEY_MAPPER = new ObjectMapper();
-    private String branchId;
-    private String operationalLimitsGroupId;
-    private int side;
+    private static final String DELIMITER = "\u001F";
+    private static final Pattern DELIMITER_PATTERN = Pattern.compile(Pattern.quote(DELIMITER));
+
+    private final String branchId;
+    private final String operationalLimitsGroupId;
+    private final int side;
 
     public static OperationalLimitsGroupIdentifier of(String branchId, String operationalLimitsGroupId, int side) {
         return new OperationalLimitsGroupIdentifier(branchId, operationalLimitsGroupId, side);
     }
 
-    @Override
-    // only used to have Jackson create the string keys during serialization.
-    // toString() is not meant to be used for this but it seems to be the easiest way with Jackson.
-    // is there a better way ?
-    public String toString() {
-        try {
-            return KEY_MAPPER.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            throw new UncheckedIOException(e);
+    @JsonValue
+    public String toKeyString() {
+        return branchId + DELIMITER + operationalLimitsGroupId + DELIMITER + side;
+    }
+
+    @JsonCreator
+    public static OperationalLimitsGroupIdentifier fromKeyString(String keyString) {
+        Objects.requireNonNull(keyString);
+
+        String[] parts = DELIMITER_PATTERN.split(keyString, 3);
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid key string format: " + keyString);
         }
+
+        return new OperationalLimitsGroupIdentifier(parts[0], parts[1], Integer.parseInt(parts[2]));
     }
 }
