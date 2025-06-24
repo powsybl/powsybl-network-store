@@ -30,7 +30,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
-    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
+    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 
     private double regulationValue = Double.NaN;
 
@@ -106,6 +106,13 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         super(index);
         this.tapChangerParent = tapChangerParent;
         this.attributesGetter = attributesGetter;
+        this.loadTapChangingCapabilities = true;
+    }
+
+    @Override
+    public PhaseTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
+        return this;
     }
 
     @Override
@@ -170,7 +177,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, regulatingTerminal, tapChangerParent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, index.getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities, regulatingTerminal, tapChangerParent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, index.getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
@@ -181,6 +188,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.PHASE_TAP_CHANGER, regulationMode.toString());
 
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
+                .loadTapChangingCapabilities(loadTapChangingCapabilities)
                 .lowTapPosition(lowTapPosition)
                 .regulationValue(regulationValue)
                 .steps(steps)

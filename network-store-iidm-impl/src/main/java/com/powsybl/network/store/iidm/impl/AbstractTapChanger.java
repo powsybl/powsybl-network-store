@@ -99,6 +99,19 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return (C) this;
     }
 
+    public boolean hasLoadTapChangingCapabilities() {
+        return getAttributes().isLoadTapChangingCapabilities();
+    }
+
+    public C setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        boolean oldValue = getAttributes().isLoadTapChangingCapabilities();
+        if (loadTapChangingCapabilities != oldValue) {
+            getTransformer().updateResource(res -> getAttributes(res).setLoadTapChangingCapabilities(loadTapChangingCapabilities),
+                getTapChangerAttribute() + ".loadTapChangingCapabilities", oldValue, loadTapChangingCapabilities);
+        }
+        return (C) this;
+    }
+
     public C setRegulationTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(parent, regulatingTerminal, parent.getNetwork());
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);

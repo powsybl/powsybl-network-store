@@ -8,15 +8,9 @@ package com.powsybl.network.store.iidm.impl;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
-import com.powsybl.iidm.network.ActivePowerLimits;
-import com.powsybl.iidm.network.ActivePowerLimitsAdder;
-import com.powsybl.iidm.network.ApparentPowerLimits;
-import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.OperationalLimitsGroup;
-import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
 
 /**
@@ -108,4 +102,51 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
         return "Operational limits group " + getId();
     }
 
+    @Override
+    public boolean hasProperty() {
+        // FIXME: implement this method
+        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support hasProperty");
+    }
+
+    @Override
+    public boolean hasProperty(String s) {
+        // FIXME: implement this method
+        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support hasProperty(string)");
+    }
+
+    @Override
+    public String getProperty(String s) {
+        // FIXME: implement this method
+        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support getProperty(string)");
+    }
+
+    @Override
+    public String getProperty(String s, String s1) {
+        // FIXME: implement this method
+        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support getProperty(string, string)");
+    }
+
+    @Override
+    public String setProperty(String s, String s1) {
+        // FIXME: implement this method
+        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support setProperty(string, string)");
+    }
+
+    @Override
+    public boolean removeProperty(String s) {
+        // FIXME: implement this method
+        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support removeProperty(string)");
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        // FIXME: implement this method
+        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support getPropertyNames()");
+    }
+
+    @Override
+    public Network getNetwork() {
+        // FIXME: implement this method
+        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support getNetwork()");
+    }
 }

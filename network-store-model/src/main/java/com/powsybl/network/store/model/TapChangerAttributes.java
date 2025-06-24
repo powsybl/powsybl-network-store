@@ -34,6 +34,9 @@ public class TapChangerAttributes extends AbstractRegulatingEquipmentAttributes 
     @Schema(description = "targetDeadband")
     private double targetDeadband;
 
+    @Schema(description = "loadTapChangingCapabilities")
+    private boolean loadTapChangingCapabilities;
+
     @Schema(description = "steps")
     private List<TapChangerStepAttributes> steps;
 }

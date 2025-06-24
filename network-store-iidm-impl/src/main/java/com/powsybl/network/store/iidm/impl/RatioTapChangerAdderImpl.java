@@ -31,8 +31,6 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
-    private boolean loadTapChangingCapabilities = false;
-
     private double regulationValue = Double.NaN;
 
     private RatioTapChanger.RegulationMode regulationMode;
@@ -99,6 +97,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         super(index);
         this.tapChangerParent = tapChangerParent;
         this.attributesGetter = attributesGetter;
+        this.loadTapChangingCapabilities = false;
     }
 
     @Override
