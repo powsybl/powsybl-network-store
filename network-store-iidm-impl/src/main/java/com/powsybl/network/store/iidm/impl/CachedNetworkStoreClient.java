@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
@@ -311,11 +310,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     @Override
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
-        SimpleModule module = new SimpleModule();
-        module.addKeyDeserializer(OperationalLimitsGroupIdentifier.class, new OperationalLimitsGroupIdentifierDeserializer());
         var objectMapper = JsonUtil.createObjectMapper()
             .registerModule(new JavaTimeModule())
-            .registerModule(module)
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
 

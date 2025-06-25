@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
@@ -67,10 +66,8 @@ public class RestNetworkStoreClientTest {
     @Before
     public void setUp() {
         objectMapper.registerModule(new JavaTimeModule())
-            .registerModule(new SimpleModule().addKeyDeserializer(OperationalLimitsGroupIdentifier.class,
-                new OperationalLimitsGroupIdentifierDeserializer()))
-                .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-                .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
     }
 
     private void setupNetworkStubs() throws JsonProcessingException {

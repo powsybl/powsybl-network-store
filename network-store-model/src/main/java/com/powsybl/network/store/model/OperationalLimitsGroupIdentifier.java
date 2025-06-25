@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
@@ -49,5 +50,10 @@ public class OperationalLimitsGroupIdentifier {
         } catch (JsonProcessingException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @JsonCreator
+    public static OperationalLimitsGroupIdentifier fromKeyString(String keyString) throws JsonProcessingException {
+        return KEY_MAPPER.readValue(keyString, OperationalLimitsGroupIdentifier.class);
     }
 }
