@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 
+import java.io.UncheckedIOException;
+
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
@@ -39,9 +41,16 @@ public class OperationalLimitsGroupIdentifier {
         return new OperationalLimitsGroupIdentifier(branchId, operationalLimitsGroupId, side);
     }
 
-    @JsonValue
-    public String toKeyString() throws JsonProcessingException {
-        return KEY_MAPPER.writeValueAsString(this);
+    @Override
+    // only used to have Jackson create the string keys during serialization.
+    // toString() is not meant to be used for this but it seems to be the easiest way with Jackson.
+    // is there a better way ?
+    public String toString() {
+        try {
+            return KEY_MAPPER.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @JsonCreator
