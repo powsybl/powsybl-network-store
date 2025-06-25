@@ -25,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -193,8 +194,10 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> operationalLimitsGroupAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
         stopwatch.stop();
-        long loadedAttributesCount = operationalLimitsGroupAttributes.size();
-        logGetOperationalLimitsGroupAttributesTime(loadedAttributesCount, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        AtomicLong loadedAttributesCount = new AtomicLong();
+        operationalLimitsGroupAttributes.values().forEach(map1 ->
+            map1.values().forEach(map2 -> loadedAttributesCount.addAndGet(map2.size())));
+        logGetOperationalLimitsGroupAttributesTime(loadedAttributesCount.get(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
         return operationalLimitsGroupAttributes;
     }
