@@ -993,7 +993,6 @@ public class CachedNetworkStoreClientTest {
         String identifiableId = "LINE";
         String operationalLimitsGroupId = "selected";
         String operationalLimitsGroupId2 = "otherGroup";
-        OperationalLimitsGroupIdentifier identifier1 = new OperationalLimitsGroupIdentifier(identifiableId, operationalLimitsGroupId, 1);
 
         // Load the line in the cache
         loadLineToCache(identifiableId, networkUuid, cachedClient);
@@ -1002,7 +1001,7 @@ public class CachedNetworkStoreClientTest {
         // Two successive OperationalLimitsGroup retrieval, only the first should send a REST request, the second uses the cache
         OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId);
         OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId2);
-        String selectedOperationalLimitsGroup = objectMapper.writeValueAsString(Map.of(identifier1, olg1));
+        String selectedOperationalLimitsGroup = objectMapper.writeValueAsString(Map.of(identifiableId, Map.of(1, Map.of(operationalLimitsGroupId, olg1))));
         String otherOperationalLimitsGroup = objectMapper.writeValueAsString(OperationalLimitsGroupAttributesTopLevelDocument.of(olg2));
         // load all selected operational limits group
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
@@ -1192,9 +1191,6 @@ public class CachedNetworkStoreClientTest {
         String operationalLimitsGroupId = "selected";
         String operationalLimitsGroupId2 = "selected";
         String operationalLimitsGroupId3 = "otherGroup";
-        OperationalLimitsGroupIdentifier identifier1 = new OperationalLimitsGroupIdentifier(identifiableId, operationalLimitsGroupId, 1);
-        OperationalLimitsGroupIdentifier identifier2 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroupId2, 2);
-        OperationalLimitsGroupIdentifier identifier3 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroupId3, 2);
 
         // Load the lines in the cache
         loadLineToCache(identifiableId, networkUuid, cachedClient);
@@ -1204,12 +1200,14 @@ public class CachedNetworkStoreClientTest {
         OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId);
         OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId2);
         OperationalLimitsGroupAttributes olg3 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId3);
-        String allOperationalLimitsGroup = objectMapper.writeValueAsString(Map.of(identifier1, olg1, identifier2, olg2, identifier3, olg3));
+        String allOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>>>() {
+        }).writeValueAsString(Map.of(identifiableId, Map.of(1, Map.of(operationalLimitsGroupId, olg1)),
+            identifiableId2, Map.of(2, Map.of(operationalLimitsGroupId2, olg2, operationalLimitsGroupId3, olg3))));
 
         // load all operational limits groups to cache
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
             .andExpect(method(GET))
-            .andRespond(withSuccess(allOperationalLimitsGroup, MediaType.APPLICATION_JSON));
+            .andRespond(withSuccess(allOperationalLimitsGroups, MediaType.APPLICATION_JSON));
         cachedClient.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE);
         server.verify();
         server.reset();

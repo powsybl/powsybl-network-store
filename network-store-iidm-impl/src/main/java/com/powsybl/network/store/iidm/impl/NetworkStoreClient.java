@@ -369,14 +369,14 @@ public interface NetworkStoreClient {
      * Used for preloading collection strategy.
      * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
      */
-    Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
+    Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
 
     /**
      * For all the identifiables of a specific resource type, retrieves all extension attributes of this identifiable.
      * Used for preloading collection strategy.
      * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
      */
-    Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
+    Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
 
     Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
 

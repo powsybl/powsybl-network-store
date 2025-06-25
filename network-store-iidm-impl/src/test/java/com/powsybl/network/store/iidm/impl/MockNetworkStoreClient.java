@@ -113,12 +113,12 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return Map.of();
     }
 
     @Override
-    public Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return Map.of();
     }
 

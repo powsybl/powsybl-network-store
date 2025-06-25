@@ -1456,10 +1456,9 @@ public class PreloadingNetworkStoreClientTest {
         String operationalLimitsGroup2 = "olg2";
         OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroup1);
         OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroup2);
-        OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
-        OperationalLimitsGroupIdentifier olgi2 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroup2, 2);
-        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
-        }).writeValueAsString(Map.of(olgi1, olg1, olgi2, olg2));
+        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>>>() {
+        }).writeValueAsString(Map.of(identifiableId1, Map.of(1, Map.of(operationalLimitsGroup1, olg1)),
+            identifiableId2, Map.of(2, Map.of(operationalLimitsGroup2, olg2))));
 
         // first call, it get all the operational limits groups in the cache
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
@@ -1531,7 +1530,7 @@ public class PreloadingNetworkStoreClientTest {
         String identifiableId1 = "LINE1";
         String identifiableId2 = "LINE2";
         loadTwoLinesToCache(identifiableId1, identifiableId2);
-        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
+        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>>>() {
         }).writeValueAsString(Map.of());
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
@@ -1562,10 +1561,9 @@ public class PreloadingNetworkStoreClientTest {
         String operationalLimitsGroup2 = "olg2";
         OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroup1);
         OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroup2);
-        OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
-        OperationalLimitsGroupIdentifier olgi2 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroup2, 2);
-        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
-        }).writeValueAsString(Map.of(olgi1, olg1, olgi2, olg2));
+        String operationalLimitsGroupAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>>>() {
+        }).writeValueAsString(Map.of(identifiableId1, Map.of(1, Map.of(operationalLimitsGroup1, olg1)),
+            identifiableId2, Map.of(1, Map.of(operationalLimitsGroup2, olg2))));
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
             .andExpect(method(GET))
@@ -1616,14 +1614,14 @@ public class PreloadingNetworkStoreClientTest {
         OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroup1);
         OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroup3);
         OperationalLimitsGroupAttributes olg3 = createOperationalLimitsGroupAttributes(operationalLimitsGroup2);
-        OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
-        OperationalLimitsGroupIdentifier olgi2 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup2, 1);
-        OperationalLimitsGroupIdentifier olgi3 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroup3, 1);
 
-        String allSelectedOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
-        }).writeValueAsString(Map.of(olgi1, olg1, olgi3, olg3));
-        String allOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
-        }).writeValueAsString(Map.of(olgi1, olg1, olgi2, olg2, olgi3, olg3));
+        String allSelectedOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>>>() {
+        }).writeValueAsString(Map.of(identifiableId1, Map.of(1, Map.of(operationalLimitsGroup1, olg1)),
+            identifiableId2, Map.of(1, Map.of(operationalLimitsGroup3, olg3))));
+
+        String allOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>>>() {
+        }).writeValueAsString(Map.of(identifiableId1, Map.of(1, Map.of(operationalLimitsGroup1, olg1, operationalLimitsGroup2, olg2)),
+            identifiableId2, Map.of(1, Map.of(operationalLimitsGroup3, olg3))));
 
         // getting a selected olg will load all selected
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
@@ -1695,12 +1693,10 @@ public class PreloadingNetworkStoreClientTest {
         OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroup1);
         OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroup3);
         OperationalLimitsGroupAttributes olg3 = createOperationalLimitsGroupAttributes(operationalLimitsGroup2);
-        OperationalLimitsGroupIdentifier olgi1 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup1, 1);
-        OperationalLimitsGroupIdentifier olgi2 = new OperationalLimitsGroupIdentifier(identifiableId1, operationalLimitsGroup2, 1);
-        OperationalLimitsGroupIdentifier olgi3 = new OperationalLimitsGroupIdentifier(identifiableId2, operationalLimitsGroup3, 1);
 
-        String allOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes>>() {
-        }).writeValueAsString(Map.of(olgi1, olg1, olgi2, olg2, olgi3, olg3));
+        String allOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>>>() {
+        }).writeValueAsString(Map.of(identifiableId1, Map.of(1, Map.of(operationalLimitsGroup1, olg1, operationalLimitsGroup2, olg2)),
+            identifiableId2, Map.of(1, Map.of(operationalLimitsGroup3, olg3))));
 
         // getting a branch olg will load all olg
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM

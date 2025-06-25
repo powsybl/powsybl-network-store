@@ -427,14 +427,14 @@ public class RestNetworkStoreClientTest {
     public void testOperationalLimitsGroupAttributesByResourceType() {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
             .andExpect(method(GET))
-            .andRespond(withSuccess("{\"{\\\"branchId\\\":\\\"branchId\\\",\\\"operationalLimitsGroupId\\\":\\\"selected\\\",\\\"side\\\":1}\":{\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false},\"15\":{\"name\":\"temporarylimit2\",\"value\":9.0,\"acceptableDuration\":15,\"fictitious\":false}}}}}", MediaType.APPLICATION_JSON));
+            .andRespond(withSuccess("{\"lineId\":{\"1\":{\"olg1\":{\"id\":\"olg1\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}},\"LINE1\":{\"2\":{\"olg2\":{\"id\":\"olg2\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}}}", MediaType.APPLICATION_JSON));
 
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
-        Map<OperationalLimitsGroupIdentifier, OperationalLimitsGroupAttributes> result = restNetworkStoreClient.getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, 0, ResourceType.LINE);
+        Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> result = restNetworkStoreClient.getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, 0, ResourceType.LINE);
         assertNotNull(result);
         // Identifiables with empty maps are filtered (like identifiableId2)
-        assertEquals(1, result.size());
-        OperationalLimitsGroupAttributes resultIdentifiable1 = result.get(new OperationalLimitsGroupIdentifier("branchId", "selected", 1));
-        assertEquals(2, resultIdentifiable1.getCurrentLimits().getTemporaryLimits().size());
+        assertEquals(2, result.size());
+        OperationalLimitsGroupAttributes resultIdentifiable1 = result.get("lineId").get(1).get("olg1");
+        assertEquals(1, resultIdentifiable1.getCurrentLimits().getTemporaryLimits().size());
     }
 }
