@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
@@ -40,16 +41,9 @@ public class OperationalLimitsGroupIdentifier {
         return new OperationalLimitsGroupIdentifier(branchId, operationalLimitsGroupId, side);
     }
 
-    @Override
-    // only used to have Jackson create the string keys during serialization.
-    // toString() is not meant to be used for this but it seems to be the easiest way with Jackson.
-    // is there a better way ?
-    public String toString() {
-        try {
-            return KEY_MAPPER.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            throw new UncheckedIOException(e);
-        }
+    @JsonValue
+    public String toKeyString() throws JsonProcessingException {
+        return KEY_MAPPER.writeValueAsString(this);
     }
 
     @JsonCreator
