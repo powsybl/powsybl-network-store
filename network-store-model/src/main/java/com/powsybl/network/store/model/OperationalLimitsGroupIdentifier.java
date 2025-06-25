@@ -12,8 +12,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 
-import java.io.UncheckedIOException;
-
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
