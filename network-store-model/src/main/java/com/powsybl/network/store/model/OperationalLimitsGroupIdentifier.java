@@ -6,24 +6,26 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.*;
-
-import java.io.UncheckedIOException;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
 @Getter
 @EqualsAndHashCode
+@JsonDeserialize(keyUsing = OperationalLimitsGroupIdentifierDeserializer.class)
+@JsonSerialize(keyUsing = OperationalLimitsGroupIdentifierSerializer.class)
 public class OperationalLimitsGroupIdentifier {
 
-    // used for serialization in toString() and for deserialization in OperationalLimitsGroupIdentifierDeserializer
+    // used for serialization in OperationalLimitsGroupIdentifierSerializer and for deserialization in OperationalLimitsGroupIdentifierDeserializer
     // The serialized json looks like this :
     // {
     //   "{\"branchId\":\"line1\",\"groupId\":\"name1\",\"side\":1}": {...}
@@ -38,22 +40,5 @@ public class OperationalLimitsGroupIdentifier {
 
     public static OperationalLimitsGroupIdentifier of(String branchId, String operationalLimitsGroupId, int side) {
         return new OperationalLimitsGroupIdentifier(branchId, operationalLimitsGroupId, side);
-    }
-
-    @Override
-    // only used to have Jackson create the string keys during serialization.
-    // toString() is not meant to be used for this but it seems to be the easiest way with Jackson.
-    // is there a better way ?
-    public String toString() {
-        try {
-            return KEY_MAPPER.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @JsonCreator
-    public static OperationalLimitsGroupIdentifier fromKeyString(String keyString) throws JsonProcessingException {
-        return KEY_MAPPER.readValue(keyString, OperationalLimitsGroupIdentifier.class);
     }
 }
