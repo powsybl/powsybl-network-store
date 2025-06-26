@@ -636,7 +636,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> operationalLimitsGroupAttributesMap =
                 delegate.getAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type);
 
-            setOperationalLimitsGroupsToCache(operationalLimitsGroupAttributesMap);
+            loadOperationalLimitsGroupsToCache(operationalLimitsGroupAttributesMap);
             fullyLoadedOperationalLimitsGroup = true;
             fullyLoadedSelectedOperationalLimitsGroup = true;
         }
@@ -651,12 +651,12 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> operationalLimitsGroupAttributesMap =
                 delegate.getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type);
 
-            setOperationalLimitsGroupsToCache(operationalLimitsGroupAttributesMap);
+            loadOperationalLimitsGroupsToCache(operationalLimitsGroupAttributesMap);
             fullyLoadedSelectedOperationalLimitsGroup = true;
         }
     }
 
-    private void setOperationalLimitsGroupsToCache(Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> operationalLimitsGroupAttributesMap) {
+    private void loadOperationalLimitsGroupsToCache(Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> operationalLimitsGroupAttributesMap) {
         // add headers to memo Set
         operationalLimitsGroupAttributesMap.forEach((branchId, map1) -> {
             loadedOperationalLimitsGroups.putIfAbsent(branchId, new HashMap<>());
@@ -666,10 +666,6 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             });
         });
         // load to cache
-        loadOperationalLimitsGroupsToCache(operationalLimitsGroupAttributesMap);
-    }
-
-    private void loadOperationalLimitsGroupsToCache(Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> operationalLimitsGroupAttributesMap) {
         Map<Pair<String, Integer>, Map<String, OperationalLimitsGroupAttributes>> groupedOperationalLimitsGroupAttributes = new HashMap<>();
         operationalLimitsGroupAttributesMap.forEach((branchId, map1) ->
             map1.forEach((side, map2) ->
