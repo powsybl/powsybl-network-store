@@ -232,7 +232,7 @@ public class NetworkObjectIndex {
             if (obj != null) {
                 // to reuse the object from one variant to another one just set the resource to null
                 // and keep the object in the cache
-                obj.removeResource();
+                obj.setResource(null);
             }
         }
 
