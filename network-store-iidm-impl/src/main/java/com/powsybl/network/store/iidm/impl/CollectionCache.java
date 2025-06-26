@@ -621,9 +621,10 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     private void addOperationalLimitsGroupAttributesToCache(String branchId, String operationalLimitsGroupName, int side, OperationalLimitsGroupAttributes operationalLimitsGroupAttributes) {
         Objects.requireNonNull(operationalLimitsGroupAttributes);
         getCachedOperationalLimitsGroupAttributes(branchId, side).putIfAbsent(operationalLimitsGroupName, operationalLimitsGroupAttributes);
-        loadedOperationalLimitsGroups.putIfAbsent(branchId, new HashMap<>());
-        loadedOperationalLimitsGroups.get(branchId).putIfAbsent(side, new HashSet<>());
-        loadedOperationalLimitsGroups.get(branchId).get(side).add(operationalLimitsGroupName);
+        loadedOperationalLimitsGroups
+            .computeIfAbsent(branchId, k -> new HashMap<>())
+            .computeIfAbsent(side, k -> new HashSet<>())
+            .add(operationalLimitsGroupName);
     }
 
     /**
