@@ -657,19 +657,19 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     private void loadOperationalLimitsGroupsToCache(Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> operationalLimitsGroupAttributesMap) {
-        // add headers to memo Set
-        operationalLimitsGroupAttributesMap.forEach((branchId, map1) -> {
+        // add operational limit group ids to memo map
+        operationalLimitsGroupAttributesMap.forEach((branchId, sideToGroupsMap) -> {
             loadedOperationalLimitsGroups.putIfAbsent(branchId, new HashMap<>());
-            map1.forEach((side, map2) -> {
+            sideToGroupsMap.forEach((side, groupAttributesMap) -> {
                 loadedOperationalLimitsGroups.get(branchId).putIfAbsent(side, new HashSet<>());
-                loadedOperationalLimitsGroups.get(branchId).get(side).addAll(map2.keySet());
+                loadedOperationalLimitsGroups.get(branchId).get(side).addAll(groupAttributesMap.keySet());
             });
         });
         // load to cache
         Map<Pair<String, Integer>, Map<String, OperationalLimitsGroupAttributes>> groupedOperationalLimitsGroupAttributes = new HashMap<>();
-        operationalLimitsGroupAttributesMap.forEach((branchId, map1) ->
-            map1.forEach((side, map2) ->
-                map2.forEach((operationalLimitGroupId, attributes) ->
+        operationalLimitsGroupAttributesMap.forEach((branchId, sideToGroupsMap) ->
+            sideToGroupsMap.forEach((side, groupAttributesMap) ->
+                groupAttributesMap.forEach((operationalLimitGroupId, attributes) ->
                     groupedOperationalLimitsGroupAttributes
                         .computeIfAbsent(Pair.of(branchId, side), k -> new HashMap<>())
                         .put(operationalLimitGroupId, attributes))));

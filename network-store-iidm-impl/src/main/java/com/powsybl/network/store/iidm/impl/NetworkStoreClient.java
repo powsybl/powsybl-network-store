@@ -353,7 +353,7 @@ public interface NetworkStoreClient {
 
 
     /**
-     * For one identifiable with a specific identifiable id, retrieves one operational limits group attributes by its name.
+     * For one identifiable with a specific identifiable id, retrieves the selected operational limits group attributes.
      * @return {@link LimitsAttributes} which is a subset of an identifiable resource.
      */
     Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side);
@@ -365,14 +365,14 @@ public interface NetworkStoreClient {
     List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side);
 
     /**
-     * For all the identifiables of a specific resource type, retrieves all extension attributes of this identifiable.
+     * For a specific resource type, retrieves all operational limits group attributes.
      * Used for preloading collection strategy.
      * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
      */
     Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
 
     /**
-     * For all the identifiables of a specific resource type, retrieves all extension attributes of this identifiable.
+     * For a specific resource type, retrieves all selected operational limits group attributes.
      * Used for preloading collection strategy.
      * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
      */
