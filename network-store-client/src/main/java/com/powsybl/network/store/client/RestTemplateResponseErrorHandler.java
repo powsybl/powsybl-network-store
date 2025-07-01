@@ -33,17 +33,16 @@ public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
 
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
-        String message = new String(response.getBody().readAllBytes());
-        if (message.contains("network_pkey")) {
-            throw new DuplicateVariantNumException(message);
+        byte[] body = response.getBody().readAllBytes();
+        String strBody = new String(body);
+        if (strBody.contains("network_pkey")) {
+            throw new DuplicateVariantNumException(strBody);
         }
         if (response.getStatusCode().is5xxServerError()) {
-            throw new HttpServerErrorException(response.getStatusCode(), response.getStatusText(),
-                    response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+            throw new HttpServerErrorException(response.getStatusCode(), response.getStatusText(), body, StandardCharsets.UTF_8);
         } else if (response.getStatusCode().is4xxClientError()) {
             if (response.getStatusCode() != HttpStatus.NOT_FOUND) {
-                throw new HttpClientErrorException(response.getStatusCode(), response.getStatusText(),
-                        response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+                throw new HttpClientErrorException(response.getStatusCode(), response.getStatusText(), body, StandardCharsets.UTF_8);
             }
         }
     }
