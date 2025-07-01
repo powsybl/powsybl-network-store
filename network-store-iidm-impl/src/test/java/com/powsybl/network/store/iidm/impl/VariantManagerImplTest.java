@@ -23,6 +23,9 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+/**
+ * @author Joris Mancini <joris.mancini_externe at rte-france.com>
+ */
 class VariantManagerImplTest {
 
     private VariantManagerImpl variantManager;
