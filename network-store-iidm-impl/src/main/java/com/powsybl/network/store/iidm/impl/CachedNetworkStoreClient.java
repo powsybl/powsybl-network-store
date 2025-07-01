@@ -255,6 +255,11 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        return this.getVariantsInfos(networkUuid, false);
+    }
+
+    @Override
     public List<VariantInfos> getVariantsInfos(UUID networkUuid, boolean disableCache) {
         if (disableCache) {
             return variantsInfosByNetworkUuid.compute(networkUuid, (uuid, oldValue) -> delegate.getVariantsInfos(uuid, true));
