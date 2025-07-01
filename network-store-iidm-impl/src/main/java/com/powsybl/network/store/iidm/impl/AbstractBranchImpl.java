@@ -454,6 +454,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup2(String id) {
+        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 2);
         var resource = getResource();
         var group = OperationalLimitsGroupAttributes.builder().id(id).build();
         resource.getAttributes().getOperationalLimitsGroups2().put(id, group);
@@ -462,6 +463,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public void setSelectedOperationalLimitsGroup2(String id) {
+        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 2);
         var resource = getResource();
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId2();
         if (!id.equals(oldValue)) {
