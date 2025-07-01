@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.network.store.iidm.impl.DuplicateVariantNumException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.HttpClientErrorException;
@@ -32,6 +33,10 @@ public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
 
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
+        String message = new String(response.getBody().readAllBytes());
+        if (message.contains("network_pkey")) {
+            throw new DuplicateVariantNumException(message);
+        }
         if (response.getStatusCode().is5xxServerError()) {
             throw new HttpServerErrorException(response.getStatusCode(), response.getStatusText(),
                     response.getBody().readAllBytes(), StandardCharsets.UTF_8);

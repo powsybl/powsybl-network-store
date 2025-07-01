@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class VariantManagerImpl implements VariantManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VariantManagerImpl.class);
+    private static final int MAX_RETRY_ATTEMPTS = 3;
 
     private final NetworkObjectIndex index;
 
@@ -104,7 +105,18 @@ public class VariantManagerImpl implements VariantManager {
             }
             int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
             // clone resources
-            index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
+            boolean retry = true;
+            int attempts = 0;
+            while (retry && attempts < MAX_RETRY_ATTEMPTS) {
+                attempts++;
+                try {
+                    index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
+                    retry = false;
+                } catch (DuplicateVariantNumException e) {
+                    targetVariantNum++;
+                    LOGGER.debug("retrying with variantNum {}", targetVariantNum);
+                }
+            }
             //If we overwrite the working variant we need to set back the working variant num because it's deleted in the removeVariant method
             if (targetVariantId.equals(workingVariantId)) {
                 index.setWorkingVariantNum(workingVariantNum);
