@@ -133,7 +133,7 @@ public class VariantManagerImpl implements VariantManager {
         boolean retry = true;
         int attempts = 0;
         while (retry) {
-            int targetVariantNum = VariantUtils.findFistAvailableVariantNum(localVariantInfos);
+            int targetVariantNum = VariantUtils.findFirstAvailableVariantNum(localVariantInfos);
             LOGGER.debug("Trying to clone network {} with variantNum {} (attempt: {})", index.getNetworkUuid(), targetVariantNum, attempts + 1);
             try {
                 index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
