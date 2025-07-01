@@ -9,6 +9,8 @@ package com.powsybl.network.store.model.utils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.VariantInfos;
@@ -20,11 +22,14 @@ public final class VariantUtils {
 
     private VariantUtils() { }
 
-    public static int findFistAvailableVariantNum(List<VariantInfos> variantsInfos) {
+    public static int findFirstAvailableVariantNum(List<VariantInfos> variantsInfos) {
+        Set<Integer> usedVariantNums = variantsInfos.stream()
+                .map(VariantInfos::getNum)
+                .collect(Collectors.toSet());
+
         for (int i = 0; i < Integer.MAX_VALUE; i++) {
-            final int variantNum = i;
-            if (variantsInfos.stream().noneMatch(infos -> infos.getNum() == variantNum)) {
-                return variantNum;
+            if (!usedVariantNums.contains(i)) {
+                return i;
             }
         }
         throw new PowsyblException("Max number of variant reached: " + Integer.MAX_VALUE);

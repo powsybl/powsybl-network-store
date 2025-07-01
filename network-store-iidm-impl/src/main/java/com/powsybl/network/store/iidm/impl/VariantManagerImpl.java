@@ -102,7 +102,7 @@ public class VariantManagerImpl implements VariantManager {
                     variantOverwritten = true;
                 }
             }
-            int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
+            int targetVariantNum = VariantUtils.findFirstAvailableVariantNum(variantsInfos);
             // clone resources
             index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
             //If we overwrite the working variant we need to set back the working variant num because it's deleted in the removeVariant method
