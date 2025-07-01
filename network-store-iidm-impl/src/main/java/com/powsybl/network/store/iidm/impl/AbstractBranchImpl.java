@@ -145,6 +145,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public void setApparentPowerLimits(TwoSides side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId) {
+        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), side.getNum());
         var attributes = getResource().getAttributes();
         if (side == TwoSides.ONE) {
             var operationalLimitsGroup = attributes.getOperationalLimitsGroup1(operationalLimitsGroupId);
@@ -219,6 +220,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public void setActivePowerLimits(TwoSides side, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId) {
+        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), side.getNum());
         var attributes = getResource().getAttributes();
         if (side == TwoSides.ONE) {
             var operationalLimitsGroup = attributes.getOperationalLimitsGroup1(operationalLimitsGroupId);
@@ -252,6 +254,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public void setCurrentLimits(TwoSides side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
+        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), side.getNum());
         var attributes = getResource().getAttributes();
         if (side == TwoSides.ONE) {
             var operationalLimitsGroup = attributes.getOperationalLimitsGroup1(operationalLimitsGroupId);
@@ -367,6 +370,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
+        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 1);
         var resource = getResource();
         var group = OperationalLimitsGroupAttributes.builder().id(id).build();
         resource.getAttributes().getOperationalLimitsGroups1().put(id, group);
@@ -385,6 +389,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public void removeOperationalLimitsGroup1(String id) {
+        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 1);
         var resource = getResource();
         if (resource.getAttributes().getOperationalLimitsGroups1().get(id) == null) {
             throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
