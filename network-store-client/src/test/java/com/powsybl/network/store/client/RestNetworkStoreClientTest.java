@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.network.store.iidm.impl.DuplicateVariantNumException;
 import com.powsybl.network.store.model.*;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -23,11 +24,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.time.ZonedDateTime;
@@ -436,5 +439,18 @@ public class RestNetworkStoreClientTest {
         assertEquals(2, result.size());
         OperationalLimitsGroupAttributes resultIdentifiable1 = result.get("lineId").get(1).get("olg1");
         assertEquals(1, resultIdentifiable1.getCurrentLimits().getTemporaryLimits().size());
+    }
+
+    @Test
+    public void testExceptionHandlerOnDuplicateKeyError() {
+        UUID networkUuid = UUID.randomUUID();
+        int sourceVariantNum = 0;
+        int targetVariantNum = 1;
+        String targetVariantId = "id";
+        server.expect(requestTo("/networks/" + networkUuid + "/" + sourceVariantNum + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
+            .andExpect(method(PUT))
+            .andRespond(withServerError().body("network_pkey"));
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        assertThrows(DuplicateVariantNumException.class, () -> restNetworkStoreClient.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId));
     }
 }
