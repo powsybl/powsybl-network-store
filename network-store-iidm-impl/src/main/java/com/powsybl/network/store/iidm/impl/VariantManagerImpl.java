@@ -113,7 +113,8 @@ public class VariantManagerImpl implements VariantManager {
                     index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
                     retry = false;
                 } catch (DuplicateVariantNumException e) {
-                    targetVariantNum++;
+                    variantsInfos = index.getStoreClient().getVariantsInfos(index.getNetworkUuid(), true);
+                    targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
                     LOGGER.debug("retrying with variantNum {}", targetVariantNum);
                 }
             }

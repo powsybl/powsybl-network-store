@@ -299,7 +299,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid, boolean disableCache) {
         return restClient.get(URL_NETWORK_UUID, new ParameterizedTypeReference<>() {
         }, networkUuid);
     }
