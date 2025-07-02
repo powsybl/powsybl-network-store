@@ -165,6 +165,12 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
     }
 
     @Override
+    public ShuntCompensatorAdder setSolvedSectionCount(Integer integer) {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
     public ShuntCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = regulatingTerminal;
         return this;

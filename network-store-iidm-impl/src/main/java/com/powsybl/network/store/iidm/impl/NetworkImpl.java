@@ -1070,6 +1070,174 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
+    public DcNodeAdder newDcNode() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Iterable<DcNode> getDcNodes() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Stream<DcNode> getDcNodeStream() {
+        // FIXME: implement
+        return Stream.empty();
+    }
+
+    @Override
+    public int getDcNodeCount() {
+        // FIXME: implement
+        return 0;
+    }
+
+    @Override
+    public DcNode getDcNode(String s) {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public DcLineAdder newDcLine() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Iterable<DcLine> getDcLines() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Stream<DcLine> getDcLineStream() {
+        // FIXME: implement
+        return Stream.empty();
+    }
+
+    @Override
+    public int getDcLineCount() {
+        // FIXME: implement
+        return 0;
+    }
+
+    @Override
+    public DcLine getDcLine(String s) {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public DcSwitchAdder newDcSwitch() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Iterable<DcSwitch> getDcSwitches() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Stream<DcSwitch> getDcSwitchStream() {
+        // FIXME: implement
+        return Stream.empty();
+    }
+
+    @Override
+    public int getDcSwitchCount() {
+        // FIXME: implement
+        return 0;
+    }
+
+    @Override
+    public DcSwitch getDcSwitch(String s) {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public DcGroundAdder newDcGround() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Iterable<DcGround> getDcGrounds() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Stream<DcGround> getDcGroundStream() {
+        // FIXME: implement
+        return Stream.empty();
+    }
+
+    @Override
+    public int getDcGroundCount() {
+        // FIXME: implement
+        return 0;
+    }
+
+    @Override
+    public DcGround getDcGround(String s) {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        // FIXME: implement
+        return Stream.empty();
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        // FIXME: implement
+        return 0;
+    }
+
+    @Override
+    public LineCommutatedConverter getLineCommutatedConverter(String s) {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        // FIXME: implement
+        return Stream.empty();
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        // FIXME: implement
+        return 0;
+    }
+
+    @Override
+    public VoltageSourceConverter getVoltageSourceConverter(String s) {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
     public Iterable<String> getAreaTypes() {
         return getAreaTypeStream().toList();
     }

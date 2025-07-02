@@ -47,7 +47,7 @@ public abstract class AbstractTapChangerAdder {
     }
 
     protected RegulatingPointAttributes createRegulationPointAttributes(TapChangerParent tapChangerParent, RegulatingTapChangerType regulatingTapChangerType,
-                                                                     String regulationMode) {
+                                                                     String regulationMode, Boolean regulating) {
         RegulatingTapChangerType finalRegulatingTapChangerType = regulatingTapChangerType;
         ResourceType resourceType = ResourceType.TWO_WINDINGS_TRANSFORMER;
         if (tapChangerParent instanceof ThreeWindingsTransformerImpl.LegImpl leg) {

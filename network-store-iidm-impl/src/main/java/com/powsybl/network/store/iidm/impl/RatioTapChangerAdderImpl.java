@@ -113,6 +113,12 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
     }
 
     @Override
+    public RatioTapChangerAdder setSolvedTapPosition(Integer integer) {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
     public RatioTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         return this;
@@ -163,7 +169,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
         String regulationModeStr = regulationMode == null ? null : regulationMode.toString();
-        RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.RATIO_TAP_CHANGER, regulationModeStr);
+        RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.RATIO_TAP_CHANGER, regulationModeStr, regulating);
 
         RatioTapChangerAttributes ratioTapChangerAttributes = RatioTapChangerAttributes.builder()
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)

@@ -129,6 +129,12 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
     }
 
     @Override
+    public PhaseTapChangerAdder setSolvedTapPosition(Integer integer) {
+        // FIXME to be implemented
+        return null;
+    }
+
+    @Override
     public PhaseTapChangerAdder setRegulating(boolean regulating) {
         this.regulating = regulating;
         return this;
@@ -185,7 +191,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         tapChangers.remove(tapChangerParent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
-        RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.PHASE_TAP_CHANGER, regulationMode.toString());
+        RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.PHASE_TAP_CHANGER, regulationMode.toString(), regulating);
 
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)

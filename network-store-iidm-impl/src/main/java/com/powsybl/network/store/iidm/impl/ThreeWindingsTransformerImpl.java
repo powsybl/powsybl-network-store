@@ -174,6 +174,17 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         }
 
         @Override
+        public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+            OperationalLimitsGroupAttributes operationalLimitsGroup = getLegAttributes().getSelectedOperationalLimitsGroup();
+            if (operationalLimitsGroup != null) {
+                return new OperationalLimitsGroupImpl<>(this, null, operationalLimitsGroup);
+            }
+            OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+            setSelectedOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+            return newOperationalLimitsGroup;
+        }
+
+        @Override
         public Optional<ApparentPowerLimits> getApparentPowerLimits() {
             return Optional.ofNullable(getNullableApparentPowerLimits());
         }
@@ -332,8 +343,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         }
 
         @Override
-        public String getMessageHeader() {
-            return "3 windings transformer leg" + getLegAttributes().getLegNumber() + " '" + transformer.getId() + "': ";
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader("3 windings transformer leg" + getLegAttributes().getLegNumber(), transformer.getId());
         }
 
         @Override

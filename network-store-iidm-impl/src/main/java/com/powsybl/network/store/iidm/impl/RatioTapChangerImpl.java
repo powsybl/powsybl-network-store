@@ -65,6 +65,18 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
+    public Integer getSolvedTapPosition() {
+        // FIXME: to implement
+        return 0;
+    }
+
+    @Override
+    public RatioTapChanger setSolvedTapPosition(int i) {
+        // FIXME: to implement
+        return null;
+    }
+
+    @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, hasLoadTapChangingCapabilities(), getRegulationTerminal(), getRegulationMode(), getRegulationValue(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
 
@@ -105,6 +117,12 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
+    public RatioTapChangerStep getSolvedCurrentStep() {
+        // FIXME: to implement
+        return null;
+    }
+
+    @Override
     public Optional<RatioTapChangerStep> getNeutralStep() {
         Integer relativeNeutralPosition = getRelativeNeutralPosition();
         return relativeNeutralPosition != null ? Optional.of(new RatioTapChangerStepImpl(this, relativeNeutralPosition)) : Optional.empty();
@@ -133,8 +151,8 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
-    public String getMessageHeader() {
-        return "ratioTapChanger '" + parent.getTransformer().getId() + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("ratioTapChanger", parent.getTransformer().getId());
     }
 
     @Override

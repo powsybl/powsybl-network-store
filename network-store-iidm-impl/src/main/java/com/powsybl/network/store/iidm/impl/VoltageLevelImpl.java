@@ -680,6 +680,54 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
+    public LineCommutatedConverterAdder newLineCommutatedConverter() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        // FIXME: implement
+        return Stream.empty();
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        // FIXME: implement
+        return 0;
+    }
+
+    @Override
+    public VoltageSourceConverterAdder newVoltageSourceConverter() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        // FIXME: implement
+        return Stream.empty();
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        // FIXME: implement
+        return 0;
+    }
+
+    @Override
     public Iterable<Area> getAreas() {
         return getAreasStream().collect(Collectors.toSet());
     }

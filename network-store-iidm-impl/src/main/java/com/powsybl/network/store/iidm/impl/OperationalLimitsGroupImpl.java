@@ -98,8 +98,8 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
     }
 
     @Override
-    public String getMessageHeader() {
-        return "Operational limits group " + getId();
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("Operational limits group ", getId());
     }
 
     @Override

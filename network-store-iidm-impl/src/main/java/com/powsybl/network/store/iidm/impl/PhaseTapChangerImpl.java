@@ -95,6 +95,18 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     }
 
     @Override
+    public Integer getSolvedTapPosition() {
+        // FIXME to be implemented
+        return 0;
+    }
+
+    @Override
+    public PhaseTapChanger setSolvedTapPosition(int i) {
+        // FIXME to be implemented
+        return null;
+    }
+
+    @Override
     public int getStepCount() {
         return getAttributes().getSteps().size();
     }
@@ -115,6 +127,12 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         var attributes = getAttributes();
         int tapPositionIndex = attributes.getTapPosition() - attributes.getLowTapPosition();
         return new PhaseTapChangerStepImpl(this, tapPositionIndex);
+    }
+
+    @Override
+    public PhaseTapChangerStep getSolvedCurrentStep() {
+        // FIXME to be implemented
+        return null;
     }
 
     @Override
@@ -146,8 +164,8 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     }
 
     @Override
-    public String getMessageHeader() {
-        return "phaseTapChanger '" + parent.getTransformer().getId() + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("phaseTapChanger", parent.getTransformer().getId());
     }
 
     public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {

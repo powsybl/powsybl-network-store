@@ -37,6 +37,12 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
     }
 
     @Override
+    public Integer getSolvedSectionCount() {
+        // FIXME to be implemented
+        return 0;
+    }
+
+    @Override
     public ShuntCompensator setSectionCount(int sectionCount) {
         ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         int oldValue = getResource().getAttributes().getSectionCount();
@@ -45,6 +51,12 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
                 "sectionCount", oldValue, sectionCount);
         }
         return this;
+    }
+
+    @Override
+    public ShuntCompensator setSolvedSectionCount(int i) {
+        // FIXME to be implemented
+        return null;
     }
 
     @Override

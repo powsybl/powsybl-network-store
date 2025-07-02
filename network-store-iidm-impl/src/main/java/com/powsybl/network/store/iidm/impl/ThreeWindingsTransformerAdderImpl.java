@@ -6,13 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LegAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
@@ -202,8 +196,8 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
         }
 
         @Override
-        public String getMessageHeader() {
-            return String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation.getName());
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader(String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation.getName()), getId());
         }
 
         protected LegAttributes toLegAttributes() {
