@@ -111,12 +111,15 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public void setResource(Resource<D> resource) {
-        this.resource = resource;
-    }
+        if (resource == null && this.resource != null) {
+            // Save idBeforeRemoval when switching from non-null to null resource
+            idBeforeRemoval = this.resource.getId();
+        } else if (resource != null) {
+            // Clear idBeforeRemoval when setting a non-null resource
+            idBeforeRemoval = null;
+        }
 
-    public void removeResource() {
-        idBeforeRemoval = resource.getId();
-        this.resource = null;
+        this.resource = resource;
     }
 
     public Resource<D> getResource() {
