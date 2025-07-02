@@ -441,14 +441,14 @@ public class RestNetworkStoreClientTest {
 
     @Test
     public void testExceptionHandlerOnDuplicateKeyError() {
-        UUID networkUuid = UUID.randomUUID();
+        UUID newNetworkUuid = UUID.randomUUID();
         int sourceVariantNum = 0;
         int targetVariantNum = 1;
         String targetVariantId = "id";
-        server.expect(requestTo("/networks/" + networkUuid + "/" + sourceVariantNum + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
+        server.expect(requestTo("/networks/" + newNetworkUuid + "/" + sourceVariantNum + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
             .andExpect(method(PUT))
             .andRespond(withServerError().body("network_pkey"));
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
-        assertThrows(DuplicateVariantNumException.class, () -> restNetworkStoreClient.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId));
+        assertThrows(DuplicateVariantNumException.class, () -> restNetworkStoreClient.cloneNetwork(newNetworkUuid, sourceVariantNum, targetVariantNum, targetVariantId));
     }
 }
