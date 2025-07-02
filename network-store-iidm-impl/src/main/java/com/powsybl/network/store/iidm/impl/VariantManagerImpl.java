@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class VariantManagerImpl implements VariantManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VariantManagerImpl.class);
+    private static final int MAX_RETRY_ATTEMPTS = 3;
 
     private final NetworkObjectIndex index;
 
@@ -102,9 +103,9 @@ public class VariantManagerImpl implements VariantManager {
                     variantOverwritten = true;
                 }
             }
-            int targetVariantNum = VariantUtils.findFirstAvailableVariantNum(variantsInfos);
-            // clone resources
-            index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
+
+            cloneVariantWithOptimisticConcurrency(variantsInfos, sourceVariantNum, targetVariantId);
+
             //If we overwrite the working variant we need to set back the working variant num because it's deleted in the removeVariant method
             if (targetVariantId.equals(workingVariantId)) {
                 index.setWorkingVariantNum(workingVariantNum);
@@ -125,6 +126,26 @@ public class VariantManagerImpl implements VariantManager {
     @Override
     public void cloneVariant(String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
         cloneVariant(sourceVariantId, Collections.singletonList(targetVariantId), mayOverwrite);
+    }
+
+    private void cloneVariantWithOptimisticConcurrency(List<VariantInfos> variantsInfos, int sourceVariantNum, String targetVariantId) {
+        List<VariantInfos> localVariantInfos = new ArrayList<>(variantsInfos);
+        int attempts = 0;
+        while (attempts < MAX_RETRY_ATTEMPTS) {
+            int targetVariantNum = VariantUtils.findFirstAvailableVariantNum(localVariantInfos);
+            LOGGER.debug("Trying to clone network {} with variantNum {} (attempt: {})", index.getNetworkUuid(), targetVariantNum, attempts + 1);
+            try {
+                index.getStoreClient().cloneNetwork(index.getNetworkUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
+                return;
+            } catch (DuplicateVariantNumException e) {
+                LOGGER.debug("Failed to clone network {} with variantNum {}", index.getNetworkUuid(), targetVariantNum);
+                attempts++;
+                if (attempts == MAX_RETRY_ATTEMPTS) {
+                    throw new PowsyblException("Impossible to clone variant after " + attempts + " attempts", e);
+                }
+                localVariantInfos = index.getStoreClient().getVariantsInfos(index.getNetworkUuid(), true);
+            }
+        }
     }
 
     private void notifyVariantRemoved(String variantId) {

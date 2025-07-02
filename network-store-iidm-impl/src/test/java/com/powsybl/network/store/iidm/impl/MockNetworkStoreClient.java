@@ -133,7 +133,7 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid, boolean disableCache) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 

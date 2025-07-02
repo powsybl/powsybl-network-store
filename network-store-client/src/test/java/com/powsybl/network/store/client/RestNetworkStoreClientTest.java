@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.network.store.iidm.impl.DuplicateVariantNumException;
 import com.powsybl.network.store.model.*;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -436,5 +437,18 @@ public class RestNetworkStoreClientTest {
         assertEquals(2, result.size());
         OperationalLimitsGroupAttributes resultIdentifiable1 = result.get("lineId").get(1).get("olg1");
         assertEquals(1, resultIdentifiable1.getCurrentLimits().getTemporaryLimits().size());
+    }
+
+    @Test
+    public void testExceptionHandlerOnDuplicateKeyError() {
+        UUID newNetworkUuid = UUID.randomUUID();
+        int sourceVariantNum = 0;
+        int targetVariantNum = 1;
+        String targetVariantId = "id";
+        server.expect(requestTo("/networks/" + newNetworkUuid + "/" + sourceVariantNum + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
+            .andExpect(method(PUT))
+            .andRespond(withServerError().body("network_pkey"));
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        assertThrows(DuplicateVariantNumException.class, () -> restNetworkStoreClient.cloneNetwork(newNetworkUuid, sourceVariantNum, targetVariantNum, targetVariantId));
     }
 }
