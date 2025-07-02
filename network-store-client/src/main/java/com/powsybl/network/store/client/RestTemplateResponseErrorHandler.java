@@ -24,6 +24,7 @@ import java.util.Optional;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
+    private static final String DUPLICATE_VARIANT_NUM_KEY = "network_pkey";
 
     @Override
     public boolean hasError(ClientHttpResponse response) throws IOException {
@@ -35,7 +36,7 @@ public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
     public void handleError(ClientHttpResponse response) throws IOException {
         byte[] body = response.getBody().readAllBytes();
         String strBody = new String(body);
-        if (strBody.contains("network_pkey")) {
+        if (strBody.contains(DUPLICATE_VARIANT_NUM_KEY)) {
             throw new DuplicateVariantNumException(strBody);
         }
         if (response.getStatusCode().is5xxServerError()) {
