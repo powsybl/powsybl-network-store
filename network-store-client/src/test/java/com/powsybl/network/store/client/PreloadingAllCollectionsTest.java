@@ -24,7 +24,7 @@ public class PreloadingAllCollectionsTest {
 
     @Test
     public void test() {
-        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
+        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), PreloadingStrategy.COLLECTION, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         client.getSubstations(networkUuid, 0);
         assertTrue(client.isResourceTypeCached(networkUuid, 0, ResourceType.SUBSTATION));
@@ -37,7 +37,7 @@ public class PreloadingAllCollectionsTest {
 
     @Test
     public void testWithAllCollections() {
-        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), true, ForkJoinPool.commonPool());
+        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), PreloadingStrategy.ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         client.getSubstations(networkUuid, 0);
         for (ResourceType resourceType : ResourceType.values()) {

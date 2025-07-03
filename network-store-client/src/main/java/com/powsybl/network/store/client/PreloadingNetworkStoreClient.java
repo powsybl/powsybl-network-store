@@ -30,7 +30,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PreloadingNetworkStoreClient.class);
 
-    static final Set<ResourceType> RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW = Set.of(
+    public static final Set<ResourceType> RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW = Set.of(
         ResourceType.SUBSTATION,
         ResourceType.VOLTAGE_LEVEL,
         ResourceType.LOAD,
@@ -50,17 +50,35 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.TIE_LINE
     );
 
-    private final boolean allCollectionsNeededForBusView;
+    public static final Set<ResourceType> RESOURCE_TYPES_NEEDED_FOR_GENERATOR_SPREADSHEET = Set.of(
+        ResourceType.SUBSTATION,
+        ResourceType.VOLTAGE_LEVEL,
+        ResourceType.GENERATOR
+    );
+
+    public static final Set<ResourceType> RESOURCE_TYPES_NEEDED_FOR_LINE_SPREADSHEET = Set.of(
+        ResourceType.SUBSTATION,
+        ResourceType.VOLTAGE_LEVEL,
+        ResourceType.LINE
+    );
+
+    private static final Map<PreloadingStrategy, Set<ResourceType>> COUCOU = Map.of(
+        PreloadingStrategy.ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW, RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW,
+        PreloadingStrategy.ALL_COLLECTIONS_NEEDED_FOR_GENERATOR_SPREADSHEET, RESOURCE_TYPES_NEEDED_FOR_GENERATOR_SPREADSHEET,
+        PreloadingStrategy.ALL_COLLECTIONS_NEEDED_FOR_LINE_SPREADSHEET, RESOURCE_TYPES_NEEDED_FOR_LINE_SPREADSHEET
+    );
+
+    private final Set<ResourceType> allCollectionsToLoad;
 
     private final ExecutorService executorService;
 
     private final NetworkCollectionIndex<Set<ResourceType>> cachedResourceTypes
             = new NetworkCollectionIndex<>(() -> EnumSet.noneOf(ResourceType.class));
 
-    public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
+    public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, PreloadingStrategy preloadingStrategy,
                                         ExecutorService executorService) {
         super(delegate);
-        this.allCollectionsNeededForBusView = allCollectionsNeededForBusView;
+        this.allCollectionsToLoad = COUCOU.getOrDefault(preloadingStrategy, null);
         this.executorService = Objects.requireNonNull(executorService);
     }
 
@@ -91,15 +109,15 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         }
     }
 
-    private void loadAllCollectionsNeededForBusView(UUID networkUuid, int variantNum, Set<ResourceType> resourceTypes) {
+    private void loadAllCollections(UUID networkUuid, int variantNum, Set<ResourceType> resourceTypesToLoad, Set<ResourceType> loadedResourceTypes) {
         // directly load all collections
         Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Future<?>> futures = new ArrayList<>(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW.size());
-        for (ResourceType resourceType : RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW) {
+        List<Future<?>> futures = new ArrayList<>(resourceTypesToLoad.size());
+        for (ResourceType resourceType : resourceTypesToLoad) {
             futures.add(executorService.submit(() -> loadToCache(resourceType, networkUuid, variantNum)));
         }
         ExecutorUtil.waitAllFutures(futures);
-        resourceTypes.addAll(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW);
+        loadedResourceTypes.addAll(resourceTypesToLoad);
         stopwatch.stop();
         LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
@@ -115,8 +133,8 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         Objects.requireNonNull(networkUuid);
         Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
         if (!resourceTypes.contains(resourceType)) {
-            if (allCollectionsNeededForBusView && RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW.contains(resourceType)) {
-                loadAllCollectionsNeededForBusView(networkUuid, variantNum, resourceTypes);
+            if (allCollectionsToLoad != null && allCollectionsToLoad.contains(resourceType)) {
+                loadAllCollections(networkUuid, variantNum, allCollectionsToLoad, resourceTypes);
             } else {
                 loadToCache(resourceType, networkUuid, variantNum);
                 resourceTypes.add(resourceType);
