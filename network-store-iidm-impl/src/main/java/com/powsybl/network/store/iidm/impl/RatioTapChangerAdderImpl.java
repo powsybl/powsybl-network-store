@@ -113,9 +113,9 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
     }
 
     @Override
-    public RatioTapChangerAdder setSolvedTapPosition(Integer integer) {
-        // FIXME: implement
-        return null;
+    public RatioTapChangerAdder setSolvedTapPosition(Integer solvedTapPosition) {
+        this.solvedTapPosition = solvedTapPosition;
+        return this;
     }
 
     @Override
@@ -160,6 +160,11 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
+        if (solvedTapPosition != null && (solvedTapPosition < lowTapPosition || solvedTapPosition > highTapPosition)) {
+            throw new ValidationException(tapChangerParent, "incorrect solved tap position "
+                + solvedTapPosition + " [" + lowTapPosition + ", " + highTapPosition
+                + "]");
+        }
         ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, regulationMode, regulationValue, index.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
@@ -175,6 +180,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)
                 .lowTapPosition(lowTapPosition)
                 .tapPosition(tapPosition)
+                .solvedTapPosition(solvedTapPosition)
                 .targetDeadband(targetDeadband)
                 .regulationValue(regulationValue)
                 .steps(steps)

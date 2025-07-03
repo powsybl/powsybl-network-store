@@ -38,8 +38,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
 
     @Override
     public Integer getSolvedSectionCount() {
-        // FIXME to be implemented
-        return 0;
+        return getResource().getAttributes().getSolvedSectionCount();
     }
 
     @Override
@@ -54,9 +53,26 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
     }
 
     @Override
-    public ShuntCompensator setSolvedSectionCount(int i) {
-        // FIXME to be implemented
-        return null;
+    public ShuntCompensator setSolvedSectionCount(int solvedSectionCount) {
+        Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
+        checkSolvedSectionCount(solvedSectionCount, getMaximumSectionCount());
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(solvedSectionCount),
+            "solvedSectionCount", oldValue, solvedSectionCount);
+        return this;
+    }
+
+    @Override
+    public ShuntCompensator unsetSolvedSectionCount() {
+        Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(null),
+            "solvedSectionCount", oldValue, null);
+        return this;
+    }
+
+    private void checkSolvedSectionCount(Integer solvedSectionCount, int maximumSectionCount) {
+        if (solvedSectionCount != null && (solvedSectionCount < 0 || solvedSectionCount > maximumSectionCount)) {
+            throw new ValidationException(this, "unexpected solved section number (" + solvedSectionCount + "): no existing associated section");
+        }
     }
 
     @Override

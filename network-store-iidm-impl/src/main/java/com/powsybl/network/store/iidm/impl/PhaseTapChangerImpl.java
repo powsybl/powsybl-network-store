@@ -9,10 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -95,18 +92,6 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     }
 
     @Override
-    public Integer getSolvedTapPosition() {
-        // FIXME to be implemented
-        return 0;
-    }
-
-    @Override
-    public PhaseTapChanger setSolvedTapPosition(int i) {
-        // FIXME to be implemented
-        return null;
-    }
-
-    @Override
     public int getStepCount() {
         return getAttributes().getSteps().size();
     }
@@ -131,8 +116,11 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public PhaseTapChangerStep getSolvedCurrentStep() {
-        // FIXME to be implemented
-        return null;
+        Integer solvedPosition = getAttributes().getSolvedTapPosition();
+        if (solvedPosition == null) {
+            return null;
+        }
+        return getStep(solvedPosition);
     }
 
     @Override

@@ -125,13 +125,12 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
     public PhaseTapChangerAdder setTapPosition(int tapPosition) {
         this.tapPosition = tapPosition;
         return this;
-
     }
 
     @Override
-    public PhaseTapChangerAdder setSolvedTapPosition(Integer integer) {
-        // FIXME to be implemented
-        return null;
+    public PhaseTapChangerAdder setSolvedTapPosition(Integer solvedTapPosition) {
+        this.solvedTapPosition = solvedTapPosition;
+        return this;
     }
 
     @Override
@@ -183,6 +182,11 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
+        if (solvedTapPosition != null && (solvedTapPosition < lowTapPosition || solvedTapPosition > highTapPosition)) {
+            throw new ValidationException(tapChangerParent, "incorrect solved tap position "
+                + solvedTapPosition + " [" + lowTapPosition + ", " + highTapPosition
+                + "]");
+        }
         ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities, regulatingTerminal, tapChangerParent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, index.getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
@@ -199,6 +203,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .regulationValue(regulationValue)
                 .steps(steps)
                 .tapPosition(tapPosition)
+                .solvedTapPosition(solvedTapPosition)
                 .targetDeadband(targetDeadband)
                 .regulatingPoint(regulatingPointAttributes)
                 .build();

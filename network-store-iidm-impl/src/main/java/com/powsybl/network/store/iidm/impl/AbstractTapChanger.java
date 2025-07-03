@@ -160,6 +160,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
                 + getTapPosition() + " [" + getLowTapPosition() + ", "
                 + newHighTapPosition + "]");
         }
+        OptionalInt solvedTap = findSolvedTapPosition();
+        if (solvedTap.isPresent() && solvedTap.getAsInt() > newHighTapPosition) {
+            throwIncorrectSolvedTapPosition(solvedTap.getAsInt(), newHighTapPosition);
+        }
 
         List<TapChangerStepAttributes> oldValue = getAttributes().getSteps();
         getTransformer().updateResource(res -> getAttributes(res).setSteps(steps),
@@ -195,6 +199,40 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     protected void throwIncorrectTapPosition(int tapPosition, int lowTapPosition, int highTapPosition) {
         throw new ValidationException(parent, "incorrect tap position "
             + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + "]");
+    }
+
+    public Integer getSolvedTapPosition() {
+        return getAttributes().getSolvedTapPosition();
+    }
+
+    public OptionalInt findSolvedTapPosition() {
+        Integer solvedPosition = getSolvedTapPosition();
+        return solvedPosition == null ? OptionalInt.empty() : OptionalInt.of(solvedPosition);
+    }
+
+    public C setSolvedTapPosition(int solvedTapPosition) {
+        Integer oldValue = getSolvedTapPosition();
+        if (solvedTapPosition < getLowTapPosition() || solvedTapPosition > getHighTapPosition()) {
+            throwIncorrectSolvedTapPosition(solvedTapPosition, getHighTapPosition());
+        }
+        getAttributes().setSolvedTapPosition(solvedTapPosition);
+        String variantId = getTransformer().getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(getTransformer(), "solvedTapPosition", variantId, oldValue, solvedTapPosition);
+        return (C) this;
+    }
+
+    public C unsetSolvedTapPosition() {
+        Integer oldValue = getSolvedTapPosition();
+        getAttributes().setSolvedTapPosition(null);
+        String variantId = getTransformer().getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(getTransformer(), "solvedTapPosition", variantId, oldValue, null);
+        return (C) this;
+    }
+
+    protected void throwIncorrectSolvedTapPosition(int solvedTapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect solved tap position "
+            + solvedTapPosition + " [" + getLowTapPosition() + ", " + highTapPosition
             + "]");
     }
 }

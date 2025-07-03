@@ -29,8 +29,8 @@ class BusbarSectionGetPqTest {
         assertEquals(0, terminal.getP());
         assertEquals(0, terminal.getQ());
         PowsyblException e = assertThrows(PowsyblException.class, () -> terminal.setP(1));
-        assertEquals("Terminal of connectable : S1VL1_BBS cannot set active power on a busbar section", e.getMessage());
+        assertEquals("Terminal of connectable 'S1VL1_BBS':  cannot set active power on a busbar section", e.getMessage());
         e = assertThrows(PowsyblException.class, () -> terminal.setQ(1));
-        assertEquals("Terminal of connectable : S1VL1_BBS cannot set reactive power on a busbar section", e.getMessage());
+        assertEquals("Terminal of connectable 'S1VL1_BBS':  cannot set reactive power on a busbar section", e.getMessage());
     }
 }

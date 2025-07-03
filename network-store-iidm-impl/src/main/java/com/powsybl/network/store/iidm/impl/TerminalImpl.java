@@ -561,7 +561,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     @Override
     public MessageHeader getMessageHeader() {
-        return new DefaultMessageHeader("Terminal of connectable : ", connectable.getId());
+        return new DefaultMessageHeader("Terminal of connectable", connectable.getId());
     }
 
     @Override

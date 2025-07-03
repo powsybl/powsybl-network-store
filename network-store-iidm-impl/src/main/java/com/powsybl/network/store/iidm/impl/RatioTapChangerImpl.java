@@ -9,10 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -65,18 +62,6 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
-    public Integer getSolvedTapPosition() {
-        // FIXME: to implement
-        return 0;
-    }
-
-    @Override
-    public RatioTapChanger setSolvedTapPosition(int i) {
-        // FIXME: to implement
-        return null;
-    }
-
-    @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, hasLoadTapChangingCapabilities(), getRegulationTerminal(), getRegulationMode(), getRegulationValue(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
 
@@ -118,8 +103,11 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChangerStep getSolvedCurrentStep() {
-        // FIXME: to implement
-        return null;
+        Integer solvedPosition = getAttributes().getSolvedTapPosition();
+        if (solvedPosition == null) {
+            return null;
+        }
+        return getStep(solvedPosition);
     }
 
     @Override

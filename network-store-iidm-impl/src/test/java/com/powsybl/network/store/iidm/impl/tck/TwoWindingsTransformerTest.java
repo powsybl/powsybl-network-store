@@ -15,11 +15,6 @@ import org.junit.jupiter.api.Test;
 class TwoWindingsTransformerTest extends AbstractTwoWindingsTransformerTest {
     @Test
     public void createTwoWindingsTransformerWithSolvedTapPosition() {
-        // TODO document why this method is empty
-    }
-
-    @Override
-    public void baseTests() {
-        // TODO document why this method is empty
+        // problem of phase tap changer equality
     }
 }

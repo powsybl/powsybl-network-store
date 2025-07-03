@@ -197,7 +197,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         @Override
         public MessageHeader getMessageHeader() {
-            return new DefaultMessageHeader(String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation.getName()), getId());
+            return new DefaultMessageHeader(String.format("3 windings transformer leg%d in substation", legNumber), substation.getNameOrId());
         }
 
         protected LegAttributes toLegAttributes() {
