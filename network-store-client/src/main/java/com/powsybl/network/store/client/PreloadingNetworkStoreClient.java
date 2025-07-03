@@ -113,6 +113,15 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         // directly load all collections
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Future<?>> futures = new ArrayList<>(resourceTypesToLoad.size());
+        if (resourceTypesToLoad.contains(ResourceType.GENERATOR)) {
+            futures.add(executorService.submit(() -> delegate.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, ResourceType.GENERATOR, "activePowerControl")));
+            futures.add(executorService.submit(() -> delegate.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, ResourceType.GENERATOR, "startup")));
+            futures.add(executorService.submit(() -> delegate.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, ResourceType.GENERATOR, "measurements")));
+            futures.add(executorService.submit(() -> delegate.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, ResourceType.GENERATOR, "injectionObservability")));
+        }
+        if (resourceTypesToLoad.contains(ResourceType.LINE)) {
+            futures.add(executorService.submit(() -> delegate.getAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, ResourceType.LINE)));
+        }
         for (ResourceType resourceType : resourceTypesToLoad) {
             futures.add(executorService.submit(() -> loadToCache(resourceType, networkUuid, variantNum)));
         }
