@@ -31,8 +31,6 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
-    private boolean loadTapChangingCapabilities = false;
-
     private double regulationValue = Double.NaN;
 
     private RatioTapChanger.RegulationMode regulationMode;
@@ -99,6 +97,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         super(index);
         this.tapChangerParent = tapChangerParent;
         this.attributesGetter = attributesGetter;
+        this.loadTapChangingCapabilities = false;
     }
 
     @Override
@@ -110,6 +109,12 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
     @Override
     public RatioTapChangerAdder setTapPosition(int tapPosition) {
         this.tapPosition = tapPosition;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setSolvedTapPosition(Integer solvedTapPosition) {
+        this.solvedTapPosition = solvedTapPosition;
         return this;
     }
 
@@ -155,6 +160,11 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
+        if (solvedTapPosition != null && (solvedTapPosition < lowTapPosition || solvedTapPosition > highTapPosition)) {
+            throw new ValidationException(tapChangerParent, "incorrect solved tap position "
+                + solvedTapPosition + " [" + lowTapPosition + ", " + highTapPosition
+                + "]");
+        }
         ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, regulationMode, regulationValue, index.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
@@ -164,12 +174,13 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
         String regulationModeStr = regulationMode == null ? null : regulationMode.toString();
-        RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.RATIO_TAP_CHANGER, regulationModeStr);
+        RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.RATIO_TAP_CHANGER, regulationModeStr, regulating);
 
         RatioTapChangerAttributes ratioTapChangerAttributes = RatioTapChangerAttributes.builder()
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)
                 .lowTapPosition(lowTapPosition)
                 .tapPosition(tapPosition)
+                .solvedTapPosition(solvedTapPosition)
                 .targetDeadband(targetDeadband)
                 .regulationValue(regulationValue)
                 .steps(steps)

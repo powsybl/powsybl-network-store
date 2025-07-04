@@ -177,8 +177,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
 
         @Override
-        public String getMessageHeader() {
-            return "generation part for dangling line '" + danglingLine.getId() + "': ";
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader("generation part for dangling line", danglingLine.getId());
         }
     }
 
@@ -393,6 +393,17 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+        Optional<OperationalLimitsGroup> operationalLimitsGroup = getSelectedOperationalLimitsGroup();
+        if (operationalLimitsGroup.isPresent()) {
+            return operationalLimitsGroup.get();
+        }
+        OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        setSelectedOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        return newOperationalLimitsGroup;
+    }
+
+    @Override
     public Optional<CurrentLimits> getCurrentLimits() {
         return Optional.ofNullable(getNullableCurrentLimits());
     }
@@ -429,6 +440,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
                 : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
     }
 
+    // newLimits methods are deprecated to be replaced by OperationalLimitsGroup#newLimits
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
         updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());

@@ -9,13 +9,14 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
+import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-
+@EqualsAndHashCode
 public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
     private final PhaseTapChangerImpl phaseTapChanger;

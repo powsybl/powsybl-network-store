@@ -59,7 +59,7 @@ class GeneratorTest {
         // remove the load
         network.getLoad("LD2").remove();
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertFalse(generator.isVoltageRegulatorOn());
     }
 
     @Test

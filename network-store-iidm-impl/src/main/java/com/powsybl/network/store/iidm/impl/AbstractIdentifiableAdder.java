@@ -7,12 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 
 /**
@@ -128,7 +123,7 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
     }
 
     @Override
-    public String getMessageHeader() {
-        return getTypeDescription() + " '" + id + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader(getTypeDescription(), id);
     }
 }
