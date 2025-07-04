@@ -25,7 +25,11 @@ public interface NetworkStoreClient {
 
     void createNetworks(List<Resource<NetworkAttributes>> networkResources);
 
-    List<VariantInfos> getVariantsInfos(UUID networkUuid);
+    List<VariantInfos> getVariantsInfos(UUID networkUuid, boolean disableCache);
+
+    default List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        return getVariantsInfos(networkUuid, false);
+    }
 
     Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum);
 
