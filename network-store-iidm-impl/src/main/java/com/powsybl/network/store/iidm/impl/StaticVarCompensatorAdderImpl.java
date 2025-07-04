@@ -24,7 +24,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
 
     private boolean regulating = false;
 
-    StaticVarCompensator.RegulationMode regulationMode;
+    StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
 
     private Terminal regulatingTerminal;
 
