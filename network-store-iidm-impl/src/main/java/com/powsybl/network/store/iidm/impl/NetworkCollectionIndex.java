@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -17,7 +18,7 @@ import java.util.function.Supplier;
  */
 public class NetworkCollectionIndex<C> {
 
-    private final Map<Pair<UUID, Integer>, C> collections = new LinkedHashMap<>();
+    private final Map<Pair<UUID, Integer>, C> collections = new ConcurrentSkipListMap<>();
 
     private final Supplier<C> factory;
 
