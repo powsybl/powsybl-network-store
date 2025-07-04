@@ -238,7 +238,7 @@ public class RestNetworkStoreClientTest {
     @Test
     public void test() throws JsonProcessingException {
         setupNetworkStubs();
-        try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE)) {
+        try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.none())) {
             assertEquals(Collections.singletonMap(networkUuid, "n1"), service.getNetworkIds());
             Network network = service.getNetwork(networkUuid);
             assertEquals("n1", network.getId());
