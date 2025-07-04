@@ -12,6 +12,9 @@ import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
@@ -21,13 +24,13 @@ import java.util.List;
 public class PreloadingStrategy {
 
     @Builder.Default
-    boolean ignored = false;
+    private boolean ignored = false;
 
     @Builder.Default
-    boolean collection = false;
+    private boolean collection = false;
 
     @Builder.Default
-    List<PreloadingResource> resources = Collections.emptyList();
+    private List<PreloadingResource> resources = Collections.emptyList();
 
     public List<ResourceType> getResourceTypes() {
         return resources.stream().map(PreloadingResource::getType).toList();
@@ -43,23 +46,30 @@ public class PreloadingStrategy {
 
     public static PreloadingStrategy allCollectionsNeededForBusView() {
         return PreloadingStrategy.builder().resources(List.of(
-            PreloadingResource.builder().type(ResourceType.SUBSTATION).build(),
-            PreloadingResource.builder().type(ResourceType.VOLTAGE_LEVEL).build(),
-            PreloadingResource.builder().type(ResourceType.LOAD).build(),
-            PreloadingResource.builder().type(ResourceType.GENERATOR).build(),
-            PreloadingResource.builder().type(ResourceType.BATTERY).build(),
-            PreloadingResource.builder().type(ResourceType.SHUNT_COMPENSATOR).build(),
-            PreloadingResource.builder().type(ResourceType.VSC_CONVERTER_STATION).build(),
-            PreloadingResource.builder().type(ResourceType.LCC_CONVERTER_STATION).build(),
-            PreloadingResource.builder().type(ResourceType.STATIC_VAR_COMPENSATOR).build(),
-            PreloadingResource.builder().type(ResourceType.BUSBAR_SECTION).build(), // FIXME this should not be in the list but as connectable visitor also visit busbar sections we need to keep it
-            PreloadingResource.builder().type(ResourceType.GROUND).build(),
-            PreloadingResource.builder().type(ResourceType.TWO_WINDINGS_TRANSFORMER).build(),
-            PreloadingResource.builder().type(ResourceType.THREE_WINDINGS_TRANSFORMER).build(),
-            PreloadingResource.builder().type(ResourceType.LINE).build(),
-            PreloadingResource.builder().type(ResourceType.HVDC_LINE).build(),
-            PreloadingResource.builder().type(ResourceType.DANGLING_LINE).build(),
-            PreloadingResource.builder().type(ResourceType.TIE_LINE).build())
+            BasePreloadingResource.builder().type(ResourceType.SUBSTATION).build(),
+            BasePreloadingResource.builder().type(ResourceType.VOLTAGE_LEVEL).build(),
+            BasePreloadingResource.builder().type(ResourceType.LOAD).build(),
+            BasePreloadingResource.builder().type(ResourceType.GENERATOR).build(),
+            BasePreloadingResource.builder().type(ResourceType.BATTERY).build(),
+            BasePreloadingResource.builder().type(ResourceType.SHUNT_COMPENSATOR).build(),
+            BasePreloadingResource.builder().type(ResourceType.VSC_CONVERTER_STATION).build(),
+            BasePreloadingResource.builder().type(ResourceType.LCC_CONVERTER_STATION).build(),
+            BasePreloadingResource.builder().type(ResourceType.STATIC_VAR_COMPENSATOR).build(),
+            BasePreloadingResource.builder().type(ResourceType.BUSBAR_SECTION).build(), // FIXME this should not be in the list but as connectable visitor also visit busbar sections we need to keep it
+            BasePreloadingResource.builder().type(ResourceType.GROUND).build(),
+            BasePreloadingResource.builder().type(ResourceType.TWO_WINDINGS_TRANSFORMER).build(),
+            BasePreloadingResource.builder().type(ResourceType.THREE_WINDINGS_TRANSFORMER).build(),
+            BasePreloadingResource.builder().type(ResourceType.LINE).build(),
+            BasePreloadingResource.builder().type(ResourceType.HVDC_LINE).build(),
+            BasePreloadingResource.builder().type(ResourceType.DANGLING_LINE).build(),
+            BasePreloadingResource.builder().type(ResourceType.TIE_LINE).build())
         ).build();
+    }
+
+    public CompletableFuture<Void> loadResources(PreloadingNetworkStoreClient client, UUID networkUuid, int variantNum, Set<ResourceType> loadedResourceTypes) {
+        return CompletableFuture.allOf(getResources()
+            .stream()
+            .map(preloadingResource -> preloadingResource.loadResource(client, networkUuid, variantNum, loadedResourceTypes))
+            .toArray(CompletableFuture[]::new));
     }
 }

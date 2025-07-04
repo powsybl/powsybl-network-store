@@ -7,21 +7,16 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.network.store.model.ResourceType;
-import lombok.Builder;
-import lombok.Getter;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
-@Getter
-@Builder
-public class PreloadingResource {
+public interface PreloadingResource {
+    ResourceType getType();
 
-    ResourceType type;
-
-    @Builder.Default
-    List<String> extensions = Collections.emptyList();
+    CompletableFuture<Void> loadResource(PreloadingNetworkStoreClient client, UUID networkUuid, int variantNum, Set<ResourceType> loadedResourceTypes);
 }
