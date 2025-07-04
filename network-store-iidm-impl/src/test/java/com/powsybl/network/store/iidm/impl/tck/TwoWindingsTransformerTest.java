@@ -7,14 +7,9 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractTwoWindingsTransformerTest;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class TwoWindingsTransformerTest extends AbstractTwoWindingsTransformerTest {
-    @Test
-    public void createTwoWindingsTransformerWithSolvedTapPosition() {
-        // problem of phase tap changer equality
-    }
 }
