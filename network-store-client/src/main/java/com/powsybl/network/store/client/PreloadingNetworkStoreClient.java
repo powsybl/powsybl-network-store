@@ -883,22 +883,4 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         delegate.loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
         return delegate.getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, resourceType, id);
     }
-
-    @Override
-    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupId, int side) {
-        delegate.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
-        return delegate.getOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitGroupId, side);
-    }
-
-    @Override
-    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupId, int side) {
-        delegate.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
-        return delegate.getSelectedOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitGroupId, side);
-    }
-
-    @Override
-    public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
-        delegate.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
-        return delegate.getOperationalLimitsGroupAttributesForBranchSide(networkUuid, variantNum, resourceType, branchId, side);
-    }
 }

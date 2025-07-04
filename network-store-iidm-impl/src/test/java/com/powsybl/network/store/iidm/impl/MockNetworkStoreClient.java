@@ -98,31 +98,6 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String operationalLimitGroupName, int side) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side) {
-        return Optional.empty();
-    }
-
-    @Override
-    public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
-        return List.of();
-    }
-
-    @Override
-    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        return Map.of();
-    }
-
-    @Override
-    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        return Map.of();
-    }
-
-    @Override
     public List<NetworkInfos> getNetworksInfos() {
         throw new UnsupportedOperationException("Unimplemented method");
     }
