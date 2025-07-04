@@ -1274,16 +1274,4 @@ public class NetworkObjectIndex {
     public void removeExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
         storeClient.removeExtensionAttributes(network.getUuid(), workingVariantNum, type, identifiableId, extensionName);
     }
-
-    public void loadOperationalLimitsGroupAttributes(ResourceType type, String branchId, String operationalLimitGroupName, int side) {
-        storeClient.getOperationalLimitsGroupAttributes(network.getUuid(), workingVariantNum, type, branchId, operationalLimitGroupName, side);
-    }
-
-    public void loadOperationalLimitsGroupAttributesForBranchSide(ResourceType type, String branchId, int side) {
-        storeClient.getOperationalLimitsGroupAttributesForBranchSide(network.getUuid(), workingVariantNum, type, branchId, side);
-    }
-
-    public void loadSelectedOperationalLimitsGroupAttributes(ResourceType type, String branchId, String operationalLimitGroupName, int side) {
-        storeClient.getSelectedOperationalLimitsGroupAttributes(network.getUuid(), workingVariantNum, type, branchId, operationalLimitGroupName, side);
-    }
 }
