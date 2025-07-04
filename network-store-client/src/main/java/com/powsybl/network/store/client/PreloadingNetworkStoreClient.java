@@ -71,28 +71,32 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         }
     }
 
+    public CompletableFuture<Void> loadToCacheAsync(UUID networkUuid, int variantNum, ResourceType type) {
+        return CompletableFuture.runAsync(() -> loadToCache(type, networkUuid, variantNum), executorService);
+    }
+
+    public CompletableFuture<Void> loadAllExtensionsAttributesByResourceTypeAndExtensionNameAsync(UUID networkUuid, int variantNum, ResourceType type, String extensionName) {
+        return CompletableFuture.runAsync(
+            () -> delegate.loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, type, extensionName),
+            executorService);
+    }
+
+    public CompletableFuture<Void> loadAllOperationalLimitsGroupAttributesByResourceTypeAsync(UUID networkUuid, int variantNum, ResourceType type) {
+        return CompletableFuture.runAsync(
+            () -> delegate.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type),
+            executorService);
+    }
+
+    public CompletableFuture<Void> loadAllSelectedOperationalLimitsGroupAttributesByResourceTypeAsync(UUID networkUuid, int variantNum, ResourceType type) {
+        return CompletableFuture.runAsync(
+            () -> delegate.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type),
+            executorService);
+    }
+
     private void loadAllCollections(UUID networkUuid, int variantNum, PreloadingStrategy preloadingStrategy, Set<ResourceType> loadedResourceTypes) {
         // directly load all collections
         Stopwatch stopwatch = Stopwatch.createStarted();
-        CompletableFuture.allOf(preloadingStrategy
-            .getResources()
-            .stream()
-            .map(preloadingResource ->
-                CompletableFuture.runAsync(() -> loadToCache(preloadingResource.getType(), networkUuid, variantNum), executorService)
-                    .thenRun(() -> {
-                            loadedResourceTypes.add(preloadingResource.getType());
-                            CompletableFuture.allOf(preloadingResource
-                                .getExtensions()
-                                .stream()
-                                .map(extension -> CompletableFuture.runAsync(
-                                    () -> delegate.loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, preloadingResource.getType(), extension),
-                                    executorService)
-                                ).toArray(CompletableFuture[]::new)
-                            ).join();
-                        }
-                    )
-            )
-            .toArray(CompletableFuture[]::new)).join();
+        preloadingStrategy.loadResources(this, networkUuid, variantNum, loadedResourceTypes).join();
         stopwatch.stop();
         LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
