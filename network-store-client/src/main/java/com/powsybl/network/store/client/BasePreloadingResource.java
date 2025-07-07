@@ -31,10 +31,9 @@ public class BasePreloadingResource implements PreloadingResource {
     protected List<String> extensions = Collections.emptyList();
 
     @Override
-    public CompletableFuture<Void> loadResource(PreloadingNetworkStoreClient client, UUID networkUuid, int variantNum, Set<ResourceType> loadedResourceTypes) {
+    public CompletableFuture<Void> loadResource(PreloadingNetworkStoreClient client, UUID networkUuid, int variantNum) {
         return client.loadToCacheAsync(networkUuid, variantNum, getType())
             .thenRun(() -> {
-                    loadedResourceTypes.add(getType());
                     CompletableFuture.allOf(getExtensionsFutures(client, networkUuid, variantNum).toArray(new CompletableFuture[0])).join();
                 }
             );

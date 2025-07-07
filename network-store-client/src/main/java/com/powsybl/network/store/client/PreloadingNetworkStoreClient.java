@@ -45,6 +45,8 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     private void loadToCache(ResourceType resourceType, UUID networkUuid, int variantNum) {
+        var resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
+        resourceTypes.add(resourceType);
         switch (resourceType) {
             case SUBSTATION -> delegate.getSubstations(networkUuid, variantNum);
             case VOLTAGE_LEVEL -> delegate.getVoltageLevels(networkUuid, variantNum);
@@ -93,12 +95,12 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             executorService);
     }
 
-    private void loadAllCollections(UUID networkUuid, int variantNum, PreloadingStrategy preloadingStrategy, Set<ResourceType> loadedResourceTypes) {
+    private void loadAllCollections(UUID networkUuid, int variantNum, PreloadingStrategy preloadingStrategy) {
         // directly load all collections
         Stopwatch stopwatch = Stopwatch.createStarted();
-        preloadingStrategy.loadResources(this, networkUuid, variantNum, loadedResourceTypes).join();
+        preloadingStrategy.loadResources(this, networkUuid, variantNum).join();
         stopwatch.stop();
-        LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        LOGGER.info("All needed collections loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     boolean isResourceTypeCached(UUID networkUuid, int variantNum, ResourceType resourceType) {
@@ -113,7 +115,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
         if (!resourceTypes.contains(resourceType)) {
             if (!preloadingStrategy.isCollection() && preloadingStrategy.getResourceTypes().contains(resourceType)) {
-                loadAllCollections(networkUuid, variantNum, preloadingStrategy, resourceTypes);
+                loadAllCollections(networkUuid, variantNum, preloadingStrategy);
             } else {
                 loadToCache(resourceType, networkUuid, variantNum);
                 resourceTypes.add(resourceType);

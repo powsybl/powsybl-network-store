@@ -38,12 +38,10 @@ public final class NetworkStoreConfig {
                 .getOptionalModuleConfig("network-store");
         String baseUrl = moduleConfig.flatMap(mc -> mc.getOptionalStringProperty("base-url"))
                 .orElse(DEFAULT_BASE_URL);
-        PreloadingStrategy preloadingStrategy = moduleConfig.flatMap(mc -> mc.getOptionalStringProperty("preloading-strategy")).map(s -> switch (s) {
-            case "COLLECTION" -> PreloadingStrategy.collection();
-            case "ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW" -> PreloadingStrategy.allCollectionsNeededForBusView();
-            default -> null;
-        })
-                .orElse(DEFAULT_PRELOADING_STRATEGY);
+        PreloadingStrategy preloadingStrategy = moduleConfig
+            .flatMap(mc -> mc.getOptionalStringProperty("preloading-strategy"))
+            .map(PreloadingStrategy::fromString)
+            .orElse(DEFAULT_PRELOADING_STRATEGY);
         return new NetworkStoreConfig(baseUrl)
                 .setPreloadingStrategy(preloadingStrategy);
     }

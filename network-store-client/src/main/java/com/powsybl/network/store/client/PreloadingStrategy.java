@@ -12,7 +12,6 @@ import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -31,6 +30,15 @@ public class PreloadingStrategy {
 
     public List<ResourceType> getResourceTypes() {
         return resources.stream().map(PreloadingResource::getType).toList();
+    }
+
+    public static PreloadingStrategy fromString(String preloadingStrategyStr) {
+        return switch (preloadingStrategyStr) {
+            case "COLLECTION" -> PreloadingStrategy.collection();
+            case "ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW" -> PreloadingStrategy.allCollectionsNeededForBusView();
+            case "NONE" -> null;
+            default -> throw new IllegalArgumentException("Unknown preloading strategy: " + preloadingStrategyStr);
+        };
     }
 
     public static PreloadingStrategy collection() {
@@ -59,10 +67,10 @@ public class PreloadingStrategy {
         ).build();
     }
 
-    public CompletableFuture<Void> loadResources(PreloadingNetworkStoreClient client, UUID networkUuid, int variantNum, Set<ResourceType> loadedResourceTypes) {
+    public CompletableFuture<Void> loadResources(PreloadingNetworkStoreClient client, UUID networkUuid, int variantNum) {
         return CompletableFuture.allOf(getResources()
             .stream()
-            .map(preloadingResource -> preloadingResource.loadResource(client, networkUuid, variantNum, loadedResourceTypes))
+            .map(preloadingResource -> preloadingResource.loadResource(client, networkUuid, variantNum))
             .toArray(CompletableFuture[]::new));
     }
 }

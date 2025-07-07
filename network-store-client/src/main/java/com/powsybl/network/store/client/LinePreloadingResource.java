@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.network.store.model.ResourceType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -29,10 +28,9 @@ public class LinePreloadingResource extends BasePreloadingResource implements Pr
     boolean loadOperationalLimits = false;
 
     @Override
-    public CompletableFuture<Void> loadResource(PreloadingNetworkStoreClient client, UUID networkUuid, int variantNum, Set<ResourceType> loadedResourceTypes) {
+    public CompletableFuture<Void> loadResource(PreloadingNetworkStoreClient client, UUID networkUuid, int variantNum) {
         return client.loadToCacheAsync(networkUuid, variantNum, getType())
             .thenRun(() -> {
-                    loadedResourceTypes.add(getType());
                     Set<CompletableFuture<Void>> futures = getExtensionsFutures(client, networkUuid, variantNum);
                     if (loadSelectedOperationalLimits) {
                         futures.add(client.loadAllSelectedOperationalLimitsGroupAttributesByResourceTypeAsync(networkUuid, variantNum, getType()));

@@ -21,10 +21,6 @@ public class PreloadingStrategyConfiguration {
 
     @Bean
     public PreloadingStrategy preloadingStrategy() {
-        return switch (strategy) {
-            case "COLLECTION" -> PreloadingStrategy.collection();
-            case "ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW" -> PreloadingStrategy.allCollectionsNeededForBusView();
-            default -> null;
-        };
+        return PreloadingStrategy.fromString(strategy);
     }
 }
