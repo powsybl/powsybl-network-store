@@ -83,17 +83,17 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             executorService);
     }
 
-    public CompletableFuture<Void> loadAllOperationalLimitsGroupAttributesByResourceTypeAsync(UUID networkUuid, int variantNum, ResourceType type) {
-        return CompletableFuture.runAsync(
-            () -> delegate.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type),
-            executorService);
-    }
-
-    public CompletableFuture<Void> loadAllSelectedOperationalLimitsGroupAttributesByResourceTypeAsync(UUID networkUuid, int variantNum, ResourceType type) {
-        return CompletableFuture.runAsync(
-            () -> delegate.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type),
-            executorService);
-    }
+//    public CompletableFuture<Void> loadAllOperationalLimitsGroupAttributesByResourceTypeAsync(UUID networkUuid, int variantNum, ResourceType type) {
+//        return CompletableFuture.runAsync(
+//            () -> delegate.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type),
+//            executorService);
+//    }
+//
+//    public CompletableFuture<Void> loadAllSelectedOperationalLimitsGroupAttributesByResourceTypeAsync(UUID networkUuid, int variantNum, ResourceType type) {
+//        return CompletableFuture.runAsync(
+//            () -> delegate.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type),
+//            executorService);
+//    }
 
     private void loadAllCollections(UUID networkUuid, int variantNum, PreloadingStrategy preloadingStrategy) {
         // directly load all collections
