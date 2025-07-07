@@ -100,7 +100,6 @@ public class NetworkStoreService implements AutoCloseable {
 
     private static NetworkStoreClient createStoreClient(RestClient restClient, PreloadingStrategy preloadingStrategy,
                                                         ExecutorService executorService) {
-        Objects.requireNonNull(preloadingStrategy);
         LOGGER.info("Preloading strategy: {}", preloadingStrategy);
         var cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient), executorService));
         if (preloadingStrategy == null) {
