@@ -609,4 +609,26 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             };
         }
     }
+
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1() {
+        Optional<OperationalLimitsGroup> operationalLimitsGroup = getSelectedOperationalLimitsGroup1();
+        if (operationalLimitsGroup.isPresent()) {
+            return operationalLimitsGroup.get();
+        }
+        OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup1(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        setSelectedOperationalLimitsGroup1(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        return newOperationalLimitsGroup;
+    }
+
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2() {
+        Optional<OperationalLimitsGroup> operationalLimitsGroup = getSelectedOperationalLimitsGroup2();
+        if (operationalLimitsGroup.isPresent()) {
+            return operationalLimitsGroup.get();
+        }
+        OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup2(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        setSelectedOperationalLimitsGroup2(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        return newOperationalLimitsGroup;
+    }
 }
