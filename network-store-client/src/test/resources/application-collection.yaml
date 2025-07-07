@@ -1,0 +1,5 @@
+powsybl:
+  services:
+    network-store-server:
+      base-uri: "/"
+      preloading-strategy: COLLECTION
