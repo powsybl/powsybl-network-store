@@ -11,6 +11,7 @@ import com.powsybl.network.store.iidm.impl.OfflineNetworkStoreClient;
 import com.powsybl.network.store.model.ResourceType;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
@@ -42,6 +43,26 @@ public class PreloadingAllCollectionsTest {
         client.getSubstations(networkUuid, 0);
         for (ResourceType resourceType : ResourceType.values()) {
             if (PreloadingStrategy.allCollectionsNeededForBusView().getResourceTypes().contains(resourceType)) {
+                assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
+            } else {
+                assertFalse(client.isResourceTypeCached(networkUuid, 0, resourceType));
+            }
+        }
+    }
+
+    @Test
+    public void testWithCustomCollections() {
+        var customPreloadingStrategy = PreloadingStrategy.builder()
+            .resources(List.of(
+                BasePreloadingResource.builder().type(ResourceType.SUBSTATION).build(),
+                LinePreloadingResource.builder().type(ResourceType.LINE).loadOperationalLimits(true).build()
+            ))
+            .build();
+        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), customPreloadingStrategy, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        client.getSubstations(networkUuid, 0);
+        for (ResourceType resourceType : ResourceType.values()) {
+            if (customPreloadingStrategy.getResourceTypes().contains(resourceType)) {
                 assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
             } else {
                 assertFalse(client.isResourceTypeCached(networkUuid, 0, resourceType));
