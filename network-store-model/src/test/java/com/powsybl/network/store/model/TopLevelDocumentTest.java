@@ -137,13 +137,4 @@ public class TopLevelDocumentTest {
         String jsonRef = "{\"data\":[],\"meta\":{}}";
         assertEquals(jsonRef, json);
     }
-
-    @Test
-    public void testEmptyOperationalLimitsGroupAttributes() throws IOException {
-        OperationalLimitsGroupAttributesTopLevelDocument document = OperationalLimitsGroupAttributesTopLevelDocument.empty();
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-        String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[],\"meta\":{}}";
-        assertEquals(jsonRef, json);
-    }
 }

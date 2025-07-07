@@ -25,7 +25,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -169,39 +168,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(String urlTemplate, Object... uriVariables) {
-        logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = restClient.getOneOperationalLimitsGroupAttributes(urlTemplate, uriVariables);
-        stopwatch.stop();
-        logGetOperationalLimitsGroupAttributesTime(operationalLimitsGroupAttributes.isPresent() ? 1 : 0, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-
-        return operationalLimitsGroupAttributes;
-    }
-
-    private List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranch(String urlTemplate, Object... uriVariables) {
-        logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        List<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributesList = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
-        stopwatch.stop();
-        logGetOperationalLimitsGroupAttributesTime(operationalLimitsGroupAttributesList.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
-
-        return operationalLimitsGroupAttributesList;
-    }
-
-    private Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getOperationalLimitsGroupAttributesNestedMap(String urlTemplate, Object... uriVariables) {
-        logGetOperationalLimitsGroupAttributesUrl(urlTemplate, uriVariables);
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> operationalLimitsGroupAttributes = restClient.get(urlTemplate, new ParameterizedTypeReference<>() { }, uriVariables);
-        stopwatch.stop();
-        AtomicLong loadedAttributesCount = new AtomicLong();
-        operationalLimitsGroupAttributes.values().forEach(map1 ->
-            map1.values().forEach(map2 -> loadedAttributesCount.addAndGet(map2.size())));
-        logGetOperationalLimitsGroupAttributesTime(loadedAttributesCount.get(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
-
-        return operationalLimitsGroupAttributes;
-    }
-
     private static void logGetExtensionAttributesUrl(String urlTemplate, Object... uriVariables) {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Loading extension attributes {}", UriComponentsBuilder.fromUriString(urlTemplate).build(uriVariables));
@@ -214,16 +180,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         } else {
             LOGGER.info("{} extension attributes loaded in {} ms", loadedAttributesCount, timeElapsed);
         }
-    }
-
-    private static void logGetOperationalLimitsGroupAttributesUrl(String urlTemplate, Object... uriVariables) {
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Loading operational limits group attributes {}", UriComponentsBuilder.fromUriString(urlTemplate).build(uriVariables));
-        }
-    }
-
-    private static void logGetOperationalLimitsGroupAttributesTime(long loadedAttributesCount, long timeElapsed) {
-        LOGGER.info("{} operational limits group attributes loaded in {} ms", loadedAttributesCount, timeElapsed);
     }
 
     private <T extends IdentifiableAttributes> void updatePartition(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
@@ -1024,34 +980,5 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
         restClient.delete("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions/{extensionName}", networkUuid, variantNum, identifiableId, extensionName);
-    }
-
-    @Override
-    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
-        return getOperationalLimitsGroupAttributes("/networks/{networkUuid}/{variantNum}/branch/{branchId}/types/{resourceType}/operationalLimitsGroup/{operationalLimitsGroupId}/side/{side}",
-            networkUuid, variantNum, branchId, resourceType, operationalLimitsGroupId, side);
-    }
-
-    @Override
-    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
-        return getOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitsGroupId, side);
-    }
-
-    @Override
-    public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
-        return getOperationalLimitsGroupAttributesForBranch("/networks/{networkUuid}/{variantNum}/branch/{branchId}/types/{resourceType}/side/{side}/operationalLimitsGroup",
-            networkUuid, variantNum, branchId, resourceType, side);
-    }
-
-    @Override
-    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup",
-            networkUuid, variantNum, resourceType);
-    }
-
-    @Override
-    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
-        return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/selected",
-            networkUuid, variantNum, resourceType);
     }
 }

@@ -21,6 +21,7 @@ import java.util.UUID;
 public interface NetworkStoreClient {
 
     // network
+
     List<NetworkInfos> getNetworksInfos();
 
     void createNetworks(List<Resource<NetworkAttributes>> networkResources);
@@ -347,40 +348,6 @@ public interface NetworkStoreClient {
     Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
 
     void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName);
-
-    // Limits Attributes
-    /**
-     * For one identifiable with a specific identifiable id, retrieves one operational limits group attributes by its name.
-     * @return {@link LimitsAttributes} which is a subset of an identifiable resource.
-     */
-    Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side);
-
-
-    /**
-     * For one identifiable with a specific identifiable id, retrieves the selected operational limits group attributes.
-     * @return {@link LimitsAttributes} which is a subset of an identifiable resource.
-     */
-    Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side);
-
-    /**
-     * For one identifiable with a specific identifiable id, retrieves all operational limits groups of one side.
-     * @return a list of {@link OperationalLimitsGroupAttributes}.
-     */
-    List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side);
-
-    /**
-     * For a specific resource type, retrieves all operational limits group attributes.
-     * Used for preloading collection strategy.
-     * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
-     */
-    Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
-
-    /**
-     * For a specific resource type, retrieves all selected operational limits group attributes.
-     * Used for preloading collection strategy.
-     * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
-     */
-    Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
 
     Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
 
