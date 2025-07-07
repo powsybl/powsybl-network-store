@@ -91,11 +91,11 @@ public class RestNetworkStoreClientTest {
                         .build())
                 .build();
 
-        server.expect(requestTo("/networks"))
+        server.expect(requestTo("/v1/networks"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(List.of(new NetworkInfos(networkUuid, "n1"))), MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n1)), MediaType.APPLICATION_JSON));
 
@@ -108,7 +108,7 @@ public class RestNetworkStoreClientTest {
                 .build();
         String substationsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(s1)));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(substationsJson, MediaType.APPLICATION_JSON));
 
@@ -133,7 +133,7 @@ public class RestNetworkStoreClientTest {
 
         String voltageLevelsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(vl)));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations/s1/voltage-levels"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations/s1/voltage-levels"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(voltageLevelsJson, MediaType.APPLICATION_JSON));
 
@@ -153,11 +153,11 @@ public class RestNetworkStoreClientTest {
 
         String breakersJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(breaker)));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + networkUuid))
+        server.expect(requestTo("/v1/networks/" + networkUuid))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(List.of(new VariantInfos(VariantManagerConstants.INITIAL_VARIANT_ID, Resource.INITIAL_VARIANT_NUM))), MediaType.APPLICATION_JSON));
 
@@ -187,34 +187,34 @@ public class RestNetworkStoreClientTest {
 
         String linesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(line)));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false"))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
 
         String errorExistingJson = objectMapper
                 .writeValueAsString(TopLevelError.of(ErrorObject.cloneOverExisting(VARIANT1)));
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false"))
                 .andExpect(method(PUT))
                 .andRespond(withBadRequest().body(errorExistingJson).contentType(MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=true"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=true"))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
 
         String errorInitialJson = objectMapper.writeValueAsString(TopLevelError.of(ErrorObject.cloneOverInitialForbidden()));
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VARIANT1 + "/toId/" + VariantManagerConstants.INITIAL_VARIANT_ID + "?mayOverwrite=true"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + VARIANT1 + "/toId/" + VariantManagerConstants.INITIAL_VARIANT_ID + "?mayOverwrite=true"))
                 .andExpect(method(PUT))
                 .andRespond(withBadRequest().body(errorInitialJson).contentType(MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo(Matchers.matchesPattern("/networks/.*\\?duplicateFrom=7928181c-7977-4592-ba19-88027e4254e4&targetVariantIds=" + VariantManagerConstants.INITIAL_VARIANT_ID)))
+        server.expect(requestTo(Matchers.matchesPattern("/v1/networks/.*\\?duplicateFrom=7928181c-7977-4592-ba19-88027e4254e4&targetVariantIds=" + VariantManagerConstants.INITIAL_VARIANT_ID)))
                 .andExpect(method(POST))
                 .andRespond(withSuccess());
 
-        server.expect(requestTo(Matchers.matchesPattern("/networks/.*/" + Resource.INITIAL_VARIANT_NUM)))
+        server.expect(requestTo(Matchers.matchesPattern("/v1/networks/.*/" + Resource.INITIAL_VARIANT_NUM)))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n2)), MediaType.APPLICATION_JSON));
 
@@ -230,7 +230,7 @@ public class RestNetworkStoreClientTest {
 
         String tieLineJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(tieLine)));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/tie-lines"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/tie-lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(tieLineJson, MediaType.APPLICATION_JSON));
     }
@@ -238,7 +238,7 @@ public class RestNetworkStoreClientTest {
     @Test
     public void test() throws JsonProcessingException {
         setupNetworkStubs();
-        try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.none())) {
+        try (NetworkStoreService service = new NetworkStoreService(restClient)) {
             assertEquals(Collections.singletonMap(networkUuid, "n1"), service.getNetworkIds());
             Network network = service.getNetwork(networkUuid);
             assertEquals("n1", network.getId());
@@ -335,7 +335,7 @@ public class RestNetworkStoreClientTest {
     @Test
     public void testRemoveError() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"wrongId\"]"))
                 .andRespond(withResourceNotFound());
@@ -348,7 +348,7 @@ public class RestNetworkStoreClientTest {
     @Test
     public void testRemoveWithResourceAccessException() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
-        server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
+        server.expect(ExpectedCount.times(2), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"wrongId2\"]"))
                 .andRespond(request -> {
@@ -362,7 +362,7 @@ public class RestNetworkStoreClientTest {
 
     private void testDeleteAllByType(List<String> ids, String type, Consumer<List<String>> deleteFunction) {
         String idsStr = String.join("\",\"", ids);
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/" + type))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/" + type))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"" + idsStr + "\"]"))
                 .andRespond(withSuccess());
@@ -374,7 +374,7 @@ public class RestNetworkStoreClientTest {
     public void testRawExtensionAttributes() {
         String identifiableId = "identifiableId";
         String extensionName = "extensionName1";
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("{\"data\":[{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}],\"meta\":{}}", MediaType.APPLICATION_JSON));
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
@@ -385,7 +385,7 @@ public class RestNetworkStoreClientTest {
     @Test
     public void testRawExtensionAttributesByIdentifiableId() {
         String identifiableId = "identifiableId";
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("{\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0},\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}}", MediaType.APPLICATION_JSON));
 
@@ -398,7 +398,7 @@ public class RestNetworkStoreClientTest {
 
     @Test
     public void testRawExtensionAttributesByResourceTypeAndExtensionName() {
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/" + ActivePowerControl.NAME))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/" + ActivePowerControl.NAME))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("{\"identifiableId1\":{\"extensionName\":\"unknownExtension\",\"attribute1\":true}}", MediaType.APPLICATION_JSON));
 
@@ -410,7 +410,7 @@ public class RestNetworkStoreClientTest {
 
     @Test
     public void testRawExtensionAttributesByResourceType() {
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("{\"identifiableId2\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}},\"identifiableId1\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0},\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0}}}", MediaType.APPLICATION_JSON));
 
@@ -426,7 +426,7 @@ public class RestNetworkStoreClientTest {
 
     @Test
     public void testOperationalLimitsGroupAttributesByResourceType() {
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
             .andExpect(method(GET))
             .andRespond(withSuccess("{\"lineId\":{\"1\":{\"olg1\":{\"id\":\"olg1\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}},\"LINE1\":{\"2\":{\"olg2\":{\"id\":\"olg2\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}}}", MediaType.APPLICATION_JSON));
 
@@ -445,7 +445,7 @@ public class RestNetworkStoreClientTest {
         int sourceVariantNum = 0;
         int targetVariantNum = 1;
         String targetVariantId = "id";
-        server.expect(requestTo("/networks/" + newNetworkUuid + "/" + sourceVariantNum + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
+        server.expect(requestTo("/v1/networks/" + newNetworkUuid + "/" + sourceVariantNum + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
             .andExpect(method(PUT))
             .andRespond(withServerError().body("network_pkey"));
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);

@@ -16,12 +16,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class PreloadingStrategyConfiguration {
 
+    @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}")
+    private String strategy;
+
     @Bean
-    public PreloadingStrategy preloadingStrategy(@Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") String strategy) {
+    public PreloadingStrategy preloadingStrategy() {
         return switch (strategy) {
             case "COLLECTION" -> PreloadingStrategy.collection();
             case "ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW" -> PreloadingStrategy.allCollectionsNeededForBusView();
-            default -> PreloadingStrategy.none();
+            default -> null;
         };
     }
 }

@@ -73,14 +73,14 @@ public class BufferedNetworkStoreClientTest {
                 .build();
         bufferedClient.updateNetworks(List.of(n1), null);
         // Partial clone 0 -> 1
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
         server.verify();
         server.reset();
         // Partial clone 1 -> 2
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         bufferedClient.cloneNetwork(networkUuid, targetVariantNum1, targetVariantNum2, targetVariantId2);
@@ -97,7 +97,7 @@ public class BufferedNetworkStoreClientTest {
                         .caseDate(ZonedDateTime.parse("2018-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1UpdatedAfterClone))))
                 .andRespond(withSuccess());
@@ -111,7 +111,7 @@ public class BufferedNetworkStoreClientTest {
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone0to1))))
                 .andRespond(withSuccess());
@@ -125,7 +125,7 @@ public class BufferedNetworkStoreClientTest {
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone1to2))))
                 .andRespond(withSuccess());

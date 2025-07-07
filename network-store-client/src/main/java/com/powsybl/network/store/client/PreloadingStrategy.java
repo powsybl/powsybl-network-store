@@ -24,9 +24,6 @@ import java.util.concurrent.CompletableFuture;
 public class PreloadingStrategy {
 
     @Builder.Default
-    private boolean ignored = false;
-
-    @Builder.Default
     private boolean collection = false;
 
     @Builder.Default
@@ -34,10 +31,6 @@ public class PreloadingStrategy {
 
     public List<ResourceType> getResourceTypes() {
         return resources.stream().map(PreloadingResource::getType).toList();
-    }
-
-    public static PreloadingStrategy none() {
-        return PreloadingStrategy.builder().ignored(true).build();
     }
 
     public static PreloadingStrategy collection() {

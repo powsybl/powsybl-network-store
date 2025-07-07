@@ -1,0 +1,4 @@
+powsybl:
+  services:
+    network-store-server:
+      base-uri: "/"
