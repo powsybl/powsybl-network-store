@@ -7,7 +7,6 @@
 package com.powsybl.network.store.client;
 
 import com.google.common.base.Stopwatch;
-import com.powsybl.network.store.client.util.ExecutorUtil;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
@@ -17,12 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Per collection preloading.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
@@ -30,41 +30,23 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PreloadingNetworkStoreClient.class);
 
-    static final Set<ResourceType> RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW = Set.of(
-        ResourceType.SUBSTATION,
-        ResourceType.VOLTAGE_LEVEL,
-        ResourceType.LOAD,
-        ResourceType.GENERATOR,
-        ResourceType.BATTERY,
-        ResourceType.SHUNT_COMPENSATOR,
-        ResourceType.VSC_CONVERTER_STATION,
-        ResourceType.LCC_CONVERTER_STATION,
-        ResourceType.STATIC_VAR_COMPENSATOR,
-        ResourceType.BUSBAR_SECTION, // FIXME this should not be in the list but as connectable visitor also visit busbar sections we need to keep it
-        ResourceType.GROUND,
-        ResourceType.TWO_WINDINGS_TRANSFORMER,
-        ResourceType.THREE_WINDINGS_TRANSFORMER,
-        ResourceType.LINE,
-        ResourceType.HVDC_LINE,
-        ResourceType.DANGLING_LINE,
-        ResourceType.TIE_LINE
-    );
-
-    private final boolean allCollectionsNeededForBusView;
+    private final PreloadingStrategy preloadingStrategy;
 
     private final ExecutorService executorService;
 
     private final NetworkCollectionIndex<Set<ResourceType>> cachedResourceTypes
-            = new NetworkCollectionIndex<>(() -> EnumSet.noneOf(ResourceType.class));
+        = new NetworkCollectionIndex<>(() -> EnumSet.noneOf(ResourceType.class));
 
-    public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
+    public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, PreloadingStrategy preloadingStrategy,
                                         ExecutorService executorService) {
         super(delegate);
-        this.allCollectionsNeededForBusView = allCollectionsNeededForBusView;
+        this.preloadingStrategy = preloadingStrategy;
         this.executorService = Objects.requireNonNull(executorService);
     }
 
     private void loadToCache(ResourceType resourceType, UUID networkUuid, int variantNum) {
+        var resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
+        resourceTypes.add(resourceType);
         switch (resourceType) {
             case SUBSTATION -> delegate.getSubstations(networkUuid, variantNum);
             case VOLTAGE_LEVEL -> delegate.getVoltageLevels(networkUuid, variantNum);
@@ -91,17 +73,34 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         }
     }
 
-    private void loadAllCollectionsNeededForBusView(UUID networkUuid, int variantNum, Set<ResourceType> resourceTypes) {
+    public CompletableFuture<Void> loadToCacheAsync(UUID networkUuid, int variantNum, ResourceType type) {
+        return CompletableFuture.runAsync(() -> loadToCache(type, networkUuid, variantNum), executorService);
+    }
+
+    public CompletableFuture<Void> loadAllExtensionsAttributesByResourceTypeAndExtensionNameAsync(UUID networkUuid, int variantNum, ResourceType type, String extensionName) {
+        return CompletableFuture.runAsync(
+            () -> delegate.loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, type, extensionName),
+            executorService);
+    }
+
+//    public CompletableFuture<Void> loadAllOperationalLimitsGroupAttributesByResourceTypeAsync(UUID networkUuid, int variantNum, ResourceType type) {
+//        return CompletableFuture.runAsync(
+//            () -> delegate.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type),
+//            executorService);
+//    }
+//
+//    public CompletableFuture<Void> loadAllSelectedOperationalLimitsGroupAttributesByResourceTypeAsync(UUID networkUuid, int variantNum, ResourceType type) {
+//        return CompletableFuture.runAsync(
+//            () -> delegate.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, type),
+//            executorService);
+//    }
+
+    private void loadAllCollections(UUID networkUuid, int variantNum, PreloadingStrategy preloadingStrategy) {
         // directly load all collections
         Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Future<?>> futures = new ArrayList<>(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW.size());
-        for (ResourceType resourceType : RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW) {
-            futures.add(executorService.submit(() -> loadToCache(resourceType, networkUuid, variantNum)));
-        }
-        ExecutorUtil.waitAllFutures(futures);
-        resourceTypes.addAll(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW);
+        preloadingStrategy.loadResources(this, networkUuid, variantNum).join();
         stopwatch.stop();
-        LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        LOGGER.info("All needed collections loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     boolean isResourceTypeCached(UUID networkUuid, int variantNum, ResourceType resourceType) {
@@ -115,8 +114,8 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         Objects.requireNonNull(networkUuid);
         Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
         if (!resourceTypes.contains(resourceType)) {
-            if (allCollectionsNeededForBusView && RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW.contains(resourceType)) {
-                loadAllCollectionsNeededForBusView(networkUuid, variantNum, resourceTypes);
+            if (!preloadingStrategy.isCollection() && preloadingStrategy.getResourceTypes().contains(resourceType)) {
+                loadAllCollections(networkUuid, variantNum, preloadingStrategy);
             } else {
                 loadToCache(resourceType, networkUuid, variantNum);
                 resourceTypes.add(resourceType);

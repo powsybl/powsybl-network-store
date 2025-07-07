@@ -110,7 +110,7 @@ public class CachedNetworkStoreClientTest {
                 .build();
 
         String line1Json = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(line1Json, MediaType.APPLICATION_JSON));
 
@@ -132,12 +132,12 @@ public class CachedNetworkStoreClientTest {
 
         // We expect all lines retrieval REST request to be executed just once
         String linesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1, l2)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
 
         // We expect single line retrieval by id REST request will never be executed (cache will be used)
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
+        server.expect(ExpectedCount.never(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
 
         // First time retrieval of all lines of the network
         List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
@@ -196,7 +196,7 @@ public class CachedNetworkStoreClientTest {
                 .build();
 
         String linesV1Json = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1, l2)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_1/lines"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_1/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesV1Json, MediaType.APPLICATION_JSON));
 
@@ -215,7 +215,7 @@ public class CachedNetworkStoreClientTest {
         // Single line retrieval by Id
 
         // We expect single line retrieval by id REST request will never be executed (cache will be used)
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
+        server.expect(ExpectedCount.never(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
 
         Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
@@ -228,7 +228,7 @@ public class CachedNetworkStoreClientTest {
         // Getting all lines of the network
 
         // We expect all lines retrieval REST request will be executed only once
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesV1Json, MediaType.APPLICATION_JSON));
 
@@ -277,7 +277,7 @@ public class CachedNetworkStoreClientTest {
                 .build();
 
         String alllinesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1, l2, l3)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(alllinesJson, MediaType.APPLICATION_JSON));
 
@@ -296,7 +296,7 @@ public class CachedNetworkStoreClientTest {
         // Single line retrieval by Id
 
         // We expect single line retrieval by id REST request will never be executed (cache will be used)
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
+        server.expect(ExpectedCount.never(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
 
         Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
@@ -308,10 +308,10 @@ public class CachedNetworkStoreClientTest {
 
         // Getting all lines of a specified voltage level
 
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_1/lines"));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_2/lines"));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_3/lines"));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_4/lines"));
+        server.expect(ExpectedCount.never(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_1/lines"));
+        server.expect(ExpectedCount.never(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_2/lines"));
+        server.expect(ExpectedCount.never(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_3/lines"));
+        server.expect(ExpectedCount.never(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_4/lines"));
 
         // Lines retrieval by voltage level (should use cache)
         lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, Resource.INITIAL_VARIANT_NUM, "VL_1");
@@ -364,7 +364,7 @@ public class CachedNetworkStoreClientTest {
                 .build();
 
         String allGroundsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(g1, g2, g3)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/grounds"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/grounds"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(allGroundsJson, MediaType.APPLICATION_JSON));
 
@@ -383,7 +383,7 @@ public class CachedNetworkStoreClientTest {
         // Single ground retrieval by Id
 
         // We expect single ground retrieval by id REST request will never be executed (cache will be used)
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/grounds/groundId1"));
+        server.expect(ExpectedCount.never(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/grounds/groundId1"));
 
         Resource<GroundAttributes> groundAttributesResource = cachedClient.getGround(networkUuid, Resource.INITIAL_VARIANT_NUM, "groundId1").orElse(null);
         assertNotNull(groundAttributesResource);
@@ -395,8 +395,8 @@ public class CachedNetworkStoreClientTest {
 
         // Getting all grounds of a specified voltage level
 
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_1/grounds"));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_2/grounds"));
+        server.expect(ExpectedCount.never(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_1/grounds"));
+        server.expect(ExpectedCount.never(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_2/grounds"));
 
         // ground retrieval by voltage level (should use cache)
         groundAttributesResources = cachedClient.getVoltageLevelGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, "VL_1");
@@ -429,7 +429,7 @@ public class CachedNetworkStoreClientTest {
 
         String breakersJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(breaker)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches/b1"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches/b1"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
@@ -448,7 +448,7 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches"))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
 
@@ -473,12 +473,12 @@ public class CachedNetworkStoreClientTest {
 
             if (i <= 10) {
                 String g1Json = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(g1Resource)));
-                server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + gId))
+                server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + gId))
                         .andExpect(method(GET))
                         .andRespond(withSuccess(g1Json, MediaType.APPLICATION_JSON));
             } else {
                 String json = objectMapper.writeValueAsString(IntStream.range(0, 11).mapToObj(value -> "g" + value).collect(Collectors.toList()));
-                server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables-ids"))
+                server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables-ids"))
                         .andExpect(method(GET))
                         .andRespond(withSuccess(json, MediaType.APPLICATION_JSON));
             }
@@ -508,7 +508,7 @@ public class CachedNetworkStoreClientTest {
         getExtensionAttributes(apc1, networkUuid, identifiableId, cachedClient, ActivePowerControl.NAME);
 
         // Not found extension
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ConnectablePosition.NAME))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ConnectablePosition.NAME))
                 .andExpect(method(GET))
                 .andRespond(withStatus(HttpStatus.NOT_FOUND));
 
@@ -528,7 +528,7 @@ public class CachedNetworkStoreClientTest {
                 .plannedActivePowerSetpoint(5)
                 .build();
         String oneExtensionAttributes = objectMapper.writeValueAsString(ExtensionAttributesTopLevelDocument.of(gs1));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + GeneratorStartup.NAME))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + GeneratorStartup.NAME))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
 
@@ -542,7 +542,7 @@ public class CachedNetworkStoreClientTest {
 
     private void removeExtensionAttributes(UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient, String extensionName) {
         // When calling removeExtensionAttributes, the attributes should be removed from the cache and no new request should be done
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
                 .andExpect(method(DELETE))
                 .andRespond(withSuccess());
         cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, extensionName);
@@ -555,7 +555,7 @@ public class CachedNetworkStoreClientTest {
 
     private void getExtensionAttributes(ExtensionAttributes extensionAttributes, UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient, String extensionName) throws JsonProcessingException {
         String oneExtensionAttributes = objectMapper.writeValueAsString(ExtensionAttributesTopLevelDocument.of(List.of(extensionAttributes)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
 
@@ -595,7 +595,7 @@ public class CachedNetworkStoreClientTest {
 
         String multipleExtensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
         }).writeValueAsString(Map.of(ActivePowerControl.NAME, apc1, GeneratorStartup.NAME, gs1));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
 
@@ -609,7 +609,7 @@ public class CachedNetworkStoreClientTest {
         server.reset();
 
         // When calling removeExtensionAttributes, the attributes should be removed from the cache and no new request should be done
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
                 .andExpect(method(DELETE))
                 .andRespond(withSuccess());
         cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
@@ -644,7 +644,7 @@ public class CachedNetworkStoreClientTest {
         // Remove extension attributes to check that the removed cache is cloned
         removeExtensionAttributes(networkUuid, identifiableId, cachedClient, OperatingStatus.NAME);
         // When cloning the network, the cached attributes should remained cached
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         // Clone network and verify that there is the expected extension in the cloned cache
@@ -834,7 +834,7 @@ public class CachedNetworkStoreClientTest {
                 .build();
         String extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
         }).writeValueAsString(Map.of(identifiableId, apc1));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/" + ActivePowerControl.NAME))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/" + ActivePowerControl.NAME))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
         cachedClient.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, ActivePowerControl.NAME);
@@ -848,7 +848,7 @@ public class CachedNetworkStoreClientTest {
         // Load all extensions for all generators (should not throw)
         extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, Map<String, ExtensionAttributes>>>() {
         }).writeValueAsString(Map.of(identifiableId, Map.of(ActivePowerControl.NAME, apc1)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
         cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR);
@@ -865,7 +865,7 @@ public class CachedNetworkStoreClientTest {
                         .build())
                 .build();
         String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators/" + identifiableId))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators/" + identifiableId))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
         cachedClient.getGenerator(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId);
@@ -881,7 +881,7 @@ public class CachedNetworkStoreClientTest {
                         .build())
                 .build();
         String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
         cachedClient.getIdentifiable(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId);
@@ -898,7 +898,7 @@ public class CachedNetworkStoreClientTest {
                         .build())
                 .build();
         String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
         cachedClient.getGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM);
@@ -915,7 +915,7 @@ public class CachedNetworkStoreClientTest {
                         .build())
                 .build();
         String generatorJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/" + voltageLevelId + "/generators"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/" + voltageLevelId + "/generators"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(generatorJson, MediaType.APPLICATION_JSON));
         cachedClient.getVoltageLevelGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, voltageLevelId);
@@ -930,7 +930,7 @@ public class CachedNetworkStoreClientTest {
                 .participationFactor(0.5)
                 .build();
         String oneExtensionAttributes = objectMapper.writeValueAsString(ExtensionAttributesTopLevelDocument.of(List.of(apc1)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(oneExtensionAttributes, MediaType.APPLICATION_JSON));
         Optional<ExtensionAttributes> extensionAttributesResult = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
@@ -956,14 +956,14 @@ public class CachedNetworkStoreClientTest {
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
+        server.expect(requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n1)), MediaType.APPLICATION_JSON));
         cachedClient.getNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM);
         server.verify();
         server.reset();
         // Partial clone 0 -> 1
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
@@ -974,7 +974,7 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
         // Partial clone 1 -> 2
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         cachedClient.cloneNetwork(networkUuid, targetVariantNum1, targetVariantNum2, targetVariantId2);

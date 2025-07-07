@@ -13,37 +13,44 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Service
 public class RestClientImpl implements RestClient {
 
     private final RestTemplate restTemplate;
 
-    public RestClientImpl(String baseUri) {
-        this(createRestTemplateBuilder(baseUri));
-    }
-
     @Autowired
-    public RestClientImpl(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
+    public RestClientImpl(RestTemplateBuilder restTemplateBuilder,
+                          @Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri) {
+        this.restTemplate = createRestTemplate(restTemplateBuilder, baseUri);
     }
 
-    public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
-        return new RestTemplateBuilder(restTemplate1 -> restTemplate1.setMessageConverters(List.of(createMapping()))).uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
-                        .path(NetworkStoreApi.VERSION)));
+    public RestClientImpl(String baseUri) {
+        this.restTemplate = createRestTemplate(new RestTemplateBuilder(), baseUri);
+    }
+
+    public static RestTemplate createRestTemplate(RestTemplateBuilder restTemplateBuilder, String baseUri) {
+        return restTemplateBuilder.additionalMessageConverters(List.of(createMapping()))
+            .uriTemplateHandler(
+                new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri).path(NetworkStoreApi.VERSION))
+            )
+            .errorHandler(new RestTemplateResponseErrorHandler())
+            .build();
     }
 
     private static ObjectMapper createObjectMapper() {
