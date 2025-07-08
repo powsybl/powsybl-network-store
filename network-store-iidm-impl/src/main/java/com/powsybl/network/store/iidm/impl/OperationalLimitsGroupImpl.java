@@ -105,13 +105,13 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
     @Override
     public boolean hasProperty() {
         // FIXME: implement this method
-        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support hasProperty");
+        return false;
     }
 
     @Override
     public boolean hasProperty(String s) {
         // FIXME: implement this method
-        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support hasProperty(string)");
+        return false;
     }
 
     @Override
@@ -141,7 +141,7 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
     @Override
     public Set<String> getPropertyNames() {
         // FIXME: implement this method
-        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support getPropertyNames()");
+        return Set.of();
     }
 
     @Override
