@@ -7,14 +7,10 @@
 package com.powsybl.network.store.iidm.impl.tck.extensions;
 
 import com.powsybl.iidm.network.tck.extensions.AbstractMeasurementsTest;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 class MeasurementsTest extends AbstractMeasurementsTest {
-    @Test
-    void setValueAndValidity() {
-        // FIXME implements measurement
-    }
+
 }
