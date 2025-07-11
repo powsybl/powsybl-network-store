@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
@@ -32,10 +34,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -873,6 +872,23 @@ public class CachedNetworkStoreClientTest {
         server.reset();
     }
 
+    private void loadLineToCache(String identifiableId, UUID networkUuid, CachedNetworkStoreClient cachedClient) throws JsonProcessingException {
+        Resource<LineAttributes> g1Resource = Resource.lineBuilder()
+            .id(identifiableId)
+            .attributes(LineAttributes.builder()
+                .voltageLevelId1("VL_1")
+                .voltageLevelId2("VL_2")
+                .build())
+            .build();
+        String lineJson = objectMapper.writeValueAsString(TopLevelDocument.of(List.of(g1Resource)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/" + identifiableId))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(lineJson, MediaType.APPLICATION_JSON));
+        cachedClient.getLine(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableId);
+        server.verify();
+        server.reset();
+    }
+
     private void loadIdentifiableToCache(String identifiableId, UUID networkUuid, CachedNetworkStoreClient cachedClient) throws JsonProcessingException {
         Resource<GeneratorAttributes> g1Resource = Resource.generatorBuilder()
                 .id(identifiableId)
@@ -940,6 +956,127 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
+    public void testGetOperationalLimitsGroupCache() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "LINE";
+        String operationalLimitsGroupId = "default";
+
+        // Load the line in the cache
+        loadLineToCache(identifiableId, networkUuid, cachedClient);
+
+        // network is not loaded before
+        // Two successive OperationalLimitsGroup retrieval, only the first should send a REST request, the second uses the cache
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId);
+        getOperationalLimitsGroup(olg1, networkUuid, identifiableId, cachedClient, operationalLimitsGroupId, 1);
+
+        // Not found Operational Limits Group
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + "otherId" + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + "randomOLGid" + "/side/" + "1"))
+            .andExpect(method(GET))
+            .andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+        Optional<OperationalLimitsGroupAttributes> notFoundOperationalLimitsGroup = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, "otherId", "randomOLGid", 1);
+        assertFalse(notFoundOperationalLimitsGroup.isPresent());
+        server.verify();
+        server.reset();
+
+        // if the line is removed, getting the operational limits group must throw
+        cachedClient.removeLines(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(identifiableId));
+        String message = assertThrows(PowsyblException.class, () -> cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1)).getMessage();
+        assertEquals("Cannot manipulate operational limits groups for branch (LINE) as it has not been loaded into the cache.", message);
+    }
+
+    @Test
+    public void testLoadingAllSelectedOperationalLimitsGroups() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "LINE";
+        String operationalLimitsGroupId = "selected";
+        String operationalLimitsGroupId2 = "otherGroup";
+
+        // Load the line in the cache
+        loadLineToCache(identifiableId, networkUuid, cachedClient);
+
+        // network is not loaded before
+        // Two successive OperationalLimitsGroup retrieval, only the first should send a REST request, the second uses the cache
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId);
+        OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId2);
+        String selectedOperationalLimitsGroup = objectMapper.writeValueAsString(Map.of(identifiableId, Map.of(1, Map.of(operationalLimitsGroupId, olg1))));
+        String otherOperationalLimitsGroup = objectMapper.writeValueAsString(OperationalLimitsGroupAttributesTopLevelDocument.of(olg2));
+        // load all selected operational limits group
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(selectedOperationalLimitsGroup, MediaType.APPLICATION_JSON));
+        cachedClient.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE);
+        server.verify();
+        server.reset();
+
+        // a selected group is asked it should not call the url as it is loaded to the cache
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/" + "1"))
+            .andExpect(method(GET));
+        Optional<OperationalLimitsGroupAttributes> olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1);
+        assertTrue(olg1Attributes.isPresent());
+        server.verify();
+        server.reset();
+
+        // another group is asked and will be loaded from the back and loaded to the cache
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId2 + "/side/" + "1"))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(otherOperationalLimitsGroup, MediaType.APPLICATION_JSON));
+        Optional<OperationalLimitsGroupAttributes> olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId2, 1);
+        assertTrue(olg2Attributes.isPresent());
+        server.verify();
+        server.reset();
+    }
+
+    private OperationalLimitsGroupAttributes createOperationalLimitsGroupAttributes(String operationalLimitsGroupId) {
+        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
+        temporaryLimits.put(10, TemporaryLimitAttributes.builder()
+            .operationalLimitsGroupId(operationalLimitsGroupId)
+            .limitType(LimitType.CURRENT)
+            .value(12)
+            .name("temporarylimit1")
+            .acceptableDuration(10)
+            .fictitious(false)
+            .side(1)
+            .build());
+        temporaryLimits.put(15, TemporaryLimitAttributes.builder()
+            .operationalLimitsGroupId(operationalLimitsGroupId)
+            .limitType(LimitType.CURRENT)
+            .value(9)
+            .name("temporarylimit2")
+            .acceptableDuration(15)
+            .fictitious(false)
+            .side(1)
+            .build());
+        return OperationalLimitsGroupAttributes.builder()
+            .id(operationalLimitsGroupId)
+            .currentLimits(LimitsAttributes.builder()
+                .permanentLimit(1)
+                .temporaryLimits(temporaryLimits)
+                .operationalLimitsGroupId(operationalLimitsGroupId)
+                .build())
+            .build();
+    }
+
+    private void getOperationalLimitsGroup(OperationalLimitsGroupAttributes operationalLimitsGroupAttributes, UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient, String operationalLimitsGroupId, int side) throws JsonProcessingException {
+        // called twice the first call the rest api the second uses cache
+        String oneOperationaLimitsGroupAttributes = objectMapper.writeValueAsString(OperationalLimitsGroupAttributesTopLevelDocument.of(List.of(operationalLimitsGroupAttributes)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/" + side))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(oneOperationaLimitsGroupAttributes, MediaType.APPLICATION_JSON));
+
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributesResult = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, side);
+        assertTrue(operationalLimitsGroupAttributesResult.isPresent());
+
+        operationalLimitsGroupAttributesResult = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, side);
+        assertTrue(operationalLimitsGroupAttributesResult.isPresent());
+
+        server.verify();
+        server.reset();
+    }
+
+    @Test
     public void testClone() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.randomUUID();
@@ -982,6 +1119,120 @@ public class CachedNetworkStoreClientTest {
         assertTrue(networkOpt.isPresent());
         networkAttributes = networkOpt.get().getAttributes();
         assertEquals(0, networkAttributes.getFullVariantNum());
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testLoadingAllOperationalLimitsGroupsForBranch() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "LINE";
+        String identifiableId2 = "LINE_2";
+        String operationalLimitsGroupId = "selected";
+        String operationalLimitsGroupId2 = "otherGroup";
+        String operationalLimitsGroupId3 = "groupOnLine2";
+        int side = 1;
+
+        // Load the line in the cache
+        loadLineToCache(identifiableId, networkUuid, cachedClient);
+        loadLineToCache(identifiableId2, networkUuid, cachedClient);
+
+        // network is not loaded before
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId);
+        OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId2);
+        OperationalLimitsGroupAttributes olg3 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId3);
+        String allOperationalLimitsGroupOnBranchLine = objectMapper.writeValueAsString(List.of(olg1, olg2));
+        // load all operational limits group for the branch LINE
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/side/" + side + "/operationalLimitsGroup"))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(allOperationalLimitsGroupOnBranchLine, MediaType.APPLICATION_JSON));
+        cachedClient.getOperationalLimitsGroupAttributesForBranchSide(networkUuid, Resource.INITIAL_VARIANT_NUM,
+            ResourceType.LINE, identifiableId, side);
+        server.verify();
+        server.reset();
+
+        // getting any operational limits group on LINE does not call the rest api
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/" + side))
+            .andExpect(method(GET));
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes1 = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM,
+            ResourceType.LINE, identifiableId, operationalLimitsGroupId, side);
+        server.verify();
+        server.reset();
+        assertTrue(operationalLimitsGroupAttributes1.isPresent());
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId2 + "/side/" + side))
+            .andExpect(method(GET));
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes2 = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM,
+            ResourceType.LINE, identifiableId, operationalLimitsGroupId2, side);
+        server.verify();
+        server.reset();
+        assertTrue(operationalLimitsGroupAttributes2.isPresent());
+
+        // getting a olg from another branch will trigger rest api
+        String olgFromAnotherBranch = objectMapper.writeValueAsString(OperationalLimitsGroupAttributesTopLevelDocument.of(List.of(olg3)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId3 + "/side/" + side))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(olgFromAnotherBranch, MediaType.APPLICATION_JSON));
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes3 = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM,
+            ResourceType.LINE, identifiableId2, operationalLimitsGroupId3, side);
+        server.verify();
+        server.reset();
+        assertTrue(operationalLimitsGroupAttributes3.isPresent());
+
+    }
+
+    @Test
+    public void testLoadingAllOperationalLimitsGroups() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String identifiableId = "LINE_1";
+        String identifiableId2 = "LINE_2";
+        String operationalLimitsGroupId = "selected";
+        String operationalLimitsGroupId2 = "selected";
+        String operationalLimitsGroupId3 = "otherGroup";
+
+        // Load the lines in the cache
+        loadLineToCache(identifiableId, networkUuid, cachedClient);
+        loadLineToCache(identifiableId2, networkUuid, cachedClient);
+
+        // network is not loaded before
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId);
+        OperationalLimitsGroupAttributes olg2 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId2);
+        OperationalLimitsGroupAttributes olg3 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId3);
+        String allOperationalLimitsGroups = objectMapper.writerFor(new TypeReference<Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>>>() {
+        }).writeValueAsString(Map.of(identifiableId, Map.of(1, Map.of(operationalLimitsGroupId, olg1)),
+            identifiableId2, Map.of(2, Map.of(operationalLimitsGroupId2, olg2, operationalLimitsGroupId3, olg3))));
+
+        // load all operational limits groups to cache
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
+            .andExpect(method(GET))
+            .andRespond(withSuccess(allOperationalLimitsGroups, MediaType.APPLICATION_JSON));
+        cachedClient.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE);
+        server.verify();
+        server.reset();
+
+        // a group is asked it should not call the url as it is loaded to the cache
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/" + "1"))
+            .andExpect(method(GET));
+        Optional<OperationalLimitsGroupAttributes> olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1);
+        assertTrue(olg1Attributes.isPresent());
+        server.verify();
+        server.reset();
+
+        // loading all selected operational limits groups won't load anything as everything is already loaded
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
+            .andExpect(method(GET));
+        cachedClient.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE);
+        server.verify();
+        server.reset();
+
+        // loading all operational limits groups of a branch won't load anything as everything is already loaded
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/side/1/operationalLimitsGroup"))
+            .andExpect(method(GET));
+        cachedClient.getOperationalLimitsGroupAttributesForBranchSide(networkUuid, Resource.INITIAL_VARIANT_NUM,
+            ResourceType.LINE, identifiableId, 1);
         server.verify();
         server.reset();
     }
