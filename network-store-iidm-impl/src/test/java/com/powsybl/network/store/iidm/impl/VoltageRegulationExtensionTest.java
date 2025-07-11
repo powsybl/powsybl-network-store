@@ -148,6 +148,16 @@ public class VoltageRegulationExtensionTest {
         assertEquals(2, listener.getNbUpdatedExtensions());
         vr.setVoltageRegulatorOn(false);
         assertEquals(2, listener.getNbUpdatedExtensions());
+        vr.setRegulatingTerminal(network.getStaticVarCompensator("SVC2").getTerminal());
+        assertEquals(3, listener.getNbUpdatedExtensions());
+        // resetting voltage terminal wont change getNbUpdatedExtensions
+        vr.setRegulatingTerminal(network.getStaticVarCompensator("SVC2").getTerminal());
+        assertEquals(3, listener.getNbUpdatedExtensions());
+
+        // test setting null to regulatingTerminal
+        vr.setRegulatingTerminal(null);
+        assertEquals(4, listener.getNbUpdatedExtensions());
+        assertNull(vr.getRegulatingTerminal());
     }
 
     @Test
