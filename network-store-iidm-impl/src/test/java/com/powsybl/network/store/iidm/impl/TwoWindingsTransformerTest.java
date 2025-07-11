@@ -86,6 +86,7 @@ class TwoWindingsTransformerTest {
         assertEquals("2 windings transformer 'b94318f6-6d24-4f56-96b9-df2531ad6543': incorrect tap position 10 [1, 2]",
             assertThrows(ValidationException.class, ratioStepsReplacer::replaceSteps).getMessage());
         ratioTapChanger.setTapPosition(1);
+        ratioTapChanger.setSolvedTapPosition(1);
         ratioStepsReplacer.replaceSteps();
         assertEquals(2, ratioTapChanger.getStepCount());
         int ratioLowTapPosition = ratioTapChanger.getLowTapPosition();
@@ -115,6 +116,7 @@ class TwoWindingsTransformerTest {
         assertEquals("2 windings transformer 'a708c3bc-465d-4fe7-b6ef-6fa6408a62b0': incorrect tap position 10 [1, 1]",
             assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
         phaseTapChanger.setTapPosition(1);
+        phaseTapChanger.setSolvedTapPosition(1);
         phaseStepsReplacer.replaceSteps();
         assertEquals(1, phaseTapChanger.getStepCount());
         int phaseLowTapPosition = phaseTapChanger.getLowTapPosition();
@@ -295,25 +297,40 @@ class TwoWindingsTransformerTest {
     }
 
     @Test
-    void testTapChangerRegulation() {
+    void testRatioTapChangerRegulation() {
         String loadId = "69add5b4-70bd-4360-8a93-286256c0d38b";
         String twtId1 = "b94318f6-6d24-4f56-96b9-df2531ad6543";
-        String twtId2 = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
         Network network = createNetwork();
         RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer(twtId1).getRatioTapChanger();
         assertEquals(twtId1, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
         Load load = network.getLoad(loadId);
         ratioTapChanger.setRegulationTerminal(load.getTerminal());
         assertEquals(loadId, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        load.remove();
+
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertNull(ratioTapChanger.getRegulationTerminal());
+        assertFalse(ratioTapChanger.isRegulating());
+    }
+
+    @Test
+    void testPhaseTapChangerRegulation() {
+        String loadId = "69add5b4-70bd-4360-8a93-286256c0d38b";
+        String twtId2 = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
+        Network network = createNetwork();
+        Load load = network.getLoad(loadId);
+
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(twtId2).getPhaseTapChanger();
         phaseTapChanger.setRegulationTerminal(load.getTerminal());
         assertEquals(loadId, phaseTapChanger.getRegulationTerminal().getConnectable().getId());
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        phaseTapChanger.setLoadTapChangingCapabilities(true);
+        phaseTapChanger.setRegulating(true);
         load.remove();
-        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+
+        assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
+        assertFalse(phaseTapChanger.isRegulating());
         assertNull(phaseTapChanger.getRegulationTerminal());
-        assertNull(ratioTapChanger.getRegulationMode());
-        assertNull(ratioTapChanger.getRegulationTerminal());
     }
 
     @Test
@@ -409,7 +426,6 @@ class TwoWindingsTransformerTest {
         List<? extends Record> expectedEvents = List.of(
                 new RemovalNetworkEvent(twoWindingsTransformerId, false),
                 new UpdateNetworkEvent(twoWindingsTransformerId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
-                new UpdateNetworkEvent(twoWindingsTransformerId, "regulationMode", VariantManagerConstants.INITIAL_VARIANT_ID, RatioTapChanger.RegulationMode.VOLTAGE.name(), null),
                 new UpdateNetworkEvent(generatorId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.ONE.name()).build(), TerminalRefAttributes.builder().connectableId(generatorId).build()),
                 new UpdateNetworkEvent(generatorId, "regulatedResourceType", VariantManagerConstants.INITIAL_VARIANT_ID, ResourceType.TWO_WINDINGS_TRANSFORMER, ResourceType.GENERATOR),
                 new UpdateNetworkEvent(generatorId, "regulating", VariantManagerConstants.INITIAL_VARIANT_ID, true, false),

@@ -21,6 +21,8 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     private int sectionCount = -1;
 
+    private Integer solvedSectionCount;
+
     private Terminal regulatingTerminal;
 
     private boolean voltageRegulatorOn = false;
@@ -165,6 +167,12 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
     }
 
     @Override
+    public ShuntCompensatorAdder setSolvedSectionCount(Integer solvedSectionCount) {
+        this.solvedSectionCount = solvedSectionCount;
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = regulatingTerminal;
         return this;
@@ -223,6 +231,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                         .bus(getBus())
                         .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .sectionCount(sectionCount)
+                        .solvedSectionCount(solvedSectionCount)
                         .model(model)
                         .regulatingPoint(regulatingPointAttributes)
                         .targetV(targetV)

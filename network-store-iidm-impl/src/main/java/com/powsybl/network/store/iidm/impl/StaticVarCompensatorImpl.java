@@ -74,7 +74,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
 
     @Override
     public StaticVarCompensator setVoltageSetpoint(double voltageSetPoint) {
-        ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkSvcRegulator(this, isRegulating(), voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getVoltageSetPoint();
         if (Double.compare(voltageSetPoint, oldValue) != 0) { // could be nan
             updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetPoint),
@@ -90,7 +90,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
 
     @Override
     public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetPoint) {
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkSvcRegulator(this, isRegulating(), getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
         if (Double.compare(reactivePowerSetPoint, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint),
@@ -106,7 +106,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkSvcRegulator(this, isRegulating(), getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
             regulatingPoint.setRegulationMode("regulationMode", String.valueOf(regulationMode));
@@ -117,6 +117,13 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
     @Override
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         setRegTerminal(regulatingTerminal);
+        return this;
+    }
+
+    @Override
+    public StaticVarCompensator setRegulating(boolean regulating) {
+        ValidationUtil.checkSvcRegulator(this, regulating, getVoltageSetpoint(), getReactivePowerSetpoint(), getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        regulatingPoint.setRegulating("regulating", regulating);
         return this;
     }
 

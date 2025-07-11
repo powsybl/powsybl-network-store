@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.DefaultMessageHeader;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
@@ -86,7 +87,7 @@ class PointAdderImpl implements ReactiveCapabilityCurveAdder.PointAdder, Validab
     }
 
     @Override
-    public String getMessageHeader() {
-        return "reactiveCapabilityCurvePoint: ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("reactiveCapabilityCurvePoint", "");
     }
 }

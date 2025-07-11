@@ -14,17 +14,17 @@ import org.junit.jupiter.api.Test;
  */
 class ConvertTopologyTest extends AbstractConvertTopologyTest {
     @Test
-    void testNodeBreakerToBusBreaker() {
+    public void testNodeBreakerToBusBreaker() {
         // FIXME : to be removed when VoltageLevel.convertToTopology will be implemented
     }
 
     @Test
-    void testNodeBreakerToBusBreakerOneElementDisconnected() {
+    public void testNodeBreakerToBusBreakerOneElementDisconnected() {
         // FIXME : to be removed when VoltageLevel.convertToTopology will be implemented
     }
 
     @Test
-    void testNodeBreakerToBusBreakerWithArea() {
+    public void testNodeBreakerToBusBreakerWithArea() {
         // FIXME : to be removed when Area and VoltageLevel.convertToTopology will be implemented
     }
 }
