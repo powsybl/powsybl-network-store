@@ -101,6 +101,12 @@ public class RestClientImpl implements RestClient {
         }, uriVariables);
     }
 
+    @Override
+    public Optional<OperationalLimitsGroupAttributes> getOneOperationalLimitsGroupAttributes(String url, Object... uriVariables) {
+        return getOneDocument(url, new ParameterizedTypeReference<OperationalLimitsGroupAttributesTopLevelDocument>() {
+        }, uriVariables);
+    }
+
     private <T, D extends AbstractTopLevelDocument<T>> Optional<T> getOneDocument(String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
         ResponseEntity<D> response = getDocument(url, parameterizedTypeReference, uriVariables);
         if (response.getStatusCode() == HttpStatus.OK) {

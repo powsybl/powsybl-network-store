@@ -422,4 +422,32 @@ public class RestNetworkStoreClientTest {
         assertEquals(1, resultIdentifiable1.size());
         assertTrue(resultIdentifiable1.containsKey("activePowerControl"));
     }
+
+    @Test
+    public void testOperationalLimitsGroupAttributesByResourceType() {
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
+            .andExpect(method(GET))
+            .andRespond(withSuccess("{\"lineId\":{\"1\":{\"olg1\":{\"id\":\"olg1\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}},\"LINE1\":{\"2\":{\"olg2\":{\"id\":\"olg2\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}}}", MediaType.APPLICATION_JSON));
+
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> result = restNetworkStoreClient.getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, 0, ResourceType.LINE);
+        assertNotNull(result);
+        // Identifiables with empty maps are filtered (like identifiableId2)
+        assertEquals(2, result.size());
+        OperationalLimitsGroupAttributes resultIdentifiable1 = result.get("lineId").get(1).get("olg1");
+        assertEquals(1, resultIdentifiable1.getCurrentLimits().getTemporaryLimits().size());
+    }
+
+    @Test
+    public void testExceptionHandlerOnDuplicateKeyError() {
+        UUID newNetworkUuid = UUID.randomUUID();
+        int sourceVariantNum = 0;
+        int targetVariantNum = 1;
+        String targetVariantId = "id";
+        server.expect(requestTo("/networks/" + newNetworkUuid + "/" + sourceVariantNum + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
+            .andExpect(method(PUT))
+            .andRespond(withServerError().body("network_pkey"));
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        assertThrows(DuplicateVariantNumException.class, () -> restNetworkStoreClient.cloneNetwork(newNetworkUuid, sourceVariantNum, targetVariantNum, targetVariantId));
+    }
 }
