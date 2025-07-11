@@ -115,7 +115,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public AbstractIdentifiableImpl getIdentifiable() {
+    public AbstractIdentifiableImpl<?, ?> getIdentifiable() {
         return this;
     }
 
