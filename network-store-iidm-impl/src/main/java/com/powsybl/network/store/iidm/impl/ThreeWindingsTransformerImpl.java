@@ -213,7 +213,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
         private static final String SELECTED_OPERATIONAL_LIMITS_GROUP_ID = ".selectedOperationalLimitsGroupId";
 
-        private String getSelectedGroupId() {
+        private String getSelectedLimitsGroupId() {
             return getLegAttributes().getSelectedOperationalLimitsGroupId() != null
                     ? getLegAttributes().getSelectedOperationalLimitsGroupId()
                     : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
@@ -227,20 +227,20 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
 
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
-            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
-            return new CurrentLimitsAdderImpl<>(null, this, getSelectedGroupId());
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
         }
 
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
-            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
-            return new ApparentPowerLimitsAdderImpl<>(null, this, getSelectedGroupId());
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
         }
 
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
-            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
-            return new ActivePowerLimitsAdderImpl<>(null, this, getSelectedGroupId());
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
         }
 
         @Override

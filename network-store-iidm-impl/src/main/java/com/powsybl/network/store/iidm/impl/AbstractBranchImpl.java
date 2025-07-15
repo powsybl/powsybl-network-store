@@ -93,13 +93,13 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.ONE, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
-        return new ApparentPowerLimitsAdderImpl<>(TwoSides.ONE, this, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
+        return getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.TWO, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
-        return new ApparentPowerLimitsAdderImpl<>(TwoSides.TWO, this, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
+        return getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits();
     }
 
     @Override
@@ -167,13 +167,13 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.ONE, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
-        return new ActivePowerLimitsAdderImpl<>(TwoSides.ONE, this, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
+        return getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.TWO, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
-        return new ActivePowerLimitsAdderImpl<>(TwoSides.TWO, this, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
+        return getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits();
     }
 
     @Override
@@ -241,13 +241,13 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.ONE, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
-        return new CurrentLimitsAdderImpl<>(TwoSides.ONE, this, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
+        return getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.TWO, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
-        return new CurrentLimitsAdderImpl<>(TwoSides.TWO, this, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
+        return getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits();
     }
 
     @Override
