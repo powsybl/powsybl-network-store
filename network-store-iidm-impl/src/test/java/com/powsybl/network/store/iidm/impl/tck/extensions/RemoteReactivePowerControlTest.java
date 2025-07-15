@@ -13,12 +13,9 @@ import com.powsybl.iidm.network.tck.extensions.AbstractRemoteReactivePowerContro
  */
 public class RemoteReactivePowerControlTest extends AbstractRemoteReactivePowerControlTest {
 
-    @Override
-    public void terminalReplacementTest() {
-
-    }
-
     public void replacementTest() {
-
+        // problem of modelisation when move a connectable with a regulated terminal
+        // in network store the regulated terminal stays the same when moving because it is linked to only two attributes
+        // in core it is not
     }
 }
