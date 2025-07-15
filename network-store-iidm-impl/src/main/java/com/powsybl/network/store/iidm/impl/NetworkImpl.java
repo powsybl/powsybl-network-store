@@ -1071,170 +1071,226 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public DcNodeAdder newDcNode() {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Iterable<DcNode> getDcNodes() {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Stream<DcNode> getDcNodeStream() {
-        // FIXME: implement
-        return Stream.empty();
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public int getDcNodeCount() {
-        // FIXME: implement
-        return 0;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public DcNode getDcNode(String s) {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public DcLineAdder newDcLine() {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Iterable<DcLine> getDcLines() {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Stream<DcLine> getDcLineStream() {
-        // FIXME: implement
-        return Stream.empty();
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public int getDcLineCount() {
-        // FIXME: implement
-        return 0;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public DcLine getDcLine(String s) {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public DcSwitchAdder newDcSwitch() {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Iterable<DcSwitch> getDcSwitches() {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Stream<DcSwitch> getDcSwitchStream() {
-        // FIXME: implement
-        return Stream.empty();
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public int getDcSwitchCount() {
-        // FIXME: implement
-        return 0;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public DcSwitch getDcSwitch(String s) {
-        // FIXME: implement
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
         return null;
     }
 
     @Override
     public DcGroundAdder newDcGround() {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Iterable<DcGround> getDcGrounds() {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Stream<DcGround> getDcGroundStream() {
-        // FIXME: implement
-        return Stream.empty();
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public int getDcGroundCount() {
-        // FIXME: implement
-        return 0;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public DcGround getDcGround(String s) {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
-        // FIXME: implement
-        return Stream.empty();
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public int getLineCommutatedConverterCount() {
-        // FIXME: implement
-        return 0;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public LineCommutatedConverter getLineCommutatedConverter(String s) {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
-        // FIXME: implement
-        return Stream.empty();
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public int getVoltageSourceConverterCount() {
-        // FIXME: implement
-        return 0;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
     public VoltageSourceConverter getVoltageSourceConverter(String s) {
-        // FIXME: implement
-        return null;
+        // FIXME: implement : "These methods will allow for more detailed modeling of HVDCs.
+        //  This is a long-term work on the powsybl side.
+        //  It is too early to implement it on the network-store side and the need remains to be verified."
+        throw new PowsyblException("Detailed DC network not implemented");
     }
 
     @Override
