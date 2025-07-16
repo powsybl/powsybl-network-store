@@ -682,49 +682,49 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @Override
     public LineCommutatedConverterAdder newLineCommutatedConverter() {
         // FIXME: implement
-        return null;
+        throw new PowsyblException("Line commutated not supported");
     }
 
     @Override
     public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
         // FIXME: implement
-        return null;
+        throw new PowsyblException("Line commutated not supported");
     }
 
     @Override
     public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
         // FIXME: implement
-        return Stream.empty();
+        throw new PowsyblException("Line commutated not supported");
     }
 
     @Override
     public int getLineCommutatedConverterCount() {
         // FIXME: implement
-        return 0;
+        throw new PowsyblException("Line commutated not supported");
     }
 
     @Override
     public VoltageSourceConverterAdder newVoltageSourceConverter() {
         // FIXME: implement
-        return null;
+        throw new PowsyblException("Line commutated not supported");
     }
 
     @Override
     public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
         // FIXME: implement
-        return null;
+        throw new PowsyblException("Line commutated not supported");
     }
 
     @Override
     public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
         // FIXME: implement
-        return Stream.empty();
+        throw new PowsyblException("Line commutated not supported");
     }
 
     @Override
     public int getVoltageSourceConverterCount() {
         // FIXME: implement
-        return 0;
+        throw new PowsyblException("Line commutated not supported");
     }
 
     @Override

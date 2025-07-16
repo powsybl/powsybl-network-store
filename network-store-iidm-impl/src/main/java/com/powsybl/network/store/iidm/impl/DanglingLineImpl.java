@@ -444,19 +444,19 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
         updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
-        return new CurrentLimitsAdderImpl<>(null, this, getSelectedLimitsGroupId());
+        return getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
         updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
-        return new ApparentPowerLimitsAdderImpl<>(null, this, getSelectedLimitsGroupId());
+        return getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
         updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
-        return new ActivePowerLimitsAdderImpl<>(null, this, getSelectedLimitsGroupId());
+        return getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     @Override

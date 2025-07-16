@@ -37,7 +37,7 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
     }
 
     @Override
-    protected void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode) {
+    protected void resetRegulatingAndRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode) {
         // if localTerminal or regulatingTerminal is not connected then the bus is null
         if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected()) {
             switch (getAttributes().getRegulatingResourceType()) {

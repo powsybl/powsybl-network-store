@@ -37,9 +37,8 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
     }
 
     @Override
-    protected void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode) {
-        // with powsybl evolution a phase tap changer is not regulating when his regulating attribute is false
-        // and there is no regulation mode associated with it. Regulation mode operate only when regulating is true
+    protected void resetRegulatingAndRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode) {
+        // no reset needed on regulation mode
         setRegulating("regulating", false);
     }
 }

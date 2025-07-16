@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.RegulatingPointAttributes;
 import com.powsybl.network.store.model.RegulatingTapChangerType;
 import com.powsybl.network.store.model.ResourceType;
@@ -62,5 +63,21 @@ public abstract class AbstractTapChangerAdder {
         // local terminal is null for tapChanger because it has more than one
         return new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), resourceType, finalRegulatingTapChangerType,
             null, terminalRefAttributes, regulationMode, resourceType, regulating);
+    }
+
+    public static void checkSolvedTapPositionCreation(Integer solvedTapPosition, int lowTapPosition, int highTapPosition, TapChangerParent tapChangerParent) {
+        if (solvedTapPosition != null && (solvedTapPosition < lowTapPosition || solvedTapPosition > highTapPosition)) {
+            throw new ValidationException(tapChangerParent, "incorrect solved tap position "
+                + solvedTapPosition + " [" + lowTapPosition + ", " + highTapPosition
+                + "]");
+        }
+    }
+
+    public static void checkTapPositionCreation(Integer tapPosition, int lowTapPosition, int highTapPosition, TapChangerParent tapChangerParent) {
+        if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
+            throw new ValidationException(tapChangerParent, "incorrect tap position "
+                + tapPosition + " [" + lowTapPosition + ", "
+                + highTapPosition + "]");
+        }
     }
 }
