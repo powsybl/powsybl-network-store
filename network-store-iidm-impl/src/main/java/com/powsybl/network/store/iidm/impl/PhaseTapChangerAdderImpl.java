@@ -177,16 +177,8 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
             throw new ValidationException(tapChangerParent, "phase tap changer should have at least one step");
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
-        if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-            throw new ValidationException(tapChangerParent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", "
-                    + highTapPosition + "]");
-        }
-        if (solvedTapPosition != null && (solvedTapPosition < lowTapPosition || solvedTapPosition > highTapPosition)) {
-            throw new ValidationException(tapChangerParent, "incorrect solved tap position "
-                + solvedTapPosition + " [" + lowTapPosition + ", " + highTapPosition
-                + "]");
-        }
+        checkTapPositionCreation(tapPosition, lowTapPosition, highTapPosition, tapChangerParent);
+        checkSolvedTapPositionCreation(solvedTapPosition, lowTapPosition, highTapPosition, tapChangerParent);
         ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities, regulatingTerminal, tapChangerParent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, index.getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 

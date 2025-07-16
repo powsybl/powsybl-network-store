@@ -16,22 +16,8 @@ import org.junit.jupiter.api.Test;
 public class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControlTest {
 
     @Test
-    public void pilotPointTargetVoltageNotificationTest() {
-        // notify is not implemented in powsybl-network-store-iidm-impl
-    }
-
-    @Test
-    public void controlUnitParticipateNotificationTest() {
-        // notify is not implemented in powsybl-network-store-iidm-impl
-    }
-
-    @Test
-    public void extensionRemovalAndCreationNotificationTest() {
-        // notify is not implemented in powsybl-network-store-iidm-impl
-    }
-
-    @Test
     public void variantTest() {
-        // problems
+        // https://github.com/powsybl/powsybl-core/pull/3454 manage variant for PilotPointImpl
+        // it should be implemented
     }
 }
