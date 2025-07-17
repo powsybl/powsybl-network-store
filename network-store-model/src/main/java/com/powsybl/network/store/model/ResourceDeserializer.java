@@ -59,7 +59,8 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                         InjectionSvAttributes.class;
                     case BUSBAR_SECTION -> BusbarSectionAttributes.class;
                     case SWITCH -> SwitchAttributes.class;
-                    case TWO_WINDINGS_TRANSFORMER, LINE -> BranchSvAttributes.class;
+                    case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerSvAttributes.class;
+                    case LINE -> BranchSvAttributes.class;
                     case THREE_WINDINGS_TRANSFORMER -> ThreeWindingsTransformerSvAttributes.class;
                     case HVDC_LINE -> HvdcLineAttributes.class;
                     case CONFIGURED_BUS -> ConfiguredBusAttributes.class;

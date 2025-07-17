@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public enum AttributeFilter {
 
-    SV(Set.of("p", "q", "calculatedBusesForBusView", "calculatedBusesForBusBreakerView"));
+    SV(Set.of("p", "q", "sectionCount", "tapPosition", "calculatedBusesForBusView", "calculatedBusesForBusBreakerView"));
 
     private final Set<String> included;
 

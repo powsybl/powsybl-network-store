@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -8,17 +8,18 @@ package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
 @Data
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Schema(description = "Three windings transformer SV attributes")
-public class ThreeWindingsTransformerSvAttributes extends AbstractAttributes implements Attributes {
+@SuperBuilder
+@Schema(description = "2 windings transformer attributes")
+public class TwoWindingsTransformerSvAttributes extends AbstractAttributes implements Attributes {
 
     @Schema(description = "Side 1 active power in MW")
     @Builder.Default
@@ -36,11 +37,9 @@ public class ThreeWindingsTransformerSvAttributes extends AbstractAttributes imp
     @Builder.Default
     private double q2 = Double.NaN;
 
-    @Schema(description = "Side 3 active power in MW")
-    @Builder.Default
-    private double p3 = Double.NaN;
+    @Schema(description = "Phase tap changer")
+    private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
-    @Schema(description = "Side 3 reactive power in MVar")
-    @Builder.Default
-    private double q3 = Double.NaN;
+    @Schema(description = "Ratio tap changer")
+    private RatioTapChangerAttributes ratioTapChangerAttributes;
 }

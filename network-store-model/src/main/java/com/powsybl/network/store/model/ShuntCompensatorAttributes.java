@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.powsybl.commons.PowsyblException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -62,4 +64,13 @@ public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttri
     @Builder.Default
     @Schema(description = "regulatingEquipments")
     private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
+
+    @JsonIgnore
+    @Override
+    public Attributes filter(AttributeFilter filter) {
+        if (filter != AttributeFilter.SV) {
+            throw new PowsyblException("Unsupported attribute filter: " + filter);
+        }
+        return new ShuntCompensatorSvAttributes(getSectionCount(), getP(), getQ());
+    }
 }

@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
@@ -41,7 +42,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         int oldValue = getResource().getAttributes().getSectionCount();
         if (sectionCount != oldValue) {
-            updateResource(res -> res.getAttributes().setSectionCount(sectionCount),
+            updateResource(res -> res.getAttributes().setSectionCount(sectionCount), AttributeFilter.SV,
                 "sectionCount", oldValue, sectionCount);
         }
         return this;

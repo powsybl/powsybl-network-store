@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.powsybl.commons.PowsyblException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -119,4 +121,13 @@ public class TwoWindingsTransformerAttributes extends AbstractIdentifiableAttrib
     @Builder.Default
     @Schema(description = "regulatingEquipments")
     private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
+
+    @JsonIgnore
+    @Override
+    public Attributes filter(AttributeFilter filter) {
+        if (filter != AttributeFilter.SV) {
+            throw new PowsyblException("Unsupported attribute filter: " + filter);
+        }
+        return new TwoWindingsTransformerSvAttributes(getP1(), getQ1(), getP2(), getQ2(), getPhaseTapChangerAttributes(), getRatioTapChangerAttributes());
+    }
 }

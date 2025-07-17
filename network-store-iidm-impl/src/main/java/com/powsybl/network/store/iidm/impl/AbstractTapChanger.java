@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TapChangerAttributes;
-import com.powsybl.network.store.model.TapChangerStepAttributes;
+import com.powsybl.network.store.model.*;
 import lombok.Getter;
 
 import java.util.List;
@@ -80,7 +77,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         }
         int oldValue = getAttributes().getTapPosition();
         if (tapPosition != oldValue) {
-            getTransformer().updateResource(res -> getAttributes(res).setTapPosition(tapPosition),
+            getTransformer().updateResource(res -> getAttributes(res).setTapPosition(tapPosition), AttributeFilter.SV,
                 getTapChangerAttribute() + ".tapPosition", oldValue, tapPosition);
         }
         return (C) this;
