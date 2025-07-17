@@ -110,29 +110,4 @@ class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest 
             .endStep()
             .add();
     }
-
-    @Test
-    public void testPhaseTapChangerInAllLegs() {
-        // to remove when https://github.com/powsybl/powsybl-core/pull/3426 is merged and powsybl version is upgrade
-    }
-
-    @Test
-    public void testRatioTapChangerAndCurrentLimitsInLeg2() {
-        // to remove when https://github.com/powsybl/powsybl-core/pull/3426 is merged and powsybl version is upgrade
-    }
-
-    @Test
-    public void testRatioTapChangerAndCurrentLimitsInLeg3() {
-        // to remove when https://github.com/powsybl/powsybl-core/pull/3426 is merged and powsybl version is upgrade
-    }
-
-    @Test
-    public void testPowerLimitsInLeg1() {
-        // to remove when https://github.com/powsybl/powsybl-core/pull/3426 is merged and powsybl version is upgrade
-    }
-
-    @Test
-    public void testCurrentLimitsInLeg1() {
-        // to remove when https://github.com/powsybl/powsybl-core/pull/3426 is merged and powsybl version is upgrade
-    }
 }
