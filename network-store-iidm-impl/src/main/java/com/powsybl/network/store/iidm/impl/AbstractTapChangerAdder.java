@@ -65,18 +65,10 @@ public abstract class AbstractTapChangerAdder {
             null, terminalRefAttributes, regulationMode, resourceType, regulating);
     }
 
-    public static void checkSolvedTapPositionCreation(Integer solvedTapPosition, int lowTapPosition, int highTapPosition, TapChangerParent tapChangerParent) {
-        if (solvedTapPosition != null && (solvedTapPosition < lowTapPosition || solvedTapPosition > highTapPosition)) {
-            throw new ValidationException(tapChangerParent, "incorrect solved tap position "
-                + solvedTapPosition + " [" + lowTapPosition + ", " + highTapPosition
-                + "]");
-        }
-    }
-
-    public static void checkTapPositionCreation(Integer tapPosition, int lowTapPosition, int highTapPosition, TapChangerParent tapChangerParent) {
-        if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-            throw new ValidationException(tapChangerParent, "incorrect tap position "
-                + tapPosition + " [" + lowTapPosition + ", "
+    public static void checkPositionCreation(Integer position, int lowTapPosition, int highTapPosition, TapChangerParent tapChangerParent, String message) {
+        if (position != null && (position < lowTapPosition || position > highTapPosition)) {
+            throw new ValidationException(tapChangerParent, "incorrect " + message + " "
+                + position + " [" + lowTapPosition + ", "
                 + highTapPosition + "]");
         }
     }
