@@ -1069,6 +1069,52 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return index.getGround(getIdFromAlias(id)).orElse(null);
     }
 
+    @Override
+    public Iterable<String> getAreaTypes() {
+        return getAreaTypeStream().toList();
+    }
+
+    @Override
+    public Stream<String> getAreaTypeStream() {
+        return getAreaStream().map(Area::getAreaType).distinct();
+    }
+
+    @Override
+    public int getAreaTypeCount() {
+        return (int) getAreaTypeStream().count();
+    }
+
+    @Override
+    public AreaAdder newArea() {
+        return new AreaAdderImpl(index);
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        return getAreaStream().toList();
+    }
+
+    @Override
+    public Stream<Area> getAreaStream() {
+        return index.getAreas().stream();
+    }
+
+    @Override
+    public Network setMinimumAcceptableValidationLevel(ValidationLevel minLevel) {
+        // TODO implement this to comply with the test in AbstractNetworkTest testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork()
+        return this;
+    }
+
+    @Override
+    public Area getArea(String id) {
+        return index.getArea(getIdFromAlias(id)).orElse(null);
+    }
+
+    @Override
+    public int getAreaCount() {
+        return getAreaStream().toList().size();
+    }
+
     // DC modelling
     // These methods will allow for more detailed modeling of HVDCs.
     //  This is a long-term work on the powsybl side.
@@ -1211,51 +1257,5 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public VoltageSourceConverter getVoltageSourceConverter(String s) {
         throw new PowsyblException("Detailed DC network not implemented");
-    }
-
-    @Override
-    public Iterable<String> getAreaTypes() {
-        return getAreaTypeStream().toList();
-    }
-
-    @Override
-    public Stream<String> getAreaTypeStream() {
-        return getAreaStream().map(Area::getAreaType).distinct();
-    }
-
-    @Override
-    public int getAreaTypeCount() {
-        return (int) getAreaTypeStream().count();
-    }
-
-    @Override
-    public AreaAdder newArea() {
-        return new AreaAdderImpl(index);
-    }
-
-    @Override
-    public Iterable<Area> getAreas() {
-        return getAreaStream().toList();
-    }
-
-    @Override
-    public Stream<Area> getAreaStream() {
-        return index.getAreas().stream();
-    }
-
-    @Override
-    public Network setMinimumAcceptableValidationLevel(ValidationLevel minLevel) {
-        // TODO implement this to comply with the test in AbstractNetworkTest testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork()
-        return this;
-    }
-
-    @Override
-    public Area getArea(String id) {
-        return index.getArea(getIdFromAlias(id)).orElse(null);
-    }
-
-    @Override
-    public int getAreaCount() {
-        return getAreaStream().toList().size();
     }
 }

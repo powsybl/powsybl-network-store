@@ -680,54 +680,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
-    public LineCommutatedConverterAdder newLineCommutatedConverter() {
-        // FIXME: implement
-        throw new PowsyblException("Line commutated not supported");
-    }
-
-    @Override
-    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
-        // FIXME: implement
-        throw new PowsyblException("Line commutated not supported");
-    }
-
-    @Override
-    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
-        // FIXME: implement
-        throw new PowsyblException("Line commutated not supported");
-    }
-
-    @Override
-    public int getLineCommutatedConverterCount() {
-        // FIXME: implement
-        throw new PowsyblException("Line commutated not supported");
-    }
-
-    @Override
-    public VoltageSourceConverterAdder newVoltageSourceConverter() {
-        // FIXME: implement
-        throw new PowsyblException("Line commutated not supported");
-    }
-
-    @Override
-    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
-        // FIXME: implement
-        throw new PowsyblException("Line commutated not supported");
-    }
-
-    @Override
-    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
-        // FIXME: implement
-        throw new PowsyblException("Line commutated not supported");
-    }
-
-    @Override
-    public int getVoltageSourceConverterCount() {
-        // FIXME: implement
-        throw new PowsyblException("Line commutated not supported");
-    }
-
-    @Override
     public Iterable<Area> getAreas() {
         return getAreasStream().collect(Collectors.toSet());
     }
@@ -788,5 +740,57 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 convertToBusBreakerModel();
             }
         }
+    }
+
+    // DC modelling
+    // These methods will allow for more detailed modeling of HVDCs.
+    //  This is a long-term work on the powsybl side.
+    //  It is too early to implement it on the network-store side and the need remains to be verified.
+    @Override
+    public LineCommutatedConverterAdder newLineCommutatedConverter() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public VoltageSourceConverterAdder newVoltageSourceConverter() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
     }
 }
