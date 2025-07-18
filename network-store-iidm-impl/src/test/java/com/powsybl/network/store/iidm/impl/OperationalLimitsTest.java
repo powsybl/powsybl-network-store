@@ -10,11 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl.LegImpl;
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -230,5 +229,45 @@ class OperationalLimitsTest {
         operationalLimitsGroup.getActivePowerLimits().get().remove();
         operationalLimitsGroup.getApparentPowerLimits().get().remove();
         assertTrue(l1.getOperationalLimitsGroup1("group1").get().isEmpty());
+    }
+
+    @Test
+    void testOperationalLimitsGroup() {
+        Network network = Network.create("test", "test");
+        Substation substation = network.newSubstation().setId("sub").setCountry(Country.FR).setTso("RTE").add();
+        VoltageLevel voltageLevel = substation.newVoltageLevel()
+            .setId("vl")
+            .setName("vl")
+            .setNominalV(440.0F)
+            .setHighVoltageLimit(400.0F)
+            .setLowVoltageLimit(200.0F)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        voltageLevel.getBusBreakerView()
+            .newBus()
+            .setId("bus_vl")
+            .setName("bus_vl")
+            .add();
+        voltageLevel.newDanglingLine()
+            .setId("danglingId")
+            .setName("DanglingName")
+            .setR(10.0F)
+            .setX(20.0F)
+            .setP0(30.0F)
+            .setQ0(40.0F)
+            .setPairingKey("code")
+            .setBus("bus_vl")
+            .add();
+        DanglingLine danglingLine = network.getDanglingLine("danglingId");
+        OperationalLimitsGroup defaultOperationalGroup = danglingLine.getOrCreateSelectedOperationalLimitsGroup();
+        Assertions.assertEquals("DEFAULT", defaultOperationalGroup.getId());
+        Assertions.assertTrue(defaultOperationalGroup.getCurrentLimits().isEmpty());
+        Assertions.assertTrue(defaultOperationalGroup.getActivePowerLimits().isEmpty());
+        Assertions.assertTrue(defaultOperationalGroup.getApparentPowerLimits().isEmpty());
+
+        danglingLine.newOperationalLimitsGroup("test");
+        danglingLine.setSelectedOperationalLimitsGroup("test");
+        OperationalLimitsGroup testOperationalGroup = danglingLine.getOrCreateSelectedOperationalLimitsGroup();
+        Assertions.assertEquals("test", testOperationalGroup.getId());
     }
 }
