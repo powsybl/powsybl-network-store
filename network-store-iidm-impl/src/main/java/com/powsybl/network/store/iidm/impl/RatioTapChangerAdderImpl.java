@@ -155,8 +155,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
             throw new ValidationException(tapChangerParent, "ratio tap changer should have at least one step");
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
-        checkTapPositionCreation(tapPosition, lowTapPosition, highTapPosition, tapChangerParent);
-        checkSolvedTapPositionCreation(solvedTapPosition, lowTapPosition, highTapPosition, tapChangerParent);
+        checkPositionCreation(tapPosition, lowTapPosition, highTapPosition, tapChangerParent, "tap position");
+        checkPositionCreation(solvedTapPosition, lowTapPosition, highTapPosition, tapChangerParent, "solved tap position");
         ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, regulationMode, regulationValue, index.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 

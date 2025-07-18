@@ -30,6 +30,19 @@
         <developerConnection>scm:git:https://github.com/powsybl/powsybl-network-store.git</developerConnection>
         <url>https://github.com/powsybl/powsybl-network-store</url>
     </scm>
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations-jakarta</artifactId>
+            <version>2.2.9</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
     <developers>
         <developer>
@@ -48,7 +61,7 @@
 
     <properties>
         <springboot.version>3.3.3</springboot.version>
-        <powsybl-dependencies.version>2025.1.0-SNAPSHOT</powsybl-dependencies.version>
+        <powsybl-dependencies.version>2025.1.0</powsybl-dependencies.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
