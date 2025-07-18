@@ -171,6 +171,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         return getCurrentLimits1().orElse(null);
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         getDanglingLine1().getCurrentLimits().ifPresent(OperationalLimits::remove);
@@ -197,6 +198,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         return getApparentPowerLimits1().orElse(null);
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         return getDanglingLine1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
@@ -212,6 +214,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         return getActivePowerLimits1().orElse(null);
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
         return getDanglingLine1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
@@ -227,6 +230,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         return getCurrentLimits2().orElse(null);
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         getDanglingLine2().getCurrentLimits().ifPresent(OperationalLimits::remove);
@@ -243,6 +247,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         return getApparentPowerLimits2().orElse(null);
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         return getDanglingLine2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
@@ -258,6 +263,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
         return getActivePowerLimits2().orElse(null);
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
         return getDanglingLine2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();

@@ -52,13 +52,13 @@ class OperationalLimitsTest {
         } catch (IllegalArgumentException e) {
             assertEquals("Operational limits group 'group1' does not exist", e.getMessage());
         }
-        l1.newCurrentLimits1().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getCurrentLimits1().get().getPermanentLimit());
         l1.newActivePowerLimits1().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getActivePowerLimits1().get().getPermanentLimit());
-        l1.newApparentPowerLimits1().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getApparentPowerLimits1().get().getPermanentLimit());
         assertNotNull(l1.getSelectedOperationalLimitsGroup1());
@@ -93,13 +93,13 @@ class OperationalLimitsTest {
         } catch (IllegalArgumentException e) {
             assertEquals("Operational limits group 'group2' does not exist", e.getMessage());
         }
-        l1.newCurrentLimits2().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getCurrentLimits2().get().getPermanentLimit());
-        l1.newActivePowerLimits2().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getActivePowerLimits2().get().getPermanentLimit());
-        l1.newApparentPowerLimits2().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getApparentPowerLimits2().get().getPermanentLimit());
     }
@@ -178,13 +178,13 @@ class OperationalLimitsTest {
         } catch (IllegalArgumentException e) {
             assertEquals("Operational limits group 'group1' does not exist", e.getMessage());
         }
-        leg1.newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
+        leg1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, leg1.getCurrentLimits().get().getPermanentLimit());
-        leg1.newActivePowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
+        leg1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, leg1.getActivePowerLimits().get().getPermanentLimit());
-        leg1.newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
+        leg1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, leg1.getApparentPowerLimits().get().getPermanentLimit());
         assertNotNull(leg1.getSelectedOperationalLimitsGroup());
