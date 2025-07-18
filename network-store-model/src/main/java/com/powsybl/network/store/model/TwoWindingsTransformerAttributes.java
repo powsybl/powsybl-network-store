@@ -128,6 +128,6 @@ public class TwoWindingsTransformerAttributes extends AbstractIdentifiableAttrib
         if (filter != AttributeFilter.SV) {
             throw new PowsyblException("Unsupported attribute filter: " + filter);
         }
-        return new TwoWindingsTransformerSvAttributes(getP1(), getQ1(), getP2(), getQ2(), getPhaseTapChangerAttributes(), getRatioTapChangerAttributes());
+        return new TwoWindingsTransformerSvAttributes(getP1(), getQ1(), getP2(), getQ2(), getPhaseTapChangerAttributes() != null ? getPhaseTapChangerAttributes().getTapPosition() : null, getRatioTapChangerAttributes() != null ? getRatioTapChangerAttributes().getTapPosition() : null);
     }
 }
