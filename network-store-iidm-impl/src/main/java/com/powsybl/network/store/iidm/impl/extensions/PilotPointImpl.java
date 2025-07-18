@@ -61,7 +61,10 @@ class PilotPointImpl implements PilotPoint {
         }
         double oldValue = getTargetV();
         if (oldValue != targetV) {
-            network.updateResourceExtension(secondaryVoltageControl, res -> pilotPointAttributes.setTargetV(targetV), "targetV for pilot point in control zone " + controlZone.getName(), oldValue, targetV);
+            network.updateResourceExtension(secondaryVoltageControl, res ->
+                pilotPointAttributes.setTargetV(targetV), "pilotPointTargetV",
+                new TargetVoltageEvent(controlZone.getName(), oldValue),
+                new TargetVoltageEvent(controlZone.getName(), targetV));
         }
     }
 }
