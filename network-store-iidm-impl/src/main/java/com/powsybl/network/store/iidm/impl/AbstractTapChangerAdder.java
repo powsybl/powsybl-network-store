@@ -41,15 +41,6 @@ public abstract class AbstractTapChangerAdder {
         this.index = Objects.requireNonNull(index);
     }
 
-    protected AbstractTapChangerAdder(NetworkObjectIndex index, int lowTapPosition, Integer tapPosition, boolean regulating, double targetDeadband, Integer solvedTapPosition) {
-        this.index = Objects.requireNonNull(index);
-        this.lowTapPosition = lowTapPosition;
-        this.tapPosition = tapPosition;
-        this.regulating = regulating;
-        this.targetDeadband = targetDeadband;
-        this.solvedTapPosition = solvedTapPosition;
-    }
-
     protected RegulatingPointAttributes createRegulationPointAttributes(TapChangerParent tapChangerParent, RegulatingTapChangerType regulatingTapChangerType,
                                                                      String regulationMode, Boolean regulating) {
         RegulatingTapChangerType finalRegulatingTapChangerType = regulatingTapChangerType;

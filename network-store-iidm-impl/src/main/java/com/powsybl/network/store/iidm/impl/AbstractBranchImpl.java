@@ -90,12 +90,14 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         return this;
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.ONE, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
         return getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits();
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.TWO, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
@@ -164,12 +166,14 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     // active power
+    @Deprecated(since = "1.29.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.ONE, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
         return getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits();
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.TWO, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
@@ -238,12 +242,14 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     // current limits
+    @Deprecated(since = "1.29.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.ONE, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
         return getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.TWO, getSelectedOperationalLimitsGroupId(TwoSides.TWO));

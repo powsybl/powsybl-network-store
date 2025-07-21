@@ -11,11 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Optional;
 import java.util.Set;
 
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl.LegImpl;
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -54,13 +53,13 @@ class OperationalLimitsTest {
         } catch (IllegalArgumentException e) {
             assertEquals("Operational limits group 'group1' does not exist", e.getMessage());
         }
-        l1.newCurrentLimits1().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getCurrentLimits1().get().getPermanentLimit());
         l1.newActivePowerLimits1().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getActivePowerLimits1().get().getPermanentLimit());
-        l1.newApparentPowerLimits1().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getApparentPowerLimits1().get().getPermanentLimit());
         assertNotNull(l1.getSelectedOperationalLimitsGroup1());
@@ -95,13 +94,13 @@ class OperationalLimitsTest {
         } catch (IllegalArgumentException e) {
             assertEquals("Operational limits group 'group2' does not exist", e.getMessage());
         }
-        l1.newCurrentLimits2().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getCurrentLimits2().get().getPermanentLimit());
-        l1.newActivePowerLimits2().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getActivePowerLimits2().get().getPermanentLimit());
-        l1.newApparentPowerLimits2().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getApparentPowerLimits2().get().getPermanentLimit());
     }
@@ -180,13 +179,13 @@ class OperationalLimitsTest {
         } catch (IllegalArgumentException e) {
             assertEquals("Operational limits group 'group1' does not exist", e.getMessage());
         }
-        leg1.newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
+        leg1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, leg1.getCurrentLimits().get().getPermanentLimit());
-        leg1.newActivePowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
+        leg1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, leg1.getActivePowerLimits().get().getPermanentLimit());
-        leg1.newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
+        leg1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, leg1.getApparentPowerLimits().get().getPermanentLimit());
         assertNotNull(leg1.getSelectedOperationalLimitsGroup());
@@ -244,5 +243,45 @@ class OperationalLimitsTest {
         operationalLimitsGroup.getActivePowerLimits().get().remove();
         operationalLimitsGroup.getApparentPowerLimits().get().remove();
         assertTrue(l1.getOperationalLimitsGroup1("group1").get().isEmpty());
+    }
+
+    @Test
+    void testOperationalLimitsGroup() {
+        Network network = Network.create("test", "test");
+        Substation substation = network.newSubstation().setId("sub").setCountry(Country.FR).setTso("RTE").add();
+        VoltageLevel voltageLevel = substation.newVoltageLevel()
+            .setId("vl")
+            .setName("vl")
+            .setNominalV(440.0F)
+            .setHighVoltageLimit(400.0F)
+            .setLowVoltageLimit(200.0F)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        voltageLevel.getBusBreakerView()
+            .newBus()
+            .setId("bus_vl")
+            .setName("bus_vl")
+            .add();
+        voltageLevel.newDanglingLine()
+            .setId("danglingId")
+            .setName("DanglingName")
+            .setR(10.0F)
+            .setX(20.0F)
+            .setP0(30.0F)
+            .setQ0(40.0F)
+            .setPairingKey("code")
+            .setBus("bus_vl")
+            .add();
+        DanglingLine danglingLine = network.getDanglingLine("danglingId");
+        OperationalLimitsGroup defaultOperationalGroup = danglingLine.getOrCreateSelectedOperationalLimitsGroup();
+        Assertions.assertEquals("DEFAULT", defaultOperationalGroup.getId());
+        Assertions.assertTrue(defaultOperationalGroup.getCurrentLimits().isEmpty());
+        Assertions.assertTrue(defaultOperationalGroup.getActivePowerLimits().isEmpty());
+        Assertions.assertTrue(defaultOperationalGroup.getApparentPowerLimits().isEmpty());
+
+        danglingLine.newOperationalLimitsGroup("test");
+        danglingLine.setSelectedOperationalLimitsGroup("test");
+        OperationalLimitsGroup testOperationalGroup = danglingLine.getOrCreateSelectedOperationalLimitsGroup();
+        Assertions.assertEquals("test", testOperationalGroup.getId());
     }
 }
