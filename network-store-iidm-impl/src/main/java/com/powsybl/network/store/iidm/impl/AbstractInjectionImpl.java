@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.network.store.iidm.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 
