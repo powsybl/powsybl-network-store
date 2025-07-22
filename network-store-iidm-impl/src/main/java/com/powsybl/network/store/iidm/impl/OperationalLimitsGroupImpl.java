@@ -117,25 +117,25 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
     @Override
     public String getProperty(String s) {
         // FIXME: implement this method
-        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support getProperty(string)");
+        return null;
     }
 
     @Override
     public String getProperty(String s, String s1) {
         // FIXME: implement this method
-        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support getProperty(string, string)");
+        return null;
     }
 
     @Override
     public String setProperty(String s, String s1) {
         // FIXME: implement this method
-        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support setProperty(string, string)");
+        return null;
     }
 
     @Override
     public boolean removeProperty(String s) {
         // FIXME: implement this method
-        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support removeProperty(string)");
+        return true;
     }
 
     @Override
@@ -146,7 +146,6 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
 
     @Override
     public Network getNetwork() {
-        // FIXME: implement this method
-        throw new UnsupportedOperationException("OperationalLimitsGroupImpl does not support getNetwork()");
+        return owner.getIdentifiable().getNetwork();
     }
 }
