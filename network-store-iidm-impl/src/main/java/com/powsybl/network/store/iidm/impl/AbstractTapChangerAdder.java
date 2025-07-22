@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.RegulatingPointAttributes;
 import com.powsybl.network.store.model.RegulatingTapChangerType;
 import com.powsybl.network.store.model.ResourceType;
@@ -32,20 +33,16 @@ public abstract class AbstractTapChangerAdder {
 
     protected Terminal regulatingTerminal;
 
+    protected boolean loadTapChangingCapabilities;
+
+    protected Integer solvedTapPosition;
+
     protected AbstractTapChangerAdder(NetworkObjectIndex index) {
         this.index = Objects.requireNonNull(index);
     }
 
-    protected AbstractTapChangerAdder(NetworkObjectIndex index, int lowTapPosition, Integer tapPosition, boolean regulating, double targetDeadband) {
-        this.index = Objects.requireNonNull(index);
-        this.lowTapPosition = lowTapPosition;
-        this.tapPosition = tapPosition;
-        this.regulating = regulating;
-        this.targetDeadband = targetDeadband;
-    }
-
     protected RegulatingPointAttributes createRegulationPointAttributes(TapChangerParent tapChangerParent, RegulatingTapChangerType regulatingTapChangerType,
-                                                                     String regulationMode) {
+                                                                     String regulationMode, Boolean regulating) {
         RegulatingTapChangerType finalRegulatingTapChangerType = regulatingTapChangerType;
         ResourceType resourceType = ResourceType.TWO_WINDINGS_TRANSFORMER;
         if (tapChangerParent instanceof ThreeWindingsTransformerImpl.LegImpl leg) {
@@ -57,5 +54,13 @@ public abstract class AbstractTapChangerAdder {
         // local terminal is null for tapChanger because it has more than one
         return new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), resourceType, finalRegulatingTapChangerType,
             null, terminalRefAttributes, regulationMode, resourceType, regulating);
+    }
+
+    public static void checkPositionCreation(Integer position, int lowTapPosition, int highTapPosition, TapChangerParent tapChangerParent, String message) {
+        if (position != null && (position < lowTapPosition || position > highTapPosition)) {
+            throw new ValidationException(tapChangerParent, "incorrect " + message + " "
+                + position + " [" + lowTapPosition + ", "
+                + highTapPosition + "]");
+        }
     }
 }

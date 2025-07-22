@@ -32,14 +32,16 @@ class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         svc.setRegulatingTerminal(network.getLoad("load").getTerminal());
         svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+        svc.setRegulating(true);
         network.getLoad("load").remove();
         Assertions.assertEquals("SVC2", svc.getRegulatingTerminal().getConnectable().getId());
         Assertions.assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+        Assertions.assertTrue(svc.isRegulating());
 
         svc.setRegulatingTerminal(network.getGenerator("G1").getTerminal());
         Assertions.assertEquals("G1", svc.getRegulatingTerminal().getConnectable().getId());
         network.getGenerator("G1").remove();
         Assertions.assertEquals("SVC2", svc.getRegulatingTerminal().getConnectable().getId());
-        Assertions.assertEquals(StaticVarCompensator.RegulationMode.OFF, svc.getRegulationMode());
+        Assertions.assertFalse(svc.isRegulating());
     }
 }

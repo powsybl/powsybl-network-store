@@ -52,7 +52,9 @@ class ControlUnitImpl implements ControlUnit {
     public void setParticipate(boolean participate) {
         boolean oldValue = isParticipate();
         if (oldValue != participate) {
-            network.updateResourceExtension(secondaryVoltageControl, res -> controlUnitAttributes.setParticipate(participate), "participate for control unit " + getId() + " in control zone " + controlZone.getName(), oldValue, participate);
+            network.updateResourceExtension(secondaryVoltageControl, res -> controlUnitAttributes.setParticipate(participate),
+                "controlUnitParticipate", new ParticipateEvent(controlZone.getName(), getControlUnitAttributes().getId(), oldValue),
+                new ParticipateEvent(controlZone.getName(), getControlUnitAttributes().getId(), participate));
         }
     }
 }

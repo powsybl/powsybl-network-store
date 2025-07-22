@@ -177,8 +177,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         }
 
         @Override
-        public String getMessageHeader() {
-            return "generation part for dangling line '" + danglingLine.getId() + "': ";
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader("generation part for dangling line", danglingLine.getId());
         }
     }
 
@@ -393,6 +393,17 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+        Optional<OperationalLimitsGroup> operationalLimitsGroup = getSelectedOperationalLimitsGroup();
+        if (operationalLimitsGroup.isPresent()) {
+            return operationalLimitsGroup.get();
+        }
+        OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        setSelectedOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        return newOperationalLimitsGroup;
+    }
+
+    @Override
     public Optional<CurrentLimits> getCurrentLimits() {
         return Optional.ofNullable(getNullableCurrentLimits());
     }
@@ -429,22 +440,25 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
                 : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
         updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
-        return new CurrentLimitsAdderImpl<>(null, this, getSelectedLimitsGroupId());
+        return getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
         updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
-        return new ApparentPowerLimitsAdderImpl<>(null, this, getSelectedLimitsGroupId());
+        return getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
         updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
-        return new ActivePowerLimitsAdderImpl<>(null, this, getSelectedLimitsGroupId());
+        return getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     @Override

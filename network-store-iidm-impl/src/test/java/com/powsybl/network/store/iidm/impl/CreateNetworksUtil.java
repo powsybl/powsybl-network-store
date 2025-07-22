@@ -311,7 +311,7 @@ public final class CreateNetworksUtil {
                 .setMinQ(200)
                 .setMaxQ(800)
                 .add();
-        danglingLine1.newCurrentLimits()
+        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(256)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -348,7 +348,7 @@ public final class CreateNetworksUtil {
                 .setVoltageRegulationOn(true)
                 .add()
                 .add();
-        danglingLine2.newCurrentLimits()
+        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(256)
                 .beginTemporaryLimit()
                 .setName("TL2")
@@ -544,8 +544,7 @@ public final class CreateNetworksUtil {
                 .endStep()
                 .add();
 
-        threeWindingsTransformer.getLeg1()
-                .newCurrentLimits()
+        threeWindingsTransformer.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(25)
                 .add();
 

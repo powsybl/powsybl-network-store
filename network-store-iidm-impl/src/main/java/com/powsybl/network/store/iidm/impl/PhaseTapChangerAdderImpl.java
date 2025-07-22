@@ -30,7 +30,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
-    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
+    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 
     private double regulationValue = Double.NaN;
 
@@ -106,6 +106,13 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         super(index);
         this.tapChangerParent = tapChangerParent;
         this.attributesGetter = attributesGetter;
+        this.loadTapChangingCapabilities = true;
+    }
+
+    @Override
+    public PhaseTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
+        return this;
     }
 
     @Override
@@ -118,7 +125,12 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
     public PhaseTapChangerAdder setTapPosition(int tapPosition) {
         this.tapPosition = tapPosition;
         return this;
+    }
 
+    @Override
+    public PhaseTapChangerAdder setSolvedTapPosition(Integer solvedTapPosition) {
+        this.solvedTapPosition = solvedTapPosition;
+        return this;
     }
 
     @Override
@@ -165,12 +177,9 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
             throw new ValidationException(tapChangerParent, "phase tap changer should have at least one step");
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
-        if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-            throw new ValidationException(tapChangerParent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", "
-                    + highTapPosition + "]");
-        }
-        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, regulatingTerminal, tapChangerParent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, index.getNetwork().getReportNodeContext().getReportNode());
+        checkPositionCreation(tapPosition, lowTapPosition, highTapPosition, tapChangerParent, "tap position");
+        checkPositionCreation(solvedTapPosition, lowTapPosition, highTapPosition, tapChangerParent, "solved tap position");
+        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities, regulatingTerminal, tapChangerParent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, index.getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
@@ -178,13 +187,15 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         tapChangers.remove(tapChangerParent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
 
-        RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.PHASE_TAP_CHANGER, regulationMode.toString());
+        RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.PHASE_TAP_CHANGER, regulationMode.toString(), regulating);
 
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
+                .loadTapChangingCapabilities(loadTapChangingCapabilities)
                 .lowTapPosition(lowTapPosition)
                 .regulationValue(regulationValue)
                 .steps(steps)
                 .tapPosition(tapPosition)
+                .solvedTapPosition(solvedTapPosition)
                 .targetDeadband(targetDeadband)
                 .regulatingPoint(regulatingPointAttributes)
                 .build();

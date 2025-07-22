@@ -100,7 +100,7 @@ public abstract class AbstractRegulatingPoint {
         }
     }
 
-    protected abstract void resetRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode);
+    protected abstract void resetRegulatingAndRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode);
 
     void remove() {
         TerminalImpl<?> regulatingTerminal = (TerminalImpl<?>) TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
@@ -115,8 +115,8 @@ public abstract class AbstractRegulatingPoint {
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, getAttributes().getRegulatingTerminal());
         // set local terminal as regulating terminal
         resetRegulationToLocalTerminal();
-        // rest regulation mode for equipment having one
-        resetRegulationMode(regulatingTerminal, localTerminal, reportNode);
+        // reset regulating and regulation mode for equipment having one
+        resetRegulatingAndRegulationMode(regulatingTerminal, localTerminal, reportNode);
     }
 
     public Boolean isRegulating() {

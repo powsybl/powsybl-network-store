@@ -139,6 +139,41 @@ public class SubnetworksExplorationTest extends AbstractSubnetworksExplorationTe
     }
 
     @Override
+    public void testExploreDcConnectables() {
+        // FIXME
+    }
+
+    @Override
+    public void testExploreDcNodes() {
+        // FIXME
+    }
+
+    @Override
+    public void testExploreDcLines() {
+        // FIXME
+    }
+
+    @Override
+    public void testExploreDcGrounds() {
+        // FIXME
+    }
+
+    @Override
+    public void testExploreDcSwitches() {
+        // FIXME
+    }
+
+    @Override
+    public void testExploreLineCommutatedConverters() {
+        // FIXME
+    }
+
+    @Override
+    public void testExploreVoltageSourceConverters() {
+        // FIXME
+    }
+
+    @Override
     public void testExploreIdentifiables() {
         // FIXME
     }
