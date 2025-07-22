@@ -146,7 +146,6 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
 
     @Override
     public Network getNetwork() {
-        // FIXME: implement this method
-        return null;
+        return owner.getIdentifiable().getNetwork();
     }
 }
