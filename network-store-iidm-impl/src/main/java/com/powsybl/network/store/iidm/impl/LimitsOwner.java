@@ -20,5 +20,5 @@ public interface LimitsOwner<SIDE> extends Validable {
 
     void setApparentPowerLimits(SIDE side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId);
 
-    AbstractIdentifiableImpl<?, ?> getIdentifiable();
+    AbstractIdentifiableImpl getIdentifiable();
 }
