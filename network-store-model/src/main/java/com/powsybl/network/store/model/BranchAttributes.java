@@ -86,11 +86,11 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     }
 
     default OperationalLimitsGroupAttributes getOrCreateOperationalLimitsGroup1(String id) {
-        return getOperationalLimitsGroups1().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null));
+        return getOperationalLimitsGroups1().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null, null));
     }
 
     default OperationalLimitsGroupAttributes getOrCreateOperationalLimitsGroup2(String id) {
-        return getOperationalLimitsGroups2().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null));
+        return getOperationalLimitsGroups2().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null, null));
     }
 
     @JsonIgnore
