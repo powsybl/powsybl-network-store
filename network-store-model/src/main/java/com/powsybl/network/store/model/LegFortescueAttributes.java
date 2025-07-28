@@ -7,6 +7,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "TwoWindingsTransformer Fortescue Attributes")
-public class TwoWindingsTransformerFortescueAttributes implements ExtensionAttributes {
+@Schema(description = "ThreeWindingsTransformer Fortescue Attributes")
+public class LegFortescueAttributes implements ExtensionAttributes {
 
     @Schema(description = "rz")
     private double rz;
@@ -33,21 +34,16 @@ public class TwoWindingsTransformerFortescueAttributes implements ExtensionAttri
     @Schema(description = "free fluxes")
     private boolean freeFluxes;
 
-    @Schema(description = "connection type on side 1")
-    private WindingConnectionType connectionType1;
+    @Schema(description = "connection type")
+    private WindingConnectionType connectionType;
 
-    @Schema(description = "connection type on side 2")
-    private WindingConnectionType connectionType2;
+    @Schema(description = "grounding r")
+    private double groundingR;
 
-    @Schema(description = "grounding r on side 1")
-    private double groundingR1;
+    @Schema(description = "grounding x")
+    private double groundingX;
 
-    @Schema(description = "grounding x on side 1")
-    private double groundingX1;
-
-    @Schema(description = "grounding r on side 2")
-    private double groundingR2;
-
-    @Schema(description = "grounding x on side 2")
-    private double groundingX2;
+    public ThreeWindingsTransformerFortescue.LegFortescue convertToLegFortescue() {
+        return new ThreeWindingsTransformerFortescue.LegFortescue(rz, xz, freeFluxes, connectionType, groundingR, groundingX);
+    }
 }
