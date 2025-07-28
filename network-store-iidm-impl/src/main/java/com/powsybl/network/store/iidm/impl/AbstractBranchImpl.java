@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.network.store.iidm.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;

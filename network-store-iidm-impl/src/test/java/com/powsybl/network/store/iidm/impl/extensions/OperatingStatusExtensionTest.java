@@ -4,13 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network.store.iidm.impl;
+package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
+import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
 import lombok.Getter;
 import org.junit.Test;
 

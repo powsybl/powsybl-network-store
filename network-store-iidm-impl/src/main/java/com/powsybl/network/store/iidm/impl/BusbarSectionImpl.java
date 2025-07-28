@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.network.store.iidm.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.Resource;
 
