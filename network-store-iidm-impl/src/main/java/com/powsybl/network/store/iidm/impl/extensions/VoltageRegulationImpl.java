@@ -6,22 +6,30 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import com.powsybl.network.store.iidm.impl.BatteryImpl;
+import com.powsybl.network.store.iidm.impl.TerminalImpl;
 import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 import com.powsybl.network.store.model.VoltageRegulationAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class VoltageRegulationImpl extends AbstractExtension<Battery> implements VoltageRegulation {
+public class VoltageRegulationImpl extends AbstractIidmExtension<Battery> implements VoltageRegulation {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(VoltageRegulationImpl.class);
 
     public VoltageRegulationImpl(Battery battery) {
         super(battery);
+        TerminalImpl<?> terminal = (TerminalImpl<?>) getRegulatingTerminal();
+        if (terminal != null) {
+            terminal.getReferrerManager().register(this);
+        }
     }
 
     private BatteryImpl getBattery() {
@@ -68,19 +76,38 @@ public class VoltageRegulationImpl extends AbstractExtension<Battery> implements
     }
 
     @Override
-    public void setRegulatingTerminal(Terminal terminal) {
+    public void setRegulatingTerminal(Terminal regulatingTerminal) {
         Terminal oldValue = getRegulatingTerminal();
-        if (oldValue != terminal) {
-            TerminalRefAttributes finalTerminal;
-            if (terminal != null) {
-                finalTerminal = TerminalRefUtils.getTerminalRefAttributes(terminal);
-            } else {
-                finalTerminal = null;
-            }
+        Terminal newRegulatingTerminal = regulatingTerminal != null ? regulatingTerminal : getExtendable().getTerminal();
+        if (oldValue != newRegulatingTerminal) {
+            TerminalRefAttributes finalTerminal = TerminalRefUtils.getTerminalRefAttributes(newRegulatingTerminal);
             getBattery().updateResourceExtension(this,
                 res -> getVoltageRegulationAttributes().setRegulatingTerminal(finalTerminal),
-                "targetV", oldValue, finalTerminal);
+                "regulatingTerminal", oldValue, finalTerminal);
         }
 
+    }
+
+    @Override
+    public void onReferencedRemoval(Terminal removedTerminal) {
+        LOGGER.warn("Change 'VoltageRegulation' regulatingTerminal to local for battery '{}', because its regulating terminal has been removed", getExtendable().getId());
+        if (removedTerminal != null && removedTerminal.equals(getRegulatingTerminal())) {
+            setRegulatingTerminal(null);
+        }
+    }
+
+    @Override
+    public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
+        Terminal oldTerminal = getRegulatingTerminal();
+        if (oldTerminal == null || oldTerminal.getConnectable().getId().equals(oldReferenced.getConnectable().getId())) {
+            setRegulatingTerminal(newReferenced);
+        }
+    }
+
+    @Override
+    public void cleanup() {
+        if (getRegulatingTerminal() != null) {
+            ((TerminalImpl<?>) getRegulatingTerminal()).getReferrerManager().unregister(this);
+        }
     }
 }

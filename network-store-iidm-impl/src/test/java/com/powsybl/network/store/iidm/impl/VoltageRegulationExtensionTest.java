@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkListener;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
 import org.junit.Test;
@@ -157,7 +154,7 @@ public class VoltageRegulationExtensionTest {
         // test setting null to regulatingTerminal
         vr.setRegulatingTerminal(null);
         assertEquals(4, listener.getNbUpdatedExtensions());
-        assertNull(vr.getRegulatingTerminal());
+        assertEquals(battery.getTerminal(), vr.getRegulatingTerminal());
     }
 
     @Test
@@ -180,5 +177,24 @@ public class VoltageRegulationExtensionTest {
         assertNull(battery.getExtension(Object.class));
         assertNull(battery.getExtensionByName(""));
         assertEquals(1, battery.getExtensions().size());
+    }
+
+    @Test
+    public void testRegulatingTerminal() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
+
+        Battery battery = network.getBattery("battery");
+        ShuntCompensator shuntCompensator = network.getShuntCompensator("SHUNT1");
+        battery.newExtension(VoltageRegulationAdder.class)
+            .withRegulatingTerminal(shuntCompensator.getTerminal())
+            .withVoltageRegulatorOn(true)
+            .withTargetV(225.0)
+            .add();
+        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
+        assertEquals(shuntCompensator.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        shuntCompensator.remove();
+
+        // regulating terminal deleted must relocate to local
+        assertEquals(battery.getTerminal(), voltageRegulation.getRegulatingTerminal());
     }
 }
