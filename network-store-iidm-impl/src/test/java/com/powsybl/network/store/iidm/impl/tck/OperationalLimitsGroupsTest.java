@@ -7,15 +7,9 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractOperationalLimitsGroupsTest;
-import org.junit.Test;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class OperationalLimitsGroupsTest extends AbstractOperationalLimitsGroupsTest {
-
-    @Test
-    public void propertiesTests() {
-        // FIXME implements properties for operational limits group
-    }
 }
