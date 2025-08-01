@@ -153,6 +153,26 @@ class LoadAsymmetricalExtensionTest {
         extension.setConnectionType(LoadConnectionType.Y);
         assertEquals(LoadConnectionType.Y, extension.getConnectionType());
         assertEquals(2, listener.getNbUpdatedExtensions());
+
+        extension.setDeltaPb(9);
+        assertEquals(9, extension.getDeltaPb());
+        assertEquals(3, listener.getNbUpdatedExtensions());
+
+        extension.setDeltaPc(10);
+        assertEquals(10, extension.getDeltaPc());
+        assertEquals(4, listener.getNbUpdatedExtensions());
+
+        extension.setDeltaQa(1);
+        assertEquals(1, extension.getDeltaQa());
+        assertEquals(5, listener.getNbUpdatedExtensions());
+
+        extension.setDeltaQb(2);
+        assertEquals(2, extension.getDeltaQb());
+        assertEquals(6, listener.getNbUpdatedExtensions());
+
+        extension.setDeltaQc(3);
+        assertEquals(3, extension.getDeltaQc());
+        assertEquals(7, listener.getNbUpdatedExtensions());
     }
 
     @Test
