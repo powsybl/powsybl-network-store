@@ -294,7 +294,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         }
 
         @Override
-        public AbstractIdentifiableImpl<?, ?> getIdentifiable() {
+        public AbstractIdentifiableImpl getIdentifiable() {
             return transformer;
         }
 

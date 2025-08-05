@@ -440,7 +440,6 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
                 : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
     }
 
-    // newLimits methods are deprecated to be replaced by OperationalLimitsGroup#newLimits
     @Deprecated(since = "1.29.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
