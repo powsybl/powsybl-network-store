@@ -28,8 +28,6 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
 
     private final OperationalLimitsGroupAttributes attributes;
 
-    private static final String PROPERTIES = "properties";
-
     public OperationalLimitsGroupImpl(LimitsOwner<S> owner, S side, OperationalLimitsGroupAttributes attributes) {
         this.owner = Objects.requireNonNull(owner);
         this.side = side;
@@ -150,7 +148,6 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
     public boolean removeProperty(String key) {
         Map<String, String> properties = attributes.getProperties();
         if (properties != null && properties.containsKey(key)) {
-            String oldValue = properties.get(key);
             owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
             return true;
         }
