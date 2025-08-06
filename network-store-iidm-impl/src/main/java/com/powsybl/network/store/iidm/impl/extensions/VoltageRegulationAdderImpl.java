@@ -32,10 +32,14 @@ public class VoltageRegulationAdderImpl extends AbstractIidmExtensionAdder<Batte
 
     @Override
     protected VoltageRegulation createExtension(Battery battery) {
+        TerminalRefAttributes finalTerminalRefAttributes = terminalRefAttributes;
+        if (terminalRefAttributes == null) {
+            finalTerminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(battery.getTerminal());
+        }
         VoltageRegulationAttributes voltageRegulationAttributes = VoltageRegulationAttributes.builder()
             .voltageRegulatorOn(voltageRegulatorOn)
             .targetV(targetV)
-            .regulatingTerminal(terminalRefAttributes)
+            .regulatingTerminal(finalTerminalRefAttributes)
             .build();
         ((BatteryImpl) battery).updateResourceWithoutNotification(
             res -> res.getAttributes().getExtensionAttributes()
