@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,7 +15,6 @@ import java.util.Set;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 /**
@@ -110,22 +110,26 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
 
     @Override
     public boolean hasProperty() {
-        return !MapUtils.isEmpty(attributes.getProperties());
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null && !properties.isEmpty();
     }
 
     @Override
     public boolean hasProperty(String key) {
-        return MapUtils.getObject(attributes.getProperties(), key) != null;
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null && properties.containsKey(key);
     }
 
     @Override
     public String getProperty(String key) {
-        return MapUtils.getObject(attributes.getProperties(), key);
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.get(key) : null;
     }
 
     @Override
     public String getProperty(String key, String defaultValue) {
-        return MapUtils.getObject(attributes.getProperties(), key, defaultValue);
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
     }
 
     @Override
@@ -138,13 +142,7 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
         oldValue.setValue(properties.put(key, value));
 
         Map<String, String> finalProperties = properties;
-        if (Objects.isNull(oldValue.getValue())) {
-            owner.getIdentifiable().updateResourcePropertyAdded(r -> attributes.setProperties(finalProperties),
-                PROPERTIES + "[" + key + "]", value);
-        } else {
-            owner.getIdentifiable().updateResourcePropertyReplaced(r -> attributes.setProperties(finalProperties),
-                PROPERTIES + "[" + key + "]", oldValue.getValue(), value);
-        }
+        owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.setProperties(finalProperties));
         return oldValue.getValue();
     }
 
@@ -153,8 +151,7 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
         Map<String, String> properties = attributes.getProperties();
         if (properties != null && properties.containsKey(key)) {
             String oldValue = properties.get(key);
-            owner.getIdentifiable().updateResourcePropertyRemoved(r -> attributes.getProperties().remove(key),
-                PROPERTIES + "[" + key + "]", oldValue);
+            owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
             return true;
         }
         return false;
@@ -162,7 +159,8 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
 
     @Override
     public Set<String> getPropertyNames() {
-        return hasProperty() ? attributes.getProperties().keySet() : Set.of();
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.keySet() : Collections.emptySet();
     }
 
     @Override
