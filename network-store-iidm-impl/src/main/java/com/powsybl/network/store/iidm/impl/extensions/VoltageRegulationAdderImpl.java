@@ -24,7 +24,7 @@ public class VoltageRegulationAdderImpl extends AbstractIidmExtensionAdder<Batte
 
     private double targetV;
 
-    private TerminalRefAttributes terminalRefAttributes = null;
+    private Terminal regulatingTerminal;
 
     public VoltageRegulationAdderImpl(Battery battery) {
         super(battery);
@@ -32,10 +32,9 @@ public class VoltageRegulationAdderImpl extends AbstractIidmExtensionAdder<Batte
 
     @Override
     protected VoltageRegulation createExtension(Battery battery) {
-        TerminalRefAttributes finalTerminalRefAttributes = terminalRefAttributes;
-        if (terminalRefAttributes == null) {
-            finalTerminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(battery.getTerminal());
-        }
+        TerminalRefAttributes finalTerminalRefAttributes = regulatingTerminal != null
+            ? TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)
+            : TerminalRefUtils.getTerminalRefAttributes(battery.getTerminal());
         VoltageRegulationAttributes voltageRegulationAttributes = VoltageRegulationAttributes.builder()
             .voltageRegulatorOn(voltageRegulatorOn)
             .targetV(targetV)
@@ -61,11 +60,7 @@ public class VoltageRegulationAdderImpl extends AbstractIidmExtensionAdder<Batte
 
     @Override
     public VoltageRegulationAdder withRegulatingTerminal(Terminal terminal) {
-        if (terminal != null) {
-            this.terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(terminal);
-        } else {
-            this.terminalRefAttributes = null;
-        }
+        this.regulatingTerminal = terminal;
         return this;
     }
 }
