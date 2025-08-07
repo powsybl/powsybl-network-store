@@ -91,7 +91,7 @@ public class VoltageRegulationImpl extends AbstractIidmExtension<Battery> implem
     @Override
     public void onReferencedRemoval(Terminal removedTerminal) {
         LOGGER.warn("Change 'VoltageRegulation' regulatingTerminal to local for battery '{}', because its regulating terminal has been removed", getExtendable().getId());
-        if (removedTerminal != null && removedTerminal.equals(getRegulatingTerminal())) {
+        if (removedTerminal != null && removedTerminal.getConnectable().getId().equals(getRegulatingTerminal().getConnectable().getId())) {
             setRegulatingTerminal(null);
         }
     }
