@@ -434,7 +434,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id) {
-        index.loadOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), id, 2);
         return getOperationalLimitsGroups2().stream()
                 .filter(group -> group.getId().equals(id))
                 .findFirst();
