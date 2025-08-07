@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
@@ -1032,22 +1031,16 @@ public class CachedNetworkStoreClientTest {
     private OperationalLimitsGroupAttributes createOperationalLimitsGroupAttributes(String operationalLimitsGroupId) {
         TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
         temporaryLimits.put(10, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroupId)
-            .limitType(LimitType.CURRENT)
             .value(12)
             .name("temporarylimit1")
             .acceptableDuration(10)
             .fictitious(false)
-            .side(1)
             .build());
         temporaryLimits.put(15, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroupId)
-            .limitType(LimitType.CURRENT)
             .value(9)
             .name("temporarylimit2")
             .acceptableDuration(15)
             .fictitious(false)
-            .side(1)
             .build());
         return OperationalLimitsGroupAttributes.builder()
             .id(operationalLimitsGroupId)

@@ -6,9 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.powsybl.iidm.network.LimitType;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,18 +22,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @Schema(description = "Temporary limit attributes")
 public class TemporaryLimitAttributes implements Comparable<TemporaryLimitAttributes> {
-
-    @JsonIgnore
-    @Schema(description = "Temporary limit side", required = true)
-    private Integer side;
-
-    @JsonIgnore
-    @Schema(description = "Temporary limit type", required = true)
-    private LimitType limitType;
-
-    @JsonIgnore
-    @Schema(description = "Temporary limit group Id")
-    private String operationalLimitsGroupId;
 
     @Schema(description = "Temporary limit name")
     private String name;
