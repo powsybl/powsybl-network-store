@@ -1047,7 +1047,6 @@ public class CachedNetworkStoreClientTest {
             .currentLimits(LimitsAttributes.builder()
                 .permanentLimit(1)
                 .temporaryLimits(temporaryLimits)
-                .operationalLimitsGroupId(operationalLimitsGroupId)
                 .build())
             .build();
     }

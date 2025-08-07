@@ -1670,7 +1670,6 @@ public class PreloadingNetworkStoreClientTest {
             .currentLimits(LimitsAttributes.builder()
                 .permanentLimit(1)
                 .temporaryLimits(temporaryLimits)
-                .operationalLimitsGroupId(operationalLimitsGroupId)
                 .build())
             .build();
     }
