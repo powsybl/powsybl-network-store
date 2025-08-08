@@ -15,21 +15,22 @@ public class MockNetworkListener implements NetworkListener {
 
     @Override
     public void onCreation(Identifiable identifiable) {
-        // Not tested here
+        throw new UnsupportedOperationException("Unimplemented method 'onCreation'");
     }
 
     @Override
     public void beforeRemoval(Identifiable identifiable) {
-        // Not tested here
+        throw new UnsupportedOperationException("Unimplemented method 'beforeRemoval'");
     }
 
     @Override
     public void afterRemoval(String id) {
-        // Not tested here
+        throw new UnsupportedOperationException("Unimplemented method 'afterRemoval'");
     }
 
     public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue,
                          Object newValue) {
+        throw new UnsupportedOperationException("Unimplemented method 'onUpdate'");
     }
 
     @Override
@@ -44,11 +45,12 @@ public class MockNetworkListener implements NetworkListener {
 
     @Override
     public void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
-        // Not tested here
+        throw new UnsupportedOperationException("Unimplemented method 'onVariantOverwritten'");
     }
 
     @Override
     public void onExtensionCreation(Extension<?> extension) {
+        throw new UnsupportedOperationException("Unimplemented method 'onExtensionCreation'");
     }
 
     @Override
@@ -67,19 +69,16 @@ public class MockNetworkListener implements NetworkListener {
 
     @Override
     public void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'onPropertyAdded'");
     }
 
     @Override
     public void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'onPropertyReplaced'");
     }
 
     @Override
     public void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'onPropertyRemoved'");
     }
 }
