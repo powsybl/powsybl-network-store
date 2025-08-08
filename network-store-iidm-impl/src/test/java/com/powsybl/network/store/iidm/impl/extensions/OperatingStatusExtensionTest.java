@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
-import lombok.Getter;
+import com.powsybl.network.store.iidm.impl.MockNetworkListener;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -172,8 +172,8 @@ public class OperatingStatusExtensionTest {
     @Test
     public void testRemoveExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
-        DummyNetworkListener listener1 = new DummyNetworkListener();
-        DummyNetworkListenerWithExceptions listener2 = new DummyNetworkListenerWithExceptions();
+        MockNetworkListener listener1 = new MockNetworkListener();
+        MockNetworkListenerWithExceptions listener2 = new MockNetworkListenerWithExceptions();
         network.addListener(listener1);
         network.addListener(listener2);
 
@@ -193,84 +193,7 @@ public class OperatingStatusExtensionTest {
         assertNull(l1.getExtension(OperatingStatus.class));
     }
 
-    private static class DummyNetworkListener implements NetworkListener {
-
-        @Getter
-        private int nbRemovedExtension = 0;
-
-        @Override
-        public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
-            nbRemovedExtension++;
-        }
-
-        @Override
-        public void onExtensionBeforeRemoval(Extension<?> extension) {
-            //Nothing to be done
-        }
-
-        @Override
-        public void onCreation(Identifiable identifiable) {
-            throw new UnsupportedOperationException("Unimplemented method");
-        }
-
-        @Override
-        public void beforeRemoval(Identifiable identifiable) {
-            throw new UnsupportedOperationException("Unimplemented method");
-        }
-
-        @Override
-        public void afterRemoval(String id) {
-            throw new UnsupportedOperationException("Unimplemented method");
-        }
-
-        @Override
-        public void onVariantCreated(String sourceVariantId, String targetVariantId) {
-            throw new UnsupportedOperationException("Unimplemented method");
-        }
-
-        @Override
-        public void onVariantRemoved(String variantId) {
-            throw new UnsupportedOperationException("Unimplemented method");
-        }
-
-        @Override
-        public void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
-            throw new UnsupportedOperationException("Unimplemented method");
-        }
-
-        @Override
-        public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue,
-                             Object newValue) {
-            throw new UnsupportedOperationException("Unimplemented method");
-        }
-
-        @Override
-        public void onExtensionCreation(Extension<?> extension) {
-            throw new UnsupportedOperationException("Unimplemented method 'onExtensionCreation'");
-        }
-
-        @Override
-        public void onExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
-            throw new UnsupportedOperationException("Unimplemented method 'onExtensionUpdate'");
-        }
-
-        @Override
-        public void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
-            throw new UnsupportedOperationException("Unimplemented method 'onPropertyAdded'");
-        }
-
-        @Override
-        public void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
-            throw new UnsupportedOperationException("Unimplemented method 'onPropertyReplaced'");
-        }
-
-        @Override
-        public void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
-            throw new UnsupportedOperationException("Unimplemented method 'onPropertyRemoved'");
-        }
-    }
-
-    private static class DummyNetworkListenerWithExceptions extends DummyNetworkListener {
+    private static class MockNetworkListenerWithExceptions extends MockNetworkListener {
         @Override
         public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
             throw new UnsupportedOperationException("error'");
