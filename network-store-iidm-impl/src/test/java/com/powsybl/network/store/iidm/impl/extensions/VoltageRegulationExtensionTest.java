@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
 import com.powsybl.network.store.iidm.impl.BatteryImpl;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
+import com.powsybl.network.store.iidm.impl.MockNetworkListener;
 import org.junit.Test;
 
 import java.util.List;

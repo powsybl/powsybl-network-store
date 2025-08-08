@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
+import com.powsybl.network.store.iidm.impl.MockNetworkListener;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

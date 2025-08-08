@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.network.store.iidm.impl.extensions.MockNetworkListener;
 import org.junit.Test;
 
 import java.util.Set;

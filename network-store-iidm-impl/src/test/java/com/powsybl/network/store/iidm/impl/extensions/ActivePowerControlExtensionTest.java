@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.network.store.iidm.impl.BatteryImpl;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
+import com.powsybl.network.store.iidm.impl.MockNetworkListener;
 import org.junit.Test;
 
 import java.util.List;
