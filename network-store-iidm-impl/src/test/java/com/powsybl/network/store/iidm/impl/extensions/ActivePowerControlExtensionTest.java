@@ -26,7 +26,7 @@ public class ActivePowerControlExtensionTest {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         // add dummy listener to check notification
-        DummyNetworkListener listener = new DummyNetworkListener();
+        MockNetworkListener listener = new MockNetworkListener();
         network.addListener(listener);
 
         Battery battery = network.getBattery("battery");

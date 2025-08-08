@@ -171,8 +171,8 @@ public class OperatingStatusExtensionTest {
     @Test
     public void testRemoveExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
-        DummyNetworkListener listener1 = new DummyNetworkListener();
-        DummyNetworkListenerWithExceptions listener2 = new DummyNetworkListenerWithExceptions();
+        MockNetworkListener listener1 = new MockNetworkListener();
+        MockNetworkListenerWithExceptions listener2 = new MockNetworkListenerWithExceptions();
         network.addListener(listener1);
         network.addListener(listener2);
 
@@ -192,7 +192,7 @@ public class OperatingStatusExtensionTest {
         assertNull(l1.getExtension(OperatingStatus.class));
     }
 
-    private static class DummyNetworkListenerWithExceptions extends DummyNetworkListener {
+    private static class MockNetworkListenerWithExceptions extends MockNetworkListener {
         @Override
         public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
             throw new UnsupportedOperationException("error'");

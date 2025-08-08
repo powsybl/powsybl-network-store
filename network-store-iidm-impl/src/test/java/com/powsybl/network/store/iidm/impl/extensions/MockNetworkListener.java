@@ -6,11 +6,12 @@ import com.powsybl.iidm.network.NetworkListener;
 import lombok.Getter;
 
 @Getter
-public class DummyNetworkListener implements NetworkListener {
+public class MockNetworkListener implements NetworkListener {
 
     private int nbUpdatedExtensions = 0;
-    @Getter
     private int nbRemovedExtension = 0;
+    private int nbCreatedVariant = 0;
+    private int nbRemovedVariant = 0;
 
     @Override
     public void onCreation(Identifiable identifiable) {
@@ -33,12 +34,12 @@ public class DummyNetworkListener implements NetworkListener {
 
     @Override
     public void onVariantCreated(String sourceVariantId, String targetVariantId) {
-        // Not tested here
+        nbCreatedVariant++;
     }
 
     @Override
     public void onVariantRemoved(String variantId) {
-        // Not tested here
+        nbRemovedVariant++;
     }
 
     @Override
