@@ -60,6 +60,7 @@ public class MockNetworkListener implements NetworkListener {
 
     @Override
     public void onExtensionBeforeRemoval(Extension<?> extension) {
+        throw new UnsupportedOperationException("Unimplemented method 'onExtensionBeforeRemoval'");
     }
 
     @Override
