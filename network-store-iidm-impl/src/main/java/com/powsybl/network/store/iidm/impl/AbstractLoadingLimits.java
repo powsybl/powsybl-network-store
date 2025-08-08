@@ -125,8 +125,6 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
             .name(identifiedLimit.getName())
             .value(temporaryLimitValue)
             .acceptableDuration(acceptableDuration)
-            .operationalLimitsGroupId(identifiedLimit.getOperationalLimitsGroupId())
-            .limitType(identifiedLimit.getLimitType())
             .build();
         attributes.getTemporaryLimits().put(acceptableDuration, newTemporaryLimit);
         return (T) this;
