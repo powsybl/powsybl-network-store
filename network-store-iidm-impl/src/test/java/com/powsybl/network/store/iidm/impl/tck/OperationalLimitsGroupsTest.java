@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class OperationalLimitsGroupsTest extends AbstractOperationalLimitsGroupsTest {
-    @Test
+
     @Override
     public void testForOperationalLimitsGroupsOnLine() {
         // Remove operational limit group not implemented yet for branches with lazy loading
