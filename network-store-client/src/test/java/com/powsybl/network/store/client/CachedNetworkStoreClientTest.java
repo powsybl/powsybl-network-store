@@ -10,8 +10,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
