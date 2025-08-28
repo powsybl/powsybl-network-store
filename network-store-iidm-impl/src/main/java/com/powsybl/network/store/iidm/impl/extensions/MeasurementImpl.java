@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil;
 import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
 import com.powsybl.network.store.model.MeasurementAttributes;
 import com.powsybl.network.store.model.MeasurementsAttributes;
@@ -107,6 +108,7 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public Measurement setValid(boolean b) {
+        MeasurementValidationUtil.checkValue(getValue(), b);
         boolean oldValue = isValid();
         this.abstractIdentifiable.updateResourceExtension(measurements,
             resource -> this.measurementAttributes.setValid(b), "validity for " + getInfo(), oldValue, b);

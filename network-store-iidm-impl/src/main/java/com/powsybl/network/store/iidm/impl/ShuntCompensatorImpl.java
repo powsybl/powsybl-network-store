@@ -37,6 +37,11 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
     }
 
     @Override
+    public Integer getSolvedSectionCount() {
+        return getResource().getAttributes().getSolvedSectionCount();
+    }
+
+    @Override
     public ShuntCompensator setSectionCount(int sectionCount) {
         ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         int oldValue = getResource().getAttributes().getSectionCount();
@@ -45,6 +50,29 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
                 "sectionCount", oldValue, sectionCount);
         }
         return this;
+    }
+
+    @Override
+    public ShuntCompensator setSolvedSectionCount(int solvedSectionCount) {
+        Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
+        checkSolvedSectionCount(solvedSectionCount, getMaximumSectionCount());
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(solvedSectionCount),
+            "solvedSectionCount", oldValue, solvedSectionCount);
+        return this;
+    }
+
+    @Override
+    public ShuntCompensator unsetSolvedSectionCount() {
+        Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(null),
+            "solvedSectionCount", oldValue, null);
+        return this;
+    }
+
+    private void checkSolvedSectionCount(Integer solvedSectionCount, int maximumSectionCount) {
+        if (solvedSectionCount != null && (solvedSectionCount < 0 || solvedSectionCount > maximumSectionCount)) {
+            throw new ValidationException(this, "unexpected solved section number (" + solvedSectionCount + "): no existing associated section");
+        }
     }
 
     @Override
