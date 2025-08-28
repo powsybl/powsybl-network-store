@@ -32,11 +32,11 @@ public class LinePreloadingResource extends BasePreloadingResource implements Pr
         return client.loadToCacheAsync(networkUuid, variantNum, getType())
             .thenRun(() -> {
                     Set<CompletableFuture<Void>> futures = getExtensionsFutures(client, networkUuid, variantNum);
-//                    if (loadSelectedOperationalLimits) {
-//                        futures.add(client.loadAllSelectedOperationalLimitsGroupAttributesByResourceTypeAsync(networkUuid, variantNum, getType()));
-//                    } else if (loadOperationalLimits) {
-//                        futures.add(client.loadAllOperationalLimitsGroupAttributesByResourceTypeAsync(networkUuid, variantNum, getType()));
-//                    }
+                    if (loadSelectedOperationalLimits) {
+                        futures.add(client.loadAllSelectedOperationalLimitsGroupAttributesByResourceTypeAsync(networkUuid, variantNum, getType()));
+                    } else if (loadOperationalLimits) {
+                        futures.add(client.loadAllOperationalLimitsGroupAttributesByResourceTypeAsync(networkUuid, variantNum, getType()));
+                    }
                     CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
                 }
             );
