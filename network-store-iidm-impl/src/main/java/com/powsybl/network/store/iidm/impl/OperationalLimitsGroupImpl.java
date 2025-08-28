@@ -8,15 +8,9 @@ package com.powsybl.network.store.iidm.impl;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
-import com.powsybl.iidm.network.ActivePowerLimits;
-import com.powsybl.iidm.network.ActivePowerLimitsAdder;
-import com.powsybl.iidm.network.ApparentPowerLimits;
-import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.OperationalLimitsGroup;
-import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
 
 /**
@@ -104,8 +98,54 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
     }
 
     @Override
-    public String getMessageHeader() {
-        return "Operational limits group " + getId();
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("Operational limits group ", getId());
     }
 
+    @Override
+    public boolean hasProperty() {
+        // FIXME: implement this method
+        return false;
+    }
+
+    @Override
+    public boolean hasProperty(String s) {
+        // FIXME: implement this method
+        return false;
+    }
+
+    @Override
+    public String getProperty(String s) {
+        // FIXME: implement this method
+        return null;
+    }
+
+    @Override
+    public String getProperty(String s, String s1) {
+        // FIXME: implement this method
+        return null;
+    }
+
+    @Override
+    public String setProperty(String s, String s1) {
+        // FIXME: implement this method
+        return null;
+    }
+
+    @Override
+    public boolean removeProperty(String s) {
+        // FIXME: implement this method
+        return true;
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        // FIXME: implement this method
+        return Set.of();
+    }
+
+    @Override
+    public Network getNetwork() {
+        return owner.getIdentifiable().getNetwork();
+    }
 }

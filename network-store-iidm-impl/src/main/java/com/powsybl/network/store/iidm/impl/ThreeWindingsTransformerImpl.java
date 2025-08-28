@@ -7,12 +7,14 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
+import com.powsybl.network.store.iidm.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
 
@@ -173,6 +175,17 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         }
 
         @Override
+        public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+            OperationalLimitsGroupAttributes operationalLimitsGroup = getLegAttributes().getSelectedOperationalLimitsGroup();
+            if (operationalLimitsGroup != null) {
+                return new OperationalLimitsGroupImpl<>(this, null, operationalLimitsGroup);
+            }
+            OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+            setSelectedOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+            return newOperationalLimitsGroup;
+        }
+
+        @Override
         public Optional<ApparentPowerLimits> getApparentPowerLimits() {
             return Optional.ofNullable(getNullableApparentPowerLimits());
         }
@@ -201,7 +214,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
         private static final String SELECTED_OPERATIONAL_LIMITS_GROUP_ID = ".selectedOperationalLimitsGroupId";
 
-        private String getSelectedGroupId() {
+        private String getSelectedLimitsGroupId() {
             return getLegAttributes().getSelectedOperationalLimitsGroupId() != null
                     ? getLegAttributes().getSelectedOperationalLimitsGroupId()
                     : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
@@ -213,22 +226,25 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             }
         }
 
+        @Deprecated(since = "1.29.0")
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
-            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
-            return new CurrentLimitsAdderImpl<>(null, this, getSelectedGroupId());
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
         }
 
+        @Deprecated(since = "1.29.0")
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
-            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
-            return new ApparentPowerLimitsAdderImpl<>(null, this, getSelectedGroupId());
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
         }
 
+        @Deprecated(since = "1.29.0")
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
-            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
-            return new ActivePowerLimitsAdderImpl<>(null, this, getSelectedGroupId());
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
         }
 
         @Override
@@ -331,8 +347,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         }
 
         @Override
-        public String getMessageHeader() {
-            return "3 windings transformer leg" + getLegAttributes().getLegNumber() + " '" + transformer.getId() + "': ";
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader("3 windings transformer leg" + getLegAttributes().getLegNumber(), transformer.getId());
         }
 
         @Override
@@ -466,6 +482,37 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             case TWO -> leg2.getTerminal();
             case THREE -> leg3.getTerminal();
         };
+    }
+
+    @Override
+    public Terminal getTerminal(String voltageLevelId) {
+        Objects.requireNonNull(voltageLevelId);
+        boolean isLeg1ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg1(), voltageLevelId);
+        boolean isLeg2ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg2(), voltageLevelId);
+        boolean isLeg3ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg3(), voltageLevelId);
+        if (isLeg1ConnectedToVoltageLevel
+            && isLeg2ConnectedToVoltageLevel
+            && isLeg3ConnectedToVoltageLevel) {
+            throw new PowsyblException("The three terminals are connected to the same voltage level " + voltageLevelId);
+        } else if (isLeg1ConnectedToVoltageLevel && isLeg2ConnectedToVoltageLevel
+            || isLeg3ConnectedToVoltageLevel && isLeg1ConnectedToVoltageLevel
+            || isLeg2ConnectedToVoltageLevel && isLeg3ConnectedToVoltageLevel) {
+            throw new PowsyblException("Two of the three terminals are connected to the same voltage level " + voltageLevelId);
+        } else if (isLeg1ConnectedToVoltageLevel) {
+            return getLeg1().getTerminal();
+        } else if (isLeg2ConnectedToVoltageLevel) {
+            return getLeg2().getTerminal();
+        } else if (isLeg3ConnectedToVoltageLevel) {
+            return getLeg3().getTerminal();
+        } else {
+            throw new PowsyblException("No terminal connected to voltage level " + voltageLevelId);
+        }
+    }
+
+    private boolean isLegConnectedToVoltageLevel(ThreeWindingsTransformer.Leg leg, String voltageLevelId) {
+        return Optional.ofNullable(leg.getTerminal().getVoltageLevel())
+            .map(vl -> voltageLevelId.equals(vl.getId()))
+            .orElse(Boolean.FALSE);
     }
 
     @Override

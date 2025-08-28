@@ -253,10 +253,10 @@ public class LineTest {
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
 
-        //Test current limit overriding
+        //Test current limit it does not override
         assertTrue(tieLine.getCurrentLimits1().isPresent());
         assertEquals(2, tieLine.getCurrentLimits1().get().getTemporaryLimits().size());
-        CurrentLimits currentlimits1 = tieLine.newCurrentLimits1()
+        CurrentLimits currentlimits1 = tieLine.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy")
@@ -265,11 +265,11 @@ public class LineTest {
                 .endTemporaryLimit()
                 .add();
         assertNotNull(currentlimits1);
-        assertEquals(1, tieLine.getCurrentLimits1().get().getTemporaryLimits().size());
+        assertEquals(3, tieLine.getCurrentLimits1().get().getTemporaryLimits().size());
 
         assertTrue(tieLine.getCurrentLimits2().isPresent());
         assertEquals(2, tieLine.getCurrentLimits2().get().getTemporaryLimits().size());
-        CurrentLimits currentlimit2 = tieLine.newCurrentLimits2()
+        CurrentLimits currentlimit2 = tieLine.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy2")
@@ -278,12 +278,12 @@ public class LineTest {
                 .endTemporaryLimit()
                 .add();
         assertNotNull(currentlimit2);
-        assertEquals(1, tieLine.getCurrentLimits2().get().getTemporaryLimits().size());
+        assertEquals(3, tieLine.getCurrentLimits2().get().getTemporaryLimits().size());
 
-        //Test active power limit overriding
+        //Test active power limit
         assertNull(tieLine.getNullableActivePowerLimits1());
         assertTrue(tieLine.getActivePowerLimits1().isEmpty());
-        ActivePowerLimits activepowerlimits1 = tieLine.newActivePowerLimits1()
+        ActivePowerLimits activepowerlimits1 = tieLine.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits()
                 .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy")
@@ -296,7 +296,7 @@ public class LineTest {
 
         assertNull(tieLine.getNullableActivePowerLimits2());
         assertTrue(tieLine.getActivePowerLimits2().isEmpty());
-        ActivePowerLimits activepowerlimits2 = tieLine.newActivePowerLimits2()
+        ActivePowerLimits activepowerlimits2 = tieLine.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits()
                 .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy")
@@ -307,10 +307,10 @@ public class LineTest {
         assertNotNull(activepowerlimits2);
         assertEquals(1, tieLine.getActivePowerLimits2().get().getTemporaryLimits().size());
 
-        //Test apparent power limit overriding
+        //Test apparent power limit
 
         assertTrue(tieLine.getApparentPowerLimits1().isEmpty());
-        ApparentPowerLimits apparentpowerlimits1 = tieLine.newApparentPowerLimits1()
+        ApparentPowerLimits apparentpowerlimits1 = tieLine.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits()
                 .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy")
@@ -322,7 +322,7 @@ public class LineTest {
         assertEquals(1, tieLine.getApparentPowerLimits1().get().getTemporaryLimits().size());
 
         assertTrue(tieLine.getApparentPowerLimits2().isEmpty());
-        ApparentPowerLimits apparentpowerlimits2 = tieLine.newApparentPowerLimits2()
+        ApparentPowerLimits apparentpowerlimits2 = tieLine.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits()
                 .setPermanentLimit(10.0)
                 .beginTemporaryLimit()
                 .setName("dummy")
@@ -349,16 +349,16 @@ public class LineTest {
         assertFalse(tieLine.checkPermanentLimit(TwoSides.ONE, LimitType.CURRENT));
         assertFalse(tieLine.checkPermanentLimit(TwoSides.TWO, LimitType.CURRENT));
 
-        tieLine.newActivePowerLimits1().setPermanentLimit(10.0).add();
-        tieLine.newActivePowerLimits2().setPermanentLimit(10.0).add();
+        tieLine.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(10.0).add();
+        tieLine.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(10.0).add();
 
         assertFalse(tieLine.checkPermanentLimit(TwoSides.ONE, 2.0f, LimitType.ACTIVE_POWER));
         assertTrue(tieLine.checkPermanentLimit(TwoSides.TWO, 2.0f, LimitType.ACTIVE_POWER));
         assertFalse(tieLine.checkPermanentLimit(TwoSides.ONE, LimitType.ACTIVE_POWER));
         assertTrue(tieLine.checkPermanentLimit(TwoSides.TWO, LimitType.ACTIVE_POWER));
 
-        tieLine.newApparentPowerLimits1().setPermanentLimit(10.0).add();
-        tieLine.newApparentPowerLimits2().setPermanentLimit(10.0).add();
+        tieLine.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(10.0).add();
+        tieLine.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(10.0).add();
         tieLine.setSelectedOperationalLimitsGroup1("id");
         tieLine.setSelectedOperationalLimitsGroup2("id");
 

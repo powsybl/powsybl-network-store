@@ -9,10 +9,13 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.ApparentPowerLimits;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.network.store.model.LimitsAttributes;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
+// EqualsAndHashCode is needed for tck tests
+@EqualsAndHashCode
 public class ApparentPowerLimitsImpl<S, O extends LimitsOwner<S>> extends AbstractLoadingLimits<S, O, ApparentPowerLimitsImpl<S, O>> implements ApparentPowerLimits {
 
     public ApparentPowerLimitsImpl(O owner, S side, String operationalGroupId, LimitsAttributes attributes) {

@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.network.store.iidm.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
@@ -90,16 +91,18 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         return this;
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.ONE, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
-        return new ApparentPowerLimitsAdderImpl<>(TwoSides.ONE, this, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
+        return getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits();
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.TWO, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
-        return new ApparentPowerLimitsAdderImpl<>(TwoSides.TWO, this, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
+        return getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits();
     }
 
     @Override
@@ -164,16 +167,18 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     // active power
+    @Deprecated(since = "1.29.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.ONE, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
-        return new ActivePowerLimitsAdderImpl<>(TwoSides.ONE, this, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
+        return getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits();
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.TWO, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
-        return new ActivePowerLimitsAdderImpl<>(TwoSides.TWO, this, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
+        return getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits();
     }
 
     @Override
@@ -238,16 +243,18 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     // current limits
+    @Deprecated(since = "1.29.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.ONE, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
-        return new CurrentLimitsAdderImpl<>(TwoSides.ONE, this, getSelectedOperationalLimitsGroupId(TwoSides.ONE));
+        return getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
     }
 
+    @Deprecated(since = "1.29.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         updateSelectedOperationalLimitsGroupIdIfNull(TwoSides.TWO, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
-        return new CurrentLimitsAdderImpl<>(TwoSides.TWO, this, getSelectedOperationalLimitsGroupId(TwoSides.TWO));
+        return getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits();
     }
 
     @Override
@@ -427,7 +434,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id) {
-        index.loadOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), id, 2);
         return getOperationalLimitsGroups2().stream()
                 .filter(group -> group.getId().equals(id))
                 .findFirst();
@@ -643,6 +649,28 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
                 default -> Collections.emptyList();
             };
         }
+    }
+
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1() {
+        Optional<OperationalLimitsGroup> operationalLimitsGroup = getSelectedOperationalLimitsGroup1();
+        if (operationalLimitsGroup.isPresent()) {
+            return operationalLimitsGroup.get();
+        }
+        OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup1(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        setSelectedOperationalLimitsGroup1(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        return newOperationalLimitsGroup;
+    }
+
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2() {
+        Optional<OperationalLimitsGroup> operationalLimitsGroup = getSelectedOperationalLimitsGroup2();
+        if (operationalLimitsGroup.isPresent()) {
+            return operationalLimitsGroup.get();
+        }
+        OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup2(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        setSelectedOperationalLimitsGroup2(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        return newOperationalLimitsGroup;
     }
 
     private void loadSelectedOperationalLimitsGroup(TwoSides side) {

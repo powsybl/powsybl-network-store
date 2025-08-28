@@ -12,8 +12,4 @@ import com.powsybl.iidm.network.tck.AbstractSwitchSetRetainedTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest {
-    @Override
-    public void test() {
-        // FIXME when https://github.com/powsybl/powsybl-core/pull/3435 will be merged
-    }
 }
