@@ -151,6 +151,13 @@ public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttr
         if (filter != AttributeFilter.SV) {
             throw new PowsyblException("Unsupported attribute filter: " + filter);
         }
-        return new ThreeWindingsTransformerSvAttributes(getP1(), getQ1(), getP2(), getQ2(), getP3(), getQ3());
+        return new ThreeWindingsTransformerSvAttributes(getP1(), getQ1(), getP2(), getQ2(), getP3(), getQ3(),
+                getLeg1().getPhaseTapChangerAttributes() != null ? getLeg1().getPhaseTapChangerAttributes().getTapPosition() : null,
+                getLeg1().getRatioTapChangerAttributes() != null ? getLeg1().getRatioTapChangerAttributes().getTapPosition() : null,
+                getLeg2().getPhaseTapChangerAttributes() != null ? getLeg2().getPhaseTapChangerAttributes().getTapPosition() : null,
+                getLeg2().getRatioTapChangerAttributes() != null ? getLeg2().getRatioTapChangerAttributes().getTapPosition() : null,
+                getLeg3().getPhaseTapChangerAttributes() != null ? getLeg3().getPhaseTapChangerAttributes().getTapPosition() : null,
+                getLeg3().getRatioTapChangerAttributes() != null ? getLeg3().getRatioTapChangerAttributes().getTapPosition() : null
+        );
     }
 }

@@ -47,7 +47,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         int oldValue = getResource().getAttributes().getSectionCount();
         if (sectionCount != oldValue) {
-            updateResource(res -> res.getAttributes().setSectionCount(sectionCount), AttributeFilter.SV,
+            updateResource(res -> res.getAttributes().setSectionCount(sectionCount),
                 "sectionCount", oldValue, sectionCount);
         }
         return this;
@@ -57,7 +57,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
     public ShuntCompensator setSolvedSectionCount(int solvedSectionCount) {
         Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
         checkSolvedSectionCount(solvedSectionCount, getMaximumSectionCount());
-        updateResource(res -> res.getAttributes().setSolvedSectionCount(solvedSectionCount),
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(solvedSectionCount), AttributeFilter.SV,
             "solvedSectionCount", oldValue, solvedSectionCount);
         return this;
     }
@@ -65,7 +65,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
     @Override
     public ShuntCompensator unsetSolvedSectionCount() {
         Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
-        updateResource(res -> res.getAttributes().setSolvedSectionCount(null),
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(null), AttributeFilter.SV,
             "solvedSectionCount", oldValue, null);
         return this;
     }

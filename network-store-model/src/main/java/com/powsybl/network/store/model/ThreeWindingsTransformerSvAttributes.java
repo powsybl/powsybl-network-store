@@ -43,4 +43,22 @@ public class ThreeWindingsTransformerSvAttributes extends AbstractAttributes imp
     @Schema(description = "Side 3 reactive power in MVar")
     @Builder.Default
     private double q3 = Double.NaN;
+
+    @Schema(description = "Phase tap changer tap position 1")
+    private Integer phaseTapChangerSolvedTapPosition1;
+
+    @Schema(description = "Ratio tap changer tap position 1")
+    private Integer ratioTapChangerSolvedTapPosition1;
+
+    @Schema(description = "Phase tap changer tap position 2")
+    private Integer phaseTapChangerSolvedTapPosition2;
+
+    @Schema(description = "Ratio tap changer tap position 2")
+    private Integer ratioTapChangerSolvedTapPosition2;
+
+    @Schema(description = "Phase tap changer tap position 3")
+    private Integer phaseTapChangerSolvedTapPosition3;
+
+    @Schema(description = "Ratio tap changer tap position 3")
+    private Integer ratioTapChangerSolvedTapPosition3;
 }

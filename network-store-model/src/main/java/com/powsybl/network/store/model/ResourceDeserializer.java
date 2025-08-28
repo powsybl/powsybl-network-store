@@ -55,8 +55,9 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case NETWORK -> NetworkAttributes.class;
                     case SUBSTATION -> SubstationAttributes.class;
                     case VOLTAGE_LEVEL -> VoltageLevelSvAttributes.class;
-                    case LOAD, GENERATOR, BATTERY, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, DANGLING_LINE ->
+                    case LOAD, GENERATOR, BATTERY, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, DANGLING_LINE ->
                         InjectionSvAttributes.class;
+                    case SHUNT_COMPENSATOR -> ShuntCompensatorSvAttributes.class;
                     case BUSBAR_SECTION -> BusbarSectionAttributes.class;
                     case SWITCH -> SwitchAttributes.class;
                     case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerSvAttributes.class;
