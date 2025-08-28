@@ -426,7 +426,7 @@ public class RestNetworkStoreClientTest {
 
     @Test
     public void testOperationalLimitsGroupAttributesByResourceType() {
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
+        server.expect(ExpectedCount.once(), requestTo("/v1/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
             .andExpect(method(GET))
             .andRespond(withSuccess("{\"lineId\":{\"1\":{\"olg1\":{\"id\":\"olg1\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}},\"LINE1\":{\"2\":{\"olg2\":{\"id\":\"olg2\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}}}", MediaType.APPLICATION_JSON));
 
