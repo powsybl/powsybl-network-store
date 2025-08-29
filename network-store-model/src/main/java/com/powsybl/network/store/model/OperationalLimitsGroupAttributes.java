@@ -14,6 +14,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
@@ -37,4 +39,6 @@ public class OperationalLimitsGroupAttributes {
     @Schema(description = "Active power limits")
     private LimitsAttributes activePowerLimits;
 
+    @Schema(description = "Properties")
+    private Map<String, String> properties;
 }
