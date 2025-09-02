@@ -29,7 +29,6 @@ import com.powsybl.tools.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
@@ -56,30 +55,38 @@ public class NetworkStoreService implements AutoCloseable {
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(ResourceType.values().length);
 
-    public NetworkStoreService(String baseUri) {
-        this(baseUri, PreloadingStrategy.NONE);
+    @Autowired
+    public NetworkStoreService(RestClientImpl restClientService,
+                               PreloadingStrategyConfiguration defaultPreloadingStrategy) {
+        this(restClientService, defaultPreloadingStrategy.preloadingStrategy());
     }
 
-    @Autowired
-    public NetworkStoreService(@Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri,
-                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
-        this(new RestClientImpl(baseUri), defaultPreloadingStrategy);
+    public NetworkStoreService(RestClient restClient,
+                               PreloadingStrategy defaultPreloadingStrategy,
+                               TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
+        this.restClient = restClient;
+        this.defaultPreloadingStrategy = defaultPreloadingStrategy;
+        this.decorator = decorator;
+    }
+
+    public NetworkStoreService(RestClient restClient, TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
+        this(restClient, null, decorator);
     }
 
     public NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
         this(restClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
     }
 
-    NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy,
-                        TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
-        this.restClient = Objects.requireNonNull(restClient);
-        this.defaultPreloadingStrategy = Objects.requireNonNull(defaultPreloadingStrategy);
-        this.decorator = Objects.requireNonNull(decorator);
+    public NetworkStoreService(RestClient restClient) {
+        this(restClient, null, NetworkStoreService::createStoreClient);
     }
 
-    public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy,
-                               TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
-        this(new RestClientImpl(baseUri), defaultPreloadingStrategy, decorator);
+    public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy) {
+        this(new RestClientImpl(baseUri), defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
+    }
+
+    public NetworkStoreService(String baseUri) {
+        this(new RestClientImpl(baseUri), null, NetworkStoreService::createStoreClient);
     }
 
     public static NetworkStoreService create(NetworkStoreConfig config) {
@@ -93,15 +100,13 @@ public class NetworkStoreService implements AutoCloseable {
 
     private static NetworkStoreClient createStoreClient(RestClient restClient, PreloadingStrategy preloadingStrategy,
                                                         ExecutorService executorService) {
-        Objects.requireNonNull(preloadingStrategy);
         LOGGER.info("Preloading strategy: {}", preloadingStrategy);
         var cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient), executorService));
-        return switch (preloadingStrategy) {
-            case NONE -> cachedClient;
-            case COLLECTION -> new PreloadingNetworkStoreClient(cachedClient, false, executorService);
-            case ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW ->
-                new PreloadingNetworkStoreClient(cachedClient, true, executorService);
-        };
+        if (preloadingStrategy == null) {
+            return cachedClient;
+        } else {
+            return new PreloadingNetworkStoreClient(cachedClient, preloadingStrategy, executorService);
+        }
     }
 
     public NetworkFactory getNetworkFactory() {
