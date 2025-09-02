@@ -392,7 +392,17 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public void removeOperationalLimitsGroup1(String id) {
-        throw new UnsupportedOperationException("Remove operational limits groups from a branch not implemented");
+        var resource = getResource();
+        if (resource.getAttributes().getOperationalLimitsGroups1().get(id) == null) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        }
+        if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId1())) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId1(null),
+                SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, id, null);
+        }
+        var oldValue = getResource().getAttributes().getOperationalLimitsGroups1().get(id);
+        updateResource(res -> res.getAttributes().getOperationalLimitsGroups1().remove(id),
+            "operationalLimitsGroups1", oldValue, null);
     }
 
     @Override
@@ -463,7 +473,17 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public void removeOperationalLimitsGroup2(String id) {
-        throw new UnsupportedOperationException("Remove operational limits groups from a branch not implemented");
+        var resource = getResource();
+        if (resource.getAttributes().getOperationalLimitsGroups2().get(id) == null) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        }
+        if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId2())) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId2(null),
+                SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, id, null);
+        }
+        var oldValue = getResource().getAttributes().getOperationalLimitsGroups2().get(id);
+        updateResource(res -> res.getAttributes().getOperationalLimitsGroups2().remove(id),
+            "operationalLimitsGroups2", oldValue, null);
     }
 
     @Override
