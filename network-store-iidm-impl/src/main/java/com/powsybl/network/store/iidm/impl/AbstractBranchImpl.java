@@ -403,6 +403,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var oldValue = getResource().getAttributes().getOperationalLimitsGroups1().get(id);
         updateResource(res -> res.getAttributes().getOperationalLimitsGroups1().remove(id),
             "operationalLimitsGroups1", oldValue, null);
+        index.removeOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), id, 1);
     }
 
     @Override
@@ -484,6 +485,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var oldValue = getResource().getAttributes().getOperationalLimitsGroups2().get(id);
         updateResource(res -> res.getAttributes().getOperationalLimitsGroups2().remove(id),
             "operationalLimitsGroups2", oldValue, null);
+        index.removeOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), id, 2);
     }
 
     @Override
