@@ -123,6 +123,11 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
     public List<NetworkInfos> getNetworksInfos() {
         throw new UnsupportedOperationException("Unimplemented method");
     }

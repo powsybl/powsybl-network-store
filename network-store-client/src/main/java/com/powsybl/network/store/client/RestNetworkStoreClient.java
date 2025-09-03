@@ -1054,4 +1054,9 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/selected",
             networkUuid, variantNum, resourceType);
     }
+
+    @Override
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
+        restClient.delete("/networks/{networkUuid}/{variantNum}/branch/{branchId}/types/{resourceType}/operationalLimitsGroup/{operationalLimitsGroupId}/side/{side}", networkUuid, variantNum, branchId, resourceType, operationalLimitsGroupId, side);
+    }
 }

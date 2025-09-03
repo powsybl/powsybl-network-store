@@ -657,6 +657,11 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
+        // nothing to do
+    }
+
+    @Override
     public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum,
             String voltageLevelId) {
         return Collections.emptyList();
