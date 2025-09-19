@@ -237,6 +237,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         for (Resource<NetworkAttributes> networkResource : networkResources) {
             UUID networkUuid = networkResource.getAttributes().getUuid();
             int variantNum = networkResource.getVariantNum();
+            // initialize network collection cache to set to fully loaded
+            networksCache.getCollection(networkUuid, variantNum).init();
             networksCache.getCollection(networkUuid, variantNum).createResource(networkResource);
             addIdentifiableId(networkUuid, networkResource);
 
