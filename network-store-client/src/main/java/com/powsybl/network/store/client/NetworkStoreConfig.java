@@ -19,7 +19,7 @@ public final class NetworkStoreConfig {
 
     private static final String DEFAULT_BASE_URL = "http://localhost:8080/";
 
-    private static final PreloadingStrategy DEFAULT_PRELOADING_STRATEGY = PreloadingStrategy.NONE;
+    private static final PreloadingStrategy DEFAULT_PRELOADING_STRATEGY = null;
 
     private String baseUrl;
 
@@ -38,8 +38,10 @@ public final class NetworkStoreConfig {
                 .getOptionalModuleConfig("network-store");
         String baseUrl = moduleConfig.flatMap(mc -> mc.getOptionalStringProperty("base-url"))
                 .orElse(DEFAULT_BASE_URL);
-        PreloadingStrategy preloadingStrategy = moduleConfig.flatMap(mc -> mc.getOptionalEnumProperty("preloading-strategy", PreloadingStrategy.class))
-                .orElse(DEFAULT_PRELOADING_STRATEGY);
+        PreloadingStrategy preloadingStrategy = moduleConfig
+            .flatMap(mc -> mc.getOptionalStringProperty("preloading-strategy"))
+            .map(PreloadingStrategy::fromString)
+            .orElse(DEFAULT_PRELOADING_STRATEGY);
         return new NetworkStoreConfig(baseUrl)
                 .setPreloadingStrategy(preloadingStrategy);
     }
