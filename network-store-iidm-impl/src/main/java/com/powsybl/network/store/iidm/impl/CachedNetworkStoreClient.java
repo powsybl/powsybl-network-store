@@ -1178,9 +1178,12 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
-        getCache(resourceType).getCollection(networkUuid, variantNum).removeOperationalLimitsGroupAttributes(branchId, side, operationalLimitsGroupId);
-        delegate.removeOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitsGroupId, side);
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
+        operationalLimitsGroupsToDelete.forEach((branchId, limitsGroupBySide) ->
+                limitsGroupBySide.forEach((side, operationalLimitsGroupIdSet) ->
+                        operationalLimitsGroupIdSet.forEach(operationalLimitsGroupId -> getCache(resourceType).getCollection(networkUuid, variantNum).removeOperationalLimitsGroupAttributes(branchId, side, operationalLimitsGroupId))));
+
+        delegate.removeOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, operationalLimitsGroupsToDelete);
     }
 
     private NetworkCollectionIndex<? extends CollectionCache<?>> getCache(ResourceType resourceType) {

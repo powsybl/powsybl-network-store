@@ -1056,7 +1056,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitsGroupId, int side) {
-        restClient.delete("/networks/{networkUuid}/{variantNum}/branch/{branchId}/types/{resourceType}/operationalLimitsGroup/{operationalLimitsGroupId}/side/{side}", networkUuid, variantNum, branchId, resourceType, operationalLimitsGroupId, side);
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
+        restClient.delete("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/", networkUuid, variantNum, resourceType, operationalLimitsGroupsToDelete);
     }
 }

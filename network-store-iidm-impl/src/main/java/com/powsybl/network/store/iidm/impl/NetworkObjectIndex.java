@@ -1288,6 +1288,6 @@ public class NetworkObjectIndex {
     }
 
     public void removeOperationalLimitsGroupAttributes(ResourceType type, String branchId, String operationalLimitGroupName, int side) {
-        storeClient.removeOperationalLimitsGroupAttributes(network.getUuid(), workingVariantNum, type, branchId, operationalLimitGroupName, side);
+        storeClient.removeOperationalLimitsGroupAttributes(network.getUuid(), workingVariantNum, type, Map.of(branchId, Map.of(side, Set.of(operationalLimitGroupName))));
     }
 }

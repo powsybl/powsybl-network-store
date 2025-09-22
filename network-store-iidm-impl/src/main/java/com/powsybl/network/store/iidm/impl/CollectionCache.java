@@ -102,7 +102,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * - second key are sides
      * - The values are operational limits group names that have been removed.
      */
-    private final Map<String, Map<Integer, String>> removedOperationalLimitsAttributes = new HashMap<>();
+    private final Map<String, Map<Integer, Set<String>>> removedOperationalLimitsAttributes = new HashMap<>();
 
     /**
      * A function to load one resource from the server. An optional is returned because resource could not exist on
@@ -392,12 +392,14 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         clonedCache.loadedOperationalLimitsGroupsForBranches.addAll(loadedOperationalLimitsGroupsForBranches);
         clonedCache.fullyLoadedOperationalLimitsGroup = fullyLoadedOperationalLimitsGroup;
         clonedCache.fullyLoadedSelectedOperationalLimitsGroup = fullyLoadedSelectedOperationalLimitsGroup;
-        for (Map.Entry<String, Map<Integer, String>> entry : removedOperationalLimitsAttributes.entrySet()) {
-            clonedCache.removedOperationalLimitsAttributes.put(entry.getKey(), new HashMap<>());
-            for (Integer side : removedOperationalLimitsAttributes.get(entry.getKey()).keySet()) {
-                clonedCache.removedOperationalLimitsAttributes.get(entry.getKey()).put(side, entry.getValue().get(side));
-            }
-        }
+        removedOperationalLimitsAttributes.forEach((branchId, limitSetBySide) -> {
+            limitSetBySide.forEach((side, limitIdSet) -> {
+                clonedCache.removedOperationalLimitsAttributes
+                        .computeIfAbsent(branchId, s -> new HashMap<>())
+                        .computeIfAbsent(side, s -> new HashSet<>())
+                        .addAll(limitIdSet);
+            });
+        });
         clonedCache.removedOperationalLimitsAttributes.putAll(removedOperationalLimitsAttributes);
 
         clonedCache.containerFullyLoaded.addAll(containerFullyLoaded);
@@ -704,7 +706,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             getCachedOperationalLimitsGroupAttributes(branchId, side).remove(operationalLimitsGroupId);
             removedOperationalLimitsAttributes
                 .computeIfAbsent(branchId, k -> new HashMap<>())
-                .put(side, operationalLimitsGroupId);
+                    .computeIfAbsent(side, k -> new HashSet<>())
+                .add(operationalLimitsGroupId);
         }
     }
 
