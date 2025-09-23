@@ -396,11 +396,9 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             limitSetBySide.forEach((side, limitIdSet) -> {
                 clonedCache.removedOperationalLimitsAttributes
                         .computeIfAbsent(branchId, s -> new HashMap<>())
-                        .computeIfAbsent(side, s -> new HashSet<>())
-                        .addAll(limitIdSet);
+                        .computeIfAbsent(side, s -> new HashSet<>(limitIdSet));
             });
         });
-        clonedCache.removedOperationalLimitsAttributes.putAll(removedOperationalLimitsAttributes);
 
         clonedCache.containerFullyLoaded.addAll(containerFullyLoaded);
         clonedCache.removedResources.addAll(removedResources);
