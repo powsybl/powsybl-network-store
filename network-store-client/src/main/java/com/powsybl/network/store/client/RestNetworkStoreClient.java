@@ -1058,13 +1058,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
-        for (List<String> partitionBranchIds : Iterables.partition(operationalLimitsGroupsToDelete.keySet(), RESOURCES_CREATION_CHUNK_SIZE)) {
-            restClient.delete("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/", networkUuid, variantNum, resourceType,
-                    operationalLimitsGroupsToDelete.entrySet()
-                            .stream()
-                            .filter(x -> partitionBranchIds.contains(x.getKey()))
-                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-            );
+        for (List<Map.Entry<String, Map<Integer, Set<String>>>> partitionEntries : Iterables.partition(operationalLimitsGroupsToDelete.entrySet(), RESOURCES_CREATION_CHUNK_SIZE)) {
+            Map<String, Map<Integer, Set<String>>> partitionMap = partitionEntries.stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            restClient.deleteAllOperationalLimitsGroups("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/",
+                    partitionMap, networkUuid, variantNum, resourceType);
         }
     }
 }
