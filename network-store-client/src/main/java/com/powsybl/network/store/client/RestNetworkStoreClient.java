@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
@@ -1057,6 +1058,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
-        restClient.delete("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/", networkUuid, variantNum, resourceType, operationalLimitsGroupsToDelete);
+        for (List<String> partitionBranchIds : Iterables.partition(operationalLimitsGroupsToDelete.keySet(), RESOURCES_CREATION_CHUNK_SIZE)) {
+            restClient.delete("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/", networkUuid, variantNum, resourceType,
+                    operationalLimitsGroupsToDelete.entrySet()
+                            .stream()
+                            .filter(x -> partitionBranchIds.contains(x.getKey()))
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+            );
+        }
     }
 }
