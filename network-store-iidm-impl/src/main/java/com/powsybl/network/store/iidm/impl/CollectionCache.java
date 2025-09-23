@@ -392,13 +392,11 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         clonedCache.loadedOperationalLimitsGroupsForBranches.addAll(loadedOperationalLimitsGroupsForBranches);
         clonedCache.fullyLoadedOperationalLimitsGroup = fullyLoadedOperationalLimitsGroup;
         clonedCache.fullyLoadedSelectedOperationalLimitsGroup = fullyLoadedSelectedOperationalLimitsGroup;
-        removedOperationalLimitsAttributes.forEach((branchId, limitSetBySide) -> {
-            limitSetBySide.forEach((side, limitIdSet) -> {
-                clonedCache.removedOperationalLimitsAttributes
-                        .computeIfAbsent(branchId, s -> new HashMap<>())
-                        .computeIfAbsent(side, s -> new HashSet<>(limitIdSet));
-            });
-        });
+        removedOperationalLimitsAttributes.forEach((branchId, limitSetBySide) ->
+                limitSetBySide.forEach((side, limitIdSet) ->
+                        clonedCache.removedOperationalLimitsAttributes
+                                .computeIfAbsent(branchId, s -> new HashMap<>())
+                                .computeIfAbsent(side, s -> new HashSet<>(limitIdSet))));
 
         clonedCache.containerFullyLoaded.addAll(containerFullyLoaded);
         clonedCache.removedResources.addAll(removedResources);
