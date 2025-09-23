@@ -1293,4 +1293,35 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
     }
+
+    @Test
+    public void testGetNetworkAfterCreateAvoidServerCall() {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid1 = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        UUID networkUuid2 = UUID.fromString("9028181c-7977-4592-ba19-88027e4254e4");
+
+        Resource<NetworkAttributes> network1 = Resource.networkBuilder()
+                .id("n1")
+                .attributes(NetworkAttributes.builder()
+                        .uuid(networkUuid1)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        Resource<NetworkAttributes> network2 = Resource.networkBuilder()
+                .id("n2")
+                .attributes(NetworkAttributes.builder()
+                        .uuid(networkUuid2)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        cachedClient.createNetworks(List.of(network1, network2));
+
+        cachedClient.getNetwork(networkUuid1, 0);
+        cachedClient.getNetwork(networkUuid2, 0);
+
+        server.verify();
+        server.reset();
+    }
 }
