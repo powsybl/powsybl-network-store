@@ -1277,7 +1277,7 @@ public class CachedNetworkStoreClientTest {
 
         // remove the operational limits group
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
-                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
             .andExpect(method(DELETE))
             .andRespond(withSuccess());
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId))));

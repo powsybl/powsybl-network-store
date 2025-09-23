@@ -1061,7 +1061,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         for (List<Map.Entry<String, Map<Integer, Set<String>>>> partitionEntries : Iterables.partition(operationalLimitsGroupsToDelete.entrySet(), RESOURCES_CREATION_CHUNK_SIZE)) {
             Map<String, Map<Integer, Set<String>>> partitionMap = partitionEntries.stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            restClient.deleteAllOperationalLimitsGroups("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/",
+            restClient.deleteAllOperationalLimitsGroups("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup",
                     partitionMap, networkUuid, variantNum, resourceType);
         }
     }

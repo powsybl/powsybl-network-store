@@ -1577,7 +1577,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // then we delete olg3
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
-                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
             .andExpect(method(DELETE))
             .andRespond(withSuccess());
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(identifiableId1, Map.of(1, Set.of(operationalLimitsGroup3))));
@@ -1634,7 +1634,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // remove olg3
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
-                        + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+                        + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
                 .andExpect(method(DELETE))
                 .andRespond(withSuccess());
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(identifiableId1, Map.of(1, Set.of(operationalLimitsGroup3))));
@@ -1666,7 +1666,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // deleting olg2 on variant 1
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/1/branch/types/"
-                        + ResourceType.LINE + "/operationalLimitsGroup/"))
+                        + ResourceType.LINE + "/operationalLimitsGroup"))
                 .andExpect(method(DELETE))
                 .andRespond(withSuccess());
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, 1, ResourceType.LINE, Map.of(identifiableId2, Map.of(1, Set.of(operationalLimitsGroup2))));
@@ -1839,7 +1839,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // then we delete olg1
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
-                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
             .andExpect(method(DELETE))
             .andRespond(withSuccess());
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId1, Map.of(1, Set.of(operationalLimitsGroup1))));
