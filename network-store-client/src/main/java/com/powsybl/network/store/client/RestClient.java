@@ -50,5 +50,5 @@ public interface RestClient {
 
     void deleteAll(String url, List<String> ids, Object... uriVariables);
 
-    void deleteAllOperationalLimitsGroups(String url, Map<String, Map<Integer, Set<String>>> ids, Object... uriVariables);
+    void deleteAllOperationalLimitsGroups(String url, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupToDelete, Object... uriVariables);
 }
