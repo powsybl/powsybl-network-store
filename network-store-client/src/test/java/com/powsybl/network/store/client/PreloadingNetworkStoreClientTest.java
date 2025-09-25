@@ -1691,7 +1691,7 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
             .andExpect(method(DELETE))
-            .andExpect(content().string("[{\"line2\":{\"2\":[\"olg2\"]}}]"))
+            .andExpect(content().string("{\"line2\":{\"2\":[\"olg2\"]}}"))
             .andRespond(withSuccess());
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/2"))
                 .andExpect(method(GET));
@@ -1749,7 +1749,7 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                         + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
                 .andExpect(method(DELETE))
-                .andExpect(content().string("[{\"lineId\":{\"1\":[\"olg3\"]}}]"))
+                .andExpect(content().string("{\"lineId\":{\"1\":[\"olg3\"]}}"))
                 .andRespond(withSuccess());
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup3 + "/side/1"))
                 .andExpect(method(GET));
@@ -1778,7 +1778,7 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum
                         + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
                 .andExpect(method(DELETE))
-                .andExpect(content().string("[{\"LINE1\":{\"1\":[\"olg2\"]}}]"))
+                .andExpect(content().string("{\"LINE1\":{\"1\":[\"olg2\"]}}"))
                 .andRespond(withSuccess());
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
                 .andExpect(method(GET));

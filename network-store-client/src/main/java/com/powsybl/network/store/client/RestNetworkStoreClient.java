@@ -270,7 +270,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private void removeAll(String target, String url, UUID networkUuid, int variantNum, List<String> ids) {
         for (List<String> idsPartition : Lists.partition(ids, RESOURCES_CREATION_CHUNK_SIZE)) {
-            removePartition(idsPartition, url, target, networkUuid, variantNum);
+            removePartition(idsPartition, idsPartition.size(), url, target, networkUuid, variantNum);
         }
     }
 
@@ -278,13 +278,15 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
         String url = "/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup";
         for (List<Map.Entry<String, Map<Integer, Set<String>>>> partitionEntries : Iterables.partition(operationalLimitsGroupsToDelete.entrySet(), RESOURCES_CREATION_CHUNK_SIZE)) {
-            removePartition(partitionEntries, url, STR_OPERATIONAL_LIMITS_GROUP, networkUuid, variantNum, resourceType);
+            Map<String, Map<Integer, Set<String>>> partitionMap = partitionEntries.stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            removePartition(partitionMap, partitionMap.size(), url, STR_OPERATIONAL_LIMITS_GROUP, networkUuid, variantNum, resourceType);
         }
     }
 
-    private <T extends Collection<?>> void removePartition(T partition, String url, String target, Object... uriVariables) {
+    private <T> void removePartition(T partition, int size, String url, String target, Object... uriVariables) {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Deleting {} {} resources ({})...", partition.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
+            LOGGER.info("Deleting {} {} resources ({})...", partition, target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
         try {
@@ -297,7 +299,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
         stopwatch.stop();
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("{} {} resources deleted in {} ms", partition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            LOGGER.info("{} {} resources deleted in {} ms", size, target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         }
     }
 

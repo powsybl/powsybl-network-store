@@ -1279,7 +1279,7 @@ public class CachedNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
             .andExpect(method(DELETE))
-            .andExpect(content().string("[{\"LINE\":{\"1\":[\"toRemove\"]}}]"))
+            .andExpect(content().string("{\"LINE\":{\"1\":[\"toRemove\"]}}"))
             .andRespond(withSuccess());
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/1"))
                 .andExpect(method(GET));
