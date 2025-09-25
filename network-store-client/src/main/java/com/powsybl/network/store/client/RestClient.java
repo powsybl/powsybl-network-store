@@ -10,9 +10,7 @@ import com.powsybl.network.store.model.*;
 import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -48,7 +46,5 @@ public interface RestClient {
 
     void post(String url, Object... uriVariables);
 
-    void deleteAll(String url, List<String> ids, Object... uriVariables);
-
-    void deleteAllOperationalLimitsGroups(String url, Map<String, Map<Integer, Set<String>>> ids, Object... uriVariables);
+    <T> void deleteAll(String url, T ids, Object... uriVariables);
 }

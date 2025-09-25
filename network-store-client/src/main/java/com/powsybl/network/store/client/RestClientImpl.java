@@ -171,17 +171,8 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public void deleteAll(String url, List<String> body, Object... uriVariables) {
-        HttpEntity<List<String>> requestEntity = new HttpEntity<>(body);
-        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class, uriVariables);
-        if (response.getStatusCode() != HttpStatus.OK) {
-            throw createHttpException(url, "delete", response.getStatusCode());
-        }
-    }
-
-    @Override
-    public void deleteAllOperationalLimitsGroups(String url, Map<String, Map<Integer, Set<String>>> body, Object... uriVariables) {
-        HttpEntity<Map<String, Map<Integer, Set<String>>>> requestEntity = new HttpEntity<>(body);
+    public <T> void deleteAll(String url, T body, Object... uriVariables) {
+        HttpEntity<T> requestEntity = new HttpEntity<>(body);
         ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "delete", response.getStatusCode());
