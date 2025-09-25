@@ -39,8 +39,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
 import static org.springframework.http.HttpMethod.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -1273,21 +1272,24 @@ public class CachedNetworkStoreClientTest {
 
         // network is not loaded before
         OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId);
+        // getting the olg will load it to cache
         getOperationalLimitsGroup(olg1, networkUuid, branchId, cachedClient, operationalLimitsGroupId, 1);
 
-        // remove the operational limits group
+        // remove the operational limits group will not call the api as the olg was loaded just before
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
             .andExpect(method(DELETE))
+            .andExpect(content().string("[{\"LINE\":{\"1\":[\"toRemove\"]}}]"))
             .andRespond(withSuccess());
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/1"))
+                .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId))));
         server.verify();
         server.reset();
 
         // trying to get it return empty and does not call the REST api
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
-                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
-            .andExpect(method(GET));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/1"))
+                .andExpect(method(GET));
         Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, branchId, operationalLimitsGroupId, 1);
         assertTrue(operationalLimitsGroupAttributes.isEmpty());
         server.verify();

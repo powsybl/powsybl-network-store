@@ -58,6 +58,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private static final String STR_TIE_LINE = "tie line";
     private static final String STR_AREA = "area";
     private static final String STR_GROUND = "ground";
+    private static final String STR_OPERATIONAL_LIMITS_GROUP = "operational limits group";
 
     private final RestClient restClient;
 
@@ -269,22 +270,34 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private void removeAll(String target, String url, UUID networkUuid, int variantNum, List<String> ids) {
         for (List<String> idsPartition : Lists.partition(ids, RESOURCES_CREATION_CHUNK_SIZE)) {
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Deleting {} {} resources ({})...", idsPartition.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(networkUuid, variantNum));
-            }
-            Stopwatch stopwatch = Stopwatch.createStarted();
-            try {
-                restClient.deleteAll(url, idsPartition, networkUuid, variantNum);
-            } catch (ResourceAccessException e) {
-                LOGGER.error(e.toString(), e);
-                // retry only one time
-                LOGGER.info(STR_RETRYING);
-                restClient.deleteAll(url, idsPartition, networkUuid, variantNum);
-            }
-            stopwatch.stop();
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("{} {} resources deleted in {} ms", idsPartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            }
+            removePartition(idsPartition, url, target, networkUuid, variantNum);
+        }
+    }
+
+    @Override
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
+        String url = "/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup";
+        for (List<Map.Entry<String, Map<Integer, Set<String>>>> partitionEntries : Iterables.partition(operationalLimitsGroupsToDelete.entrySet(), RESOURCES_CREATION_CHUNK_SIZE)) {
+            removePartition(partitionEntries, url, STR_OPERATIONAL_LIMITS_GROUP, networkUuid, variantNum, resourceType);
+        }
+    }
+
+    private <T extends Collection<?>> void removePartition(T partition, String url, String target, Object... uriVariables) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Deleting {} {} resources ({})...", partition.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
+        }
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try {
+            restClient.deleteAll(url, partition, uriVariables);
+        } catch (ResourceAccessException e) {
+            LOGGER.error(e.toString(), e);
+            // retry only one time
+            LOGGER.info(STR_RETRYING);
+            restClient.deleteAll(url, partition, uriVariables);
+        }
+        stopwatch.stop();
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("{} {} resources deleted in {} ms", partition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         }
     }
 
@@ -1054,15 +1067,5 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return getOperationalLimitsGroupAttributesNestedMap("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup/selected",
             networkUuid, variantNum, resourceType);
-    }
-
-    @Override
-    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
-        for (List<Map.Entry<String, Map<Integer, Set<String>>>> partitionEntries : Iterables.partition(operationalLimitsGroupsToDelete.entrySet(), RESOURCES_CREATION_CHUNK_SIZE)) {
-            Map<String, Map<Integer, Set<String>>> partitionMap = partitionEntries.stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            restClient.deleteAll("/networks/{networkUuid}/{variantNum}/branch/types/{resourceType}/operationalLimitsGroup",
-                    partitionMap, networkUuid, variantNum, resourceType);
-        }
     }
 }
