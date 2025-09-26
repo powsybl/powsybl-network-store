@@ -392,17 +392,15 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public void removeOperationalLimitsGroup1(String id) {
-        var resource = getResource();
-        if (resource.getAttributes().getOperationalLimitsGroups1().get(id) == null) {
-            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        if (getOperationalLimitsGroup1(id).isEmpty()) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist on side 1");
         }
-        if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId1())) {
+        Optional<OperationalLimitsGroup> selectedOperationalLimits1 = getSelectedOperationalLimitsGroup1();
+        if (selectedOperationalLimits1.isPresent() && selectedOperationalLimits1.get().getId().equals(id)) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId1(null),
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, id, null);
         }
-        var oldValue = getResource().getAttributes().getOperationalLimitsGroups1().get(id);
-        updateResource(res -> res.getAttributes().getOperationalLimitsGroups1().remove(id),
-            "operationalLimitsGroups1", oldValue, null);
+        index.removeOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), id, 1);
     }
 
     @Override
@@ -473,17 +471,15 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public void removeOperationalLimitsGroup2(String id) {
-        var resource = getResource();
-        if (resource.getAttributes().getOperationalLimitsGroups2().get(id) == null) {
-            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        if (getOperationalLimitsGroup2(id).isEmpty()) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist on side 2");
         }
-        if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId2())) {
+        Optional<OperationalLimitsGroup> selectedOperationalLimits2 = getSelectedOperationalLimitsGroup2();
+        if (selectedOperationalLimits2.isPresent() && selectedOperationalLimits2.get().getId().equals(id)) {
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId2(null),
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, id, null);
         }
-        var oldValue = getResource().getAttributes().getOperationalLimitsGroups2().get(id);
-        updateResource(res -> res.getAttributes().getOperationalLimitsGroups2().remove(id),
-            "operationalLimitsGroups2", oldValue, null);
+        index.removeOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), id, 2);
     }
 
     @Override

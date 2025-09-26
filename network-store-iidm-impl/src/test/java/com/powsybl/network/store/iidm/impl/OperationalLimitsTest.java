@@ -51,7 +51,7 @@ class OperationalLimitsTest {
             l1.removeOperationalLimitsGroup1("group1");
             fail("Should have thrown an exception");
         } catch (IllegalArgumentException e) {
-            assertEquals("Operational limits group 'group1' does not exist", e.getMessage());
+            assertEquals("Operational limits group 'group1' does not exist on side 1", e.getMessage());
         }
         l1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
@@ -92,7 +92,7 @@ class OperationalLimitsTest {
             l1.removeOperationalLimitsGroup2("group2");
             fail("Should have thrown an exception");
         } catch (IllegalArgumentException e) {
-            assertEquals("Operational limits group 'group2' does not exist", e.getMessage());
+            assertEquals("Operational limits group 'group2' does not exist on side 2", e.getMessage());
         }
         l1.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
