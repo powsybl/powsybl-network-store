@@ -697,11 +697,17 @@ public class CollectionCache<T extends IdentifiableAttributes> {
 
     public void removeOperationalLimitsGroupAttributes(Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
         removedOperationalLimitsAttributes.putAll(operationalLimitsGroupsToDelete);
-        operationalLimitsGroupsToDelete.entrySet().stream()
-                .filter(entry -> resources.containsKey(entry.getKey()))
-                .forEach(entry -> entry.getValue().forEach((side, operationalLimitsGroups) ->
-                        operationalLimitsGroups.forEach(operationalLimitsGroupId ->
-                            getCachedOperationalLimitsGroupAttributes(entry.getKey(), side).remove(operationalLimitsGroupId))));
+        for (Map.Entry<String, Map<Integer, Set<String>>> entry : operationalLimitsGroupsToDelete.entrySet()) {
+            String branchId = entry.getKey();
+            if (resources.containsKey(branchId)) {
+                for (Map.Entry<Integer, Set<String>> sideEntry : entry.getValue().entrySet()) {
+                    Integer side = sideEntry.getKey();
+                    Set<String> operationalLimitsGroups = sideEntry.getValue();
+                    Map<String, OperationalLimitsGroupAttributes> cachedOperationalLimitsGroupAttributes = getCachedOperationalLimitsGroupAttributes(branchId, side);
+                    operationalLimitsGroups.forEach(cachedOperationalLimitsGroupAttributes::remove);
+                }
+            }
+        }
     }
 
     private boolean isOperationalLimitsGroupRemovedAttributes(String branchId, int side, String operationalLimitsGroupId) {
