@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -283,5 +284,27 @@ class OperationalLimitsTest {
         danglingLine.setSelectedOperationalLimitsGroup("test");
         OperationalLimitsGroup testOperationalGroup = danglingLine.getOrCreateSelectedOperationalLimitsGroup();
         Assertions.assertEquals("test", testOperationalGroup.getId());
+    }
+
+    @Test
+    void testListenersOnLimitsGroupCreation() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        DummyNetworkListener listener = new DummyNetworkListener();
+        network.addListener(listener);
+
+        Line lineS3S4 = network.getLine("LINE_S3S4");
+
+        assertEquals(0, listener.getNbUpdatedIdentifiables());
+        lineS3S4.newOperationalLimitsGroup1("DEFAULT")
+                .newCurrentLimits()
+                .setPermanentLimit(10)
+                .beginTemporaryLimit()
+                .setName("limit")
+                .setAcceptableDuration(60)
+                .setValue(100)
+                .endTemporaryLimit()
+                .add();
+        // there is 2 update on operational limits group the first create the olg the second set his values
+        assertEquals(2, listener.getNbUpdatedIdentifiables());
     }
 }
