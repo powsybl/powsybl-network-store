@@ -326,6 +326,8 @@ class OperationalLimitsTest {
         network.addListener(listener);
 
         LineImpl lineS3S4 = (LineImpl) network.getLine("LINE_S3S4");
+        assertEquals(0, listener.getNbUpdatedIdentifiables());
+
         // setting an olg group identical to the one already set
         LimitsAttributes limitsAttributes = LimitsAttributes.builder().permanentLimit(931).build();
         lineS3S4.setCurrentLimits(TwoSides.ONE, limitsAttributes, "DEFAULT");
@@ -334,6 +336,7 @@ class OperationalLimitsTest {
         assertNull(listener.getLastAttributeUpdated());
         assertNull(listener.getLastIdentifiableUpdated());
         assertNull(listener.getLastNewValueUpdated());
+        assertEquals(0, listener.getNbUpdatedIdentifiables());
 
         // setting a different limits group will update
         LimitsAttributes limitsAttributes2 = LimitsAttributes.builder().permanentLimit(921).build();
@@ -341,5 +344,6 @@ class OperationalLimitsTest {
         assertEquals(limitsAttributes, listener.getLastOldValueUpdated());
         assertEquals("currentLimits1", listener.getLastAttributeUpdated());
         assertEquals(limitsAttributes2, listener.getLastNewValueUpdated());
+        assertEquals(1, listener.getNbUpdatedIdentifiables());
     }
 }
