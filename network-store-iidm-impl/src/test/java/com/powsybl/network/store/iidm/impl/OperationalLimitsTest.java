@@ -13,6 +13,7 @@ import java.util.Set;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.network.store.model.LimitsAttributes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -306,5 +307,39 @@ class OperationalLimitsTest {
                 .add();
         // there is 2 update on operational limits group the first create the olg the second set his values
         assertEquals(2, listener.getNbUpdatedIdentifiables());
+        assertEquals("currentLimits1", listener.getLastAttributeUpdated());
+        Object lastNewValueUpdated = listener.getLastNewValueUpdated();
+        assertInstanceOf(LimitsAttributes.class, lastNewValueUpdated);
+        LimitsAttributes limitsAttributes = (LimitsAttributes) lastNewValueUpdated;
+        assertEquals(10, limitsAttributes.getPermanentLimit());
+        assertEquals(1, limitsAttributes.getTemporaryLimits().size());
+        assertEquals(100, limitsAttributes.getTemporaryLimits().get(60).getValue());
+        assertEquals("limit", limitsAttributes.getTemporaryLimits().get(60).getName());
+        assertNull(listener.getLastOldValueUpdated());
+        assertEquals(lineS3S4, listener.getLastIdentifiableUpdated());
+    }
+
+    @Test
+    void testListenersOnCurrentLimitsSet() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        DummyNetworkListener listener = new DummyNetworkListener();
+        network.addListener(listener);
+
+        LineImpl lineS3S4 = (LineImpl) network.getLine("LINE_S3S4");
+        // setting an olg group identical to the one already set
+        LimitsAttributes limitsAttributes = LimitsAttributes.builder().permanentLimit(931).build();
+        lineS3S4.setCurrentLimits(TwoSides.ONE, limitsAttributes, "DEFAULT");
+        // the limits attribute is the same as the one set so it will not update the resource
+        assertNull(listener.getLastOldValueUpdated());
+        assertNull(listener.getLastAttributeUpdated());
+        assertNull(listener.getLastIdentifiableUpdated());
+        assertNull(listener.getLastNewValueUpdated());
+
+        // setting a different limits group will update
+        LimitsAttributes limitsAttributes2 = LimitsAttributes.builder().permanentLimit(921).build();
+        lineS3S4.setCurrentLimits(TwoSides.ONE, limitsAttributes2, "DEFAULT");
+        assertEquals(limitsAttributes, listener.getLastOldValueUpdated());
+        assertEquals("currentLimits1", listener.getLastAttributeUpdated());
+        assertEquals(limitsAttributes2, listener.getLastNewValueUpdated());
     }
 }

@@ -9,6 +9,10 @@ import lombok.Getter;
 public class DummyNetworkListener implements NetworkListener {
     private int nbUpdatedExtensions = 0;
     private int nbUpdatedIdentifiables = 0;
+    private Identifiable<?> lastIdentifiableUpdated = null;
+    private String lastAttributeUpdated = null;
+    private Object lastOldValueUpdated;
+    private Object lastNewValueUpdated;
 
     @Override
     public void onCreation(Identifiable identifiable) {
@@ -28,6 +32,10 @@ public class DummyNetworkListener implements NetworkListener {
     public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue,
                          Object newValue) {
         nbUpdatedIdentifiables++;
+        lastIdentifiableUpdated = identifiable;
+        lastAttributeUpdated = attribute;
+        lastOldValueUpdated = oldValue;
+        lastNewValueUpdated = newValue;
     }
 
     @Override
