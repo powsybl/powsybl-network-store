@@ -66,7 +66,7 @@ class OperationalLimitsTest {
     }
 
     @Test
-        void lineOperationalLimits2Test() {
+    void lineOperationalLimits2Test() {
         Network network = CreateNetworksUtil.createBusBreakerNetwokWithMultipleEquipments();
         LineImpl l1 = (LineImpl) network.getLine("LINE1");
         assertEquals(Optional.empty(), l1.getOperationalLimitsGroup2("group2"));
