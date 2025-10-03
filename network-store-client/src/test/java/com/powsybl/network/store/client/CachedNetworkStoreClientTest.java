@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
@@ -40,8 +39,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
 import static org.springframework.http.HttpMethod.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -1036,29 +1034,22 @@ public class CachedNetworkStoreClientTest {
     private OperationalLimitsGroupAttributes createOperationalLimitsGroupAttributes(String operationalLimitsGroupId) {
         TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
         temporaryLimits.put(10, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroupId)
-            .limitType(LimitType.CURRENT)
             .value(12)
             .name("temporarylimit1")
             .acceptableDuration(10)
             .fictitious(false)
-            .side(1)
             .build());
         temporaryLimits.put(15, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroupId)
-            .limitType(LimitType.CURRENT)
             .value(9)
             .name("temporarylimit2")
             .acceptableDuration(15)
             .fictitious(false)
-            .side(1)
             .build());
         return OperationalLimitsGroupAttributes.builder()
             .id(operationalLimitsGroupId)
             .currentLimits(LimitsAttributes.builder()
                 .permanentLimit(1)
                 .temporaryLimits(temporaryLimits)
-                .operationalLimitsGroupId(operationalLimitsGroupId)
                 .build())
             .build();
     }
@@ -1267,5 +1258,72 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
         assertTrue(operationalLimitsGroupAttributes.isPresent());
+    }
+
+    @Test
+    public void testRemoveOperationalLimitsGroupCache() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String branchId = "LINE";
+        String operationalLimitsGroupId = "toRemove";
+
+        // Load the line in the cache
+        loadLineToCache(branchId, networkUuid, cachedClient);
+
+        // network is not loaded before
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId);
+        // getting the olg will load it to cache
+        getOperationalLimitsGroup(olg1, networkUuid, branchId, cachedClient, operationalLimitsGroupId, 1);
+
+        // remove the operational limits group will not call the api as the olg was loaded just before
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
+            .andExpect(method(DELETE))
+            .andExpect(content().string("{\"LINE\":{\"1\":[\"toRemove\"]}}"))
+            .andRespond(withSuccess());
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/1"))
+                .andExpect(method(GET));
+        cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId))));
+        server.verify();
+        server.reset();
+
+        // trying to get it return empty and does not call the REST api
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/1"))
+                .andExpect(method(GET));
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, branchId, operationalLimitsGroupId, 1);
+        assertTrue(operationalLimitsGroupAttributes.isEmpty());
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testGetNetworkAfterCreateAvoidServerCall() {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid1 = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        UUID networkUuid2 = UUID.fromString("9028181c-7977-4592-ba19-88027e4254e4");
+
+        Resource<NetworkAttributes> network1 = Resource.networkBuilder()
+                .id("n1")
+                .attributes(NetworkAttributes.builder()
+                        .uuid(networkUuid1)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        Resource<NetworkAttributes> network2 = Resource.networkBuilder()
+                .id("n2")
+                .attributes(NetworkAttributes.builder()
+                        .uuid(networkUuid2)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        cachedClient.createNetworks(List.of(network1, network2));
+
+        cachedClient.getNetwork(networkUuid1, 0);
+        cachedClient.getNetwork(networkUuid2, 0);
+
+        server.verify();
+        server.reset();
     }
 }

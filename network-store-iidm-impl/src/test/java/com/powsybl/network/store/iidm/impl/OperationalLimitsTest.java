@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
+import java.util.Set;
 
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Assertions;
@@ -50,7 +51,7 @@ class OperationalLimitsTest {
             l1.removeOperationalLimitsGroup1("group1");
             fail("Should have thrown an exception");
         } catch (IllegalArgumentException e) {
-            assertEquals("Operational limits group 'group1' does not exist", e.getMessage());
+            assertEquals("Operational limits group 'group1' does not exist on side 1", e.getMessage());
         }
         l1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
@@ -91,7 +92,7 @@ class OperationalLimitsTest {
             l1.removeOperationalLimitsGroup2("group2");
             fail("Should have thrown an exception");
         } catch (IllegalArgumentException e) {
-            assertEquals("Operational limits group 'group2' does not exist", e.getMessage());
+            assertEquals("Operational limits group 'group2' does not exist on side 2", e.getMessage());
         }
         l1.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
@@ -217,6 +218,19 @@ class OperationalLimitsTest {
         operationalLimitsGroup.removeCurrentLimits();
         operationalLimitsGroup.removeActivePowerLimits();
         operationalLimitsGroup.removeApparentPowerLimits();
+        assertFalse(operationalLimitsGroup.hasProperty());
+        operationalLimitsGroup.setProperty("prop1", "value1");
+        operationalLimitsGroup.setProperty("prop2", "value2");
+        operationalLimitsGroup.setProperty("prop3", "value3");
+        assertTrue(operationalLimitsGroup.hasProperty());
+        assertEquals(Set.of("prop1", "prop2", "prop3"), operationalLimitsGroup.getPropertyNames());
+        assertTrue(operationalLimitsGroup.hasProperty("prop1"));
+        operationalLimitsGroup.removeProperty("prop2");
+        assertEquals(Set.of("prop1", "prop3"), operationalLimitsGroup.getPropertyNames());
+        assertEquals("value1", operationalLimitsGroup.getProperty("prop1"));
+        assertNull(operationalLimitsGroup.getProperty("prop2"));
+        assertEquals("value3", operationalLimitsGroup.getProperty("prop3"));
+        assertEquals("test", operationalLimitsGroup.getNetwork().getId());
 
         // test limits creation and removal via loadingLimits methods
         operationalLimitsGroup.newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()

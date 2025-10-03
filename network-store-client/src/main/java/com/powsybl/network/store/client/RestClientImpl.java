@@ -21,9 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -173,8 +171,8 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public void deleteAll(String url, List<String> body, Object... uriVariables) {
-        HttpEntity<List<String>> requestEntity = new HttpEntity<>(body);
+    public <T> void deleteAll(String url, T body, Object... uriVariables) {
+        HttpEntity<T> requestEntity = new HttpEntity<>(body);
         ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "delete", response.getStatusCode());
