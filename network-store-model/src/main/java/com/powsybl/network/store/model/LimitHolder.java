@@ -15,19 +15,7 @@ import java.util.Map;
  */
 public interface LimitHolder {
 
-    LimitsAttributes getCurrentLimits(int side, String operationalLimitsGroupId);
-
-    LimitsAttributes getApparentPowerLimits(int side, String operationalLimitsGroupId);
-
-    LimitsAttributes getActivePowerLimits(int side, String operationalLimitsGroupId);
-
     Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side);
-
-    void setCurrentLimits(int side, LimitsAttributes limits, String operationalLimitsGroupId);
-
-    void setApparentPowerLimits(int side, LimitsAttributes limits, String operationalLimitsGroupId);
-
-    void setActivePowerLimits(int side, LimitsAttributes limits, String operationalLimitsGroupId);
 
     @JsonIgnore
     List<Integer> getSideList();
