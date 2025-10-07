@@ -55,14 +55,17 @@ public class DummyNetworkListener implements NetworkListener {
 
     @Override
     public void onExtensionCreation(Extension<?> extension) {
+        // Not tested here
     }
 
     @Override
     public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+        // Not tested here
     }
 
     @Override
     public void onExtensionBeforeRemoval(Extension<?> extension) {
+        // Not tested here
     }
 
     @Override
@@ -72,19 +75,16 @@ public class DummyNetworkListener implements NetworkListener {
 
     @Override
     public void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'onPropertyAdded'");
     }
 
     @Override
     public void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'onPropertyReplaced'");
     }
 
     @Override
     public void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'onPropertyRemoved'");
     }
 }
