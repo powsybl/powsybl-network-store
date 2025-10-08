@@ -54,23 +54,6 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         index.updateResource(resource, attributeFilter);
     }
 
-    public void updateOperationalLimitsResource(Consumer<Resource<D>> modifier, String attribute, OperationalLimitsGroupAttributes oldValue, OperationalLimitsGroupAttributes newValue) {
-        modifier.accept(resource);
-        index.updateResource(resource, null);
-        String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-        LimitsAttributes oldCurrentValue = Optional.ofNullable(oldValue).map(OperationalLimitsGroupAttributes::getCurrentLimits).orElse(null);
-        LimitsAttributes newCurrentValue = Optional.ofNullable(newValue).map(OperationalLimitsGroupAttributes::getCurrentLimits).orElse(null);
-        index.notifyUpdate(this, attribute + "_" + LimitType.CURRENT, variantId, oldCurrentValue, newCurrentValue);
-
-        LimitsAttributes oldActivePowerLimits = Optional.ofNullable(oldValue).map(OperationalLimitsGroupAttributes::getActivePowerLimits).orElse(null);
-        LimitsAttributes newActivePowerLimits = Optional.ofNullable(newValue).map(OperationalLimitsGroupAttributes::getActivePowerLimits).orElse(null);
-        index.notifyUpdate(this, attribute + "_" + LimitType.ACTIVE_POWER, variantId, oldActivePowerLimits, newActivePowerLimits);
-
-        LimitsAttributes oldApparentPowerLimits = Optional.ofNullable(oldValue).map(OperationalLimitsGroupAttributes::getApparentPowerLimits).orElse(null);
-        LimitsAttributes newApparentPowerLimits = Optional.ofNullable(newValue).map(OperationalLimitsGroupAttributes::getApparentPowerLimits).orElse(null);
-        index.notifyUpdate(this, attribute + "_" + LimitType.APPARENT_POWER, variantId, oldApparentPowerLimits, newApparentPowerLimits);
-    }
-
     public void updateResource(Consumer<Resource<D>> modifier, String attribute, Object oldValue, Object newValue) {
         updateResource(modifier, null, attribute, oldValue, newValue);
     }
