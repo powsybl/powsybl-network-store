@@ -111,36 +111,6 @@ public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttr
     }
 
     @Override
-    public LimitsAttributes getCurrentLimits(int side, String groupId) {
-        return getLeg(side).getOrCreateOperationalLimitsGroup(groupId).getCurrentLimits();
-    }
-
-    @Override
-    public LimitsAttributes getApparentPowerLimits(int side, String groupId) {
-        return getLeg(side).getOrCreateOperationalLimitsGroup(groupId).getApparentPowerLimits();
-    }
-
-    @Override
-    public LimitsAttributes getActivePowerLimits(int side, String groupId) {
-        return getLeg(side).getOrCreateOperationalLimitsGroup(groupId).getActivePowerLimits();
-    }
-
-    @Override
-    public void setCurrentLimits(int side, LimitsAttributes limits, String groupId) {
-        getLeg(side).getOrCreateOperationalLimitsGroup(groupId).setCurrentLimits(limits);
-    }
-
-    @Override
-    public void setApparentPowerLimits(int side, LimitsAttributes limits, String groupId) {
-        getLeg(side).getOrCreateOperationalLimitsGroup(groupId).setApparentPowerLimits(limits);
-    }
-
-    @Override
-    public void setActivePowerLimits(int side, LimitsAttributes limits, String groupId) {
-        getLeg(side).getOrCreateOperationalLimitsGroup(groupId).setActivePowerLimits(limits);
-    }
-
-    @Override
     public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
         return getLeg(side).getOperationalLimitsGroups();
     }
