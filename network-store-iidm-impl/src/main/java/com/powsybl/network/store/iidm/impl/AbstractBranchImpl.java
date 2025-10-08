@@ -416,7 +416,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, id, null);
             OperationalLimitsGroupAttributes oldValue = getResource().getAttributes().getOperationalLimitsGroups1().get(id);
             updateOperationalLimitsResource(res -> res.getAttributes().getOperationalLimitsGroups1().remove(id),
-                    "operationalLimitsGroup2", oldValue, null);
+                    "operationalLimitsGroup1", oldValue, null);
         }
         index.removeOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), id, 1);
     }
