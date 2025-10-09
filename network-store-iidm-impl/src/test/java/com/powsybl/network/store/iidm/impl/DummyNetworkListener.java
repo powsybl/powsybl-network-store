@@ -5,14 +5,17 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.NetworkListener;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 public class DummyNetworkListener implements NetworkListener {
     private int nbUpdatedExtensions = 0;
     private int nbUpdatedIdentifiables = 0;
     private Identifiable<?> lastIdentifiableUpdated = null;
-    private String lastAttributeUpdated = null;
-    private Object lastOldValueUpdated;
-    private Object lastNewValueUpdated;
+    private final List<String> allAttributeUpdated = new ArrayList<>();
+    private final List<Object> allOldValueUpdated = new ArrayList<>();
+    private final List<Object> allNewValueUpdated = new ArrayList<>();
 
     @Override
     public void onCreation(Identifiable identifiable) {
@@ -33,9 +36,9 @@ public class DummyNetworkListener implements NetworkListener {
                          Object newValue) {
         nbUpdatedIdentifiables++;
         lastIdentifiableUpdated = identifiable;
-        lastAttributeUpdated = attribute;
-        lastOldValueUpdated = oldValue;
-        lastNewValueUpdated = newValue;
+        allAttributeUpdated.add(attribute);
+        allOldValueUpdated.add(oldValue);
+        allNewValueUpdated.add(newValue);
     }
 
     @Override

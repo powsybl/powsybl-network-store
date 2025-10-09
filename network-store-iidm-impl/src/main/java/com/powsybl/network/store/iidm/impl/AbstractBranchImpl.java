@@ -387,11 +387,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
         var resource = getResource();
-        var newGroup = OperationalLimitsGroupAttributes.builder().id(id).build();
         index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 1);
-        OperationalLimitsGroupAttributes oldValue = resource.getAttributes().getOperationalLimitsGroups1().get(id); // can be null
-        LimitsOwner.updateOperationalLimitsResource(resource, this, getNetwork(), res -> resource.getAttributes().getOperationalLimitsGroups1().put(id, newGroup),
-                "operationalLimitsGroup1", oldValue, newGroup, index);
+        OperationalLimitsGroupAttributes newGroup = LimitsOwner.newOperationalLimitsGroup(resource, this, getNetwork(),
+                id, resource.getAttributes().getOperationalLimitsGroups1(), index, "operationalLimitsGroup1");
         return new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, newGroup);
     }
 
@@ -472,12 +470,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup2(String id) {
         var resource = getResource();
-        var newGroup = OperationalLimitsGroupAttributes.builder().id(id).build();
         // load operational limits group to cache
         index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 2);
-        OperationalLimitsGroupAttributes oldValue = resource.getAttributes().getOperationalLimitsGroups2().get(id);
-        LimitsOwner.updateOperationalLimitsResource(resource, this, getNetwork(), res -> resource.getAttributes().getOperationalLimitsGroups2().put(id, newGroup),
-                "operationalLimitsGroup2", oldValue, newGroup, index);
+        OperationalLimitsGroupAttributes newGroup = LimitsOwner.newOperationalLimitsGroup(resource, this, getNetwork(),
+                id, resource.getAttributes().getOperationalLimitsGroups2(), index, "operationalLimitsGroup2");
         return new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, newGroup);
     }
 

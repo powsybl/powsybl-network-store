@@ -296,8 +296,8 @@ class OperationalLimitsTest {
         Line lineS3S4 = network.getLine("LINE_S3S4");
 
         assertEquals(0, listener.getNbUpdatedIdentifiables());
-        lineS3S4.newOperationalLimitsGroup1("DEFAULT")
-                .newCurrentLimits()
+        OperationalLimitsGroup newOlg = lineS3S4.newOperationalLimitsGroup1("DEFAULT");
+        newOlg.newCurrentLimits()
                 .setPermanentLimit(10)
                 .beginTemporaryLimit()
                 .setName("limit")
@@ -307,16 +307,51 @@ class OperationalLimitsTest {
                 .add();
         // there is 2 update on operational limits group the first create the olg the second set his values
         assertEquals(2, listener.getNbUpdatedIdentifiables());
-        assertEquals("currentLimits1", listener.getLastAttributeUpdated());
-        Object lastNewValueUpdated = listener.getLastNewValueUpdated();
+        assertEquals(2, listener.getAllAttributeUpdated().size());
+        assertEquals("operationalLimitsGroup1_CURRENT", listener.getAllAttributeUpdated().get(0));
+        assertEquals("currentLimits1", listener.getAllAttributeUpdated().get(1));
+
+        assertEquals(2, listener.getAllOldValueUpdated().size());
+        Object oldValueUpdated = listener.getAllOldValueUpdated().getFirst();
+        assertInstanceOf(LimitsAttributes.class, oldValueUpdated);
+        LimitsAttributes limitsAttributes = (LimitsAttributes) oldValueUpdated;
+        assertEquals(931, limitsAttributes.getPermanentLimit());
+        assertNull(limitsAttributes.getTemporaryLimits());
+        assertNull(listener.getAllOldValueUpdated().get(1));
+
+        assertEquals(2, listener.getAllNewValueUpdated().size());
+        assertNull(listener.getAllNewValueUpdated().getFirst());
+        Object lastNewValueUpdated = listener.getAllNewValueUpdated().get(1);
         assertInstanceOf(LimitsAttributes.class, lastNewValueUpdated);
-        LimitsAttributes limitsAttributes = (LimitsAttributes) lastNewValueUpdated;
-        assertEquals(10, limitsAttributes.getPermanentLimit());
-        assertEquals(1, limitsAttributes.getTemporaryLimits().size());
-        assertEquals(100, limitsAttributes.getTemporaryLimits().get(60).getValue());
-        assertEquals("limit", limitsAttributes.getTemporaryLimits().get(60).getName());
-        assertNull(listener.getLastOldValueUpdated());
-        assertEquals(lineS3S4, listener.getLastIdentifiableUpdated());
+        LimitsAttributes newValuelimitsAttributes = (LimitsAttributes) lastNewValueUpdated;
+        assertEquals(10, newValuelimitsAttributes.getPermanentLimit());
+        assertEquals(1, newValuelimitsAttributes.getTemporaryLimits().size());
+        assertEquals(100, newValuelimitsAttributes.getTemporaryLimits().get(60).getValue());
+        assertEquals("limit", newValuelimitsAttributes.getTemporaryLimits().get(60).getName());
+
+        newOlg.newActivePowerLimits()
+                .setPermanentLimit(2)
+                .beginTemporaryLimit()
+                .setName("limit")
+                .setAcceptableDuration(3600)
+                .setValue(1)
+                .endTemporaryLimit()
+                .add();
+        newOlg.newApparentPowerLimits()
+                .setPermanentLimit(3)
+                .beginTemporaryLimit()
+                .setName("limit")
+                .setAcceptableDuration(600)
+                .setValue(2)
+                .endTemporaryLimit()
+                .add();
+
+        assertEquals(4, listener.getNbUpdatedIdentifiables());
+        assertEquals(4, listener.getAllAttributeUpdated().size());
+        assertEquals("operationalLimitsGroup1_CURRENT", listener.getAllAttributeUpdated().get(0));
+        assertEquals("currentLimits1", listener.getAllAttributeUpdated().get(1));
+        assertEquals("activePowerLimits1", listener.getAllAttributeUpdated().get(2));
+        assertEquals("apparentPowerLimits1", listener.getAllAttributeUpdated().get(3));
     }
 
     @Test
@@ -332,18 +367,20 @@ class OperationalLimitsTest {
         LimitsAttributes limitsAttributes = LimitsAttributes.builder().permanentLimit(931).build();
         lineS3S4.setCurrentLimits(TwoSides.ONE, limitsAttributes, "DEFAULT");
         // the limits attribute is the same as the one set so it will not update the resource
-        assertNull(listener.getLastOldValueUpdated());
-        assertNull(listener.getLastAttributeUpdated());
+        assertTrue(listener.getAllOldValueUpdated().isEmpty());
+        assertTrue(listener.getAllAttributeUpdated().isEmpty());
         assertNull(listener.getLastIdentifiableUpdated());
-        assertNull(listener.getLastNewValueUpdated());
+        assertTrue(listener.getAllNewValueUpdated().isEmpty());
         assertEquals(0, listener.getNbUpdatedIdentifiables());
 
         // setting a different limits group will update
         LimitsAttributes limitsAttributes2 = LimitsAttributes.builder().permanentLimit(921).build();
         lineS3S4.setCurrentLimits(TwoSides.ONE, limitsAttributes2, "DEFAULT");
-        assertEquals(limitsAttributes, listener.getLastOldValueUpdated());
-        assertEquals("currentLimits1", listener.getLastAttributeUpdated());
-        assertEquals(limitsAttributes2, listener.getLastNewValueUpdated());
+
         assertEquals(1, listener.getNbUpdatedIdentifiables());
+        assertEquals(1, listener.getAllAttributeUpdated().size());
+        assertEquals("currentLimits1", listener.getAllAttributeUpdated().getFirst());
+        assertEquals(limitsAttributes, listener.getAllOldValueUpdated().getFirst());
+        assertEquals(limitsAttributes2, listener.getAllNewValueUpdated().getFirst());
     }
 }
