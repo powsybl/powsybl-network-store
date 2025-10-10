@@ -1327,4 +1327,27 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
     }
+
+    @Test
+    public void testRemoveOperationalLimitsGroupWithBuffer() {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String branchId = "LINE";
+        String operationalLimitsGroupId = "toRemove1";
+        String operationalLimitsGroupId2 = "toRemove2";
+        String operationalLimitsGroupId3 = "toRemove3";
+
+        // remove three operational limits group without the cache will call only the server once
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                        + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("{\"LINE\":{\"1\":[\"toRemove2\",\"toRemove1\"],\"2\":[\"toRemove3\"]}}"))
+                .andRespond(withSuccess());
+        cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId))));
+        cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId2))));
+        cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(2, Set.of(operationalLimitsGroupId3))));
+        cachedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
 }

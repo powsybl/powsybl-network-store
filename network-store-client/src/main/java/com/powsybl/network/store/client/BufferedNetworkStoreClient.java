@@ -140,7 +140,13 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                 delegate::removeAreas));
 
     private final NetworkCollectionIndex<ExternalAttributesCollectionBuffer<Map<Integer, Set<String>>>> operationalLimitsToFlush =
-            new NetworkCollectionIndex<>(() -> new ExternalAttributesCollectionBuffer<>(delegate::removeOperationalLimitsGroupAttributes));
+            new NetworkCollectionIndex<>(() -> new ExternalAttributesCollectionBuffer<>(delegate::removeOperationalLimitsGroupAttributes,
+                    (globalMap, mapToAdd) ->
+                            mapToAdd.forEach((branchId, limitSetBySide) ->
+                                limitSetBySide.forEach((side, limitIdSet) ->
+                                        globalMap.computeIfAbsent(branchId, s -> new HashMap<>())
+                                                .computeIfAbsent(side, s -> new HashSet<>())
+                                                .addAll(limitIdSet)))));
 
     private final List<NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = List.of(
             networkResourcesToFlush,

@@ -12,6 +12,7 @@ import com.powsybl.network.store.model.ResourceType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -20,13 +21,17 @@ public class ExternalAttributesCollectionBuffer<T> {
     private final QuadriConsumer<UUID, Integer, ResourceType, Map<String, T>> removeFct;
 
     private final Map<ResourceType, Map<String, T>> removeResourcesIds = new HashMap<>();
+    private final BiConsumer<Map<String, T>, Map<String, T>> addFct;
 
-    public ExternalAttributesCollectionBuffer(QuadriConsumer<UUID, Integer, ResourceType, Map<String, T>> removeFct) {
+    public ExternalAttributesCollectionBuffer(QuadriConsumer<UUID, Integer, ResourceType, Map<String, T>> removeFct,
+                                              BiConsumer<Map<String, T>, Map<String, T>> addFct) {
         this.removeFct = removeFct;
+        this.addFct = addFct;
     }
 
     void remove(Map<String, T> resourceIds, ResourceType resourceType) {
-        removeResourcesIds.computeIfAbsent(resourceType, s -> new HashMap<>()).putAll(resourceIds);
+        removeResourcesIds.computeIfAbsent(resourceType, s -> new HashMap<>());
+        addFct.accept(removeResourcesIds.get(resourceType), resourceIds);
     }
 
     void flush(UUID networkUuid, int variantNum) {
@@ -39,7 +44,7 @@ public class ExternalAttributesCollectionBuffer<T> {
     }
 
     public ExternalAttributesCollectionBuffer<T> clone() {
-        var clonedBuffer = new ExternalAttributesCollectionBuffer<>(removeFct);
+        var clonedBuffer = new ExternalAttributesCollectionBuffer<>(removeFct, addFct);
         clonedBuffer.removeResourcesIds.putAll(removeResourcesIds);
         return clonedBuffer;
     }
