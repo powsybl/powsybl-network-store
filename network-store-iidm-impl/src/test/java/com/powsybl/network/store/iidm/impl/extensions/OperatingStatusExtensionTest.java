@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
-import com.powsybl.network.store.iidm.impl.MockNetworkListener;
+import com.powsybl.network.store.iidm.impl.DummyNetworkListener;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -172,7 +172,7 @@ public class OperatingStatusExtensionTest {
     @Test
     public void testRemoveExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
-        MockNetworkListener listener1 = new MockNetworkListener();
+        DummyNetworkListener listener1 = new DummyNetworkListener();
         MockNetworkListenerWithExceptions listener2 = new MockNetworkListenerWithExceptions();
         network.addListener(listener1);
         network.addListener(listener2);
@@ -193,7 +193,7 @@ public class OperatingStatusExtensionTest {
         assertNull(l1.getExtension(OperatingStatus.class));
     }
 
-    private static class MockNetworkListenerWithExceptions extends MockNetworkListener {
+    private static class MockNetworkListenerWithExceptions extends DummyNetworkListener {
         @Override
         public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
             throw new UnsupportedOperationException("error'");

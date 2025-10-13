@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.network.store.iidm.impl.BatteryImpl;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
-import com.powsybl.network.store.iidm.impl.MockNetworkListener;
+import com.powsybl.network.store.iidm.impl.DummyNetworkListener;
 import org.junit.Test;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class ActivePowerControlExtensionTest {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         // add dummy listener to check notification
-        MockNetworkListener listener = new MockNetworkListener();
+        DummyNetworkListener listener = new DummyNetworkListener();
         network.addListener(listener);
 
         Battery battery = network.getBattery("battery");
