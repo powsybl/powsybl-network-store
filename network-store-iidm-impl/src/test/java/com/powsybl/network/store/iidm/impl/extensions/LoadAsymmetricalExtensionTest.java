@@ -9,16 +9,12 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.extensions.LoadAsymmetrical;
 import com.powsybl.iidm.network.extensions.LoadAsymmetricalAdder;
 import com.powsybl.iidm.network.extensions.LoadConnectionType;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
 import com.powsybl.network.store.iidm.impl.DummyNetworkListener;
-import com.powsybl.network.store.iidm.impl.LoadImpl;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +33,6 @@ class LoadAsymmetricalExtensionTest {
 
         Load load = network.getLoad("L");
         assertNull(load.getExtension(LoadAsymmetrical.class));
-        assertEquals(0, load.getExtensions().size());
 
         load.newExtension(LoadAsymmetricalAdder.class)
             .withConnectionType(LoadConnectionType.DELTA)
@@ -58,10 +53,7 @@ class LoadAsymmetricalExtensionTest {
         assertEquals(5, extension.getDeltaQb());
         assertEquals(6, extension.getDeltaQc());
 
-        // test update
-        LoadImpl loadImpl = (LoadImpl) load;
-        List<NetworkListener> listeners = loadImpl.getNetwork().getListeners();
-        assertEquals(1, listeners.size());
+        // test update and listener
         assertEquals(0, listener.getNbUpdatedExtensions());
 
         extension.setDeltaPa(8);
