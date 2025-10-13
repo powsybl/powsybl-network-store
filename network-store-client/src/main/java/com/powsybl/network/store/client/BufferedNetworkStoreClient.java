@@ -178,6 +178,9 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             tieLineResourcesToFlush,
             areaResourcesToFlush);
 
+    private final List<NetworkCollectionIndex<? extends ExternalAttributesCollectionBuffer<?>>> allExternalAttributeBuffers = List.of(
+            operationalLimitsToFlush, extensionsToFlush);
+
     private final ExecutorService executorService;
 
     public BufferedNetworkStoreClient(RestNetworkStoreClient delegate, ExecutorService executorService) {
@@ -208,8 +211,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         delegate.deleteNetwork(networkUuid);
         // clear buffers as server side delete network already remove all equipments of the network
         allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid));
-        operationalLimitsToFlush.removeCollection(networkUuid);
-        extensionsToFlush.removeCollection(networkUuid);
+        allExternalAttributeBuffers.forEach(buffer -> buffer.removeCollection(networkUuid));
     }
 
     @Override
@@ -217,8 +219,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         delegate.deleteNetwork(networkUuid, variantNum);
         // clear buffers as server side delete network already remove all equipments of the network
         allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
-        operationalLimitsToFlush.removeCollection(networkUuid, variantNum);
-        extensionsToFlush.removeCollection(networkUuid, variantNum);
+        allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
     }
 
     @Override
@@ -623,8 +624,9 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         for (var buffer : allBuffers) {
             futures.add(executorService.submit(() -> buffer.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
         }
-        futures.add(executorService.submit(() -> operationalLimitsToFlush.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
-        futures.add(executorService.submit(() -> extensionsToFlush.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
+        for (var externalBuffer : allExternalAttributeBuffers) {
+            futures.add(executorService.submit(() -> externalBuffer.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
+        }
         ExecutorUtil.waitAllFutures(futures);
         stopwatch.stop();
         LOGGER.info("All buffers flushed in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -642,6 +644,14 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     private static <T extends IdentifiableAttributes> void cloneBuffer(NetworkCollectionIndex<CollectionBuffer<T>> buffer, UUID networkUuid,
                                                                        int sourceVariantNum, int targetVariantNum, ObjectMapper objectMapper) {
         cloneBuffer(buffer, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, null);
+    }
+
+    private static <D> void cloneExternalBuffer(NetworkCollectionIndex<ExternalAttributesCollectionBuffer<D>> buffer, UUID networkUuid,
+                                                                       int sourceVariantNum, int targetVariantNum) {
+        // clone resources from source variant collection
+        ExternalAttributesCollectionBuffer<D> clonedCollection =
+                new ExternalAttributesCollectionBuffer<>(buffer.getCollection(networkUuid, sourceVariantNum));
+        buffer.addCollection(networkUuid, targetVariantNum, clonedCollection);
     }
 
     @Override
@@ -682,12 +692,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                         networkAttributes.setFullVariantNum(sourceVariantNum);
                     }
                 });
-        ExternalAttributesCollectionBuffer<Map<Integer, Set<String>>> clonedCollection =
-                new ExternalAttributesCollectionBuffer<>(operationalLimitsToFlush.getCollection(networkUuid, sourceVariantNum));
-        operationalLimitsToFlush.addCollection(networkUuid, targetVariantNum, clonedCollection);
-        ExternalAttributesCollectionBuffer<Set<String>> extensionsClonedCollection =
-                new ExternalAttributesCollectionBuffer<>(extensionsToFlush.getCollection(networkUuid, sourceVariantNum));
-        extensionsToFlush.addCollection(networkUuid, targetVariantNum, extensionsClonedCollection);
+        cloneExternalBuffer(operationalLimitsToFlush, networkUuid, sourceVariantNum, targetVariantNum);
+        cloneExternalBuffer(extensionsToFlush, networkUuid, sourceVariantNum, targetVariantNum);
     }
 
     @Override
