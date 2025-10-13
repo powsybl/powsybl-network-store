@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,9 +24,12 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -129,6 +133,29 @@ public class BufferedNetworkStoreClientTest {
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone1to2))))
                 .andRespond(withSuccess());
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testRemoveOperationalLimitsGroupWithBuffer() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String branchId = "LINE";
+        String operationalLimitsGroupId = "toRemove1";
+        String operationalLimitsGroupId2 = "toRemove2";
+        String operationalLimitsGroupId3 = "toRemove3";
+
+        // remove three operational limits group without the cache will call only the server once
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                        + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("{\"LINE\":{\"1\":[\"toRemove2\",\"toRemove1\"],\"2\":[\"toRemove3\"]}}"))
+                .andRespond(withSuccess());
+        bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId))));
+        bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId2))));
+        bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(2, Set.of(operationalLimitsGroupId3))));
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
