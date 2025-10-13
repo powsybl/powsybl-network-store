@@ -90,7 +90,7 @@ class MockNetworkStoreClient implements NetworkStoreClient {
 
     // Methods below are not used in tests
     @Override
-    public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
+    public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Set<String>> identifiableIdsByExtensionName) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 
