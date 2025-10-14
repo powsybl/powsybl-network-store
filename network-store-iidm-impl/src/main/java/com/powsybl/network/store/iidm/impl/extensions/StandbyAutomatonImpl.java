@@ -35,21 +35,25 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
     private static void checkVoltageConfig(Validable validable, double lowVoltageSetpoint, double highVoltageSetpoint,
                                            double lowVoltageThreshold, double highVoltageThreshold, boolean standby, String svcId) {
         if (Double.isNaN(lowVoltageSetpoint)) {
-            throw new ValidationException(validable, "lowVoltageSetpoint is invalid");
+            throw new ValidationException(validable, String.format("low voltage setpoint (%s) is invalid", lowVoltageSetpoint));
+
         }
         if (Double.isNaN(highVoltageSetpoint)) {
-            throw new ValidationException(validable, "highVoltageSetpoint is invalid");
+            throw new ValidationException(validable, String.format("high voltage setpoint (%s) is invalid", highVoltageSetpoint));
         }
         if (Double.isNaN(lowVoltageThreshold)) {
-            throw new ValidationException(validable, "lowVoltageThreshold is invalid");
+            throw new ValidationException(validable, String.format("low voltage threshold (%s) is invalid", lowVoltageThreshold));
         }
         if (Double.isNaN(highVoltageThreshold)) {
-            throw new ValidationException(validable, "highVoltageThreshold is invalid");
+            throw new ValidationException(validable, String.format("high voltage threshold (%s) is invalid", highVoltageThreshold));
+
         }
         if (lowVoltageThreshold >= highVoltageThreshold) {
             if (standby) {
-                throw new IllegalArgumentException(String.format("Inconsistent low (%s) and high (%s) voltage thresholds for StaticVarCompensator %s",
-                    lowVoltageThreshold, highVoltageThreshold, svcId));
+                throw new ValidationException(validable,
+                    String.format("Inconsistent low (%s) and high (%s) voltage thresholds",
+                        lowVoltageThreshold,
+                        highVoltageThreshold));
             } else {
                 LOGGER.warn("Inconsistent low {} and high ({}) voltage thresholds for StaticVarCompensator {}",
                     lowVoltageSetpoint, lowVoltageThreshold, svcId);
