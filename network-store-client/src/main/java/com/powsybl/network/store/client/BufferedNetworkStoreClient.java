@@ -19,10 +19,7 @@ import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -142,6 +139,22 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                 delegate::updateAreas,
                 delegate::removeAreas));
 
+    private final NetworkCollectionIndex<ExternalAttributesCollectionBuffer<Map<Integer, Set<String>>>> operationalLimitsToFlush =
+            new NetworkCollectionIndex<>(() -> new ExternalAttributesCollectionBuffer<>(delegate::removeOperationalLimitsGroupAttributes,
+                    (globalMap, mapToAdd) ->
+                            mapToAdd.forEach((branchId, limitSetBySide) ->
+                                limitSetBySide.forEach((side, limitIdSet) ->
+                                        globalMap.computeIfAbsent(branchId, s -> new HashMap<>())
+                                                .computeIfAbsent(side, s -> new HashSet<>())
+                                                .addAll(limitIdSet)))));
+
+    private final NetworkCollectionIndex<ExternalAttributesCollectionBuffer<Set<String>>> extensionsToFlush =
+            new NetworkCollectionIndex<>(() -> new ExternalAttributesCollectionBuffer<>(delegate::removeExtensionAttributes,
+                    (globalMap, mapToAdd) ->
+                            mapToAdd.forEach((extensionName, identifiableIdsByExtensionName) ->
+                                            globalMap.computeIfAbsent(extensionName, s -> new HashSet<>())
+                                                    .addAll(identifiableIdsByExtensionName))));
+
     private final List<NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = List.of(
             networkResourcesToFlush,
             substationResourcesToFlush,
@@ -164,6 +177,9 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             busResourcesToFlush,
             tieLineResourcesToFlush,
             areaResourcesToFlush);
+
+    private final List<NetworkCollectionIndex<? extends ExternalAttributesCollectionBuffer<?>>> allExternalAttributeBuffers = List.of(
+            operationalLimitsToFlush, extensionsToFlush);
 
     private final ExecutorService executorService;
 
@@ -195,12 +211,14 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         delegate.deleteNetwork(networkUuid);
         // clear buffers as server side delete network already remove all equipments of the network
         allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid));
+        allExternalAttributeBuffers.forEach(buffer -> buffer.removeCollection(networkUuid));
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid, int variantNum) {
         delegate.deleteNetwork(networkUuid, variantNum);
         // clear buffers as server side delete network already remove all equipments of the network
+        allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
         allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
     }
 
@@ -590,11 +608,24 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
+        operationalLimitsToFlush.getCollection(networkUuid, variantNum).remove(operationalLimitsGroupsToDelete, resourceType);
+    }
+
+    @Override
+    public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Set<String>> identifiableIdsByExtensionName) {
+        extensionsToFlush.getCollection(networkUuid, variantNum).remove(identifiableIdsByExtensionName, resourceType);
+    }
+
+    @Override
     public void flush(UUID networkUuid) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Future<?>> futures = new ArrayList<>(allBuffers.size());
         for (var buffer : allBuffers) {
             futures.add(executorService.submit(() -> buffer.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
+        }
+        for (var externalBuffer : allExternalAttributeBuffers) {
+            futures.add(executorService.submit(() -> externalBuffer.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
         }
         ExecutorUtil.waitAllFutures(futures);
         stopwatch.stop();
@@ -613,6 +644,14 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     private static <T extends IdentifiableAttributes> void cloneBuffer(NetworkCollectionIndex<CollectionBuffer<T>> buffer, UUID networkUuid,
                                                                        int sourceVariantNum, int targetVariantNum, ObjectMapper objectMapper) {
         cloneBuffer(buffer, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, null);
+    }
+
+    private static <D> void cloneExternalBuffer(NetworkCollectionIndex<ExternalAttributesCollectionBuffer<D>> buffer, UUID networkUuid,
+                                                                       int sourceVariantNum, int targetVariantNum) {
+        // clone resources from source variant collection
+        ExternalAttributesCollectionBuffer<D> clonedCollection =
+                new ExternalAttributesCollectionBuffer<>(buffer.getCollection(networkUuid, sourceVariantNum));
+        buffer.addCollection(networkUuid, targetVariantNum, clonedCollection);
     }
 
     @Override
@@ -653,6 +692,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                         networkAttributes.setFullVariantNum(sourceVariantNum);
                     }
                 });
+        cloneExternalBuffer(operationalLimitsToFlush, networkUuid, sourceVariantNum, targetVariantNum);
+        cloneExternalBuffer(extensionsToFlush, networkUuid, sourceVariantNum, targetVariantNum);
     }
 
     @Override
