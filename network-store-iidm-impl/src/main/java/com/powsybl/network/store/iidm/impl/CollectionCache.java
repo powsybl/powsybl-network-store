@@ -548,7 +548,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         for (Map.Entry<String, Set<String>> entry : identifiableIdsByExtensionName.entrySet()) {
             Set<String> identifiablesIds = entry.getValue();
             String extensionName = entry.getKey();
-            for(String identifiable : identifiablesIds) {
+            for (String identifiable : identifiablesIds) {
                 if (resources.containsKey(identifiable)) {
                     getCachedExtensionAttributes(identifiable).remove(extensionName);
                     removedExtensionAttributes.computeIfAbsent(identifiable, k -> new HashSet<>()).add(extensionName);
