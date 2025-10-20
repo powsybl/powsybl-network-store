@@ -21,22 +21,23 @@ public class ExternalAttributesCollectionBuffer<T> {
     private final QuadriConsumer<UUID, Integer, ResourceType, Map<String, T>> removeFct;
 
     private final Map<ResourceType, Map<String, T>> removeResourcesIds = new HashMap<>();
-    private final BiConsumer<Map<String, T>, Map<String, T>> addFct;
+    private final BiConsumer<Map<String, T>, Map<String, T>> mergeFct;
 
     public ExternalAttributesCollectionBuffer(QuadriConsumer<UUID, Integer, ResourceType, Map<String, T>> removeFct,
                                               BiConsumer<Map<String, T>, Map<String, T>> addFct) {
         this.removeFct = removeFct;
-        this.addFct = addFct;
+        this.mergeFct = addFct;
     }
 
-    public ExternalAttributesCollectionBuffer(ExternalAttributesCollectionBuffer<T> toCopy) {
-        this(toCopy.removeFct, toCopy.addFct);
-        this.removeResourcesIds.putAll(toCopy.removeResourcesIds);
+    public ExternalAttributesCollectionBuffer<T> clone() {
+        var clonedBuffer = new ExternalAttributesCollectionBuffer<>(removeFct, mergeFct);
+        clonedBuffer.removeResourcesIds.putAll(removeResourcesIds);
+        return clonedBuffer;
     }
 
     void remove(Map<String, T> resourceIds, ResourceType resourceType) {
         removeResourcesIds.computeIfAbsent(resourceType, s -> new HashMap<>());
-        addFct.accept(removeResourcesIds.get(resourceType), resourceIds);
+        mergeFct.accept(removeResourcesIds.get(resourceType), resourceIds);
     }
 
     void flush(UUID networkUuid, int variantNum) {

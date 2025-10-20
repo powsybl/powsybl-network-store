@@ -23,7 +23,9 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -141,19 +143,25 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     private final NetworkCollectionIndex<ExternalAttributesCollectionBuffer<Map<Integer, Set<String>>>> operationalLimitsToFlush =
             new NetworkCollectionIndex<>(() -> new ExternalAttributesCollectionBuffer<>(delegate::removeOperationalLimitsGroupAttributes,
-                    (globalMap, mapToAdd) ->
-                            mapToAdd.forEach((branchId, limitSetBySide) ->
-                                limitSetBySide.forEach((side, limitIdSet) ->
-                                        globalMap.computeIfAbsent(branchId, s -> new HashMap<>())
-                                                .computeIfAbsent(side, s -> new HashSet<>())
-                                                .addAll(limitIdSet)))));
+                    BufferedNetworkStoreClient::mergeOperationalLimitsGroups));
 
     private final NetworkCollectionIndex<ExternalAttributesCollectionBuffer<Set<String>>> extensionsToFlush =
             new NetworkCollectionIndex<>(() -> new ExternalAttributesCollectionBuffer<>(delegate::removeExtensionAttributes,
-                    (globalMap, mapToAdd) ->
-                            mapToAdd.forEach((extensionName, identifiableIdsByExtensionName) ->
-                                            globalMap.computeIfAbsent(extensionName, s -> new HashSet<>())
-                                                    .addAll(identifiableIdsByExtensionName))));
+                    BufferedNetworkStoreClient::mergeExtensions));
+
+    private static void mergeOperationalLimitsGroups(Map<String, Map<Integer, Set<String>>> globalMap, Map<String, Map<Integer, Set<String>>> mapToAdd) {
+        mapToAdd.forEach((branchId, limitSetBySide) ->
+                limitSetBySide.forEach((side, limitIdSet) ->
+                        globalMap.computeIfAbsent(branchId, s -> new HashMap<>())
+                                .computeIfAbsent(side, s -> new HashSet<>())
+                                .addAll(limitIdSet)));
+    }
+
+    private static void mergeExtensions(Map<String, Set<String>> globalMap, Map<String, Set<String>> mapToAdd) {
+        mapToAdd.forEach((extensionName, identifiableIdsByExtensionName) ->
+                globalMap.computeIfAbsent(extensionName, s -> new HashSet<>())
+                        .addAll(identifiableIdsByExtensionName));
+    }
 
     private final List<NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = List.of(
             networkResourcesToFlush,
@@ -179,7 +187,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             areaResourcesToFlush);
 
     private final List<NetworkCollectionIndex<? extends ExternalAttributesCollectionBuffer<?>>> allExternalAttributeBuffers = List.of(
-            operationalLimitsToFlush, extensionsToFlush);
+            operationalLimitsToFlush,
+            extensionsToFlush);
 
     private final ExecutorService executorService;
 
@@ -649,8 +658,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     private static <D> void cloneExternalBuffer(NetworkCollectionIndex<ExternalAttributesCollectionBuffer<D>> buffer, UUID networkUuid,
                                                                        int sourceVariantNum, int targetVariantNum) {
         // clone resources from source variant collection
-        ExternalAttributesCollectionBuffer<D> clonedCollection =
-                new ExternalAttributesCollectionBuffer<>(buffer.getCollection(networkUuid, sourceVariantNum));
+        ExternalAttributesCollectionBuffer<D> clonedCollection = buffer.getCollection(networkUuid, sourceVariantNum).clone();
         buffer.addCollection(networkUuid, targetVariantNum, clonedCollection);
     }
 
