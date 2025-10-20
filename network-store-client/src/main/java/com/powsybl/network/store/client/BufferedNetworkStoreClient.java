@@ -253,7 +253,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         delegate.deleteNetwork(networkUuid, variantNum);
         // clear buffers as server side delete network already remove all equipments of the network
         allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
-        allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
+        allExternalAttributeBuffers.forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
     }
 
     @Override
@@ -393,6 +393,10 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
         for (Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource : twoWindingsTransformerResources) {
             twoWindingsTransformerResourcesToFlush.getCollection(networkUuid, twoWindingsTransformerResource.getVariantNum()).create(twoWindingsTransformerResource);
+            operationalLimitsToFlush.getCollection(networkUuid, twoWindingsTransformerResource.getVariantNum())
+                    .restoreRemoveExternalAttributes(Map.of(twoWindingsTransformerResource.getId(), Map.of(1, twoWindingsTransformerResource.getAttributes().getOperationalLimitsGroups1().keySet())), ResourceType.TWO_WINDINGS_TRANSFORMER);
+            operationalLimitsToFlush.getCollection(networkUuid, twoWindingsTransformerResource.getVariantNum())
+                    .restoreRemoveExternalAttributes(Map.of(twoWindingsTransformerResource.getId(), Map.of(2, twoWindingsTransformerResource.getAttributes().getOperationalLimitsGroups2().keySet())), ResourceType.TWO_WINDINGS_TRANSFORMER);
         }
     }
 
@@ -400,6 +404,10 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources, AttributeFilter attributeFilter) {
         for (Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource : twoWindingsTransformerResources) {
             twoWindingsTransformerResourcesToFlush.getCollection(networkUuid, twoWindingsTransformerResource.getVariantNum()).update(twoWindingsTransformerResource, attributeFilter);
+            operationalLimitsToFlush.getCollection(networkUuid, twoWindingsTransformerResource.getVariantNum())
+                    .restoreRemoveExternalAttributes(Map.of(twoWindingsTransformerResource.getId(), Map.of(1, twoWindingsTransformerResource.getAttributes().getOperationalLimitsGroups1().keySet())), ResourceType.TWO_WINDINGS_TRANSFORMER);
+            operationalLimitsToFlush.getCollection(networkUuid, twoWindingsTransformerResource.getVariantNum())
+                    .restoreRemoveExternalAttributes(Map.of(twoWindingsTransformerResource.getId(), Map.of(2, twoWindingsTransformerResource.getAttributes().getOperationalLimitsGroups2().keySet())), ResourceType.TWO_WINDINGS_TRANSFORMER);
         }
     }
 
@@ -454,6 +462,10 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
         for (Resource<LineAttributes> lineResource : lineResources) {
             lineResourcesToFlush.getCollection(networkUuid, lineResource.getVariantNum()).create(lineResource);
+            operationalLimitsToFlush.getCollection(networkUuid, lineResource.getVariantNum())
+                    .restoreRemoveExternalAttributes(Map.of(lineResource.getId(), Map.of(1, lineResource.getAttributes().getOperationalLimitsGroups1().keySet())), ResourceType.LINE);
+            operationalLimitsToFlush.getCollection(networkUuid, lineResource.getVariantNum())
+                    .restoreRemoveExternalAttributes(Map.of(lineResource.getId(), Map.of(2, lineResource.getAttributes().getOperationalLimitsGroups2().keySet())), ResourceType.LINE);
         }
     }
 
@@ -464,7 +476,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             operationalLimitsToFlush.getCollection(networkUuid, lineResource.getVariantNum())
                     .restoreRemoveExternalAttributes(Map.of(lineResource.getId(), Map.of(1, lineResource.getAttributes().getOperationalLimitsGroups1().keySet())), ResourceType.LINE);
             operationalLimitsToFlush.getCollection(networkUuid, lineResource.getVariantNum())
-                    .restoreRemoveExternalAttributes(Map.of(lineResource.getId(), Map.of(1, lineResource.getAttributes().getOperationalLimitsGroups2().keySet())), ResourceType.LINE);
+                    .restoreRemoveExternalAttributes(Map.of(lineResource.getId(), Map.of(2, lineResource.getAttributes().getOperationalLimitsGroups2().keySet())), ResourceType.LINE);
         }
     }
 
