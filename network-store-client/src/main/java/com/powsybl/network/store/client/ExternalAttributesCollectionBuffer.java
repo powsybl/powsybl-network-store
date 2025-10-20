@@ -20,31 +20,38 @@ import java.util.function.BiConsumer;
 public class ExternalAttributesCollectionBuffer<T> {
     private final QuadriConsumer<UUID, Integer, ResourceType, Map<String, T>> removeFct;
 
-    private final Map<ResourceType, Map<String, T>> removeResourcesIds = new HashMap<>();
+    private final Map<ResourceType, Map<String, T>> removeExternalAttributesIds = new HashMap<>();
     private final BiConsumer<Map<String, T>, Map<String, T>> mergeFct;
+    private final BiConsumer<Map<String, T>, Map<String, T>> updateRemoveAttributesFct;
 
     public ExternalAttributesCollectionBuffer(QuadriConsumer<UUID, Integer, ResourceType, Map<String, T>> removeFct,
-                                              BiConsumer<Map<String, T>, Map<String, T>> addFct) {
+                                              BiConsumer<Map<String, T>, Map<String, T>> addFct,
+                                              BiConsumer<Map<String, T>, Map<String, T>> updateRemoveAttributesFct) {
         this.removeFct = removeFct;
         this.mergeFct = addFct;
+        this.updateRemoveAttributesFct = updateRemoveAttributesFct;
     }
 
     public ExternalAttributesCollectionBuffer<T> clone() {
-        var clonedBuffer = new ExternalAttributesCollectionBuffer<>(removeFct, mergeFct);
-        clonedBuffer.removeResourcesIds.putAll(removeResourcesIds);
+        var clonedBuffer = new ExternalAttributesCollectionBuffer<>(removeFct, mergeFct, updateRemoveAttributesFct);
+        clonedBuffer.removeExternalAttributesIds.putAll(removeExternalAttributesIds);
         return clonedBuffer;
     }
 
     void remove(Map<String, T> resourceIds, ResourceType resourceType) {
-        removeResourcesIds.computeIfAbsent(resourceType, s -> new HashMap<>());
-        mergeFct.accept(removeResourcesIds.get(resourceType), resourceIds);
+        removeExternalAttributesIds.computeIfAbsent(resourceType, s -> new HashMap<>());
+        mergeFct.accept(removeExternalAttributesIds.get(resourceType), resourceIds);
+    }
+
+    void restoreRemoveExternalAttributes(Map<String, T> resourceIds, ResourceType resourceType) {
+        updateRemoveAttributesFct.accept(removeExternalAttributesIds.get(resourceType), resourceIds);
     }
 
     void flush(UUID networkUuid, int variantNum) {
-        if (removeFct != null && !removeResourcesIds.isEmpty()) {
-            removeResourcesIds.forEach((resourceType, resourceIds) ->
-                    removeFct.accept(networkUuid, variantNum, resourceType, removeResourcesIds.get(resourceType)));
+        if (removeFct != null && !removeExternalAttributesIds.isEmpty()) {
+            removeExternalAttributesIds.forEach((resourceType, resourceIds) ->
+                    removeFct.accept(networkUuid, variantNum, resourceType, removeExternalAttributesIds.get(resourceType)));
         }
-        removeResourcesIds.clear();
+        removeExternalAttributesIds.clear();
     }
 }

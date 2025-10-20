@@ -1271,15 +1271,12 @@ public class CachedNetworkStoreClientTest {
         getOperationalLimitsGroup(olg1, networkUuid, branchId, cachedClient, operationalLimitsGroupId, 1);
 
         // remove the operational limits group will not call the api as the olg was loaded just before
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
-            .andExpect(method(DELETE))
-            .andExpect(content().string("{\"LINE\":{\"1\":[\"toRemove\"]}}"))
-            .andRespond(withSuccess());
+            .andExpect(method(DELETE));
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/1"))
                 .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId))));
-        cachedClient.flush(networkUuid);
         server.verify();
         server.reset();
 

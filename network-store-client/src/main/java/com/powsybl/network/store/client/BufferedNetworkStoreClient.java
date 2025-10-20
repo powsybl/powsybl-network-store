@@ -141,11 +141,11 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     private final NetworkCollectionIndex<ExternalAttributesCollectionBuffer<Map<Integer, Set<String>>>> operationalLimitsToFlush =
             new NetworkCollectionIndex<>(() -> new ExternalAttributesCollectionBuffer<>(delegate::removeOperationalLimitsGroupAttributes,
-                    BufferedNetworkStoreClient::mergeOperationalLimitsGroups));
+                    BufferedNetworkStoreClient::mergeOperationalLimitsGroups, BufferedNetworkStoreClient::restoreRemovedOperationalLimitsGroups));
 
     private final NetworkCollectionIndex<ExternalAttributesCollectionBuffer<Set<String>>> extensionsToFlush =
             new NetworkCollectionIndex<>(() -> new ExternalAttributesCollectionBuffer<>(delegate::removeExtensionAttributes,
-                    BufferedNetworkStoreClient::mergeExtensions));
+                    BufferedNetworkStoreClient::mergeExtensions, BufferedNetworkStoreClient::restoreRemovedExtensions));
 
     private static void mergeOperationalLimitsGroups(Map<String, Map<Integer, Set<String>>> globalMap, Map<String, Map<Integer, Set<String>>> mapToAdd) {
         mapToAdd.forEach((branchId, limitSetBySide) ->
@@ -155,10 +155,37 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                                 .addAll(limitIdSet)));
     }
 
+    private static void restoreRemovedOperationalLimitsGroups(Map<String, Map<Integer, Set<String>>> deletedOperationalLimitsGroups, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToRestore) {
+        if (deletedOperationalLimitsGroups == null) {
+            return;
+        }
+        operationalLimitsGroupsToRestore.forEach((branchId, limitSetBySide) ->
+            limitSetBySide.forEach((side, limitIdSet) -> {
+                Map<Integer, Set<String>> deletedLimitsBySide = deletedOperationalLimitsGroups.get(branchId);
+                if (deletedLimitsBySide != null) {
+                    Set<String> limitToRestoreSet = deletedLimitsBySide.get(side);
+                    if (limitToRestoreSet != null) {
+                        limitToRestoreSet.removeAll(limitIdSet);
+                    }
+                }
+            })
+        );
+        deletedOperationalLimitsGroups.values().forEach(limitSetBySide ->
+            limitSetBySide.entrySet().removeIf(entry -> entry.getValue().isEmpty())
+        );
+        deletedOperationalLimitsGroups.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+    }
+
     private static void mergeExtensions(Map<String, Set<String>> globalMap, Map<String, Set<String>> mapToAdd) {
         mapToAdd.forEach((extensionName, identifiableIdsByExtensionName) ->
                 globalMap.computeIfAbsent(extensionName, s -> new HashSet<>())
                         .addAll(identifiableIdsByExtensionName));
+    }
+
+    private static void restoreRemovedExtensions(Map<String, Set<String>> deletedExtensionMap, Map<String, Set<String>> extensionsToRestore) {
+        deletedExtensionMap.forEach((extensionName, identifiableIdsByExtensionName) ->
+                identifiableIdsByExtensionName.forEach(identifiablesId -> Optional.ofNullable(extensionsToRestore.get(extensionName))
+                        .ifPresent(limitIdSet -> limitIdSet.remove(identifiablesId))));
     }
 
     private final List<NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = List.of(
@@ -434,6 +461,10 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources, AttributeFilter attributeFilter) {
         for (Resource<LineAttributes> lineResource : lineResources) {
             lineResourcesToFlush.getCollection(networkUuid, lineResource.getVariantNum()).update(lineResource, attributeFilter);
+            operationalLimitsToFlush.getCollection(networkUuid, lineResource.getVariantNum())
+                    .restoreRemoveExternalAttributes(Map.of(lineResource.getId(), Map.of(1, lineResource.getAttributes().getOperationalLimitsGroups1().keySet())), ResourceType.LINE);
+            operationalLimitsToFlush.getCollection(networkUuid, lineResource.getVariantNum())
+                    .restoreRemoveExternalAttributes(Map.of(lineResource.getId(), Map.of(1, lineResource.getAttributes().getOperationalLimitsGroups2().keySet())), ResourceType.LINE);
         }
     }
 
@@ -627,7 +658,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     @Override
     public void flush(UUID networkUuid) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Future<?>> futures = new ArrayList<>(allBuffers.size());
+        List<Future<?>> futures = new ArrayList<>(allBuffers.size() + allExternalAttributeBuffers.size());
         for (var buffer : allBuffers) {
             futures.add(executorService.submit(() -> buffer.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
         }
