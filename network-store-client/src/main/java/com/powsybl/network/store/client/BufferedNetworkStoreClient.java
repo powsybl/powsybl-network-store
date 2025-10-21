@@ -662,10 +662,15 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     @Override
     public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
         Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDeleteCopy = new HashMap<>(operationalLimitsGroupsToDelete);
-        Set<String> removeLineIds = lineResourcesToFlush.getCollection(networkUuid, variantNum).getRemoveResourcesIds();
-        operationalLimitsGroupsToDeleteCopy.entrySet().removeIf(entry -> removeLineIds.contains(entry.getKey()));
-        Set<String> removeT2wtIds = twoWindingsTransformerResourcesToFlush.getCollection(networkUuid, variantNum).getRemoveResourcesIds();
-        operationalLimitsGroupsToDeleteCopy.entrySet().removeIf(entry -> removeT2wtIds.contains(entry.getKey()));
+        Set<String> removeIds;
+        if (resourceType == ResourceType.LINE) {
+            removeIds = lineResourcesToFlush.getCollection(networkUuid, variantNum).getRemoveResourcesIds();
+        } else if (resourceType == ResourceType.TWO_WINDINGS_TRANSFORMER) {
+            removeIds = twoWindingsTransformerResourcesToFlush.getCollection(networkUuid, variantNum).getRemoveResourcesIds();
+        } else {
+            removeIds = new HashSet<>();
+        }
+        operationalLimitsGroupsToDeleteCopy.entrySet().removeIf(entry -> removeIds.contains(entry.getKey()));
         operationalLimitsToFlush.getCollection(networkUuid, variantNum).remove(operationalLimitsGroupsToDeleteCopy, resourceType);
     }
 
