@@ -10,6 +10,7 @@ import com.powsybl.network.store.client.util.QuadriConsumer;
 import com.powsybl.network.store.model.ResourceType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -45,6 +46,16 @@ public class ExternalAttributesCollectionBuffer<T> {
 
     void restoreRemoveExternalAttributes(Map<String, T> resourceIds, ResourceType resourceType) {
         updateRemoveAttributesFct.accept(removeExternalAttributesIds.get(resourceType), resourceIds);
+    }
+
+    void restoreRemoveByResourcesIds(List<String> resourceIds, ResourceType resourceType) {
+        Map<String, T> removeExternalAttributesIdsByResource = removeExternalAttributesIds.get(resourceType);
+        if (removeExternalAttributesIdsByResource != null) {
+            removeExternalAttributesIdsByResource.entrySet().removeIf(entry -> resourceIds.contains(entry.getKey()));
+            if (removeExternalAttributesIdsByResource.isEmpty()) {
+                removeExternalAttributesIds.remove(resourceType);
+            }
+        }
     }
 
     void flush(UUID networkUuid, int variantNum) {

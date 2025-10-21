@@ -199,6 +199,9 @@ public class BufferedNetworkStoreClientTest {
                 .andExpect(method(PUT))
                 .andExpect(content().json("[{\"type\":\"LINE\",\"id\":\"LINE\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"voltageLevelId1\":\"VL_1\",\"voltageLevelId2\":\"VL_2\",\"r\":0.0,\"x\":0.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":\"NaN\",\"q1\":\"NaN\",\"p2\":\"NaN\",\"q2\":\"NaN\",\"operationalLimitsGroups1\":{\"toRemove2\":{\"id\":\"toRemove2\"},\"toKeep\":{\"id\":\"toKeep\"}},\"operationalLimitsGroups2\":{},\"regulatingEquipments\":[]}}]"))
                 .andRespond(withStatus(HttpStatus.OK));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                        + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
+                .andExpect(method(DELETE));
         bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId2))));
         bufferedClient.updateLines(networkUuid, List.of(line1), null);
         bufferedClient.flush(networkUuid);
@@ -259,6 +262,27 @@ public class BufferedNetworkStoreClientTest {
                 .andRespond(withSuccess());
         bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(ActivePowerControl.NAME, Set.of(generator1)));
         bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(ActivePowerControl.NAME, Set.of(generator2), CoordinatedReactiveControl.NAME, Set.of(generator1)));
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testRemoveLineAndRemoveOLG() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String branchId = "LINE";
+        String operationalLimitsGroupId2 = "olg2";
+
+        // removing olg and then removing the line will only remove the line (because it contains the olg)
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
+                .andExpect(method(DELETE))
+                .andRespond(withStatus(HttpStatus.OK));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                        + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
+                .andExpect(method(DELETE));
+        bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId2))));
+        bufferedClient.removeLines(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(branchId));
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
