@@ -45,7 +45,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @RestClientTest(RestClient.class)
 @ContextConfiguration(classes = RestClientImpl.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class BufferedNetworkStoreClientTest {
+class BufferedNetworkStoreClientTest {
 
     @Autowired
     private RestClient restClient;
@@ -64,7 +64,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         server.reset();
     }
 
