@@ -539,7 +539,7 @@ public class CachedNetworkStoreClientTest {
     private void removeExtensionAttributes(UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient, String extensionName) {
         // When calling removeExtensionAttributes, the attributes should be removed from the cache and no new request should be done
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"));
-        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(extensionName, Set.of(identifiableId)));
+        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(identifiableId, Set.of(extensionName)));
         Optional<ExtensionAttributes> extensionAttributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, extensionName);
         assertFalse(extensionAttributes.isPresent());
         server.verify();
@@ -603,7 +603,7 @@ public class CachedNetworkStoreClientTest {
 
         // When calling removeExtensionAttributes, the attributes should be removed from the cache and no new request should be done
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"));
-        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(ActivePowerControl.NAME, Set.of(identifiableId)));
+        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(identifiableId, Set.of(ActivePowerControl.NAME)));
 
         extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId);
         assertEquals(1, extensionAttributesMap.size());

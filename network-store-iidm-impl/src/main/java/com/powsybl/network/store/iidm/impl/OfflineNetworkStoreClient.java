@@ -627,7 +627,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeExtensionAttributes(UUID uuid, int workingVariantNum, ResourceType resourceType, Map<String, Set<String>> identifiableIdsByExtensionName) {
+    public void removeExtensionAttributes(UUID uuid, int workingVariantNum, ResourceType resourceType, Map<String, Set<String>> extensionsByIdentifiableId) {
         // nothing to do
     }
 

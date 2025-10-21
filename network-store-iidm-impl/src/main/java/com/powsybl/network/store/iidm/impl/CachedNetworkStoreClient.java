@@ -1150,9 +1150,9 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Set<String>> identifiableIdsByExtensionName) {
-        getCache(resourceType).getCollection(networkUuid, variantNum).removeExtensionAttributesByExtensionName(identifiableIdsByExtensionName);
-        delegate.removeExtensionAttributes(networkUuid, variantNum, resourceType, identifiableIdsByExtensionName);
+    public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Set<String>> extensionsByIdentifiableId) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).removeExtensionAttributesByIdentifiableIds(extensionsByIdentifiableId);
+        delegate.removeExtensionAttributes(networkUuid, variantNum, resourceType, extensionsByIdentifiableId);
     }
 
     // limits

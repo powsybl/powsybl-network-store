@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
@@ -32,8 +33,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -172,7 +172,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testRemoveOLGAndUpdatingLine() {
+    public void testRemoveOLGThenUpdatingLine() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String branchId = "LINE";
@@ -210,40 +210,28 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testUpdatingLineAndRemoveOLG() {
+    public void testRemoveExtensionThenUpdatingGenerator() throws JsonProcessingException {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        String branchId = "LINE";
-        String operationalLimitsGroupId = "toKeep";
-        String operationalLimitsGroupId2 = "toRemove2";
-        OperationalLimitsGroupAttributes operationalLimitsGroupAttributes1 = OperationalLimitsGroupAttributes.builder()
-                .id(operationalLimitsGroupId)
-                .build();
-        OperationalLimitsGroupAttributes operationalLimitsGroupAttributes2 = OperationalLimitsGroupAttributes.builder()
-                .id(operationalLimitsGroupId2)
-                .build();
-        Resource<LineAttributes> line1 = Resource.lineBuilder()
-                .id(branchId)
+        String generatorId = "GEN";
+        Resource<GeneratorAttributes> generator = Resource.generatorBuilder()
+                .id(generatorId)
                 .variantNum(0)
-                .attributes(LineAttributes.builder()
-                        .voltageLevelId1("VL_1")
-                        .voltageLevelId2("VL_2")
-                        .operationalLimitsGroups1(Map.of(operationalLimitsGroupId, operationalLimitsGroupAttributes1, operationalLimitsGroupId2, operationalLimitsGroupAttributes2))
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("VL_1")
+                        .extensionAttributes(Map.of(ActivePowerControl.NAME, ActivePowerControlAttributes.builder().build()))
                         .build())
                 .build();
-
+        System.out.println(generator);
         // updating lines and then removing olg
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
-                        + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
-                .andExpect(method(DELETE))
-                .andExpect(content().json("{\"LINE\":{\"1\":[\"toRemove2\"]}}"))
-                .andRespond(withSuccess());
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/generators"))
                 .andExpect(method(PUT))
-                .andExpect(content().json("[{\"type\":\"LINE\",\"id\":\"LINE\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"voltageLevelId1\":\"VL_1\",\"voltageLevelId2\":\"VL_2\",\"r\":0.0,\"x\":0.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":\"NaN\",\"q1\":\"NaN\",\"p2\":\"NaN\",\"q2\":\"NaN\",\"operationalLimitsGroups1\":{\"toRemove2\":{\"id\":\"toRemove2\"},\"toKeep\":{\"id\":\"toKeep\"}},\"operationalLimitsGroups2\":{},\"regulatingEquipments\":[]}}]"))
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(generator))))
                 .andRespond(withStatus(HttpStatus.OK));
-        bufferedClient.updateLines(networkUuid, List.of(line1), null);
-        bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId2))));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
+                .andExpect(method(DELETE));
+        bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generatorId, Set.of(ActivePowerControl.NAME)));
+        bufferedClient.updateGenerators(networkUuid, List.of(generator), null);
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
@@ -258,17 +246,36 @@ public class BufferedNetworkStoreClientTest {
         // remove three operational limits group without the cache will call only the server once
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(DELETE))
-                .andExpect(content().json("{\"coordinatedReactiveControl\":[\"GEN1\"],\"activePowerControl\":[\"GEN1\",\"GEN2\"]}"))
+                .andExpect(content().json("{\"GEN1\":[\"coordinatedReactiveControl\", \"activePowerControl\"],\"GEN2\":[\"activePowerControl\"]}"))
                 .andRespond(withSuccess());
-        bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(ActivePowerControl.NAME, Set.of(generator1)));
-        bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(ActivePowerControl.NAME, Set.of(generator2), CoordinatedReactiveControl.NAME, Set.of(generator1)));
+        bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
+        bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator2, Set.of(ActivePowerControl.NAME),
+                generator1, Set.of(CoordinatedReactiveControl.NAME)));
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
     }
 
     @Test
-    public void testRemoveLineAndRemoveOLG() {
+    public void testRemoveExtensionThenGeneratorContainingIt() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String generator1 = "GEN1";
+        // remove three operational limits group without the cache will call only the server once
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
+                .andExpect(method(DELETE))
+                .andRespond(withStatus(HttpStatus.OK));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
+                .andExpect(method(DELETE));
+        bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
+        bufferedClient.removeGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(generator1));
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testRemoveOlgThenLineContaining() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String branchId = "LINE";
