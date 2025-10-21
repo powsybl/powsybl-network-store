@@ -23,7 +23,7 @@ public class VariantTest {
     @Test
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
-        MockNetworkListener listener = new MockNetworkListener();
+        DummyNetworkListener listener = new DummyNetworkListener();
         network.addListener(listener);
         assertNotNull(network.getVariantManager());
 
