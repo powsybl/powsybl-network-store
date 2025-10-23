@@ -321,7 +321,7 @@ class NetworkTest extends AbstractNetworkTest {
     }
 
     @Test
-    void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
+    public void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
         // FIXME by implementing
     }
 }

@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
+import com.powsybl.iidm.network.DcBus;
 import com.powsybl.iidm.network.Network;
 
 import java.util.function.Predicate;
@@ -54,5 +55,15 @@ public class ComponentImpl implements Component {
         return network.getVoltageLevelStream()
                 .flatMap(vl -> vl.getBusView().getBusStream())
                 .filter(b -> pred.test((CalculatedBus) b));
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public Iterable<DcBus> getDcBuses() {
+        throw new UnsupportedOperationException("TODO");
     }
 }
