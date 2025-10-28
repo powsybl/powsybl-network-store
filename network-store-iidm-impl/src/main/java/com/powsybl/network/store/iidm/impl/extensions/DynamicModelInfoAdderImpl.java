@@ -10,6 +10,8 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DynamicModelInfo;
 import com.powsybl.iidm.network.extensions.DynamicModelInfoAdder;
+import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
+import com.powsybl.network.store.model.DynamicModelInfoAttributes;
 
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
@@ -25,6 +27,10 @@ public class DynamicModelInfoAdderImpl<I extends Identifiable<I>> extends Abstra
 
     @Override
     protected DynamicModelInfoImpl<I> createExtension(I extendable) {
+        var attributes = DynamicModelInfoAttributes.builder()
+            .modelName(modelName)
+            .build();
+        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(DynamicModelInfo.NAME, attributes));
         return new DynamicModelInfoImpl<>(extendable);
     }
 

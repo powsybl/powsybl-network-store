@@ -18,9 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
-
-// Minimal implementation of DynamicModelInfo extension, necessary to
-// run dynamic simulation analysis and dynamic security analysis in powsybl-dynamo version 3.0.0
 public class DynamicModelInfoImpl<I extends Identifiable<I>> extends AbstractExtension<I> implements DynamicModelInfo<I> {
 
     public DynamicModelInfoImpl(I extendable) {

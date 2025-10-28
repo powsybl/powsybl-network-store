@@ -7,22 +7,9 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.extensions.AbstractDynamicModelInfoTest;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
 class DynamicModelInfoTest extends AbstractDynamicModelInfoTest {
-
-    // TODO All tests are ignored (extension is not yet implemented)
-
-    @Test
-    public void variantsCloneTest() {
-
-    }
-
-    @Test
-    public void testExtension() {
-
-    }
 }
