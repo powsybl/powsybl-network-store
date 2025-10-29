@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractDcTerminalTest;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -28,7 +27,7 @@ public class DcTerminalTest extends AbstractDcTerminalTest {
         // FIXME: implement the new DC model
     }
 
-    @Test
+    @Override
     public void testChangesNotification() {
         // FIXME: implement the new DC model
     }
