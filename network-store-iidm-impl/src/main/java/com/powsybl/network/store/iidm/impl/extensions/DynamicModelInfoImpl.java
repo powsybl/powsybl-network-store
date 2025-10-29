@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DynamicModelInfo;
 import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
 import com.powsybl.network.store.model.DynamicModelInfoAttributes;
-import com.powsybl.network.store.model.Resource;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -32,10 +31,6 @@ public class DynamicModelInfoImpl<I extends Identifiable<I>> extends AbstractExt
         return (DynamicModelInfoAttributes) getIdentifiable().getResource().getAttributes().getExtensionAttributes().get(DynamicModelInfo.NAME);
     }
 
-    private static DynamicModelInfoAttributes getAttributes(Resource<?> resource) {
-        return (DynamicModelInfoAttributes) resource.getAttributes();
-    }
-
     @Override
     public String getModelName() {
         return getDynamicModelInfoAttributes().getModelName();
@@ -43,10 +38,9 @@ public class DynamicModelInfoImpl<I extends Identifiable<I>> extends AbstractExt
 
     @Override
     public void setModelName(String modelName) {
-        getDynamicModelInfoAttributes().setModelName(modelName);
         String oldValue = getModelName();
         if (!StringUtils.equals(oldValue, modelName)) {
-            getIdentifiable().updateResourceExtension(this, res -> getAttributes(res).setModelName(modelName), "modelName", oldValue, modelName);
+            getIdentifiable().updateResourceExtension(this, res -> getDynamicModelInfoAttributes().setModelName(modelName), "modelName", oldValue, modelName);
         }
     }
 }
