@@ -113,8 +113,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkEnergySource(this, energySource);
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkActivePowerSetpoint(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkActivePowerSetpoint(this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());

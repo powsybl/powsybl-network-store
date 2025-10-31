@@ -17,17 +17,17 @@ import com.powsybl.network.store.iidm.impl.StaticVarCompensatorImpl;
 public class StandbyAutomatonAdderImpl extends AbstractIidmExtensionAdder<StaticVarCompensator, StandbyAutomaton>
         implements StandbyAutomatonAdder {
 
-    private double b0;
+    private double b0 = Double.NaN;
 
-    private boolean standby;
+    private boolean standby = false;
 
-    private double lowVoltageSetpoint;
+    private double lowVoltageSetpoint = Double.NaN;
 
-    private double highVoltageSetpoint;
+    private double highVoltageSetpoint = Double.NaN;
 
-    private double lowVoltageThreshold;
+    private double lowVoltageThreshold = Double.NaN;
 
-    private double highVoltageThreshold;
+    private double highVoltageThreshold = Double.NaN;
 
     public StandbyAutomatonAdderImpl(StaticVarCompensator svc) {
         super(svc);
