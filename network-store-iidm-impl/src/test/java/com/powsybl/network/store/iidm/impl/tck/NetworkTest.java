@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.util.Networks;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@ExtendWith(ExcludeTestsExtension.class)
 class NetworkTest extends AbstractNetworkTest {
 
     private static final String REGION1 = "region1";
@@ -322,6 +324,7 @@ class NetworkTest extends AbstractNetworkTest {
     }
 
     @Override
+    @Test
     public void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
         // FIXME by implementing
     }
