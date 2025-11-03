@@ -21,9 +21,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -42,9 +46,29 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 @RunWith(SpringRunner.class)
-@RestClientTest(RestClient.class)
-@ContextConfiguration(classes = RestClientImpl.class)
+@RestClientTest
 public class PreloadingNetworkStoreClientTest {
+
+    // Necessary with empty @RestClientTest for this
+    // lib which doesn't have a @SpringBootApplication in
+    // its main sources.
+    @SpringBootConfiguration
+    public static class EmptyConfig {
+
+    }
+
+    // Don't use the component scanned RestClient in this test
+    // to avoid the /v1 prefix because the tests were written
+    // without it (could be considered more legible... but not
+    // terribly important. Feel free to change if needed)
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        @Primary
+        public RestClient testClient(RestTemplateBuilder restTemplateBuilder) {
+            return new RestClientImpl(restTemplateBuilder);
+        }
+    }
 
     @Autowired
     private RestClient restClient;
