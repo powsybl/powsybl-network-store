@@ -42,6 +42,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private final BusView busView = new BusViewImpl();
 
+    private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+
     private final List<NetworkListener> listeners = new ArrayList<>();
 
     private AbstractReportNodeContext reporterContext;
@@ -1102,7 +1104,17 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public Network setMinimumAcceptableValidationLevel(ValidationLevel minLevel) {
         // TODO implement this to comply with the test in AbstractNetworkTest testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork()
+        Objects.requireNonNull(minLevel);
+        ValidationLevel currentLevel = getValidationLevel();
+        if (currentLevel.compareTo(minLevel) < 0) {
+            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + minLevel);
+        }
+        this.minValidationLevel = minLevel;
         return this;
+    }
+
+    ValidationLevel getMinValidationLevel() {
+        return minValidationLevel;
     }
 
     @Override
@@ -1257,5 +1269,30 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public VoltageSourceConverter getVoltageSourceConverter(String s) {
         throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public DcBus getDcBus(String id) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public Iterable<DcBus> getDcBuses() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public int getDcBusCount() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public Collection<Component> getDcComponents() {
+        throw new UnsupportedOperationException("TODO");
     }
 }

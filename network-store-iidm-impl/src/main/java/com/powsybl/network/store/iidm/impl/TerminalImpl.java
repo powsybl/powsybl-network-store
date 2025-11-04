@@ -91,6 +91,12 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     @Override
+    public TerminalNumber getTerminalNumber() {
+        // FIXME: implement the new DC model
+        return null;
+    }
+
+    @Override
     public Connectable<?> getConnectable() {
         return connectable;
     }
