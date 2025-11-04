@@ -20,7 +20,7 @@
     <name>Network store model</name>
 
     <properties>
-        <swagger-annotations.version>2.2.9</swagger-annotations.version>
+        <swagger-annotations.version>2.2.36</swagger-annotations.version>
     </properties>
 
     <build>
