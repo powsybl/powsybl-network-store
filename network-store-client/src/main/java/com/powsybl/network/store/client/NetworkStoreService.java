@@ -60,13 +60,13 @@ public class NetworkStoreService implements AutoCloseable {
         this(baseUri, PreloadingStrategy.NONE);
     }
 
-    @Autowired
-    public NetworkStoreService(@Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri,
-                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
+    public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy) {
         this(new RestClientImpl(baseUri), defaultPreloadingStrategy);
     }
 
-    public NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
+    @Autowired
+    public NetworkStoreService(RestClient restClient,
+                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
         this(restClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
     }
 
