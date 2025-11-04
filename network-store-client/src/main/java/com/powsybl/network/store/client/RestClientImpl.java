@@ -13,10 +13,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -26,6 +28,7 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Component
 public class RestClientImpl implements RestClient {
 
     private final RestTemplate restTemplate;
@@ -34,9 +37,19 @@ public class RestClientImpl implements RestClient {
         this(createRestTemplateBuilder(baseUri));
     }
 
-    @Autowired
     public RestClientImpl(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
+    }
+
+    @Autowired
+    public RestClientImpl(RestTemplateBuilder restTemplateBuilder,
+                          @Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri) {
+        this.restTemplate = Objects.requireNonNull(restTemplateBuilder)
+            .errorHandler(new RestTemplateResponseErrorHandler())
+            .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder
+                .fromUriString(baseUri)
+                .path(NetworkStoreApi.VERSION)))
+            .build();
     }
 
     public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
