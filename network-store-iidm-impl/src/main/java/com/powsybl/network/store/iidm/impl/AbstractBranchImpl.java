@@ -398,7 +398,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var resource = getResource();
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId1();
         if (!id.equals(oldValue)) {
-            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId1(id),
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId1(id), AttributeFilter.WITHOUT_LIMITS,
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, oldValue, id);
         }
     }
@@ -424,7 +424,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var resource = getResource();
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId1();
         if (oldValue != null) {
-            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId1(null),
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId1(null), AttributeFilter.WITHOUT_LIMITS,
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, oldValue, null);
         }
     }
@@ -482,7 +482,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var resource = getResource();
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId2();
         if (!id.equals(oldValue)) {
-            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId2(id),
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId2(id), AttributeFilter.WITHOUT_LIMITS,
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, oldValue, id);
         }
     }
@@ -508,7 +508,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var resource = getResource();
         String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId2();
         if (oldValue != null) {
-            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId2(null),
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId2(null), AttributeFilter.WITHOUT_LIMITS,
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, oldValue, null);
         }
     }

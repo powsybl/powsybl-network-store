@@ -65,6 +65,12 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
                     default -> throw new IllegalStateException("Unknown resource type: " + type);
                 };
+            } else if (filter == AttributeFilter.WITHOUT_LIMITS) {
+                return switch (type) {
+                    case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerAttributes.class;
+                    case LINE -> LineAttributes.class;
+                    default -> throw new IllegalStateException(" type: " + type + " not implemented for WITHOUT_OPERATIONAL_LIMITS_GROUPS filter");
+                };
             } else {
                 throw new IllegalStateException("Unknown attribute filter: " + filter);
             }

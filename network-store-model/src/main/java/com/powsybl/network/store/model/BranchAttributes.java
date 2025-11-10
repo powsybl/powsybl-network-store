@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.commons.PowsyblException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -145,9 +146,14 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     @JsonIgnore
     @Override
     default Attributes filter(AttributeFilter filter) {
-        if (filter != AttributeFilter.SV) {
-            throw new PowsyblException("Unsupported attribute filter: " + filter);
-        }
-        return new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
+        return switch (filter) {
+            case SV -> new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
+            case WITHOUT_LIMITS -> {
+                this.setOperationalLimitsGroups1(Collections.emptyMap());
+                this.setOperationalLimitsGroups2(Collections.emptyMap());
+                yield this;
+            }
+            default -> throw new PowsyblException("Unsupported attribute filter: " + filter);
+        };
     }
 }
