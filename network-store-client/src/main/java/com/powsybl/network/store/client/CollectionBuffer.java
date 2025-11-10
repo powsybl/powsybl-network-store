@@ -87,6 +87,14 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
                 if (resourceAndFilter.getAttributeFilter() != null && attributeFilter == null) {
                     resourceAndFilter.setAttributeFilter(null);
                 }
+                if (resourceAndFilter.getAttributeFilter() == AttributeFilter.SV && attributeFilter == AttributeFilter.WITHOUT_LIMITS) {
+                    // SV is a sub partition of WITHOUT LIMITS
+                    resourceAndFilter.setAttributeFilter(AttributeFilter.WITHOUT_LIMITS);
+                }
+                if (resourceAndFilter.getAttributeFilter() == AttributeFilter.WITHOUT_LIMITS && attributeFilter == AttributeFilter.SV) {
+                    // SV is a sub partition of WITHOUT LIMITS
+                    resourceAndFilter.setAttributeFilter(AttributeFilter.WITHOUT_LIMITS);
+                }
             }
         }
     }

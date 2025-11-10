@@ -6,10 +6,10 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.network.store.model.NetworkAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +27,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
@@ -153,6 +154,62 @@ public class BufferedNetworkStoreClientTest {
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone1to2))))
                 .andRespond(withSuccess());
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testUpdateLine() throws JsonProcessingException {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.randomUUID();
+        Resource<LineAttributes> l1 = Resource.lineBuilder()
+                .id("LINE_1")
+                .attributes(LineAttributes.builder()
+                        .p1(1)
+                        .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
+                        .build())
+                .build();
+        // test only sv filter
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/sv"))
+                .andExpect(method(PUT))
+                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":\"NaN\",\"p2\":\"NaN\",\"q2\":\"NaN\"}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+
+        // test sv then without limits filter -> should apply without limits
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/without_limits"))
+                .andExpect(method(PUT))
+                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"WITHOUT_LIMITS\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":0.0,\"x\":0.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":\"NaN\",\"p2\":\"NaN\",\"q2\":\"NaN\",\"operationalLimitsGroups1\":{},\"operationalLimitsGroups2\":{},\"regulatingEquipments\":[]}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.WITHOUT_LIMITS);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+
+        // test without limits then sv filter -> should apply without limits
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/without_limits"))
+                .andExpect(method(PUT))
+                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"WITHOUT_LIMITS\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":0.0,\"x\":0.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":\"NaN\",\"p2\":\"NaN\",\"q2\":\"NaN\",\"operationalLimitsGroups1\":{},\"operationalLimitsGroups2\":{},\"regulatingEquipments\":[]}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.WITHOUT_LIMITS);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+
+        // test sv then without limits then null filter -> should apply null filter
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+                .andExpect(method(PUT))
+                .andExpect(content().string(objectMapper.writeValueAsString(List.of(l1))))
+                .andRespond(withSuccess());
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.WITHOUT_LIMITS);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.updateLines(networkUuid, List.of(l1), null);
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
