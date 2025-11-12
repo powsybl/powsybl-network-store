@@ -32,7 +32,7 @@ public interface LimitsOwner<SIDE> extends Validable {
     // this references the method in powsybl core : https://github.com/powsybl/powsybl-core/blob/cea16b70fbca5ca7589cccdc0dec86f3d560d2dd/iidm/iidm-impl/src/main/java/com/powsybl/iidm/network/impl/OperationalLimitsGroupsImpl.java#L151
     static <D extends IdentifiableAttributes> void updateOperationalLimitsResource(Resource<D> resource, Identifiable<?> identifiable, Network network, Consumer<Resource<D>> modifier, String attribute, OperationalLimitsGroupAttributes oldValue, OperationalLimitsGroupAttributes newValue, NetworkObjectIndex index) {
         modifier.accept(resource);
-        index.updateResource(resource, null);
+        index.updateResource(resource, AttributeFilter.WITH_LIMITS);
         String variantId = network.getVariantManager().getWorkingVariantId();
         LimitsAttributes oldCurrentValue = Optional.ofNullable(oldValue).map(OperationalLimitsGroupAttributes::getCurrentLimits).orElse(null);
         LimitsAttributes newCurrentValue = Optional.ofNullable(newValue).map(OperationalLimitsGroupAttributes::getCurrentLimits).orElse(null);

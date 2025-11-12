@@ -584,11 +584,11 @@ public class ResourceTest {
         assertFalse(resource.getAttributes().getOperationalLimitsGroups1().isEmpty());
         assertFalse(resource.getAttributes().getOperationalLimitsGroups2().isEmpty());
 
-        Resource<Attributes> withoutLimitsGroupResource = resource.filterAttributes(AttributeFilter.WITHOUT_LIMITS);
+        Resource<Attributes> withoutLimitsGroupResource = resource.filterAttributes(AttributeFilter.WITH_LIMITS);
         assertEquals(ResourceType.LINE, withoutLimitsGroupResource.getType());
         assertEquals("idLine", withoutLimitsGroupResource.getId());
         assertEquals(0, withoutLimitsGroupResource.getVariantNum());
-        assertSame(AttributeFilter.WITHOUT_LIMITS, withoutLimitsGroupResource.getFilter());
+        assertSame(AttributeFilter.WITH_LIMITS, withoutLimitsGroupResource.getFilter());
         assertTrue(withoutLimitsGroupResource.getAttributes() instanceof BranchAttributes);
         assertTrue(((BranchAttributes) withoutLimitsGroupResource.getAttributes()).getOperationalLimitsGroups1().isEmpty());
         assertTrue(((BranchAttributes) withoutLimitsGroupResource.getAttributes()).getOperationalLimitsGroups2().isEmpty());

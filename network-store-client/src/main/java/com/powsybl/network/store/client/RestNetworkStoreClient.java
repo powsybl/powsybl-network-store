@@ -29,6 +29,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import static com.powsybl.network.store.model.AttributeFilter.SV;
+import static com.powsybl.network.store.model.AttributeFilter.getViewClass;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -233,16 +236,19 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Updating {} {} resources ({})...", resources.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
             }
-            restClient.updateAll(url, resources, uriVariables);
+            restClient.updateAll(url, resources, null, uriVariables);
         } else {
-            List<Resource<Attributes>> filteredResources = resources.stream()
-                    .map(resource -> resource.filterAttributes(attributeFilter))
-                    .collect(Collectors.toList());
-            String filteredUrl = url + "/" + attributeFilter.name().toLowerCase();
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Updating {} {} {} resources ({})...", filteredResources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(filteredUrl).buildAndExpand(uriVariables));
+            Class<?> viewClass = getViewClass(attributeFilter);
+            resources.forEach(resource -> resource.setFilter(attributeFilter));
+            String filteredUrl = url;
+            // to remove with sv endpoint in network store server
+            if (attributeFilter == SV) {
+                filteredUrl = url + "/" + attributeFilter.name().toLowerCase();
             }
-            restClient.updateAll(filteredUrl, filteredResources, uriVariables);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Updating {} {} {} resources ({})...", resources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(filteredUrl).buildAndExpand(uriVariables));
+            }
+            restClient.updateAll(filteredUrl, resources, viewClass, uriVariables);
         }
     }
 

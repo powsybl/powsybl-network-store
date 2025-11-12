@@ -62,15 +62,15 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public void setPhaseTapChanger(PhaseTapChangerAttributes attributes) {
         PhaseTapChangerAttributes oldValue = getResource().getAttributes().getPhaseTapChangerAttributes();
-        updateResource(res -> res.getAttributes().setPhaseTapChangerAttributes(attributes), AttributeFilter.WITHOUT_LIMITS,
-            "phaseTapChanger", oldValue, attributes);
+        updateResource(res -> res.getAttributes().setPhaseTapChangerAttributes(attributes),
+                AttributeFilter.BASIC, "phaseTapChanger", oldValue, attributes);
     }
 
     @Override
     public void setRatioTapChanger(RatioTapChangerAttributes attributes) {
         RatioTapChangerAttributes oldValue = getResource().getAttributes().getRatioTapChangerAttributes();
-        updateResource(res -> res.getAttributes().setRatioTapChangerAttributes(attributes), AttributeFilter.WITHOUT_LIMITS,
-            "ratioTapChanger", oldValue, attributes);
+        updateResource(res -> res.getAttributes().setRatioTapChangerAttributes(attributes),
+                AttributeFilter.BASIC, "ratioTapChanger", oldValue, attributes);
     }
 
     @Override
@@ -101,8 +101,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkR(this, r);
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
-            updateResource(res -> res.getAttributes().setR(r), AttributeFilter.WITHOUT_LIMITS,
-                "r", oldValue, r);
+            updateResource(res -> res.getAttributes().setR(r),
+                    AttributeFilter.BASIC, "r", oldValue, r);
         }
         return this;
     }
@@ -117,8 +117,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkX(this, x);
         double oldValue = getResource().getAttributes().getX();
         if (x != oldValue) {
-            updateResource(res -> res.getAttributes().setX(x), AttributeFilter.WITHOUT_LIMITS,
-                "x", oldValue, x);
+            updateResource(res -> res.getAttributes().setX(x),
+                    AttributeFilter.BASIC, "x", oldValue, x);
         }
         return this;
     }
@@ -133,8 +133,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkG(this, g);
         double oldValue = getResource().getAttributes().getG();
         if (g != oldValue) {
-            updateResource(res -> res.getAttributes().setG(g), AttributeFilter.WITHOUT_LIMITS,
-                "g", oldValue, g);
+            updateResource(res -> res.getAttributes().setG(g),
+                    AttributeFilter.BASIC, "g", oldValue, g);
         }
         return this;
     }
@@ -149,8 +149,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkB(this, b);
         double oldValue = getResource().getAttributes().getB();
         if (b != oldValue) {
-            updateResource(res -> res.getAttributes().setB(b), AttributeFilter.WITHOUT_LIMITS,
-                "b", oldValue, b);
+            updateResource(res -> res.getAttributes().setB(b),
+                    AttributeFilter.BASIC, "b", oldValue, b);
         }
         return this;
     }
@@ -165,8 +165,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkRatedU1(this, ratedU1);
         double oldValue = getResource().getAttributes().getRatedU1();
         if (ratedU1 != oldValue) {
-            updateResource(res -> res.getAttributes().setRatedU1(ratedU1), AttributeFilter.WITHOUT_LIMITS,
-                "ratedU1", oldValue, ratedU1);
+            updateResource(res -> res.getAttributes().setRatedU1(ratedU1),
+                    AttributeFilter.BASIC, "ratedU1", oldValue, ratedU1);
         }
         return this;
     }
@@ -181,8 +181,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkRatedU2(this, ratedU2);
         double oldValue = getResource().getAttributes().getRatedU2();
         if (ratedU2 != oldValue) {
-            updateResource(res -> res.getAttributes().setRatedU2(ratedU2), AttributeFilter.WITHOUT_LIMITS,
-                "ratedU2", oldValue, ratedU2);
+            updateResource(res -> res.getAttributes().setRatedU2(ratedU2),
+                    AttributeFilter.BASIC, "ratedU2", oldValue, ratedU2);
         }
         return this;
     }
@@ -197,8 +197,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkRatedS(this, ratedS);
         double oldValue = getResource().getAttributes().getRatedS();
         if (Double.compare(ratedS, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setRatedS(ratedS), AttributeFilter.WITHOUT_LIMITS,
-                "ratedS", oldValue, ratedS);
+            updateResource(res -> res.getAttributes().setRatedS(ratedS),
+                    AttributeFilter.BASIC, "ratedS", oldValue, ratedS);
         }
         return this;
     }

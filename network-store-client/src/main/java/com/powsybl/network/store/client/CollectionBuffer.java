@@ -83,17 +83,16 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
             if (resourceAndFilter == null) {
                 updateResources.put(resource.getId(), new ResourceAndFilter<>(resource, attributeFilter));
             } else {
-                // To update when new filter will be added to define how to merge 2 different filters
-                if (resourceAndFilter.getAttributeFilter() != null && attributeFilter == null) {
+                // null included every data
+                // there are only 3 filters now:
+                // SV included in BASIC included in WITH_LIMITS
+                // to be updated when some filters like WITH_EXTENSIONS are added
+                if (resourceAndFilter.getAttributeFilter() == null || attributeFilter == null) {
                     resourceAndFilter.setAttributeFilter(null);
-                }
-                if (resourceAndFilter.getAttributeFilter() == AttributeFilter.SV && attributeFilter == AttributeFilter.WITHOUT_LIMITS) {
-                    // SV is a sub partition of WITHOUT LIMITS
-                    resourceAndFilter.setAttributeFilter(AttributeFilter.WITHOUT_LIMITS);
-                }
-                if (resourceAndFilter.getAttributeFilter() == AttributeFilter.WITHOUT_LIMITS && attributeFilter == AttributeFilter.SV) {
-                    // SV is a sub partition of WITHOUT LIMITS
-                    resourceAndFilter.setAttributeFilter(AttributeFilter.WITHOUT_LIMITS);
+                } else if (resourceAndFilter.getAttributeFilter().getPriority() > attributeFilter.getPriority()) {
+                    resourceAndFilter.setAttributeFilter(resourceAndFilter.getAttributeFilter());
+                } else {
+                    resourceAndFilter.setAttributeFilter(attributeFilter);
                 }
             }
         }
