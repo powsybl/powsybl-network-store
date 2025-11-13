@@ -226,4 +226,40 @@ public class BufferedNetworkStoreClientTest {
         server.verify();
         server.reset();
     }
+
+    @Test
+    public void testUpdateLines() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.randomUUID();
+        LineAttributes lineAttributes = LineAttributes.builder()
+                .p1(1)
+                .p2(2)
+                .q1(3)
+                .q2(4)
+                .r(5)
+                .x(6)
+                .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
+                .build();
+        Resource<LineAttributes> l1 = Resource.lineBuilder()
+                .id("LINE_1")
+                .attributes(lineAttributes)
+                .build();
+        Resource<LineAttributes> l2 = Resource.lineBuilder()
+                .id("LINE_2")
+                .attributes(lineAttributes)
+                .build();
+        Resource<LineAttributes> l3 = Resource.lineBuilder()
+                .id("LINE_3")
+                .attributes(lineAttributes)
+                .build();
+        // test only sv filter
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/sv"))
+                .andExpect(method(PUT))
+                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}},{\"type\":\"LINE\",\"id\":\"LINE_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}},{\"type\":\"LINE\",\"id\":\"LINE_3\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.updateLines(networkUuid, List.of(l1, l2, l3), AttributeFilter.SV);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
 }

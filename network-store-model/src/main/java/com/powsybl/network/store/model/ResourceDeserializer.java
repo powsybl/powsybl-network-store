@@ -69,7 +69,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                 return switch (type) {
                     case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerAttributes.class;
                     case LINE -> LineAttributes.class;
-                    default -> throw new IllegalStateException(" type: " + type + " not implemented for WITHOUT_OPERATIONAL_LIMITS_GROUPS filter");
+                    default -> throw new IllegalStateException(" type: " + type + " not implemented for WITH_LIMITS or BASIC filter");
                 };
             } else {
                 throw new IllegalStateException("Unknown attribute filter: " + filter);

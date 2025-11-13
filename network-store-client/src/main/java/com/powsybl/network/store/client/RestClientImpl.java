@@ -7,10 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
@@ -19,13 +16,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -49,7 +50,7 @@ public class RestClientImpl implements RestClient {
     }
 
     public RestClientImpl(RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper) {
-        this.objectMapper = Objects.requireNonNull(createObjectMapper());
+        this.objectMapper = Objects.requireNonNull(objectMapper);
         this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
 
     }
@@ -74,7 +75,9 @@ public class RestClientImpl implements RestClient {
     }
 
     private static ObjectMapper createObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
+                .defaultViewInclusion(true)
+                .build();
         objectMapper.registerModule(new JavaTimeModule())
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
@@ -188,6 +191,7 @@ public class RestClientImpl implements RestClient {
         if (objectWriters.containsKey(viewClass)) {
             return objectWriters.get(viewClass);
         } else {
+            objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
             ObjectWriter objectWriter = objectMapper.writerWithView(viewClass);
             objectWriters.put(viewClass, objectWriter);
             return objectWriter;
