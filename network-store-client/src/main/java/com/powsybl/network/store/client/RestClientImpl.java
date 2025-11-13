@@ -191,7 +191,6 @@ public class RestClientImpl implements RestClient {
         if (objectWriters.containsKey(viewClass)) {
             return objectWriters.get(viewClass);
         } else {
-            objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
             ObjectWriter objectWriter = objectMapper.writerWithView(viewClass);
             objectWriters.put(viewClass, objectWriter);
             return objectWriter;
