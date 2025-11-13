@@ -239,12 +239,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             restClient.updateAll(url, resources, null, uriVariables);
         } else {
             // duplicated to not change sv behavior for now
-            // to remove with sv attributes to use only @JsonView
+            // TODO : to remove with sv attributes when using @JsonView with sv filter
             if (attributeFilter == SV) {
-                String filteredUrl = url + "/" + attributeFilter.name().toLowerCase();
                 List<Resource<Attributes>> filteredResources = resources.stream()
                         .map(resource -> resource.filterAttributes(attributeFilter))
                         .collect(Collectors.toList());
+                String filteredUrl = url + "/" + attributeFilter.name().toLowerCase();
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info("Updating {} {} {} resources ({})...", filteredResources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(filteredUrl).buildAndExpand(uriVariables));
                 }
