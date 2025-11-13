@@ -238,17 +238,26 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             }
             restClient.updateAll(url, resources, null, uriVariables);
         } else {
-            Class<?> viewClass = getViewClass(attributeFilter);
-            resources.forEach(resource -> resource.setFilter(attributeFilter));
-            String filteredUrl = url;
-            // to remove with sv endpoint in network store server
+            // duplicated to not change sv behavior for now
+            // to remove with sv attributes to use only @JsonView
             if (attributeFilter == SV) {
-                filteredUrl = url + "/" + attributeFilter.name().toLowerCase();
+                String filteredUrl = url + "/" + attributeFilter.name().toLowerCase();
+                List<Resource<Attributes>> filteredResources = resources.stream()
+                        .map(resource -> resource.filterAttributes(attributeFilter))
+                        .collect(Collectors.toList());
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Updating {} {} {} resources ({})...", filteredResources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(filteredUrl).buildAndExpand(uriVariables));
+                }
+                restClient.updateAll(filteredUrl, filteredResources, null, uriVariables);
+            } else {
+                Class<?> viewClass = getViewClass(attributeFilter);
+                resources.forEach(resource -> resource.setFilter(attributeFilter));
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Updating {} {} {} resources ({})...", resources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
+                }
+                restClient.updateAll(url, resources, viewClass, uriVariables);
             }
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Updating {} {} {} resources ({})...", resources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(filteredUrl).buildAndExpand(uriVariables));
-            }
-            restClient.updateAll(filteredUrl, resources, viewClass, uriVariables);
+
         }
     }
 

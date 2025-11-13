@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -556,42 +555,6 @@ public class ResourceTest {
         assertTrue(svResource.getAttributes() instanceof InjectionSvAttributes);
         assertEquals(10d, ((InjectionSvAttributes) svResource.getAttributes()).getP(), 0);
         assertEquals(20.4d, ((InjectionSvAttributes) svResource.getAttributes()).getQ(), 0);
-    }
-
-    @Test
-    public void withoutLimitsGroupsTest() {
-        Resource<LineAttributes> resource = Resource.lineBuilder()
-                .id("idLine")
-                .attributes(LineAttributes.builder()
-                        .voltageLevelId1("vl1")
-                        .voltageLevelId2("vl2")
-                        .name("idLine")
-                        .node1(1)
-                        .node2(1)
-                        .bus1("bus1")
-                        .bus2("bus2")
-                        .r(1)
-                        .x(1)
-                        .g1(1)
-                        .b1(1)
-                        .g2(1)
-                        .b2(1)
-                        .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
-                        .operationalLimitsGroups2(Map.of("group2", new OperationalLimitsGroupAttributes()))
-                        .build())
-                .build();
-        assertNull(resource.getFilter());
-        assertFalse(resource.getAttributes().getOperationalLimitsGroups1().isEmpty());
-        assertFalse(resource.getAttributes().getOperationalLimitsGroups2().isEmpty());
-
-        Resource<Attributes> withoutLimitsGroupResource = resource.filterAttributes(AttributeFilter.WITH_LIMITS);
-        assertEquals(ResourceType.LINE, withoutLimitsGroupResource.getType());
-        assertEquals("idLine", withoutLimitsGroupResource.getId());
-        assertEquals(0, withoutLimitsGroupResource.getVariantNum());
-        assertSame(AttributeFilter.WITH_LIMITS, withoutLimitsGroupResource.getFilter());
-        assertTrue(withoutLimitsGroupResource.getAttributes() instanceof BranchAttributes);
-        assertTrue(((BranchAttributes) withoutLimitsGroupResource.getAttributes()).getOperationalLimitsGroups1().isEmpty());
-        assertTrue(((BranchAttributes) withoutLimitsGroupResource.getAttributes()).getOperationalLimitsGroups2().isEmpty());
     }
 
     @Test

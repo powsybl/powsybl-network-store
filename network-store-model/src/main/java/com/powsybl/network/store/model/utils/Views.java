@@ -9,9 +9,9 @@ package com.powsybl.network.store.model.utils;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class Views {
+public final class Views {
 
-    private Views() {}
+    private Views() { }
 
     public static class SvView {
     }
