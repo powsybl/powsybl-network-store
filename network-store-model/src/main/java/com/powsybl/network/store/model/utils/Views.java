@@ -11,6 +11,8 @@ package com.powsybl.network.store.model.utils;
  */
 public class Views {
 
+    private Views() {}
+
     public static class SvView {
     }
 
