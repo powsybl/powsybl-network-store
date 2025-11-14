@@ -335,16 +335,14 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
         index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 1);
         return getResource().getAttributes().getOperationalLimitsGroups1().values().stream()
-                .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, group))
-                .collect(Collectors.toList());
+            .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, group))
+            .collect(Collectors.toList());
     }
 
     private String getSelectedOperationalLimitsGroupId(TwoSides side) {
         return switch (side) {
-            case ONE ->
-                    getResource().getAttributes().getSelectedOperationalLimitsGroupId1() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId1() : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
-            case TWO ->
-                    getResource().getAttributes().getSelectedOperationalLimitsGroupId2() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId2() : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+            case ONE -> getResource().getAttributes().getSelectedOperationalLimitsGroupId1() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId1() : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+            case TWO -> getResource().getAttributes().getSelectedOperationalLimitsGroupId2() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId2() : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
         };
     }
 
@@ -382,8 +380,8 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         }
         OperationalLimitsGroupAttributes operationalLimitsGroupAttributes = getResource().getAttributes().getOperationalLimitsGroups1().get(selectedOperationalLimitsGroupId1);
         return operationalLimitsGroupAttributes != null ?
-                Optional.of(new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, operationalLimitsGroupAttributes)) :
-                Optional.empty();
+            Optional.of(new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, operationalLimitsGroupAttributes)) :
+            Optional.empty();
     }
 
     @Override
@@ -463,10 +461,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             return Optional.empty();
         }
         OperationalLimitsGroupAttributes operationalLimitsGroupAttributes = getResource().getAttributes()
-                .getOperationalLimitsGroups2().get(selectedOperationalLimitsGroupId2);
+            .getOperationalLimitsGroups2().get(selectedOperationalLimitsGroupId2);
         return operationalLimitsGroupAttributes != null ?
-                Optional.of(new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, operationalLimitsGroupAttributes)) :
-                Optional.empty();
+            Optional.of(new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, operationalLimitsGroupAttributes)) :
+            Optional.empty();
     }
 
     @Override
@@ -608,7 +606,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             case APPARENT_POWER -> Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
             case CURRENT -> t.getI();
             default ->
-                    throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+                throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         };
     }
 
@@ -617,10 +615,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var resource = getResource();
         if (resource.getAttributes().getPosition1() != null || resource.getAttributes().getPosition2() != null) {
             return (E) new ConnectablePositionImpl<>(getBranch(),
-                    null,
-                    connectable -> ((AbstractBranchImpl<?, ?>) connectable).getResource().getAttributes().getPosition1(),
-                    connectable -> ((AbstractBranchImpl<?, ?>) connectable).getResource().getAttributes().getPosition2(),
-                    null);
+                null,
+                connectable -> ((AbstractBranchImpl<?, ?>) connectable).getResource().getAttributes().getPosition1(),
+                connectable -> ((AbstractBranchImpl<?, ?>) connectable).getResource().getAttributes().getPosition2(),
+                null);
         }
         return extension;
     }
