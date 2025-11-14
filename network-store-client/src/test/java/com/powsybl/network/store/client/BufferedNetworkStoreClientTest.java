@@ -17,10 +17,14 @@ import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -33,7 +37,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -42,10 +47,30 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
 @RunWith(SpringRunner.class)
-@RestClientTest(RestClient.class)
-@ContextConfiguration(classes = RestClientImpl.class)
+@RestClientTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class BufferedNetworkStoreClientTest {
+
+    // Necessary with empty @RestClientTest for this
+    // lib which doesn't have a @SpringBootApplication in
+    // its main sources.
+    @SpringBootConfiguration
+    public static class EmptyConfig {
+
+    }
+
+    // Don't use the component scanned RestClient in this test
+    // to avoid the /v1 prefix because the tests were written
+    // without it (could be considered more legible... but not
+    // terribly important. Feel free to change if needed)
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        @Primary
+        public RestClient testClient(RestTemplateBuilder restTemplateBuilder) {
+            return new RestClientImpl(restTemplateBuilder);
+        }
+    }
 
     @Autowired
     private RestClient restClient;
