@@ -25,7 +25,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
 
     private static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
         Objects.requireNonNull(type);
-        if (filter == null) {
+        if (filter == null || filter == AttributeFilter.WITH_LIMITS || filter == AttributeFilter.BASIC) {
             return switch (type) {
                 case NETWORK -> NetworkAttributes.class;
                 case SUBSTATION -> SubstationAttributes.class;
@@ -64,12 +64,6 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case HVDC_LINE -> HvdcLineAttributes.class;
                     case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
                     default -> throw new IllegalStateException("Unknown resource type: " + type);
-                };
-            } else if (filter == AttributeFilter.WITH_LIMITS || filter == AttributeFilter.BASIC) {
-                return switch (type) {
-                    case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerAttributes.class;
-                    case LINE -> LineAttributes.class;
-                    default -> throw new IllegalStateException(" type: " + type + " not implemented for WITH_LIMITS or BASIC filter");
                 };
             } else {
                 throw new IllegalStateException("Unknown attribute filter: " + filter);
