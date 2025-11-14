@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -107,7 +108,7 @@ public class CollectionBufferTest {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
-        collectionBuffer.remove(l1.getId());
+        collectionBuffer.remove(l1.getId(), Collections.emptyList());
         collectionBuffer.flush(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM);
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
@@ -120,7 +121,7 @@ public class CollectionBufferTest {
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
         collectionBuffer.create(l1);
-        collectionBuffer.remove(l1.getId());
+        collectionBuffer.remove(l1.getId(), Collections.emptyList());
         collectionBuffer.flush(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM);
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
@@ -133,7 +134,7 @@ public class CollectionBufferTest {
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
         collectionBuffer.update(l1);
-        collectionBuffer.remove(l1.getId());
+        collectionBuffer.remove(l1.getId(), Collections.emptyList());
         collectionBuffer.flush(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM);
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
