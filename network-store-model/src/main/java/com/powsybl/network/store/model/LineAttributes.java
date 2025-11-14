@@ -118,6 +118,7 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups1 = new HashMap<>();
 
+    @JsonView(Views.Basic.class)
     @Schema(description = "selected OperationalLimitsGroupId1")
     private String selectedOperationalLimitsGroupId1;
 
@@ -126,6 +127,7 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups2 = new HashMap<>();
 
+    @JsonView(Views.Basic.class)
     @Schema(description = "selected OperationalLimitsGroupId2")
     private String selectedOperationalLimitsGroupId2;
 
