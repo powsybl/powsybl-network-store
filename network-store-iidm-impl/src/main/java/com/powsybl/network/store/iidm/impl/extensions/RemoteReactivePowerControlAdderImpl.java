@@ -32,7 +32,7 @@ public class RemoteReactivePowerControlAdderImpl extends AbstractIidmExtensionAd
 
     @Override
     protected RemoteReactivePowerControl createExtension(Generator generator) {
-        if (Double.isNaN(targetQ)) {
+        if (Double.isNaN(targetQ) && enabled) {
             throw new PowsyblException("Reactive power target must be set");
         }
         if (regulatingTerminal == null) {

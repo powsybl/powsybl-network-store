@@ -26,4 +26,9 @@ public class DcTerminalTest extends AbstractDcTerminalTest {
     public void testDcConverterDcTerminal() {
         // FIXME: implement the new DC model
     }
+
+    @Override
+    public void testChangesNotification() {
+        // FIXME: implement the new DC model
+    }
 }
