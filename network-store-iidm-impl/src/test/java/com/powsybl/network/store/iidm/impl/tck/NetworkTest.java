@@ -57,6 +57,7 @@ class NetworkTest extends AbstractNetworkTest {
         // FIXME
     }
 
+    @Override
     @Test
     public void testStreams() {
         // still problem with order in stream
@@ -322,6 +323,7 @@ class NetworkTest extends AbstractNetworkTest {
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
     }
 
+    @Override
     @Test
     public void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
         // FIXME by implementing

@@ -18,7 +18,7 @@
     </parent>
 
     <artifactId>powsybl-network-store-client-parent</artifactId>
-    <version>1.34.0-SNAPSHOT</version>
+    <version>1.35.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
     <name>Network store client parent</name>
@@ -48,7 +48,7 @@
 
     <properties>
         <springboot.version>3.4.9</springboot.version>
-        <powsybl-dependencies.version>2025.1.0</powsybl-dependencies.version>
+        <powsybl-dependencies.version>2025.2.0</powsybl-dependencies.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
