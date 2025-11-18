@@ -1272,7 +1272,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
-        storeClient.removeExtensionAttributes(network.getUuid(), workingVariantNum, type, identifiableId, extensionName);
+        storeClient.removeExtensionAttributes(network.getUuid(), workingVariantNum, type, Map.of(identifiableId, Set.of(extensionName)));
     }
 
     public void loadOperationalLimitsGroupAttributes(ResourceType type, String branchId, String operationalLimitGroupName, int side) {
