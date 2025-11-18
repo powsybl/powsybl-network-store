@@ -25,7 +25,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
 
     private static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
         Objects.requireNonNull(type);
-        if (filter == null) {
+        if (filter == null || filter == AttributeFilter.WITH_LIMITS || filter == AttributeFilter.BASIC) {
             return switch (type) {
                 case NETWORK -> NetworkAttributes.class;
                 case SUBSTATION -> SubstationAttributes.class;
