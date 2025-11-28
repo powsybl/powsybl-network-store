@@ -26,6 +26,8 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VariantInfos;
 import com.powsybl.tools.Version;
+import io.micrometer.context.ContextExecutorService;
+import io.micrometer.context.ContextSnapshotFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +56,11 @@ public class NetworkStoreService implements AutoCloseable {
 
     private final TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(ResourceType.values().length);
+    private final ContextSnapshotFactory contextSnapshotFactory = ContextSnapshotFactory.builder().build();
+
+    private final ExecutorService executorService = ContextExecutorService.wrap(
+        Executors.newFixedThreadPool(ResourceType.values().length),
+        contextSnapshotFactory::captureAll);
 
     public NetworkStoreService(String baseUri) {
         this(baseUri, PreloadingStrategy.NONE);
