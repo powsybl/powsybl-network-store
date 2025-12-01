@@ -151,7 +151,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var attributes = getResource().getAttributes();
         if (side == TwoSides.ONE) {
             // load operational limits group to cache
-            index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 1);
+            index.loadOperationalLimitsGroupAttributesForBranchSide(getResource().getType(), getId(), 1);
             var operationalLimitsGroup = attributes.getOperationalLimitsGroup1(operationalLimitsGroupId);
             var oldApparentPowerLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
             if (apparentPowerLimitsAttributes != oldApparentPowerLimits) {
@@ -160,7 +160,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             }
         } else if (side == TwoSides.TWO) {
             // load operational limits group to cache
-            index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 2);
+            index.loadOperationalLimitsGroupAttributesForBranchSide(getResource().getType(), getId(), 2);
             var operationalLimitsGroup = attributes.getOperationalLimitsGroup2(operationalLimitsGroupId);
             var oldApparentPowerLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
             if (apparentPowerLimitsAttributes != oldApparentPowerLimits) {
@@ -231,7 +231,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var attributes = getResource().getAttributes();
         if (side == TwoSides.ONE) {
             // load operational limits group to cache
-            index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 1);
+            index.loadOperationalLimitsGroupAttributesForBranchSide(getResource().getType(), getId(), 1);
             var operationalLimitsGroup = attributes.getOperationalLimitsGroup1(operationalLimitsGroupId);
             var oldActivePowerLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
             if (activePowerLimitsAttributes != oldActivePowerLimits) {
@@ -240,7 +240,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             }
         } else if (side == TwoSides.TWO) {
             // load operational limits group to cache
-            index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 2);
+            index.loadOperationalLimitsGroupAttributesForBranchSide(getResource().getType(), getId(), 2);
             var operationalLimitsGroup = attributes.getOperationalLimitsGroup2(operationalLimitsGroupId);
             var oldActivePowerLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
             if (activePowerLimitsAttributes != oldActivePowerLimits) {
@@ -270,7 +270,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         var attributes = getResource().getAttributes();
         if (side == TwoSides.ONE) {
             // load operational limits group to cache
-            index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 1);
+            index.loadOperationalLimitsGroupAttributesForBranchSide(getResource().getType(), getId(), 1);
             var operationalLimitsGroup = attributes.getOperationalLimitsGroup1(operationalLimitsGroupId);
             var oldCurrentLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
             if (currentLimits != oldCurrentLimits) {
@@ -279,7 +279,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             }
         } else if (side == TwoSides.TWO) {
             // load operational limits group to cache
-            index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 2);
+            index.loadOperationalLimitsGroupAttributesForBranchSide(getResource().getType(), getId(), 2);
             var operationalLimitsGroup = attributes.getOperationalLimitsGroup2(operationalLimitsGroupId);
             var oldCurrentLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
             if (currentLimits != oldCurrentLimits) {
@@ -333,7 +333,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     // operational limits group
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
-        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 1);
+        index.loadOperationalLimitsGroupAttributesForBranchSide(getResource().getType(), getId(), 1);
         return getResource().getAttributes().getOperationalLimitsGroups1().values().stream()
             .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, group))
             .collect(Collectors.toList());
@@ -387,7 +387,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
         var resource = getResource();
-        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 1);
+        index.loadOperationalLimitsGroupAttributesForBranchSide(getResource().getType(), getId(), 1);
         OperationalLimitsGroupAttributes newGroup = LimitsOwner.newOperationalLimitsGroup(resource, this, getNetwork(),
                 id, resource.getAttributes().getOperationalLimitsGroups1(), index, "operationalLimitsGroup1");
         return new OperationalLimitsGroupImpl<>(this, TwoSides.ONE, newGroup);
@@ -416,7 +416,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             LimitsOwner.updateOperationalLimitsResource(getResource(), this, getNetwork(), res -> res.getAttributes().getOperationalLimitsGroups1().remove(id),
                     "operationalLimitsGroup1", oldValue, null, index);
         }
-        index.removeOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), id, 1);
+        index.removeOperationalLimitsGroupAttributes(getResource().getType(), getId(), id, 1);
     }
 
     @Override
@@ -431,7 +431,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
-        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 2);
+        index.loadOperationalLimitsGroupAttributesForBranchSide(getResource().getType(), getId(), 2);
         return getResource().getAttributes().getOperationalLimitsGroups2().values().stream()
                 .map(group -> new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, group))
                 .collect(Collectors.toList());
@@ -471,7 +471,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     public OperationalLimitsGroup newOperationalLimitsGroup2(String id) {
         var resource = getResource();
         // load operational limits group to cache
-        index.loadOperationalLimitsGroupAttributesForBranchSide(ResourceType.convert(getType()), getId(), 2);
+        index.loadOperationalLimitsGroupAttributesForBranchSide(getResource().getType(), getId(), 2);
         OperationalLimitsGroupAttributes newGroup = LimitsOwner.newOperationalLimitsGroup(resource, this, getNetwork(),
                 id, resource.getAttributes().getOperationalLimitsGroups2(), index, "operationalLimitsGroup2");
         return new OperationalLimitsGroupImpl<>(this, TwoSides.TWO, newGroup);
@@ -500,7 +500,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             LimitsOwner.updateOperationalLimitsResource(getResource(), this, getNetwork(), res -> res.getAttributes().getOperationalLimitsGroups2().remove(id),
                     "operationalLimitsGroup2", oldValue, null, index);
         }
-        index.removeOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), id, 2);
+        index.removeOperationalLimitsGroupAttributes(getResource().getType(), getId(), id, 2);
     }
 
     @Override
@@ -698,7 +698,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
             default -> throw new PowsyblException("can not load limits on branch for a side null");
         }
         if (groupId != null) {
-            index.loadSelectedOperationalLimitsGroupAttributes(ResourceType.convert(getType()), getId(), groupId, side.getNum());
+            index.loadSelectedOperationalLimitsGroupAttributes(getResource().getType(), getId(), groupId, side.getNum());
         }
     }
 }
