@@ -145,9 +145,11 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     @JsonIgnore
     @Override
     default Attributes filter(AttributeFilter filter) {
-        if (filter != AttributeFilter.SV) {
-            throw new PowsyblException("Unsupported attribute filter: " + filter);
-        }
-        return new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
+        return switch (filter) {
+            case SV -> new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
+            case BASIC -> this;
+            case WITH_LIMITS -> this;
+            default -> throw new PowsyblException("Unsupported attribute filter: " + filter);
+        };
     }
 }

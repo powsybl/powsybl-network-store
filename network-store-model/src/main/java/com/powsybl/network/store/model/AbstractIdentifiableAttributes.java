@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import com.powsybl.network.store.model.utils.Views;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -24,23 +26,29 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractIdentifiableAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
+    @JsonView(Views.Basic.class)
     @Schema(description = "Name")
     private String name;
 
+    @JsonView(Views.Basic.class)
     @Builder.Default
     @Schema(description = "Fictitious")
     private boolean fictitious = false;
 
+    @JsonView(Views.Basic.class)
     @Schema(description = "Properties")
     private Map<String, String> properties;
 
+    @JsonView(Views.Basic.class)
     @Schema(description = "Aliases without type")
     private Set<String> aliasesWithoutType;
 
+    @JsonView(Views.Basic.class)
     @Schema(description = "Alias by type")
     private Map<String, String> aliasByType;
 
     @Builder.Default
+    @JsonView(Views.Basic.class)
     @Schema(description = "Extension attributes")
     private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }
