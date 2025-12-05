@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.extensions.LegFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl;
 import com.powsybl.network.store.model.ThreeWindingsTransformerFortescueAttributes;
@@ -31,16 +32,16 @@ public class ThreeWindingsTransformerFortescueImpl extends AbstractExtension<Thr
 
     @Override
     public LegFortescue getLeg1() {
-        return getThreeWindingsTransformerFortescueAttributes().getLeg1().convertToLegFortescue();
+        return new LegFortescueImpl(getThreeWindingsTransformerFortescueAttributes().getLeg1());
     }
 
     @Override
     public LegFortescue getLeg2() {
-        return getThreeWindingsTransformerFortescueAttributes().getLeg2().convertToLegFortescue();
+        return new LegFortescueImpl(getThreeWindingsTransformerFortescueAttributes().getLeg2());
     }
 
     @Override
     public LegFortescue getLeg3() {
-        return getThreeWindingsTransformerFortescueAttributes().getLeg3().convertToLegFortescue();
+        return new LegFortescueImpl(getThreeWindingsTransformerFortescueAttributes().getLeg3());
     }
 }

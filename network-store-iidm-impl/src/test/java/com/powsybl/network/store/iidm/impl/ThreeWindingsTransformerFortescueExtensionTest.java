@@ -10,6 +10,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.extensions.LegFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescueAdder;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
@@ -56,7 +57,7 @@ class ThreeWindingsTransformerFortescueExtensionTest {
         ThreeWindingsTransformerFortescue extension = twt.getExtension(ThreeWindingsTransformerFortescue.class);
         assertNotNull(extension);
         assertNotNull(extension.getLeg1());
-        ThreeWindingsTransformerFortescue.LegFortescue leg1 = extension.getLeg1();
+        LegFortescue leg1 = extension.getLeg1();
         assertEquals(1, leg1.getRz());
         assertEquals(2, leg1.getXz());
         assertTrue(leg1.isFreeFluxes());
@@ -65,7 +66,7 @@ class ThreeWindingsTransformerFortescueExtensionTest {
         assertEquals(4, leg1.getGroundingX());
 
         assertNotNull(extension.getLeg2());
-        ThreeWindingsTransformerFortescue.LegFortescue leg2 = extension.getLeg2();
+        LegFortescue leg2 = extension.getLeg2();
         assertEquals(5, leg2.getRz());
         assertEquals(6, leg2.getXz());
         assertFalse(leg2.isFreeFluxes());

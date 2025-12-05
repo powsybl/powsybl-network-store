@@ -7,7 +7,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -42,8 +41,4 @@ public class LegFortescueAttributes implements ExtensionAttributes {
 
     @Schema(description = "grounding x")
     private double groundingX;
-
-    public ThreeWindingsTransformerFortescue.LegFortescue convertToLegFortescue() {
-        return new ThreeWindingsTransformerFortescue.LegFortescue(rz, xz, freeFluxes, connectionType, groundingR, groundingX);
-    }
 }
