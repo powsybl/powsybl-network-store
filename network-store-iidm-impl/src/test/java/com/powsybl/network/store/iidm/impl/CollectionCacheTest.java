@@ -395,7 +395,7 @@ public class CollectionCacheTest {
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByIdCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeCalled());
         // Remove the extension by name then try to retrieve it. There should be no call to loader
-        collectionCache.removeExtensionAttributesByExtensionName("l1", "activePowerControl");
+        collectionCache.removeExtensionAttributesByIdentifiableIds(Map.of("l1", Set.of("activePowerControl")));
         assertNull(collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1", "activePowerControl").orElse(null));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());
@@ -490,7 +490,7 @@ public class CollectionCacheTest {
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeCalled());
         mockNetworkStoreClient.setExtensionAttributeLoaderCalled(false);
         // Remove the resource by id then try to retrieve it. There should be no call to loader
-        collectionCache.removeExtensionAttributesByExtensionName("l1", "activePowerControl");
+        collectionCache.removeExtensionAttributesByIdentifiableIds(Map.of("l1", Set.of("activePowerControl")));
         assertNull(collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1", "activePowerControl").orElse(null));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());
