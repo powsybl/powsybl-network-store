@@ -37,15 +37,42 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
     }
 
     @Override
+    public Integer getSolvedSectionCount() {
+        return getResource().getAttributes().getSolvedSectionCount();
+    }
+
+    @Override
     public ShuntCompensator setSectionCount(int sectionCount) {
         ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         int oldValue = getResource().getAttributes().getSectionCount();
         if (sectionCount != oldValue) {
-            updateResource(res -> res.getAttributes().setSectionCount(sectionCount));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "sectionCount", variantId, oldValue, sectionCount);
+            updateResource(res -> res.getAttributes().setSectionCount(sectionCount),
+                "sectionCount", oldValue, sectionCount);
         }
         return this;
+    }
+
+    @Override
+    public ShuntCompensator setSolvedSectionCount(int solvedSectionCount) {
+        Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
+        checkSolvedSectionCount(solvedSectionCount, getMaximumSectionCount());
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(solvedSectionCount),
+            "solvedSectionCount", oldValue, solvedSectionCount);
+        return this;
+    }
+
+    @Override
+    public ShuntCompensator unsetSolvedSectionCount() {
+        Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(null),
+            "solvedSectionCount", oldValue, null);
+        return this;
+    }
+
+    private void checkSolvedSectionCount(Integer solvedSectionCount, int maximumSectionCount) {
+        if (solvedSectionCount != null && (solvedSectionCount < 0 || solvedSectionCount > maximumSectionCount)) {
+            throw new ValidationException(this, "unexpected solved section number (" + solvedSectionCount + "): no existing associated section");
+        }
     }
 
     @Override
@@ -97,10 +124,6 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         }
     }
 
-    public void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
-        index.notifyUpdate(this, attribute, variantId, oldValue, newValue);
-    }
-
     @Override
     public <M extends ShuntCompensatorModel> M getModel(Class<M> type) {
         ShuntCompensatorModel shuntCompensatorModel = getModel();
@@ -149,9 +172,8 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetV();
         if (Double.compare(targetV, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setTargetV(targetV));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
+            updateResource(res -> res.getAttributes().setTargetV(targetV),
+                "targetV", oldValue, targetV);
         }
         return this;
     }
@@ -166,9 +188,8 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetDeadband();
         if (Double.compare(targetDeadband, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setTargetDeadband(targetDeadband));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetDeadband", variantId, oldValue, targetDeadband);
+            updateResource(res -> res.getAttributes().setTargetDeadband(targetDeadband),
+                "targetDeadband", oldValue, targetDeadband);
         }
         return this;
     }

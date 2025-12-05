@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
@@ -17,7 +16,7 @@ import com.powsybl.network.store.model.ThreeWindingsTransformerPhaseAngleClockAt
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class ThreeWindingsTransformerPhaseAngleClockAdderImpl extends AbstractExtensionAdder<ThreeWindingsTransformer, ThreeWindingsTransformerPhaseAngleClock> implements ThreeWindingsTransformerPhaseAngleClockAdder {
+public class ThreeWindingsTransformerPhaseAngleClockAdderImpl extends AbstractIidmExtensionAdder<ThreeWindingsTransformer, ThreeWindingsTransformerPhaseAngleClock> implements ThreeWindingsTransformerPhaseAngleClockAdder {
 
     private int phaseAngleClockLeg2 = -1;
     private int phaseAngleClockLeg3 = -1;
@@ -29,7 +28,7 @@ public class ThreeWindingsTransformerPhaseAngleClockAdderImpl extends AbstractEx
     @Override
     protected ThreeWindingsTransformerPhaseAngleClock createExtension(ThreeWindingsTransformer threeWindingsTransformer) {
         checkPhaseAngleClock();
-        ((ThreeWindingsTransformerImpl) threeWindingsTransformer).updateResource(res -> res.getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3)));
+        ((ThreeWindingsTransformerImpl) threeWindingsTransformer).updateResourceWithoutNotification(res -> res.getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3)));
         return new ThreeWindingsTransformerPhaseAngleClockImpl((ThreeWindingsTransformerImpl) threeWindingsTransformer);
     }
 

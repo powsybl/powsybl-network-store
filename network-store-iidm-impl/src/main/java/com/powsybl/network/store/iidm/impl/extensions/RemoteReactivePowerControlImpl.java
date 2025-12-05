@@ -50,7 +50,10 @@ public class RemoteReactivePowerControlImpl extends AbstractIidmExtension<Genera
 
     @Override
     public RemoteReactivePowerControl setTargetQ(double targetQ) {
-        getGenerator().updateResource(res -> res.getAttributes().getRemoteReactivePowerControl().setTargetQ(targetQ));
+        double oldValue = getTargetQ();
+        if (oldValue != targetQ) {
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getRemoteReactivePowerControl().setTargetQ(targetQ), "targetQ", oldValue, targetQ);
+        }
         return this;
     }
 
@@ -61,7 +64,10 @@ public class RemoteReactivePowerControlImpl extends AbstractIidmExtension<Genera
 
     @Override
     public RemoteReactivePowerControl setEnabled(boolean enabled) {
-        getGenerator().updateResource(res -> res.getAttributes().getRemoteReactivePowerControl().setEnabled(enabled));
+        boolean oldValue = isEnabled();
+        if (oldValue != enabled) {
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getRemoteReactivePowerControl().setEnabled(enabled), "enabled", oldValue, enabled);
+        }
         return this;
     }
 
@@ -84,8 +90,7 @@ public class RemoteReactivePowerControlImpl extends AbstractIidmExtension<Genera
         if (attributes != null) {
             TerminalRefAttributes oldValue = attributes.getRegulatingTerminal();
             TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-            getGenerator().updateResource(res -> res.getAttributes().getRemoteReactivePowerControl().setRegulatingTerminal(terminalRefAttributes));
-            getGenerator().getIndex().notifyUpdate(getGenerator(), "regulatingTerminal", getGenerator().getNetwork().getVariantManager().getWorkingVariantId(), oldValue, terminalRefAttributes);
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getRemoteReactivePowerControl().setRegulatingTerminal(terminalRefAttributes), "regulatingTerminal", oldValue, terminalRefAttributes);
         }
         return this;
     }
@@ -94,9 +99,11 @@ public class RemoteReactivePowerControlImpl extends AbstractIidmExtension<Genera
     public void onReferencedRemoval(Terminal removedTerminal) {
         // we cannot set regulating terminal to null because otherwise extension won't be consistent anymore
         // we cannot also as for voltage regulation fallback to a local terminal
-        // so we just remove the extension
+        // so we just remove the extension only if it is the regulated terminal
         LOGGER.warn("Remove 'RemoteReactivePowerControl' extension of generator '{}', because its regulating terminal has been removed", getExtendable().getId());
-        getExtendable().removeExtension(RemoteReactivePowerControl.class);
+        if (removedTerminal != null && removedTerminal.equals(getRegulatingTerminal())) {
+            getExtendable().removeExtension(RemoteReactivePowerControl.class);
+        }
     }
 
     @Override

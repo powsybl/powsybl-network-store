@@ -9,6 +9,10 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.events.RemovalNetworkEvent;
+import com.powsybl.iidm.network.events.UpdateNetworkEvent;
+import com.powsybl.network.store.model.ResourceType;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -82,6 +86,7 @@ class TwoWindingsTransformerTest {
         assertEquals("2 windings transformer 'b94318f6-6d24-4f56-96b9-df2531ad6543': incorrect tap position 10 [1, 2]",
             assertThrows(ValidationException.class, ratioStepsReplacer::replaceSteps).getMessage());
         ratioTapChanger.setTapPosition(1);
+        ratioTapChanger.setSolvedTapPosition(1);
         ratioStepsReplacer.replaceSteps();
         assertEquals(2, ratioTapChanger.getStepCount());
         int ratioLowTapPosition = ratioTapChanger.getLowTapPosition();
@@ -111,6 +116,7 @@ class TwoWindingsTransformerTest {
         assertEquals("2 windings transformer 'a708c3bc-465d-4fe7-b6ef-6fa6408a62b0': incorrect tap position 10 [1, 1]",
             assertThrows(ValidationException.class, phaseStepsReplacer::replaceSteps).getMessage());
         phaseTapChanger.setTapPosition(1);
+        phaseTapChanger.setSolvedTapPosition(1);
         phaseStepsReplacer.replaceSteps();
         assertEquals(1, phaseTapChanger.getStepCount());
         int phaseLowTapPosition = phaseTapChanger.getLowTapPosition();
@@ -291,25 +297,40 @@ class TwoWindingsTransformerTest {
     }
 
     @Test
-    void testTapChangerRegulation() {
+    void testRatioTapChangerRegulation() {
         String loadId = "69add5b4-70bd-4360-8a93-286256c0d38b";
         String twtId1 = "b94318f6-6d24-4f56-96b9-df2531ad6543";
-        String twtId2 = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
         Network network = createNetwork();
         RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer(twtId1).getRatioTapChanger();
         assertEquals(twtId1, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
         Load load = network.getLoad(loadId);
         ratioTapChanger.setRegulationTerminal(load.getTerminal());
         assertEquals(loadId, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        load.remove();
+
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertNull(ratioTapChanger.getRegulationTerminal());
+        assertFalse(ratioTapChanger.isRegulating());
+    }
+
+    @Test
+    void testPhaseTapChangerRegulation() {
+        String loadId = "69add5b4-70bd-4360-8a93-286256c0d38b";
+        String twtId2 = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
+        Network network = createNetwork();
+        Load load = network.getLoad(loadId);
+
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(twtId2).getPhaseTapChanger();
         phaseTapChanger.setRegulationTerminal(load.getTerminal());
         assertEquals(loadId, phaseTapChanger.getRegulationTerminal().getConnectable().getId());
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        phaseTapChanger.setLoadTapChangingCapabilities(true);
+        phaseTapChanger.setRegulating(true);
         load.remove();
-        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+
+        assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
+        assertFalse(phaseTapChanger.isRegulating());
         assertNull(phaseTapChanger.getRegulationTerminal());
-        assertNull(ratioTapChanger.getRegulationMode());
-        assertNull(ratioTapChanger.getRegulationTerminal());
     }
 
     @Test
@@ -332,5 +353,120 @@ class TwoWindingsTransformerTest {
         assertEquals(12., twt.getRatedU1());
         assertEquals(14., twt.getRatedU2());
         assertEquals(16., twt.getRatedS());
+    }
+
+    @Test
+    void createWithVoltageRegulationTest() {
+        Network network = createNetwork();
+        network.getSubstation("37e14a0f-5e34-4647-a062-8bfd9305fa9d")
+            .newTwoWindingsTransformer()
+            .setId("test")
+            .setVoltageLevel1("b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c")
+            .setConnectableBus1("99b219f3-4593-428b-a4da-124a54630178")
+            .setVoltageLevel2("469df5f7-058f-4451-a998-57a48e8a56fe")
+            .setConnectableBus2("e44141af-f1dc-44d3-bfa4-b674e5c953d7")
+            .setR(250)
+            .setX(100)
+            .setG(52)
+            .setB(12)
+            .setRatedU1(225)
+            .setRatedU2(380)
+            .add();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("test");
+        twt.newRatioTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(0)
+            .setRegulating(false)
+            .setRegulationTerminal(network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b").getTerminal())
+            .setTargetDeadband(22)
+            .setTargetV(220)
+            .beginStep()
+            .setRho(0.99)
+            .setR(1.)
+            .setX(4.)
+            .setG(0.5)
+            .setB(1.5)
+            .endStep()
+            .beginStep()
+            .setRho(1)
+            .setR(1.1)
+            .setX(4.1)
+            .setG(0.6)
+            .setB(1.6)
+            .endStep()
+            .beginStep()
+            .setRho(1.01)
+            .setR(1.2)
+            .setX(4.2)
+            .setG(0.7)
+            .setB(1.7)
+            .endStep()
+            .add();
+        assertEquals(network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b").getTerminal(), twt.getRatioTapChanger().getRegulationTerminal());
+    }
+
+    @Test
+    void testTwoWindingsTransformerRemovalEvents() {
+        Network network = createNetwork();
+        String twoWindingsTransformerId = "b94318f6-6d24-4f56-96b9-df2531ad6543";
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(twoWindingsTransformerId);
+        assertNotNull(twoWindingsTransformer);
+        String generatorId = "550ebe0d-f2b2-48c1-991f-cebea43a21aa";
+        Generator generator = network.getGenerator(generatorId);
+        assertNotNull(generator);
+
+        // Add regulation to the generator
+        generator.setRegulatingTerminal(twoWindingsTransformer.getTerminal(TwoSides.ONE));
+
+        // Add event listener on 2WT removal
+        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
+        network.addListener(eventRecorder);
+        twoWindingsTransformer.remove();
+        assertNull(network.getTwoWindingsTransformer(twoWindingsTransformerId));
+        List<? extends Record> expectedEvents = List.of(
+                new RemovalNetworkEvent(twoWindingsTransformerId, false),
+                new UpdateNetworkEvent(twoWindingsTransformerId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
+                new UpdateNetworkEvent(generatorId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.ONE.name()).build(), TerminalRefAttributes.builder().connectableId(generatorId).build()),
+                new UpdateNetworkEvent(generatorId, "regulatedResourceType", VariantManagerConstants.INITIAL_VARIANT_ID, ResourceType.TWO_WINDINGS_TRANSFORMER, ResourceType.GENERATOR),
+                new UpdateNetworkEvent(generatorId, "regulating", VariantManagerConstants.INITIAL_VARIANT_ID, true, false),
+                new RemovalNetworkEvent(twoWindingsTransformerId, true));
+        // Order is not guaranteed with regulation events as we use Set for regulating equipments
+        assertTrue(eventRecorder.getEvents().containsAll(expectedEvents));
+        assertEquals(expectedEvents.size(), eventRecorder.getEvents().size());
+    }
+
+    @Test
+    void testPhaseTapChangerPositionsChecks() {
+        Network network = createNetwork();
+        TwoWindingsTransformer twtWithPhaseTapChanger = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        assertNotNull(twtWithPhaseTapChanger.getPhaseTapChanger());
+        PhaseTapChanger phaseTapChanger = twtWithPhaseTapChanger.getPhaseTapChanger();
+        assertEquals(25, phaseTapChanger.getStepCount());
+        String message = assertThrows(ValidationException.class, () -> phaseTapChanger.getStep(26)).getMessage();
+        assertEquals("2 windings transformer 'a708c3bc-465d-4fe7-b6ef-6fa6408a62b0': incorrect tap position 26 [1, 25]", message);
+        message = assertThrows(ValidationException.class, () -> phaseTapChanger.getStep(-1)).getMessage();
+        assertEquals("2 windings transformer 'a708c3bc-465d-4fe7-b6ef-6fa6408a62b0': incorrect tap position -1 [1, 25]", message);
+
+        assertEquals(10, phaseTapChanger.getTapPosition());
+        phaseTapChanger.setLowTapPosition(2);
+        assertEquals(2, phaseTapChanger.getLowTapPosition());
+        assertEquals(11, phaseTapChanger.getTapPosition());
+    }
+
+    @Test
+    void testRatioTapChangerPositionsChecks() {
+        Network network = createNetwork();
+
+        RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
+        assertEquals(25, ratioTapChanger.getStepCount());
+        String message = assertThrows(ValidationException.class, () -> ratioTapChanger.getStep(26)).getMessage();
+        assertEquals("2 windings transformer 'b94318f6-6d24-4f56-96b9-df2531ad6543': incorrect tap position 26 [1, 25]", message);
+        message = assertThrows(ValidationException.class, () -> ratioTapChanger.getStep(-1)).getMessage();
+        assertEquals("2 windings transformer 'b94318f6-6d24-4f56-96b9-df2531ad6543': incorrect tap position -1 [1, 25]", message);
+
+        assertEquals(10, ratioTapChanger.getTapPosition());
+        ratioTapChanger.setLowTapPosition(2);
+        assertEquals(2, ratioTapChanger.getLowTapPosition());
+        assertEquals(11, ratioTapChanger.getTapPosition());
     }
 }

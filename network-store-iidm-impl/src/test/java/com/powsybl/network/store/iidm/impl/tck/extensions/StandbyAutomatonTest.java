@@ -79,8 +79,16 @@ public class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
         assertEquals(403f, standbyAutomaton.getHighVoltageSetpoint(), 0f);
         assertEquals(390f, standbyAutomaton.getLowVoltageThreshold(), 0f);
         assertEquals(410f, standbyAutomaton.getHighVoltageThreshold(), 0f);
-        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
 
+        // set the same values, for condition coverage
+        standbyAutomaton.setB0(0.0004f)
+            .setStandby(false)
+            .setLowVoltageSetpoint(392f)
+            .setHighVoltageSetpoint(403f)
+            .setLowVoltageThreshold(390f)
+            .setHighVoltageThreshold(410f);
+
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
         assertTrue(standbyAutomaton.isStandby());
         assertEquals(0.0001f, standbyAutomaton.getB0(), 0f); // not modify by variant change
         assertEquals(390f, standbyAutomaton.getLowVoltageSetpoint(), 0f);

@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
@@ -15,20 +14,20 @@ import com.powsybl.network.store.iidm.impl.StaticVarCompensatorImpl;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StandbyAutomatonAdderImpl extends AbstractExtensionAdder<StaticVarCompensator, StandbyAutomaton>
+public class StandbyAutomatonAdderImpl extends AbstractIidmExtensionAdder<StaticVarCompensator, StandbyAutomaton>
         implements StandbyAutomatonAdder {
 
-    private double b0;
+    private double b0 = Double.NaN;
 
-    private boolean standby;
+    private boolean standby = false;
 
-    private double lowVoltageSetpoint;
+    private double lowVoltageSetpoint = Double.NaN;
 
-    private double highVoltageSetpoint;
+    private double highVoltageSetpoint = Double.NaN;
 
-    private double lowVoltageThreshold;
+    private double lowVoltageThreshold = Double.NaN;
 
-    private double highVoltageThreshold;
+    private double highVoltageThreshold = Double.NaN;
 
     public StandbyAutomatonAdderImpl(StaticVarCompensator svc) {
         super(svc);
@@ -37,8 +36,8 @@ public class StandbyAutomatonAdderImpl extends AbstractExtensionAdder<StaticVarC
     @Override
     protected StandbyAutomaton createExtension(StaticVarCompensator svc) {
         var attributes = StandbyAutomatonImpl.createAttributes((StaticVarCompensatorImpl) svc, b0, standby,
-                lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold);
-        ((StaticVarCompensatorImpl) svc).updateResource(res -> res.getAttributes().setStandbyAutomaton(attributes));
+                lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold, svc.getId());
+        ((StaticVarCompensatorImpl) svc).updateResourceWithoutNotification(res -> res.getAttributes().setStandbyAutomaton(attributes));
         return new StandbyAutomatonImpl(svc);
     }
 

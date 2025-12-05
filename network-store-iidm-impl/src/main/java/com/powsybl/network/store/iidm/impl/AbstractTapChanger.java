@@ -16,7 +16,6 @@ import lombok.Getter;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
-import java.util.function.Supplier;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -54,10 +53,6 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected abstract TapChangerAttributes getAttributes(Resource<?> resource);
 
-    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
-        index.notifyUpdate(getTransformer(), attribute.get(), variantId, oldValue, newValue);
-    }
-
     public int getLowTapPosition() {
         return getAttributes().getLowTapPosition();
     }
@@ -65,9 +60,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     public C setLowTapPosition(int lowTapPosition) {
         int oldValue = getAttributes().getLowTapPosition();
         if (lowTapPosition != oldValue) {
-            getTransformer().updateResource(res -> getAttributes(res).setLowTapPosition(lowTapPosition));
-            notifyUpdate(() -> getTapChangerAttribute() + ".lowTapPosition", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, lowTapPosition);
+            getTransformer().updateResource(res -> getAttributes(res).setLowTapPosition(lowTapPosition),
+                getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
         }
+        setTapPosition(getTapPosition() + getLowTapPosition() - oldValue);
         return (C) this;
     }
 
@@ -84,8 +80,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         }
         int oldValue = getAttributes().getTapPosition();
         if (tapPosition != oldValue) {
-            getTransformer().updateResource(res -> getAttributes(res).setTapPosition(tapPosition));
-            notifyUpdate(() -> getTapChangerAttribute() + ".tapPosition", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, tapPosition);
+            getTransformer().updateResource(res -> getAttributes(res).setTapPosition(tapPosition),
+                getTapChangerAttribute() + ".tapPosition", oldValue, tapPosition);
         }
         return (C) this;
     }
@@ -98,8 +94,20 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
         boolean oldValue = isRegulating();
         if (regulating != oldValue) {
-            regulatingPoint.setRegulating(regulating);
-            notifyUpdate(() -> getTapChangerAttribute() + ".regulating", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulating);
+            regulatingPoint.setRegulating(getTapChangerAttribute() + ".regulating", regulating);
+        }
+        return (C) this;
+    }
+
+    public boolean hasLoadTapChangingCapabilities() {
+        return getAttributes().isLoadTapChangingCapabilities();
+    }
+
+    public C setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        boolean oldValue = getAttributes().isLoadTapChangingCapabilities();
+        if (loadTapChangingCapabilities != oldValue) {
+            getTransformer().updateResource(res -> getAttributes(res).setLoadTapChangingCapabilities(loadTapChangingCapabilities),
+                getTapChangerAttribute() + ".loadTapChangingCapabilities", oldValue, loadTapChangingCapabilities);
         }
         return (C) this;
     }
@@ -122,8 +130,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         ValidationUtil.checkTargetDeadband(parent, type, isRegulating(), targetDeadBand, ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getAttributes().getTargetDeadband();
         if (Double.compare(targetDeadBand, oldValue) != 0) {
-            getTransformer().updateResource(res -> getAttributes(res).setTargetDeadband(targetDeadBand));
-            notifyUpdate(() -> getTapChangerAttribute() + ".targetDeadband", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, targetDeadBand);
+            getTransformer().updateResource(res -> getAttributes(res).setTargetDeadband(targetDeadBand),
+                getTapChangerAttribute() + ".targetDeadband", oldValue, targetDeadBand);
         }
         return (C) this;
     }
@@ -152,11 +160,22 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
                 + getTapPosition() + " [" + getLowTapPosition() + ", "
                 + newHighTapPosition + "]");
         }
+        OptionalInt solvedTap = findSolvedTapPosition();
+        if (solvedTap.isPresent() && solvedTap.getAsInt() > newHighTapPosition) {
+            throwIncorrectSolvedTapPosition(solvedTap.getAsInt(), newHighTapPosition);
+        }
 
         List<TapChangerStepAttributes> oldValue = getAttributes().getSteps();
-        getTransformer().updateResource(res -> getAttributes(res).setSteps(steps));
-        notifyUpdate(() -> getTapChangerAttribute() + ".steps", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, steps);
+        getTransformer().updateResource(res -> getAttributes(res).setSteps(steps),
+            getTapChangerAttribute() + ".steps", oldValue, steps);
         return (C) this;
+    }
+
+    protected int getTapPositionIndex(int tapPosition) {
+        if (tapPosition < getLowTapPosition() || tapPosition > getHighTapPosition()) {
+            throwIncorrectTapPosition(tapPosition, getLowTapPosition(), getHighTapPosition());
+        }
+        return tapPosition - getLowTapPosition();
     }
 
     public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
@@ -175,5 +194,43 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         if (Double.isNaN(step.getB())) {
             throw new ValidationException(parent, "step b is not set");
         }
+    }
+
+    protected void throwIncorrectTapPosition(int tapPosition, int lowTapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect tap position "
+            + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + "]");
+    }
+
+    public Integer getSolvedTapPosition() {
+        return getAttributes().getSolvedTapPosition();
+    }
+
+    public OptionalInt findSolvedTapPosition() {
+        Integer solvedPosition = getSolvedTapPosition();
+        return solvedPosition == null ? OptionalInt.empty() : OptionalInt.of(solvedPosition);
+    }
+
+    public C setSolvedTapPosition(int solvedTapPosition) {
+        Integer oldValue = getSolvedTapPosition();
+        if (solvedTapPosition < getLowTapPosition() || solvedTapPosition > getHighTapPosition()) {
+            throwIncorrectSolvedTapPosition(solvedTapPosition, getHighTapPosition());
+        }
+        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(solvedTapPosition),
+            getTapChangerAttribute() + ".solvedTapPosition", oldValue, solvedTapPosition);
+        return (C) this;
+    }
+
+    public C unsetSolvedTapPosition() {
+        Integer oldValue = getSolvedTapPosition();
+        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(null),
+            getTapChangerAttribute() + ".solvedTapPosition", oldValue, null);
+        return (C) this;
+    }
+
+    protected void throwIncorrectSolvedTapPosition(int solvedTapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect solved tap position "
+            + solvedTapPosition + " [" + getLowTapPosition() + ", " + highTapPosition
+            + "]");
     }
 }

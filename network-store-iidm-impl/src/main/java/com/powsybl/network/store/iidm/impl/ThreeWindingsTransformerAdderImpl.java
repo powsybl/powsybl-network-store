@@ -186,69 +186,44 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
         @Override
         public ThreeWindingsTransformerAdder add() {
             checkParams();
-            checkVoltageLevel();
-            checkNodeBus();
-
-            if (legNumber == 1) {
-                leg1 = LegAttributes.builder()
-                        .voltageLevelId(voltageLevelId)
-                        .node(node)
-                        .bus(bus)
-                        .connectableBus(connectableBus != null ? connectableBus : bus)
-                        .r(r)
-                        .x(x)
-                        .g(g)
-                        .b(b)
-                        .ratedU(ratedU)
-                        .ratedS(ratedS)
-                        .legNumber(legNumber)
-                        .build();
-            } else if (legNumber == 2) {
-                leg2 = LegAttributes.builder()
-                        .voltageLevelId(voltageLevelId)
-                        .node(node)
-                        .bus(bus)
-                        .connectableBus(connectableBus != null ? connectableBus : bus)
-                        .r(r)
-                        .x(x)
-                        .g(g)
-                        .b(b)
-                        .ratedU(ratedU)
-                        .ratedS(ratedS)
-                        .legNumber(legNumber)
-                        .build();
-            } else if (legNumber == 3) {
-                leg3 = LegAttributes.builder()
-                        .voltageLevelId(voltageLevelId)
-                        .node(node)
-                        .bus(bus)
-                        .connectableBus(connectableBus != null ? connectableBus : bus)
-                        .r(r)
-                        .x(x)
-                        .g(g)
-                        .b(b)
-                        .ratedU(ratedU)
-                        .ratedS(ratedS)
-                        .legNumber(legNumber)
-                        .build();
+            switch (legNumber) {
+                case 1 -> legAdder1 = this;
+                case 2 -> legAdder2 = this;
+                case 3 -> legAdder3 = this;
+                default -> throw new IllegalStateException("Unexpected side: " + legNumber);
             }
-
             return threeWindingsTransformerAdder;
         }
 
         @Override
-        public String getMessageHeader() {
-            return String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation.getName());
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader(String.format("3 windings transformer leg%d in substation", legNumber), substation.getNameOrId());
+        }
+
+        protected LegAttributes toLegAttributes() {
+            checkVoltageLevel();
+            checkNodeBus();
+            return LegAttributes.builder()
+                .voltageLevelId(voltageLevelId)
+                .node(node)
+                .bus(bus)
+                .connectableBus(connectableBus != null ? connectableBus : bus)
+                .r(r)
+                .x(x)
+                .g(g)
+                .b(b)
+                .ratedU(ratedU)
+                .ratedS(ratedS)
+                .legNumber(legNumber)
+                .build();
         }
     }
 
     private double ratedU0;
 
-    private LegAttributes leg1;
-
-    private LegAttributes leg2;
-
-    private LegAttributes leg3;
+    private LegAdderImpl legAdder1;
+    private LegAdderImpl legAdder2;
+    private LegAdderImpl legAdder3;
 
     ThreeWindingsTransformerAdderImpl(NetworkObjectIndex index, SubstationImpl substation) {
         super(index);
@@ -286,19 +261,27 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
     public ThreeWindingsTransformer add() {
         String id = checkAndGetUniqueId();
 
-        if (leg1 == null) {
+        // Leg 1
+        if (legAdder1 == null) {
             throw new ValidationException(this, "Leg1 is not set");
         }
-        if (leg2 == null) {
+        LegAttributes leg1 = legAdder1.toLegAttributes();
+        VoltageLevel voltageLevel1 = getNetwork().getVoltageLevel(leg1.getVoltageLevelId());
+
+        // Leg 2
+        if (legAdder2 == null) {
             throw new ValidationException(this, "Leg2 is not set");
         }
-        if (leg3 == null) {
+        LegAttributes leg2 = legAdder2.toLegAttributes();
+        VoltageLevel voltageLevel2 = getNetwork().getVoltageLevel(leg2.getVoltageLevelId());
+
+        // Leg 3
+        if (legAdder3 == null) {
             throw new ValidationException(this, "Leg3 is not set");
         }
-
-        VoltageLevel voltageLevel1 = getNetwork().getVoltageLevel(leg1.getVoltageLevelId());
-        VoltageLevel voltageLevel2 = getNetwork().getVoltageLevel(leg2.getVoltageLevelId());
+        LegAttributes leg3 = legAdder3.toLegAttributes();
         VoltageLevel voltageLevel3 = getNetwork().getVoltageLevel(leg3.getVoltageLevelId());
+
         if (substation != null) {
             if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
                 throw new ValidationException(this,

@@ -12,13 +12,4 @@ import com.powsybl.iidm.network.tck.AbstractOperationalLimitsGroupsTest;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class OperationalLimitsGroupsTest extends AbstractOperationalLimitsGroupsTest {
-    @Override
-    public void testForOperationalLimitsGroupsOnLine() {
-        // FIXME remove this test when we update correctly the value of V between views
-    }
-
-    @Override
-    public void testForOperationalLimitsGroupsOn3WTLeg3() {
-        // FIXME remove this test when we update correctly the value of V between views
-    }
 }

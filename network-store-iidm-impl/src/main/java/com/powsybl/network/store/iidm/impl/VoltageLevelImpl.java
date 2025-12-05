@@ -53,7 +53,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     void invalidateCalculatedBuses() {
-        updateResource(res -> res.getAttributes().setCalculatedBusesValid(false));
+        updateResourceWithoutNotification(res -> res.getAttributes().setCalculatedBusesValid(false));
         getNetwork().invalidateCalculatedBuses();
     }
 
@@ -63,7 +63,18 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
+    public NetworkImpl getNetwork() {
+        if (getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access network of removed voltage level " + getId());
+        }
+        return super.getNetwork();
+    }
+
+    @Override
     public Optional<Substation> getSubstation() {
+        if (getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access substation of removed voltage level " + getId());
+        }
         String substationId = getResource().getAttributes().getSubstationId();
         return substationId == null ? Optional.empty() : index.getSubstation(substationId).map(Function.identity());
     }
@@ -79,9 +90,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = resource.getAttributes().getNominalV();
         if (nominalV != oldValue) {
-            updateResource(res -> res.getAttributes().setNominalV(nominalV));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "nominalV", variantId, oldValue, nominalV);
+            updateResource(res -> res.getAttributes().setNominalV(nominalV),
+                "nominalV", oldValue, nominalV);
         }
         return this;
     }
@@ -97,9 +107,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, getHighVoltageLimit());
         double oldValue = resource.getAttributes().getLowVoltageLimit();
         if (lowVoltageLimit != oldValue) {
-            updateResource(res -> res.getAttributes().setLowVoltageLimit(lowVoltageLimit));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "lowVoltageLimit", variantId, oldValue, lowVoltageLimit);
+            updateResource(res -> res.getAttributes().setLowVoltageLimit(lowVoltageLimit),
+                "lowVoltageLimit", oldValue, lowVoltageLimit);
         }
         return this;
     }
@@ -115,9 +124,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkVoltageLimits(this, getLowVoltageLimit(), highVoltageLimit);
         double oldValue = resource.getAttributes().getHighVoltageLimit();
         if (highVoltageLimit != oldValue) {
-            updateResource(res -> res.getAttributes().setHighVoltageLimit(highVoltageLimit));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "highVoltageLimit", variantId, oldValue, highVoltageLimit);
+            updateResource(res -> res.getAttributes().setHighVoltageLimit(highVoltageLimit),
+                "highVoltageLimit", oldValue, highVoltageLimit);
         }
         return this;
     }
@@ -647,9 +655,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             getBusBreakerView().removeAllSwitches();
             getBusBreakerView().removeAllBuses();
         } else if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            getNodeBreakerView().getSwitches().forEach(s -> {
-                getNodeBreakerView().removeSwitch(s.getId());
-            });
+            getNodeBreakerView().getSwitches().forEach(s -> getNodeBreakerView().removeSwitch(s.getId()));
         }
     }
 
@@ -675,33 +681,49 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public Iterable<Area> getAreas() {
-        // TODO
-        return Collections.emptyList();
+        return getAreasStream().collect(Collectors.toSet());
     }
 
     @Override
     public Stream<Area> getAreasStream() {
-        // TODO
-        return Stream.empty();
+        return getOptionalResource().orElseThrow(() -> new PowsyblException("Cannot access areas of removed voltage level " + getId()))
+            .getAttributes()
+            .getAreaIds()
+            .stream()
+            .map(areaId -> index.getArea(areaId).orElse(null));
     }
 
     @Override
     public Optional<Area> getArea(String areaType) {
         Objects.requireNonNull(areaType);
-        // TODO
-        return Optional.empty();
+        return getAreasStream().filter(area -> Objects.equals(area.getAreaType(), areaType)).findFirst();
     }
 
     @Override
     public void addArea(Area area) {
         Objects.requireNonNull(area);
-        // TODO
+        Set<String> oldAreaIds = getOptionalResource().orElseThrow(() -> new PowsyblException("Cannot add areas to removed voltage level " + getId()))
+            .getAttributes().getAreaIds();
+        if (oldAreaIds.contains(area.getId())) {
+            return;
+        }
+        final Optional<Area> previousArea = getArea(area.getAreaType());
+        if (previousArea.isPresent() && previousArea.get() != area) {
+            // This instance already has a different area with the same AreaType
+            throw new PowsyblException("VoltageLevel " + getId() + " is already in Area of the same type=" + previousArea.get().getAreaType() + " with id=" + previousArea.get().getId());
+        }
+        updateResource(r -> r.getAttributes().getAreaIds().add(area.getId()),
+            "areaIds", null, oldAreaIds, this::getAreas);
+        area.addVoltageLevel(this);
     }
 
     @Override
     public void removeArea(Area area) {
         Objects.requireNonNull(area);
-        // TODO
+        Set<String> oldAreaIds = getResource().getAttributes().getAreaIds();
+        updateResource(r -> r.getAttributes().getAreaIds().remove(area.getId()),
+            "areas", null, oldAreaIds, this::getAreas);
+        area.removeVoltageLevel(this);
     }
 
     private void convertToBusBreakerModel() {
@@ -718,5 +740,57 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 convertToBusBreakerModel();
             }
         }
+    }
+
+    // DC modelling
+    // These methods will allow for more detailed modeling of HVDCs.
+    //  This is a long-term work on the powsybl side.
+    //  It is too early to implement it on the network-store side and the need remains to be verified.
+    @Override
+    public LineCommutatedConverterAdder newLineCommutatedConverter() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public VoltageSourceConverterAdder newVoltageSourceConverter() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
     }
 }

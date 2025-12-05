@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.LinePosition;
@@ -21,7 +20,7 @@ import java.util.Objects;
  * @author Seddik Yengui <seddik.yengui_externe at rte-france.com>
  */
 
-public class LinePositionAdderImpl<T extends Identifiable<T>> extends AbstractExtensionAdder<T, LinePosition<T>> implements LinePositionAdder<T> {
+public class LinePositionAdderImpl<T extends Identifiable<T>> extends AbstractIidmExtensionAdder<T, LinePosition<T>> implements LinePositionAdder<T> {
 
     private List<Coordinate> coordinates;
 
@@ -32,7 +31,7 @@ public class LinePositionAdderImpl<T extends Identifiable<T>> extends AbstractEx
     @Override
     protected LinePosition<T> createExtension(T extendable) {
         var attributes = new LinePositionAttributes(coordinates);
-        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResource(res -> res.getAttributes().getExtensionAttributes().put(LinePosition.NAME, attributes));
+        ((AbstractIdentifiableImpl<?, ?>) extendable).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(LinePosition.NAME, attributes));
         return new LinePositionImpl<>(extendable);
     }
 

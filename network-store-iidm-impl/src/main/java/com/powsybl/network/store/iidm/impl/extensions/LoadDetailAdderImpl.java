@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
@@ -16,7 +15,7 @@ import com.powsybl.network.store.model.LoadDetailAttributes;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class LoadDetailAdderImpl extends AbstractExtensionAdder<Load, LoadDetail> implements LoadDetailAdder {
+public class LoadDetailAdderImpl extends AbstractIidmExtensionAdder<Load, LoadDetail> implements LoadDetailAdder {
 
     private double fixedActivePower;
 
@@ -38,7 +37,7 @@ public class LoadDetailAdderImpl extends AbstractExtensionAdder<Load, LoadDetail
                 .variableActivePower(variableActivePower)
                 .variableReactivePower(variableReactivePower)
                 .build();
-        ((LoadImpl) load).updateResource(res -> res.getAttributes().setLoadDetail(attributes));
+        ((LoadImpl) load).updateResourceWithoutNotification(res -> res.getAttributes().setLoadDetail(attributes));
         return new LoadDetailImpl((LoadImpl) load);
     }
 

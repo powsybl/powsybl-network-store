@@ -10,10 +10,7 @@ import com.powsybl.network.store.model.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
@@ -98,6 +95,36 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String operationalLimitGroupName, int side) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
+        return List.of();
+    }
+
+    @Override
+    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        return Map.of();
+    }
+
+    @Override
+    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        return Map.of();
+    }
+
+    @Override
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
     public List<NetworkInfos> getNetworksInfos() {
         throw new UnsupportedOperationException("Unimplemented method");
     }
@@ -108,7 +135,7 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid, boolean disableCache) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 
@@ -649,6 +676,31 @@ class MockNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources, AttributeFilter attributeFilter) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
+    public void createAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
+    public List<Resource<AreaAttributes>> getAreas(UUID networkUuid, int variantNum) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
+    public Optional<Resource<AreaAttributes>> getArea(UUID networkUuid, int variantNum, String areaId) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
+    public void removeAreas(UUID networkUuid, int variantNum, List<String> areasId) {
+        throw new UnsupportedOperationException("Unimplemented method");
+    }
+
+    @Override
+    public void updateAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources, AttributeFilter attributeFilter) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 

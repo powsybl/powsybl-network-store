@@ -106,6 +106,6 @@ public class MeasurementAdderImpl implements MeasurementAdder {
                 .side(side != null ? side.getNum() : null)
                 .build();
         measurements.getMeasurementsAttributes().getMeasurementAttributes().add(measurementAttributes);
-        return new MeasurementImpl((AbstractIdentifiableImpl) this.measurements.getExtendable(), measurementAttributes);
+        return new MeasurementImpl(measurements, (AbstractIdentifiableImpl) this.measurements.getExtendable(), measurementAttributes);
     }
 }

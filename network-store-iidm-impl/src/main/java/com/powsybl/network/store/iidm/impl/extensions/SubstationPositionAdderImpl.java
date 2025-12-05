@@ -7,7 +7,6 @@
 
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
@@ -21,7 +20,7 @@ import java.util.Objects;
  * @author Seddik Yengui <seddik.yengui_externe at rte-france.com>
  */
 
-public class SubstationPositionAdderImpl extends AbstractExtensionAdder<Substation, SubstationPosition> implements SubstationPositionAdder {
+public class SubstationPositionAdderImpl extends AbstractIidmExtensionAdder<Substation, SubstationPosition> implements SubstationPositionAdder {
 
     private Coordinate coordinate;
 
@@ -32,7 +31,7 @@ public class SubstationPositionAdderImpl extends AbstractExtensionAdder<Substati
     @Override
     protected SubstationPosition createExtension(Substation substation) {
         var attributes = new SubstationPositionAttributes(coordinate);
-        ((SubstationImpl) substation).updateResource(res -> res.getAttributes().getExtensionAttributes().put(SubstationPosition.NAME, attributes));
+        ((SubstationImpl) substation).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(SubstationPosition.NAME, attributes));
         return new SubstationPositionImpl(substation);
     }
 

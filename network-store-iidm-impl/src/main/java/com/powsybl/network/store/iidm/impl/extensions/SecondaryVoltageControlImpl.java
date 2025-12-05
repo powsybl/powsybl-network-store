@@ -35,7 +35,7 @@ public class SecondaryVoltageControlImpl extends AbstractExtension<Network> impl
     @Override
     public List<ControlZone> getControlZones() {
         return getSecondaryVoltageControlAttributes().getControlZones().stream()
-                .map(controlZoneAttributes -> (ControlZone) new ControlZoneImpl((NetworkImpl) getExtendable(), controlZoneAttributes))
+                .map(controlZoneAttributes -> (ControlZone) new ControlZoneImpl(this, (NetworkImpl) getExtendable(), controlZoneAttributes))
                 .toList();
     }
 

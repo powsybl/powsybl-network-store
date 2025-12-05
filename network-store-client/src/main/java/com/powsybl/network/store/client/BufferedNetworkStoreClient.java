@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreClient {
+public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreClient<RestNetworkStoreClient> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BufferedNetworkStoreClient.class);
 
@@ -109,8 +109,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     private final NetworkCollectionIndex<CollectionBuffer<GroundAttributes>> groundResourcesToFlush
             = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createGrounds,
-            delegate::updateGrounds,
-            delegate::removeGrounds));
+                delegate::updateGrounds,
+                delegate::removeGrounds));
 
     private final NetworkCollectionIndex<CollectionBuffer<TwoWindingsTransformerAttributes>> twoWindingsTransformerResourcesToFlush
             = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createTwoWindingsTransformers,
@@ -134,8 +134,13 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     private final NetworkCollectionIndex<CollectionBuffer<TieLineAttributes>> tieLineResourcesToFlush
             = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createTieLines,
-            delegate::updateTieLines,
-            delegate::removeTieLines));
+                delegate::updateTieLines,
+                delegate::removeTieLines));
+
+    private final NetworkCollectionIndex<CollectionBuffer<AreaAttributes>> areaResourcesToFlush
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createAreas,
+                delegate::updateAreas,
+                delegate::removeAreas));
 
     private final List<NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = List.of(
             networkResourcesToFlush,
@@ -157,7 +162,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             threeWindingsTransformerResourcesToFlush,
             lineResourcesToFlush,
             busResourcesToFlush,
-            tieLineResourcesToFlush);
+            tieLineResourcesToFlush,
+            areaResourcesToFlush);
 
     private final ExecutorService executorService;
 
@@ -563,6 +569,26 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         tieLineResourcesToFlush.getCollection(networkUuid, variantNum).remove(tieLinesId);
     }
 
+    // Areas
+    @Override
+    public void createAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources) {
+        for (Resource<AreaAttributes> areaResource : areaResources) {
+            areaResourcesToFlush.getCollection(networkUuid, areaResource.getVariantNum()).create(areaResource);
+        }
+    }
+
+    @Override
+    public void updateAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources, AttributeFilter attributeFilter) {
+        for (Resource<AreaAttributes> areaResource : areaResources) {
+            areaResourcesToFlush.getCollection(networkUuid, areaResource.getVariantNum()).update(areaResource, attributeFilter);
+        }
+    }
+
+    @Override
+    public void removeAreas(UUID networkUuid, int variantNum, List<String> areasId) {
+        areaResourcesToFlush.getCollection(networkUuid, variantNum).remove(areasId);
+    }
+
     @Override
     public void flush(UUID networkUuid) {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -618,8 +644,15 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(substationResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(voltageLevelResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(tieLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(areaResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(networkResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
-            networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
+                networkResource -> {
+                    NetworkAttributes networkAttributes = networkResource.getAttributes();
+                    networkAttributes.setVariantId(targetVariantId);
+                    if (networkAttributes.isFullVariant()) {
+                        networkAttributes.setFullVariantNum(sourceVariantNum);
+                    }
+                });
     }
 
     @Override

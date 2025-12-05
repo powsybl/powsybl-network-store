@@ -7,20 +7,21 @@
 
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
+import com.powsybl.network.store.model.ShortCircuitAttributes;
+
+import java.util.function.Consumer;
 
 /**
  * @author Seddik Yengui <seddik.yengui at rte-france.com>
  */
 
-public class GeneratorShortCircuitImpl extends AbstractExtension<Generator> implements GeneratorShortCircuit {
+public class GeneratorShortCircuitImpl extends AbstractShortCircuitExtensionImpl<Generator, GeneratorShortCircuitImpl> implements GeneratorShortCircuit {
 
     public GeneratorShortCircuitImpl(GeneratorImpl generator) {
-        super(generator);
+        super(generator, generator.getResource().getAttributes().getGeneratorShortCircuitAttributes());
     }
 
     private GeneratorImpl getGenerator() {
@@ -28,39 +29,13 @@ public class GeneratorShortCircuitImpl extends AbstractExtension<Generator> impl
     }
 
     @Override
-    public double getDirectSubtransX() {
-        return getGenerator().getResource().getAttributes().getGeneratorShortCircuitAttributes().getDirectSubtransX();
-    }
-
-    @Override
-    public GeneratorShortCircuit setDirectSubtransX(double directSubtransX) {
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorShortCircuitAttributes().setDirectSubtransX(directSubtransX));
+    protected GeneratorShortCircuitImpl self() {
         return this;
     }
 
     @Override
-    public double getDirectTransX() {
-        return getGenerator().getResource().getAttributes().getGeneratorShortCircuitAttributes().getDirectTransX();
-    }
-
-    @Override
-    public GeneratorShortCircuit setDirectTransX(double directTransX) {
-        if (Double.isNaN(directTransX)) {
-            throw new PowsyblException("Undefined directTransX");
-        }
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorShortCircuitAttributes().setDirectTransX(directTransX));
-        return this;
-    }
-
-    @Override
-    public double getStepUpTransformerX() {
-        return getGenerator().getResource().getAttributes().getGeneratorShortCircuitAttributes()
-                .getStepUpTransformerX();
-    }
-
-    @Override
-    public GeneratorShortCircuit setStepUpTransformerX(double stepUpTransformerX) {
-        getGenerator().updateResource(res -> res.getAttributes().getGeneratorShortCircuitAttributes().setStepUpTransformerX(stepUpTransformerX));
-        return this;
+    protected void updateAttributes(double newValue, double oldValue, String name, Consumer<ShortCircuitAttributes> modifier) {
+        getGenerator().updateResourceExtension(this, res ->
+            modifier.accept(res.getAttributes().getGeneratorShortCircuitAttributes()), name, oldValue, newValue);
     }
 }

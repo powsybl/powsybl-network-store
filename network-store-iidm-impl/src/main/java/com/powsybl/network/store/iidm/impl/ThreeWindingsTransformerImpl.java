@@ -7,12 +7,14 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
+import com.powsybl.network.store.iidm.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
 
@@ -56,7 +58,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             return legGetter.apply(transformer.getResource().getAttributes());
         }
 
-        protected String getLegAttribute() {
+        protected String getLegName() {
             return String.format("leg%d", getLegAttributes().getLegNumber());
         }
 
@@ -83,8 +85,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             }
             double oldValue = getLegAttributes().getR();
             if (r != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setR(r));
-                index.notifyUpdate(transformer, getLegAttribute() + ".r", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, r);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setR(r),
+                    getLegName() + ".r", oldValue, r);
             }
             return this;
         }
@@ -101,8 +103,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             }
             double oldValue = getLegAttributes().getX();
             if (x != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setX(x));
-                index.notifyUpdate(transformer, getLegAttribute() + ".x", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, x);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setX(x),
+                    getLegName() + ".x", oldValue, x);
             }
             return this;
         }
@@ -119,8 +121,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             }
             double oldValue = getLegAttributes().getG();
             if (g != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setG(g));
-                index.notifyUpdate(transformer, getLegAttribute() + ".g", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, g);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setG(g),
+                    getLegName() + ".g", oldValue, g);
             }
             return this;
         }
@@ -137,8 +139,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             }
             double oldValue = getLegAttributes().getB();
             if (b != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setB(b));
-                index.notifyUpdate(transformer, getLegAttribute() + ".b", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, b);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setB(b),
+                    getLegName() + ".b", oldValue, b);
             }
             return this;
         }
@@ -153,8 +155,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             ValidationUtil.checkRatedU(this, ratedU, "");
             double oldValue = getLegAttributes().getRatedU();
             if (ratedU != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatedU(ratedU));
-                index.notifyUpdate(transformer, "ratedU", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, ratedU);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatedU(ratedU),
+                    "ratedU", oldValue, ratedU);
             }
             return this;
         }
@@ -170,6 +172,17 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             return operationalLimitsGroup != null && operationalLimitsGroup.getCurrentLimits() != null
                     ? new CurrentLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getCurrentLimits())
                     : null;
+        }
+
+        @Override
+        public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+            OperationalLimitsGroupAttributes operationalLimitsGroup = getLegAttributes().getSelectedOperationalLimitsGroup();
+            if (operationalLimitsGroup != null) {
+                return new OperationalLimitsGroupImpl<>(this, null, operationalLimitsGroup);
+            }
+            OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+            setSelectedOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+            return newOperationalLimitsGroup;
         }
 
         @Override
@@ -201,7 +214,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
         private static final String SELECTED_OPERATIONAL_LIMITS_GROUP_ID = ".selectedOperationalLimitsGroupId";
 
-        private String getSelectedGroupId() {
+        private String getSelectedLimitsGroupId() {
             return getLegAttributes().getSelectedOperationalLimitsGroupId() != null
                     ? getLegAttributes().getSelectedOperationalLimitsGroupId()
                     : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
@@ -213,22 +226,25 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             }
         }
 
+        @Deprecated(since = "1.29.0")
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
-            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
-            return new CurrentLimitsAdderImpl<>(null, this, getSelectedGroupId());
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
         }
 
+        @Deprecated(since = "1.29.0")
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
-            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
-            return new ApparentPowerLimitsAdderImpl<>(null, this, getSelectedGroupId());
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
         }
 
+        @Deprecated(since = "1.29.0")
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
-            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedGroupId());
-            return new ActivePowerLimitsAdderImpl<>(null, this, getSelectedGroupId());
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
         }
 
         @Override
@@ -244,15 +260,15 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         @Override
         public void setPhaseTapChanger(PhaseTapChangerAttributes attributes) {
             PhaseTapChangerAttributes oldValue = getLegAttributes().getPhaseTapChangerAttributes();
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setPhaseTapChangerAttributes(attributes));
-            index.notifyUpdate(transformer, "phaseTapChanger", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, attributes);
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setPhaseTapChangerAttributes(attributes),
+                "phaseTapChanger", oldValue, attributes);
         }
 
         @Override
         public void setRatioTapChanger(RatioTapChangerAttributes attributes) {
             RatioTapChangerAttributes oldValue = getLegAttributes().getRatioTapChangerAttributes();
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatioTapChangerAttributes(attributes));
-            index.notifyUpdate(transformer, "ratioTapChanger", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, attributes);
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatioTapChangerAttributes(attributes),
+                "ratioTapChanger", oldValue, attributes);
         }
 
         @Override
@@ -273,8 +289,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         public void setCurrentLimits(Void side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
             var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(currentLimits));
-            notifyUpdate("currentLimits", oldValue, currentLimits);
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(currentLimits),
+                getLegName() + "." + "currentLimits", oldValue, currentLimits);
         }
 
         @Override
@@ -286,16 +302,16 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         public void setApparentPowerLimits(Void side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId) {
             var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes));
-            notifyUpdate("apparentLimits", oldValue, apparentPowerLimitsAttributes);
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes),
+                getLegName() + "." + "apparentLimits", oldValue, apparentPowerLimitsAttributes);
         }
 
         @Override
         public void setActivePowerLimits(Void side, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId) {
             var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
             LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes));
-            notifyUpdate("activePowerLimits", oldValue, activePowerLimitsAttributes);
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes),
+                getLegName() + "." + "activePowerLimits", oldValue, activePowerLimitsAttributes);
         }
 
         @Override
@@ -308,8 +324,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             ValidationUtil.checkRatedS(this, ratedS);
             double oldValue = getLegAttributes().getRatedS();
             if (ratedS != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatedS(ratedS));
-                index.notifyUpdate(transformer, "ratedS", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, ratedS);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatedS(ratedS),
+                    "ratedS", oldValue, ratedS);
             }
             return this;
         }
@@ -331,8 +347,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         }
 
         @Override
-        public String getMessageHeader() {
-            return "3 windings transformer leg" + getLegAttributes().getLegNumber() + " '" + transformer.getId() + "': ";
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader("3 windings transformer leg" + getLegAttributes().getLegNumber(), transformer.getId());
         }
 
         @Override
@@ -362,10 +378,6 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             return tapChangers;
         }
 
-        public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-            index.notifyUpdate(transformer, getLegAttribute() + "." + attribute, index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, newValue);
-        }
-
         @Override
         public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
             return getLegAttributes().getOperationalLimitsGroups().values().stream()
@@ -392,10 +404,10 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
 
         @Override
         public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
-            var resource = getLegAttributes();
-            var group = OperationalLimitsGroupAttributes.builder().id(id).build();
-            resource.getOperationalLimitsGroups().put(id, group);
-            return new OperationalLimitsGroupImpl<>(this, null, group);
+            var ressource = getTransformer().getResource();
+            OperationalLimitsGroupAttributes newGroup = LimitsOwner.newOperationalLimitsGroup(ressource, getTransformer(), getNetwork(), id,
+                    getLegAttributes().getOperationalLimitsGroups(), index, "operationalLimitsGroups");
+            return new OperationalLimitsGroupImpl<>(this, null, newGroup);
         }
 
         @Override
@@ -403,8 +415,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             var resource = getLegAttributes();
             String oldValue = resource.getSelectedOperationalLimitsGroupId();
             if (!id.equals(oldValue)) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(id));
-                index.notifyUpdate(transformer, getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, id);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(id),
+                    getLegName() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, id);
             }
         }
 
@@ -415,10 +427,12 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
                 throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
             }
             if (id.equals(resource.getSelectedOperationalLimitsGroupId())) {
-                resource.setSelectedOperationalLimitsGroupId(null);
-                index.notifyUpdate(transformer, getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, index.getNetwork().getVariantManager().getWorkingVariantId(), id, null);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(null),
+                    getLegName() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, null);
             }
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOperationalLimitsGroups().remove(id));
+            OperationalLimitsGroupAttributes oldValue = getLegAttributes().getOperationalLimitsGroups().get(id);
+            LimitsOwner.updateOperationalLimitsResource(getTransformer().getResource(), getTransformer(), getNetwork(),
+                    res -> getLegAttributes().getOperationalLimitsGroups().remove(id), getLegName() + ".operationalLimitsGroupId", oldValue, null, index);
         }
 
         @Override
@@ -426,8 +440,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             var resource = getLegAttributes();
             String oldValue = resource.getSelectedOperationalLimitsGroupId();
             if (oldValue != null) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(null));
-                index.notifyUpdate(transformer, getLegAttribute() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, null);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(null),
+                    getLegName() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
             }
         }
     }
@@ -468,6 +482,37 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             case TWO -> leg2.getTerminal();
             case THREE -> leg3.getTerminal();
         };
+    }
+
+    @Override
+    public Terminal getTerminal(String voltageLevelId) {
+        Objects.requireNonNull(voltageLevelId);
+        boolean isLeg1ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg1(), voltageLevelId);
+        boolean isLeg2ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg2(), voltageLevelId);
+        boolean isLeg3ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg3(), voltageLevelId);
+        if (isLeg1ConnectedToVoltageLevel
+            && isLeg2ConnectedToVoltageLevel
+            && isLeg3ConnectedToVoltageLevel) {
+            throw new PowsyblException("The three terminals are connected to the same voltage level " + voltageLevelId);
+        } else if (isLeg1ConnectedToVoltageLevel && isLeg2ConnectedToVoltageLevel
+            || isLeg3ConnectedToVoltageLevel && isLeg1ConnectedToVoltageLevel
+            || isLeg2ConnectedToVoltageLevel && isLeg3ConnectedToVoltageLevel) {
+            throw new PowsyblException("Two of the three terminals are connected to the same voltage level " + voltageLevelId);
+        } else if (isLeg1ConnectedToVoltageLevel) {
+            return getLeg1().getTerminal();
+        } else if (isLeg2ConnectedToVoltageLevel) {
+            return getLeg2().getTerminal();
+        } else if (isLeg3ConnectedToVoltageLevel) {
+            return getLeg3().getTerminal();
+        } else {
+            throw new PowsyblException("No terminal connected to voltage level " + voltageLevelId);
+        }
+    }
+
+    private boolean isLegConnectedToVoltageLevel(ThreeWindingsTransformer.Leg leg, String voltageLevelId) {
+        return Optional.ofNullable(leg.getTerminal().getVoltageLevel())
+            .map(vl -> voltageLevelId.equals(vl.getId()))
+            .orElse(Boolean.FALSE);
     }
 
     @Override

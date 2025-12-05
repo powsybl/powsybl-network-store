@@ -43,26 +43,16 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), getRegulationMode(), regulationValue, parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getAttributes().getRegulationValue();
         if (Double.compare(regulationValue, oldValue) != 0) {
-            getTransformer().updateResource(res -> getAttributes(res).setRegulationValue(regulationValue));
-            notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationValue);
+            getTransformer().updateResource(res -> getAttributes(res).setRegulationValue(regulationValue),
+                getTapChangerAttribute() + ".regulationValue", oldValue, regulationValue);
         }
         return this;
     }
 
     @Override
-    public boolean hasLoadTapChangingCapabilities() {
-        return getAttributes().isLoadTapChangingCapabilities();
-    }
-
-    @Override
-    public RatioTapChanger setLoadTapChangingCapabilities(boolean status) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), status, getRegulationTerminal(), getRegulationMode(), getRegulationValue(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
-        boolean oldValue = getAttributes().isLoadTapChangingCapabilities();
-        if (status != oldValue) {
-            getTransformer().updateResource(res -> getAttributes(res).setLoadTapChangingCapabilities(status));
-            notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, status);
-        }
-        return this;
+    public RatioTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities, getRegulationTerminal(), getRegulationMode(), getRegulationValue(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
+        return super.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
     }
 
     @Override
@@ -95,8 +85,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChangerStep getStep(int tapPosition) {
-        var attributes = getAttributes();
-        int tapPositionIndex = tapPosition - attributes.getLowTapPosition();
+        int tapPositionIndex = getTapPositionIndex(tapPosition);
         return new RatioTapChangerStepImpl(this, tapPositionIndex);
     }
 
@@ -110,6 +99,15 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         var attributes = getAttributes();
         int tapPositionIndex = attributes.getTapPosition() - attributes.getLowTapPosition();
         return new RatioTapChangerStepImpl(this, tapPositionIndex);
+    }
+
+    @Override
+    public RatioTapChangerStep getSolvedCurrentStep() {
+        Integer solvedPosition = getAttributes().getSolvedTapPosition();
+        if (solvedPosition == null) {
+            return null;
+        }
+        return getStep(solvedPosition);
     }
 
     @Override
@@ -141,8 +139,8 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
-    public String getMessageHeader() {
-        return "ratioTapChanger '" + parent.getTransformer().getId() + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("ratioTapChanger", parent.getTransformer().getId());
     }
 
     @Override
@@ -156,8 +154,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), regulationMode, getTargetV(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
         RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
-            regulatingPoint.setRegulationMode(String.valueOf(regulationMode));
-            notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
+            regulatingPoint.setRegulationMode(getTapChangerAttribute() + ".regulationMode", String.valueOf(regulationMode));
         }
         return this;
     }
@@ -172,10 +169,11 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChanger setTargetV(double targetV) {
-        setRegulationValue(targetV);
         if (!Double.isNaN(targetV)) {
-            setRegulationMode(RegulationMode.VOLTAGE);
+            regulatingPoint.setRegulationMode(getTapChangerAttribute() + ".regulationMode",
+                String.valueOf(RatioTapChanger.RegulationMode.VOLTAGE));
         }
+        setRegulationValue(targetV);
         return this;
     }
 

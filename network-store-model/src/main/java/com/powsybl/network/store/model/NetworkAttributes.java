@@ -27,11 +27,17 @@ import java.util.UUID;
 @Schema(description = "Network attributes")
 public class NetworkAttributes extends AbstractIdentifiableAttributes {
 
+    private static final int FULL_VARIANT_INDICATOR = -1;
+
     @Schema(description = "Network UUID", required = true)
     private UUID uuid;
 
     @Schema(description = "Variant ID")
     private String variantId;
+
+    @Schema(description = "Full variant number")
+    @Builder.Default
+    private int fullVariantNum = FULL_VARIANT_INDICATOR;
 
     @Schema(description = "Id by alias")
     private Map<String, String> idByAlias;
@@ -58,12 +64,18 @@ public class NetworkAttributes extends AbstractIdentifiableAttributes {
     @Schema(description = "CIM characteristics")
     private CimCharacteristicsAttributes cimCharacteristics;
 
-    @Schema(description = "CGMES control areas")
-    private CgmesControlAreasAttributes cgmesControlAreas;
-
     @Schema(description = "Base voltage mapping")
     private BaseVoltageMappingAttributes baseVoltageMapping;
 
     @JsonIgnore
     private Map<String, Bus> busCache;
+
+    @JsonIgnore
+    public boolean isFullVariant() {
+        return fullVariantNum == FULL_VARIANT_INDICATOR;
+    }
+
+    public static boolean isFullVariant(int fullVariantNum) {
+        return fullVariantNum == FULL_VARIANT_INDICATOR;
+    }
 }

@@ -33,7 +33,10 @@ public class VoltagePerReactivePowerControlImpl extends AbstractExtension<Static
     @Override
     public VoltagePerReactivePowerControl setSlope(double slope) {
         checkSlope(slope);
-        getSvc().updateResource(res -> res.getAttributes().getVoltagePerReactiveControl().setSlope(slope));
+        double oldValue = getSlope();
+        if (oldValue != slope) {
+            getSvc().updateResourceExtension(this, res -> res.getAttributes().getVoltagePerReactiveControl().setSlope(slope), "slope", oldValue, slope);
+        }
         return this;
     }
 

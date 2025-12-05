@@ -9,10 +9,13 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.network.store.model.LimitsAttributes;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+// EqualsAndHashCode is needed for tck tests
+@EqualsAndHashCode
 public class CurrentLimitsImpl<S, O extends LimitsOwner<S>> extends AbstractLoadingLimits<S, O, CurrentLimitsImpl<S, O>> implements CurrentLimits {
 
     public CurrentLimitsImpl(O owner, S side, String operationalGroupId, LimitsAttributes attributes) {

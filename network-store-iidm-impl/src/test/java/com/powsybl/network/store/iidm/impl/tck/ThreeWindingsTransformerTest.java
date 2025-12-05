@@ -24,10 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest {
-    @Override
-    public void baseTests() {
-        // FIXME : remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3019
-    }
 
     @Test
     void testTerminals() {
@@ -82,7 +78,7 @@ class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest 
             .setLowTapPosition(0)
             .setTapPosition(0)
             .setRegulating(false)
-            .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
             .setRegulationValue(25)
             .setRegulationTerminal(twt.getTerminal(ThreeSides.ONE))
             .setTargetDeadband(22)
@@ -100,7 +96,7 @@ class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest 
             .setLowTapPosition(0)
             .setTapPosition(0)
             .setRegulating(false)
-            .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
             .setRegulationValue(25)
             .setRegulationTerminal(twt.getTerminal(ThreeSides.ONE))
             .setTargetDeadband(22)

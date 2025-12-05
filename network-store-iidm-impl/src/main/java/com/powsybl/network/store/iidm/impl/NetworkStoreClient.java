@@ -9,10 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.network.store.model.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,12 +18,15 @@ import java.util.UUID;
 public interface NetworkStoreClient {
 
     // network
-
     List<NetworkInfos> getNetworksInfos();
 
     void createNetworks(List<Resource<NetworkAttributes>> networkResources);
 
-    List<VariantInfos> getVariantsInfos(UUID networkUuid);
+    List<VariantInfos> getVariantsInfos(UUID networkUuid, boolean disableCache);
+
+    default List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        return getVariantsInfos(networkUuid, false);
+    }
 
     Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum);
 
@@ -278,6 +278,18 @@ public interface NetworkStoreClient {
 
     void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources, AttributeFilter attributeFilter);
 
+    // Area
+
+    void createAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources);
+
+    List<Resource<AreaAttributes>> getAreas(UUID networkUuid, int variantNum);
+
+    Optional<Resource<AreaAttributes>> getArea(UUID networkUuid, int variantNum, String areaId);
+
+    void removeAreas(UUID networkUuid, int variantNum, List<String> areasId);
+
+    void updateAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources, AttributeFilter attributeFilter);
+
     // Bus
 
     void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources);
@@ -332,6 +344,42 @@ public interface NetworkStoreClient {
     Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
 
     void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName);
+
+    // Limits Attributes
+    /**
+     * For one identifiable with a specific identifiable id, retrieves one operational limits group attributes by its name.
+     * @return {@link LimitsAttributes} which is a subset of an identifiable resource.
+     */
+    Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side);
+
+
+    /**
+     * For one identifiable with a specific identifiable id, retrieves the selected operational limits group attributes.
+     * @return {@link LimitsAttributes} which is a subset of an identifiable resource.
+     */
+    Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side);
+
+    /**
+     * For one identifiable with a specific identifiable id, retrieves all operational limits groups of one side.
+     * @return a list of {@link OperationalLimitsGroupAttributes}.
+     */
+    List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side);
+
+    /**
+     * For a specific resource type, retrieves all operational limits group attributes.
+     * Used for preloading collection strategy.
+     * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
+     */
+    Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
+
+    /**
+     * For a specific resource type, retrieves all selected operational limits group attributes.
+     * Used for preloading collection strategy.
+     * @return A {@link Map} where keys are identifiable IDs and values are {@link Map}s where keys are extension names and values are {@link ExtensionAttributes}.
+     */
+    Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType);
+
+    void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete);
 
     Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
 

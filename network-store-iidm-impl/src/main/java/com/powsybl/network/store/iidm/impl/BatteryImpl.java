@@ -7,8 +7,13 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
+import com.powsybl.network.store.iidm.impl.extensions.BatteryShortCircuitImpl;
 import com.powsybl.network.store.model.*;
+
+import java.util.Collection;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -37,11 +42,10 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     public Battery setTargetP(double targetP) {
         ValidationUtil.checkP0(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP());
-        double oldValue = getResource().getAttributes().getTargetP();
+        double oldValue = getTargetP();
         if (targetP != oldValue) {
-            updateResource(res -> res.getAttributes().setTargetP(targetP));
-            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetP", variantId, oldValue, targetP);
+            updateResource(res -> res.getAttributes().setTargetP(targetP),
+                "targetP", oldValue, targetP);
         }
         return this;
     }
@@ -56,9 +60,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkQ0(this, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetQ();
         if (targetQ != oldValue) {
-            updateResource(res -> res.getAttributes().setTargetQ(targetQ));
-            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
+            updateResource(res -> res.getAttributes().setTargetQ(targetQ),
+                "targetQ", oldValue, targetQ);
         }
         return this;
 
@@ -75,9 +78,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, minP, getMaxP());
         double oldValue = getResource().getAttributes().getMinP();
         if (minP != oldValue) {
-            updateResource(res -> res.getAttributes().setMinP(minP));
-            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "minP", variantId, oldValue, minP);
+            updateResource(res -> res.getAttributes().setMinP(minP),
+                "minP", oldValue, minP);
         }
         return this;
 
@@ -94,9 +96,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP);
         double oldValue = getResource().getAttributes().getMaxP();
         if (maxP != oldValue) {
-            updateResource(res -> res.getAttributes().setMaxP(maxP));
-            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "maxP", variantId, oldValue, maxP);
+            updateResource(res -> res.getAttributes().setMaxP(maxP),
+                "maxP", oldValue, maxP);
         }
         return this;
 
@@ -107,9 +108,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         var resource = getResource();
         ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
-        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
-        String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "reactiveLimits", variantId, oldValue, reactiveLimits);
+        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits),
+            "reactiveLimits", oldValue, reactiveLimits);
     }
 
     @Override
@@ -140,6 +140,51 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
         return new ReactiveCapabilityCurveAdderImpl<>(this);
+    }
+
+    @Override
+    public <E extends Extension<Battery>> E getExtension(Class<? super E> type) {
+        E extension;
+        if (type == BatteryShortCircuit.class) {
+            extension = createBatteryShortCircuitExtension();
+        } else {
+            extension = super.getExtension(type);
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Battery>> E getExtensionByName(String name) {
+        E extension;
+        if (name.equals("batteryShortCircuit")) {
+            extension = createBatteryShortCircuitExtension();
+        } else {
+            extension = super.getExtensionByName(name);
+        }
+        return extension;
+    }
+
+    private <E extends Extension<Battery>> E createBatteryShortCircuitExtension() {
+        E extension = null;
+        var resource = getResource();
+        ShortCircuitAttributes attributes = resource.getAttributes().getBatteryShortCircuitAttributes();
+        if (attributes != null) {
+            extension = (E) new BatteryShortCircuitImpl((BatteryImpl) getInjection());
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Battery>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        addIfNotNull(extensions, createBatteryShortCircuitExtension());
+        return extensions;
+    }
+
+    private <E extends Extension<Battery>> void addIfNotNull(Collection<E> list, E extension) {
+        if (extension != null) {
+            list.add(extension);
+        }
     }
 
     @Override

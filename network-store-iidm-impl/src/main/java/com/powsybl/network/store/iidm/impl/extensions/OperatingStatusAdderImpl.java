@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
@@ -20,7 +19,7 @@ import java.util.Objects;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 public class OperatingStatusAdderImpl<I extends Identifiable<I>>
-        extends AbstractExtensionAdder<I, OperatingStatus<I>> implements OperatingStatusAdder<I> {
+        extends AbstractIidmExtensionAdder<I, OperatingStatus<I>> implements OperatingStatusAdder<I> {
 
     private OperatingStatus.Status status = OperatingStatus.Status.IN_OPERATION;
 
@@ -30,7 +29,7 @@ public class OperatingStatusAdderImpl<I extends Identifiable<I>>
 
     @Override
     protected OperatingStatus<I> createExtension(I identifiable) {
-        ((AbstractIdentifiableImpl<?, ?>) identifiable).updateResource(res -> {
+        ((AbstractIdentifiableImpl<?, ?>) identifiable).updateResourceWithoutNotification(res -> {
             if (!OperatingStatus.isAllowedIdentifiable(identifiable)) {
                 throw new PowsyblException("Operating status extension is not allowed on identifiable type: " + identifiable.getType());
             }

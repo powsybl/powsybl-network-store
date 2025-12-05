@@ -6,10 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.network.store.model.Attributes;
-import com.powsybl.network.store.model.ExtensionAttributes;
-import com.powsybl.network.store.model.IdentifiableAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.List;
@@ -31,6 +28,12 @@ public interface RestClient {
      */
     Optional<ExtensionAttributes> getOneExtensionAttributes(String url, Object... uriVariables);
 
+    /**
+     * Retrieves one operational limit group attributes from the server.
+     * @return {@link OperationalLimitsGroupAttributes} which is a subset of a branch resource there is a list each side of a branch.
+     */
+    Optional<OperationalLimitsGroupAttributes> getOneOperationalLimitsGroupAttributes(String url, Object... uriVariables);
+
     <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables);
 
     <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables);
@@ -43,5 +46,5 @@ public interface RestClient {
 
     void post(String url, Object... uriVariables);
 
-    void deleteAll(String url, List<String> ids, Object... uriVariables);
+    <T> void deleteAll(String url, T ids, Object... uriVariables);
 }

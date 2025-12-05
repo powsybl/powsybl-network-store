@@ -10,6 +10,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.iidm.network.extensions.ControlUnit;
 import com.powsybl.iidm.network.extensions.ControlZone;
 import com.powsybl.iidm.network.extensions.PilotPoint;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.model.ControlZoneAttributes;
 
@@ -21,11 +22,14 @@ import java.util.Optional;
  * @author Achour Berrahma <achour.berrahma at rte-france.com>
  */
 class ControlZoneImpl implements ControlZone {
+    private final SecondaryVoltageControl secondaryVoltageControl;
+
     private final ControlZoneAttributes controlZoneAttributes;
 
     private final NetworkImpl network;
 
-    ControlZoneImpl(NetworkImpl network, ControlZoneAttributes controlZoneAttributes) {
+    ControlZoneImpl(SecondaryVoltageControl secondaryVoltageControl, NetworkImpl network, ControlZoneAttributes controlZoneAttributes) {
+        this.secondaryVoltageControl = secondaryVoltageControl;
         this.network = Objects.requireNonNull(network);
         this.controlZoneAttributes = Objects.requireNonNull(controlZoneAttributes);
     }
@@ -41,13 +45,13 @@ class ControlZoneImpl implements ControlZone {
 
     @Override
     public PilotPoint getPilotPoint() {
-        return new PilotPointImpl(network, controlZoneAttributes.getPilotPoint());
+        return new PilotPointImpl(secondaryVoltageControl, this, network, controlZoneAttributes.getPilotPoint());
     }
 
     @Override
     public List<ControlUnit> getControlUnits() {
         return controlZoneAttributes.getControlUnits().stream()
-                .map(controlUnitAttributes -> (ControlUnit) new ControlUnitImpl(network, controlUnitAttributes))
+                .map(controlUnitAttributes -> (ControlUnit) new ControlUnitImpl(secondaryVoltageControl, this, network, controlUnitAttributes))
                 .toList();
     }
 

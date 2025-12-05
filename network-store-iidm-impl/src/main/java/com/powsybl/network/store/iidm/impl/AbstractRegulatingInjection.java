@@ -39,11 +39,12 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I>, D exte
         return regulatingPoint.getRegulatingTerminal();
     }
 
-    public Boolean isRegulating() {
+    public boolean isRegulating() {
         return regulatingPoint.isRegulating();
     }
 
-    public void setRegulating(boolean regulating) {
-        regulatingPoint.setRegulating(regulating);
+    public I setRegulating(boolean regulating) {
+        regulatingPoint.setRegulating("regulating", regulating);
+        return getInjection();
     }
 }

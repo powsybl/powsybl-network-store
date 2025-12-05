@@ -9,12 +9,14 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
+import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
+@EqualsAndHashCode
 public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
     private final RatioTapChangerImpl ratioTapChanger;
@@ -47,9 +49,8 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setRho(double rho) {
         double oldValue = getTapChangerStepAttributes().getRho();
         if (rho != oldValue) {
-            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setRho(rho));
-            String variantId = ratioTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
-            ratioTapChanger.notifyUpdate(() -> "rho", variantId, oldValue, rho);
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setRho(rho),
+                "rho", oldValue, rho);
         }
         return this;
     }
@@ -63,9 +64,8 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setR(double r) {
         double oldValue = getTapChangerStepAttributes().getR();
         if (r != oldValue) {
-            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setR(r));
-            String variantId = ratioTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
-            ratioTapChanger.notifyUpdate(() -> "r", variantId, oldValue, r);
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setR(r),
+                "r", oldValue, r);
         }
         return this;
     }
@@ -79,9 +79,8 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setX(double x) {
         double oldValue = getTapChangerStepAttributes().getX();
         if (x != oldValue) {
-            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setX(x));
-            String variantId = ratioTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
-            ratioTapChanger.notifyUpdate(() -> "x", variantId, oldValue, x);
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setX(x),
+                "x", oldValue, x);
         }
         return this;
     }
@@ -95,9 +94,8 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setG(double g) {
         double oldValue = getTapChangerStepAttributes().getG();
         if (g != oldValue) {
-            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setG(g));
-            String variantId = ratioTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
-            ratioTapChanger.notifyUpdate(() -> "g", variantId, oldValue, g);
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setG(g),
+                "g", oldValue, g);
         }
         return this;
     }
@@ -111,9 +109,8 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setB(double b) {
         double oldValue = getTapChangerStepAttributes().getB();
         if (b != oldValue) {
-            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setB(b));
-            String variantId = ratioTapChanger.index.getNetwork().getVariantManager().getWorkingVariantId();
-            ratioTapChanger.notifyUpdate(() -> "b", variantId, oldValue, b);
+            getTransformer().updateResource(res -> getTapChangerStepAttributes(res).setB(b),
+                "b", oldValue, b);
         }
         return this;
     }

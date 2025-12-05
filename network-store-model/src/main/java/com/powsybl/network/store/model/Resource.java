@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.powsybl.iidm.network.DefaultMessageHeader;
 import com.powsybl.iidm.network.Validable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -55,8 +56,8 @@ public class Resource<T extends Attributes> implements Validable {
     private T attributes;
 
     @JsonIgnore
-    public String getMessageHeader() {
-        return type.getDescription() + " '" + id + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader(type.getDescription(), id);
     }
 
     public Resource<Attributes> filterAttributes(AttributeFilter filter) {
@@ -194,6 +195,10 @@ public class Resource<T extends Attributes> implements Validable {
 
     public static Builder<ConfiguredBusAttributes> configuredBusBuilder() {
         return new Builder<>(ResourceType.CONFIGURED_BUS);
+    }
+
+    public static Builder<AreaAttributes> areaBuilder() {
+        return new Builder<>(ResourceType.AREA);
     }
 
     public static <T extends IdentifiableAttributes> List<Resource<T>> cloneResourcesToVariant(

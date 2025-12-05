@@ -6,18 +6,16 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
-import com.powsybl.iidm.network.ActivePowerLimits;
-import com.powsybl.iidm.network.ActivePowerLimitsAdder;
-import com.powsybl.iidm.network.ApparentPowerLimits;
-import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.OperationalLimitsGroup;
-import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -104,8 +102,66 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
     }
 
     @Override
-    public String getMessageHeader() {
-        return "Operational limits group " + getId();
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("Operational limits group ", getId());
     }
 
+    @Override
+    public boolean hasProperty() {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null && !properties.isEmpty();
+    }
+
+    @Override
+    public boolean hasProperty(String key) {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null && properties.containsKey(key);
+    }
+
+    @Override
+    public String getProperty(String key) {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.get(key) : null;
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
+    }
+
+    @Override
+    public String setProperty(String key, String value) {
+        MutableObject<String> oldValue = new MutableObject<>();
+        Map<String, String> properties = attributes.getProperties();
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        oldValue.setValue(properties.put(key, value));
+
+        Map<String, String> finalProperties = properties;
+        owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.setProperties(finalProperties));
+        return oldValue.getValue();
+    }
+
+    @Override
+    public boolean removeProperty(String key) {
+        Map<String, String> properties = attributes.getProperties();
+        if (properties != null && properties.containsKey(key)) {
+            owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.keySet() : Collections.emptySet();
+    }
+
+    @Override
+    public Network getNetwork() {
+        return owner.getIdentifiable().getNetwork();
+    }
 }
