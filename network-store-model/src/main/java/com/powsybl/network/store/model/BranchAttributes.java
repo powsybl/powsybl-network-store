@@ -86,11 +86,11 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     }
 
     default OperationalLimitsGroupAttributes getOrCreateOperationalLimitsGroup1(String id) {
-        return getOperationalLimitsGroups1().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null));
+        return getOperationalLimitsGroups1().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null, null));
     }
 
     default OperationalLimitsGroupAttributes getOrCreateOperationalLimitsGroup2(String id) {
-        return getOperationalLimitsGroups2().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null));
+        return getOperationalLimitsGroups2().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null, null));
     }
 
     @JsonIgnore
@@ -140,84 +140,6 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     @JsonIgnore
     default List<Integer> getSideList() {
         return List.of(1, 2);
-    }
-
-    @Override
-    default LimitsAttributes getCurrentLimits(int side, String operationalLimitsGroupId) {
-        if (side == 1) {
-            return getOperationalLimitsGroup1(operationalLimitsGroupId) != null
-                    ? getOperationalLimitsGroup1(operationalLimitsGroupId).getCurrentLimits()
-                    : null;
-        }
-        if (side == 2) {
-            return getOperationalLimitsGroup2(operationalLimitsGroupId) != null
-                    ? getOperationalLimitsGroup2(operationalLimitsGroupId).getCurrentLimits()
-                    : null;
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    default LimitsAttributes getApparentPowerLimits(int side, String operationalLimitsGroupId) {
-        if (side == 1) {
-            return getOperationalLimitsGroup1(operationalLimitsGroupId) != null
-                    ? getOperationalLimitsGroup1(operationalLimitsGroupId).getApparentPowerLimits()
-                    : null;
-        }
-        if (side == 2) {
-            return getOperationalLimitsGroup2(operationalLimitsGroupId) != null
-                    ? getOperationalLimitsGroup2(operationalLimitsGroupId).getApparentPowerLimits()
-                    : null;
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    default LimitsAttributes getActivePowerLimits(int side, String operationalLimitsGroupId) {
-        if (side == 1) {
-            return getOperationalLimitsGroup1(operationalLimitsGroupId) != null
-                    ? getOperationalLimitsGroup1(operationalLimitsGroupId).getActivePowerLimits()
-                    : null;
-        }
-        if (side == 2) {
-            return getOperationalLimitsGroup2(operationalLimitsGroupId) != null
-                    ? getOperationalLimitsGroup2(operationalLimitsGroupId).getActivePowerLimits()
-                    : null;
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    default void setCurrentLimits(int side, LimitsAttributes limits, String operationalLimitsGroupId) {
-        if (side == 1) {
-            getOrCreateOperationalLimitsGroup1(operationalLimitsGroupId).setCurrentLimits(limits);
-        } else if (side == 2) {
-            getOrCreateOperationalLimitsGroup2(operationalLimitsGroupId).setCurrentLimits(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
-    @Override
-    default void setApparentPowerLimits(int side, LimitsAttributes limits, String operationalLimitsGroupId) {
-        if (side == 1) {
-            getOrCreateOperationalLimitsGroup1(operationalLimitsGroupId).setApparentPowerLimits(limits);
-        } else if (side == 2) {
-            getOrCreateOperationalLimitsGroup2(operationalLimitsGroupId).setApparentPowerLimits(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
-    @Override
-    default void setActivePowerLimits(int side, LimitsAttributes limits, String operationalLimitsGroupId) {
-        if (side == 1) {
-            getOrCreateOperationalLimitsGroup1(operationalLimitsGroupId).setActivePowerLimits(limits);
-        } else if (side == 2) {
-            getOrCreateOperationalLimitsGroup2(operationalLimitsGroupId).setActivePowerLimits(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
     }
 
     @JsonIgnore

@@ -93,57 +93,6 @@ public class DanglingLineAttributes extends AbstractIdentifiableAttributes imple
     }
 
     @Override
-    public LimitsAttributes getCurrentLimits(int side, String groupId) {
-        if (side == 1) {
-            return getOrCreateOperationalLimitsGroup(groupId).getCurrentLimits();
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    public LimitsAttributes getApparentPowerLimits(int side, String groupId) {
-        if (side == 1) {
-            return getOrCreateOperationalLimitsGroup(groupId).getApparentPowerLimits();
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    public LimitsAttributes getActivePowerLimits(int side, String groupId) {
-        if (side == 1) {
-            return getOrCreateOperationalLimitsGroup(groupId).getActivePowerLimits();
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    public void setCurrentLimits(int side, LimitsAttributes limits, String groupId) {
-        if (side == 1) {
-            getOrCreateOperationalLimitsGroup(groupId).setCurrentLimits(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
-    @Override
-    public void setApparentPowerLimits(int side, LimitsAttributes limits, String groupId) {
-        if (side == 1) {
-            getOrCreateOperationalLimitsGroup(groupId).setApparentPowerLimits(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
-    @Override
-    public void setActivePowerLimits(int side, LimitsAttributes limits, String groupId) {
-        if (side == 1) {
-            getOrCreateOperationalLimitsGroup(groupId).setActivePowerLimits(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
-    @Override
     public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
         if (side == 1) {
             return operationalLimitsGroups;

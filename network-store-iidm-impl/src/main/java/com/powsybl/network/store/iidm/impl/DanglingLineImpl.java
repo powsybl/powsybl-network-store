@@ -531,9 +531,10 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
         var resource = getResource();
-        var group = OperationalLimitsGroupAttributes.builder().id(id).build();
-        resource.getAttributes().getOperationalLimitsGroups().put(id, group);
-        return new OperationalLimitsGroupImpl<>(this, null, group);
+        OperationalLimitsGroupAttributes newGroup = LimitsOwner.newOperationalLimitsGroup(resource, this, getNetwork(), id,
+                resource.getAttributes().getOperationalLimitsGroups(), index, "operationalLimitsGroups");
+        return new OperationalLimitsGroupImpl<>(this, null, newGroup);
+
     }
 
     @Override
@@ -556,9 +557,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(null),
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, null);
         }
-        var oldValue = getResource().getAttributes().getOperationalLimitsGroups();
-        updateResource(res -> res.getAttributes().getOperationalLimitsGroups().remove(id),
-            "operationalLimitsGroups", oldValue, null);
+        OperationalLimitsGroupAttributes oldValue = getResource().getAttributes().getOperationalLimitsGroups().get(id);
+        LimitsOwner.updateOperationalLimitsResource(getResource(), this, getNetwork(), res -> res.getAttributes().getOperationalLimitsGroups().remove(id),
+            "operationalLimitsGroups", oldValue, null, index);
     }
 
     @Override

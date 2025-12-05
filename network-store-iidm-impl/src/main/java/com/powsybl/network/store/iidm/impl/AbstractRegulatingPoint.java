@@ -83,7 +83,7 @@ public abstract class AbstractRegulatingPoint {
                 REGULATING_TERMINAL, oldRegulatingTerminalAttributes, attributes);
 
             var oldRegulatedResourceType = getAttributes().getRegulatedResourceType();
-            ResourceType newRegulatedResourceType = ResourceType.convert(regulatingTerminal1.getConnectable().getType());
+            ResourceType newRegulatedResourceType = ((AbstractIdentifiableImpl<?, ?>) regulatingTerminal1.getConnectable()).getResource().getType();
             getIdentifiable().updateResource(res -> getAttributes().setRegulatedResourceType(newRegulatedResourceType),
                 REGULATED_RESOURCE_TYPE, oldRegulatedResourceType, newRegulatedResourceType);
         } else {

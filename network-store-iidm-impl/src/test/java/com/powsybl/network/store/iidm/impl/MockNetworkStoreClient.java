@@ -10,10 +10,7 @@ import com.powsybl.network.store.model.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
@@ -120,6 +117,11 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return Map.of();
+    }
+
+    @Override
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
+        throw new UnsupportedOperationException("Unimplemented method");
     }
 
     @Override

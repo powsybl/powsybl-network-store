@@ -24,7 +24,7 @@ public interface FlowsLimitsAttributes {
     }
 
     default OperationalLimitsGroupAttributes getOrCreateOperationalLimitsGroup(String id) {
-        return getOperationalLimitsGroups().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null));
+        return getOperationalLimitsGroups().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null, null));
     }
 
     @JsonIgnore

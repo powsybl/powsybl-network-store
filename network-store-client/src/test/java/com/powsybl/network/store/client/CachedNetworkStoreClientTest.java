@@ -10,8 +10,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
@@ -24,10 +22,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -41,8 +43,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
 import static org.springframework.http.HttpMethod.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -51,9 +52,29 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @RunWith(SpringRunner.class)
-@RestClientTest(RestClient.class)
-@ContextConfiguration(classes = RestClientImpl.class)
+@RestClientTest
 public class CachedNetworkStoreClientTest {
+
+    // Necessary with empty @RestClientTest for this
+    // lib which doesn't have a @SpringBootApplication in
+    // its main sources.
+    @SpringBootConfiguration
+    public static class EmptyConfig {
+
+    }
+
+    // Don't use the component scanned RestClient in this test
+    // to avoid the /v1 prefix because the tests were written
+    // without it (could be considered more legible... but not
+    // terribly important. Feel free to change if needed)
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        @Primary
+        public RestClient testClient(RestTemplateBuilder restTemplateBuilder) {
+            return new RestClientImpl(restTemplateBuilder);
+        }
+    }
 
     @Autowired
     private RestClient restClient;
@@ -980,10 +1001,15 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
 
-        // if the line is removed, getting the operational limits group must throw
+        // if the line is removed, it returns an empty operational limits group, and it does not call the api
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/side/1/operationalLimitsGroup"))
+            .andExpect(method(GET));
         cachedClient.removeLines(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(identifiableId));
-        String message = assertThrows(PowsyblException.class, () -> cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1)).getMessage();
-        assertEquals("Cannot manipulate operational limits groups for branch (LINE) as it has not been loaded into the cache.", message);
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1);
+        assertTrue(operationalLimitsGroupAttributes.isEmpty());
+        server.verify();
+        server.reset();
     }
 
     @Test
@@ -1032,29 +1058,22 @@ public class CachedNetworkStoreClientTest {
     private OperationalLimitsGroupAttributes createOperationalLimitsGroupAttributes(String operationalLimitsGroupId) {
         TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
         temporaryLimits.put(10, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroupId)
-            .limitType(LimitType.CURRENT)
             .value(12)
             .name("temporarylimit1")
             .acceptableDuration(10)
             .fictitious(false)
-            .side(1)
             .build());
         temporaryLimits.put(15, TemporaryLimitAttributes.builder()
-            .operationalLimitsGroupId(operationalLimitsGroupId)
-            .limitType(LimitType.CURRENT)
             .value(9)
             .name("temporarylimit2")
             .acceptableDuration(15)
             .fictitious(false)
-            .side(1)
             .build());
         return OperationalLimitsGroupAttributes.builder()
             .id(operationalLimitsGroupId)
             .currentLimits(LimitsAttributes.builder()
                 .permanentLimit(1)
                 .temporaryLimits(temporaryLimits)
-                .operationalLimitsGroupId(operationalLimitsGroupId)
                 .build())
             .build();
     }
@@ -1233,6 +1252,101 @@ public class CachedNetworkStoreClientTest {
             .andExpect(method(GET));
         cachedClient.getOperationalLimitsGroupAttributesForBranchSide(networkUuid, Resource.INITIAL_VARIANT_NUM,
             ResourceType.LINE, identifiableId, 1);
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testUpdatingLineWithOperationalLimitsGroup() {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        // create a line with an operationalLimitsGroup
+        String identifiableId = "LINE_1";
+        String operationalLimitsGroupId = "id";
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId);
+        Resource<LineAttributes> lineResource = Resource.lineBuilder()
+            .id(identifiableId)
+            .attributes(LineAttributes.builder()
+                .voltageLevelId1("VL_1")
+                .voltageLevelId2("VL_2").operationalLimitsGroups1(Map.of(operationalLimitsGroupId, olg1))
+                .build())
+            .build();
+        cachedClient.createLines(networkUuid, List.of(lineResource));
+
+        // checking that the olg is in the cache and do not call the rest api
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/" + identifiableId + "/types/" + ResourceType.LINE + "/side/1/operationalLimitsGroup"))
+            .andExpect(method(GET));
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, 0, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1);
+        server.verify();
+        server.reset();
+        assertTrue(operationalLimitsGroupAttributes.isPresent());
+    }
+
+    @Test
+    public void testRemoveOperationalLimitsGroupCache() throws IOException {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String branchId = "LINE";
+        String operationalLimitsGroupId = "toRemove";
+
+        // Load the line in the cache
+        loadLineToCache(branchId, networkUuid, cachedClient);
+
+        // network is not loaded before
+        OperationalLimitsGroupAttributes olg1 = createOperationalLimitsGroupAttributes(operationalLimitsGroupId);
+        // getting the olg will load it to cache
+        getOperationalLimitsGroup(olg1, networkUuid, branchId, cachedClient, operationalLimitsGroupId, 1);
+
+        // remove the operational limits group will not call the api as the olg was loaded just before
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
+            .andExpect(method(DELETE))
+            .andExpect(content().string("{\"LINE\":{\"1\":[\"toRemove\"]}}"))
+            .andRespond(withSuccess());
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/1"))
+                .andExpect(method(GET));
+        cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId))));
+        server.verify();
+        server.reset();
+
+        // trying to get it return empty and does not call the REST api
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroupId + "/side/1"))
+                .andExpect(method(GET));
+        Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, branchId, operationalLimitsGroupId, 1);
+        assertTrue(operationalLimitsGroupAttributes.isEmpty());
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testGetNetworkAfterCreateAvoidServerCall() {
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
+        UUID networkUuid1 = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        UUID networkUuid2 = UUID.fromString("9028181c-7977-4592-ba19-88027e4254e4");
+
+        Resource<NetworkAttributes> network1 = Resource.networkBuilder()
+                .id("n1")
+                .attributes(NetworkAttributes.builder()
+                        .uuid(networkUuid1)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        Resource<NetworkAttributes> network2 = Resource.networkBuilder()
+                .id("n2")
+                .attributes(NetworkAttributes.builder()
+                        .uuid(networkUuid2)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        cachedClient.createNetworks(List.of(network1, network2));
+
+        cachedClient.getNetwork(networkUuid1, 0);
+        cachedClient.getNetwork(networkUuid2, 0);
+
         server.verify();
         server.reset();
     }

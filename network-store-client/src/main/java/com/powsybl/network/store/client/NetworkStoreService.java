@@ -26,6 +26,8 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VariantInfos;
 import com.powsybl.tools.Version;
+import io.micrometer.context.ContextExecutorService;
+import io.micrometer.context.ContextSnapshotFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,19 +56,23 @@ public class NetworkStoreService implements AutoCloseable {
 
     private final TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(ResourceType.values().length);
+    private final ContextSnapshotFactory contextSnapshotFactory = ContextSnapshotFactory.builder().build();
+
+    private final ExecutorService executorService = ContextExecutorService.wrap(
+        Executors.newFixedThreadPool(ResourceType.values().length),
+        contextSnapshotFactory::captureAll);
 
     public NetworkStoreService(String baseUri) {
         this(baseUri, PreloadingStrategy.NONE);
     }
 
-    @Autowired
-    public NetworkStoreService(@Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri,
-                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
+    public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy) {
         this(new RestClientImpl(baseUri), defaultPreloadingStrategy);
     }
 
-    public NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
+    @Autowired
+    public NetworkStoreService(RestClient restClient,
+                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
         this(restClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
     }
 

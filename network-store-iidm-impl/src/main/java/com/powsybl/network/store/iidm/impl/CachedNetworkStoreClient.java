@@ -237,6 +237,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         for (Resource<NetworkAttributes> networkResource : networkResources) {
             UUID networkUuid = networkResource.getAttributes().getUuid();
             int variantNum = networkResource.getVariantNum();
+            // initialize network collection cache to set to fully loaded
+            networksCache.getCollection(networkUuid, variantNum).init();
             networksCache.getCollection(networkUuid, variantNum).createResource(networkResource);
             addIdentifiableId(networkUuid, networkResource);
 
@@ -1175,6 +1177,12 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     public void loadAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         getCache(resourceType).getCollection(networkUuid, variantNum).loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).removeOperationalLimitsGroupAttributes(operationalLimitsGroupsToDelete);
+        delegate.removeOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, operationalLimitsGroupsToDelete);
     }
 
     private NetworkCollectionIndex<? extends CollectionCache<?>> getCache(ResourceType resourceType) {

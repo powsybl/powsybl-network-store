@@ -91,14 +91,18 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     private boolean fullyLoadedSelectedOperationalLimitsGroup = false;
 
     /**
-     * Indicates which operational Limits Groups have been loaded to the cache.
-     */
-    private final Map<String, Map<Integer, Set<String>>> loadedOperationalLimitsGroups = new HashMap<>();
-
-    /**
      * Indicates which branches have all their operational limits group loaded and on which side.
      */
     private final Set<Pair<String, Integer>> loadedOperationalLimitsGroupsForBranches = new HashSet<>();
+
+    /**
+     * Map storing sets of removed operational limits group names associated with identifiable IDs.
+     * The map is organized where:
+     * - first keys are branch IDs.
+     * - second key are sides
+     * - The values are operational limits group names that have been removed.
+     */
+    private final Map<String, Map<Integer, Set<String>>> removedOperationalLimitsAttributes = new HashMap<>();
 
     /**
      * A function to load one resource from the server. An optional is returned because resource could not exist on
@@ -385,10 +389,14 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         clonedCache.fullyLoadedExtensions = fullyLoadedExtensions;
 
         // limits
-        clonedCache.loadedOperationalLimitsGroups.putAll(loadedOperationalLimitsGroups);
         clonedCache.loadedOperationalLimitsGroupsForBranches.addAll(loadedOperationalLimitsGroupsForBranches);
         clonedCache.fullyLoadedOperationalLimitsGroup = fullyLoadedOperationalLimitsGroup;
         clonedCache.fullyLoadedSelectedOperationalLimitsGroup = fullyLoadedSelectedOperationalLimitsGroup;
+        removedOperationalLimitsAttributes.forEach((branchId, limitSetBySide) ->
+                limitSetBySide.forEach((side, limitIdSet) ->
+                        clonedCache.removedOperationalLimitsAttributes
+                                .computeIfAbsent(branchId, s -> new HashMap<>())
+                                .computeIfAbsent(side, s -> new HashSet<>(limitIdSet))));
 
         clonedCache.containerFullyLoaded.addAll(containerFullyLoaded);
         clonedCache.removedResources.addAll(removedResources);
@@ -499,7 +507,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     private boolean isExtensionAttributesCached(String identifiableId) {
-        return (fullyLoadedExtensionsByIdentifiableIds.contains(identifiableId) || fullyLoadedExtensions) && resources.containsKey(identifiableId); // am i sure?
+        return (fullyLoadedExtensionsByIdentifiableIds.contains(identifiableId) || fullyLoadedExtensions) && resources.containsKey(identifiableId);
     }
 
     /**
@@ -556,6 +564,9 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     // limits
     public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
         Objects.requireNonNull(branchId);
+        if (removedResources.contains(branchId)) {
+            return Collections.emptyList();
+        }
         if (fullyLoadedOperationalLimitsGroup || loadedOperationalLimitsGroupsForBranches.contains(Pair.of(branchId, side))) {
             return getCachedOperationalLimitsGroupAttributes(branchId, side).values().stream().toList();
         } else {
@@ -579,19 +590,26 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     private boolean isOperationalLimitsGroupInCache(String branchId, int side, String operationalLimitGroupName) {
-        return loadedOperationalLimitsGroups.containsKey(branchId) &&
-            loadedOperationalLimitsGroups.get(branchId).containsKey(side) &&
-            loadedOperationalLimitsGroups.get(branchId).get(side).contains(operationalLimitGroupName);
+        Resource<T> resource = resources.get(branchId);
+        if (resource == null) {
+            return false;
+        }
+        BranchAttributes branchAttributes = (BranchAttributes) resource.getAttributes();
+        Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups = branchAttributes.getOperationalLimitsGroups(side);
+        return operationalLimitsGroups != null && operationalLimitsGroups.containsKey(operationalLimitGroupName);
     }
 
     public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsAttributes(UUID networkUuid, int variantNum, ResourceType type,
                                                                                      String branchId, String operationalLimitGroupName, int side,
                                                                                      boolean limitsFullyLoaded) {
         Objects.requireNonNull(branchId);
+        if (removedResources.contains(branchId)) {
+            return Optional.empty();
+        }
         if (isOperationalLimitsGroupInCache(branchId, side, operationalLimitGroupName)) {
             return Optional.ofNullable(getCachedOperationalLimitsGroupAttributes(branchId, side).get(operationalLimitGroupName));
         } else {
-            if (!limitsFullyLoaded) {
+            if (!limitsFullyLoaded && !isOperationalLimitsGroupRemovedAttributes(branchId, side, operationalLimitGroupName)) {
                 return delegate.getOperationalLimitsGroupAttributes(networkUuid, variantNum, type, branchId, operationalLimitGroupName, side)
                     .map(attributes -> {
                         addOperationalLimitsGroupAttributesToCache(branchId, operationalLimitGroupName, side, attributes);
@@ -620,11 +638,10 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      */
     private void addOperationalLimitsGroupAttributesToCache(String branchId, String operationalLimitsGroupName, int side, OperationalLimitsGroupAttributes operationalLimitsGroupAttributes) {
         Objects.requireNonNull(operationalLimitsGroupAttributes);
+        if (removedResources.contains(branchId)) {
+            return;
+        }
         getCachedOperationalLimitsGroupAttributes(branchId, side).putIfAbsent(operationalLimitsGroupName, operationalLimitsGroupAttributes);
-        loadedOperationalLimitsGroups
-            .computeIfAbsent(branchId, k -> new HashMap<>())
-            .computeIfAbsent(side, k -> new HashSet<>())
-            .add(operationalLimitsGroupName);
     }
 
     /**
@@ -657,14 +674,6 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     private void loadOperationalLimitsGroupsToCache(Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> operationalLimitsGroupAttributesMap) {
-        // add operational limit group ids to memo map
-        operationalLimitsGroupAttributesMap.forEach((branchId, sideToGroupsMap) -> {
-            loadedOperationalLimitsGroups.putIfAbsent(branchId, new HashMap<>());
-            sideToGroupsMap.forEach((side, groupAttributesMap) -> {
-                loadedOperationalLimitsGroups.get(branchId).putIfAbsent(side, new HashSet<>());
-                loadedOperationalLimitsGroups.get(branchId).get(side).addAll(groupAttributesMap.keySet());
-            });
-        });
         // load to cache
         Map<Pair<String, Integer>, Map<String, OperationalLimitsGroupAttributes>> groupedOperationalLimitsGroupAttributes = new HashMap<>();
         operationalLimitsGroupAttributesMap.forEach((branchId, sideToGroupsMap) ->
@@ -684,5 +693,26 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                 }
             }
         });
+    }
+
+    public void removeOperationalLimitsGroupAttributes(Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
+        removedOperationalLimitsAttributes.putAll(operationalLimitsGroupsToDelete);
+        for (Map.Entry<String, Map<Integer, Set<String>>> entry : operationalLimitsGroupsToDelete.entrySet()) {
+            String branchId = entry.getKey();
+            if (resources.containsKey(branchId)) {
+                for (Map.Entry<Integer, Set<String>> sideEntry : entry.getValue().entrySet()) {
+                    Integer side = sideEntry.getKey();
+                    Set<String> operationalLimitsGroups = sideEntry.getValue();
+                    Map<String, OperationalLimitsGroupAttributes> cachedOperationalLimitsGroupAttributes = getCachedOperationalLimitsGroupAttributes(branchId, side);
+                    operationalLimitsGroups.forEach(cachedOperationalLimitsGroupAttributes::remove);
+                }
+            }
+        }
+    }
+
+    private boolean isOperationalLimitsGroupRemovedAttributes(String branchId, int side, String operationalLimitsGroupId) {
+        return removedResources.contains(branchId) || removedOperationalLimitsAttributes.containsKey(branchId) &&
+            removedOperationalLimitsAttributes.get(branchId).containsKey(side) &&
+            removedOperationalLimitsAttributes.get(branchId).get(side).contains(operationalLimitsGroupId);
     }
 }

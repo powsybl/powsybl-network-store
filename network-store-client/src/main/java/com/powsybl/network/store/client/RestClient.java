@@ -46,5 +46,5 @@ public interface RestClient {
 
     void post(String url, Object... uriVariables);
 
-    void deleteAll(String url, List<String> ids, Object... uriVariables);
+    <T> void deleteAll(String url, T ids, Object... uriVariables);
 }
