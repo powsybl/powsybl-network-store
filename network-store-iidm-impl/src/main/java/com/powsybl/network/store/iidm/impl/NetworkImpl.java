@@ -18,7 +18,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
+import com.powsybl.network.store.model.CimCharacteristicsAttributes;
+import com.powsybl.network.store.model.NetworkAttributes;
+import com.powsybl.network.store.model.Resource;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
@@ -48,10 +51,16 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private AbstractReportNodeContext reporterContext;
 
+    private final Map<String, SubnetworkImpl> subnetworks = new LinkedHashMap<>();
+
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
         this.reporterContext = new SimpleReportNodeContext();
         index.setNetwork(this);
+    }
+
+    public NetworkImpl(NetworkObjectIndex index, Resource<NetworkAttributes> resource) {
+        super(index, resource);
     }
 
     public static NetworkImpl create(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
@@ -798,8 +807,13 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Network createSubnetwork(String s, String s1, String s2) {
-        throw new UnsupportedOperationException("TODO");
+    public Network createSubnetwork(String subnetworkId, String name, String sourceFormat) {
+        if (subnetworks.containsKey(subnetworkId)) {
+            throw new IllegalArgumentException("The network already contains another subnetwork of id " + subnetworkId);
+        }
+        SubnetworkImpl subnetwork = new SubnetworkImpl(subnetworkId, getIndex(), getResource(), sourceFormat);
+        subnetworks.put(subnetworkId, subnetwork);
+        return subnetwork;
     }
 
     @Override
