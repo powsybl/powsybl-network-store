@@ -67,7 +67,12 @@ class TwoWindingsTransformerFortescueExtensionTest {
         assertEquals(6, extension.getGroundingX2());
 
         // test update
-        TwoWindingsTransformerImpl twtImpl = (TwoWindingsTransformerImpl) twt;
+        assertSetters(extension, (TwoWindingsTransformerImpl) twt, listener);
+    }
+
+    private static void assertSetters(TwoWindingsTransformerFortescue extension,
+                                      TwoWindingsTransformerImpl twtImpl,
+                                      DummyNetworkListener listener) {
         List<NetworkListener> listeners = twtImpl.getNetwork().getListeners();
         assertEquals(1, listeners.size());
         assertEquals(0, listener.getNbUpdatedExtensions());
@@ -107,6 +112,7 @@ class TwoWindingsTransformerFortescueExtensionTest {
         extension.setGroundingX2(13);
         assertEquals(13, extension.getGroundingX2());
         assertEquals(9, listener.getNbUpdatedExtensions());
+
     }
 
     @Test

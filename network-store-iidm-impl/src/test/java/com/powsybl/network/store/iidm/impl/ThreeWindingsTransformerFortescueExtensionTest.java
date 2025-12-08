@@ -83,7 +83,12 @@ class ThreeWindingsTransformerFortescueExtensionTest {
         assertNotNull(extension.getLeg3());
 
         // test update
-        ThreeWindingsTransformerImpl twtImpl = (ThreeWindingsTransformerImpl) twt;
+        assertSetters(extension, (ThreeWindingsTransformerImpl) twt, listener);
+    }
+
+    private static void assertSetters(ThreeWindingsTransformerFortescue extension,
+                                      ThreeWindingsTransformerImpl twtImpl,
+                                      DummyNetworkListener listener) {
         List<NetworkListener> listeners = twtImpl.getNetwork().getListeners();
         assertEquals(1, listeners.size());
         assertEquals(0, listener.getNbUpdatedExtensions());
