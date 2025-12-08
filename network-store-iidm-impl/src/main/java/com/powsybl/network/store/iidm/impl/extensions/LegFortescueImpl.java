@@ -8,77 +8,119 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.iidm.network.extensions.LegFortescue;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
+import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl;
 import com.powsybl.network.store.model.LegFortescueAttributes;
+import com.powsybl.network.store.model.ThreeWindingsTransformerFortescueAttributes;
+
+import java.util.function.Function;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 public class LegFortescueImpl implements LegFortescue {
 
-    private final LegFortescueAttributes legFortescueAttributes;
+    private final ThreeWindingsTransformerImpl transformer;
+    private final Function<ThreeWindingsTransformerFortescueAttributes, LegFortescueAttributes> legFortescueGetter;
+    private final ThreeWindingsTransformerFortescue extension;
 
-    public LegFortescueImpl(LegFortescueAttributes legFortescueAttributes) {
-        this.legFortescueAttributes = legFortescueAttributes;
+    public LegFortescueImpl(ThreeWindingsTransformerImpl transformer, ThreeWindingsTransformerFortescue extension,
+                            Function<ThreeWindingsTransformerFortescueAttributes, LegFortescueAttributes> legFortescueGetter) {
+        this.legFortescueGetter = legFortescueGetter;
+        this.transformer = transformer;
+        this.extension = extension;
+    }
+
+    private ThreeWindingsTransformerFortescueAttributes getTransformerFortescueAttributes() {
+        return (ThreeWindingsTransformerFortescueAttributes) transformer.getResource().getAttributes().getExtensionAttributes().get(ThreeWindingsTransformerFortescue.NAME);
+    }
+
+    private LegFortescueAttributes getLegFortecueAttributes() {
+        return legFortescueGetter.apply(getTransformerFortescueAttributes());
     }
 
     @Override
     public boolean isFreeFluxes() {
-        return legFortescueAttributes.isFreeFluxes();
+        return getLegFortecueAttributes().isFreeFluxes();
     }
 
     @Override
     public void setFreeFluxes(boolean freeFluxes) {
-        legFortescueAttributes.setFreeFluxes(freeFluxes);
+        boolean oldValue = isFreeFluxes();
+        if (oldValue != freeFluxes) {
+            transformer.updateResourceExtension(extension, res ->
+                    getLegFortecueAttributes().setFreeFluxes(freeFluxes), "freeFluxes", oldValue, freeFluxes);
+        }
     }
 
     @Override
     public double getRz() {
-        return legFortescueAttributes.getRz();
+        return getLegFortecueAttributes().getRz();
     }
 
     @Override
     public void setRz(double rz) {
-        legFortescueAttributes.setRz(rz);
+        double oldValue = getRz();
+        if (oldValue != rz) {
+            transformer.updateResourceExtension(extension, res ->
+                    getLegFortecueAttributes().setRz(rz), "rz", oldValue, rz);
+        }
     }
 
     @Override
     public double getXz() {
-        return legFortescueAttributes.getXz();
+        return getLegFortecueAttributes().getXz();
     }
 
     @Override
     public void setXz(double xz) {
-        legFortescueAttributes.setXz(xz);
+        double oldValue = getXz();
+        if (oldValue != xz) {
+            transformer.updateResourceExtension(extension, res ->
+                    getLegFortecueAttributes().setXz(xz), "xz", oldValue, xz);
+        }
     }
 
     @Override
     public WindingConnectionType getConnectionType() {
-        return legFortescueAttributes.getConnectionType();
+        return getLegFortecueAttributes().getConnectionType();
     }
 
     @Override
     public void setConnectionType(WindingConnectionType windingConnectionType) {
-        legFortescueAttributes.setConnectionType(windingConnectionType);
+        WindingConnectionType oldValue = getConnectionType();
+        if (oldValue != windingConnectionType) {
+            transformer.updateResourceExtension(extension, res ->
+                    getLegFortecueAttributes().setConnectionType(windingConnectionType), "connectionType", oldValue, windingConnectionType);
+        }
     }
 
     @Override
     public double getGroundingR() {
-        return legFortescueAttributes.getGroundingR();
+        return getLegFortecueAttributes().getGroundingR();
     }
 
     @Override
     public void setGroundingR(double groundingR) {
-        legFortescueAttributes.setGroundingR(groundingR);
+        double oldValue = getGroundingR();
+        if (oldValue != groundingR) {
+            transformer.updateResourceExtension(extension, res ->
+                    getLegFortecueAttributes().setGroundingR(groundingR), "groundingR", oldValue, groundingR);
+        }
     }
 
     @Override
     public double getGroundingX() {
-        return legFortescueAttributes.getGroundingX();
+        return getLegFortecueAttributes().getGroundingX();
     }
 
     @Override
     public void setGroundingX(double groundingX) {
-        legFortescueAttributes.setGroundingX(groundingX);
+        double oldValue = getGroundingX();
+        if (oldValue != groundingX) {
+            transformer.updateResourceExtension(extension, res ->
+                    getLegFortecueAttributes().setGroundingX(groundingX), "groundingX", oldValue, groundingX);
+        }
     }
 }

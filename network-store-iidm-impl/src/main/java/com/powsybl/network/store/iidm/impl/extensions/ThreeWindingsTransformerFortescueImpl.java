@@ -26,22 +26,18 @@ public class ThreeWindingsTransformerFortescueImpl extends AbstractExtension<Thr
         return (ThreeWindingsTransformerImpl) getExtendable();
     }
 
-    private ThreeWindingsTransformerFortescueAttributes getThreeWindingsTransformerFortescueAttributes() {
-        return (ThreeWindingsTransformerFortescueAttributes) getThreeWindingsTransformer().getResource().getAttributes().getExtensionAttributes().get(ThreeWindingsTransformerFortescue.NAME);
-    }
-
     @Override
     public LegFortescue getLeg1() {
-        return new LegFortescueImpl(getThreeWindingsTransformerFortescueAttributes().getLeg1());
+        return new LegFortescueImpl(getThreeWindingsTransformer(), this, ThreeWindingsTransformerFortescueAttributes::getLeg1);
     }
 
     @Override
     public LegFortescue getLeg2() {
-        return new LegFortescueImpl(getThreeWindingsTransformerFortescueAttributes().getLeg2());
+        return new LegFortescueImpl(getThreeWindingsTransformer(), this, ThreeWindingsTransformerFortescueAttributes::getLeg2);
     }
 
     @Override
     public LegFortescue getLeg3() {
-        return new LegFortescueImpl(getThreeWindingsTransformerFortescueAttributes().getLeg3());
+        return new LegFortescueImpl(getThreeWindingsTransformer(), this, ThreeWindingsTransformerFortescueAttributes::getLeg3);
     }
 }

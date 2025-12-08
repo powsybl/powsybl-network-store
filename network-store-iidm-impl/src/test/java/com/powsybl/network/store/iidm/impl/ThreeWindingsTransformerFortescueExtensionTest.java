@@ -82,14 +82,12 @@ class ThreeWindingsTransformerFortescueExtensionTest {
         assertEquals(1, listeners.size());
         assertEquals(0, listener.getNbUpdatedExtensions());
 
-        // update does not work because LegFortescue is a class and not an interface. wecould extends LegFortescue to be debated
-        //        extension.getLeg1().setRz(8);
-        //        assertEquals(8, extension.getLeg1().getRz());
-        //        assertEquals(1, listener.getNbUpdatedExtensions());
-        //
-        //        extension.getLeg2().setConnectionType(WindingConnectionType.Y_GROUNDED);
-        //        assertEquals(WindingConnectionType.Y_GROUNDED, extension.getLeg2().getConnectionType());
-        //        assertEquals(2, listener.getNbUpdatedExtensions());
+        extension.getLeg1().setRz(8);
+        assertEquals(8, extension.getLeg1().getRz());
+        assertEquals(1, listener.getNbUpdatedExtensions());
+        extension.getLeg2().setConnectionType(WindingConnectionType.Y_GROUNDED);
+        assertEquals(WindingConnectionType.Y_GROUNDED, extension.getLeg2().getConnectionType());
+        assertEquals(2, listener.getNbUpdatedExtensions());
     }
 
     @Test
