@@ -26,7 +26,7 @@ class LineFortescueExtensionTest {
 
     @Test
     void testImplementationName() {
-        assertEquals("NetworkStore", new LineFortescueAdderImplProvider().getImplementationName());
+        assertEquals(LineFortescue.NAME, new LineFortescueAdderImplProvider().getExtensionName());
     }
 
     @Test

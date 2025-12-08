@@ -28,7 +28,7 @@ class ThreeWindingsTransformerFortescueExtensionTest {
 
     @Test
     void testImplementationName() {
-        assertEquals("NetworkStore", new ThreeWindingsTransformerFortescueAdderImplProvider().getImplementationName());
+        assertEquals(ThreeWindingsTransformerFortescue.NAME, new ThreeWindingsTransformerFortescueAdderImplProvider().getExtensionName());
     }
 
     @Test

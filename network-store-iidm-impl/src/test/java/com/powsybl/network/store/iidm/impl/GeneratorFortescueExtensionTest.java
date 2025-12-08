@@ -26,7 +26,7 @@ class GeneratorFortescueExtensionTest {
 
     @Test
     void testImplementationName() {
-        assertEquals("NetworkStore", new GeneratorFortescueAdderImplProvider().getImplementationName());
+        assertEquals(GeneratorFortescue.NAME, new GeneratorFortescueAdderImplProvider().getExtensionName());
     }
 
     @Test
