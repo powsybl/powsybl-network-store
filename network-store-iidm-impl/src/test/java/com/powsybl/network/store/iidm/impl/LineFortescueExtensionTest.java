@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.extensions.LineFortescue;
 import com.powsybl.iidm.network.extensions.LineFortescueAdder;
+import com.powsybl.network.store.iidm.impl.extensions.LineFortescueAdderImplProvider;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,6 +23,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 class LineFortescueExtensionTest {
+
+    @Test
+    void testImplementationName() {
+        assertEquals("NetworkStore", new LineFortescueAdderImplProvider().getImplementationName());
+    }
 
     @Test
     void testLineFortescueExtension() {
@@ -64,6 +70,23 @@ class LineFortescueExtensionTest {
         extension.setOpenPhaseA(false);
         assertFalse(extension.isOpenPhaseA());
         assertEquals(2, listener.getNbUpdatedExtensions());
+
+        extension.setOpenPhaseB(true);
+        assertTrue(extension.isOpenPhaseB());
+        assertEquals(3, listener.getNbUpdatedExtensions());
+
+        // setting same value does not notify
+        extension.setOpenPhaseB(true);
+        assertTrue(extension.isOpenPhaseB());
+        assertEquals(3, listener.getNbUpdatedExtensions());
+
+        extension.setOpenPhaseC(false);
+        assertFalse(extension.isOpenPhaseC());
+        assertEquals(4, listener.getNbUpdatedExtensions());
+
+        extension.setXz(10);
+        assertEquals(10, extension.getXz());
+        assertEquals(5, listener.getNbUpdatedExtensions());
     }
 
     @Test

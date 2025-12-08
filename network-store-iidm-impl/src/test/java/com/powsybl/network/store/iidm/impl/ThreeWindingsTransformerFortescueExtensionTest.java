@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.LegFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescueAdder;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
+import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerFortescueAdderImplProvider;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -24,6 +25,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 class ThreeWindingsTransformerFortescueExtensionTest {
+
+    @Test
+    void testImplementationName() {
+        assertEquals("NetworkStore", new ThreeWindingsTransformerFortescueAdderImplProvider().getImplementationName());
+    }
 
     @Test
     void testTwtFortescueExtension() {
@@ -85,9 +91,30 @@ class ThreeWindingsTransformerFortescueExtensionTest {
         extension.getLeg1().setRz(8);
         assertEquals(8, extension.getLeg1().getRz());
         assertEquals(1, listener.getNbUpdatedExtensions());
+
         extension.getLeg2().setConnectionType(WindingConnectionType.Y_GROUNDED);
         assertEquals(WindingConnectionType.Y_GROUNDED, extension.getLeg2().getConnectionType());
         assertEquals(2, listener.getNbUpdatedExtensions());
+
+        extension.getLeg3().setXz(10);
+        assertEquals(10, extension.getLeg3().getXz());
+        assertEquals(6, extension.getLeg2().getXz());
+        assertEquals(3, listener.getNbUpdatedExtensions());
+
+        extension.getLeg3().setFreeFluxes(false);
+        assertFalse(extension.getLeg3().isFreeFluxes());
+        assertTrue(extension.getLeg1().isFreeFluxes());
+        assertEquals(4, listener.getNbUpdatedExtensions());
+
+        extension.getLeg3().setGroundingR(11);
+        assertEquals(11, extension.getLeg3().getGroundingR());
+        assertEquals(7, extension.getLeg2().getGroundingR());
+        assertEquals(5, listener.getNbUpdatedExtensions());
+
+        extension.getLeg3().setGroundingX(12);
+        assertEquals(12, extension.getLeg3().getGroundingX());
+        assertEquals(8, extension.getLeg2().getGroundingX());
+        assertEquals(6, listener.getNbUpdatedExtensions());
     }
 
     @Test

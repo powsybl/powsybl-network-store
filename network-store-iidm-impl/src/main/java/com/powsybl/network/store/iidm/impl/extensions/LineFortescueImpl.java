@@ -95,7 +95,7 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
         boolean oldValue = isOpenPhaseC();
         if (oldValue != openPhaseC) {
             getLine().updateResourceExtension(this, res ->
-                getLineFortescueAttributes().setOpenPhaseB(openPhaseC), "openPhaseC", oldValue, openPhaseC);
+                getLineFortescueAttributes().setOpenPhaseC(openPhaseC), "openPhaseC", oldValue, openPhaseC);
         }
     }
 }

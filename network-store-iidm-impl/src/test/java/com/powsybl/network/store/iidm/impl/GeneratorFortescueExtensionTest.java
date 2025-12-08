@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.extensions.GeneratorFortescue;
 import com.powsybl.iidm.network.extensions.GeneratorFortescueAdder;
+import com.powsybl.network.store.iidm.impl.extensions.GeneratorFortescueAdderImplProvider;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,6 +23,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 class GeneratorFortescueExtensionTest {
+
+    @Test
+    void testImplementationName() {
+        assertEquals("NetworkStore", new GeneratorFortescueAdderImplProvider().getImplementationName());
+    }
 
     @Test
     void testGeneratorFortescueExtension() {
@@ -67,6 +73,26 @@ class GeneratorFortescueExtensionTest {
         extension.setGrounded(false);
         assertFalse(extension.isGrounded());
         assertEquals(2, listener.getNbUpdatedExtensions());
+
+        extension.setXz(9);
+        assertEquals(9, extension.getXz());
+        assertEquals(3, listener.getNbUpdatedExtensions());
+
+        extension.setXn(10);
+        assertEquals(10, extension.getXn());
+        assertEquals(4, listener.getNbUpdatedExtensions());
+
+        extension.setRn(11);
+        assertEquals(11, extension.getRn());
+        assertEquals(5, listener.getNbUpdatedExtensions());
+
+        extension.setGroundingR(12);
+        assertEquals(12, extension.getGroundingR());
+        assertEquals(6, listener.getNbUpdatedExtensions());
+
+        extension.setGroundingX(13);
+        assertEquals(13, extension.getGroundingX());
+        assertEquals(7, listener.getNbUpdatedExtensions());
     }
 
     @Test
