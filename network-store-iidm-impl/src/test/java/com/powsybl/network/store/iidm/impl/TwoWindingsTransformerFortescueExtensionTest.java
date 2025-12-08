@@ -27,7 +27,7 @@ class TwoWindingsTransformerFortescueExtensionTest {
 
     @Test
     void testImplementationName() {
-        assertEquals(TwoWindingsTransformerFortescue.NAME, new TwoWindingsTransformerFortescueAdderImplProvider().getImplementationName());
+        assertEquals(TwoWindingsTransformerFortescue.NAME, new TwoWindingsTransformerFortescueAdderImplProvider().getExtensionName());
     }
 
     @Test
