@@ -24,12 +24,14 @@ public class LegFortescueImpl implements LegFortescue {
     private final ThreeWindingsTransformerImpl transformer;
     private final Function<ThreeWindingsTransformerFortescueAttributes, LegFortescueAttributes> legFortescueGetter;
     private final ThreeWindingsTransformerFortescue extension;
+    private final String side;
 
     public LegFortescueImpl(ThreeWindingsTransformerImpl transformer, ThreeWindingsTransformerFortescue extension,
-                            Function<ThreeWindingsTransformerFortescueAttributes, LegFortescueAttributes> legFortescueGetter) {
+                            Function<ThreeWindingsTransformerFortescueAttributes, LegFortescueAttributes> legFortescueGetter, String side) {
         this.legFortescueGetter = legFortescueGetter;
         this.transformer = transformer;
         this.extension = extension;
+        this.side = side;
     }
 
     private ThreeWindingsTransformerFortescueAttributes getTransformerFortescueAttributes() {
@@ -50,7 +52,7 @@ public class LegFortescueImpl implements LegFortescue {
         boolean oldValue = isFreeFluxes();
         if (oldValue != freeFluxes) {
             transformer.updateResourceExtension(extension, res ->
-                    getLegFortecueAttributes().setFreeFluxes(freeFluxes), "freeFluxes", oldValue, freeFluxes);
+                    getLegFortecueAttributes().setFreeFluxes(freeFluxes), "freeFluxes" + side, oldValue, freeFluxes);
         }
     }
 
@@ -64,7 +66,7 @@ public class LegFortescueImpl implements LegFortescue {
         double oldValue = getRz();
         if (oldValue != rz) {
             transformer.updateResourceExtension(extension, res ->
-                    getLegFortecueAttributes().setRz(rz), "rz", oldValue, rz);
+                    getLegFortecueAttributes().setRz(rz), "rz" + side, oldValue, rz);
         }
     }
 
@@ -78,7 +80,7 @@ public class LegFortescueImpl implements LegFortescue {
         double oldValue = getXz();
         if (oldValue != xz) {
             transformer.updateResourceExtension(extension, res ->
-                    getLegFortecueAttributes().setXz(xz), "xz", oldValue, xz);
+                    getLegFortecueAttributes().setXz(xz), "xz" + side, oldValue, xz);
         }
     }
 
@@ -92,7 +94,7 @@ public class LegFortescueImpl implements LegFortescue {
         WindingConnectionType oldValue = getConnectionType();
         if (oldValue != windingConnectionType) {
             transformer.updateResourceExtension(extension, res ->
-                    getLegFortecueAttributes().setConnectionType(windingConnectionType), "connectionType", oldValue, windingConnectionType);
+                    getLegFortecueAttributes().setConnectionType(windingConnectionType), "connectionType" + side, oldValue, windingConnectionType);
         }
     }
 
@@ -106,7 +108,7 @@ public class LegFortescueImpl implements LegFortescue {
         double oldValue = getGroundingR();
         if (oldValue != groundingR) {
             transformer.updateResourceExtension(extension, res ->
-                    getLegFortecueAttributes().setGroundingR(groundingR), "groundingR", oldValue, groundingR);
+                    getLegFortecueAttributes().setGroundingR(groundingR), "groundingR" + side, oldValue, groundingR);
         }
     }
 
@@ -120,7 +122,7 @@ public class LegFortescueImpl implements LegFortescue {
         double oldValue = getGroundingX();
         if (oldValue != groundingX) {
             transformer.updateResourceExtension(extension, res ->
-                    getLegFortecueAttributes().setGroundingX(groundingX), "groundingX", oldValue, groundingX);
+                    getLegFortecueAttributes().setGroundingX(groundingX), "groundingX" + side, oldValue, groundingX);
         }
     }
 }

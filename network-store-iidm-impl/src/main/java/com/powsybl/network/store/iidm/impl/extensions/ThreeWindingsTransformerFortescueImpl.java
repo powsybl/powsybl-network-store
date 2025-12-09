@@ -28,16 +28,16 @@ public class ThreeWindingsTransformerFortescueImpl extends AbstractExtension<Thr
 
     @Override
     public LegFortescue getLeg1() {
-        return new LegFortescueImpl(getThreeWindingsTransformer(), this, ThreeWindingsTransformerFortescueAttributes::getLeg1);
+        return new LegFortescueImpl(getThreeWindingsTransformer(), this, ThreeWindingsTransformerFortescueAttributes::getLeg1, "_one");
     }
 
     @Override
     public LegFortescue getLeg2() {
-        return new LegFortescueImpl(getThreeWindingsTransformer(), this, ThreeWindingsTransformerFortescueAttributes::getLeg2);
+        return new LegFortescueImpl(getThreeWindingsTransformer(), this, ThreeWindingsTransformerFortescueAttributes::getLeg2, "_two");
     }
 
     @Override
     public LegFortescue getLeg3() {
-        return new LegFortescueImpl(getThreeWindingsTransformer(), this, ThreeWindingsTransformerFortescueAttributes::getLeg3);
+        return new LegFortescueImpl(getThreeWindingsTransformer(), this, ThreeWindingsTransformerFortescueAttributes::getLeg3, "_three");
     }
 }

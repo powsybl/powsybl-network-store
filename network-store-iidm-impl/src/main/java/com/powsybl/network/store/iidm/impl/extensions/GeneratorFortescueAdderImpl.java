@@ -36,7 +36,7 @@ public class GeneratorFortescueAdderImpl extends AbstractIidmExtensionAdder<Gene
     }
 
     @Override
-    protected GeneratorFortescue createExtension(Generator transformer) {
+    protected GeneratorFortescue createExtension(Generator generator) {
         GeneratorFortescueAttributes attributes = GeneratorFortescueAttributes.builder()
             .rz(rz)
             .xz(xz)
@@ -46,8 +46,8 @@ public class GeneratorFortescueAdderImpl extends AbstractIidmExtensionAdder<Gene
             .groundingR(groundingR)
             .groundingX(groundingX)
             .build();
-        ((GeneratorImpl) transformer).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(GeneratorFortescue.NAME, attributes));
-        return new GeneratorFortescueImpl(transformer);
+        ((GeneratorImpl) generator).updateResourceWithoutNotification(res -> res.getAttributes().getExtensionAttributes().put(GeneratorFortescue.NAME, attributes));
+        return new GeneratorFortescueImpl(generator);
     }
 
     @Override

@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "ThreeWindingsTransformer Fortescue Attributes")
+@Schema(description = "Leg Fortescue Attributes")
 public class LegFortescueAttributes implements ExtensionAttributes {
 
     @Schema(description = "rz")
