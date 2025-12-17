@@ -18,6 +18,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import static com.powsybl.network.store.iidm.impl.util.ValidationUtils.checkMaxIdLength;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -35,6 +37,7 @@ public class NetworkFactoryImpl implements NetworkFactory {
 
     @Override
     public Network createNetwork(String id, String sourceFormat) {
+        checkMaxIdLength("Network", id);
         UUID networkUuid = UUID.randomUUID();
         NetworkStoreClient storeClient = storeClientSupplier.get();
         Resource<NetworkAttributes> resource = Resource.networkBuilder()
