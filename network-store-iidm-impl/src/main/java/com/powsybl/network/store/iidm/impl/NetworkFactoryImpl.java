@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -37,7 +38,7 @@ public class NetworkFactoryImpl implements NetworkFactory {
 
     @Override
     public Network createNetwork(String id, String sourceFormat) {
-        checkMaxIdLength("Network", id);
+        checkMaxIdLength(ResourceType.NETWORK.getDescription(), id);
         UUID networkUuid = UUID.randomUUID();
         NetworkStoreClient storeClient = storeClientSupplier.get();
         Resource<NetworkAttributes> resource = Resource.networkBuilder()
