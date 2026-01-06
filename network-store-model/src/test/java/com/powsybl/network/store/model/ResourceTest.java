@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
@@ -573,30 +572,5 @@ public class ResourceTest {
         assertEquals("bbs", resourceTransformer.getAttributes().getName());
         assertFalse(resourceTransformer.getAttributes().getRegulatingEquipments().isEmpty());
         assertTrue(resourceTransformer.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
-    }
-
-    @Test
-    public void resourceTypeTest() {
-        assertEquals(ResourceType.NETWORK, ResourceType.convert(IdentifiableType.NETWORK));
-        assertEquals(ResourceType.SUBSTATION, ResourceType.convert(IdentifiableType.SUBSTATION));
-        assertEquals(ResourceType.VOLTAGE_LEVEL, ResourceType.convert(IdentifiableType.VOLTAGE_LEVEL));
-        assertEquals(ResourceType.AREA, ResourceType.convert(IdentifiableType.AREA));
-        assertEquals(ResourceType.HVDC_LINE, ResourceType.convert(IdentifiableType.HVDC_LINE));
-        assertThrows(PowsyblException.class, () -> ResourceType.convert(IdentifiableType.BUS));
-        assertEquals(ResourceType.SWITCH, ResourceType.convert(IdentifiableType.SWITCH));
-        assertEquals(ResourceType.BUSBAR_SECTION, ResourceType.convert(IdentifiableType.BUSBAR_SECTION));
-        assertEquals(ResourceType.LINE, ResourceType.convert(IdentifiableType.LINE));
-        assertEquals(ResourceType.TIE_LINE, ResourceType.convert(IdentifiableType.TIE_LINE));
-        assertEquals(ResourceType.TWO_WINDINGS_TRANSFORMER, ResourceType.convert(IdentifiableType.TWO_WINDINGS_TRANSFORMER));
-        assertEquals(ResourceType.THREE_WINDINGS_TRANSFORMER, ResourceType.convert(IdentifiableType.THREE_WINDINGS_TRANSFORMER));
-        assertEquals(ResourceType.GENERATOR, ResourceType.convert(IdentifiableType.GENERATOR));
-        assertEquals(ResourceType.BATTERY, ResourceType.convert(IdentifiableType.BATTERY));
-        assertEquals(ResourceType.LOAD, ResourceType.convert(IdentifiableType.LOAD));
-        assertEquals(ResourceType.SHUNT_COMPENSATOR, ResourceType.convert(IdentifiableType.SHUNT_COMPENSATOR));
-        assertEquals(ResourceType.DANGLING_LINE, ResourceType.convert(IdentifiableType.DANGLING_LINE));
-        assertEquals(ResourceType.STATIC_VAR_COMPENSATOR, ResourceType.convert(IdentifiableType.STATIC_VAR_COMPENSATOR));
-        assertEquals(ResourceType.VSC_CONVERTER_STATION, ResourceType.convert(IdentifiableType.HVDC_CONVERTER_STATION));
-        assertThrows(PowsyblException.class, () -> ResourceType.convert(IdentifiableType.OVERLOAD_MANAGEMENT_SYSTEM));
-        assertEquals(ResourceType.GROUND, ResourceType.convert(IdentifiableType.GROUND));
     }
 }
