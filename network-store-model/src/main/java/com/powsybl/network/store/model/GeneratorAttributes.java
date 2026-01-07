@@ -55,6 +55,9 @@ public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes i
     @Schema(description = "Voltage target in kV")
     private double targetV;
 
+    @Schema(description = "Local backUp of targetV in kV")
+    private double localBackupTargetV;
+
     @Schema(description = "Rated apparent power in MVA")
     private double ratedS;
 
