@@ -159,16 +159,16 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
 
     private void updateEquivalentLocalTargetV(double localTargetV) {
         ValidationUtil.checkEquivalentLocalTargetV(this, localTargetV);
-        double oldValue = getResource().getAttributes().getLocalBackupTargetV();
+        double oldValue = getResource().getAttributes().getEquivalentLocalTargetV();
         if (Double.compare(localTargetV, oldValue) != 0) { // could be nan
-            updateResource(res -> res.getAttributes().setLocalBackupTargetV(localTargetV),
+            updateResource(res -> res.getAttributes().setEquivalentLocalTargetV(localTargetV),
                     "localBackupTargetV", oldValue, localTargetV);
         }
     }
 
     @Override
     public double getEquivalentLocalTargetV() {
-        return getResource().getAttributes().getLocalBackupTargetV();
+        return getResource().getAttributes().getEquivalentLocalTargetV();
     }
 
     @Override
