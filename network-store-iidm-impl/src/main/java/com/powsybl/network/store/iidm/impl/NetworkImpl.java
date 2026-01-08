@@ -1299,4 +1299,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     public Collection<Component> getDcComponents() {
         throw new UnsupportedOperationException("TODO");
     }
+
+    @Override
+    public <C extends DcConnectable> Iterable<C> getDcConnectables(Class<C> clazz) {
+        // needed for export
+        return Collections.emptyList();
+    }
 }
