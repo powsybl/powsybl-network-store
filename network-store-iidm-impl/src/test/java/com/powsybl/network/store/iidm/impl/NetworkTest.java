@@ -11,8 +11,9 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -57,5 +58,15 @@ public class NetworkTest {
         assertEquals(1, network.getBusView().getSynchronousComponents().size());
         assertNotNull(network.getBusView().getBus("VL1_0"));
         assertNotNull(network.getBusView().getBus("VL2_0"));
+    }
+
+    @Test
+    public void testDcValues() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        assertTrue(((List) network.getDcConnectables()).isEmpty());
+        assertTrue(((List) network.getDcGrounds()).isEmpty());
+        assertTrue(((List) network.getDcSwitches()).isEmpty());
+        assertTrue(((List) network.getDcLines()).isEmpty());
+        assertTrue(((List) network.getDcNodes()).isEmpty());
     }
 }

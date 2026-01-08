@@ -1301,8 +1301,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public <C extends DcConnectable> Iterable<C> getDcConnectables(Class<C> clazz) {
-        // needed for export
+    public Iterable<DcConnectable> getDcConnectables() {
+        // needed for cgmes export in https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/export/CgmesExportContext.java#L362
         return Collections.emptyList();
     }
 }
