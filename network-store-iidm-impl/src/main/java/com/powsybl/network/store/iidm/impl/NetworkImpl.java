@@ -1242,7 +1242,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        return Stream.empty();
     }
 
     @Override
