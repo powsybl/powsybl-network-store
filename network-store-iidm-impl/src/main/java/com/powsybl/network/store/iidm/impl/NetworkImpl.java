@@ -1138,7 +1138,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcNode> getDcNodes() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L398
+        return Collections.emptyList();
     }
 
     @Override
@@ -1163,7 +1164,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcLine> getDcLines() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L422
+        return Collections.emptyList();
     }
 
     @Override
@@ -1188,7 +1190,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcSwitch> getDcSwitches() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L434
+        return Collections.emptyList();
     }
 
     @Override
@@ -1213,7 +1216,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcGround> getDcGrounds() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L410
+        return Collections.emptyList();
     }
 
     @Override
