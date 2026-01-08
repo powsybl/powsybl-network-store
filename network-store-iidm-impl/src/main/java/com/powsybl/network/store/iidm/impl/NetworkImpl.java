@@ -1241,7 +1241,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        return Collections.emptyList();
     }
 
     @Override
@@ -1262,7 +1262,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        return Collections.emptyList();
     }
 
     @Override
@@ -1288,7 +1288,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcBus> getDcBuses() {
-        throw new UnsupportedOperationException("TODO");
+        return Collections.emptyList();
     }
 
     @Override
@@ -1304,7 +1304,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Collection<Component> getDcComponents() {
-        throw new UnsupportedOperationException("TODO");
+        return Collections.emptyList();
     }
 
     @Override

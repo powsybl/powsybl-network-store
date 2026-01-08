@@ -75,5 +75,9 @@ public class NetworkTest {
         assertTrue(network.getDcGroundStream().toList().isEmpty());
         assertTrue(network.getVoltageSourceConverterStream().toList().isEmpty());
         assertTrue(network.getDcBusStream().toList().isEmpty());
+        assertTrue(((List) network.getLineCommutatedConverters()).isEmpty());
+        assertTrue(((List) network.getVoltageSourceConverters()).isEmpty());
+        assertTrue(((List) network.getDcBuses()).isEmpty());
+        assertTrue(network.getDcComponents().isEmpty());
     }
 }
