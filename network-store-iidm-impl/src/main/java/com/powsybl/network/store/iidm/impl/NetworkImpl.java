@@ -1144,7 +1144,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Stream<DcNode> getDcNodeStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: implement
+        return Stream.empty();
     }
 
     @Override
@@ -1170,7 +1171,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Stream<DcLine> getDcLineStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: implement
+        return Stream.empty();
     }
 
     @Override
@@ -1196,7 +1198,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Stream<DcSwitch> getDcSwitchStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: implement
+        return Stream.empty();
     }
 
     @Override
@@ -1222,7 +1225,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Stream<DcGround> getDcGroundStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: implement
+        return Stream.empty();
     }
 
     @Override
@@ -1242,6 +1246,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        // FIXME: implement
         return Stream.empty();
     }
 
@@ -1262,7 +1267,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: implement
+        return Stream.empty();
     }
 
     @Override
@@ -1287,7 +1293,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Stream<DcBus> getDcBusStream() {
-        throw new UnsupportedOperationException("TODO");
+        // FIXME: implement
+        return Stream.empty();
     }
 
     @Override
