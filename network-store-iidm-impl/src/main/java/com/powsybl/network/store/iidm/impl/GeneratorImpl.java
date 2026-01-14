@@ -162,7 +162,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         double oldValue = getResource().getAttributes().getEquivalentLocalTargetV();
         if (Double.compare(localTargetV, oldValue) != 0) { // could be nan
             updateResource(res -> res.getAttributes().setEquivalentLocalTargetV(localTargetV),
-                    "localBackupTargetV", oldValue, localTargetV);
+                    "EquivalentLocalTargetV", oldValue, localTargetV);
         }
     }
 
