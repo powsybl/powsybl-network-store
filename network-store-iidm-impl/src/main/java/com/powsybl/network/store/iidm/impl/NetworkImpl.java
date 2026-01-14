@@ -1194,6 +1194,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcSwitch> getDcSwitches() {
+        // FIXME: if needed implement detailed dc model
         // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L434
         return Collections.emptyList();
     }
@@ -1211,6 +1212,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public DcSwitch getDcSwitch(String s) {
+        // FIXME: if needed implement detailed dc model
         return null;
     }
 
@@ -1266,6 +1268,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        // FIXME: if needed implement detailed dc model
         return Collections.emptyList();
     }
 
@@ -1309,6 +1312,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Collection<Component> getDcComponents() {
+        // FIXME: if needed implement detailed dc model
         return Collections.emptyList();
     }
 
