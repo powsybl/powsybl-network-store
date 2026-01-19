@@ -1138,12 +1138,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcNode> getDcNodes() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L398
+        return Collections.emptyList();
     }
 
     @Override
     public Stream<DcNode> getDcNodeStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
     }
 
     @Override
@@ -1163,12 +1166,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcLine> getDcLines() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L422
+        return Collections.emptyList();
     }
 
     @Override
     public Stream<DcLine> getDcLineStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
     }
 
     @Override
@@ -1188,12 +1194,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcSwitch> getDcSwitches() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L434
+        return Collections.emptyList();
     }
 
     @Override
     public Stream<DcSwitch> getDcSwitchStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
     }
 
     @Override
@@ -1203,6 +1212,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public DcSwitch getDcSwitch(String s) {
+        // FIXME: if needed implement detailed dc model
         return null;
     }
 
@@ -1213,12 +1223,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcGround> getDcGrounds() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L410
+        return Collections.emptyList();
     }
 
     @Override
     public Stream<DcGround> getDcGroundStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
     }
 
     @Override
@@ -1233,12 +1246,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        return Collections.emptyList();
     }
 
     @Override
     public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
     }
 
     @Override
@@ -1253,12 +1268,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        return Collections.emptyList();
     }
 
     @Override
     public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
-        throw new PowsyblException("Detailed DC network not implemented");
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
     }
 
     @Override
@@ -1278,12 +1295,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<DcBus> getDcBuses() {
-        throw new UnsupportedOperationException("TODO");
+        // FIXME: if needed implement detailed dc model
+        return Collections.emptyList();
     }
 
     @Override
     public Stream<DcBus> getDcBusStream() {
-        throw new UnsupportedOperationException("TODO");
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
     }
 
     @Override
@@ -1293,6 +1312,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Collection<Component> getDcComponents() {
-        throw new UnsupportedOperationException("TODO");
+        // FIXME: if needed implement detailed dc model
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Iterable<DcConnectable> getDcConnectables() {
+        // FIXME: if needed implement detailed dc model
+        // needed for cgmes export in https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/export/CgmesExportContext.java#L362
+        return Collections.emptyList();
     }
 }
