@@ -28,6 +28,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double targetV = Double.NaN;
 
+    private double equivalentLocalTargetV = Double.NaN;
+
     private double ratedS = Double.NaN;
 
     private Terminal regulatingTerminal;
@@ -95,6 +97,13 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
+    public GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV) {
+        this.targetV = targetV;
+        this.equivalentLocalTargetV = equivalentLocalTargetV;
+        return this;
+    }
+
+    @Override
     public GeneratorAdder setRatedS(double ratedS) {
         this.ratedS = ratedS;
         return this;
@@ -113,11 +122,12 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkEnergySource(this, energySource);
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkActivePowerSetpoint(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkActivePowerSetpoint(this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
 
         MinMaxReactiveLimitsAttributes minMaxAttributes =
                 MinMaxReactiveLimitsAttributes.builder()
@@ -145,6 +155,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .targetP(targetP)
                         .targetQ(targetQ)
                         .targetV(targetV)
+                        .equivalentLocalTargetV(equivalentLocalTargetV)
                         .ratedS(ratedS)
                         .reactiveLimits(minMaxAttributes)
                         .regulatingPoint(regulatingPointAttributes)

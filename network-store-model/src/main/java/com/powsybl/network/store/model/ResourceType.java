@@ -6,9 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.IdentifiableType;
-
 import java.util.Objects;
 
 /**
@@ -45,32 +42,5 @@ public enum ResourceType {
 
     public String getDescription() {
         return description;
-    }
-
-    public static ResourceType convert(IdentifiableType identifiableType) {
-        return switch (identifiableType) {
-            case NETWORK -> NETWORK;
-            case SUBSTATION -> SUBSTATION;
-            case VOLTAGE_LEVEL -> VOLTAGE_LEVEL;
-            case HVDC_LINE -> HVDC_LINE;
-            case SWITCH -> SWITCH;
-            case BUSBAR_SECTION -> BUSBAR_SECTION;
-            case LINE -> LINE;
-            case TIE_LINE -> TIE_LINE;
-            case TWO_WINDINGS_TRANSFORMER -> TWO_WINDINGS_TRANSFORMER;
-            case THREE_WINDINGS_TRANSFORMER -> THREE_WINDINGS_TRANSFORMER;
-            case GENERATOR -> GENERATOR;
-            case BATTERY -> BATTERY;
-            case LOAD -> LOAD;
-            case SHUNT_COMPENSATOR -> SHUNT_COMPENSATOR;
-            case DANGLING_LINE -> DANGLING_LINE;
-            case STATIC_VAR_COMPENSATOR -> STATIC_VAR_COMPENSATOR;
-            // for now LCC are not implemented yet but it has to be fixed with the implementation
-            // it will need something to difference both
-            case HVDC_CONVERTER_STATION -> VSC_CONVERTER_STATION;
-            case GROUND -> GROUND;
-            case AREA -> AREA;
-            default -> throw new PowsyblException("can not be converted to resourceType");
-        };
     }
 }
