@@ -136,13 +136,39 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
 
     @Override
     public Generator setTargetV(double targetV) {
+        updateTargetV(targetV);
+        updateEquivalentLocalTargetV(Double.NaN);
+        return this;
+    }
+
+    @Override
+    public Generator setTargetV(double targetV, double localTargetV) {
+        updateTargetV(targetV);
+        updateEquivalentLocalTargetV(localTargetV);
+        return this;
+    }
+
+    private void updateTargetV(double targetV) {
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetV();
         if (Double.compare(targetV, oldValue) != 0) { // could be nan
             updateResource(res -> res.getAttributes().setTargetV(targetV),
-                "targetV", oldValue, targetV);
+                    "targetV", oldValue, targetV);
         }
-        return this;
+    }
+
+    private void updateEquivalentLocalTargetV(double localTargetV) {
+        ValidationUtil.checkEquivalentLocalTargetV(this, localTargetV);
+        double oldValue = getResource().getAttributes().getEquivalentLocalTargetV();
+        if (Double.compare(localTargetV, oldValue) != 0) { // could be nan
+            updateResource(res -> res.getAttributes().setEquivalentLocalTargetV(localTargetV),
+                    "EquivalentLocalTargetV", oldValue, localTargetV);
+        }
+    }
+
+    @Override
+    public double getEquivalentLocalTargetV() {
+        return getResource().getAttributes().getEquivalentLocalTargetV();
     }
 
     @Override

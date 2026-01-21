@@ -755,7 +755,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @Override
     public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
         // FIXME: implement
-        throw new PowsyblException("Line commutated not supported");
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/VoltageLevelSerDe.java#L290
+        return Collections.emptyList();
     }
 
     @Override
@@ -779,7 +780,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @Override
     public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
         // FIXME: implement
-        throw new PowsyblException("Line commutated not supported");
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/VoltageLevelSerDe.java#L277
+        return Collections.emptyList();
     }
 
     @Override
