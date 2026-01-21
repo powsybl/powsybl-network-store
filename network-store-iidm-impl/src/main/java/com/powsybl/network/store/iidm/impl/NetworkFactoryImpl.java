@@ -11,12 +11,15 @@ import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
+
+import static com.powsybl.network.store.iidm.impl.util.ValidationUtils.checkMaxIdLength;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,6 +38,7 @@ public class NetworkFactoryImpl implements NetworkFactory {
 
     @Override
     public Network createNetwork(String id, String sourceFormat) {
+        checkMaxIdLength(ResourceType.NETWORK.getDescription(), id);
         UUID networkUuid = UUID.randomUUID();
         NetworkStoreClient storeClient = storeClientSupplier.get();
         Resource<NetworkAttributes> resource = Resource.networkBuilder()

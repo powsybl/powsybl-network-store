@@ -10,6 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 
+import static com.powsybl.network.store.iidm.impl.util.ValidationUtils.checkMaxIdLength;
+
 /**
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -76,6 +78,7 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
         if (id == null) {
             throw new PowsyblException(getTypeDescription() + " id is not set");
         }
+        checkMaxIdLength(getTypeDescription(), id);
         String uniqueId;
         if (ensureIdUnicity) {
             uniqueId = Identifiables.getUniqueId(id, getNetwork().getIndex()::contains);
