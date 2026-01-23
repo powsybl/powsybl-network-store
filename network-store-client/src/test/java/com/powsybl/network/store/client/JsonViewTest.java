@@ -36,13 +36,13 @@ public class JsonViewTest {
                 .build();
 
         // main view
-        String mainResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0," +
+        String standardResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0," +
                 "\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0," +
                 "\"selectedOperationalLimitsGroupId1\":\"group1\",\"regulatingEquipments\":[]}";
-        String mainResult = mapper
+        String standardResult = mapper
                 .writerWithView(Views.Standard.class)
                 .writeValueAsString(lineAttributes);
-        assertEquals(mainResultExpected, mainResult);
+        assertEquals(standardResultExpected, standardResult);
 
         // SV view
         String svResult = mapper
@@ -103,17 +103,18 @@ public class JsonViewTest {
                 .aliasesWithoutType(Set.of("alias2"))
                 .extensionAttributes(Map.of("activePowerControl", activePowerControlAttributes))
                 .build();
-        String basicResultExpected = "{\"name\":\"twt1\",\"fictitious\":false,\"properties\":{\"key\":\"value\"}," +
+
+        String standardResultExpected = "{\"name\":\"twt1\",\"fictitious\":false,\"properties\":{\"key\":\"value\"}," +
                 "\"aliasesWithoutType\":[\"alias2\"],\"aliasByType\":{\"typ1\":\"alias1\"}," +
                 "\"extensionAttributes\":{\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true," +
                 "\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":10.0}}," +
                 "\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0," +
                 "\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\"," +
                 "\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}";
-        String basicResult = mapper
+        String standardResult = mapper
                 .writerWithView(Views.Standard.class)
                 .writeValueAsString(twoWindingsTransformerAttributes);
-        assertEquals(basicResultExpected, basicResult);
+        assertEquals(standardResultExpected, standardResult);
 
         String svResult = mapper
                 .writerWithView(Views.SvView.class)
