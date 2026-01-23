@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class JsonViewTest {
     @Test
-    void testBasicViewWithLines() throws JsonProcessingException {
+    void testViewSerializationWithLines() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         LineAttributes lineAttributes = LineAttributes.builder()
                 .name("line1")
@@ -78,7 +78,7 @@ public class JsonViewTest {
     }
 
     @Test
-    void testBasicViewWithTwt() throws JsonProcessingException {
+    void testViewSerializationWithTwt() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         ActivePowerControlAttributes activePowerControlAttributes = ActivePowerControlAttributes.builder()
                 .droop(5.2)
