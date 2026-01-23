@@ -6,10 +6,10 @@
  */
 package com.powsybl.network.store.client.util;
 
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -21,9 +21,9 @@ public class JacksonConfig {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @PostConstruct
-    public void configureObjectMapper() {
-        objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
+        return builder -> builder.defaultViewInclusion(true);
     }
 
 }

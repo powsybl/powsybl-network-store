@@ -24,31 +24,26 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
+@JsonView(Views.Basic.class)
 public abstract class AbstractIdentifiableAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Name")
     private String name;
 
-    @JsonView(Views.Basic.class)
     @Builder.Default
     @Schema(description = "Fictitious")
     private boolean fictitious = false;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Aliases without type")
     private Set<String> aliasesWithoutType;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Alias by type")
     private Map<String, String> aliasByType;
 
     @Builder.Default
-    @JsonView(Views.Basic.class)
     @Schema(description = "Extension attributes")
     private Map<String, ExtensionAttributes> extensionAttributes = new HashMap<>();
 }

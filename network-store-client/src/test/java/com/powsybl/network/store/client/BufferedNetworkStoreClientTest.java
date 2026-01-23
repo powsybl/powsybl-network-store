@@ -7,16 +7,15 @@
 package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.model.*;
-import jakarta.annotation.PostConstruct;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -64,11 +63,11 @@ public class BufferedNetworkStoreClientTest {
         public RestClient testClient(RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper) {
             return new RestClientImpl(restTemplateBuilder, objectMapper);
         }
-    }
 
-    @PostConstruct
-    public void configureObjectMapper() {
-        objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
+        @Bean
+        public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
+            return builder -> builder.defaultViewInclusion(true);
+        }
     }
 
     @Autowired

@@ -25,59 +25,45 @@ import java.util.*;
 @Schema(description = "Line attributes")
 public class LineAttributes extends AbstractIdentifiableAttributes implements BranchAttributes {
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 2 voltage level ID")
     private String voltageLevelId2;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 1 connection node in node/breaker topology")
     private Integer node1;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 2 connection node in node/breaker topology")
     private Integer node2;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 1 connection bus in bus/breaker topology")
     private String bus1;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 2 connection bus in bus/breaker topology")
     private String bus2;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 1 possible connection bus in bus/breaker topology")
     private String connectableBus1;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 2 possible connection bus in bus/breaker topology")
     private String connectableBus2;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Resistance in Ohm")
     private double r;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Reactance in Ohm")
     private double x;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 1 half conductance in Siemens")
     private double g1;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 1 half susceptance in Siemens")
     private double b1;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 2 half conductance in Siemens")
     private double g2;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 2 half susceptance in Siemens")
     private double b2;
 
@@ -101,15 +87,12 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
     @Builder.Default
     private double q2 = Double.NaN;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 1 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position1;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "Side 2 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position2;
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "mergedXnode extension for tie lines")
     private MergedXnodeAttributes mergedXnode;
 
@@ -118,7 +101,6 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups1 = new HashMap<>();
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "selected OperationalLimitsGroupId1")
     private String selectedOperationalLimitsGroupId1;
 
@@ -127,11 +109,9 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups2 = new HashMap<>();
 
-    @JsonView(Views.Basic.class)
     @Schema(description = "selected OperationalLimitsGroupId2")
     private String selectedOperationalLimitsGroupId2;
 
-    @JsonView(Views.Basic.class)
     @Builder.Default
     @Schema(description = "regulatingEquipments")
     private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
