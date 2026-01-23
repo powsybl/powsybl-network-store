@@ -8,7 +8,6 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
-import com.powsybl.commons.PowsyblException;
 
 import java.util.List;
 import java.util.Map;
