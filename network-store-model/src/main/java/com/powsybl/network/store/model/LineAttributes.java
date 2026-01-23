@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import com.powsybl.network.store.model.utils.Views;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -65,18 +67,22 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
     @Schema(description = "Side 2 half susceptance in Siemens")
     private double b2;
 
+    @JsonView(Views.SvView.class)
     @Schema(description = "Side 1 active power in MW")
     @Builder.Default
     private double p1 = Double.NaN;
 
+    @JsonView(Views.SvView.class)
     @Schema(description = "Side 1 reactive power in MVar")
     @Builder.Default
     private double q1 = Double.NaN;
 
+    @JsonView(Views.SvView.class)
     @Schema(description = "Side 2 active power in MW")
     @Builder.Default
     private double p2 = Double.NaN;
 
+    @JsonView(Views.SvView.class)
     @Schema(description = "Side 2 reactive power in MVar")
     @Builder.Default
     private double q2 = Double.NaN;
@@ -90,6 +96,7 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
     @Schema(description = "mergedXnode extension for tie lines")
     private MergedXnodeAttributes mergedXnode;
 
+    @JsonView(Views.Limits.class)
     @Schema(description = "OperationalLimitsGroup1")
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups1 = new HashMap<>();
@@ -97,6 +104,7 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
     @Schema(description = "selected OperationalLimitsGroupId1")
     private String selectedOperationalLimitsGroupId1;
 
+    @JsonView(Views.Limits.class)
     @Schema(description = "OperationalLimitsGroup2")
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups2 = new HashMap<>();

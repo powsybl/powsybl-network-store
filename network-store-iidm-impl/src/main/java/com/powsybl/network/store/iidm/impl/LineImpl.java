@@ -6,7 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -39,8 +42,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkR(this, r);
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
-            updateResource(res -> res.getAttributes().setR(r),
-                "r", oldValue, r);
+            updateResource(res -> res.getAttributes().setR(r), AttributeFilter.STANDARD, "r", oldValue, r);
         }
         return this;
     }
@@ -55,8 +57,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkX(this, x);
         double oldValue = getResource().getAttributes().getX();
         if (x != oldValue) {
-            updateResource(res -> res.getAttributes().setX(x),
-                "x", oldValue, x);
+            updateResource(res -> res.getAttributes().setX(x), AttributeFilter.STANDARD, "x", oldValue, x);
         }
         return this;
     }
@@ -71,8 +72,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkG1(this, g1);
         double oldValue = getResource().getAttributes().getG1();
         if (g1 != oldValue) {
-            updateResource(res -> res.getAttributes().setG1(g1),
-                "g1", oldValue, g1);
+            updateResource(res -> res.getAttributes().setG1(g1), AttributeFilter.STANDARD, "g1", oldValue, g1);
         }
         return this;
     }
@@ -87,8 +87,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkG2(this, g2);
         double oldValue = getResource().getAttributes().getG2();
         if (g2 != oldValue) {
-            updateResource(res -> res.getAttributes().setG2(g2),
-                "g2", oldValue, g2);
+            updateResource(res -> res.getAttributes().setG2(g2), AttributeFilter.STANDARD, "g2", oldValue, g2);
         }
         return this;
     }
@@ -104,8 +103,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkB1(this, b1);
         double oldValue = resource.getAttributes().getB1();
         if (b1 != oldValue) {
-            updateResource(res -> res.getAttributes().setB1(b1),
-                "b1", oldValue, b1);
+            updateResource(res -> res.getAttributes().setB1(b1), AttributeFilter.STANDARD, "b1", oldValue, b1);
         }
         return this;
     }
@@ -121,8 +119,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkB2(this, b2);
         double oldValue = resource.getAttributes().getB2();
         if (b2 != oldValue) {
-            updateResource(res -> res.getAttributes().setB2(b2),
-                "b2", oldValue, b2);
+            updateResource(res -> res.getAttributes().setB2(b2), AttributeFilter.STANDARD, "b2", oldValue, b2);
         }
         return this;
     }
