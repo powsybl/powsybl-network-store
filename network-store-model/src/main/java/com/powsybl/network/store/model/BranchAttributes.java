@@ -146,7 +146,7 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     default Attributes filter(AttributeFilter filter) {
         return switch (filter) {
             case SV -> new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
-            case BASIC -> this;
+            case STANDARD -> this;
             case WITH_LIMITS -> this;
         };
     }

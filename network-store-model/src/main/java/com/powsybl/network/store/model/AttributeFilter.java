@@ -16,7 +16,7 @@ import lombok.Getter;
 public enum AttributeFilter {
 
     SV(1),
-    BASIC(2),
+    STANDARD(2),
     WITH_LIMITS(3);
 
     private final int priority;
@@ -28,7 +28,7 @@ public enum AttributeFilter {
     public static Class<?> getViewClass(AttributeFilter filter) {
         return switch (filter) {
             case SV -> Views.SvView.class;
-            case BASIC -> Views.Standard.class;
+            case STANDARD -> Views.Standard.class;
             case WITH_LIMITS -> Views.WithLimits.class;
         };
     }

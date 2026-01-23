@@ -209,25 +209,25 @@ public class BufferedNetworkStoreClientTest {
         server.verify();
         server.reset();
 
-        // test basic then sv filter -> should apply null (without limits)
+        // test standard then sv filter -> should apply null (without limits)
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
                 .andExpect(method(PUT))
                 // no operational limits group in request
-                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"BASIC\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"regulatingEquipments\":[]}}]"))
+                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"STANDARD\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"regulatingEquipments\":[]}}]"))
                 .andRespond(withSuccess());
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
-        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.BASIC);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.STANDARD);
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
 
-        // test sv then basic then with limits filter -> should apply with limits filter
+        // test sv then standard then with limits filter -> should apply with limits filter
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(l1Copy))))
                 .andRespond(withSuccess());
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
-        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.BASIC);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.STANDARD);
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.WITH_LIMITS);
         bufferedClient.flush(networkUuid);
         server.verify();
@@ -299,12 +299,12 @@ public class BufferedNetworkStoreClientTest {
         server.verify();
         server.reset();
 
-        // test basic filter
+        // test standard filter
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers"))
                 .andExpect(method(PUT))
-                .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"filter\":\"BASIC\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"filter\":\"BASIC\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}}]"))
+                .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"filter\":\"STANDARD\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"filter\":\"STANDARD\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}}]"))
                 .andRespond(withSuccess());
-        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.BASIC);
+        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.STANDARD);
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();

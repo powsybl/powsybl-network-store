@@ -152,7 +152,7 @@ public class JsonViewTest {
         Attributes svFilter = twoWindingsTransformerAttributes.filter(AttributeFilter.SV);
         assertEquals(new BranchSvAttributes(1, 3, 2, 4), svFilter);
 
-        Attributes basicFilter = twoWindingsTransformerAttributes.filter(AttributeFilter.BASIC);
+        Attributes basicFilter = twoWindingsTransformerAttributes.filter(AttributeFilter.STANDARD);
         assertEquals(twoWindingsTransformerAttributes, basicFilter);
 
         Attributes withLimitsFilter = twoWindingsTransformerAttributes.filter(AttributeFilter.WITH_LIMITS);
