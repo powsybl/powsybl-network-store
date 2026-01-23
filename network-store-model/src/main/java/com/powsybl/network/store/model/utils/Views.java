@@ -14,7 +14,8 @@ public final class Views {
     private Views() { }
 
     // ---------------------------------------------------
-    // some specific views containing a subpart of the data
+    // views containing a subpart of the data
+
     // contains only p and q of the element
     public interface SvView {
     }
@@ -23,14 +24,14 @@ public final class Views {
     public interface Limits {
     }
 
+    // view containing all other attributes
+    public interface Other {
+    }
+
     // ---------------------------------------------------
     // view containing main data
     // contains all direct attributes of the element
     // attributes containing large list and objects are not included
-    public interface Other {
-
-    }
-
     public interface Standard extends SvView, Other {
     }
 
