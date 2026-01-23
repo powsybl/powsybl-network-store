@@ -113,4 +113,28 @@ public class JsonViewTest {
                 .writeValueAsString(twoWindingsTransformerAttributes);
         assertEquals(expectedWithLimitsResult, withLimitsResult);
     }
+
+    @Test
+    void testAttributeFilter() {
+        TwoWindingsTransformerAttributes twoWindingsTransformerAttributes = TwoWindingsTransformerAttributes.builder()
+                .name("twt1")
+                .p1(1)
+                .p2(2)
+                .q1(3)
+                .q2(4)
+                .r(5)
+                .x(6)
+                .selectedOperationalLimitsGroupId1("selectedGroupId1")
+                .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
+                .build();
+
+        Attributes svFilter = twoWindingsTransformerAttributes.filter(AttributeFilter.SV);
+        assertEquals(new BranchSvAttributes(1, 3, 2, 4), svFilter);
+
+        Attributes basicFilter = twoWindingsTransformerAttributes.filter(AttributeFilter.BASIC);
+        assertEquals(twoWindingsTransformerAttributes, basicFilter);
+
+        Attributes withLimitsFilter = twoWindingsTransformerAttributes.filter(AttributeFilter.WITH_LIMITS);
+        assertEquals(twoWindingsTransformerAttributes, withLimitsFilter);
+    }
 }
