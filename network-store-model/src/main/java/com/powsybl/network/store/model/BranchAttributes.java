@@ -149,7 +149,6 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
             case SV -> new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
             case BASIC -> this;
             case WITH_LIMITS -> this;
-            default -> throw new PowsyblException("Unsupported attribute filter: " + filter);
         };
     }
 }
