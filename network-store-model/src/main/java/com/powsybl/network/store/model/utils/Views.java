@@ -13,12 +13,30 @@ public final class Views {
 
     private Views() { }
 
-    public static class SvView {
+    // ---------------------------------------------------
+    // some specific views containing a subpart of the data
+    // contains only p and q of the element
+    public interface SvView {
     }
 
-    public static class Basic extends SvView {
+    // view containing only operational limits groups
+    public interface Limits {
     }
 
-    public static class WithLimits extends Basic {
+    // ---------------------------------------------------
+    // view containing main data
+    // contains all direct attributes of the element
+    // attributes containing large list and objects are not included
+    public interface Other {
+
+    }
+
+    public interface Standard extends SvView, Other {
+    }
+
+    // ---------------------------------------------------
+    // combining some specific views with basic view
+    // contains all basic attributes plus operational limits groups
+    public interface WithLimits extends Standard, Limits {
     }
 }

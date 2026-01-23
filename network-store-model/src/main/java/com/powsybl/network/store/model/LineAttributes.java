@@ -96,7 +96,7 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
     @Schema(description = "mergedXnode extension for tie lines")
     private MergedXnodeAttributes mergedXnode;
 
-    @JsonView(Views.WithLimits.class)
+    @JsonView(Views.Limits.class)
     @Schema(description = "OperationalLimitsGroup1")
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups1 = new HashMap<>();
@@ -104,7 +104,7 @@ public class LineAttributes extends AbstractIdentifiableAttributes implements Br
     @Schema(description = "selected OperationalLimitsGroupId1")
     private String selectedOperationalLimitsGroupId1;
 
-    @JsonView(Views.WithLimits.class)
+    @JsonView(Views.Limits.class)
     @Schema(description = "OperationalLimitsGroup2")
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups2 = new HashMap<>();

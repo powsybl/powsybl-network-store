@@ -34,19 +34,23 @@ public class JsonViewTest {
                 .x(6)
                 .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
                 .build();
-        String basicResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0," +
+
+        // main view
+        String mainResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0," +
                 "\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0," +
                 "\"selectedOperationalLimitsGroupId1\":\"group1\",\"regulatingEquipments\":[]}";
-        String basicResult = mapper
-                .writerWithView(Views.Basic.class)
+        String mainResult = mapper
+                .writerWithView(Views.Standard.class)
                 .writeValueAsString(lineAttributes);
-        assertEquals(basicResultExpected, basicResult);
+        assertEquals(mainResultExpected, mainResult);
 
+        // SV view
         String svResult = mapper
                 .writerWithView(Views.SvView.class)
                 .writeValueAsString(lineAttributes);
         assertEquals("{\"p1\":1.0,\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0}", svResult);
 
+        // WithLimits view
         String expectedWithLimitsResult = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{}," +
                 "\"r\":5.0,\"x\":6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0," +
                 "\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0,\"operationalLimitsGroups1\":{\"group1\":{}}," +
@@ -55,6 +59,22 @@ public class JsonViewTest {
                 .writerWithView(Views.WithLimits.class)
                 .writeValueAsString(lineAttributes);
         assertEquals(expectedWithLimitsResult, withLimitsResult);
+
+        // Other view
+        String otherResult = mapper
+                .writerWithView(Views.Other.class)
+                .writeValueAsString(lineAttributes);
+        String otherResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{}," +
+                "\"r\":5.0,\"x\":6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0," +
+                "\"selectedOperationalLimitsGroupId1\":\"group1\",\"regulatingEquipments\":[]}";
+        assertEquals(otherResultExpected, otherResult);
+
+        // Limits view
+        String limitsResult = mapper
+                .writerWithView(Views.Limits.class)
+                .writeValueAsString(lineAttributes);
+        String limitsResultExpected = "{\"operationalLimitsGroups1\":{\"group1\":{}},\"operationalLimitsGroups2\":{}}";
+        assertEquals(limitsResultExpected, limitsResult);
     }
 
     @Test
@@ -91,7 +111,7 @@ public class JsonViewTest {
                 "\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\"," +
                 "\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}";
         String basicResult = mapper
-                .writerWithView(Views.Basic.class)
+                .writerWithView(Views.Standard.class)
                 .writeValueAsString(twoWindingsTransformerAttributes);
         assertEquals(basicResultExpected, basicResult);
 

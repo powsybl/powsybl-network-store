@@ -105,7 +105,7 @@ public class TwoWindingsTransformerAttributes extends AbstractIdentifiableAttrib
     @Schema(description = "Phase angle clock")
     private TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes;
 
-    @JsonView(Views.WithLimits.class)
+    @JsonView(Views.Limits.class)
     @Schema(description = "OperationalLimitsGroup1")
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups1 = new HashMap<>();
@@ -113,7 +113,7 @@ public class TwoWindingsTransformerAttributes extends AbstractIdentifiableAttrib
     @Schema(description = "selected OperationalLimitsGroupId1")
     private String selectedOperationalLimitsGroupId1;
 
-    @JsonView(Views.WithLimits.class)
+    @JsonView(Views.Limits.class)
     @Schema(description = "OperationalLimitsGroup2")
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups2 = new HashMap<>();
