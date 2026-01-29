@@ -11,8 +11,10 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.MeasurementAdder;
-import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
+import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.network.store.iidm.impl.AbstractConnectableImpl;
 import com.powsybl.network.store.model.MeasurementAttributes;
+import com.powsybl.network.store.model.MeasurementsAttributes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,8 +96,9 @@ public class MeasurementAdderImpl implements MeasurementAdder {
         if (type == null) {
             throw new PowsyblException("Measurement type can not be null");
         }
+        AbstractConnectableImpl<?, ?> extendable = (AbstractConnectableImpl<?, ?>) this.measurements.getExtendable();
         checkValue(value, valid);
-        checkSide(type, side, measurements.getExtendable());
+        checkSide(type, side, extendable);
         MeasurementAttributes measurementAttributes = MeasurementAttributes.builder()
                 .id(id)
                 .valid(valid)
@@ -105,7 +108,12 @@ public class MeasurementAdderImpl implements MeasurementAdder {
                 .standardDeviation(standardDeviation)
                 .side(side != null ? side.getNum() : null)
                 .build();
-        measurements.getMeasurementsAttributes().getMeasurementAttributes().add(measurementAttributes);
-        return new MeasurementImpl(measurements, (AbstractIdentifiableImpl) this.measurements.getExtendable(), measurementAttributes);
+
+        extendable.updateResourceWithoutNotification(res ->
+                ((MeasurementsAttributes) res.getAttributes().getExtensionAttributes().get(Measurements.NAME))
+                        .getMeasurementAttributes()
+                        .add(measurementAttributes)
+        );
+        return new MeasurementImpl(measurements, extendable, measurementAttributes);
     }
 }
