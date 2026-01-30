@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.NetworkFactoryService;
 
@@ -24,6 +25,14 @@ public class NetworkFactoryServiceImpl implements NetworkFactoryService {
 
     @Override
     public NetworkFactory createNetworkFactory() {
-        return new NetworkFactoryImpl();
+        return createNetworkFactory(PlatformConfig.defaultConfig());
+    }
+
+    public NetworkFactory createNetworkFactory(PlatformConfig platformConfig) {
+        boolean useCalculatedBusFictitiousP0Q0 = platformConfig
+                .getOptionalModuleConfig(getName())
+                .map(module -> module.getBooleanProperty("useCalculatedBusFictitiousP0Q0"))
+                .orElse(true);
+        return new NetworkFactoryImpl(useCalculatedBusFictitiousP0Q0);
     }
 }

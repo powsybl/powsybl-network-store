@@ -103,16 +103,10 @@ class NetworkTest extends AbstractNetworkTest {
         assertEquals(2.0, topology1.getFictitiousQ0(0), 0.0);
         Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(voltageLevel1);
         nodesByBus.forEach((busId, nodes) -> {
-            // [performance.hack] Due to performance hack it has been artificially set to 0
-//            if (nodes.contains(0)) {
-//                assertEquals(1.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
-//            } else if (nodes.contains(1)) {
-//                assertEquals(2.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
-//            }
             if (nodes.contains(0)) {
-                assertEquals(0.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
+                assertEquals(1.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
             } else if (nodes.contains(1)) {
-                assertEquals(0.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
+                assertEquals(2.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
             }
         });
 

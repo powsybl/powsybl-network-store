@@ -48,10 +48,25 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private AbstractReportNodeContext reporterContext;
 
-    public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
+    // if we start to have more things like this, we should
+    // group them in a separate class. For now this one is
+    // probably only temporary until we fix the underlying
+    // performance issue that forces us to have it
+    private boolean useCalculatedBusFictitiousP0Q0;
+
+    public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource, boolean useCalculatedBusFictitiousP0Q0) {
         super(new NetworkObjectIndex(storeClient), resource);
         this.reporterContext = new SimpleReportNodeContext();
+        this.useCalculatedBusFictitiousP0Q0 = useCalculatedBusFictitiousP0Q0;
         index.setNetwork(this);
+    }
+
+    public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
+        this(storeClient, resource, true);
+    }
+
+    public static NetworkImpl create(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource, boolean useCalculatedBusFictitiousP0Q0) {
+        return new NetworkImpl(storeClient, resource, useCalculatedBusFictitiousP0Q0);
     }
 
     public static NetworkImpl create(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
@@ -1321,5 +1336,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         // FIXME: if needed implement detailed dc model
         // needed for cgmes export in https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/export/CgmesExportContext.java#L362
         return Collections.emptyList();
+    }
+
+    public boolean isUseCalculatedBusFictitiousP0Q0() {
+        return useCalculatedBusFictitiousP0Q0;
     }
 }
