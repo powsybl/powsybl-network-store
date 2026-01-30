@@ -107,9 +107,13 @@ public class NetworkStoreService implements AutoCloseable {
         this(new RestClientImpl(baseUri), defaultPreloadingStrategy, decorator, true);
     }
 
+    public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy, boolean useCalculatedBusFictitiousP0Q0) {
+        this(new RestClientImpl(baseUri), defaultPreloadingStrategy, NetworkStoreService::createStoreClient, useCalculatedBusFictitiousP0Q0);
+    }
+
     public static NetworkStoreService create(NetworkStoreConfig config) {
         Objects.requireNonNull(config);
-        return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy());
+        return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy(), config.isUseCalculatedBusFictitiousP0Q0());
     }
 
     private PreloadingStrategy getNonNullPreloadingStrategy(PreloadingStrategy preloadingStrategy) {

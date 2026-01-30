@@ -21,9 +21,16 @@ public final class NetworkStoreConfig {
 
     private static final PreloadingStrategy DEFAULT_PRELOADING_STRATEGY = PreloadingStrategy.NONE;
 
+    private static final boolean DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0 = true;
+
     private String baseUrl;
 
     private PreloadingStrategy preloadingStrategy = DEFAULT_PRELOADING_STRATEGY;
+
+    // For now this one is
+    // probably only temporary until we fix the underlying
+    // performance issue that forces us to have it
+    private boolean useCalculatedBusFictitiousP0Q0 = DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0;
 
     public NetworkStoreConfig(String baseUrl) {
         this.baseUrl = Objects.requireNonNull(baseUrl);
@@ -40,8 +47,11 @@ public final class NetworkStoreConfig {
                 .orElse(DEFAULT_BASE_URL);
         PreloadingStrategy preloadingStrategy = moduleConfig.flatMap(mc -> mc.getOptionalEnumProperty("preloading-strategy", PreloadingStrategy.class))
                 .orElse(DEFAULT_PRELOADING_STRATEGY);
+        boolean useCalculatedBusFictitiousP0Q0 = moduleConfig.flatMap(mc -> mc.getOptionalBooleanProperty("use-calculatedbus-fictitiousP0Q0"))
+                .orElse(DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0);
         return new NetworkStoreConfig(baseUrl)
-                .setPreloadingStrategy(preloadingStrategy);
+                .setPreloadingStrategy(preloadingStrategy)
+                .setUseCalculatedBusFictitiousP0Q0(useCalculatedBusFictitiousP0Q0);
     }
 
     public String getBaseUrl() {
@@ -59,6 +69,15 @@ public final class NetworkStoreConfig {
 
     public NetworkStoreConfig setPreloadingStrategy(PreloadingStrategy preloadingStrategy) {
         this.preloadingStrategy = Objects.requireNonNull(preloadingStrategy);
+        return this;
+    }
+
+    public boolean isUseCalculatedBusFictitiousP0Q0() {
+        return useCalculatedBusFictitiousP0Q0;
+    }
+
+    public NetworkStoreConfig setUseCalculatedBusFictitiousP0Q0(boolean useCalculatedBusFictitiousP0Q0) {
+        this.useCalculatedBusFictitiousP0Q0 = useCalculatedBusFictitiousP0Q0;
         return this;
     }
 }
