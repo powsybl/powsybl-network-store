@@ -7,10 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
@@ -54,7 +51,8 @@ public class RestClientImpl implements RestClient {
     }
 
     public RestClientImpl(RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper) {
-        this.objectMapper = Objects.requireNonNull(objectMapper);
+        // Note: not available in 2.10 as it cannot be implemented without underlying Builder state support.
+        this.objectMapper = Objects.requireNonNull(objectMapper).copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
 
     }
@@ -63,7 +61,8 @@ public class RestClientImpl implements RestClient {
     public RestClientImpl(RestTemplateBuilder restTemplateBuilder,
                           @Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri,
                           ObjectMapper objectMapper) {
-        this.objectMapper = Objects.requireNonNull(objectMapper);
+        // Note: not available in 2.10 as it cannot be implemented without underlying Builder state support.
+        this.objectMapper = Objects.requireNonNull(objectMapper).copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         this.restTemplate = Objects.requireNonNull(restTemplateBuilder)
             .errorHandler(new RestTemplateResponseErrorHandler())
             .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder

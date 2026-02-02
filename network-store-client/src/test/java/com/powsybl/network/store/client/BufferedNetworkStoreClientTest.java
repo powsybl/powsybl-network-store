@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -62,11 +61,6 @@ public class BufferedNetworkStoreClientTest {
         @Primary
         public RestClient testClient(RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper) {
             return new RestClientImpl(restTemplateBuilder, objectMapper);
-        }
-
-        @Bean
-        public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
-            return builder -> builder.defaultViewInclusion(true);
         }
     }
 
