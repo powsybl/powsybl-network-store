@@ -52,7 +52,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     // group them in a separate class. For now this one is
     // probably only temporary until we fix the underlying
     // performance issue that forces us to have it
-    private boolean useCalculatedBusFictitiousP0Q0;
+    private final boolean useCalculatedBusFictitiousP0Q0;
 
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource, boolean useCalculatedBusFictitiousP0Q0) {
         super(new NetworkObjectIndex(storeClient), resource);
