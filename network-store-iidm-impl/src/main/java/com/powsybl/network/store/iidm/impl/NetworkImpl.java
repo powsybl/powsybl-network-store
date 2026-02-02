@@ -62,7 +62,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
-        this(storeClient, resource, true);
+        this(storeClient, resource, NetworkFactoryServiceImpl.DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0);
     }
 
     public static NetworkImpl create(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource, boolean useCalculatedBusFictitiousP0Q0) {

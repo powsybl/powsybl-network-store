@@ -6,7 +6,11 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import java.util.Optional;
+
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.NetworkFactoryService;
 
@@ -17,6 +21,8 @@ import com.powsybl.iidm.network.NetworkFactoryService;
 @AutoService(NetworkFactoryService.class)
 public class NetworkFactoryServiceImpl implements NetworkFactoryService {
 
+    public static final boolean DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0 = true;
+
     @Override
     public String getName() {
         return "NetworkStore";
@@ -24,6 +30,24 @@ public class NetworkFactoryServiceImpl implements NetworkFactoryService {
 
     @Override
     public NetworkFactory createNetworkFactory() {
-        return new NetworkFactoryImpl();
+        boolean useCalculatedBusFictitiousP0Q0 = loadConfigUseCalculatedBusFictitiousP0Q0();
+        return new NetworkFactoryImpl(useCalculatedBusFictitiousP0Q0);
+    }
+
+    // if we start to have more things like this, we should
+    // group them in a separate class of parameters independant
+    // of the server. For now this one is
+    // probably only temporary until we fix the underlying
+    // performance issue that forces us to have it
+    public static boolean loadConfigUseCalculatedBusFictitiousP0Q0() {
+        return loadConfigUseCalculatedBusFictitiousP0Q0(PlatformConfig.defaultConfig());
+    }
+
+    public static boolean loadConfigUseCalculatedBusFictitiousP0Q0(PlatformConfig platformConfig) {
+        Optional<ModuleConfig> moduleConfig = platformConfig
+                .getOptionalModuleConfig("network-store-iidm");
+        boolean useCalculatedBusFictitiousP0Q0 = moduleConfig.flatMap(mc -> mc.getOptionalBooleanProperty("use-calculatedbus-fictitiousP0Q0"))
+                .orElse(DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0);
+        return useCalculatedBusFictitiousP0Q0;
     }
 }

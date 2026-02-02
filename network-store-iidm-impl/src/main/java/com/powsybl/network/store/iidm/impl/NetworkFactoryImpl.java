@@ -29,7 +29,7 @@ public class NetworkFactoryImpl implements NetworkFactory {
     // group them in a separate class. For now this one is
     // probably only temporary until we fix the underlying
     // performance issue that forces us to have it
-    private boolean useCalculatedBusFictitiousP0Q0 = true;
+    private final boolean useCalculatedBusFictitiousP0Q0;
 
     public NetworkFactoryImpl() {
         this(() -> new CachedNetworkStoreClient(new OfflineNetworkStoreClient()));
@@ -40,7 +40,7 @@ public class NetworkFactoryImpl implements NetworkFactory {
     }
 
     public NetworkFactoryImpl(Supplier<NetworkStoreClient> storeClientSupplier) {
-        this(storeClientSupplier, true);
+        this(storeClientSupplier, NetworkFactoryServiceImpl.DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0);
     }
 
     public NetworkFactoryImpl(Supplier<NetworkStoreClient> storeClientSupplier, boolean useCalculatedBusFictitiousP0Q0) {

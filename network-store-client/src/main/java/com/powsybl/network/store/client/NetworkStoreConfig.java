@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.network.store.iidm.impl.NetworkFactoryServiceImpl;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -21,8 +22,6 @@ public final class NetworkStoreConfig {
 
     private static final PreloadingStrategy DEFAULT_PRELOADING_STRATEGY = PreloadingStrategy.NONE;
 
-    private static final boolean DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0 = true;
-
     private String baseUrl;
 
     private PreloadingStrategy preloadingStrategy = DEFAULT_PRELOADING_STRATEGY;
@@ -30,7 +29,7 @@ public final class NetworkStoreConfig {
     // For now this one is
     // probably only temporary until we fix the underlying
     // performance issue that forces us to have it
-    private boolean useCalculatedBusFictitiousP0Q0 = DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0;
+    private boolean useCalculatedBusFictitiousP0Q0 = NetworkFactoryServiceImpl.DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0;
 
     public NetworkStoreConfig(String baseUrl) {
         this.baseUrl = Objects.requireNonNull(baseUrl);
@@ -41,14 +40,18 @@ public final class NetworkStoreConfig {
     }
 
     public static NetworkStoreConfig load() {
-        Optional<ModuleConfig> moduleConfig = PlatformConfig.defaultConfig()
+        PlatformConfig platformConfig = PlatformConfig.defaultConfig();
+        // Configs for the client-server interactions
+        Optional<ModuleConfig> moduleConfig = platformConfig
                 .getOptionalModuleConfig("network-store");
         String baseUrl = moduleConfig.flatMap(mc -> mc.getOptionalStringProperty("base-url"))
                 .orElse(DEFAULT_BASE_URL);
         PreloadingStrategy preloadingStrategy = moduleConfig.flatMap(mc -> mc.getOptionalEnumProperty("preloading-strategy", PreloadingStrategy.class))
                 .orElse(DEFAULT_PRELOADING_STRATEGY);
-        boolean useCalculatedBusFictitiousP0Q0 = moduleConfig.flatMap(mc -> mc.getOptionalBooleanProperty("use-calculatedbus-fictitiousP0Q0"))
-                .orElse(DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0);
+
+        // Configs independent of the server
+        boolean useCalculatedBusFictitiousP0Q0 = NetworkFactoryServiceImpl.loadConfigUseCalculatedBusFictitiousP0Q0(platformConfig);
+
         return new NetworkStoreConfig(baseUrl)
                 .setPreloadingStrategy(preloadingStrategy)
                 .setUseCalculatedBusFictitiousP0Q0(useCalculatedBusFictitiousP0Q0);
