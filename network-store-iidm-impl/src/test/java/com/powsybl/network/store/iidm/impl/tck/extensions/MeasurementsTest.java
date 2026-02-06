@@ -6,11 +6,58 @@
  */
 package com.powsybl.network.store.iidm.impl.tck.extensions;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.MeasurementAdder;
+import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import com.powsybl.iidm.network.tck.extensions.AbstractMeasurementsTest;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.network.store.iidm.impl.LineImpl;
+import com.powsybl.network.store.model.ExtensionAttributes;
+import com.powsybl.network.store.model.MeasurementsAttributes;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.time.ZonedDateTime;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 class MeasurementsTest extends AbstractMeasurementsTest {
 
+    // This test covers a bug that made newly added measurements not being persisted. This was possible because the
+    // NetworkStoreClient wasn't notified of the change and didn't update the element when flushing the buffers.
+    @Test
+    void addMeasurementShouldUpdateResourceWithoutNotification() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        LineImpl line = (LineImpl) network.getLine("NHV1_NHV2_1");
+        LineImpl lineSpy = Mockito.spy(line);
+        MeasurementsAdder<?> measurementsAdder = lineSpy.newExtension(MeasurementsAdder.class);
+        Measurements<?> measurements = measurementsAdder.add();
+
+        String id = UUID.randomUUID().toString();
+        MeasurementAdder mAdder = measurements.newMeasurement()
+                .setId(id)
+                .setSide(ThreeSides.ONE)
+                .setType(Measurement.Type.REACTIVE_POWER)
+                .setValid(true)
+                .setValue(100.0);
+        Mockito.clearInvocations(lineSpy);
+        mAdder.add();
+
+        Map<String, ExtensionAttributes> extensionAttributes = lineSpy.getResource()
+                .getAttributes()
+                .getExtensionAttributes();
+        MeasurementsAttributes measurementAttributes = (MeasurementsAttributes) extensionAttributes.get(Measurements.NAME);
+        assertEquals(1, extensionAttributes.size());
+        assertEquals(1, measurementAttributes.getMeasurementAttributes().size());
+        assertEquals(id, measurementAttributes.getMeasurementAttributes().getFirst().getId());
+        Mockito.verify(lineSpy).updateResourceWithoutNotification(Mockito.any());
+    }
 }
