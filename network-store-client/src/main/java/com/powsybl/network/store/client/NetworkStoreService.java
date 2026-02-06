@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.network.store.client.util.ExecutorUtil;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
+import com.powsybl.network.store.iidm.impl.NetworkFactoryServiceImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.util.TriFunction;
@@ -62,6 +63,16 @@ public class NetworkStoreService implements AutoCloseable {
         Executors.newFixedThreadPool(ResourceType.values().length),
         contextSnapshotFactory::captureAll);
 
+    // if we start to have more things like this, we should
+    // group them in a separate class. For now this one is
+    // probably only temporary until we fix the underlying
+    // performance issue that forces us to have it
+    // NOTE: in this class we don't allow to pass this param
+    // at every method level, it is fixed in the constructor because
+    // we just need a static configuration, so either from spring's application.yaml
+    // or from powsybl itools config.yaml (NetworkStoreConfig)
+    private final boolean useCalculatedBusFictitiousP0Q0;
+
     public NetworkStoreService(String baseUri) {
         this(baseUri, PreloadingStrategy.NONE);
     }
@@ -70,27 +81,44 @@ public class NetworkStoreService implements AutoCloseable {
         this(new RestClientImpl(baseUri), defaultPreloadingStrategy);
     }
 
+    public NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
+        this(restClient, defaultPreloadingStrategy, NetworkFactoryServiceImpl.DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0);
+    }
+
     @Autowired
     public NetworkStoreService(RestClient restClient,
-                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
-        this(restClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
+                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy,
+                               @Value("${powsybl.services.network-store-server.useCalculatedBusFictitiousP0Q0:true}") boolean useCalculatedBusFictitiousP0Q0) {
+        this(restClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient, useCalculatedBusFictitiousP0Q0);
+    }
+
+    public NetworkStoreService(RestClient restClient,
+            PreloadingStrategy defaultPreloadingStrategy,
+            TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
+        this(restClient, defaultPreloadingStrategy, decorator, NetworkFactoryServiceImpl.DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0);
     }
 
     NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy,
-                        TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
+                        TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator,
+                        boolean useCalculatedBusFictitiousP0Q0) {
         this.restClient = Objects.requireNonNull(restClient);
         this.defaultPreloadingStrategy = Objects.requireNonNull(defaultPreloadingStrategy);
         this.decorator = Objects.requireNonNull(decorator);
+        this.useCalculatedBusFictitiousP0Q0 = useCalculatedBusFictitiousP0Q0;
     }
 
     public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy,
                                TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
-        this(new RestClientImpl(baseUri), defaultPreloadingStrategy, decorator);
+        this(new RestClientImpl(baseUri), defaultPreloadingStrategy, decorator, NetworkFactoryServiceImpl.DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0);
+    }
+
+    public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy, boolean useCalculatedBusFictitiousP0Q0) {
+        this(new RestClientImpl(baseUri), defaultPreloadingStrategy, NetworkStoreService::createStoreClient, useCalculatedBusFictitiousP0Q0);
     }
 
     public static NetworkStoreService create(NetworkStoreConfig config) {
         Objects.requireNonNull(config);
-        return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy());
+        return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy(), config.isUseCalculatedBusFictitiousP0Q0());
     }
 
     private PreloadingStrategy getNonNullPreloadingStrategy(PreloadingStrategy preloadingStrategy) {
@@ -115,7 +143,8 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public NetworkFactory getNetworkFactory(PreloadingStrategy preloadingStrategy) {
-        return new NetworkFactoryImpl(() -> decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy), executorService));
+        return new NetworkFactoryImpl(() -> decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy), executorService),
+                useCalculatedBusFictitiousP0Q0);
     }
 
     public Network createNetwork(String id, String sourceFormat) {
@@ -212,7 +241,7 @@ public class NetworkStoreService implements AutoCloseable {
         Objects.requireNonNull(uuid);
         NetworkStoreClient storeClient = decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy), executorService);
         return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid, Resource.INITIAL_VARIANT_NUM)
-                .orElseThrow(() -> new PowsyblException("Network '" + uuid + "' not found")));
+                .orElseThrow(() -> new PowsyblException("Network '" + uuid + "' not found")), useCalculatedBusFictitiousP0Q0);
     }
 
     public void deleteNetwork(UUID uuid) {
