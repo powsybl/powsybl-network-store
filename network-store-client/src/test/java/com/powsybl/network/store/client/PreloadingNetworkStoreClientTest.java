@@ -65,8 +65,8 @@ public class PreloadingNetworkStoreClientTest {
     static class TestConfig {
         @Bean
         @Primary
-        public RestClient testClient(RestTemplateBuilder restTemplateBuilder) {
-            return new RestClientImpl(restTemplateBuilder);
+        public RestClient testClient(RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper) {
+            return new RestClientImpl(restTemplateBuilder, objectMapper);
         }
     }
 
