@@ -6,10 +6,10 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.network.store.model.NetworkAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +27,8 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
@@ -57,8 +59,8 @@ public class BufferedNetworkStoreClientTest {
     static class TestConfig {
         @Bean
         @Primary
-        public RestClient testClient(RestTemplateBuilder restTemplateBuilder) {
-            return new RestClientImpl(restTemplateBuilder);
+        public RestClient testClient(RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper) {
+            return new RestClientImpl(restTemplateBuilder, objectMapper);
         }
     }
 
@@ -153,6 +155,162 @@ public class BufferedNetworkStoreClientTest {
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone1to2))))
                 .andRespond(withSuccess());
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testUpdateLine() throws JsonProcessingException {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.randomUUID();
+        LineAttributes lineAttributes = LineAttributes.builder()
+                .p1(1)
+                .p2(2)
+                .q1(3)
+                .q2(4)
+                .r(5)
+                .x(6)
+                .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
+                .build();
+        Resource<LineAttributes> l1 = Resource.lineBuilder()
+                .id("LINE_1")
+                .attributes(lineAttributes)
+                .build();
+        Resource<LineAttributes> l1Copy = Resource.lineBuilder()
+                .id("LINE_1")
+                .attributes(lineAttributes)
+                .build();
+        l1Copy.setFilter(AttributeFilter.WITH_LIMITS);
+        // test only sv filter
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/sv"))
+                .andExpect(method(PUT))
+                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+
+        // test sv then with limits filter -> should apply with limits
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+                .andExpect(method(PUT))
+                .andExpect(content().string(objectMapper.writeValueAsString(List.of(l1Copy))))
+                .andRespond(withSuccess());
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.WITH_LIMITS);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+
+        // test standard then sv filter -> should apply null (without limits)
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+                .andExpect(method(PUT))
+                // no operational limits group in request
+                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"STANDARD\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"regulatingEquipments\":[]}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.STANDARD);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+
+        // test sv then standard then with limits filter -> should apply with limits filter
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+                .andExpect(method(PUT))
+                .andExpect(content().string(objectMapper.writeValueAsString(List.of(l1Copy))))
+                .andRespond(withSuccess());
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.STANDARD);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.WITH_LIMITS);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testViewWithUpdateLines() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.randomUUID();
+        LineAttributes lineAttributes = LineAttributes.builder()
+                .p1(1)
+                .p2(2)
+                .q1(3)
+                .q2(4)
+                .r(5)
+                .x(6)
+                .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
+                .build();
+        Resource<LineAttributes> l1 = Resource.lineBuilder()
+                .id("LINE_1")
+                .attributes(lineAttributes)
+                .build();
+        Resource<LineAttributes> l2 = Resource.lineBuilder()
+                .id("LINE_2")
+                .attributes(lineAttributes)
+                .build();
+        // test only sv filter
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/sv"))
+                .andExpect(method(PUT))
+                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}},{\"type\":\"LINE\",\"id\":\"LINE_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.updateLines(networkUuid, List.of(l1, l2), AttributeFilter.SV);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testViewWithUpdateTwoWindingsTransformer() throws JsonProcessingException {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.randomUUID();
+        TwoWindingsTransformerAttributes twoWindingsTransformerAttributes = TwoWindingsTransformerAttributes.builder()
+                .p1(1)
+                .p2(2)
+                .q1(3)
+                .q2(4)
+                .r(5)
+                .x(6)
+                .selectedOperationalLimitsGroupId1("selectedGroupId1")
+                .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
+                .regulatingEquipments(Set.of(new RegulatingEquipmentIdentifier("loadId", ResourceType.LOAD)))
+                .build();
+        Resource<TwoWindingsTransformerAttributes> twt1 = Resource.twoWindingsTransformerBuilder()
+                .id("TWT_1")
+                .attributes(twoWindingsTransformerAttributes)
+                .build();
+        Resource<TwoWindingsTransformerAttributes> twt2 = Resource.twoWindingsTransformerBuilder()
+                .id("TWT_2")
+                .attributes(twoWindingsTransformerAttributes)
+                .build();
+        // test sv filter
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers/sv"))
+                .andExpect(method(PUT))
+                .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.SV);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+
+        // test standard filter
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers"))
+                .andExpect(method(PUT))
+                .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"filter\":\"STANDARD\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"filter\":\"STANDARD\",\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.STANDARD);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+
+        // test with_limits filter
+        twt1.setFilter(AttributeFilter.WITH_LIMITS);
+        twt2.setFilter(AttributeFilter.WITH_LIMITS);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers"))
+                .andExpect(method(PUT))
+                .andExpect(content().string(objectMapper.writeValueAsString(List.of(twt1, twt2))))
+                .andRespond(withSuccess());
+        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.WITH_LIMITS);
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
