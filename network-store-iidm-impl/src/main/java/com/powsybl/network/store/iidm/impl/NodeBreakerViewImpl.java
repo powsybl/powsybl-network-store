@@ -118,7 +118,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         Set<Integer> encounteredVertices = new HashSet<>();
         Set<Edge> encounteredEdges = new HashSet<>();
         for (int node : nodes) {
-            if (!traverseGraph(graph, node, traverser, TraversalType.DEPTH_FIRST, encounteredVertices, encounteredEdges)) {
+            if (!traverseFromNode(graph, node, traverser, TraversalType.DEPTH_FIRST, encounteredVertices, encounteredEdges)) {
                 break;
             }
         }
@@ -133,7 +133,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     boolean traverseFromNode(int node, TraversalType traversalType, VoltageLevel.NodeBreakerView.TopologyTraverser traverser) {
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource(), true, true);
-        return traverseGraph(graph, node, traverser, traversalType, new HashSet<>(), new HashSet<>());
+        return traverseFromNode(graph, node, traverser, traversalType, new HashSet<>(), new HashSet<>());
     }
 
     private record DirectedEdge(Edge edge, int origin) {
@@ -168,8 +168,8 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         }
     }
 
-    private boolean traverseGraph(Graph<Integer, Edge> graph, int node, TopologyTraverser traverser,
-                                  TraversalType traversalType, Set<Integer> encounteredVertices, Set<Edge> encounteredEdges) {
+    private boolean traverseFromNode(Graph<Integer, Edge> graph, int node, TopologyTraverser traverser,
+                                     TraversalType traversalType, Set<Integer> encounteredVertices, Set<Edge> encounteredEdges) {
         Deque<DirectedEdge> edgesToTraverse = new ArrayDeque<>();
         traverseVertex(node, encounteredVertices, edgesToTraverse, graph, traversalType);
 
