@@ -118,7 +118,9 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
 
         Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
         if (terminal != null) {
-            throw new ValidationException(this, terminal.getConnectable().getId() + " is already connected to the node " + node);
+            throw new ValidationException(this,
+                String.format("an equipment (%s) is already connected to node %d of voltage level %s",
+                    terminal.getConnectable().getId(), node, voltageLevel.getId()));
         }
     }
 
