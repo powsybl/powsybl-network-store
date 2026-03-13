@@ -87,11 +87,15 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
                 // there are only 3 filters now:
                 // SV included in BASIC included in WITH_LIMITS
                 // to be updated when some filters like WITH_EXTENSIONS are added
-                if (resourceAndFilter.getAttributeFilter() != null && attributeFilter != null) {
-                    if (resourceAndFilter.getAttributeFilter().getPriority() > attributeFilter.getPriority()) {
-                        resourceAndFilter.setAttributeFilter(resourceAndFilter.getAttributeFilter());
+                if (resourceAndFilter.getAttributeFilter() != null) {
+                    if (attributeFilter != null) {
+                        if (resourceAndFilter.getAttributeFilter().getPriority() > attributeFilter.getPriority()) {
+                            resourceAndFilter.setAttributeFilter(resourceAndFilter.getAttributeFilter());
+                        } else {
+                            resourceAndFilter.setAttributeFilter(attributeFilter);
+                        }
                     } else {
-                        resourceAndFilter.setAttributeFilter(attributeFilter);
+                        resourceAndFilter.setAttributeFilter(null);
                     }
                 }
             }
