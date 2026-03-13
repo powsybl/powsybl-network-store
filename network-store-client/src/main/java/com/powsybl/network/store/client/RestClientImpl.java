@@ -6,9 +6,8 @@
  */
 package com.powsybl.network.store.client;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
@@ -17,13 +16,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.*;
+import java.io.UncheckedIOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,17 +38,31 @@ public class RestClientImpl implements RestClient {
 
     private final RestTemplate restTemplate;
 
+    private final ObjectMapper objectMapper;
+
+    private final Map<Class<?>, ObjectWriter> objectWriters = new ConcurrentHashMap<>();
+
     public RestClientImpl(String baseUri) {
-        this(createRestTemplateBuilder(baseUri));
+        this(baseUri, createObjectMapper());
     }
 
-    public RestClientImpl(RestTemplateBuilder restTemplateBuilder) {
+    public RestClientImpl(String baseUri, ObjectMapper objectMapper) {
+        this(createRestTemplateBuilder(baseUri, objectMapper), objectMapper);
+    }
+
+    public RestClientImpl(RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper) {
+        // Note: not available in 2.10 as it cannot be implemented without underlying Builder state support.
+        this.objectMapper = Objects.requireNonNull(objectMapper).copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
+
     }
 
     @Autowired
     public RestClientImpl(RestTemplateBuilder restTemplateBuilder,
-                          @Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri) {
+                          @Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri,
+                          ObjectMapper objectMapper) {
+        // Note: not available in 2.10 as it cannot be implemented without underlying Builder state support.
+        this.objectMapper = Objects.requireNonNull(objectMapper).copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         this.restTemplate = Objects.requireNonNull(restTemplateBuilder)
             .errorHandler(new RestTemplateResponseErrorHandler())
             .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder
@@ -52,22 +71,25 @@ public class RestClientImpl implements RestClient {
             .build();
     }
 
-    public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
-        return new RestTemplateBuilder(restTemplate1 -> restTemplate1.setMessageConverters(List.of(createMapping()))).uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
+    public static RestTemplateBuilder createRestTemplateBuilder(String baseUri, ObjectMapper objectMapper) {
+        return new RestTemplateBuilder(restTemplate1 -> restTemplate1.setMessageConverters(List.of(createMapping(objectMapper))))
+                .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
                         .path(NetworkStoreApi.VERSION)));
     }
 
     private static ObjectMapper createObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
+                .defaultViewInclusion(true)
+                .build();
         objectMapper.registerModule(new JavaTimeModule())
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         return objectMapper;
     }
 
-    private static MappingJackson2HttpMessageConverter createMapping() {
+    private static MappingJackson2HttpMessageConverter createMapping(ObjectMapper objectMapper) {
         var converter = new MappingJackson2HttpMessageConverter();
-        converter.setObjectMapper(createObjectMapper());
+        converter.setObjectMapper(objectMapper);
         return converter;
     }
 
@@ -142,11 +164,39 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables) {
-        HttpEntity<?> entity = new HttpEntity<>(resources);
+    public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Class<?> viewClass, Object... uriVariables) {
+        // to check if something cleaner can be done
+        HttpEntity<?> entity = getHttpEntity(viewClass, resources);
         ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "put", response.getStatusCode());
+        }
+    }
+
+    private <T extends Attributes> HttpEntity<?> getHttpEntity(Class<?> viewClass, List<Resource<T>> resources) {
+        if (viewClass != null) {
+            ObjectWriter objectWriter = getObjectWriter(viewClass);
+            String json = "";
+            try {
+                json = objectWriter.writeValueAsString(resources);
+            } catch (JsonProcessingException e) {
+                throw new UncheckedIOException(e);
+            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            return new HttpEntity<>(json, headers);
+        } else {
+            return new HttpEntity<>(resources);
+        }
+    }
+
+    private ObjectWriter getObjectWriter(Class<?> viewClass) {
+        if (objectWriters.containsKey(viewClass)) {
+            return objectWriters.get(viewClass);
+        } else {
+            ObjectWriter objectWriter = objectMapper.writerWithView(viewClass);
+            objectWriters.put(viewClass, objectWriter);
+            return objectWriter;
         }
     }
 

@@ -6,23 +6,30 @@
  */
 package com.powsybl.network.store.model;
 
-import java.util.Objects;
-import java.util.Set;
+import com.powsybl.network.store.model.utils.Views;
+import lombok.Getter;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Getter
 public enum AttributeFilter {
 
-    SV(Set.of("p", "q", "calculatedBusesForBusView", "calculatedBusesForBusBreakerView"));
+    SV(1),
+    STANDARD(2),
+    WITH_LIMITS(3);
 
-    private final Set<String> included;
+    private final int priority;
 
-    AttributeFilter(Set<String> included) {
-        this.included = Objects.requireNonNull(included);
+    AttributeFilter(int priority) {
+        this.priority = priority;
     }
 
-    public Set<String> getIncluded() {
-        return included;
+    public static Class<?> getViewClass(AttributeFilter filter) {
+        return switch (filter) {
+            case SV -> Views.SvView.class;
+            case STANDARD -> Views.Standard.class;
+            case WITH_LIMITS -> Views.WithLimits.class;
+        };
     }
 }
