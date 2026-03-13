@@ -18,7 +18,7 @@
     </parent>
 
     <artifactId>powsybl-network-store-client-parent</artifactId>
-    <version>1.39.0-SNAPSHOT</version>
+    <version>1.40.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
     <name>Network store client parent</name>
@@ -54,6 +54,8 @@
             ../../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.organization>powsybl-ci-github</sonar.organization>
+        <sonar.projectKey>com.powsybl:powsybl-network-store</sonar.projectKey>
     </properties>
 
     <modules>
