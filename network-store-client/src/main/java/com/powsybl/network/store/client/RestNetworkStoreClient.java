@@ -863,12 +863,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
+    public List<Resource<DanglingLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
         return getAll(STR_DANGLING_LINE, "/networks/{networkUuid}/{variantNum}/dangling-lines", networkUuid, variantNum);
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
+    public Optional<Resource<DanglingLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String danglingLineId) {
         return get(STR_DANGLING_LINE, "/networks/{networkUuid}/{variantNum}/dangling-lines/{danglingLineId}", networkUuid, variantNum, danglingLineId);
     }
 

@@ -159,9 +159,9 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     private final NetworkCollectionIndex<CollectionCache<DanglingLineAttributes>> danglingLinesCache =
             new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-                    delegate::getDanglingLine,
+                    delegate::getBoundaryLine,
                     delegate::getVoltageLevelDanglingLines,
-                    delegate::getDanglingLines,
+                    delegate::getBoundaryLines,
                     delegate)
             );
 
@@ -967,12 +967,12 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
+    public List<Resource<DanglingLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
         return danglingLinesCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
+    public Optional<Resource<DanglingLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String danglingLineId) {
         return danglingLinesCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, danglingLineId);
     }
 

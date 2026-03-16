@@ -258,9 +258,9 @@ public interface NetworkStoreClient {
 
     void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources);
 
-    List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum);
+    List<Resource<DanglingLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum);
 
-    Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId);
+    Optional<Resource<DanglingLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String danglingLineId);
 
     void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId);
 

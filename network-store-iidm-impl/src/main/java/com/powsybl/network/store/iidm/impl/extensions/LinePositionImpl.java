@@ -7,7 +7,7 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.Coordinate;
@@ -31,7 +31,7 @@ public class LinePositionImpl<T extends Identifiable<T>> extends AbstractExtensi
         this((T) line);
     }
 
-    public LinePositionImpl(DanglingLine danglingLine) {
+    public LinePositionImpl(BoundaryLine danglingLine) {
         this((T) danglingLine);
     }
 

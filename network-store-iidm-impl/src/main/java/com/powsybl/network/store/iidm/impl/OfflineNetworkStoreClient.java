@@ -522,12 +522,12 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
+    public List<Resource<DanglingLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
         return Collections.emptyList();
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
+    public Optional<Resource<DanglingLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String danglingLineId) {
         return Optional.empty();
     }
 

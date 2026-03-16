@@ -17,10 +17,14 @@ import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.powsybl.iidm.network.util.LimitViolationUtils.getValueForLimit;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -41,6 +45,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
     private final LegImpl leg3;
 
     static class LegImpl implements Leg, LimitsOwner<Void>, TapChangerParent {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(LegImpl.class);
 
         private final ThreeWindingsTransformerImpl transformer;
 
@@ -444,6 +450,44 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
                     getLegName() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
             }
         }
+
+        @Override
+        public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+            return selectedOperationalLimitsGroupId.map(Set::of).orElseGet(Set::of);
+        }
+
+        @Override
+        public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered() {
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+            return selectedOperationalLimitsGroupId.map(List::of).orElseGet(List::of);
+        }
+
+        @Override
+        public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+            return getSelectedOperationalLimitsGroup().map(Set::of).orElseGet(Set::of);
+        }
+
+        @Override
+        public void addSelectedOperationalLimitsGroups(String... ids) {
+            if (ids == null || ids.length == 0) {
+                return;
+            }
+            LOGGER.warn("The method addSelectedOperationalLimitsGroups is not yet fully implemented, only the first id will be used");
+            setSelectedOperationalLimitsGroup(ids[0]);
+        }
+
+        @Override
+        public void deselectOperationalLimitsGroups(String... ids) {
+            if (ids == null || ids.length == 0) {
+                return;
+            }
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+            if (selectedOperationalLimitsGroupId.isPresent() && List.of(ids).contains(selectedOperationalLimitsGroupId.get())) {
+                // For now, only one group can be selected
+                cancelSelectedOperationalLimitsGroup();
+            }
+        }
     }
 
     ThreeWindingsTransformerImpl(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
@@ -616,6 +660,11 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
     @Override
     public boolean checkPermanentLimit3(LimitType type) {
         return checkPermanentLimit3(1f, type);
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
     }
 
     @Override

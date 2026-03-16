@@ -63,7 +63,7 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
         // we remove before adding, to forbid duplicates and allow updating ac to true/false
         AreaBoundaryAttributes areaBoundaryAttributes;
         if (boundary != null) {
-            areaBoundaryAttributes = new AreaBoundaryAttributes(null, ac, area.getId(), boundary.getDanglingLine().getId());
+            areaBoundaryAttributes = new AreaBoundaryAttributes(null, ac, area.getId(), boundary.getBoundaryLine().getId());
             area.removeAreaBoundary(boundary);
         } else if (terminal != null) {
             TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(terminal);

@@ -82,7 +82,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             case THREE_WINDINGS_TRANSFORMER -> delegate.getThreeWindingsTransformers(networkUuid, variantNum);
             case LINE -> delegate.getLines(networkUuid, variantNum);
             case HVDC_LINE -> delegate.getHvdcLines(networkUuid, variantNum);
-            case DANGLING_LINE -> delegate.getDanglingLines(networkUuid, variantNum);
+            case DANGLING_LINE -> delegate.getBoundaryLines(networkUuid, variantNum);
             case CONFIGURED_BUS -> delegate.getConfiguredBuses(networkUuid, variantNum);
             case TIE_LINE -> delegate.getTieLines(networkUuid, variantNum);
             default -> {
@@ -773,15 +773,15 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
+    public List<Resource<DanglingLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
         ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
-        return delegate.getDanglingLines(networkUuid, variantNum);
+        return delegate.getBoundaryLines(networkUuid, variantNum);
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
+    public Optional<Resource<DanglingLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String danglingLineId) {
         ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
-        return delegate.getDanglingLine(networkUuid, variantNum, danglingLineId);
+        return delegate.getBoundaryLine(networkUuid, variantNum, danglingLineId);
     }
 
     @Override

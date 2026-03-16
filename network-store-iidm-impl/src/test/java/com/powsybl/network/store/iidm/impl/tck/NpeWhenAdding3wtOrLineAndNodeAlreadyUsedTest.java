@@ -6,10 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
-import com.powsybl.iidm.network.tck.AbstractNpeWhenAdding3wtOrLineAndNodeAlreadyUsed;
+import com.powsybl.iidm.network.tck.AbstractNpeWhenAdding3wtOrLineAndNodeAlreadyUsedTest;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NpeWhenAdding3wtOrLineAndNodeAlreadyUsed extends AbstractNpeWhenAdding3wtOrLineAndNodeAlreadyUsed {
+public class NpeWhenAdding3wtOrLineAndNodeAlreadyUsedTest extends AbstractNpeWhenAdding3wtOrLineAndNodeAlreadyUsedTest {
 }

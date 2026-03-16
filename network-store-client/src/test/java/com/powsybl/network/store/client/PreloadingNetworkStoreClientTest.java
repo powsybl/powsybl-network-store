@@ -1099,25 +1099,25 @@ public class PreloadingNetworkStoreClientTest {
                 .andRespond(withSuccess(danglingLinesJson, MediaType.APPLICATION_JSON));
 
         // First time dangling line retrieval by Id
-        Resource<DanglingLineAttributes> danglingLineAttributesResource = cachedClient.getDanglingLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
+        Resource<DanglingLineAttributes> danglingLineAttributesResource = cachedClient.getBoundaryLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
         assertNotNull(danglingLineAttributesResource);
         assertEquals(10., danglingLineAttributesResource.getAttributes().getQ0(), 0.001);
 
         danglingLineAttributesResource.getAttributes().setQ0(60);
 
         // Second time dangling line retrieval by Id
-        danglingLineAttributesResource = cachedClient.getDanglingLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
+        danglingLineAttributesResource = cachedClient.getBoundaryLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
         assertNotNull(danglingLineAttributesResource);
         assertEquals(60., danglingLineAttributesResource.getAttributes().getQ0(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        assertEquals(1, cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
         cachedClient.removeDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("dl1"));
-        assertEquals(0, cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        assertEquals(0, cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
         // Recreate line
         cachedClient.createDanglingLines(networkUuid, List.of(danglingLine));
-        List<Resource<DanglingLineAttributes>> danglingLines = cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        List<Resource<DanglingLineAttributes>> danglingLines = cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, danglingLines.size());
         assertNotNull(danglingLines.get(0));
         assertEquals(10., danglingLines.get(0).getAttributes().getQ0(), 0.001);
@@ -1132,7 +1132,7 @@ public class PreloadingNetworkStoreClientTest {
                         .build())
                 .build();
         cachedClient.updateDanglingLines(networkUuid, List.of(updateDanglingLine), null);
-        danglingLines = cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        danglingLines = cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, danglingLines.size());
         assertNotNull(danglingLines.get(0));
         assertEquals(60., danglingLines.get(0).getAttributes().getQ0(), 0.001);

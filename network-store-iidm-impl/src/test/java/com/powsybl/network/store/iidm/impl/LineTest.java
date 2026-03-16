@@ -109,15 +109,15 @@ public class LineTest {
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
         assertEquals("TN_Border_GY11", tieLine.getPairingKey());
-        DanglingLine dl1 = tieLine.getDanglingLine1();
-        DanglingLine dl2 = tieLine.getDanglingLine2();
+        BoundaryLine dl1 = tieLine.getBoundaryLine1();
+        BoundaryLine dl2 = tieLine.getBoundaryLine2();
         assertNotNull(dl1);
         assertNotNull(dl2);
-        assertEquals(dl1.getId(), tieLine.getDanglingLine(TwoSides.ONE).getId());
-        assertEquals(dl2.getId(), tieLine.getDanglingLine(TwoSides.TWO).getId());
-        assertEquals(dl1.getId(), tieLine.getDanglingLine(dl1.getTerminal().getVoltageLevel().getId()).getId());
-        assertEquals(dl2.getId(), tieLine.getDanglingLine(dl2.getTerminal().getVoltageLevel().getId()).getId());
-        assertNull(tieLine.getDanglingLine("null"));
+        assertEquals(dl1.getId(), tieLine.getBoundaryLine(TwoSides.ONE).getId());
+        assertEquals(dl2.getId(), tieLine.getBoundaryLine(TwoSides.TWO).getId());
+        assertEquals(dl1.getId(), tieLine.getBoundaryLine(dl1.getTerminal().getVoltageLevel().getId()).getId());
+        assertEquals(dl2.getId(), tieLine.getBoundaryLine(dl2.getTerminal().getVoltageLevel().getId()).getId());
+        assertNull(tieLine.getBoundaryLine("null"));
 
         assertEquals(0.84, tieLine.getR(), 1e-3);
         assertEquals(12.6, tieLine.getX(), 1e-3);
@@ -140,35 +140,35 @@ public class LineTest {
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
         assertEquals("TN_Border_GY11", tieLine.getPairingKey());
 
-        assertEquals(10, network.getDanglingLineCount());
+        assertEquals(10, network.getBoundaryLineCount());
         VoltageLevel vl1 = network.getVoltageLevel("469df5f7-058f-4451-a998-57a48e8a56fe");
-        assertEquals(3, vl1.getDanglingLineCount());
+        assertEquals(3, vl1.getBoundaryLineCount());
 
-        List<DanglingLine> dls = vl1.getDanglingLineStream().collect(Collectors.toList());
+        List<BoundaryLine> dls = vl1.getBoundaryLineStream().collect(Collectors.toList());
         assertEquals(3, dls.size());
-        assertEquals(3, (int) vl1.getDanglingLineStream(DanglingLineFilter.ALL).count());
-        assertEquals(3, (int) vl1.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
+        assertEquals(3, (int) vl1.getBoundaryLineStream(BoundaryLineFilter.ALL).count());
+        assertEquals(3, (int) vl1.getBoundaryLineStream(BoundaryLineFilter.PAIRED).count());
 
         VoltageLevel vl2 = network.getVoltageLevel("c1d5bfde8f8011e08e4d00247eb1f55e");
-        assertEquals(3, vl2.getDanglingLineCount());
+        assertEquals(3, vl2.getBoundaryLineCount());
 
-        List<DanglingLine> dls2 = vl2.getDanglingLineStream().collect(Collectors.toList());
+        List<BoundaryLine> dls2 = vl2.getBoundaryLineStream().collect(Collectors.toList());
         assertEquals(3, dls2.size());
-        assertEquals(3, Iterables.size(vl2.getDanglingLines(DanglingLineFilter.ALL)));
-        assertEquals(3, (int) vl2.getDanglingLineStream(DanglingLineFilter.ALL).count());
-        assertEquals(3, (int) vl2.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
+        assertEquals(3, Iterables.size(vl2.getBoundaryLines(BoundaryLineFilter.ALL)));
+        assertEquals(3, (int) vl2.getBoundaryLineStream(BoundaryLineFilter.ALL).count());
+        assertEquals(3, (int) vl2.getBoundaryLineStream(BoundaryLineFilter.PAIRED).count());
 
         Bus configuredBus = network.getBusBreakerView().getBus("795a117d-7caf-4fc2-a8d9-dc8f4cf2344a");
-        assertEquals(2, (int) configuredBus.getDanglingLineStream().count());
-        assertEquals(2, Iterables.size(configuredBus.getDanglingLines(DanglingLineFilter.ALL)));
-        assertEquals(2, (int) configuredBus.getDanglingLineStream(DanglingLineFilter.ALL).count());
-        assertEquals(2, (int) configuredBus.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
+        assertEquals(2, (int) configuredBus.getBoundaryLineStream().count());
+        assertEquals(2, Iterables.size(configuredBus.getBoundaryLines(BoundaryLineFilter.ALL)));
+        assertEquals(2, (int) configuredBus.getBoundaryLineStream(BoundaryLineFilter.ALL).count());
+        assertEquals(2, (int) configuredBus.getBoundaryLineStream(BoundaryLineFilter.PAIRED).count());
 
         Bus calculatedBus = network.getBusView().getBus("c1d5bfea8f8011e08e4d00247eb1f55e_0");
-        assertEquals(2, (int) calculatedBus.getDanglingLineStream().count());
-        assertEquals(2, Iterables.size(calculatedBus.getDanglingLines(DanglingLineFilter.ALL)));
-        assertEquals(2, (int) calculatedBus.getDanglingLineStream(DanglingLineFilter.ALL).count());
-        assertEquals(2, (int) calculatedBus.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
+        assertEquals(2, (int) calculatedBus.getBoundaryLineStream().count());
+        assertEquals(2, Iterables.size(calculatedBus.getBoundaryLines(BoundaryLineFilter.ALL)));
+        assertEquals(2, (int) calculatedBus.getBoundaryLineStream(BoundaryLineFilter.ALL).count());
+        assertEquals(2, (int) calculatedBus.getBoundaryLineStream(BoundaryLineFilter.PAIRED).count());
     }
 
     @Test
@@ -179,8 +179,8 @@ public class LineTest {
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
         assertEquals("TN_Border_GY11", tieLine.getPairingKey());
-        DanglingLine dl1 = tieLine.getDanglingLine1();
-        DanglingLine dl2 = tieLine.getDanglingLine2();
+        BoundaryLine dl1 = tieLine.getBoundaryLine1();
+        BoundaryLine dl2 = tieLine.getBoundaryLine2();
 
         assertNotNull(tieLine.getTerminal1());
         assertSame(tieLine.getTerminal1(), dl1.getTerminal());
@@ -214,8 +214,8 @@ public class LineTest {
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), properties);
         TieLine tieLine = network.getTieLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
 
-        DanglingLine dl1 = tieLine.getDanglingLine1();
-        DanglingLine dl2 = tieLine.getDanglingLine2();
+        BoundaryLine dl1 = tieLine.getBoundaryLine1();
+        BoundaryLine dl2 = tieLine.getBoundaryLine2();
 
         assertNotNull(tieLine.getNullableCurrentLimits1());
         assertNotNull(tieLine.getNullableCurrentLimits2());
