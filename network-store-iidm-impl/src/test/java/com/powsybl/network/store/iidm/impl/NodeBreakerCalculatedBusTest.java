@@ -226,7 +226,7 @@ public class NodeBreakerCalculatedBusTest {
                         + busVl1.getThreeWindingsTransformerStream().count()
                         + busVl1.getBatteryStream().count()
                         + busVl1.getShuntCompensatorStream().count()
-                        + busVl1.getDanglingLineStream().count()
+                        + busVl1.getBoundaryLineStream().count()
                         + busVl1.getStaticVarCompensatorStream().count()
                         + busVl1.getLccConverterStationStream().count()
                         + busVl1.getVscConverterStationStream().count()
@@ -255,7 +255,7 @@ public class NodeBreakerCalculatedBusTest {
                         + busVl2.getGeneratorStream().count()
                         + busVl2.getBatteryStream().count()
                         + busVl2.getShuntCompensatorStream().count()
-                        + busVl2.getDanglingLineStream().count()
+                        + busVl2.getBoundaryLineStream().count()
                         + busVl2.getStaticVarCompensatorStream().count()
                         + busVl2.getLccConverterStationStream().count()
                         + busVl2.getVscConverterStationStream().count()
@@ -317,7 +317,7 @@ public class NodeBreakerCalculatedBusTest {
                 busVl1.getTwoWindingsTransformerStream().count()
                         + busVl1.getBatteryStream().count()
                         + busVl1.getShuntCompensatorStream().count()
-                        + busVl1.getDanglingLineStream().count()
+                        + busVl1.getBoundaryLineStream().count()
                         + busVl1.getStaticVarCompensatorStream().count()
                         + busVl1.getLccConverterStationStream().count()
                         + busVl1.getVscConverterStationStream().count());
@@ -337,7 +337,7 @@ public class NodeBreakerCalculatedBusTest {
                         + busVl2.getGeneratorStream().count()
                         + busVl2.getBatteryStream().count()
                         + busVl2.getShuntCompensatorStream().count()
-                        + busVl2.getDanglingLineStream().count()
+                        + busVl2.getBoundaryLineStream().count()
                         + busVl2.getStaticVarCompensatorStream().count()
                         + busVl2.getLccConverterStationStream().count()
                         + busVl2.getVscConverterStationStream().count());
@@ -408,15 +408,15 @@ public class NodeBreakerCalculatedBusTest {
                         + busVl1.getGeneratorStream().count()
                         + busVl1.getBatteryStream().count()
                         + busVl1.getLoadStream().count()
-                        + busVl1.getDanglingLineStream().count()
+                        + busVl1.getBoundaryLineStream().count()
                         + busVl1.getStaticVarCompensatorStream().count()
                         + busVl1.getLccConverterStationStream().count()
                         + busVl1.getVscConverterStationStream().count()
         );
 
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_1").getVscConverterStationStream().count());
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_2").getDanglingLineStream().count());
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_3").getDanglingLineStream().count());
+        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_2").getBoundaryLineStream().count());
+        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_3").getBoundaryLineStream().count());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_4").getBatteryStream().count());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_5").getLineStream().count());
     }
@@ -443,7 +443,7 @@ public class NodeBreakerCalculatedBusTest {
                         + busVl2.getBatteryStream().count()
                         + busVl2.getLoadStream().count()
                         + busVl2.getShuntCompensatorStream().count()
-                        + busVl2.getDanglingLineStream().count()
+                        + busVl2.getBoundaryLineStream().count()
                         + busVl2.getLccConverterStationStream().count()
                         + busVl2.getVscConverterStationStream().count()
         );

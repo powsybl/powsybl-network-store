@@ -32,13 +32,13 @@ public interface BaseBus extends Bus {
     }
 
     @Override
-    default Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    default Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter danglingLineFilter) {
+        return getBoundaryLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    default Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream().filter(danglingLineFilter.getPredicate());
+    default Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter danglingLineFilter) {
+        return getBoundaryLineStream().filter(danglingLineFilter.getPredicate());
     }
 
     @Override
@@ -50,7 +50,7 @@ public interface BaseBus extends Bus {
         for (Terminal terminal : getConnectedTerminals()) {
             Connectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
-                case BUSBAR_SECTION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, DANGLING_LINE -> {
+                case BUSBAR_SECTION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, BOUNDARY_LINE -> {
                     // Do nothing
                 }
                 case GENERATOR, BATTERY, LOAD, HVDC_CONVERTER_STATION -> {
@@ -73,7 +73,7 @@ public interface BaseBus extends Bus {
         for (Terminal terminal : getConnectedTerminals()) {
             Connectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
-                case BUSBAR_SECTION, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, DANGLING_LINE -> {
+                case BUSBAR_SECTION, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, BOUNDARY_LINE -> {
                     // Do nothing
                 }
                 case GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, HVDC_CONVERTER_STATION -> {
@@ -122,7 +122,7 @@ public interface BaseBus extends Bus {
                     visitor.visitThreeWindingsTransformer(thwt, side);
                 }
                 case LOAD -> visitor.visitLoad((Load) connectable);
-                case DANGLING_LINE -> visitor.visitDanglingLine((DanglingLine) connectable);
+                case BOUNDARY_LINE -> visitor.visitBoundaryLine((BoundaryLine) connectable);
                 case STATIC_VAR_COMPENSATOR -> visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
                 case HVDC_CONVERTER_STATION -> visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
                 case GROUND -> visitor.visitGround((Ground) connectable);

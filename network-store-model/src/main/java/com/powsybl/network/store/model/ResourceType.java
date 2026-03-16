@@ -28,7 +28,7 @@ public enum ResourceType {
     THREE_WINDINGS_TRANSFORMER("3 windings transformer"),
     LINE("AC line"),
     HVDC_LINE("HVDC line"),
-    DANGLING_LINE("Dangling line"),
+    DANGLING_LINE("Dangling line"), // TODO: rename BOUNDARY_LINE
     GROUND("Ground"),
     CONFIGURED_BUS("Configured bus"),
     TIE_LINE("Tie line"),

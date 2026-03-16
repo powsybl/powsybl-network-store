@@ -264,7 +264,7 @@ class OperationalLimitsTest {
             .setId("bus_vl")
             .setName("bus_vl")
             .add();
-        voltageLevel.newDanglingLine()
+        voltageLevel.newBoundaryLine()
             .setId("danglingId")
             .setName("DanglingName")
             .setR(10.0F)
@@ -274,7 +274,7 @@ class OperationalLimitsTest {
             .setPairingKey("code")
             .setBus("bus_vl")
             .add();
-        DanglingLine danglingLine = network.getDanglingLine("danglingId");
+        BoundaryLine danglingLine = network.getBoundaryLine("danglingId");
         OperationalLimitsGroup defaultOperationalGroup = danglingLine.getOrCreateSelectedOperationalLimitsGroup();
         Assertions.assertEquals("DEFAULT", defaultOperationalGroup.getId());
         Assertions.assertTrue(defaultOperationalGroup.getCurrentLimits().isEmpty());

@@ -14,6 +14,8 @@ import lombok.experimental.SuperBuilder;
 import java.util.*;
 
 /**
+ * TODO: This class should be renamed BoundaryLineAttributes.
+ *
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */

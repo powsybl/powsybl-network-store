@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.AreaBoundary;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
+import com.powsybl.iidm.network.util.BoundaryLineBoundaryImpl;
 import com.powsybl.network.store.model.AreaBoundaryAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 
@@ -50,8 +50,8 @@ public class AreaBoundaryImpl implements AreaBoundary {
         if (areaBoundaryAttributes.getBoundaryDanglingLineId() == null) {
             return Optional.empty();
         }
-        Optional<DanglingLineImpl> danglingLine = index.getDanglingLine(areaBoundaryAttributes.getBoundaryDanglingLineId());
-        return danglingLine.map(DanglingLineBoundaryImpl::new);
+        Optional<BoundaryLineImpl> danglingLine = index.getBoundaryLine(areaBoundaryAttributes.getBoundaryDanglingLineId());
+        return danglingLine.map(BoundaryLineBoundaryImpl::new);
     }
 
     @Override

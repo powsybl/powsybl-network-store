@@ -131,8 +131,8 @@ public final class CreateNetworksUtil {
             }
 
             @Override
-            public void visitDanglingLine(DanglingLine danglingLine) {
-                visited.add(danglingLine.getId());
+            public void visitBoundaryLine(BoundaryLine boundaryLine) {
+                visited.add(boundaryLine.getId());
             }
 
             @Override
@@ -285,9 +285,9 @@ public final class CreateNetworksUtil {
                 .setVoltageSetpoint(213)
                 .add();
 
-        adder = vl1.newDanglingLine();
+        adder = vl1.newBoundaryLine();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
-        DanglingLine danglingLine1 = ((DanglingLineAdder) adder)
+        BoundaryLine danglingLine1 = ((BoundaryLineAdder) adder)
                 .setId("DL1")
                 .setName("Dangling line 1")
                 .setP0(533)
@@ -327,9 +327,9 @@ public final class CreateNetworksUtil {
                 .endTemporaryLimit()
                 .add();
 
-        adder = vl1.newDanglingLine();
+        adder = vl1.newBoundaryLine();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
-        DanglingLine danglingLine2 = ((DanglingLineAdder) adder)
+        BoundaryLine danglingLine2 = ((BoundaryLineAdder) adder)
                 .setId("DL2")
                 .setName("Dangling line 2")
                 .setP0(533)
@@ -902,10 +902,10 @@ public final class CreateNetworksUtil {
         LccConverterStationImpl lcc2 = (LccConverterStationImpl) network.getLccConverterStation("LCC2");
         lcc2.getResource().getAttributes().setNode(1);
 
-        DanglingLineImpl dl1 = (DanglingLineImpl) network.getDanglingLine("DL1");
+        BoundaryLineImpl dl1 = (BoundaryLineImpl) network.getBoundaryLine("DL1");
         dl1.getResource().getAttributes().setNode(2);
 
-        DanglingLineImpl dl2 = (DanglingLineImpl) network.getDanglingLine("DL2");
+        BoundaryLineImpl dl2 = (BoundaryLineImpl) network.getBoundaryLine("DL2");
         dl2.getResource().getAttributes().setNode(3);
 
         LineImpl l1 = (LineImpl) network.getLine("LINE1");
@@ -962,10 +962,10 @@ public final class CreateNetworksUtil {
         LccConverterStationImpl lcc2 = (LccConverterStationImpl) network.getLccConverterStation("LCC2");
         lcc2.getResource().getAttributes().setConnectableBus("BUS2");
 
-        DanglingLineImpl dl1 = (DanglingLineImpl) network.getDanglingLine("DL1");
+        BoundaryLineImpl dl1 = (BoundaryLineImpl) network.getBoundaryLine("DL1");
         dl1.getResource().getAttributes().setConnectableBus("BUS1");
 
-        DanglingLineImpl dl2 = (DanglingLineImpl) network.getDanglingLine("DL2");
+        BoundaryLineImpl dl2 = (BoundaryLineImpl) network.getBoundaryLine("DL2");
         dl2.getResource().getAttributes().setConnectableBus("BUS1");
 
         LineImpl l1 = (LineImpl) network.getLine("LINE1");
@@ -1002,9 +1002,9 @@ public final class CreateNetworksUtil {
         Substation s2 = network.newSubstation().setId("S2").add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
-        DanglingLine dl1 = vl1.newDanglingLine().setId("DL1").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
-        DanglingLine dl2 = vl2.newDanglingLine().setId("DL2").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
-        network.newTieLine().setId("TL").setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId()).add();
+        BoundaryLine dl1 = vl1.newBoundaryLine().setId("DL1").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        BoundaryLine dl2 = vl2.newBoundaryLine().setId("DL2").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        network.newTieLine().setId("TL").setBoundaryLine1(dl1.getId()).setBoundaryLine2(dl2.getId()).add();
         return network;
     }
 }

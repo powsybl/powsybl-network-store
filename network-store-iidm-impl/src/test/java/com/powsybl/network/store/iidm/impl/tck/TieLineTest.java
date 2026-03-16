@@ -18,66 +18,66 @@ class TieLineTest extends AbstractTieLineTest {
     /* Temporary fix for upgrade to PowSyBl 2023.3.
     * In order for this test to pass in the network-store, we need to get the dangling line from the network
     * directly and not from the line because the line is removed when we evaluate the assertion.
-    * line1.getDanglingLine1() is replaced by eurostagNetwork.getDanglingLine(danglingLine11Id) where the id is
+    * line1.getBoundaryLine1() is replaced by eurostagNetwork.getBoundaryLine(danglingLine11Id) where the id is
     * stored before the line deletion. */
     @Override
     @Test
-    public void testRemoveUpdateDanglingLinesNotCalculated() {
+    public void testRemoveUpdateBoundaryLinesNotCalculated() {
         Network eurostagNetwork = EurostagTutorialExample1Factory.createWithTieLine();
         TieLine line1 = eurostagNetwork.getTieLine("NHV1_NHV2_1");
         TieLine line2 = eurostagNetwork.getTieLine("NHV1_NHV2_2");
         assertNotNull(line1);
         assertNotNull(line2);
-        assertEquals(0.0, line1.getDanglingLine1().getP0());
-        assertEquals(0.0, line1.getDanglingLine1().getQ0());
-        assertEquals(0.0, line1.getDanglingLine2().getP0());
-        assertEquals(0.0, line1.getDanglingLine2().getQ0());
-        assertEquals(0.0, line2.getDanglingLine1().getP0());
-        assertEquals(0.0, line2.getDanglingLine1().getQ0());
-        assertEquals(0.0, line2.getDanglingLine2().getP0());
-        assertEquals(0.0, line2.getDanglingLine2().getQ0());
+        assertEquals(0.0, line1.getBoundaryLine1().getP0());
+        assertEquals(0.0, line1.getBoundaryLine1().getQ0());
+        assertEquals(0.0, line1.getBoundaryLine2().getP0());
+        assertEquals(0.0, line1.getBoundaryLine2().getQ0());
+        assertEquals(0.0, line2.getBoundaryLine1().getP0());
+        assertEquals(0.0, line2.getBoundaryLine1().getQ0());
+        assertEquals(0.0, line2.getBoundaryLine2().getP0());
+        assertEquals(0.0, line2.getBoundaryLine2().getQ0());
         // reset the terminal flows at dangling lines, we simulate we do not have calculated
-        line1.getDanglingLine1().getTerminal().setP(Double.NaN);
-        line1.getDanglingLine1().getTerminal().setQ(Double.NaN);
-        line1.getDanglingLine2().getTerminal().setP(Double.NaN);
-        line1.getDanglingLine2().getTerminal().setQ(Double.NaN);
-        line2.getDanglingLine1().getTerminal().setP(Double.NaN);
-        line2.getDanglingLine1().getTerminal().setQ(Double.NaN);
-        line2.getDanglingLine2().getTerminal().setP(Double.NaN);
-        line2.getDanglingLine2().getTerminal().setQ(Double.NaN);
+        line1.getBoundaryLine1().getTerminal().setP(Double.NaN);
+        line1.getBoundaryLine1().getTerminal().setQ(Double.NaN);
+        line1.getBoundaryLine2().getTerminal().setP(Double.NaN);
+        line1.getBoundaryLine2().getTerminal().setQ(Double.NaN);
+        line2.getBoundaryLine1().getTerminal().setP(Double.NaN);
+        line2.getBoundaryLine1().getTerminal().setQ(Double.NaN);
+        line2.getBoundaryLine2().getTerminal().setP(Double.NaN);
+        line2.getBoundaryLine2().getTerminal().setQ(Double.NaN);
         // Set some non-zero p0, q0 values to check that:
         // if we remove the tie line without flows calculated
         // p0, q0 of dangling lines are preserved
-        line1.getDanglingLine1().setP0(10);
-        line1.getDanglingLine1().setQ0(20);
-        line1.getDanglingLine2().setP0(-10);
-        line1.getDanglingLine2().setQ0(-20);
+        line1.getBoundaryLine1().setP0(10);
+        line1.getBoundaryLine1().setQ0(20);
+        line1.getBoundaryLine2().setP0(-10);
+        line1.getBoundaryLine2().setQ0(-20);
         // Save id before remove
-        String danglingLine11Id = line1.getDanglingLine1().getId();
-        String danglingLine12Id = line1.getDanglingLine2().getId();
-        String danglingLine21Id = line2.getDanglingLine1().getId();
-        String danglingLine22Id = line2.getDanglingLine2().getId();
+        String danglingLine11Id = line1.getBoundaryLine1().getId();
+        String danglingLine12Id = line1.getBoundaryLine2().getId();
+        String danglingLine21Id = line2.getBoundaryLine1().getId();
+        String danglingLine22Id = line2.getBoundaryLine2().getId();
         line1.remove(true);
         line2.remove(true);
-        assertEquals(10, eurostagNetwork.getDanglingLine(danglingLine11Id).getP0(), 0.001);
-        assertEquals(20, eurostagNetwork.getDanglingLine(danglingLine11Id).getQ0(), 0.001);
-        assertEquals(-10, eurostagNetwork.getDanglingLine(danglingLine12Id).getP0(), 0.001);
-        assertEquals(-20, eurostagNetwork.getDanglingLine(danglingLine12Id).getQ0(), 0.001);
-        assertEquals(0, eurostagNetwork.getDanglingLine(danglingLine21Id).getP0(), 0.001);
-        assertEquals(0, eurostagNetwork.getDanglingLine(danglingLine21Id).getQ0(), 0.001);
-        assertEquals(0, eurostagNetwork.getDanglingLine(danglingLine22Id).getP0(), 0.001);
-        assertEquals(0, eurostagNetwork.getDanglingLine(danglingLine22Id).getQ0(), 0.001);
+        assertEquals(10, eurostagNetwork.getBoundaryLine(danglingLine11Id).getP0(), 0.001);
+        assertEquals(20, eurostagNetwork.getBoundaryLine(danglingLine11Id).getQ0(), 0.001);
+        assertEquals(-10, eurostagNetwork.getBoundaryLine(danglingLine12Id).getP0(), 0.001);
+        assertEquals(-20, eurostagNetwork.getBoundaryLine(danglingLine12Id).getQ0(), 0.001);
+        assertEquals(0, eurostagNetwork.getBoundaryLine(danglingLine21Id).getP0(), 0.001);
+        assertEquals(0, eurostagNetwork.getBoundaryLine(danglingLine21Id).getQ0(), 0.001);
+        assertEquals(0, eurostagNetwork.getBoundaryLine(danglingLine22Id).getP0(), 0.001);
+        assertEquals(0, eurostagNetwork.getBoundaryLine(danglingLine22Id).getQ0(), 0.001);
     }
 
     @Test
     @Override
-    public void testRemoveUpdateDanglingLinesDcCalculated() {
+    public void testRemoveUpdateBoundaryLinesDcCalculated() {
         //FIXME test fails
     }
 
     @Test
     @Override
-    public void testRemoveUpdateDanglingLines() {
+    public void testRemoveUpdateBoundaryLines() {
         //FIXME test fails
     }
 
@@ -88,8 +88,8 @@ class TieLineTest extends AbstractTieLineTest {
         assertNotNull(line);
         assertInstanceOf(TieLineImpl.class, line);
 
-        Terminal terminal1 = line.getDanglingLine1().getTerminal();
-        Terminal terminal2 = line.getDanglingLine2().getTerminal();
+        Terminal terminal1 = line.getBoundaryLine1().getTerminal();
+        Terminal terminal2 = line.getBoundaryLine2().getTerminal();
         assertEquals(List.of(terminal1, terminal2), ((TieLineImpl) line).getTerminalsOfDanglingLines(null));
         assertEquals(List.of(terminal1), ((TieLineImpl) line).getTerminalsOfDanglingLines(TwoSides.ONE));
         assertEquals(List.of(terminal2), ((TieLineImpl) line).getTerminalsOfDanglingLines(TwoSides.TWO));

@@ -447,33 +447,33 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter danglingLineFilter) {
+        return getBoundaryLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public List<DanglingLine> getDanglingLines() {
-        return index.getDanglingLines();
+    public List<BoundaryLine> getBoundaryLines() {
+        return index.getBoundaryLines();
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return index.getDanglingLines().stream().filter(danglingLineFilter.getPredicate());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter danglingLineFilter) {
+        return index.getBoundaryLines().stream().filter(danglingLineFilter.getPredicate());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return index.getDanglingLines().stream();
+    public Stream<BoundaryLine> getBoundaryLineStream() {
+        return index.getBoundaryLines().stream();
     }
 
     @Override
-    public int getDanglingLineCount() {
-        return index.getDanglingLines().size();
+    public int getBoundaryLineCount() {
+        return index.getBoundaryLines().size();
     }
 
     @Override
-    public DanglingLine getDanglingLine(String id) {
-        return index.getDanglingLine(getIdFromAlias(id)).orElse(null);
+    public BoundaryLine getBoundaryLine(String id) {
+        return index.getBoundaryLine(getIdFromAlias(id)).orElse(null);
     }
 
     @Override
@@ -923,7 +923,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                     }
 
                     @Override
-                    public void visitDanglingLine(DanglingLine danglingLine) {
+                    public void visitBoundaryLine(BoundaryLine danglingLine) {
                         if (danglingLine.isPaired()) {
                             TieLine tieLine = danglingLine.getTieLine().orElseThrow();
                             graph.addVertex(tieLine);
