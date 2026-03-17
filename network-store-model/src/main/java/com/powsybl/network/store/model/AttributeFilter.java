@@ -27,8 +27,8 @@ public enum AttributeFilter {
 
     public static Class<?> getViewClass(AttributeFilter filter) {
         return switch (filter) {
-            case SV -> Views.SvView.class;
-            case STANDARD -> Views.Standard.class;
+            case SV -> Views.OnlySv.class;
+            case STANDARD -> Views.Primary.class;
             case WITH_LIMITS -> Views.WithLimits.class;
         };
     }

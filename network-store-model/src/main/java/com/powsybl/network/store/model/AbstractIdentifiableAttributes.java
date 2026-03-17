@@ -24,7 +24,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-@JsonView(Views.Other.class)
+@JsonView(Views.Primary.class)
 public abstract class AbstractIdentifiableAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
     @Schema(description = "Name")

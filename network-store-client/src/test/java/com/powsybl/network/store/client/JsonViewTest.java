@@ -35,18 +35,18 @@ public class JsonViewTest {
                 .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
                 .build();
 
-        // main view
-        String standardResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0," +
+        // primary view
+        String primaryResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0," +
                 "\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0," +
                 "\"selectedOperationalLimitsGroupId1\":\"group1\",\"regulatingEquipments\":[]}";
-        String standardResult = mapper
-                .writerWithView(Views.Standard.class)
+        String primaryResult = mapper
+                .writerWithView(Views.Primary.class)
                 .writeValueAsString(lineAttributes);
-        assertEquals(standardResultExpected, standardResult);
+        assertEquals(primaryResultExpected, primaryResult);
 
         // SV view
         String svResult = mapper
-                .writerWithView(Views.SvView.class)
+                .writerWithView(Views.OnlySv.class)
                 .writeValueAsString(lineAttributes);
         assertEquals("{\"p1\":1.0,\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0}", svResult);
 
@@ -59,22 +59,6 @@ public class JsonViewTest {
                 .writerWithView(Views.WithLimits.class)
                 .writeValueAsString(lineAttributes);
         assertEquals(expectedWithLimitsResult, withLimitsResult);
-
-        // Other view
-        String otherResult = mapper
-                .writerWithView(Views.Other.class)
-                .writeValueAsString(lineAttributes);
-        String otherResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{}," +
-                "\"r\":5.0,\"x\":6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0," +
-                "\"selectedOperationalLimitsGroupId1\":\"group1\",\"regulatingEquipments\":[]}";
-        assertEquals(otherResultExpected, otherResult);
-
-        // Limits view
-        String limitsResult = mapper
-                .writerWithView(Views.Limits.class)
-                .writeValueAsString(lineAttributes);
-        String limitsResultExpected = "{\"operationalLimitsGroups1\":{\"group1\":{}},\"operationalLimitsGroups2\":{}}";
-        assertEquals(limitsResultExpected, limitsResult);
     }
 
     @Test
@@ -104,20 +88,20 @@ public class JsonViewTest {
                 .extensionAttributes(Map.of("activePowerControl", activePowerControlAttributes))
                 .build();
 
-        String standardResultExpected = "{\"name\":\"twt1\",\"fictitious\":false,\"properties\":{\"key\":\"value\"}," +
+        String primaryResultExpected = "{\"name\":\"twt1\",\"fictitious\":false,\"properties\":{\"key\":\"value\"}," +
                 "\"aliasesWithoutType\":[\"alias2\"],\"aliasByType\":{\"typ1\":\"alias1\"}," +
                 "\"extensionAttributes\":{\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true," +
                 "\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":10.0}}," +
                 "\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0," +
                 "\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\"," +
                 "\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}";
-        String standardResult = mapper
-                .writerWithView(Views.Standard.class)
+        String primaryResult = mapper
+                .writerWithView(Views.Primary.class)
                 .writeValueAsString(twoWindingsTransformerAttributes);
-        assertEquals(standardResultExpected, standardResult);
+        assertEquals(primaryResultExpected, primaryResult);
 
         String svResult = mapper
-                .writerWithView(Views.SvView.class)
+                .writerWithView(Views.OnlySv.class)
                 .writeValueAsString(twoWindingsTransformerAttributes);
         assertEquals("{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}", svResult);
 

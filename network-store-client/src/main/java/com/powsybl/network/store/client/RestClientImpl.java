@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.PowsyblException;
@@ -18,17 +17,15 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,10 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RestClientImpl implements RestClient {
 
     private final RestTemplate restTemplate;
-
-    private final ObjectMapper objectMapper;
-
-    private final Map<Class<?>, ObjectWriter> objectWriters = new ConcurrentHashMap<>();
 
     public RestClientImpl(String baseUri) {
         this(baseUri, createObjectMapper());
@@ -51,19 +44,18 @@ public class RestClientImpl implements RestClient {
     }
 
     public RestClientImpl(RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper) {
-        // Note: not available in 2.10 as it cannot be implemented without underlying Builder state support.
-        this.objectMapper = Objects.requireNonNull(objectMapper).copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
-
+        this.restTemplate = Objects.requireNonNull(restTemplateBuilder)
+            .messageConverters(createMapping(Objects.requireNonNull(objectMapper)))
+            .errorHandler(new RestTemplateResponseErrorHandler())
+            .build();
     }
 
     @Autowired
     public RestClientImpl(RestTemplateBuilder restTemplateBuilder,
                           @Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri,
                           ObjectMapper objectMapper) {
-        // Note: not available in 2.10 as it cannot be implemented without underlying Builder state support.
-        this.objectMapper = Objects.requireNonNull(objectMapper).copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         this.restTemplate = Objects.requireNonNull(restTemplateBuilder)
+            .messageConverters(createMapping(Objects.requireNonNull(objectMapper)))
             .errorHandler(new RestTemplateResponseErrorHandler())
             .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder
                 .fromUriString(baseUri)
@@ -89,7 +81,7 @@ public class RestClientImpl implements RestClient {
 
     private static MappingJackson2HttpMessageConverter createMapping(ObjectMapper objectMapper) {
         var converter = new MappingJackson2HttpMessageConverter();
-        converter.setObjectMapper(objectMapper);
+        converter.setObjectMapper(objectMapper.copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION));
         return converter;
     }
 
@@ -165,7 +157,6 @@ public class RestClientImpl implements RestClient {
 
     @Override
     public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Class<?> viewClass, Object... uriVariables) {
-        // to check if something cleaner can be done
         HttpEntity<?> entity = getHttpEntity(viewClass, resources);
         ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {
@@ -174,30 +165,9 @@ public class RestClientImpl implements RestClient {
     }
 
     private <T extends Attributes> HttpEntity<?> getHttpEntity(Class<?> viewClass, List<Resource<T>> resources) {
-        if (viewClass != null) {
-            ObjectWriter objectWriter = getObjectWriter(viewClass);
-            String json = "";
-            try {
-                json = objectWriter.writeValueAsString(resources);
-            } catch (JsonProcessingException e) {
-                throw new UncheckedIOException(e);
-            }
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            return new HttpEntity<>(json, headers);
-        } else {
-            return new HttpEntity<>(resources);
-        }
-    }
-
-    private ObjectWriter getObjectWriter(Class<?> viewClass) {
-        if (objectWriters.containsKey(viewClass)) {
-            return objectWriters.get(viewClass);
-        } else {
-            ObjectWriter objectWriter = objectMapper.writerWithView(viewClass);
-            objectWriters.put(viewClass, objectWriter);
-            return objectWriter;
-        }
+        MappingJacksonValue jacksonValue = new MappingJacksonValue(resources);
+        jacksonValue.setSerializationView(viewClass);
+        return new HttpEntity<>(jacksonValue);
     }
 
     @Override
