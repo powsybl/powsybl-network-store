@@ -29,8 +29,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import static com.powsybl.network.store.model.AttributeFilter.SV;
-import static com.powsybl.network.store.model.AttributeFilter.getViewClass;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -232,33 +230,19 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     private <T extends IdentifiableAttributes> void updatePartition(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
-        if (attributeFilter == null) {
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Updating {} {} resources ({})...", resources.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
-            }
-            restClient.updateAll(url, resources, null, uriVariables);
-        } else {
-            // duplicated to not change sv behavior for now
-            // TODO : to remove with sv attributes when using @JsonView with sv filter
-            if (attributeFilter == SV) {
-                List<Resource<Attributes>> filteredResources = resources.stream()
-                        .map(resource -> resource.filterAttributes(attributeFilter))
-                        .collect(Collectors.toList());
-                String filteredUrl = url + "/" + attributeFilter.name().toLowerCase();
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Updating {} {} {} resources ({})...", filteredResources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(filteredUrl).buildAndExpand(uriVariables));
-                }
-                restClient.updateAll(filteredUrl, filteredResources, null, uriVariables);
-            } else {
-                Class<?> viewClass = getViewClass(attributeFilter);
-                resources.forEach(resource -> resource.setFilter(attributeFilter));
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Updating {} {} {} resources ({})...", resources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
-                }
-                restClient.updateAll(url, resources, viewClass, uriVariables);
-            }
-
+        Class<?> viewClass = AttributeFilter.getViewClass(attributeFilter);
+        // Set the filter on each resource so it is serialized in the JSON for the server.
+        // The server uses this field to know which subset of data it received.
+        // The filter field is not (and must not be) used by the client, so this mutation is harmless.
+        // NOTE: this effectively duplicates the filter for every resource, that's how
+        // the server works now but could be improved
+        resources.forEach(resource -> resource.setFilter(attributeFilter));
+        String effectiveUrl = url + AttributeFilter.getUrlSuffix(attributeFilter);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Updating {} {}{} resources ({})...", resources.size(), target, AttributeFilter.getLabelFromView(viewClass),
+                    UriComponentsBuilder.fromUriString(effectiveUrl).buildAndExpand(uriVariables));
         }
+        restClient.updateAll(effectiveUrl, resources, viewClass, uriVariables);
     }
 
     private <T extends IdentifiableAttributes> void updateAll(String target, String url, List<Resource<T>> resources, AttributeFilter attributeFilter, Object... uriVariables) {
@@ -274,11 +258,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             }
             stopwatch.stop();
             if (LOGGER.isInfoEnabled()) {
-                if (attributeFilter == null) {
-                    LOGGER.info("{} {} resources updated in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                } else {
-                    LOGGER.info("{} {} {} resources updated in {} ms", resourcePartition.size(), target, attributeFilter, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                }
+                LOGGER.info("{} {}{} resources updated in {} ms", resourcePartition.size(), target,
+                        AttributeFilter.getLabelFromView(AttributeFilter.getViewClass(attributeFilter)), stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
         }
     }

@@ -46,7 +46,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public void updateResourceWithoutNotification(Consumer<Resource<D>> modifier) {
-        updateResourceWithoutNotification(modifier, null);
+        updateResourceWithoutNotification(modifier, AttributeFilter.PRIMARY_AS_NULL);
     }
 
     public void updateResourceWithoutNotification(Consumer<Resource<D>> modifier, AttributeFilter attributeFilter) {
@@ -55,7 +55,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public void updateResource(Consumer<Resource<D>> modifier, String attribute, Object oldValue, Object newValue) {
-        updateResource(modifier, null, attribute, oldValue, newValue);
+        updateResource(modifier, AttributeFilter.PRIMARY_AS_NULL, attribute, oldValue, newValue);
     }
 
     public void updateResource(Consumer<Resource<D>> modifier, AttributeFilter attributeFilter, String attribute, Object oldValue, Object newValue) {
@@ -67,25 +67,25 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     public void updateResource(Consumer<Resource<D>> modifier, String attribute, String variantId, Object oldValue, Supplier<Object> newValueSupplier) {
         modifier.accept(resource);
-        index.updateResource(resource, null);
+        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
         index.notifyUpdate(this, attribute, variantId, oldValue, newValueSupplier.get());
     }
 
     public void updateResourcePropertyAdded(Consumer<Resource<D>> modifier, String attribute, Object newValue) {
         modifier.accept(resource);
-        index.updateResource(resource, null);
+        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
         index.notifyPropertyAdded(this, () -> attribute, newValue);
     }
 
     public void updateResourcePropertyReplaced(Consumer<Resource<D>> modifier, String attribute, String oldValue, Object newValue) {
         modifier.accept(resource);
-        index.updateResource(resource, null);
+        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
         index.notifyPropertyReplaced(this, () -> attribute, oldValue, newValue);
     }
 
     public void updateResourcePropertyRemoved(Consumer<Resource<D>> modifier, String attribute, String oldValue) {
         modifier.accept(resource);
-        index.updateResource(resource, null);
+        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
         index.notifyPropertyRemoved(this, attribute, oldValue);
     }
 
@@ -95,7 +95,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     public void updateResourceExtension(Extension<?> extension, Consumer<Resource<D>> modifier, String attribute, Object oldValue, Object newValue) {
         modifier.accept(resource);
-        index.updateResource(resource, null);
+        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
         getIndex().notifyExtensionUpdate(extension, attribute, variantId, oldValue, newValue);
     }

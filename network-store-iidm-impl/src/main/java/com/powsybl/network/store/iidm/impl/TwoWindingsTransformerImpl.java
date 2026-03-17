@@ -12,7 +12,12 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.TwoWindingsTransformerPhaseAngleClockImpl;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.PhaseTapChangerAttributes;
+import com.powsybl.network.store.model.RatioTapChangerAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TapChangerParentAttributes;
+import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
+import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,14 +68,14 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     public void setPhaseTapChanger(PhaseTapChangerAttributes attributes) {
         PhaseTapChangerAttributes oldValue = getResource().getAttributes().getPhaseTapChangerAttributes();
         updateResource(res -> res.getAttributes().setPhaseTapChangerAttributes(attributes),
-                AttributeFilter.STANDARD, "phaseTapChanger", oldValue, attributes);
+            "phaseTapChanger", oldValue, attributes);
     }
 
     @Override
     public void setRatioTapChanger(RatioTapChangerAttributes attributes) {
         RatioTapChangerAttributes oldValue = getResource().getAttributes().getRatioTapChangerAttributes();
         updateResource(res -> res.getAttributes().setRatioTapChangerAttributes(attributes),
-                AttributeFilter.STANDARD, "ratioTapChanger", oldValue, attributes);
+            "ratioTapChanger", oldValue, attributes);
     }
 
     @Override
@@ -102,7 +107,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r),
-                    AttributeFilter.STANDARD, "r", oldValue, r);
+                "r", oldValue, r);
         }
         return this;
     }
@@ -118,7 +123,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getX();
         if (x != oldValue) {
             updateResource(res -> res.getAttributes().setX(x),
-                    AttributeFilter.STANDARD, "x", oldValue, x);
+                "x", oldValue, x);
         }
         return this;
     }
@@ -134,7 +139,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getG();
         if (g != oldValue) {
             updateResource(res -> res.getAttributes().setG(g),
-                    AttributeFilter.STANDARD, "g", oldValue, g);
+                "g", oldValue, g);
         }
         return this;
     }
@@ -150,7 +155,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getB();
         if (b != oldValue) {
             updateResource(res -> res.getAttributes().setB(b),
-                    AttributeFilter.STANDARD, "b", oldValue, b);
+                "b", oldValue, b);
         }
         return this;
     }
@@ -166,7 +171,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getRatedU1();
         if (ratedU1 != oldValue) {
             updateResource(res -> res.getAttributes().setRatedU1(ratedU1),
-                    AttributeFilter.STANDARD, "ratedU1", oldValue, ratedU1);
+                "ratedU1", oldValue, ratedU1);
         }
         return this;
     }
@@ -182,7 +187,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getRatedU2();
         if (ratedU2 != oldValue) {
             updateResource(res -> res.getAttributes().setRatedU2(ratedU2),
-                    AttributeFilter.STANDARD, "ratedU2", oldValue, ratedU2);
+                "ratedU2", oldValue, ratedU2);
         }
         return this;
     }
@@ -198,7 +203,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         double oldValue = getResource().getAttributes().getRatedS();
         if (Double.compare(ratedS, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setRatedS(ratedS),
-                    AttributeFilter.STANDARD, "ratedS", oldValue, ratedS);
+                "ratedS", oldValue, ratedS);
         }
         return this;
     }
