@@ -12,6 +12,8 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
+import java.util.Set;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -85,6 +87,26 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
         //FIXME Dummy zip load model adder
         return new ZipLoadModelAdder() {
             @Override
+            public boolean hasProperty() {
+                return false;
+            }
+
+            @Override
+            public String getProperty(String key) {
+                return null;
+            }
+
+            @Override
+            public String setProperty(String key, String value) {
+                return null;
+            }
+
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
+
+            @Override
             public ZipLoadModelAdder setC0p(double v) {
                 return this;
             }
@@ -125,6 +147,26 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
     public ExponentialLoadModelAdder newExponentialModel() {
         //FIXME Dummy exponential load model adder
         return new ExponentialLoadModelAdder() {
+            @Override
+            public boolean hasProperty() {
+                return false;
+            }
+
+            @Override
+            public String getProperty(String key) {
+                return null;
+            }
+
+            @Override
+            public String setProperty(String key, String value) {
+                return null;
+            }
+
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
+
             @Override
             public ExponentialLoadModelAdder setNp(double v) {
                 return this;

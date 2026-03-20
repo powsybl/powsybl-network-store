@@ -232,9 +232,9 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         var resource = getResource();
         ReactiveLimitsAttributes reactiveLimitsAttributes = resource.getAttributes().getReactiveLimits();
         if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
-            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
+            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes, this);
         } else {
-            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes);
+            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes, this);
         }
     }
 
@@ -254,12 +254,12 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl<>(this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this, this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl<>(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this, this);
     }
 
     private <E extends Extension<Generator>> E createCoordinatedReactiveControlExtension() {

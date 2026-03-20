@@ -49,7 +49,7 @@ public abstract class AbstractConnectableImpl<I extends Connectable<I>, D extend
 
     @Override
     public boolean disconnect() {
-        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
+        return disconnect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }
 
     @Override

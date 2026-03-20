@@ -13,11 +13,15 @@ import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 import static com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes.COMPARATOR;
 
@@ -29,13 +33,15 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     static class PointImpl implements Point {
 
         private final ReactiveCapabilityCurvePointAttributes attributes;
+        private final AbstractInjectionImpl<?, ?> owner;
 
-        public PointImpl(ReactiveCapabilityCurvePointAttributes attributes) {
+        public PointImpl(ReactiveCapabilityCurvePointAttributes attributes, AbstractInjectionImpl<?, ?> injection) {
             this.attributes = attributes;
+            this.owner = injection;
         }
 
-        static PointImpl create(ReactiveCapabilityCurvePointAttributes attributes) {
-            return new PointImpl(attributes);
+        static PointImpl create(ReactiveCapabilityCurvePointAttributes attributes, AbstractInjectionImpl<?, ?> injection) {
+            return new PointImpl(attributes, injection);
         }
 
         @Override
@@ -56,17 +62,73 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         protected ReactiveCapabilityCurvePointAttributes getAttributes() {
             return attributes;
         }
+
+        @Override
+        public boolean hasProperty() {
+            Map<String, String> properties = attributes.getProperties();
+            return properties != null && !properties.isEmpty();
+        }
+
+        @Override
+        public boolean hasProperty(String key) {
+            Map<String, String> properties = attributes.getProperties();
+            return properties != null && properties.containsKey(key);
+        }
+
+        @Override
+        public String getProperty(String key) {
+            Map<String, String> properties = attributes.getProperties();
+            return properties != null ? properties.get(key) : null;
+        }
+
+        @Override
+        public String getProperty(String key, String defaultValue) {
+            Map<String, String> properties = attributes.getProperties();
+            return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
+        }
+
+        @Override
+        public String setProperty(String key, String value) {
+            MutableObject<String> oldValue = new MutableObject<>();
+            Map<String, String> properties = attributes.getProperties();
+            if (properties == null) {
+                properties = new HashMap<>();
+            }
+            oldValue.setValue(properties.put(key, value));
+
+            Map<String, String> finalProperties = properties;
+            owner.updateResourceWithoutNotification(r -> attributes.setProperties(finalProperties));
+            return oldValue.getValue();
+        }
+
+        @Override
+        public boolean removeProperty(String key) {
+            Map<String, String> properties = attributes.getProperties();
+            if (properties != null && properties.containsKey(key)) {
+                owner.updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Set<String> getPropertyNames() {
+            Map<String, String> properties = attributes.getProperties();
+            return properties != null ? properties.keySet() : Collections.emptySet();
+        }
     }
 
     private final ReactiveCapabilityCurveAttributes attributes;
+    private final AbstractInjectionImpl<?, ?> owner;
 
-    public ReactiveCapabilityCurveImpl(ReactiveCapabilityCurveAttributes attributes) {
+    public ReactiveCapabilityCurveImpl(ReactiveCapabilityCurveAttributes attributes, AbstractInjectionImpl<?, ?> injection) {
         this.attributes = attributes;
+        this.owner = injection;
     }
 
     @Override
     public Collection<Point> getPoints() {
-        return Collections.unmodifiableCollection(attributes.getPoints().values().stream().map(PointImpl::create).collect(Collectors.toList()));
+        return Collections.unmodifiableCollection(attributes.getPoints().values().stream().map(attributes -> PointImpl.create(attributes, owner)).collect(Collectors.toList()));
     }
 
     @Override
@@ -124,10 +186,10 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         if (extrapolateReactiveLimitSlope) {
             // Points map
             TreeMap<Double, ReactiveCapabilityCurve.Point> pointsMap = new TreeMap<>(COMPARATOR);
-            attributes.getPoints().forEach((k, point) -> pointsMap.put(k, PointImpl.create(point)));
+            attributes.getPoints().forEach((k, point) -> pointsMap.put(k, PointImpl.create(point, owner)));
 
             PointImpl extrapolatedPoint = (PointImpl) ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(p,
-                pointsMap, (localP, minQ, maxQ) -> PointImpl.create(ReactiveCapabilityCurvePointAttributes.builder().p(localP).minQ(minQ).maxQ(maxQ).build()),
+                pointsMap, (localP, minQ, maxQ) -> PointImpl.create(ReactiveCapabilityCurvePointAttributes.builder().p(localP).minQ(minQ).maxQ(maxQ).build(), owner),
                 attributes.getOwnerDescription());
             return getMinOrMaxQ.applyAsDouble(extrapolatedPoint.getAttributes());
         }
@@ -149,5 +211,59 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     @Override
     public ReactiveLimitsKind getKind() {
         return ReactiveLimitsKind.CURVE;
+    }
+
+    @Override
+    public boolean hasProperty() {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null && !properties.isEmpty();
+    }
+
+    @Override
+    public boolean hasProperty(String key) {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null && properties.containsKey(key);
+    }
+
+    @Override
+    public String getProperty(String key) {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.get(key) : null;
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
+    }
+
+    @Override
+    public String setProperty(String key, String value) {
+        MutableObject<String> oldValue = new MutableObject<>();
+        Map<String, String> properties = attributes.getProperties();
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        oldValue.setValue(properties.put(key, value));
+
+        Map<String, String> finalProperties = properties;
+        owner.updateResourceWithoutNotification(r -> attributes.setProperties(finalProperties));
+        return oldValue.getValue();
+    }
+
+    @Override
+    public boolean removeProperty(String key) {
+        Map<String, String> properties = attributes.getProperties();
+        if (properties != null && properties.containsKey(key)) {
+            owner.updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.keySet() : Collections.emptySet();
     }
 }

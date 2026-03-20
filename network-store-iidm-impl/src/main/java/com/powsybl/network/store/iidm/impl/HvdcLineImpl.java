@@ -222,7 +222,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public boolean disconnectConverterStations() {
-        return disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, null);
+        return disconnectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
     }
 
     @Override

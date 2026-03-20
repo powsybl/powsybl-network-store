@@ -53,7 +53,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private static final String STR_STATIC_VAR_COMPENSATOR = "static var compensator";
     private static final String STR_TWO_WINDINGS_TRANSFORMER = "2 windings transformer";
     private static final String STR_THREE_WINDINGS_TRANSFORMER = "3 windings transformer";
-    private static final String STR_DANGLING_LINE = "dangling line";
+    private static final String STR_BOUNDARY_LINE = "boundary line";
     private static final String STR_HVDC_LINE = "hvdc line";
     private static final String STR_TIE_LINE = "tie line";
     private static final String STR_AREA = "area";
@@ -550,8 +550,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getAll(STR_DANGLING_LINE, "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/dangling-lines", networkUuid, variantNum, voltageLevelId);
+    public List<Resource<BoundaryLineAttributes>> getVoltageLevelBoundaryLines(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return getAll(STR_BOUNDARY_LINE, "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/boundary-lines", networkUuid, variantNum, voltageLevelId);
     }
 
     // switch
@@ -855,31 +855,31 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         updateAll(STR_HVDC_LINE, "/networks/{networkUuid}/hvdc-lines", hvdcLineResources, attributeFilter, networkUuid);
     }
 
-    // Dangling line
+    // Boundary line
 
     @Override
-    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
-        create(STR_DANGLING_LINE, "/networks/{networkUuid}/dangling-lines", danglingLineResources, networkUuid);
+    public void createBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources) {
+        create(STR_BOUNDARY_LINE, "/networks/{networkUuid}/boundary-lines", boundaryLineResources, networkUuid);
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
-        return getAll(STR_DANGLING_LINE, "/networks/{networkUuid}/{variantNum}/dangling-lines", networkUuid, variantNum);
+    public List<Resource<BoundaryLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
+        return getAll(STR_BOUNDARY_LINE, "/networks/{networkUuid}/{variantNum}/boundary-lines", networkUuid, variantNum);
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
-        return get(STR_DANGLING_LINE, "/networks/{networkUuid}/{variantNum}/dangling-lines/{danglingLineId}", networkUuid, variantNum, danglingLineId);
+    public Optional<Resource<BoundaryLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String boundaryLineId) {
+        return get(STR_BOUNDARY_LINE, "/networks/{networkUuid}/{variantNum}/boundary-lines/{boundaryLineId}", networkUuid, variantNum, boundaryLineId);
     }
 
     @Override
-    public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
-        removeAll(STR_DANGLING_LINE, "/networks/{networkUuid}/{variantNum}/dangling-lines", networkUuid, variantNum, danglingLinesId);
+    public void removeBoundaryLines(UUID networkUuid, int variantNum, List<String> boundaryLinesId) {
+        removeAll(STR_BOUNDARY_LINE, "/networks/{networkUuid}/{variantNum}/boundary-lines", networkUuid, variantNum, boundaryLinesId);
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
-        updateAll(STR_DANGLING_LINE, "/networks/{networkUuid}/dangling-lines", danglingLineResources, attributeFilter, networkUuid);
+    public void updateBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources, AttributeFilter attributeFilter) {
+        updateAll(STR_BOUNDARY_LINE, "/networks/{networkUuid}/boundary-lines", boundaryLineResources, attributeFilter, networkUuid);
     }
 
     //ConfiguredBus

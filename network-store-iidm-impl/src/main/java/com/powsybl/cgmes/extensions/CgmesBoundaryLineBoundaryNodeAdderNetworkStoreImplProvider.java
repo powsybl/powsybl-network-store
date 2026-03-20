@@ -8,7 +8,7 @@ package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 
 /**
  * FIXME: to implement
@@ -16,19 +16,19 @@ import com.powsybl.iidm.network.DanglingLine;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class CgmesDanglingLineBoundaryNodeAdderNetworkStoreImplProvider implements ExtensionAdderProvider<DanglingLine, CgmesDanglingLineBoundaryNode, CgmesDanglingLineBoundaryNodeAdderImpl> {
+public class CgmesBoundaryLineBoundaryNodeAdderNetworkStoreImplProvider implements ExtensionAdderProvider<BoundaryLine, CgmesBoundaryLineBoundaryNode, CgmesBoundaryLineBoundaryNodeAdderImpl> {
     @Override
     public String getImplementationName() {
         return "NetworkStore";
     }
 
     @Override
-    public Class<? super CgmesDanglingLineBoundaryNodeAdderImpl> getAdderClass() {
-        return CgmesDanglingLineBoundaryNodeAdderImpl.class;
+    public Class<? super CgmesBoundaryLineBoundaryNodeAdderImpl> getAdderClass() {
+        return CgmesBoundaryLineBoundaryNodeAdderImpl.class;
     }
 
     @Override
-    public CgmesDanglingLineBoundaryNodeAdderImpl newAdder(DanglingLine extendable) {
-        return new CgmesDanglingLineBoundaryNodeAdderImpl(extendable);
+    public CgmesBoundaryLineBoundaryNodeAdderImpl newAdder(BoundaryLine extendable) {
+        return new CgmesBoundaryLineBoundaryNodeAdderImpl(extendable);
     }
 }

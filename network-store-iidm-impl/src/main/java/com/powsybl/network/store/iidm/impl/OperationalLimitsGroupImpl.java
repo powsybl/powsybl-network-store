@@ -159,9 +159,4 @@ public class OperationalLimitsGroupImpl<S> implements OperationalLimitsGroup, Va
         Map<String, String> properties = attributes.getProperties();
         return properties != null ? properties.keySet() : Collections.emptySet();
     }
-
-    @Override
-    public Network getNetwork() {
-        return owner.getIdentifiable().getNetwork();
-    }
 }

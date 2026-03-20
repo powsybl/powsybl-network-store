@@ -12,15 +12,20 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerAttributes;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 import lombok.Getter;
+import org.apache.commons.lang3.mutable.MutableObject;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.Set;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> implements Validable {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> implements Validable, PropertiesHolder {
 
     protected final H parent;
 
@@ -232,5 +237,59 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         throw new ValidationException(parent, "incorrect solved tap position "
             + solvedTapPosition + " [" + getLowTapPosition() + ", " + highTapPosition
             + "]");
+    }
+
+    @Override
+    public boolean hasProperty() {
+        Map<String, String> properties = getAttributes().getProperties();
+        return properties != null && !properties.isEmpty();
+    }
+
+    @Override
+    public boolean hasProperty(String key) {
+        Map<String, String> properties = getAttributes().getProperties();
+        return properties != null && properties.containsKey(key);
+    }
+
+    @Override
+    public String getProperty(String key) {
+        Map<String, String> properties = getAttributes().getProperties();
+        return properties != null ? properties.get(key) : null;
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        Map<String, String> properties = getAttributes().getProperties();
+        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
+    }
+
+    @Override
+    public String setProperty(String key, String value) {
+        MutableObject<String> oldValue = new MutableObject<>();
+        Map<String, String> properties = getAttributes().getProperties();
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        oldValue.setValue(properties.put(key, value));
+
+        Map<String, String> finalProperties = properties;
+        parent.getTransformer().updateResourceWithoutNotification(r -> getAttributes().setProperties(finalProperties));
+        return oldValue.getValue();
+    }
+
+    @Override
+    public boolean removeProperty(String key) {
+        Map<String, String> properties = getAttributes().getProperties();
+        if (properties != null && properties.containsKey(key)) {
+            parent.getTransformer().updateResourceWithoutNotification(r -> getAttributes().getProperties().remove(key));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        Map<String, String> properties = getAttributes().getProperties();
+        return properties != null ? properties.keySet() : Collections.emptySet();
     }
 }

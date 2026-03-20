@@ -30,35 +30,35 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public String getPairingKey() {
-        return Optional.ofNullable(getDanglingLine1().getPairingKey()).orElseGet(() -> getDanglingLine2().getPairingKey());
+        return Optional.ofNullable(getBoundaryLine1().getPairingKey()).orElseGet(() -> getBoundaryLine2().getPairingKey());
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine1() {
-        return index.getDanglingLine(getResource().getAttributes().getDanglingLine1Id()).orElseThrow();
+    public BoundaryLineImpl getBoundaryLine1() {
+        return index.getBoundaryLine(getResource().getAttributes().getBoundaryLine1Id()).orElseThrow();
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine2() {
-        return index.getDanglingLine(getResource().getAttributes().getDanglingLine2Id()).orElseThrow();
+    public BoundaryLineImpl getBoundaryLine2() {
+        return index.getBoundaryLine(getResource().getAttributes().getBoundaryLine2Id()).orElseThrow();
     }
 
     @Override
-    public DanglingLine getDanglingLine(TwoSides side) {
+    public BoundaryLine getBoundaryLine(TwoSides side) {
         if (TwoSides.ONE == side) {
-            return getDanglingLine1();
+            return getBoundaryLine1();
         } else {
-            return getDanglingLine2();
+            return getBoundaryLine2();
         }
     }
 
     @Override
-    public DanglingLine getDanglingLine(String voltageLevelId) {
+    public BoundaryLine getBoundaryLine(String voltageLevelId) {
         Objects.requireNonNull(voltageLevelId);
-        if (voltageLevelId.equals(getDanglingLine1().getTerminal().getVoltageLevelId())) {
-            return getDanglingLine1();
-        } else if (voltageLevelId.equals(getDanglingLine2().getTerminal().getVoltageLevelId())) {
-            return getDanglingLine2();
+        if (voltageLevelId.equals(getBoundaryLine1().getTerminal().getVoltageLevelId())) {
+            return getBoundaryLine1();
+        } else if (voltageLevelId.equals(getBoundaryLine2().getTerminal().getVoltageLevelId())) {
+            return getBoundaryLine2();
         } else {
             return null;
         }
@@ -70,17 +70,17 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public void remove(boolean updateDanglingLines) {
+    public void remove(boolean updateBoundaryLines) {
         var resource = getResource();
 
         index.notifyBeforeRemoval(this);
 
-        if (updateDanglingLines) {
+        if (updateBoundaryLines) {
             // TODO implement
         }
 
-        getDanglingLine1().removeTieLine();
-        getDanglingLine2().removeTieLine();
+        getBoundaryLine1().removeTieLine();
+        getBoundaryLine2().removeTieLine();
         index.removeTieLine(resource.getId());
 
         index.notifyAfterRemoval(resource.getId());
@@ -88,43 +88,43 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public double getR() {
-        DanglingLine dl1 = getDanglingLine1();
-        DanglingLine dl2 = getDanglingLine2();
+        BoundaryLine dl1 = getBoundaryLine1();
+        BoundaryLine dl2 = getBoundaryLine2();
         return TieLineUtil.getR(dl1, dl2);
     }
 
     @Override
     public double getX() {
-        DanglingLine dl1 = getDanglingLine1();
-        DanglingLine dl2 = getDanglingLine2();
+        BoundaryLine dl1 = getBoundaryLine1();
+        BoundaryLine dl2 = getBoundaryLine2();
         return TieLineUtil.getX(dl1, dl2);
     }
 
     @Override
     public double getG1() {
-        DanglingLine dl1 = getDanglingLine1();
-        DanglingLine dl2 = getDanglingLine2();
+        BoundaryLine dl1 = getBoundaryLine1();
+        BoundaryLine dl2 = getBoundaryLine2();
         return TieLineUtil.getG1(dl1, dl2);
     }
 
     @Override
     public double getG2() {
-        DanglingLine dl1 = getDanglingLine1();
-        DanglingLine dl2 = getDanglingLine2();
+        BoundaryLine dl1 = getBoundaryLine1();
+        BoundaryLine dl2 = getBoundaryLine2();
         return TieLineUtil.getG2(dl1, dl2);
     }
 
     @Override
     public double getB1() {
-        DanglingLine dl1 = getDanglingLine1();
-        DanglingLine dl2 = getDanglingLine2();
+        BoundaryLine dl1 = getBoundaryLine1();
+        BoundaryLine dl2 = getBoundaryLine2();
         return TieLineUtil.getB1(dl1, dl2);
     }
 
     @Override
     public double getB2() {
-        DanglingLine dl1 = getDanglingLine1();
-        DanglingLine dl2 = getDanglingLine2();
+        BoundaryLine dl1 = getBoundaryLine1();
+        BoundaryLine dl2 = getBoundaryLine2();
         return TieLineUtil.getB2(dl1, dl2);
     }
 
@@ -134,21 +134,21 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public Terminal getTerminal1() {
-        return getDanglingLine1().getTerminal();
+        return getBoundaryLine1().getTerminal();
     }
 
     @Override
     public Terminal getTerminal2() {
-        return getDanglingLine2().getTerminal();
+        return getBoundaryLine2().getTerminal();
     }
 
     @Override
     public Terminal getTerminal(TwoSides side) {
         Objects.requireNonNull(side);
         if (TwoSides.ONE == side) {
-            return getDanglingLine1().getTerminal();
+            return getBoundaryLine1().getTerminal();
         } else {
-            return getDanglingLine2().getTerminal();
+            return getBoundaryLine2().getTerminal();
         }
     }
 
@@ -163,7 +163,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits1() {
-        return getDanglingLine1().getCurrentLimits();
+        return getBoundaryLine1().getCurrentLimits();
     }
 
     @Override
@@ -174,23 +174,23 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     @Deprecated(since = "1.29.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        getDanglingLine1().getCurrentLimits().ifPresent(OperationalLimits::remove);
-        return getDanglingLine1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+        getBoundaryLine1().getCurrentLimits().ifPresent(OperationalLimits::remove);
+        return getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
     @Override
     public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1() {
-        return getDanglingLine1().getOrCreateSelectedOperationalLimitsGroup();
+        return getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup();
     }
 
     @Override
     public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2() {
-        return getDanglingLine2().getOrCreateSelectedOperationalLimitsGroup();
+        return getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup();
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        return getDanglingLine1().getApparentPowerLimits();
+        return getBoundaryLine1().getApparentPowerLimits();
     }
 
     @Override
@@ -201,12 +201,12 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     @Deprecated(since = "1.29.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return getDanglingLine1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
+        return getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits1() {
-        return getDanglingLine1().getActivePowerLimits();
+        return getBoundaryLine1().getActivePowerLimits();
     }
 
     @Override
@@ -217,12 +217,12 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     @Deprecated(since = "1.29.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return getDanglingLine1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
+        return getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits2() {
-        return getDanglingLine2().getCurrentLimits();
+        return getBoundaryLine2().getCurrentLimits();
     }
 
     @Override
@@ -233,13 +233,13 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     @Deprecated(since = "1.29.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        getDanglingLine2().getCurrentLimits().ifPresent(OperationalLimits::remove);
-        return getDanglingLine2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+        getBoundaryLine2().getCurrentLimits().ifPresent(OperationalLimits::remove);
+        return getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        return getDanglingLine2().getApparentPowerLimits();
+        return getBoundaryLine2().getApparentPowerLimits();
     }
 
     @Override
@@ -250,12 +250,12 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     @Deprecated(since = "1.29.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return getDanglingLine2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
+        return getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits2() {
-        return getDanglingLine2().getActivePowerLimits();
+        return getBoundaryLine2().getActivePowerLimits();
     }
 
     @Override
@@ -266,7 +266,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     @Deprecated(since = "1.29.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return getDanglingLine2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
+        return getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
     @Override
@@ -417,126 +417,193 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
 
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
-        return getDanglingLine1().getOperationalLimitsGroups();
+        return getBoundaryLine1().getOperationalLimitsGroups();
     }
 
     @Override
     public Optional<String> getSelectedOperationalLimitsGroupId1() {
-        return getDanglingLine1().getSelectedOperationalLimitsGroupId();
+        return getBoundaryLine1().getSelectedOperationalLimitsGroupId();
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id) {
-        return getDanglingLine1().getOperationalLimitsGroup(id);
+        return getBoundaryLine1().getOperationalLimitsGroup(id);
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1() {
-        return getDanglingLine1().getSelectedOperationalLimitsGroup();
+        return getBoundaryLine1().getSelectedOperationalLimitsGroup();
     }
 
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
-        return getDanglingLine1().newOperationalLimitsGroup(id);
+        return getBoundaryLine1().newOperationalLimitsGroup(id);
     }
 
     @Override
     public void setSelectedOperationalLimitsGroup1(String id) {
-        getDanglingLine1().setSelectedOperationalLimitsGroup(id);
+        getBoundaryLine1().setSelectedOperationalLimitsGroup(id);
     }
 
     @Override
     public void removeOperationalLimitsGroup1(String id) {
-        getDanglingLine1().removeOperationalLimitsGroup(id);
+        getBoundaryLine1().removeOperationalLimitsGroup(id);
     }
 
     @Override
     public void cancelSelectedOperationalLimitsGroup1() {
-        getDanglingLine1().cancelSelectedOperationalLimitsGroup();
+        getBoundaryLine1().cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
-        return getDanglingLine2().getOperationalLimitsGroups();
+        return getBoundaryLine2().getOperationalLimitsGroups();
     }
 
     @Override
     public Optional<String> getSelectedOperationalLimitsGroupId2() {
-        return getDanglingLine2().getSelectedOperationalLimitsGroupId();
+        return getBoundaryLine2().getSelectedOperationalLimitsGroupId();
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id) {
-        return getDanglingLine2().getOperationalLimitsGroup(id);
+        return getBoundaryLine2().getOperationalLimitsGroup(id);
     }
 
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2() {
-        return getDanglingLine2().getSelectedOperationalLimitsGroup();
+        return getBoundaryLine2().getSelectedOperationalLimitsGroup();
     }
 
     @Override
     public OperationalLimitsGroup newOperationalLimitsGroup2(String id) {
-        return getDanglingLine2().newOperationalLimitsGroup(id);
+        return getBoundaryLine2().newOperationalLimitsGroup(id);
     }
 
     @Override
     public void setSelectedOperationalLimitsGroup2(String id) {
-        getDanglingLine2().setSelectedOperationalLimitsGroup(id);
+        getBoundaryLine2().setSelectedOperationalLimitsGroup(id);
     }
 
     @Override
     public void removeOperationalLimitsGroup2(String id) {
-        getDanglingLine2().removeOperationalLimitsGroup(id);
+        getBoundaryLine2().removeOperationalLimitsGroup(id);
     }
 
     @Override
     public void cancelSelectedOperationalLimitsGroup2() {
-        getDanglingLine2().cancelSelectedOperationalLimitsGroup();
+        getBoundaryLine2().cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
-    public boolean connectDanglingLines() {
-        return connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
+    public boolean connectBoundaryLines() {
+        return connectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
     }
 
     @Override
-    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectDanglingLines(isTypeSwitchToOperate, null);
+    public boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectBoundaryLines(isTypeSwitchToOperate, null);
     }
 
     @Override
-    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+    public boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
-            getTerminalsOfDanglingLines(side),
+            getTerminalsOfBoundaryLines(side),
             isTypeSwitchToOperate,
             getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
-    public boolean disconnectDanglingLines() {
-        return disconnectDanglingLines(SwitchPredicates.IS_CLOSED_BREAKER, null);
+    public boolean disconnectBoundaryLines() {
+        return disconnectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
     }
 
     @Override
-    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable) {
-        return disconnectDanglingLines(isSwitchOpenable, null);
+    public boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable) {
+        return disconnectBoundaryLines(isSwitchOpenable, null);
     }
 
     @Override
-    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+    public boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
-            getTerminalsOfDanglingLines(side),
+            getTerminalsOfBoundaryLines(side),
             isSwitchOpenable,
             getNetwork().getReportNodeContext().getReportNode());
     }
 
-    public List<Terminal> getTerminalsOfDanglingLines(TwoSides side) {
+    public List<Terminal> getTerminalsOfBoundaryLines(TwoSides side) {
         return side == null ? List.of(getTerminal1(), getTerminal2()) : switch (side) {
             case ONE -> List.of(getTerminal1());
             case TWO -> List.of(getTerminal2());
         };
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+        return side == TwoSides.ONE ?
+            getBoundaryLine1().getAllSelectedOperationalLimitsGroups() :
+            getBoundaryLine2().getAllSelectedOperationalLimitsGroups();
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side) {
+        return side == TwoSides.ONE ?
+            getBoundaryLine1().getAllSelectedOperationalLimitsGroupIds() :
+            getBoundaryLine2().getAllSelectedOperationalLimitsGroupIds();
+    }
+
+    @Override
+    public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides side) {
+        return side == TwoSides.ONE ?
+            getBoundaryLine1().getAllSelectedOperationalLimitsGroupIdsOrdered() :
+            getBoundaryLine2().getAllSelectedOperationalLimitsGroupIdsOrdered();
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
+        //
+        // TODO : to be completed later, when we will handle multiple selected operational limits groups on one side
+        // For now, we only use the first id
+        //
+        if (ids == null || ids.length == 0) {
+            return;
+        }
+        if (side == TwoSides.ONE) {
+            getBoundaryLine1().addSelectedOperationalLimitsGroups(ids);
+        } else {
+            getBoundaryLine2().addSelectedOperationalLimitsGroups(ids);
+        }
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate) {
+        if (side == TwoSides.ONE) {
+            getBoundaryLine1().addSelectedOperationalLimitsGroupByPredicate(operationalLimitsGroupIdPredicate);
+        } else {
+            getBoundaryLine2().addSelectedOperationalLimitsGroupByPredicate(operationalLimitsGroupIdPredicate);
+        }
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups(TwoSides side, String... ids) {
+        //
+        // TODO : to be completed later, when we will handle multiple selected operational limits groups on one side
+        // For now, we only use the first id
+        //
+        if (ids == null || ids.length == 0) {
+            return;
+        }
+        if (side == TwoSides.ONE) {
+            getBoundaryLine1().deselectOperationalLimitsGroups(ids);
+        } else {
+            getBoundaryLine2().deselectOperationalLimitsGroups(ids);
+        }
     }
 }

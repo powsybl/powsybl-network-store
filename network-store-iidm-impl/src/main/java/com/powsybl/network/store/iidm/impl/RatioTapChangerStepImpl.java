@@ -10,8 +10,13 @@ import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.mutable.MutableObject;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -113,5 +118,59 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
                 "b", oldValue, b);
         }
         return this;
+    }
+
+    @Override
+    public boolean hasProperty() {
+        Map<String, String> properties = getTapChangerStepAttributes().getProperties();
+        return properties != null && !properties.isEmpty();
+    }
+
+    @Override
+    public boolean hasProperty(String key) {
+        Map<String, String> properties = getTapChangerStepAttributes().getProperties();
+        return properties != null && properties.containsKey(key);
+    }
+
+    @Override
+    public String getProperty(String key) {
+        Map<String, String> properties = getTapChangerStepAttributes().getProperties();
+        return properties != null ? properties.get(key) : null;
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        Map<String, String> properties = getTapChangerStepAttributes().getProperties();
+        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
+    }
+
+    @Override
+    public String setProperty(String key, String value) {
+        MutableObject<String> oldValue = new MutableObject<>();
+        Map<String, String> properties = getTapChangerStepAttributes().getProperties();
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        oldValue.setValue(properties.put(key, value));
+
+        Map<String, String> finalProperties = properties;
+        ratioTapChanger.getTransformer().updateResourceWithoutNotification(r -> getTapChangerStepAttributes().setProperties(finalProperties));
+        return oldValue.getValue();
+    }
+
+    @Override
+    public boolean removeProperty(String key) {
+        Map<String, String> properties = getTapChangerStepAttributes().getProperties();
+        if (properties != null && properties.containsKey(key)) {
+            ratioTapChanger.getTransformer().updateResourceWithoutNotification(r -> getTapChangerStepAttributes().getProperties().remove(key));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        Map<String, String> properties = getTapChangerStepAttributes().getProperties();
+        return properties != null ? properties.keySet() : Collections.emptySet();
     }
 }

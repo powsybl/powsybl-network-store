@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ValidationException;
@@ -19,7 +20,7 @@ import java.util.Objects;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public abstract class AbstractTapChangerAdder {
+public abstract class AbstractTapChangerAdder extends AbstractBasePropertiesHolder {
 
     protected final NetworkObjectIndex index;
 
