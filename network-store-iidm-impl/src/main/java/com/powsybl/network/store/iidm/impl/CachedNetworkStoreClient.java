@@ -157,11 +157,11 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                     delegate)
             );
 
-    private final NetworkCollectionIndex<CollectionCache<DanglingLineAttributes>> danglingLinesCache =
+    private final NetworkCollectionIndex<CollectionCache<BoundaryLineAttributes>> boundaryLinesCache =
             new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-                    delegate::getDanglingLine,
-                    delegate::getVoltageLevelDanglingLines,
-                    delegate::getDanglingLines,
+                    delegate::getBoundaryLine,
+                    delegate::getVoltageLevelBoundaryLines,
+                    delegate::getBoundaryLines,
                     delegate)
             );
 
@@ -220,7 +220,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         voltageLevelContainersCaches.put(ResourceType.LCC_CONVERTER_STATION, lccConverterStationCache);
         voltageLevelContainersCaches.put(ResourceType.STATIC_VAR_COMPENSATOR, staticVarCompensatorCache);
         voltageLevelContainersCaches.put(ResourceType.HVDC_LINE, hvdcLinesCache);
-        voltageLevelContainersCaches.put(ResourceType.DANGLING_LINE, danglingLinesCache);
+        voltageLevelContainersCaches.put(ResourceType.BOUNDARY_LINE, boundaryLinesCache);
         voltageLevelContainersCaches.put(ResourceType.CONFIGURED_BUS, configuredBusesCache);
         voltageLevelContainersCaches.put(ResourceType.GROUND, groundsCache);
 
@@ -339,7 +339,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         cloneCollection(lccConverterStationCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(staticVarCompensatorCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(hvdcLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
-        cloneCollection(danglingLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(boundaryLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(tieLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(areasCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(configuredBusesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
@@ -564,8 +564,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return danglingLinesCache.getCollection(networkUuid, variantNum).getContainerResources(networkUuid, variantNum, voltageLevelId);
+    public List<Resource<BoundaryLineAttributes>> getVoltageLevelBoundaryLines(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return boundaryLinesCache.getCollection(networkUuid, variantNum).getContainerResources(networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
@@ -958,37 +958,37 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
-    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
-        delegate.createDanglingLines(networkUuid, danglingLineResources);
-        for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
-            danglingLinesCache.getCollection(networkUuid, danglingLineResource.getVariantNum()).createResource(danglingLineResource);
-            addIdentifiableId(networkUuid, danglingLineResource);
+    public void createBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources) {
+        delegate.createBoundaryLines(networkUuid, boundaryLineResources);
+        for (Resource<BoundaryLineAttributes> boundaryLineResource : boundaryLineResources) {
+            boundaryLinesCache.getCollection(networkUuid, boundaryLineResource.getVariantNum()).createResource(boundaryLineResource);
+            addIdentifiableId(networkUuid, boundaryLineResource);
         }
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
-        return danglingLinesCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
+    public List<Resource<BoundaryLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
+        return boundaryLinesCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
-        return danglingLinesCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, danglingLineId);
+    public Optional<Resource<BoundaryLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String boundaryLineId) {
+        return boundaryLinesCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, boundaryLineId);
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
-        delegate.updateDanglingLines(networkUuid, danglingLineResources, attributeFilter);
-        for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
-            danglingLinesCache.getCollection(networkUuid, danglingLineResource.getVariantNum()).updateResource(danglingLineResource);
+    public void updateBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources, AttributeFilter attributeFilter) {
+        delegate.updateBoundaryLines(networkUuid, boundaryLineResources, attributeFilter);
+        for (Resource<BoundaryLineAttributes> boundaryLineResource : boundaryLineResources) {
+            boundaryLinesCache.getCollection(networkUuid, boundaryLineResource.getVariantNum()).updateResource(boundaryLineResource);
         }
     }
 
     @Override
-    public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
-        delegate.removeDanglingLines(networkUuid, variantNum, danglingLinesId);
-        danglingLinesCache.getCollection(networkUuid, variantNum).removeResources(danglingLinesId);
-        removeIdentifiableIds(networkUuid, variantNum, danglingLinesId);
+    public void removeBoundaryLines(UUID networkUuid, int variantNum, List<String> boundaryLinesId) {
+        delegate.removeBoundaryLines(networkUuid, variantNum, boundaryLinesId);
+        boundaryLinesCache.getCollection(networkUuid, variantNum).removeResources(boundaryLinesId);
+        removeIdentifiableIds(networkUuid, variantNum, boundaryLinesId);
     }
 
     @Override
@@ -1203,7 +1203,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             case LCC_CONVERTER_STATION -> lccConverterStationCache;
             case STATIC_VAR_COMPENSATOR -> staticVarCompensatorCache;
             case HVDC_LINE -> hvdcLinesCache;
-            case DANGLING_LINE -> danglingLinesCache;
+            case BOUNDARY_LINE -> boundaryLinesCache;
             case CONFIGURED_BUS -> configuredBusesCache;
             case TIE_LINE -> tieLinesCache;
             case GROUND -> groundsCache;

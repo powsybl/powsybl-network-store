@@ -24,8 +24,8 @@ class ReactiveCapabilityCurveAttributesTest {
         assertNull(attributes.getOwnerDescription());
 
         // Check the TreeMap with some values added
-        ReactiveCapabilityCurvePointAttributes pointAttributes = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0);
-        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0);
+        ReactiveCapabilityCurvePointAttributes pointAttributes = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0, null);
+        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0, null);
         points.put(0.0, pointAttributes);
         points.put(0.5, pointAttributes2);
         assertEquals(2, points.size());
@@ -40,8 +40,8 @@ class ReactiveCapabilityCurveAttributesTest {
     void testConstructorAllArgs() {
         // Parameters
         TreeMap<Double, ReactiveCapabilityCurvePointAttributes> expectedPoints = new TreeMap<>(COMPARATOR);
-        ReactiveCapabilityCurvePointAttributes pointAttributes = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0);
-        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0);
+        ReactiveCapabilityCurvePointAttributes pointAttributes = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0, null);
+        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0, null);
         expectedPoints.put(0.0, pointAttributes);
         expectedPoints.put(0.5, pointAttributes2);
 
@@ -65,8 +65,8 @@ class ReactiveCapabilityCurveAttributesTest {
     @Test
     void testSetPoints() {
         // Points
-        ReactiveCapabilityCurvePointAttributes pointAttributes1 = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0);
-        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0);
+        ReactiveCapabilityCurvePointAttributes pointAttributes1 = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0, null);
+        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0, null);
 
         // Create the object with default parameters
         ReactiveCapabilityCurveAttributes attributes = new ReactiveCapabilityCurveAttributes();

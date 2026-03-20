@@ -12,9 +12,14 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorNonLinearModelAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorNonLinearSectionAttributes;
+import org.apache.commons.lang3.mutable.MutableObject;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -70,6 +75,60 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
             }
             return this;
         }
+
+        @Override
+        public boolean hasProperty() {
+            Map<String, String> properties = getSectionAttributes().getProperties();
+            return properties != null && !properties.isEmpty();
+        }
+
+        @Override
+        public boolean hasProperty(String key) {
+            Map<String, String> properties = getSectionAttributes().getProperties();
+            return properties != null && properties.containsKey(key);
+        }
+
+        @Override
+        public String getProperty(String key) {
+            Map<String, String> properties = getSectionAttributes().getProperties();
+            return properties != null ? properties.get(key) : null;
+        }
+
+        @Override
+        public String getProperty(String key, String defaultValue) {
+            Map<String, String> properties = getSectionAttributes().getProperties();
+            return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
+        }
+
+        @Override
+        public String setProperty(String key, String value) {
+            MutableObject<String> oldValue = new MutableObject<>();
+            Map<String, String> properties = getSectionAttributes().getProperties();
+            if (properties == null) {
+                properties = new HashMap<>();
+            }
+            oldValue.setValue(properties.put(key, value));
+
+            Map<String, String> finalProperties = properties;
+            shuntCompensator.updateResourceWithoutNotification(r -> getSectionAttributes().setProperties(finalProperties));
+            return oldValue.getValue();
+        }
+
+        @Override
+        public boolean removeProperty(String key) {
+            Map<String, String> properties = getSectionAttributes().getProperties();
+            if (properties != null && properties.containsKey(key)) {
+                shuntCompensator.updateResourceWithoutNotification(r -> getSectionAttributes().getProperties().remove(key));
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Set<String> getPropertyNames() {
+            Map<String, String> properties = getSectionAttributes().getProperties();
+            return properties != null ? properties.keySet() : Collections.emptySet();
+        }
     }
 
     private final ShuntCompensatorImpl shuntCompensator;
@@ -96,5 +155,59 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
                 .boxed()
                 .map((Function<Integer, Section>) i -> new SectionImpl(shuntCompensator, i))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean hasProperty() {
+        Map<String, String> properties = getAttributes().getProperties();
+        return properties != null && !properties.isEmpty();
+    }
+
+    @Override
+    public boolean hasProperty(String key) {
+        Map<String, String> properties = getAttributes().getProperties();
+        return properties != null && properties.containsKey(key);
+    }
+
+    @Override
+    public String getProperty(String key) {
+        Map<String, String> properties = getAttributes().getProperties();
+        return properties != null ? properties.get(key) : null;
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        Map<String, String> properties = getAttributes().getProperties();
+        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
+    }
+
+    @Override
+    public String setProperty(String key, String value) {
+        MutableObject<String> oldValue = new MutableObject<>();
+        Map<String, String> properties = getAttributes().getProperties();
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        oldValue.setValue(properties.put(key, value));
+
+        Map<String, String> finalProperties = properties;
+        shuntCompensator.updateResourceWithoutNotification(r -> getAttributes().setProperties(finalProperties));
+        return oldValue.getValue();
+    }
+
+    @Override
+    public boolean removeProperty(String key) {
+        Map<String, String> properties = getAttributes().getProperties();
+        if (properties != null && properties.containsKey(key)) {
+            shuntCompensator.updateResourceWithoutNotification(r -> getAttributes().getProperties().remove(key));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        Map<String, String> properties = getAttributes().getProperties();
+        return properties != null ? properties.keySet() : Collections.emptySet();
     }
 }

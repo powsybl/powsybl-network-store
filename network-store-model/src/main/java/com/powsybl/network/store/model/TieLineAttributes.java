@@ -15,9 +15,9 @@ import lombok.experimental.SuperBuilder;
 @Schema(description = "Tie line attributes")
 public class TieLineAttributes extends AbstractIdentifiableAttributes {
 
-    @Schema(description = "Dangling line side 1 ID")
-    private String danglingLine1Id;
+    @Schema(description = "Boundary line side 1 ID")
+    private String boundaryLine1Id;
 
-    @Schema(description = "Dangling line side 2 ID")
-    private String danglingLine2Id;
+    @Schema(description = "Boundary line side 2 ID")
+    private String boundaryLine2Id;
 }

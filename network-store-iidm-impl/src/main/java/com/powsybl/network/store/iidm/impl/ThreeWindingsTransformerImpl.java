@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.network.util.LimitViolationUtils.getValueForLimit;
+
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -41,7 +43,6 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
     private final LegImpl leg3;
 
     static class LegImpl implements Leg, LimitsOwner<Void>, TapChangerParent {
-
         private final ThreeWindingsTransformerImpl transformer;
 
         private final Function<ThreeWindingsTransformerAttributes, LegAttributes> legGetter;
@@ -444,6 +445,50 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
                     getLegName() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
             }
         }
+
+        @Override
+        public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+            return selectedOperationalLimitsGroupId.map(Set::of).orElseGet(Set::of);
+        }
+
+        @Override
+        public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered() {
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+            return selectedOperationalLimitsGroupId.map(List::of).orElseGet(List::of);
+        }
+
+        @Override
+        public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+            return getSelectedOperationalLimitsGroup().map(Set::of).orElseGet(Set::of);
+        }
+
+        @Override
+        public void addSelectedOperationalLimitsGroups(String... ids) {
+            //
+            // TODO : to be completed later, when we will handle multiple selected operational limits groups
+            // For now, we only use the first id
+            //
+            if (ids == null || ids.length == 0) {
+                return;
+            }
+            setSelectedOperationalLimitsGroup(ids[0]);
+        }
+
+        @Override
+        public void deselectOperationalLimitsGroups(String... ids) {
+            //
+            // TODO : to be completed later, when we will handle multiple selected operational limits groups
+            // For now, we only use the first id
+            //
+            if (ids == null || ids.length == 0) {
+                return;
+            }
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+            if (selectedOperationalLimitsGroupId.isPresent() && List.of(ids).contains(selectedOperationalLimitsGroupId.get())) {
+                cancelSelectedOperationalLimitsGroup();
+            }
+        }
     }
 
     ThreeWindingsTransformerImpl(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
@@ -565,17 +610,6 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         return checkPermanentLimit1(limitReduction, LimitType.CURRENT)
             || checkPermanentLimit2(limitReduction, LimitType.CURRENT)
             || checkPermanentLimit3(limitReduction, LimitType.CURRENT);
-    }
-
-    @Override
-    public int getOverloadDuration() {
-        Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
-        Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
-        Overload o3 = checkTemporaryLimits3(LimitType.CURRENT);
-        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        int duration3 = o3 != null ? o3.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        return Math.min(Math.min(duration1, duration2), duration3);
     }
 
     @Override
@@ -768,5 +802,10 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             extension = (E) new CgmesTapChangersImpl(this);
         }
         return extension;
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
     }
 }

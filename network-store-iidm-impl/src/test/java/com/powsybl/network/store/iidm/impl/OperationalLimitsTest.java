@@ -232,7 +232,6 @@ class OperationalLimitsTest {
         assertEquals("value1", operationalLimitsGroup.getProperty("prop1"));
         assertNull(operationalLimitsGroup.getProperty("prop2"));
         assertEquals("value3", operationalLimitsGroup.getProperty("prop3"));
-        assertEquals("test", operationalLimitsGroup.getNetwork().getId());
 
         // test limits creation and removal via loadingLimits methods
         operationalLimitsGroup.newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
@@ -264,9 +263,9 @@ class OperationalLimitsTest {
             .setId("bus_vl")
             .setName("bus_vl")
             .add();
-        voltageLevel.newDanglingLine()
-            .setId("danglingId")
-            .setName("DanglingName")
+        voltageLevel.newBoundaryLine()
+            .setId("boundaryLineId")
+            .setName("BoundaryName")
             .setR(10.0F)
             .setX(20.0F)
             .setP0(30.0F)
@@ -274,16 +273,16 @@ class OperationalLimitsTest {
             .setPairingKey("code")
             .setBus("bus_vl")
             .add();
-        DanglingLine danglingLine = network.getDanglingLine("danglingId");
-        OperationalLimitsGroup defaultOperationalGroup = danglingLine.getOrCreateSelectedOperationalLimitsGroup();
+        BoundaryLine boundaryLine = network.getBoundaryLine("boundaryLineId");
+        OperationalLimitsGroup defaultOperationalGroup = boundaryLine.getOrCreateSelectedOperationalLimitsGroup();
         Assertions.assertEquals("DEFAULT", defaultOperationalGroup.getId());
         Assertions.assertTrue(defaultOperationalGroup.getCurrentLimits().isEmpty());
         Assertions.assertTrue(defaultOperationalGroup.getActivePowerLimits().isEmpty());
         Assertions.assertTrue(defaultOperationalGroup.getApparentPowerLimits().isEmpty());
 
-        danglingLine.newOperationalLimitsGroup("test");
-        danglingLine.setSelectedOperationalLimitsGroup("test");
-        OperationalLimitsGroup testOperationalGroup = danglingLine.getOrCreateSelectedOperationalLimitsGroup();
+        boundaryLine.newOperationalLimitsGroup("test");
+        boundaryLine.setSelectedOperationalLimitsGroup("test");
+        OperationalLimitsGroup testOperationalGroup = boundaryLine.getOrCreateSelectedOperationalLimitsGroup();
         Assertions.assertEquals("test", testOperationalGroup.getId());
     }
 

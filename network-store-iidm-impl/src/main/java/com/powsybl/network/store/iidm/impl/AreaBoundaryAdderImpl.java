@@ -63,11 +63,11 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
         // we remove before adding, to forbid duplicates and allow updating ac to true/false
         AreaBoundaryAttributes areaBoundaryAttributes;
         if (boundary != null) {
-            areaBoundaryAttributes = new AreaBoundaryAttributes(null, ac, area.getId(), boundary.getDanglingLine().getId());
+            areaBoundaryAttributes = new AreaBoundaryAttributes(null, ac, area.getId(), boundary.getBoundaryLine().getId(), null);
             area.removeAreaBoundary(boundary);
         } else if (terminal != null) {
             TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(terminal);
-            areaBoundaryAttributes = new AreaBoundaryAttributes(terminalRefAttributes, ac, area.getId(), null);
+            areaBoundaryAttributes = new AreaBoundaryAttributes(terminalRefAttributes, ac, area.getId(), null, null);
             area.removeAreaBoundary(terminal);
         } else {
             throw new PowsyblException("No AreaBoundary element (terminal or boundary) is set.");

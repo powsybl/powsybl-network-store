@@ -433,8 +433,8 @@ public class ResourceTest {
     }
 
     @Test
-    public void danglingLine() throws JsonProcessingException {
-        DanglingLineGenerationAttributes danglingLineGenerationAttributes = DanglingLineGenerationAttributes
+    public void boundaryLine() throws JsonProcessingException {
+        BoundaryLineGenerationAttributes boundaryLineGenerationAttributes = BoundaryLineGenerationAttributes
                 .builder()
                 .minP(100)
                 .maxP(200)
@@ -445,7 +445,7 @@ public class ResourceTest {
                 .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().minQ(10).maxQ(20).build())
                 .build();
 
-        DanglingLineAttributes danglingLineAttributes = DanglingLineAttributes
+        BoundaryLineAttributes boundaryLineAttributes = BoundaryLineAttributes
                 .builder()
                 .voltageLevelId("vl1")
                 .name("dl1")
@@ -457,51 +457,51 @@ public class ResourceTest {
                 .x(2)
                 .g(3)
                 .b(4)
-                .generation(danglingLineGenerationAttributes)
+                .generation(boundaryLineGenerationAttributes)
                 .pairingKey("XN1")
                 .bus("bus1")
                 .tieLineId("idTieLineParent")
                 .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
-        Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder()
+        Resource<BoundaryLineAttributes> resourceBoundaryLine = Resource.boundaryLineBuilder()
                 .id("dl1")
-                .attributes(danglingLineAttributes)
+                .attributes(boundaryLineAttributes)
                 .build();
 
-        assertEquals("vl1", resourceDanglingLine.getAttributes().getVoltageLevelId());
-        assertEquals("dl1", resourceDanglingLine.getAttributes().getName());
-        assertFalse(resourceDanglingLine.getAttributes().isFictitious());
-        assertEquals(1, resourceDanglingLine.getAttributes().getNode(), 0);
-        assertEquals(1000, resourceDanglingLine.getAttributes().getP0(), 0);
-        assertEquals(2000, resourceDanglingLine.getAttributes().getQ0(), 0);
-        assertEquals(1, resourceDanglingLine.getAttributes().getR(), 0);
-        assertEquals(2, resourceDanglingLine.getAttributes().getX(), 0);
-        assertEquals(3, resourceDanglingLine.getAttributes().getG(), 0);
-        assertEquals(4, resourceDanglingLine.getAttributes().getB(), 0);
-        assertEquals(100, resourceDanglingLine.getAttributes().getGeneration().getMinP(), 0);
-        assertEquals(200, resourceDanglingLine.getAttributes().getGeneration().getMaxP(), 0);
-        assertEquals(300, resourceDanglingLine.getAttributes().getGeneration().getTargetP(), 0);
-        assertEquals(400, resourceDanglingLine.getAttributes().getGeneration().getTargetQ(), 0);
-        assertEquals(500, resourceDanglingLine.getAttributes().getGeneration().getTargetV(), 0);
-        assertTrue(resourceDanglingLine.getAttributes().getGeneration().isVoltageRegulationOn());
-        assertEquals(ReactiveLimitsKind.MIN_MAX, resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits().getKind());
-        assertEquals(10, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMinQ(), 0);
-        assertEquals(20, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMaxQ(), 0);
-        assertEquals("XN1", resourceDanglingLine.getAttributes().getPairingKey());
-        assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
-        assertEquals("idTieLineParent", resourceDanglingLine.getAttributes().getTieLineId());
+        assertEquals("vl1", resourceBoundaryLine.getAttributes().getVoltageLevelId());
+        assertEquals("dl1", resourceBoundaryLine.getAttributes().getName());
+        assertFalse(resourceBoundaryLine.getAttributes().isFictitious());
+        assertEquals(1, resourceBoundaryLine.getAttributes().getNode(), 0);
+        assertEquals(1000, resourceBoundaryLine.getAttributes().getP0(), 0);
+        assertEquals(2000, resourceBoundaryLine.getAttributes().getQ0(), 0);
+        assertEquals(1, resourceBoundaryLine.getAttributes().getR(), 0);
+        assertEquals(2, resourceBoundaryLine.getAttributes().getX(), 0);
+        assertEquals(3, resourceBoundaryLine.getAttributes().getG(), 0);
+        assertEquals(4, resourceBoundaryLine.getAttributes().getB(), 0);
+        assertEquals(100, resourceBoundaryLine.getAttributes().getGeneration().getMinP(), 0);
+        assertEquals(200, resourceBoundaryLine.getAttributes().getGeneration().getMaxP(), 0);
+        assertEquals(300, resourceBoundaryLine.getAttributes().getGeneration().getTargetP(), 0);
+        assertEquals(400, resourceBoundaryLine.getAttributes().getGeneration().getTargetQ(), 0);
+        assertEquals(500, resourceBoundaryLine.getAttributes().getGeneration().getTargetV(), 0);
+        assertTrue(resourceBoundaryLine.getAttributes().getGeneration().isVoltageRegulationOn());
+        assertEquals(ReactiveLimitsKind.MIN_MAX, resourceBoundaryLine.getAttributes().getGeneration().getReactiveLimits().getKind());
+        assertEquals(10, ((MinMaxReactiveLimitsAttributes) resourceBoundaryLine.getAttributes().getGeneration().getReactiveLimits()).getMinQ(), 0);
+        assertEquals(20, ((MinMaxReactiveLimitsAttributes) resourceBoundaryLine.getAttributes().getGeneration().getReactiveLimits()).getMaxQ(), 0);
+        assertEquals("XN1", resourceBoundaryLine.getAttributes().getPairingKey());
+        assertEquals("bus1", resourceBoundaryLine.getAttributes().getBus());
+        assertEquals("idTieLineParent", resourceBoundaryLine.getAttributes().getTieLineId());
 
-        assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
-        assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
-        assertFalse(resourceDanglingLine.getAttributes().getRegulatingEquipments().isEmpty());
-        assertTrue(resourceDanglingLine.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
+        assertTrue(Double.isNaN(resourceBoundaryLine.getAttributes().getP()));
+        assertTrue(Double.isNaN(resourceBoundaryLine.getAttributes().getQ()));
+        assertFalse(resourceBoundaryLine.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceBoundaryLine.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        String json = objectMapper.writeValueAsString(resourceDanglingLine);
+        String json = objectMapper.writeValueAsString(resourceBoundaryLine);
 
-        Resource<DanglingLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<DanglingLineAttributes>>() { });
+        Resource<BoundaryLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<BoundaryLineAttributes>>() { });
         assertNotNull(resource2);
     }
 
@@ -511,8 +511,8 @@ public class ResourceTest {
                 .builder()
                 .name("tieLine1")
                 .fictitious(false)
-                .danglingLine1Id("half1")
-                .danglingLine2Id("half2")
+                .boundaryLine1Id("half1")
+                .boundaryLine2Id("half2")
                 .build();
 
         Resource<TieLineAttributes> resourceTieLine = Resource.tieLineBuilder()

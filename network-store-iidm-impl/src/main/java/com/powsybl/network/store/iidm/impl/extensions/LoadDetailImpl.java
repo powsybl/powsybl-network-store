@@ -40,7 +40,7 @@ public class LoadDetailImpl extends AbstractExtension<Load> implements LoadDetai
     public LoadDetail setFixedActivePower(double fixedActivePower) {
         double oldValue = getFixedActivePower();
         if (oldValue != fixedActivePower) {
-            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower")), "fixedActivePower", oldValue, fixedActivePower);
+            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower", getLoad())), "fixedActivePower", oldValue, fixedActivePower);
         }
         return this;
     }
@@ -54,7 +54,7 @@ public class LoadDetailImpl extends AbstractExtension<Load> implements LoadDetai
     public LoadDetail setFixedReactivePower(double fixedReactivePower) {
         double oldValue = getFixedReactivePower();
         if (oldValue != fixedReactivePower) {
-            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower")), "fixedReactivePower", oldValue, fixedReactivePower);
+            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower", getLoad())), "fixedReactivePower", oldValue, fixedReactivePower);
         }
         return this;
     }
@@ -68,7 +68,7 @@ public class LoadDetailImpl extends AbstractExtension<Load> implements LoadDetai
     public LoadDetail setVariableActivePower(double variableActivePower) {
         double oldValue = getVariableActivePower();
         if (oldValue != variableActivePower) {
-            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower")), "variableActivePower", oldValue, variableActivePower);
+            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower", getLoad())), "variableActivePower", oldValue, variableActivePower);
         }
         return this;
     }
@@ -82,14 +82,17 @@ public class LoadDetailImpl extends AbstractExtension<Load> implements LoadDetai
     public LoadDetail setVariableReactivePower(double variableReactivePower) {
         double oldValue = getVariableReactivePower();
         if (oldValue != variableReactivePower) {
-            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower")), "variableReactivePower", oldValue, variableReactivePower);
+            getLoad().updateResourceExtension(this, res -> res.getAttributes().getLoadDetail().setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower", getLoad())), "variableReactivePower", oldValue, variableReactivePower);
         }
         return this;
     }
 
-    private static double checkPower(double power, String errorMessage) {
+    public static double checkPower(double power, String errorMessage, Load load) {
         if (Double.isNaN(power)) {
-            throw new IllegalArgumentException(errorMessage);
+            throw new IllegalArgumentException(String.format("%s (%s) for load %s",
+                errorMessage,
+                power,
+                load.getId()));
         }
         return power;
     }

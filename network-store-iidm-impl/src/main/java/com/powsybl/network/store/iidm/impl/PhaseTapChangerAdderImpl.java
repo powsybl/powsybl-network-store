@@ -34,7 +34,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private double regulationValue = Double.NaN;
 
-    class StepAdderImpl implements PhaseTapChangerAdder.StepAdder {
+    class StepAdderImpl extends AbstractBasePropertiesHolder implements PhaseTapChangerAdder.StepAdder {
 
         private double alpha = Double.NaN;
 
