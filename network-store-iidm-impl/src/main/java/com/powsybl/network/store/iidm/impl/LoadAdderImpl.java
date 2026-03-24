@@ -12,8 +12,6 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
-import java.util.Set;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -85,27 +83,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
     @Override
     public ZipLoadModelAdder newZipModel() {
         //FIXME Dummy zip load model adder
-        return new ZipLoadModelAdder() {
-            @Override
-            public boolean hasProperty() {
-                return false;
-            }
-
-            @Override
-            public String getProperty(String key) {
-                return null;
-            }
-
-            @Override
-            public String setProperty(String key, String value) {
-                return null;
-            }
-
-            @Override
-            public Set<String> getPropertyNames() {
-                return null;
-            }
-
+        class ZipLoadModelAdderImpl extends AbstractBasePropertiesHolder implements ZipLoadModelAdder {
             @Override
             public ZipLoadModelAdder setC0p(double v) {
                 return this;
@@ -140,33 +118,15 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
             public LoadAdder add() {
                 return null;
             }
-        };
+        }
+
+        return new ZipLoadModelAdderImpl();
     }
 
     @Override
     public ExponentialLoadModelAdder newExponentialModel() {
         //FIXME Dummy exponential load model adder
-        return new ExponentialLoadModelAdder() {
-            @Override
-            public boolean hasProperty() {
-                return false;
-            }
-
-            @Override
-            public String getProperty(String key) {
-                return null;
-            }
-
-            @Override
-            public String setProperty(String key, String value) {
-                return null;
-            }
-
-            @Override
-            public Set<String> getPropertyNames() {
-                return null;
-            }
-
+        class ExponentialModelAdderImpl extends AbstractBasePropertiesHolder implements ExponentialLoadModelAdder {
             @Override
             public ExponentialLoadModelAdder setNp(double v) {
                 return this;
@@ -181,6 +141,8 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
             public LoadAdder add() {
                 return null;
             }
-        };
+        }
+
+        return new ExponentialModelAdderImpl();
     }
 }

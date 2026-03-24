@@ -56,10 +56,10 @@ public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttribut
         this.properties = new HashMap<>();
     }
 
-    public ReactiveCapabilityCurveAttributes(NavigableMap<Double, ReactiveCapabilityCurvePointAttributes> points, String ownerDescription) {
+    public ReactiveCapabilityCurveAttributes(NavigableMap<Double, ReactiveCapabilityCurvePointAttributes> points, String ownerDescription, Map<String, String> properties) {
         this.points = getTreeMapWithComparator(points);
         this.ownerDescription = ownerDescription;
-        this.properties = new HashMap<>();
+        this.properties = properties;
     }
 
     public void setPoints(NavigableMap<Double, ReactiveCapabilityCurvePointAttributes> points) {
@@ -96,7 +96,7 @@ public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttribut
                 reordered.putAll(points);
                 points = reordered;
             }
-            return new ReactiveCapabilityCurveAttributes(points, ownerDescription);
+            return new ReactiveCapabilityCurveAttributes(points, ownerDescription, properties);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.powsybl.network.store.model;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 import static com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes.COMPARATOR;
@@ -46,12 +47,13 @@ class ReactiveCapabilityCurveAttributesTest {
         expectedPoints.put(0.5, pointAttributes2);
 
         // Create the object
-        ReactiveCapabilityCurveAttributes attributes = new ReactiveCapabilityCurveAttributes(expectedPoints, "test");
+        ReactiveCapabilityCurveAttributes attributes = new ReactiveCapabilityCurveAttributes(expectedPoints, "test", Map.of("prop1", "value1"));
 
         // Default values
         assertEquals(ReactiveLimitsKind.CURVE, attributes.getKind());
         TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = attributes.getPoints();
         assertEquals("test", attributes.getOwnerDescription());
+        assertEquals(Map.of("prop1", "value1"), attributes.getProperties());
 
         // Check the TreeMap with some values added
         assertEquals(2, points.size());
