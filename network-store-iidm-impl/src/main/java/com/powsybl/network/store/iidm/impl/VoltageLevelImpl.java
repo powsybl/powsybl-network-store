@@ -620,6 +620,13 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 return true;
             }
             return false;
+        } else if (type.isAssignableFrom(IdentifiableShortCircuit.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getIdentifiableShortCircuitAttributes() != null) {
+                resource.getAttributes().setIdentifiableShortCircuitAttributes(null);
+                return true;
+            }
+            return false;
         }
         return false;
     }
