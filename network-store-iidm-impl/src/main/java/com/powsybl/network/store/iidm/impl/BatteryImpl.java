@@ -139,7 +139,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl<>(this, this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
 
     @Override

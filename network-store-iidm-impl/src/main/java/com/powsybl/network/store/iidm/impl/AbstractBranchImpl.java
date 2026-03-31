@@ -696,6 +696,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+        //
+        // TODO : to be completed later, when we will handle multiple selected operational limits groups on one side
+        // For now, we only return the one selected
+        //
         Optional<OperationalLimitsGroup> selectedOperationalLimitsGroup = side == TwoSides.ONE ?
             getSelectedOperationalLimitsGroup1() :
             getSelectedOperationalLimitsGroup2();
@@ -704,6 +708,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     @Override
     public Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side) {
+        //
+        // TODO : to be completed later, when we will handle multiple selected operational limits groups on one side
+        // For now, we only return the one selected id
+        //
         Optional<String> selectedOperationalLimitsGroupId = side == TwoSides.ONE ?
             getSelectedOperationalLimitsGroupId1() :
             getSelectedOperationalLimitsGroupId2();

@@ -25,6 +25,11 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> extend
 
     private final TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = new TreeMap<>();
 
+    ReactiveCapabilityCurveAdderImpl(AbstractInjectionImpl<?, ?> injection) {
+        this.owner = (OWNER) injection;
+        this.injection = injection;
+    }
+
     ReactiveCapabilityCurveAdderImpl(OWNER owner, AbstractInjectionImpl<?, ?> injection) {
         this.owner = owner;
         this.injection = injection;

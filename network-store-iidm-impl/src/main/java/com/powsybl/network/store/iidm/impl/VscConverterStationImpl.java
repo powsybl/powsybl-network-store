@@ -131,7 +131,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl<>(this, this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
 
     @Override

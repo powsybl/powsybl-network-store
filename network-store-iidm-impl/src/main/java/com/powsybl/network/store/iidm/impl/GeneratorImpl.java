@@ -254,7 +254,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl<>(this, this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
 
     @Override
