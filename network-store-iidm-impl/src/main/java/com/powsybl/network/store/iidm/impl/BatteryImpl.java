@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.iidm.impl.extensions.BatteryShortCircuitImpl;
 import com.powsybl.network.store.model.*;
 
@@ -204,5 +205,27 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         invalidateCalculatedBuses(getTerminals());
         index.removeBattery(resource.getId());
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public <E extends Extension<Battery>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type == BatteryShortCircuit.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getBatteryShortCircuitAttributes() != null) {
+                resource.getAttributes().setBatteryShortCircuitAttributes(null);
+                return true;
+            }
+            return false;
+        }
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }
