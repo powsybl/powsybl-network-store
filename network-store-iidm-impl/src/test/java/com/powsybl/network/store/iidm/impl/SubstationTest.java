@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class SubstationTest {
+class SubstationTest {
     @Test
     void removeExtension() {
         Network network = FourSubstationsNodeBreakerFactory.create();

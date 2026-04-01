@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class VscConverterStationTest {
+class VscConverterStationTest {
     @Test
     void removeExtension() {
         Network network = FourSubstationsNodeBreakerFactory.create();
