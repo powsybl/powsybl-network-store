@@ -293,8 +293,25 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public <E extends Extension<TwoWindingsTransformer>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
         if (type.isAssignableFrom(ConnectablePosition.class)) {
             return removeConnectionPositionForBranches(getResource());
+        }
+        if (type.isAssignableFrom(CgmesTapChangers.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
+                resource.getAttributes().setCgmesTapChangerAttributesList(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == TwoWindingsTransformerPhaseAngleClock.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getPhaseAngleClockAttributes() != null) {
+                resource.getAttributes().setPhaseAngleClockAttributes(null);
+                return true;
+            }
+            return false;
         }
         return false;
     }

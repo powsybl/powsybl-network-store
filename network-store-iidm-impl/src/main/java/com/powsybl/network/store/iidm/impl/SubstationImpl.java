@@ -273,6 +273,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public <E extends Extension<Substation>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
         if (type == EntsoeArea.class) {
             var resource = getResource();
             if (resource.getAttributes().getEntsoeArea() != null) {

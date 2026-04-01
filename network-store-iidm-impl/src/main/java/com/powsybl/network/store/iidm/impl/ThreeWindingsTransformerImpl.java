@@ -772,6 +772,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
 
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
         if (type.isAssignableFrom(ConnectablePosition.class)) {
             var resource = getResource();
             boolean isRemoved = false;
@@ -788,6 +789,22 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
                 isRemoved = true;
             }
             return isRemoved;
+        }
+        if (type.isAssignableFrom(CgmesTapChangers.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
+                resource.getAttributes().setCgmesTapChangerAttributesList(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getPhaseAngleClock() != null) {
+                resource.getAttributes().setPhaseAngleClock(null);
+                return true;
+            }
+            return false;
         }
         return false;
     }

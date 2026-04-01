@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.events.RemovalNetworkEvent;
 import com.powsybl.iidm.network.events.UpdateNetworkEvent;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TerminalRefAttributes;
@@ -479,6 +481,10 @@ class TwoWindingsTransformerTest {
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("TWT");
         testRemoveWithOneFeeder(twoWindingsTransformer, twoWindingsTransformer.newExtension(ConnectablePositionAdder.class).newFeeder1());
         testRemoveWithOneFeeder(twoWindingsTransformer, twoWindingsTransformer.newExtension(ConnectablePositionAdder.class).newFeeder2());
+        twoWindingsTransformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(11).add();
+        assertTrue(twoWindingsTransformer.removeExtension(TwoWindingsTransformerPhaseAngleClock.class));
+        assertNull(twoWindingsTransformer.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+        assertFalse(twoWindingsTransformer.removeExtension(TwoWindingsTransformerPhaseAngleClock.class));
     }
 
     private void testRemoveWithOneFeeder(TwoWindingsTransformer twoWindingsTransformer, ConnectablePositionAdder.FeederAdder feederAdder) {
