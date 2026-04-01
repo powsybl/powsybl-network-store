@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.network.store.iidm.impl.extensions.StandbyAutomatonImpl;
@@ -194,5 +195,35 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         invalidateCalculatedBuses(getTerminals());
         index.removeStaticVarCompensator(resource.getId());
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public <E extends Extension<StaticVarCompensator>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == StandbyAutomaton.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getStandbyAutomaton() != null) {
+                resource.getAttributes().setStandbyAutomaton(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == VoltagePerReactivePowerControl.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getVoltagePerReactiveControl() != null) {
+                resource.getAttributes().setVoltagePerReactiveControl(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

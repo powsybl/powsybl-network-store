@@ -385,6 +385,14 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
             }
             return false;
         }
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
         return false;
     }
 }

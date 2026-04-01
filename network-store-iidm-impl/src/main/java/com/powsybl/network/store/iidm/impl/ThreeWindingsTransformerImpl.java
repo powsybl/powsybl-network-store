@@ -769,4 +769,26 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         }
         return extension;
     }
+
+    @Override
+    public <E extends Extension<ThreeWindingsTransformer>> boolean removeExtension(Class<E> type) {
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            boolean isRemoved = false;
+            if (resource.getAttributes().getPosition1() != null) {
+                resource.getAttributes().setPosition1(null);
+                isRemoved = true;
+            }
+            if (resource.getAttributes().getPosition2() != null) {
+                resource.getAttributes().setPosition2(null);
+                isRemoved = true;
+            }
+            if (resource.getAttributes().getPosition3() != null) {
+                resource.getAttributes().setPosition3(null);
+                isRemoved = true;
+            }
+            return isRemoved;
+        }
+        return false;
+    }
 }

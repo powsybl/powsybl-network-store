@@ -9,15 +9,11 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.TwoWindingsTransformerPhaseAngleClockImpl;
-import com.powsybl.network.store.model.PhaseTapChangerAttributes;
-import com.powsybl.network.store.model.RatioTapChangerAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TapChangerParentAttributes;
-import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
-import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
+import com.powsybl.network.store.model.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -291,5 +287,23 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
             extension = (E) new CgmesTapChangersImpl(this);
         }
         return extension;
+    }
+
+    @Override
+    public <E extends Extension<TwoWindingsTransformer>> boolean removeExtension(Class<E> type) {
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            boolean isRemoved = false;
+            if (resource.getAttributes().getPosition1() != null) {
+                resource.getAttributes().setPosition1(null);
+                isRemoved = true;
+            }
+            if (resource.getAttributes().getPosition2() != null) {
+                resource.getAttributes().setPosition2(null);
+                isRemoved = true;
+            }
+            return isRemoved;
+        }
+        return false;
     }
 }

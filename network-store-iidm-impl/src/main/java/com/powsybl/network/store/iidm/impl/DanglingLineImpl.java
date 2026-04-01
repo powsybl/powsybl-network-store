@@ -6,7 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 import com.powsybl.network.store.model.*;
 import org.apache.commons.lang3.StringUtils;
@@ -570,5 +572,19 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
             updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(null),
                 SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
         }
+    }
+
+    @Override
+    public <E extends Extension<DanglingLine>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

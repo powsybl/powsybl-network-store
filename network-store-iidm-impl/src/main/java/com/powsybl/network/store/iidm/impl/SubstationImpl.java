@@ -62,7 +62,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         var resource = getResource();
         Country oldValue = resource.getAttributes().getCountry();
         updateResource(r -> r.getAttributes().setCountry(country),
-            "country", oldValue, country);
+                "country", oldValue, country);
         return this;
     }
 
@@ -76,7 +76,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         var resource = getResource();
         String oldValue = resource.getAttributes().getTso();
         updateResource(r -> r.getAttributes().setTso(tso),
-            "tso", oldValue, tso);
+                "tso", oldValue, tso);
         return this;
     }
 
@@ -102,7 +102,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         }
         Set<String> oldGeographicalTags = new HashSet<>(getResource().getAttributes().getGeographicalTags());
         updateResource(r -> r.getAttributes().getGeographicalTags().add(tag),
-            "geographicalTags", null, oldGeographicalTags, this::getGeographicalTags);
+                "geographicalTags", null, oldGeographicalTags, this::getGeographicalTags);
         return this;
     }
 
@@ -171,8 +171,8 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
             EntsoeAreaAttributes oldValue = getResource().getAttributes().getEntsoeArea();
             EntsoeArea entsoeArea = (EntsoeArea) extension;
             EntsoeAreaAttributes attributes = EntsoeAreaAttributes.builder()
-                .code(entsoeArea.getCode().toString())
-                .build();
+                    .code(entsoeArea.getCode().toString())
+                    .build();
             updateResource(r -> r.getAttributes().setEntsoeArea(attributes), "entsoeArea", oldValue, attributes);
         }
         super.addExtension(type, extension);
@@ -269,5 +269,18 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     public int getOverloadManagementSystemCount() {
         // FIXME : implement this method
         return 0;
+    }
+
+    @Override
+    public <E extends Extension<Substation>> boolean removeExtension(Class<E> type) {
+        if (type == EntsoeArea.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getEntsoeArea() != null) {
+                resource.getAttributes().setEntsoeArea(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }
