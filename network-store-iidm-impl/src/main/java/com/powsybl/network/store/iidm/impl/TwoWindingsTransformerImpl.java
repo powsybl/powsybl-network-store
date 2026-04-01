@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.powsybl.network.store.iidm.impl.util.Utils.removeConnectionPositionForBranches;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -292,17 +294,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public <E extends Extension<TwoWindingsTransformer>> boolean removeExtension(Class<E> type) {
         if (type.isAssignableFrom(ConnectablePosition.class)) {
-            var resource = getResource();
-            boolean isRemoved = false;
-            if (resource.getAttributes().getPosition1() != null) {
-                resource.getAttributes().setPosition1(null);
-                isRemoved = true;
-            }
-            if (resource.getAttributes().getPosition2() != null) {
-                resource.getAttributes().setPosition2(null);
-                isRemoved = true;
-            }
-            return isRemoved;
+            return removeConnectionPositionForBranches(getResource());
         }
         return false;
     }
