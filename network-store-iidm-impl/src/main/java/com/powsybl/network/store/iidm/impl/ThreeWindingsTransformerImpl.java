@@ -808,4 +808,43 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
     public Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type) {
         return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
     }
+
+    @Override
+    public <E extends Extension<ThreeWindingsTransformer>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            boolean isRemoved = false;
+            if (resource.getAttributes().getPosition1() != null) {
+                resource.getAttributes().setPosition1(null);
+                isRemoved = true;
+            }
+            if (resource.getAttributes().getPosition2() != null) {
+                resource.getAttributes().setPosition2(null);
+                isRemoved = true;
+            }
+            if (resource.getAttributes().getPosition3() != null) {
+                resource.getAttributes().setPosition3(null);
+                isRemoved = true;
+            }
+            return isRemoved;
+        }
+        if (type.isAssignableFrom(CgmesTapChangers.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
+                resource.getAttributes().setCgmesTapChangerAttributesList(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getPhaseAngleClock() != null) {
+                resource.getAttributes().setPhaseAngleClock(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
 }

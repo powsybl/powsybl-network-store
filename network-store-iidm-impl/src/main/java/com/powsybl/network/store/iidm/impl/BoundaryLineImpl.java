@@ -6,8 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.BoundaryLineBoundaryImpl;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.*;
 import org.apache.commons.lang3.StringUtils;
 
@@ -616,5 +618,19 @@ public class BoundaryLineImpl extends AbstractInjectionImpl<BoundaryLine, Bounda
         if (selectedOperationalLimitsGroupId.isPresent() && List.of(ids).contains(selectedOperationalLimitsGroupId.get())) {
             cancelSelectedOperationalLimitsGroup();
         }
+    }
+
+    @Override
+    public <E extends Extension<BoundaryLine>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
@@ -93,4 +94,27 @@ class GeneratorTest {
         assertNull(network.getGenerator("GH3"));
         assertEquals("GH3", generator.getId());
     }
+
+    @Test
+    void removeExtension() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Generator generator = network.getGenerator("GH3");
+        generator.newExtension(CoordinatedReactiveControlAdder.class).withQPercent(10.0).add();
+        assertTrue(generator.removeExtension(CoordinatedReactiveControl.class));
+        assertNull(generator.getExtension(CoordinatedReactiveControl.class));
+        assertFalse(generator.removeExtension(CoordinatedReactiveControl.class));
+        generator.newExtension(GeneratorShortCircuitAdder.class).withDirectSubtransX(1).add();
+        assertTrue(generator.removeExtension(GeneratorShortCircuit.class));
+        assertNull(generator.getExtension(GeneratorShortCircuit.class));
+        assertFalse(generator.removeExtension(GeneratorShortCircuit.class));
+        generator.newExtension(GeneratorEntsoeCategoryAdder.class).withCode(1).add();
+        assertTrue(generator.removeExtension(GeneratorEntsoeCategory.class));
+        assertNull(generator.getExtension(GeneratorEntsoeCategory.class));
+        assertFalse(generator.removeExtension(GeneratorEntsoeCategory.class));
+        generator.newExtension(ConnectablePositionAdder.class).newFeeder().withOrder(10).add().add();
+        assertTrue(generator.removeExtension(ConnectablePosition.class));
+        assertNull(generator.getExtension(ConnectablePosition.class));
+        assertFalse(generator.removeExtension(ConnectablePosition.class));
+    }
+
 }
