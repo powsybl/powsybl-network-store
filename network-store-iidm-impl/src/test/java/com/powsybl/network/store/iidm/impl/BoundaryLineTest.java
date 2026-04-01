@@ -6,11 +6,11 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,15 +18,14 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-class DanglingLineTest {
+class BoundaryLineTest {
     @Test
     void removeExtension() {
-        Network network = DanglingLineNetworkFactory.create();
-        DanglingLine danglingLine = network.getDanglingLine("DL");
-        danglingLine.newExtension(ConnectablePositionAdder.class).newFeeder().withOrder(10).add().add();
-        assertTrue(danglingLine.removeExtension(ConnectablePosition.class));
-        assertNull(danglingLine.getExtension(ConnectablePosition.class));
-        assertFalse(danglingLine.removeExtension(ConnectablePosition.class));
+        Network network = BoundaryLineNetworkFactory.create();
+        BoundaryLine boundaryLine = network.getBoundaryLine("BL");
+        boundaryLine.newExtension(ConnectablePositionAdder.class).newFeeder().withOrder(10).add().add();
+        assertTrue(boundaryLine.removeExtension(ConnectablePosition.class));
+        assertNull(boundaryLine.getExtension(ConnectablePosition.class));
+        assertFalse(boundaryLine.removeExtension(ConnectablePosition.class));
     }
-
 }

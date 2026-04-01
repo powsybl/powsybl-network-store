@@ -185,8 +185,8 @@ public class Resource<T extends Attributes> implements Validable {
         return new Builder<>(ResourceType.HVDC_LINE);
     }
 
-    public static Builder<DanglingLineAttributes> danglingLineBuilder() {
-        return new Builder<>(ResourceType.DANGLING_LINE);
+    public static Builder<BoundaryLineAttributes> boundaryLineBuilder() {
+        return new Builder<>(ResourceType.BOUNDARY_LINE);
     }
 
     public static Builder<GroundAttributes> groundBuilder() {

@@ -21,8 +21,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Dangling line generation attributes")
-public class DanglingLineGenerationAttributes {
+@Schema(description = "Boundary line generation attributes")
+public class BoundaryLineGenerationAttributes {
 
     @Schema(description = "minP")
     private double minP;
@@ -44,5 +44,5 @@ public class DanglingLineGenerationAttributes {
 
     @Builder.Default
     @Schema(description = "reactiveLimits")
-    private ReactiveLimitsAttributes reactiveLimits = new MinMaxReactiveLimitsAttributes(-Double.MAX_VALUE, Double.MAX_VALUE);
+    private ReactiveLimitsAttributes reactiveLimits = new MinMaxReactiveLimitsAttributes(-Double.MAX_VALUE, Double.MAX_VALUE, null);
 }

@@ -35,7 +35,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private RatioTapChanger.RegulationMode regulationMode;
 
-    class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
+    class StepAdderImpl extends AbstractBasePropertiesHolder implements RatioTapChangerAdder.StepAdder {
 
         private double rho = Double.NaN;
 

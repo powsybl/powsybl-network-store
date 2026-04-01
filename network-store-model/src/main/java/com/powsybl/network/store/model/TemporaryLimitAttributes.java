@@ -12,6 +12,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Charly Boutier <charly.boutier at rte-france.com>
@@ -34,6 +36,9 @@ public class TemporaryLimitAttributes implements Comparable<TemporaryLimitAttrib
 
     @Schema(description = "Temporary limit is fictitious")
     private boolean fictitious;
+
+    @Schema(description = "Properties")
+    private Map<String, String> properties;
 
     @Override
     // descending order on acceptableDuration

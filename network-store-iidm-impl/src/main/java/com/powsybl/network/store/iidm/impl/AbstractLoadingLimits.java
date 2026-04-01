@@ -13,6 +13,7 @@ import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +31,11 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
 
         private final TemporaryLimitAttributes attributes;
 
-        public TemporaryLimitImpl(TemporaryLimitAttributes attributes) {
+        private final AbstractLoadingLimits<?, ?, ?> loadingLimits;
+
+        public TemporaryLimitImpl(TemporaryLimitAttributes attributes, AbstractLoadingLimits<?, ?, ?> loadingLimits) {
             this.attributes = attributes;
+            this.loadingLimits = loadingLimits;
         }
 
         @Override
@@ -52,6 +56,60 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
         @Override
         public boolean isFictitious() {
             return attributes.isFictitious();
+        }
+
+        @Override
+        public boolean hasProperty() {
+            Map<String, String> properties = attributes.getProperties();
+            return properties != null && !properties.isEmpty();
+        }
+
+        @Override
+        public boolean hasProperty(String key) {
+            Map<String, String> properties = attributes.getProperties();
+            return properties != null && properties.containsKey(key);
+        }
+
+        @Override
+        public String getProperty(String key) {
+            Map<String, String> properties = attributes.getProperties();
+            return properties != null ? properties.get(key) : null;
+        }
+
+        @Override
+        public String getProperty(String key, String defaultValue) {
+            Map<String, String> properties = attributes.getProperties();
+            return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
+        }
+
+        @Override
+        public String setProperty(String key, String value) {
+            MutableObject<String> oldValue = new MutableObject<>();
+            Map<String, String> properties = attributes.getProperties();
+            if (properties == null) {
+                properties = new HashMap<>();
+            }
+            oldValue.setValue(properties.put(key, value));
+
+            Map<String, String> finalProperties = properties;
+            loadingLimits.owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.setProperties(finalProperties));
+            return oldValue.getValue();
+        }
+
+        @Override
+        public boolean removeProperty(String key) {
+            Map<String, String> properties = attributes.getProperties();
+            if (properties != null && properties.containsKey(key)) {
+                loadingLimits.owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Set<String> getPropertyNames() {
+            Map<String, String> properties = attributes.getProperties();
+            return properties != null ? properties.keySet() : Collections.emptySet();
         }
     }
 
@@ -85,7 +143,7 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
     @Override
     public Collection<TemporaryLimit> getTemporaryLimits() {
         return attributes.getTemporaryLimits() == null ? Collections.emptyList()
-            : attributes.getTemporaryLimits().values().stream().sorted().map(TemporaryLimitImpl::new).collect(Collectors.toUnmodifiableList());
+            : attributes.getTemporaryLimits().values().stream().sorted().map(l -> new TemporaryLimitImpl(l, this)).collect(Collectors.toUnmodifiableList());
     }
 
     @Override
@@ -94,7 +152,7 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
             return null;
         }
         TemporaryLimitAttributes temporaryLimitAttributes = attributes.getTemporaryLimits().get(acceptableDuration);
-        return temporaryLimitAttributes == null ? null : new TemporaryLimitImpl(temporaryLimitAttributes);
+        return temporaryLimitAttributes == null ? null : new TemporaryLimitImpl(temporaryLimitAttributes, this);
     }
 
     @Override
@@ -152,5 +210,59 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
             && biggerDurationEntry.getValue().getAcceptableDuration() > acceptableDuration
             && biggerDurationEntry.getValue().getValue() < temporaryLimitValue;
         return temporaryLimitValue > attributes.getPermanentLimit() && checkAgainstBigger && checkAgainstSmaller;
+    }
+
+    @Override
+    public boolean hasProperty() {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null && !properties.isEmpty();
+    }
+
+    @Override
+    public boolean hasProperty(String key) {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null && properties.containsKey(key);
+    }
+
+    @Override
+    public String getProperty(String key) {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.get(key) : null;
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
+    }
+
+    @Override
+    public String setProperty(String key, String value) {
+        MutableObject<String> oldValue = new MutableObject<>();
+        Map<String, String> properties = attributes.getProperties();
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        oldValue.setValue(properties.put(key, value));
+
+        Map<String, String> finalProperties = properties;
+        owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.setProperties(finalProperties));
+        return oldValue.getValue();
+    }
+
+    @Override
+    public boolean removeProperty(String key) {
+        Map<String, String> properties = attributes.getProperties();
+        if (properties != null && properties.containsKey(key)) {
+            owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        Map<String, String> properties = attributes.getProperties();
+        return properties != null ? properties.keySet() : Collections.emptySet();
     }
 }

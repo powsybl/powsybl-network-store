@@ -31,7 +31,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     private double targetDeadband = Double.NaN;
 
-    class ShuntCompensatorLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> implements ShuntCompensatorLinearModelAdder {
+    class ShuntCompensatorLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> extends AbstractBasePropertiesHolder implements ShuntCompensatorLinearModelAdder {
 
         private final O owner;
 
@@ -78,13 +78,13 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
         }
     }
 
-    class ShuntCompensatorNonLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> implements ShuntCompensatorNonLinearModelAdder {
+    class ShuntCompensatorNonLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> extends AbstractBasePropertiesHolder implements ShuntCompensatorNonLinearModelAdder {
 
         private final O owner;
 
         private final List<ShuntCompensatorNonLinearSectionAttributes> sections = new ArrayList<>();
 
-        class SectionAdderImpl implements SectionAdder {
+        class SectionAdderImpl extends AbstractBasePropertiesHolder implements SectionAdder {
 
             private double b = Double.NaN;
 

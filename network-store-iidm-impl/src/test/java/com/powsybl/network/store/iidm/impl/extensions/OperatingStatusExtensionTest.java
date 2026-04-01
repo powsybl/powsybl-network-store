@@ -98,10 +98,10 @@ public class OperatingStatusExtensionTest {
     }
 
     @Test
-    public void testDanglingLineOperatingStatusExtension() {
+    public void testBoundaryLineOperatingStatusExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
-        DanglingLine dl = network.getDanglingLine("DL1");
+        BoundaryLine dl = network.getBoundaryLine("BL1");
         assertNotNull(dl);
 
         assertNull(dl.getExtension(OperatingStatus.class));
