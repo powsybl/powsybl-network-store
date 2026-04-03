@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.powsybl.iidm.network.TopologyKind;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -44,6 +45,7 @@ public class VoltageLevelAttributes extends AbstractIdentifiableAttributes imple
     @Builder.Default
     private List<InternalConnectionAttributes> internalConnections = new ArrayList<>();
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Calculated buses for bus view")
     private List<CalculatedBusAttributes> calculatedBusesForBusView;
 
@@ -53,6 +55,7 @@ public class VoltageLevelAttributes extends AbstractIdentifiableAttributes imple
     @Schema(description = "Bus to calculated bus for bus view")
     private Map<String, Integer> busToCalculatedBusForBusView;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Calculated buses for bus breaker view")
     private List<CalculatedBusAttributes> calculatedBusesForBusBreakerView;
 
