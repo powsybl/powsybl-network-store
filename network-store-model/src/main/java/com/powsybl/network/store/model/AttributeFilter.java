@@ -57,6 +57,7 @@ public enum AttributeFilter {
     }
 
     // Returns a URL path suffix for subset filters (e.g. "/sv"), or empty string otherwise.
+    // For sending limits to the server basic url and dto are used as they are present in the attributes
     public static String getUrlSuffix(AttributeFilter filter) {
         return getEffectivePriority(filter) < PRIMARY_PRIORITY ?
             "/" + filter.name().toLowerCase() : "";
