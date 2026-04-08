@@ -11,6 +11,11 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.events.RemovalNetworkEvent;
 import com.powsybl.iidm.network.events.UpdateNetworkEvent;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 import org.junit.jupiter.api.Test;
@@ -468,5 +473,24 @@ class TwoWindingsTransformerTest {
         ratioTapChanger.setLowTapPosition(2);
         assertEquals(2, ratioTapChanger.getLowTapPosition());
         assertEquals(11, ratioTapChanger.getTapPosition());
+    }
+
+    @Test
+    void removeExtension() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("TWT");
+        testRemoveWithOneFeeder(twoWindingsTransformer, twoWindingsTransformer.newExtension(ConnectablePositionAdder.class).newFeeder1());
+        testRemoveWithOneFeeder(twoWindingsTransformer, twoWindingsTransformer.newExtension(ConnectablePositionAdder.class).newFeeder2());
+        twoWindingsTransformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(11).add();
+        assertTrue(twoWindingsTransformer.removeExtension(TwoWindingsTransformerPhaseAngleClock.class));
+        assertNull(twoWindingsTransformer.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+        assertFalse(twoWindingsTransformer.removeExtension(TwoWindingsTransformerPhaseAngleClock.class));
+    }
+
+    private void testRemoveWithOneFeeder(TwoWindingsTransformer twoWindingsTransformer, ConnectablePositionAdder.FeederAdder feederAdder) {
+        feederAdder.withOrder(1).add().add();
+        assertTrue(twoWindingsTransformer.removeExtension(ConnectablePosition.class));
+        assertNull(twoWindingsTransformer.getExtension(ConnectablePosition.class));
+        assertFalse(twoWindingsTransformer.removeExtension(ConnectablePosition.class));
     }
 }

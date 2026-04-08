@@ -12,6 +12,8 @@ import com.powsybl.iidm.modification.topology.RemoveFeederBayBuilder;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
+import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -209,5 +211,15 @@ public class VoltageLevelTest {
         vl1.remove();
         vl1 = network.getVoltageLevel("VL1");
         assertNull(vl1);
+    }
+
+    @Test
+    public void testRemoveIdentifiableShortCircuitExtensionOnVl() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        vl1.newExtension(IdentifiableShortCircuitAdder.class).withIpMin(1).withIpMax(2).add();
+        assertNotNull(vl1.getExtension(IdentifiableShortCircuit.class));
+        assertTrue(vl1.removeExtension(IdentifiableShortCircuit.class));
+        assertNull(vl1.getExtension(IdentifiableShortCircuit.class));
     }
 }
