@@ -77,10 +77,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         String id = null;
         int variantNum = -1;
         Attributes attributes = null;
-        // Here do we want null to mean an error, or to mean to use a real default value ?
-        // Note: in the current design, the default value PRIMARY_AS_NULL is represented
-        // with null so this effectively behaves like replacing the missing data with a real default value.
-        AttributeFilter filter = null;
+        AttributeFilter filter = AttributeFilter.PRIMARY_AS_NULL;
 
         JsonToken token;
         while ((token = parser.nextToken()) != null) {

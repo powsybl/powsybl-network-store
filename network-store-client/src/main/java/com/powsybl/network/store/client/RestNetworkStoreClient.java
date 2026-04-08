@@ -229,14 +229,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     private <T extends IdentifiableAttributes> void updatePartition(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
-        Class<?> viewClass = AttributeFilter.getViewClass(attributeFilter);
         // Set the filter on each resource so it is serialized in the JSON for the server.
-        // The server uses this field to know which subset of data it received.
+        // The server uses this field during deserialization for the attributes
+        // that are deserialized into subset DTOs (currently just AttributeFilter.SV, but sent for everything regardless).
         // The filter field is not (and must not be) used by the client, so this mutation is harmless.
-        // NOTE: this effectively duplicates the filter for every resource, that's how
-        // the server works now but could be improved
+        // NOTE: this duplicates the filter information for every resource, in
+        // addition to the information also contained in the (optional, currently also just for AttributeFilter.SV) urlSuffix,
+        // but that's how the server works now (could be improved)
         resources.forEach(resource -> resource.setFilter(attributeFilter));
         String effectiveUrl = url + AttributeFilter.getUrlSuffix(attributeFilter);
+        Class<?> viewClass = AttributeFilter.getViewClass(attributeFilter);
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Updating {} {}{} resources ({})...", resources.size(), target, AttributeFilter.getLabelFromView(viewClass),
                     UriComponentsBuilder.fromUriString(effectiveUrl).buildAndExpand(uriVariables));

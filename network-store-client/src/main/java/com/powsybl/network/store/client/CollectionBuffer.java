@@ -123,6 +123,23 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
                             .add(resource.getResource());
                 }
             }
+            // NOTE: here we use different batches for the different filters.
+            // This has the effect of controlling both the serialization
+            // (include/exclude fields with json views), and also to split
+            // accross multiple server requests. Controlling the serialization
+            // always has an effect, but doing separate requests has an effect
+            // just for AttributeFilter.SV, not for AttributeFilter.LIMITS.
+            // For the cases like LIMITS where separate requests have no effect, we could
+            // rewrite the code to keep the separate serialization views, but still
+            // send the resources in a single request if needed.
+            // NOTE: the difference between AttributeFilter.SV and AttributeFilter.LIMITS
+            // comes from whether or not the excluded fields are a allowed to
+            // be removed/cleared by updates or need explicit remove calls. Concrete examples:
+            // - for a line resitance R (excluded from SV), we chose that the only way to unset it is to update()
+            //   => the server needs to know whether the absence of this field means either 'don't write' or 'unset'.
+            // - for a line operational limit group (excluded from PRIMARY), we chose that the only way to delete it
+            //   is to call remove(olg_id) and that update() never removes absent data.
+            //   => the server doesn't need to know why data is absent, it's always 'don't write'
             updateFct.accept(networkUuid, primaryResources, AttributeFilter.PRIMARY_AS_NULL);
             for (var e : filteredResources.entrySet()) {
                 updateFct.accept(networkUuid, new ArrayList<>(e.getValue()), e.getKey());

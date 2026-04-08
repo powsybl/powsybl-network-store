@@ -164,7 +164,9 @@ public enum AttributeFilter {
 
         // null as a constant to be able to convey meaning and differentiate in the
         // source code from other nulls. Not sure if it is a good idea..
-        // This is a behavior of jackson.
+        // This is a behavior of jackson. writerWithView(null) behaves exactly like
+        // not calling writerWithView so we can use this to avoid conditionnally setting
+        // up views => single code path for normal views as well as FULL.
         public static final Class<?> FULL_AS_NULL = null;
     }
 }
