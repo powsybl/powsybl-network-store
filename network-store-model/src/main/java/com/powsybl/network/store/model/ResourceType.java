@@ -26,7 +26,7 @@ public enum ResourceType {
     SWITCH("Switch"),
     TWO_WINDINGS_TRANSFORMER("2 windings transformer"),
     THREE_WINDINGS_TRANSFORMER("3 windings transformer"),
-    LINE("AC Line"),
+    LINE("AC line"),
     HVDC_LINE("HVDC line"),
     DANGLING_LINE("Dangling line"),
     GROUND("Ground"),
