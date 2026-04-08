@@ -9,9 +9,7 @@ package com.powsybl.network.store.model;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.network.store.model.AttributeFilter.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
@@ -80,5 +78,21 @@ class AttributeFilterTest {
 
         assertThrows(IllegalStateException.class, () -> covering(a, 0, b, 0, PRIMARY_AS_NULL, full));
         assertThrows(IllegalStateException.class, () -> covering(a, 2, b, 2, PRIMARY_AS_NULL, full));
+    }
+
+    @Test
+    void testIsCoveredBy() {
+        assertTrue(SV.isCoveredBy(SV));
+        assertTrue(SV.isCoveredBy(PRIMARY_AS_NULL));
+        assertTrue(SV.isCoveredBy(LIMITS));
+        assertTrue(SV.isCoveredBy(FULL));
+        assertFalse(LIMITS.isCoveredBy(SV));
+        assertFalse(LIMITS.isCoveredBy(PRIMARY_AS_NULL));
+        assertTrue(LIMITS.isCoveredBy(LIMITS));
+        assertTrue(LIMITS.isCoveredBy(FULL));
+        assertFalse(FULL.isCoveredBy(SV));
+        assertFalse(FULL.isCoveredBy(PRIMARY_AS_NULL));
+        assertFalse(FULL.isCoveredBy(LIMITS));
+        assertTrue(FULL.isCoveredBy(FULL));
     }
 }

@@ -48,6 +48,17 @@ public enum AttributeFilter {
         this.priority = priority;
     }
 
+    // checking if the attribute filter is covering a attribute filter,
+    // for now it checks only if priority is superior or equal but in the future
+    // it will have to check if the filter is included in the one checked
+    public boolean isCoveredBy(AttributeFilter attributeFilter) {
+        if (attributeFilter == null) {
+            return this.priority <= PRIMARY_PRIORITY;
+        } else {
+            return this.priority <= attributeFilter.priority;
+        }
+    }
+
     // Returns a display label for the given view class (e.g. " OnlySv", " WithLimits"), or empty string for Primary.
     public static String getLabelFromView(Class<?> viewClass) {
         if (viewClass == JsonViews.Primary.class) {
