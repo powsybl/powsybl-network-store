@@ -103,9 +103,4 @@ public class DanglingLineAttributes extends AbstractIdentifiableAttributes imple
             throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
-
-    @Override
-    public boolean hasOperationalLimitsGroups() {
-        return !getOperationalLimitsGroups().isEmpty();
-    }
 }

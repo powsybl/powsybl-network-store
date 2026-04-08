@@ -15,8 +15,6 @@ import java.util.Map;
  */
 public interface LimitHolder {
 
-    boolean hasOperationalLimitsGroups();
-
     Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side);
 
     @JsonIgnore

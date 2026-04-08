@@ -120,12 +120,4 @@ public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttr
     public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
         return getLeg(side).getOperationalLimitsGroups();
     }
-
-    @Override
-    public boolean hasOperationalLimitsGroups() {
-        return !getLeg1().getOperationalLimitsGroups().isEmpty() ||
-                !getLeg2().getOperationalLimitsGroups().isEmpty() ||
-                !getLeg3().getOperationalLimitsGroups().isEmpty();
-    }
-
 }

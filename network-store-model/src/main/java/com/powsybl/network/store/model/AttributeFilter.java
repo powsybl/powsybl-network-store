@@ -48,16 +48,6 @@ public enum AttributeFilter {
         this.priority = priority;
     }
 
-    // checking if the first attribute filter is covered by the second attribute filter,
-    // for now it checks only if priority is superior or equal but in the future
-    // it will have to check if the filter is included in the one checked
-    // for example there can be two different filter with the same priority
-    public static boolean isCovering(AttributeFilter attributeFilter1, AttributeFilter attributeFilter2) {
-        int priorityFilter1 = attributeFilter1 == null ? PRIMARY_PRIORITY : attributeFilter1.priority;
-        int priorityFilter2 = attributeFilter2 == null ? PRIMARY_PRIORITY : attributeFilter2.priority;
-        return priorityFilter1 <= priorityFilter2;
-    }
-
     // Returns a display label for the given view class (e.g. " OnlySv", " WithLimits"), or empty string for Primary.
     public static String getLabelFromView(Class<?> viewClass) {
         if (viewClass == JsonViews.Primary.class) {

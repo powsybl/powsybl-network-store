@@ -127,11 +127,6 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
         }
     }
 
-    @Override
-    default boolean hasOperationalLimitsGroups() {
-        return !getOperationalLimitsGroups1().isEmpty() || !getOperationalLimitsGroups2().isEmpty();
-    }
-
     @JsonIgnore
     default Set<String> getContainerIds() {
         return ImmutableSet.<String>builder()

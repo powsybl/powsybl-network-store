@@ -79,20 +79,4 @@ class AttributeFilterTest {
         assertThrows(IllegalStateException.class, () -> covering(a, 0, b, 0, PRIMARY_AS_NULL, full));
         assertThrows(IllegalStateException.class, () -> covering(a, 2, b, 2, PRIMARY_AS_NULL, full));
     }
-
-    @Test
-    void testIsCovering() {
-        assertTrue(AttributeFilter.isCovering(SV, SV));
-        assertTrue(AttributeFilter.isCovering(SV, PRIMARY_AS_NULL));
-        assertTrue(AttributeFilter.isCovering(SV, LIMITS));
-        assertTrue(AttributeFilter.isCovering(SV, FULL));
-        assertFalse(AttributeFilter.isCovering(LIMITS, SV));
-        assertFalse(AttributeFilter.isCovering(LIMITS, PRIMARY_AS_NULL));
-        assertTrue(AttributeFilter.isCovering(LIMITS, LIMITS));
-        assertTrue(AttributeFilter.isCovering(LIMITS, FULL));
-        assertFalse(AttributeFilter.isCovering(FULL, SV));
-        assertFalse(AttributeFilter.isCovering(FULL, PRIMARY_AS_NULL));
-        assertFalse(AttributeFilter.isCovering(FULL, LIMITS));
-        assertTrue(AttributeFilter.isCovering(FULL, FULL));
-    }
 }
