@@ -7,8 +7,8 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.google.common.collect.ImmutableSet;
-import com.powsybl.commons.PowsyblException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -26,26 +26,32 @@ import java.util.*;
 @Schema(description = "Three windings transformer attributes")
 public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttributes implements Contained, TransformerAttributes, LimitHolder, RegulatedEquipmentAttributes {
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 1 active power in MW")
     @Builder.Default
     private double p1 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 1 reactive power in MVar")
     @Builder.Default
     private double q1 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 2 active power in MW")
     @Builder.Default
     private double p2 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 2 reactive power in MVar")
     @Builder.Default
     private double q2 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 3 active power in MW")
     @Builder.Default
     private double p3 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 3 reactive power in MVar")
     @Builder.Default
     private double q3 = Double.NaN;
@@ -113,14 +119,5 @@ public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttr
     @Override
     public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
         return getLeg(side).getOperationalLimitsGroups();
-    }
-
-    @JsonIgnore
-    @Override
-    public Attributes filter(AttributeFilter filter) {
-        if (filter != AttributeFilter.SV) {
-            throw new PowsyblException("Unsupported attribute filter: " + filter);
-        }
-        return new ThreeWindingsTransformerSvAttributes(getP1(), getQ1(), getP2(), getQ2(), getP3(), getQ3());
     }
 }

@@ -71,7 +71,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
     }
 
     void update(Resource<T> resource) {
-        update(resource, null);
+        update(resource, AttributeFilter.PRIMARY_AS_NULL);
     }
 
     void update(Resource<T> resource, AttributeFilter attributeFilter) {
@@ -83,21 +83,8 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
             if (resourceAndFilter == null) {
                 updateResources.put(resource.getId(), new ResourceAndFilter<>(resource, attributeFilter));
             } else {
-                // null included every data
-                // there are only 3 filters now:
-                // SV included in BASIC included in WITH_LIMITS
-                // to be updated when some filters like WITH_EXTENSIONS are added
-                if (resourceAndFilter.getAttributeFilter() != null) {
-                    if (attributeFilter != null) {
-                        if (resourceAndFilter.getAttributeFilter().getPriority() > attributeFilter.getPriority()) {
-                            resourceAndFilter.setAttributeFilter(resourceAndFilter.getAttributeFilter());
-                        } else {
-                            resourceAndFilter.setAttributeFilter(attributeFilter);
-                        }
-                    } else {
-                        resourceAndFilter.setAttributeFilter(null);
-                    }
-                }
+                // Keep the covering (broader) filter.
+                resourceAndFilter.setAttributeFilter(AttributeFilter.covering(resourceAndFilter.getAttributeFilter(), attributeFilter));
             }
         }
     }
@@ -126,17 +113,17 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
             createFct.accept(networkUuid, new ArrayList<>(createResources.values()));
         }
         if (updateFct != null && !updateResources.isEmpty()) {
-            List<Resource<T>> fullResources = new ArrayList<>();
+            List<Resource<T>> primaryResources = new ArrayList<>();
             Map<AttributeFilter, List<Resource<T>>> filteredResources = new EnumMap<>(AttributeFilter.class);
             for (ResourceAndFilter<T> resource : updateResources.values()) {
-                if (resource.getAttributeFilter() == null) {
-                    fullResources.add(resource.getResource());
+                if (resource.getAttributeFilter() == AttributeFilter.PRIMARY_AS_NULL) {
+                    primaryResources.add(resource.getResource());
                 } else {
                     filteredResources.computeIfAbsent(resource.getAttributeFilter(), k -> new ArrayList<>())
                             .add(resource.getResource());
                 }
             }
-            updateFct.accept(networkUuid, fullResources, null);
+            updateFct.accept(networkUuid, primaryResources, AttributeFilter.PRIMARY_AS_NULL);
             for (var e : filteredResources.entrySet()) {
                 updateFct.accept(networkUuid, new ArrayList<>(e.getValue()), e.getKey());
             }
@@ -163,7 +150,8 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
             clonedBuffer.createResources.put(clonedResource.getId(), clonedResource);
         }
         for (Resource<T> clonedResource : clonedUpdateResources) {
-            clonedBuffer.updateResources.put(clonedResource.getId(), new ResourceAndFilter<>(clonedResource, null));
+            // TODO Why are we not preserving the ResourceAndFilter here ? It forces us to send everything.
+            clonedBuffer.updateResources.put(clonedResource.getId(), new ResourceAndFilter<>(clonedResource, AttributeFilter.FULL));
         }
         clonedBuffer.removeResourcesIds.addAll(removeResourcesIds);
 

@@ -141,13 +141,4 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
         return List.of(1, 2);
     }
 
-    @JsonIgnore
-    @Override
-    default Attributes filter(AttributeFilter filter) {
-        return switch (filter) {
-            case SV -> new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
-            case STANDARD -> this;
-            case WITH_LIMITS -> this;
-        };
-    }
 }
