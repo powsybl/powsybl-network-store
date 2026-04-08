@@ -51,12 +51,10 @@ public enum AttributeFilter {
     // checking if the attribute filter is covering a attribute filter,
     // for now it checks only if priority is superior or equal but in the future
     // it will have to check if the filter is included in the one checked
-    public boolean isCoveredBy(AttributeFilter attributeFilter) {
-        if (attributeFilter == null) {
-            return this.priority <= PRIMARY_PRIORITY;
-        } else {
-            return this.priority <= attributeFilter.priority;
-        }
+    public static boolean isCovering(AttributeFilter attributeFilter1, AttributeFilter attributeFilter2) {
+        int priorityFilter1 = attributeFilter1 == null ? PRIMARY_PRIORITY : attributeFilter1.priority;
+        int priorityFilter2 = attributeFilter2 == null ? PRIMARY_PRIORITY : attributeFilter2.priority;
+        return priorityFilter1 <= priorityFilter2;
     }
 
     // Returns a display label for the given view class (e.g. " OnlySv", " WithLimits"), or empty string for Primary.

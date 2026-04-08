@@ -81,18 +81,18 @@ class AttributeFilterTest {
     }
 
     @Test
-    void testIsCoveredBy() {
-        assertTrue(SV.isCoveredBy(SV));
-        assertTrue(SV.isCoveredBy(PRIMARY_AS_NULL));
-        assertTrue(SV.isCoveredBy(LIMITS));
-        assertTrue(SV.isCoveredBy(FULL));
-        assertFalse(LIMITS.isCoveredBy(SV));
-        assertFalse(LIMITS.isCoveredBy(PRIMARY_AS_NULL));
-        assertTrue(LIMITS.isCoveredBy(LIMITS));
-        assertTrue(LIMITS.isCoveredBy(FULL));
-        assertFalse(FULL.isCoveredBy(SV));
-        assertFalse(FULL.isCoveredBy(PRIMARY_AS_NULL));
-        assertFalse(FULL.isCoveredBy(LIMITS));
-        assertTrue(FULL.isCoveredBy(FULL));
+    void testIsCovering() {
+        assertTrue(AttributeFilter.isCovering(SV, SV));
+        assertTrue(AttributeFilter.isCovering(SV, PRIMARY_AS_NULL));
+        assertTrue(AttributeFilter.isCovering(SV, LIMITS));
+        assertTrue(AttributeFilter.isCovering(SV, FULL));
+        assertFalse(AttributeFilter.isCovering(LIMITS, SV));
+        assertFalse(AttributeFilter.isCovering(LIMITS, PRIMARY_AS_NULL));
+        assertTrue(AttributeFilter.isCovering(LIMITS, LIMITS));
+        assertTrue(AttributeFilter.isCovering(LIMITS, FULL));
+        assertFalse(AttributeFilter.isCovering(FULL, SV));
+        assertFalse(AttributeFilter.isCovering(FULL, PRIMARY_AS_NULL));
+        assertFalse(AttributeFilter.isCovering(FULL, LIMITS));
+        assertTrue(AttributeFilter.isCovering(FULL, FULL));
     }
 }
