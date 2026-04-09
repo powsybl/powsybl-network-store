@@ -56,8 +56,8 @@ public class DanglingLineAttributes extends AbstractIdentifiableAttributes imple
     @Schema(description = "Pairing key")
     private String pairingKey;
 
-    // TODO annotates with @JsonView(AttributeFilter.JsonViews.WithLimits.class) like in line and 2wt
-    // it is not done as there is a few dl and it does not impact performance
+    // TODO: annotate with @JsonView(AttributeFilter.JsonViews.WithLimits.class) like in line and 2wt;
+    // not done because there are few dangling lines and the performance impact is low
     @Schema(description = "OperationalLimitGroup")
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups = new HashMap<>();
