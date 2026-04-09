@@ -229,21 +229,40 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     private <T extends IdentifiableAttributes> void updatePartition(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
-        // Set the filter on each resource so it is serialized in the JSON for the server.
-        // The server uses this field during deserialization for the attributes
-        // that are deserialized into subset DTOs (currently just AttributeFilter.SV, but sent for everything regardless).
-        // The filter field is not (and must not be) used by the client, so this mutation is harmless.
-        // NOTE: this duplicates the filter information for every resource, in
-        // addition to the information also contained in the (optional, currently also just for AttributeFilter.SV) urlSuffix,
-        // but that's how the server works now (could be improved)
-        resources.forEach(resource -> resource.setFilter(attributeFilter));
-        String effectiveUrl = url + AttributeFilter.getUrlSuffix(attributeFilter);
-        Class<?> viewClass = AttributeFilter.getViewClass(attributeFilter);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Updating {} {}{} resources ({})...", resources.size(), target, AttributeFilter.getLabelFromView(viewClass),
-                    UriComponentsBuilder.fromUriString(effectiveUrl).buildAndExpand(uriVariables));
+        String suffix = AttributeFilter.getUrlSuffix(attributeFilter);
+        String effectiveUrl = url + suffix;
+        List<AttributeFilter> previousFilters = null;
+        try {
+            if (!suffix.isEmpty()) {
+                // For endpoints with a suffix, the server uses subset DTOs and requires help from the client
+                // to deserialize into these subset dto: each serialized resource must have the filter in a field.
+                // (currently just AttributeFilter.SV).
+                // We restore the previous value after the request for good measure, it should not be necessary
+                // but guards against surprises when debugging (no stale information in resources) or if we change
+                // the system and start relying on this field.
+                // NOTE: this duplicates the filter information for every resource, in addition to the information
+                // also contained in the (optional, currently also just for AttributeFilter.SV) urlSuffix, but that's
+                // how the server works now (could be improved) to be able to deserialize for now.
+                List<AttributeFilter> finalPreviousFilters = new ArrayList<>(resources.size());
+                resources.forEach(resource -> {
+                    finalPreviousFilters.add(resource.getFilter());
+                    resource.setFilter(attributeFilter);
+                });
+                previousFilters = finalPreviousFilters;
+            }
+            Class<?> viewClass = AttributeFilter.getViewClass(attributeFilter);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Updating {} {}{} resources ({})...", resources.size(), target, AttributeFilter.getLabelFromView(viewClass),
+                        UriComponentsBuilder.fromUriString(effectiveUrl).buildAndExpand(uriVariables));
+            }
+            restClient.updateAll(effectiveUrl, resources, viewClass, uriVariables);
+        } finally {
+            if (previousFilters != null) {
+                for (int i = 0; i < previousFilters.size(); i++) {
+                    resources.get(i).setFilter(previousFilters.get(i));
+                }
+            }
         }
-        restClient.updateAll(effectiveUrl, resources, viewClass, uriVariables);
     }
 
     private <T extends IdentifiableAttributes> void updateAll(String target, String url, List<Resource<T>> resources, AttributeFilter attributeFilter, Object... uriVariables) {

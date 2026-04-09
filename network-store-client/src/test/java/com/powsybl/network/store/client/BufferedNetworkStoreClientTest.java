@@ -137,7 +137,6 @@ public class BufferedNetworkStoreClientTest {
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        n1Clone0to1.setFilter(AttributeFilter.FULL);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone0to1))))
@@ -152,7 +151,6 @@ public class BufferedNetworkStoreClientTest {
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        n1Clone1to2.setFilter(AttributeFilter.FULL);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone1to2))))
@@ -183,7 +181,6 @@ public class BufferedNetworkStoreClientTest {
                 .id("LINE_1")
                 .attributes(lineAttributes)
                 .build();
-        l1Copy.setFilter(AttributeFilter.LIMITS);
         // test only sv filter
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/sv"))
                 .andExpect(method(PUT))
@@ -306,8 +303,6 @@ public class BufferedNetworkStoreClientTest {
         server.reset();
 
         // test with_limits filter
-        twt1.setFilter(AttributeFilter.LIMITS);
-        twt2.setFilter(AttributeFilter.LIMITS);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers"))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(twt1, twt2))))
