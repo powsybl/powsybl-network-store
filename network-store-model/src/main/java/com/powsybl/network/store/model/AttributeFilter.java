@@ -42,6 +42,18 @@ public enum AttributeFilter {
     public static final AttributeFilter PRIMARY_AS_NULL = null;
     private static final int PRIMARY_PRIORITY = 0;
 
+    // null also sometimes means unset which behaves differently:
+    // SV + PRIMARY -> PRIMARY
+    // SV + UNSET -> SV
+    // Since both PRIMARY and UNSET currently have the same representation
+    // but the code still must behave differently, it follows that it uses
+    // extra information. Currently this extra information is that null in
+    // the update()/flush() code path means PRIMARY, whereas in other code paths
+    // the resource filter field is not used at all, and null means UNSET.
+    // This constant is used only to convey meaning and differentiate in the
+    // source code from other nulls.
+    public static final AttributeFilter UNSET_AS_NULL = null;
+
     private final int priority;
 
     AttributeFilter(int priority) {
@@ -56,14 +68,13 @@ public enum AttributeFilter {
         return " " + (viewClass != JsonViews.FULL_AS_NULL ? viewClass.getSimpleName() : "FULL");
     }
 
-    // Returns a URL path suffix for subset filters (e.g. "/sv"), or empty string otherwise.
-    // For sending limits to the server basic url and dto are used as they are present in the attributes
+    // Returns a URL path suffix for subset filters (e.g. "/sv"), or empty string otherwise
+    // because the server currently handles a superset (e.g. LIMITS) in the same way as the primary
     public static String getUrlSuffix(AttributeFilter filter) {
         return getEffectivePriority(filter) < PRIMARY_PRIORITY ?
             "/" + filter.name().toLowerCase() : "";
     }
 
-    // Returns the priority for the given filter, where null means the primary/standard view.
     private static int getEffectivePriority(AttributeFilter filter) {
         return filter == PRIMARY_AS_NULL ? PRIMARY_PRIORITY : filter.priority;
     }

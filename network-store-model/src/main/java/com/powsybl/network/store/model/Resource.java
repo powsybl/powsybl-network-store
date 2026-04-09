@@ -49,7 +49,7 @@ public class Resource<T extends Attributes> implements Validable {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "Attribute filter")
-    private AttributeFilter filter;
+    private AttributeFilter filter = AttributeFilter.UNSET_AS_NULL;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "Resource attributes")
@@ -60,9 +60,9 @@ public class Resource<T extends Attributes> implements Validable {
         return new DefaultMessageHeader(type.getDescription(), id);
     }
 
-    public static <T extends Attributes> Resource<T> create(ResourceType type, String id, int variantNum, AttributeFilter filter, T attributes) {
+    public static <T extends Attributes> Resource<T> create(ResourceType type, String id, int variantNum, T attributes) {
         Objects.requireNonNull(attributes);
-        Resource<T> resource = new Resource<>(type, id, variantNum, filter, attributes);
+        Resource<T> resource = new Resource<>(type, id, variantNum, AttributeFilter.UNSET_AS_NULL, attributes);
         attributes.setResource(resource);
         return resource;
     }
@@ -106,7 +106,7 @@ public class Resource<T extends Attributes> implements Validable {
             if (attributes == null) {
                 throw new IllegalStateException("attributes is not set");
             }
-            Resource<T> resource = new Resource<>(type, id, variantNum, AttributeFilter.PRIMARY_AS_NULL, attributes);
+            Resource<T> resource = new Resource<>(type, id, variantNum, AttributeFilter.UNSET_AS_NULL, attributes);
             attributes.setResource(resource);
             return resource;
         }
