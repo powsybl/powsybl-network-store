@@ -482,13 +482,25 @@ public class RestNetworkStoreClientTest {
         LoadAttributes loadAttributes = new LoadAttributes();
         loadAttributes.setP(100);
         loadAttributes.setQ(-100);
-        List<Resource<LoadAttributes>> loadResources = List.of(new Resource<>(ResourceType.LOAD, "loadId", 0, null, loadAttributes));
+        Resource<LoadAttributes> loadResource = new Resource<>(ResourceType.LOAD, "loadId", 0, null, loadAttributes);
+        List<Resource<LoadAttributes>> loadResources = List.of(loadResource);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads/sv"))
                 .andExpect(content().string("[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p\":100.0,\"q\":-100.0}}]"))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         restNetworkStoreClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
         assertNull(loadResources.getFirst().getFilter());
+        server.verify();
+        server.reset();
+
+        loadResource = new Resource<>(ResourceType.LOAD, "loadId", 0, AttributeFilter.SV, loadAttributes);
+        loadResources = List.of(loadResource);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads/sv"))
+                .andExpect(content().string("[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p\":100.0,\"q\":-100.0}}]"))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        restNetworkStoreClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
+        assertEquals(AttributeFilter.SV, loadResources.getFirst().getFilter());
         server.verify();
     }
 }
