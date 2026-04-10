@@ -158,7 +158,6 @@ public class BufferedNetworkStoreClientTest {
                 .andRespond(withSuccess());
         bufferedClient.flush(networkUuid);
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -225,7 +224,6 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.LIMITS);
         bufferedClient.flush(networkUuid);
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -257,7 +255,6 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.updateLines(networkUuid, List.of(l1, l2), AttributeFilter.SV);
         bufferedClient.flush(networkUuid);
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -311,7 +308,6 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.LIMITS);
         bufferedClient.flush(networkUuid);
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -330,7 +326,6 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
         bufferedClient.flush(networkUuid);
         server.verify();
-        server.reset();
         assertNull(loadResources.getFirst().getFilter());
     }
 }
