@@ -477,12 +477,12 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testUpdateAllWithAttributeFilter() {
+    public void testUpdateDoesNotChangeResourceAttributeFilter() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         LoadAttributes loadAttributes = new LoadAttributes();
         loadAttributes.setP(100);
         loadAttributes.setQ(-100);
-        Resource<LoadAttributes> loadResource = new Resource<>(ResourceType.LOAD, "loadId", 0, null, loadAttributes);
+        Resource<LoadAttributes> loadResource = Resource.create(ResourceType.LOAD, "loadId", 0, loadAttributes);
         List<Resource<LoadAttributes>> loadResources = List.of(loadResource);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads/sv"))
                 .andExpect(content().string("[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p\":100.0,\"q\":-100.0}}]"))
@@ -493,6 +493,8 @@ public class RestNetworkStoreClientTest {
         server.verify();
         server.reset();
 
+        // the current production code does not depend on this behavior but test it to know if it changes
+        // to avoid risks if the production starts depending on it
         loadResource = new Resource<>(ResourceType.LOAD, "loadId", 0, AttributeFilter.SV, loadAttributes);
         loadResources = List.of(loadResource);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads/sv"))
@@ -500,7 +502,7 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         restNetworkStoreClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
-        assertEquals(AttributeFilter.SV, loadResources.getFirst().getFilter());
         server.verify();
+        assertEquals(AttributeFilter.SV, loadResources.getFirst().getFilter());
     }
 }

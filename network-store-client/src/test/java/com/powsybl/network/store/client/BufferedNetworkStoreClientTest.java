@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
@@ -317,8 +318,8 @@ public class BufferedNetworkStoreClientTest {
         LoadAttributes loadAttributes = new LoadAttributes();
         loadAttributes.setP(200);
         loadAttributes.setQ(-200);
-        List<Resource<LoadAttributes>> loadResources = List.of(new Resource<>(ResourceType.LOAD, "loadId", 0, null, loadAttributes));
-        // test sv filter
+        Resource<LoadAttributes> loadResource = Resource.create(ResourceType.LOAD, "loadId", 0, loadAttributes);
+        List<Resource<LoadAttributes>> loadResources = List.of(loadResource);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p\":200.0,\"q\":-200.0}}]"))
@@ -327,5 +328,19 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.flush(networkUuid);
         server.verify();
         assertNull(loadResources.getFirst().getFilter());
+        server.reset();
+
+        // the current production code does not depend on this behavior but test it to know if it changes
+        // to avoid risks if the production starts depending on it
+        loadResource = new Resource<>(ResourceType.LOAD, "loadId", 0, AttributeFilter.SV, loadAttributes);
+        loadResources = List.of(loadResource);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads/sv"))
+                .andExpect(method(PUT))
+                .andExpect(content().string("[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p\":200.0,\"q\":-200.0}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        assertEquals(AttributeFilter.SV, loadResources.getFirst().getFilter());
     }
 }
