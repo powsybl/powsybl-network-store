@@ -489,5 +489,6 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withSuccess());
         restNetworkStoreClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
         assertNull(loadResources.getFirst().getFilter());
+        server.verify();
     }
 }
