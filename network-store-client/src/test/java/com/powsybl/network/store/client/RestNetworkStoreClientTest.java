@@ -489,8 +489,8 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         restNetworkStoreClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
-        assertNull(loadResources.getFirst().getFilter());
         server.verify();
+        assertNull(loadResources.getFirst().getFilter());
         server.reset();
 
         // the current production code does not depend on this behavior but test it to know if it changes
