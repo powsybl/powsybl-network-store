@@ -229,20 +229,39 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     private <T extends IdentifiableAttributes> void updatePartition(String target, String url, AttributeFilter attributeFilter, List<Resource<T>> resources, Object[] uriVariables) {
-        if (attributeFilter == null) {
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Updating {} {} resources ({})...", resources.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
+        String suffix = AttributeFilter.getUrlSuffix(attributeFilter);
+        String effectiveUrl = url + suffix;
+        List<AttributeFilter> previousFilters = null;
+        try {
+            if (!suffix.isEmpty()) {
+                // For endpoints with a suffix, the server uses subset DTOs and requires help from the client
+                // to deserialize into these subset dto: each serialized resource must have the filter in a field.
+                // (currently just AttributeFilter.SV).
+                // We restore the previous value after the request for good measure, it should not be necessary
+                // but guards against surprises when debugging (no stale information in resources) or if we change
+                // the system and start relying on this field.
+                // NOTE: this duplicates the filter information for every resource, in addition to the information
+                // also contained in the (optional, currently also just for AttributeFilter.SV) urlSuffix, but that's
+                // how the server works now (could be improved) to be able to deserialize for now.
+                List<AttributeFilter> finalPreviousFilters = new ArrayList<>(resources.size());
+                resources.forEach(resource -> {
+                    finalPreviousFilters.add(resource.getFilter());
+                    resource.setFilter(attributeFilter);
+                });
+                previousFilters = finalPreviousFilters;
             }
-            restClient.updateAll(url, resources, uriVariables);
-        } else {
-            List<Resource<Attributes>> filteredResources = resources.stream()
-                    .map(resource -> resource.filterAttributes(attributeFilter))
-                    .collect(Collectors.toList());
-            String filteredUrl = url + "/" + attributeFilter.name().toLowerCase();
+            Class<?> viewClass = AttributeFilter.getViewClass(attributeFilter);
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Updating {} {} {} resources ({})...", filteredResources.size(), target, attributeFilter, UriComponentsBuilder.fromUriString(filteredUrl).buildAndExpand(uriVariables));
+                LOGGER.info("Updating {} {}{} resources ({})...", resources.size(), target, AttributeFilter.getLabelFromView(viewClass),
+                        UriComponentsBuilder.fromUriString(effectiveUrl).buildAndExpand(uriVariables));
             }
-            restClient.updateAll(filteredUrl, filteredResources, uriVariables);
+            restClient.updateAll(effectiveUrl, resources, viewClass, uriVariables);
+        } finally {
+            if (previousFilters != null) {
+                for (int i = 0; i < previousFilters.size(); i++) {
+                    resources.get(i).setFilter(previousFilters.get(i));
+                }
+            }
         }
     }
 
@@ -259,11 +278,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             }
             stopwatch.stop();
             if (LOGGER.isInfoEnabled()) {
-                if (attributeFilter == null) {
-                    LOGGER.info("{} {} resources updated in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                } else {
-                    LOGGER.info("{} {} {} resources updated in {} ms", resourcePartition.size(), target, attributeFilter, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                }
+                LOGGER.info("{} {}{} resources updated in {} ms", resourcePartition.size(), target,
+                        AttributeFilter.getLabelFromView(AttributeFilter.getViewClass(attributeFilter)), stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
         }
     }

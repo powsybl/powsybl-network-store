@@ -37,10 +37,6 @@ public interface IdentifiableAttributes extends Attributes {
 
     void setAliasByType(Map<String, String> aliasByType);
 
-    default Attributes filter(AttributeFilter filter) {
-        return this;
-    }
-
     Map<String, ExtensionAttributes> getExtensionAttributes();
 
     void setExtensionAttributes(Map<String, ExtensionAttributes> extensionAttributes);

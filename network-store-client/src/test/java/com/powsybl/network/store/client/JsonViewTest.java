@@ -1,0 +1,122 @@
+/**
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.network.store.client;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.network.store.model.*;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ */
+class JsonViewTest {
+    @Test
+    void testViewSerializationWithLines() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        LineAttributes lineAttributes = LineAttributes.builder()
+                .name("line1")
+                .selectedOperationalLimitsGroupId1("group1")
+                .p1(1)
+                .p2(2)
+                .q2(4)
+                .r(5)
+                .x(6)
+                .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
+                .build();
+
+        // primary view
+        String primaryResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0," +
+                "\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0," +
+                "\"selectedOperationalLimitsGroupId1\":\"group1\",\"regulatingEquipments\":[]}";
+        String primaryResult = mapper
+                .writerWithView(AttributeFilter.JsonViews.Primary.class)
+                .writeValueAsString(lineAttributes);
+        assertEquals(primaryResultExpected, primaryResult);
+
+        // SV view
+        String svResult = mapper
+                .writerWithView(AttributeFilter.JsonViews.OnlySv.class)
+                .writeValueAsString(lineAttributes);
+        assertEquals("{\"p1\":1.0,\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0}", svResult);
+
+        // WithLimits view
+        String expectedWithLimitsResult = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{}," +
+                "\"r\":5.0,\"x\":6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0," +
+                "\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0,\"operationalLimitsGroups1\":{\"group1\":{}}," +
+                "\"selectedOperationalLimitsGroupId1\":\"group1\",\"operationalLimitsGroups2\":{},\"regulatingEquipments\":[]}";
+        String withLimitsResult = mapper
+                .writerWithView(AttributeFilter.JsonViews.WithLimits.class)
+                .writeValueAsString(lineAttributes);
+        assertEquals(expectedWithLimitsResult, withLimitsResult);
+    }
+
+    @Test
+    void testViewSerializationWithTwt() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        ActivePowerControlAttributes activePowerControlAttributes = ActivePowerControlAttributes.builder()
+                .droop(5.2)
+                .participate(true)
+                .participationFactor(0.5)
+                .minTargetP(0.0)
+                .maxTargetP(10.0)
+                .build();
+        TwoWindingsTransformerAttributes twoWindingsTransformerAttributes = TwoWindingsTransformerAttributes.builder()
+                .name("twt1")
+                .p1(1)
+                .p2(2)
+                .q1(3)
+                .q2(4)
+                .r(5)
+                .x(6)
+                .selectedOperationalLimitsGroupId1("selectedGroupId1")
+                .operationalLimitsGroups1(Map.of("group1", new OperationalLimitsGroupAttributes()))
+                .regulatingEquipments(Set.of(new RegulatingEquipmentIdentifier("loadId", ResourceType.LOAD)))
+                .properties(Map.of("key", "value"))
+                .aliasByType(Map.of("typ1", "alias1"))
+                .aliasesWithoutType(Set.of("alias2"))
+                .extensionAttributes(Map.of("activePowerControl", activePowerControlAttributes))
+                .build();
+
+        String primaryResultExpected = "{\"name\":\"twt1\",\"fictitious\":false,\"properties\":{\"key\":\"value\"}," +
+                "\"aliasesWithoutType\":[\"alias2\"],\"aliasByType\":{\"typ1\":\"alias1\"}," +
+                "\"extensionAttributes\":{\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true," +
+                "\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":10.0}}," +
+                "\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0," +
+                "\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\"," +
+                "\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}";
+        String primaryResult = mapper
+                .writerWithView(AttributeFilter.JsonViews.Primary.class)
+                .writeValueAsString(twoWindingsTransformerAttributes);
+        assertEquals(primaryResultExpected, primaryResult);
+
+        String svResult = mapper
+                .writerWithView(AttributeFilter.JsonViews.OnlySv.class)
+                .writeValueAsString(twoWindingsTransformerAttributes);
+        assertEquals("{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}", svResult);
+
+        String expectedWithLimitsResult = "{\"name\":\"twt1\",\"fictitious\":false,\"properties\":{\"key\":\"value\"}," +
+                "\"aliasesWithoutType\":[\"alias2\"],\"aliasByType\":{\"typ1\":\"alias1\"}," +
+                "\"extensionAttributes\":{\"activePowerControl\":{\"extensionName\":\"activePowerControl\"," +
+                "\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":10.0}}," +
+                "\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0," +
+                "\"p2\":2.0,\"q2\":4.0,\"operationalLimitsGroups1\":{\"group1\":{}}," +
+                "\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"operationalLimitsGroups2\":{}," +
+                "\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}";
+        String withLimitsResult = mapper
+                .writerWithView(AttributeFilter.JsonViews.WithLimits.class)
+                .writeValueAsString(twoWindingsTransformerAttributes);
+        assertEquals(expectedWithLimitsResult, withLimitsResult);
+    }
+
+}

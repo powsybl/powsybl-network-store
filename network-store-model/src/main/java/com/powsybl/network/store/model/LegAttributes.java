@@ -66,6 +66,8 @@ public class LegAttributes implements TapChangerParentAttributes, FlowsLimitsAtt
     @Schema(description = "RatioTapChangerAttributes")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
+    // TODO add lazy loading for 3wt and annotates with @JsonView(AttributeFilter.JsonViews.WithLimits.class) like in line and 2wt
+    // it is not done as there is a few three windings transformers and it does not impact performance
     @Schema(description = "OperationalLimitGroup")
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups = new HashMap<>();
