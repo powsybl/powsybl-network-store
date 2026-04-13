@@ -43,6 +43,7 @@ public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttri
     @Schema(description = "Count of sections in service")
     private int sectionCount;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Solved value count of sections in service")
     private Integer solvedSectionCount;
 

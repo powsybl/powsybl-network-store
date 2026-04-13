@@ -56,12 +56,15 @@ public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttr
     @Builder.Default
     private double q3 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 1 leg")
     private LegAttributes leg1;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 2 leg")
     private LegAttributes leg2;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 3 leg")
     private LegAttributes leg3;
 
