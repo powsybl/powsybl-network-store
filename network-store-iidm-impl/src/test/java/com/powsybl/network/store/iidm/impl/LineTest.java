@@ -13,14 +13,19 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -403,5 +408,20 @@ public class LineTest {
         assertEquals(3., l1.getG2());
         assertEquals(7., l1.getB1());
         assertEquals(9., l1.getB2());
+    }
+
+    @Test
+    public void removeExtension() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Line line = network.getLine("LINE_S3S4");
+        testRemoveWithOneFeeder(line, line.newExtension(ConnectablePositionAdder.class).newFeeder1());
+        testRemoveWithOneFeeder(line, line.newExtension(ConnectablePositionAdder.class).newFeeder2());
+    }
+
+    private void testRemoveWithOneFeeder(Line line, ConnectablePositionAdder.FeederAdder feederAdder) {
+        feederAdder.withOrder(1).add().add();
+        assertTrue(line.removeExtension(ConnectablePosition.class));
+        assertNull(line.getExtension(ConnectablePosition.class));
+        Assertions.assertFalse(line.removeExtension(ConnectablePosition.class));
     }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -18,6 +19,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -33,12 +35,17 @@ public class RestClientImpl implements RestClient {
 
     private final RestTemplate restTemplate;
 
+    // Used for standalone (non-Spring) usage, e.g. from integration tests or external tools
     public RestClientImpl(String baseUri) {
         this(createRestTemplateBuilder(baseUri));
     }
 
+    // Used in unit tests with a mock-backed RestTemplateBuilder
     public RestClientImpl(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
+        this.restTemplate = Objects.requireNonNull(restTemplateBuilder)
+            .errorHandler(new RestTemplateResponseErrorHandler())
+            .additionalCustomizers(RestClientImpl::enableDefaultViewInclusion)
+            .build();
     }
 
     @Autowired
@@ -49,11 +56,13 @@ public class RestClientImpl implements RestClient {
             .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder
                 .fromUriString(baseUri)
                 .path(NetworkStoreApi.VERSION)))
+            .additionalCustomizers(RestClientImpl::enableDefaultViewInclusion)
             .build();
     }
 
     public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
-        return new RestTemplateBuilder(restTemplate1 -> restTemplate1.setMessageConverters(List.of(createMapping()))).uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
+        return new RestTemplateBuilder(restTemplate1 -> restTemplate1.setMessageConverters(List.of(createMapping())))
+            .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
                         .path(NetworkStoreApi.VERSION)));
     }
 
@@ -69,6 +78,38 @@ public class RestClientImpl implements RestClient {
         var converter = new MappingJackson2HttpMessageConverter();
         converter.setObjectMapper(createObjectMapper());
         return converter;
+    }
+
+    /**
+     * Replace the MappingJackson2HttpMessageConverter in the RestTemplate's
+     * converter list with a new instance whose ObjectMapper has
+     * DEFAULT_VIEW_INCLUSION enabled.
+     *
+     * We must replace (not mutate) the converter because Spring Boot 3.x shares the
+     * same MappingJackson2HttpMessageConverter instance across all RestTemplates built
+     * from the auto-configured RestTemplateBuilder. Mutating it would enable
+     * DEFAULT_VIEW_INCLUSION for every RestTemplate in the application.
+     *
+     * The replacement converter should be configured exactly like the Spring
+     * Boot one except for the ObjectMapper. There are no official Spring Boot APIs
+     * to guarantee the converter equivalence, so this may need to be revisited
+     * if future versions change which converters are created by springboot and
+     * how they get the autoconfiguration.
+     * The ObjectMapper is configured exactly like the Spring Boot one except
+     * for DEFAULT_VIEW_INCLUSION (using the jackson copy() API). This is guaranteed
+     * but will also need to be updated when upgrade from jackson2 to jackson3 and
+     * the replacement will depend on springboot's integrations of jackson3's features
+     * (rebuild() vs copy())
+     */
+    private static void enableDefaultViewInclusion(RestTemplate restTemplate) {
+        var converters = restTemplate.getMessageConverters();
+        for (int i = 0; i < converters.size(); i++) {
+            if (converters.get(i) instanceof MappingJackson2HttpMessageConverter c) {
+                converters.set(i, new MappingJackson2HttpMessageConverter(
+                    c.getObjectMapper().copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION)));
+                return;
+            }
+        }
     }
 
     private <T, D extends AbstractTopLevelDocument<T>> ResponseEntity<D> getDocument(String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
@@ -142,12 +183,18 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables) {
-        HttpEntity<?> entity = new HttpEntity<>(resources);
+    public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Class<?> viewClass, Object... uriVariables) {
+        HttpEntity<?> entity = wrapViewAware(viewClass, resources);
         ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class, uriVariables);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "put", response.getStatusCode());
         }
+    }
+
+    private <T extends Attributes> HttpEntity<?> wrapViewAware(Class<?> viewClass, List<Resource<T>> resources) {
+        MappingJacksonValue jacksonValue = new MappingJacksonValue(resources);
+        jacksonValue.setSerializationView(viewClass);
+        return new HttpEntity<>(jacksonValue);
     }
 
     @Override

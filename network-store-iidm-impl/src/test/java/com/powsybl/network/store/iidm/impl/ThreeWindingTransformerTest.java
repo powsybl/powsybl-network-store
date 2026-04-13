@@ -6,10 +6,11 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -83,5 +84,25 @@ class ThreeWindingTransformerTest {
         assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
         assertNull(phaseTapChanger.getRegulationTerminal());
         assertFalse(phaseTapChanger.isRegulating());
+    }
+
+    @Test
+    void removeExtension() {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("3WT");
+        testRemoveWithOneFeeder(threeWindingsTransformer, threeWindingsTransformer.newExtension(ConnectablePositionAdder.class).newFeeder1());
+        testRemoveWithOneFeeder(threeWindingsTransformer, threeWindingsTransformer.newExtension(ConnectablePositionAdder.class).newFeeder2());
+        testRemoveWithOneFeeder(threeWindingsTransformer, threeWindingsTransformer.newExtension(ConnectablePositionAdder.class).newFeeder3());
+        threeWindingsTransformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg3(1).withPhaseAngleClockLeg2(1).add();
+        assertTrue(threeWindingsTransformer.removeExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+        assertNull(threeWindingsTransformer.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+        assertFalse(threeWindingsTransformer.removeExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+    }
+
+    private void testRemoveWithOneFeeder(ThreeWindingsTransformer threeWindingsTransformer, ConnectablePositionAdder.FeederAdder feederAdder) {
+        feederAdder.withOrder(1).add().add();
+        assertTrue(threeWindingsTransformer.removeExtension(ConnectablePosition.class));
+        assertNull(threeWindingsTransformer.getExtension(ConnectablePosition.class));
+        assertFalse(threeWindingsTransformer.removeExtension(ConnectablePosition.class));
     }
 }
