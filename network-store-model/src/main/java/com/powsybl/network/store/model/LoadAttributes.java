@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.powsybl.iidm.network.LoadType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -49,10 +50,12 @@ public class LoadAttributes extends AbstractIdentifiableAttributes implements In
 
     @Schema(description = "Active power in MW")
     @Builder.Default
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     private double p = Double.NaN;
 
     @Schema(description = "Reactive power in MW")
     @Builder.Default
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     private double q = Double.NaN;
 
     @Schema(description = "Load detail")

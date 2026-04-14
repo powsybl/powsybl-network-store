@@ -9,10 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
-import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
-import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorEntsoeCategoryImpl;
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorShortCircuitImpl;
@@ -360,6 +357,38 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
             var resource = getResource();
             if (resource.getAttributes().getRemoteReactivePowerControl() != null) {
                 resource.getAttributes().setRemoteReactivePowerControl(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == GeneratorEntsoeCategory.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getEntsoeCategoryAttributes() != null) {
+                resource.getAttributes().setEntsoeCategoryAttributes(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == CoordinatedReactiveControl.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getCoordinatedReactiveControl() != null) {
+                resource.getAttributes().setCoordinatedReactiveControl(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == GeneratorShortCircuit.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getGeneratorShortCircuitAttributes() != null) {
+                resource.getAttributes().setGeneratorShortCircuitAttributes(null);
+                return true;
+            }
+            return false;
+        }
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
                 return true;
             }
             return false;

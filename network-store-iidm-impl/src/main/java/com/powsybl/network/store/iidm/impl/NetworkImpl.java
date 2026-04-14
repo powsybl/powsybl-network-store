@@ -18,7 +18,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
+import com.powsybl.network.store.model.CimCharacteristicsAttributes;
+import com.powsybl.network.store.model.NetworkAttributes;
+import com.powsybl.network.store.model.Resource;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
@@ -48,10 +51,25 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private AbstractReportNodeContext reporterContext;
 
-    public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
+    // if we start to have more things like this, we should
+    // group them in a separate class. For now this one is
+    // probably only temporary until we fix the underlying
+    // performance issue that forces us to have it
+    private final boolean useCalculatedBusFictitiousP0Q0;
+
+    public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource, boolean useCalculatedBusFictitiousP0Q0) {
         super(new NetworkObjectIndex(storeClient), resource);
         this.reporterContext = new SimpleReportNodeContext();
+        this.useCalculatedBusFictitiousP0Q0 = useCalculatedBusFictitiousP0Q0;
         index.setNetwork(this);
+    }
+
+    public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
+        this(storeClient, resource, NetworkFactoryServiceImpl.DEFAULT_USE_CALCULATEDBUS_FICTITIOUSP0Q0);
+    }
+
+    public static NetworkImpl create(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource, boolean useCalculatedBusFictitiousP0Q0) {
+        return new NetworkImpl(storeClient, resource, useCalculatedBusFictitiousP0Q0);
     }
 
     public static NetworkImpl create(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
@@ -1321,5 +1339,31 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         // FIXME: if needed implement detailed dc model
         // needed for cgmes export in https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/export/CgmesExportContext.java#L362
         return Collections.emptyList();
+    }
+
+    public boolean isUseCalculatedBusFictitiousP0Q0() {
+        return useCalculatedBusFictitiousP0Q0;
+    }
+
+    @Override
+    public <E extends Extension<Network>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type == BaseVoltageMapping.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getBaseVoltageMapping() != null) {
+                resource.getAttributes().setBaseVoltageMapping(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == CimCharacteristics.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getCimCharacteristics() != null) {
+                resource.getAttributes().setCimCharacteristics(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

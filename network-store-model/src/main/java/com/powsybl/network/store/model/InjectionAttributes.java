@@ -7,7 +7,6 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.powsybl.commons.PowsyblException;
 
 import java.util.Collections;
 import java.util.Set;
@@ -50,12 +49,4 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained, 
         return Collections.singleton(getVoltageLevelId());
     }
 
-    @JsonIgnore
-    @Override
-    default Attributes filter(AttributeFilter filter) {
-        if (filter != AttributeFilter.SV) {
-            throw new PowsyblException("Unsupported attribute filter: " + filter);
-        }
-        return new InjectionSvAttributes(getP(), getQ());
-    }
 }

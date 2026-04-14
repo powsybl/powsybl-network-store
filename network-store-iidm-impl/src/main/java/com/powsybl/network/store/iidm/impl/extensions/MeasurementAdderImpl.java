@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.MeasurementAdder;
-import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
+import com.powsybl.network.store.iidm.impl.AbstractConnectableImpl;
 import com.powsybl.network.store.model.MeasurementAttributes;
 
 import java.util.HashMap;
@@ -94,8 +94,9 @@ public class MeasurementAdderImpl implements MeasurementAdder {
         if (type == null) {
             throw new PowsyblException("Measurement type can not be null");
         }
+        AbstractConnectableImpl<?, ?> extendable = (AbstractConnectableImpl<?, ?>) measurements.getExtendable();
         checkValue(value, valid);
-        checkSide(type, side, measurements.getExtendable());
+        checkSide(type, side, extendable);
         MeasurementAttributes measurementAttributes = MeasurementAttributes.builder()
                 .id(id)
                 .valid(valid)
@@ -105,7 +106,14 @@ public class MeasurementAdderImpl implements MeasurementAdder {
                 .standardDeviation(standardDeviation)
                 .side(side != null ? side.getNum() : null)
                 .build();
-        measurements.getMeasurementsAttributes().getMeasurementAttributes().add(measurementAttributes);
-        return new MeasurementImpl(measurements, (AbstractIdentifiableImpl) this.measurements.getExtendable(), measurementAttributes);
+
+        // The attribute name is not defined by powsybl-core implementation, so we chose an arbitrary value
+        extendable.updateResourceExtension(
+                measurements, res ->
+                        measurements.getMeasurementsAttributes()
+                                .getMeasurementAttributes()
+                                .add(measurementAttributes), "measurements.measurement", null, measurementAttributes
+        );
+        return new MeasurementImpl(measurements, extendable, measurementAttributes);
     }
 }

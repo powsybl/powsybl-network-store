@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -36,10 +37,12 @@ public class GroundAttributes extends AbstractIdentifiableAttributes implements 
     @Schema(description = "Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Reactive power in MW")
     @Builder.Default
     private double q = Double.NaN;

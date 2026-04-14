@@ -613,10 +613,19 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public <E extends Extension<VoltageLevel>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
         if (type == SlackTerminal.class) {
             var resource = getResource();
             if (resource.getAttributes().getSlackTerminal() != null) {
                 resource.getAttributes().setSlackTerminal(null);
+                return true;
+            }
+            return false;
+        }
+        if (type.isAssignableFrom(IdentifiableShortCircuit.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getIdentifiableShortCircuitAttributes() != null) {
+                resource.getAttributes().setIdentifiableShortCircuitAttributes(null);
                 return true;
             }
             return false;

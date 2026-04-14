@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.network.store.iidm.impl.extensions.LoadDetailImpl;
 import com.powsybl.network.store.model.LoadAttributes;
@@ -140,4 +141,25 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         index.notifyAfterRemoval(resource.getId());
     }
 
+    @Override
+    public <E extends Extension<Load>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == LoadDetail.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getLoadDetail() != null) {
+                resource.getAttributes().setLoadDetail(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
 }

@@ -25,7 +25,9 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
 
     private static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
         Objects.requireNonNull(type);
-        if (filter == null) {
+        // The client currently doesn't send AttributeFilter.LIMITS or AttributeFilter.FULL, but if it did
+        // we don't want to reject it, we know we should deserialize to normal DTOs
+        if (filter == AttributeFilter.PRIMARY_AS_NULL || filter == AttributeFilter.LIMITS || filter == AttributeFilter.FULL) {
             return switch (type) {
                 case NETWORK -> NetworkAttributes.class;
                 case SUBSTATION -> SubstationAttributes.class;
@@ -77,7 +79,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         String id = null;
         int variantNum = -1;
         Attributes attributes = null;
-        AttributeFilter filter = null;
+        AttributeFilter filter = AttributeFilter.PRIMARY_AS_NULL; // used only to getTypeClass() of the DTO
 
         JsonToken token;
         while ((token = parser.nextToken()) != null) {
@@ -101,6 +103,6 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
             }
         }
 
-        return Resource.create(type, id, variantNum, filter, attributes);
+        return Resource.create(type, id, variantNum, attributes);
     }
 }

@@ -201,6 +201,18 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public double getFictitiousP0() {
+        if (!getNetwork().isUseCalculatedBusFictitiousP0Q0()) {
+            // [performance.hack] TODO: this should absolutely not stay like this
+            /*
+            For now this method is not used in any service, and it is not filled (value is set to 0 in any bus) because
+            it will be filled later on by estimation computation. At this time we will have to fix this.
+            We introduce this hack because it causes serious performance regressions in loadflow computation
+            due to unpersisted bus graph. So, we will have to fix this issue before restablishing the original code.
+            Search [performance.hack] tag to see where it should be fixed in the code
+             */
+            return 0;
+        }
+
         return TopologyKind.NODE_BREAKER == getVoltageLevel().getTopologyKind() ?
             Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal)
                 .mapToDouble(n -> getVoltageLevel().getNodeBreakerView().getFictitiousP0(n))
@@ -226,6 +238,17 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public double getFictitiousQ0() {
+        if (!getNetwork().isUseCalculatedBusFictitiousP0Q0()) {
+            // [performance.hack] TODO: this should absolutely not stay like this
+            /*
+            For now this method is not used in any service, and it is not filled (value is set to 0 in any bus) because
+            it will be filled later on by estimation computation. At this time we will have to fix this.
+            We introduce this hack because it causes serious performance regressions in loadflow computation
+            due to unpersisted bus graph. So, we will have to fix this issue before restablishing the original code.
+            Search [performance.hack] tag to see where it should be fixed in the code
+             */
+            return 0;
+        }
         return TopologyKind.NODE_BREAKER == getVoltageLevel().getTopologyKind() ?
             Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal)
                 .mapToDouble(n -> getVoltageLevel().getNodeBreakerView().getFictitiousQ0(n))

@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -48,10 +49,12 @@ public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentA
     @Schema(description = "Reactive power setpoint in MVAR")
     private double reactivePowerSetPoint;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Reactive power in MW")
     @Builder.Default
     private double q = Double.NaN;
