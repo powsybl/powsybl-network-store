@@ -9,10 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.network.store.client.util.QuadriConsumer;
 import com.powsybl.network.store.model.ResourceType;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
@@ -21,7 +18,7 @@ import java.util.function.BiConsumer;
 public class ExternalAttributesCollectionBuffer<T> {
     private final QuadriConsumer<UUID, Integer, ResourceType, Map<String, T>> removeFct;
 
-    private final Map<ResourceType, Map<String, T>> removeExternalAttributesIds = new HashMap<>();
+    private final Map<ResourceType, Map<String, T>> removeExternalAttributesIds = new EnumMap<>(ResourceType.class);
     private final BiConsumer<Map<String, T>, Map<String, T>> mergeFct;
     private final BiConsumer<Map<String, T>, Map<String, T>> updateRemoveAttributesFct;
 
