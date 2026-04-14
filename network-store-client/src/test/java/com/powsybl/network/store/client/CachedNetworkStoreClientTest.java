@@ -466,13 +466,6 @@ public class CachedNetworkStoreClientTest {
         assertEquals(Boolean.TRUE, switchAttributesResource.getAttributes().isOpen());  // test switch is open
 
         server.verify();
-        server.reset();
-
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches"))
-                .andExpect(method(PUT))
-                .andRespond(withSuccess());
-
-        cachedClient.flush(networkUuid);
     }
 
     @Test
@@ -554,6 +547,7 @@ public class CachedNetworkStoreClientTest {
 
         Optional<ExtensionAttributes> gs1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, GeneratorStartup.NAME);
         assertTrue(gs1Attributes.isPresent());
+        server.verify();
 
         cachedClient.removeGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(identifiableId));
         gs1Attributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, GeneratorStartup.NAME);
@@ -638,7 +632,6 @@ public class CachedNetworkStoreClientTest {
         assertEquals(1, extensionAttributesMap.size());
         assertNull(extensionAttributesMap.get(ActivePowerControl.NAME));
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -674,7 +667,6 @@ public class CachedNetworkStoreClientTest {
         Optional<ExtensionAttributes> os1Attributes = cachedClient.getExtensionAttributes(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId, OperatingStatus.NAME);
         assertFalse(os1Attributes.isPresent());
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -874,7 +866,6 @@ public class CachedNetworkStoreClientTest {
         cachedClient.getAllExtensionsAttributesByResourceType(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR);
         assertTrue(cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME).isEmpty());
         server.verify();
-        server.reset();
     }
 
     private void loadGeneratorToCache(String identifiableId, UUID networkUuid, CachedNetworkStoreClient cachedClient) throws JsonProcessingException {
@@ -1009,7 +1000,6 @@ public class CachedNetworkStoreClientTest {
         Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1);
         assertTrue(operationalLimitsGroupAttributes.isEmpty());
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1052,7 +1042,6 @@ public class CachedNetworkStoreClientTest {
         Optional<OperationalLimitsGroupAttributes> olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId, operationalLimitsGroupId2, 1);
         assertTrue(olg2Attributes.isPresent());
         server.verify();
-        server.reset();
     }
 
     private OperationalLimitsGroupAttributes createOperationalLimitsGroupAttributes(String operationalLimitsGroupId) {
@@ -1139,7 +1128,6 @@ public class CachedNetworkStoreClientTest {
         networkAttributes = networkOpt.get().getAttributes();
         assertEquals(0, networkAttributes.getFullVariantNum());
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1196,7 +1184,6 @@ public class CachedNetworkStoreClientTest {
         Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes3 = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM,
             ResourceType.LINE, identifiableId2, operationalLimitsGroupId3, side);
         server.verify();
-        server.reset();
         assertTrue(operationalLimitsGroupAttributes3.isPresent());
 
     }
@@ -1253,7 +1240,6 @@ public class CachedNetworkStoreClientTest {
         cachedClient.getOperationalLimitsGroupAttributesForBranchSide(networkUuid, Resource.INITIAL_VARIANT_NUM,
             ResourceType.LINE, identifiableId, 1);
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1280,7 +1266,6 @@ public class CachedNetworkStoreClientTest {
             .andExpect(method(GET));
         Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, 0, ResourceType.LINE, identifiableId, operationalLimitsGroupId, 1);
         server.verify();
-        server.reset();
         assertTrue(operationalLimitsGroupAttributes.isPresent());
     }
 
@@ -1317,7 +1302,6 @@ public class CachedNetworkStoreClientTest {
         Optional<OperationalLimitsGroupAttributes> operationalLimitsGroupAttributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, branchId, operationalLimitsGroupId, 1);
         assertTrue(operationalLimitsGroupAttributes.isEmpty());
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1348,6 +1332,5 @@ public class CachedNetworkStoreClientTest {
         cachedClient.getNetwork(networkUuid2, 0);
 
         server.verify();
-        server.reset();
     }
 }
