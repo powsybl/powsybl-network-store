@@ -25,8 +25,6 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RatioTapChangerAdderImpl.class);
 
-    private final TapChangerParent tapChangerParent;
-
     private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
@@ -94,8 +92,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     public RatioTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index,
                                     Function<Attributes, TapChangerParentAttributes> attributesGetter) {
-        super(index);
-        this.tapChangerParent = tapChangerParent;
+        super(tapChangerParent, index);
         this.attributesGetter = attributesGetter;
         this.loadTapChangingCapabilities = false;
     }
@@ -148,22 +145,21 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     @Override
     public RatioTapChanger add() {
-        if (tapPosition == null) {
-            throw new ValidationException(tapChangerParent, "tap position is not set");
-        }
+        checkPosition();
         if (steps.isEmpty()) {
             throw new ValidationException(tapChangerParent, "ratio tap changer should have at least one step");
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
-        checkPositionCreation(tapPosition, lowTapPosition, highTapPosition, tapChangerParent, "tap position");
-        checkPositionCreation(solvedTapPosition, lowTapPosition, highTapPosition, tapChangerParent, "solved tap position");
-        ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, regulationMode, regulationValue, index.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
-        ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
+        checkPositionRange(tapPosition, lowTapPosition, highTapPosition, "tap position");
+        checkPositionRange(solvedTapPosition, lowTapPosition, highTapPosition, "solved tap position");
+        NetworkImpl network = index.getNetwork();
+        ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, regulationMode, regulationValue, network, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
         tapChangers.addAll(tapChangerParent.getAllTapChangers());
         tapChangers.remove(tapChangerParent.getRatioTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
 
         String regulationModeStr = regulationMode == null ? null : regulationMode.toString();
         RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.RATIO_TAP_CHANGER, regulationModeStr, regulating);

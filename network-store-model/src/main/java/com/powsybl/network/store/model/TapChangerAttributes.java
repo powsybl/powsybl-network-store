@@ -29,7 +29,7 @@ public class TapChangerAttributes extends AbstractRegulatingEquipmentAttributes 
     private int lowTapPosition;
 
     @Schema(description = "tapPosition")
-    private int tapPosition;
+    private Integer tapPosition;
 
     @Schema(description = "solved tap position")
     private Integer solvedTapPosition;
