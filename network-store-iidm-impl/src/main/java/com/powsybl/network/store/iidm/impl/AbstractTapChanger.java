@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TapChangerAttributes;
-import com.powsybl.network.store.model.TapChangerStepAttributes;
+import com.powsybl.network.store.model.*;
 import lombok.Getter;
 
 import java.util.List;
@@ -216,14 +213,14 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         if (solvedTapPosition < getLowTapPosition() || solvedTapPosition > getHighTapPosition()) {
             throwIncorrectSolvedTapPosition(solvedTapPosition, getHighTapPosition());
         }
-        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(solvedTapPosition),
+        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(solvedTapPosition), AttributeFilter.SV,
             getTapChangerAttribute() + ".solvedTapPosition", oldValue, solvedTapPosition);
         return (C) this;
     }
 
     public C unsetSolvedTapPosition() {
         Integer oldValue = getSolvedTapPosition();
-        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(null),
+        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(null), AttributeFilter.SV,
             getTapChangerAttribute() + ".solvedTapPosition", oldValue, null);
         return (C) this;
     }

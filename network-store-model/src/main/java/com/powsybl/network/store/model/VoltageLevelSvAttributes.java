@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,4 +28,7 @@ public class VoltageLevelSvAttributes extends AbstractAttributes implements Attr
 
     @Schema(description = "Calculated buses for bus breaker view")
     private List<CalculatedBusAttributes> calculatedBusesForBusBreakerView;
+
+    @Schema(description = "Node to calculated bus for bus breaker view")
+    private Map<Integer, Integer> nodeToCalculatedBusForBusBreakerView;
 }

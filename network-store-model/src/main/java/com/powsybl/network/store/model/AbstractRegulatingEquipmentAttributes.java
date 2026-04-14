@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +20,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@JsonView(AttributeFilter.JsonViews.Primary.class)
 public abstract class AbstractRegulatingEquipmentAttributes extends AbstractIdentifiableAttributes {
 
     @Schema(description = "Regulating point")

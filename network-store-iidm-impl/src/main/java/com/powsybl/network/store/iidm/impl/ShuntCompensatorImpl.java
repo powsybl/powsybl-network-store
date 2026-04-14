@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
@@ -58,7 +59,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
     public ShuntCompensator setSolvedSectionCount(int solvedSectionCount) {
         Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
         checkSolvedSectionCount(solvedSectionCount, getMaximumSectionCount());
-        updateResource(res -> res.getAttributes().setSolvedSectionCount(solvedSectionCount),
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(solvedSectionCount), AttributeFilter.SV,
             "solvedSectionCount", oldValue, solvedSectionCount);
         return this;
     }
@@ -66,7 +67,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
     @Override
     public ShuntCompensator unsetSolvedSectionCount() {
         Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
-        updateResource(res -> res.getAttributes().setSolvedSectionCount(null),
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(null), AttributeFilter.SV,
             "solvedSectionCount", oldValue, null);
         return this;
     }
