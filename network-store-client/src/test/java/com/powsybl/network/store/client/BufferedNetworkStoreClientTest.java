@@ -183,46 +183,46 @@ public class BufferedNetworkStoreClientTest {
                 .attributes(lineAttributes)
                 .build();
         // test only sv filter
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
                 .andRespond(withSuccess());
-        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
 
         // test sv then with limits filter -> should apply with limits
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.LIMITS);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(l1Copy))))
                 .andRespond(withSuccess());
-        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
-        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.LIMITS);
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
 
         // test primary then sv filter -> should apply primary (without limits)
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.PRIMARY_AS_NULL);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
                 .andExpect(method(PUT))
                 // no operational limits group in request, no filter field (PRIMARY)
                 .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"regulatingEquipments\":[]}}]"))
                 .andRespond(withSuccess());
-        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
-        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.PRIMARY_AS_NULL);
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
 
         // test sv then primary then with limits filter -> should apply with limits filter
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.PRIMARY_AS_NULL);
+        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.LIMITS);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(l1Copy))))
                 .andRespond(withSuccess());
-        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
-        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.PRIMARY_AS_NULL);
-        bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.LIMITS);
         bufferedClient.flush(networkUuid);
         server.verify();
     }
@@ -249,11 +249,11 @@ public class BufferedNetworkStoreClientTest {
                 .attributes(lineAttributes)
                 .build();
         // test only sv filter
+        bufferedClient.updateLines(networkUuid, List.of(l1, l2), AttributeFilter.SV);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}},{\"type\":\"LINE\",\"id\":\"LINE_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
                 .andRespond(withSuccess());
-        bufferedClient.updateLines(networkUuid, List.of(l1, l2), AttributeFilter.SV);
         bufferedClient.flush(networkUuid);
         server.verify();
     }
@@ -282,31 +282,31 @@ public class BufferedNetworkStoreClientTest {
                 .attributes(twoWindingsTransformerAttributes)
                 .build();
         // test sv filter
+        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.SV);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
                 .andRespond(withSuccess());
-        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.SV);
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
 
         // test primary filter
+        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.PRIMARY_AS_NULL);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}}]"))
                 .andRespond(withSuccess());
-        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.PRIMARY_AS_NULL);
         bufferedClient.flush(networkUuid);
         server.verify();
         server.reset();
 
         // test with_limits filter
+        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.LIMITS);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers"))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(twt1, twt2))))
                 .andRespond(withSuccess());
-        bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.LIMITS);
         bufferedClient.flush(networkUuid);
         server.verify();
     }
@@ -320,11 +320,11 @@ public class BufferedNetworkStoreClientTest {
         loadAttributes.setQ(-200);
         Resource<LoadAttributes> loadResource = Resource.create(ResourceType.LOAD, "loadId", 0, loadAttributes);
         List<Resource<LoadAttributes>> loadResources = List.of(loadResource);
+        bufferedClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p\":200.0,\"q\":-200.0}}]"))
                 .andRespond(withSuccess());
-        bufferedClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
         bufferedClient.flush(networkUuid);
         server.verify();
         assertNull(loadResources.getFirst().getFilter());
@@ -334,11 +334,11 @@ public class BufferedNetworkStoreClientTest {
         // to avoid risks if the production starts depending on it
         loadResource = new Resource<>(ResourceType.LOAD, "loadId", 0, AttributeFilter.SV, loadAttributes);
         loadResources = List.of(loadResource);
+        bufferedClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p\":200.0,\"q\":-200.0}}]"))
                 .andRespond(withSuccess());
-        bufferedClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
         bufferedClient.flush(networkUuid);
         server.verify();
         assertEquals(AttributeFilter.SV, loadResources.getFirst().getFilter());

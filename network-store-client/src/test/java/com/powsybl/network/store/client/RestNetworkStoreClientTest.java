@@ -353,36 +353,34 @@ public class RestNetworkStoreClientTest {
         testDeleteAllByType(ids, "3-windings-transformers", (List<String> identifiableIds) -> restNetworkStoreClient.removeThreeWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "tie-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "grounds", (List<String> identifiableIds) -> restNetworkStoreClient.removeGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
-
-        server.verify();
     }
 
     @Test
     public void testRemoveError() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        List<String> wrongId = List.of("wrongId");
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"wrongId\"]"))
                 .andRespond(withResourceNotFound());
-        List<String> wrongId = List.of("wrongId");
         PowsyblException powsyblException = assertThrows(PowsyblException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, wrongId));
-        assertEquals("Fail to delete at /networks/{networkUuid}/{variantNum}/substations, status: 404 NOT_FOUND", powsyblException.getMessage());
         server.verify();
+        assertEquals("Fail to delete at /networks/{networkUuid}/{variantNum}/substations, status: 404 NOT_FOUND", powsyblException.getMessage());
     }
 
     @Test
     public void testRemoveWithResourceAccessException() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        List<String> wrongId2 = List.of("wrongId2");
         server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("[\"wrongId2\"]"))
                 .andRespond(request -> {
                     throw new ResourceAccessException("ResourceAccessException error");
                 });
-        List<String> wrongId2 = List.of("wrongId2");
         ResourceAccessException httpClientErrorException = assertThrows(ResourceAccessException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, wrongId2));
-        assertEquals("ResourceAccessException error", httpClientErrorException.getMessage());
         server.verify();
+        assertEquals("ResourceAccessException error", httpClientErrorException.getMessage());
     }
 
     private void testDeleteAllByType(List<String> ids, String type, Consumer<List<String>> deleteFunction) {
@@ -392,6 +390,7 @@ public class RestNetworkStoreClientTest {
                 .andExpect(content().string("[\"" + idsStr + "\"]"))
                 .andRespond(withSuccess());
         assertDoesNotThrow(() -> deleteFunction.accept(ids));
+        server.verify();
         server.reset();
     }
 
@@ -399,23 +398,24 @@ public class RestNetworkStoreClientTest {
     public void testRawExtensionAttributes() {
         String identifiableId = "identifiableId";
         String extensionName = "extensionName1";
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("{\"data\":[{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}],\"meta\":{}}", MediaType.APPLICATION_JSON));
-        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         Optional<ExtensionAttributes> result = restNetworkStoreClient.getExtensionAttributes(networkUuid, 0, ResourceType.NETWORK, identifiableId, extensionName);
+        server.verify();
         assertTrue(result.isEmpty());
     }
 
     @Test
     public void testRawExtensionAttributesByIdentifiableId() {
         String identifiableId = "identifiableId";
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("{\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0},\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}}", MediaType.APPLICATION_JSON));
-
-        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         Map<String, ExtensionAttributes> result = restNetworkStoreClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, 0, ResourceType.GENERATOR, identifiableId);
+        server.verify();
         assertNotNull(result);
         assertEquals(1, result.size());
         assertTrue(result.containsKey("activePowerControl"));
@@ -423,24 +423,24 @@ public class RestNetworkStoreClientTest {
 
     @Test
     public void testRawExtensionAttributesByResourceTypeAndExtensionName() {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/" + ActivePowerControl.NAME))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("{\"identifiableId1\":{\"extensionName\":\"unknownExtension\",\"attribute1\":true}}", MediaType.APPLICATION_JSON));
-
-        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         Map<String, ExtensionAttributes> result = restNetworkStoreClient.getAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, 0, ResourceType.GENERATOR, ActivePowerControl.NAME);
+        server.verify();
         assertNotNull(result);
         assertEquals(0, result.size());
     }
 
     @Test
     public void testRawExtensionAttributesByResourceType() {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess("{\"identifiableId2\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}},\"identifiableId1\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0},\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0}}}", MediaType.APPLICATION_JSON));
-
-        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         Map<String, Map<String, ExtensionAttributes>> result = restNetworkStoreClient.getAllExtensionsAttributesByResourceType(networkUuid, 0, ResourceType.GENERATOR);
+        server.verify();
         assertNotNull(result);
         // Identifiables with empty maps are filtered (like identifiableId2)
         assertEquals(1, result.size());
@@ -451,12 +451,12 @@ public class RestNetworkStoreClientTest {
 
     @Test
     public void testOperationalLimitsGroupAttributesByResourceType() {
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
-            .andExpect(method(GET))
-            .andRespond(withSuccess("{\"lineId\":{\"1\":{\"olg1\":{\"id\":\"olg1\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}},\"LINE1\":{\"2\":{\"olg2\":{\"id\":\"olg2\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}}}", MediaType.APPLICATION_JSON));
-
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess("{\"lineId\":{\"1\":{\"olg1\":{\"id\":\"olg1\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}},\"LINE1\":{\"2\":{\"olg2\":{\"id\":\"olg2\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}}}", MediaType.APPLICATION_JSON));
         Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> result = restNetworkStoreClient.getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, 0, ResourceType.LINE);
+        server.verify();
         assertNotNull(result);
         // Identifiables with empty maps are filtered (like identifiableId2)
         assertEquals(2, result.size());
@@ -470,11 +470,12 @@ public class RestNetworkStoreClientTest {
         int sourceVariantNum = 0;
         int targetVariantNum = 1;
         String targetVariantId = "id";
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(requestTo("/networks/" + newNetworkUuid + "/" + sourceVariantNum + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
             .andExpect(method(PUT))
             .andRespond(withServerError().body("network_pkey"));
-        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         assertThrows(DuplicateVariantNumException.class, () -> restNetworkStoreClient.cloneNetwork(newNetworkUuid, sourceVariantNum, targetVariantNum, targetVariantId));
+        server.verify();
     }
 
     @Test
