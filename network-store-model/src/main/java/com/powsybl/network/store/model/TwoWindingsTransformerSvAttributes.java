@@ -37,9 +37,10 @@ public class TwoWindingsTransformerSvAttributes extends AbstractAttributes imple
     @Builder.Default
     private double q2 = Double.NaN;
 
-    @Schema(description = "Phase tap changer tap position")
-    private Integer phaseTapChangerSolvedTapPosition;
+    // contains
+    @Schema(description = "Phase tap changer")
+    private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
-    @Schema(description = "Ratio tap changer tap position")
-    private Integer ratioTapChangerSolvedTapPosition;
+    @Schema(description = "Ratio tap changer")
+    private RatioTapChangerAttributes ratioTapChangerAttributes;
 }
