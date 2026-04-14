@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.iidm.impl.AbstractLoadingLimits.TemporaryLimitImpl;
 import com.powsybl.network.store.model.LimitsAttributes;
@@ -169,8 +168,9 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     @Override
     public L add() {
+        NetworkImpl network = owner.getIdentifiable().getNetwork();
         Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toList());
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd, ValidationLevel.STEADY_STATE_HYPOTHESIS, owner.getIdentifiable().getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         checkTemporaryLimits();
 
         LimitsAttributes attributes = LimitsAttributes.builder()
