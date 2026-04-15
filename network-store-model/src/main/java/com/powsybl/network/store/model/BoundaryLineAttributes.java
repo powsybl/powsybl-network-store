@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -55,6 +56,8 @@ public class BoundaryLineAttributes extends AbstractIdentifiableAttributes imple
     @Schema(description = "Pairing key")
     private String pairingKey;
 
+    // TODO add lazy loading for dangling lines and annotate with @JsonView(AttributeFilter.JsonViews.WithLimits.class) like in line and 2wt;
+    // not done because there are few dangling lines and the performance impact is low
     @Schema(description = "OperationalLimitGroup")
     @Builder.Default
     private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups = new HashMap<>();
@@ -62,10 +65,12 @@ public class BoundaryLineAttributes extends AbstractIdentifiableAttributes imple
     @Schema(description = "selected OperationalLimitsGroupId")
     private String selectedOperationalLimitsGroupId;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Reactive power in MW")
     @Builder.Default
     private double q = Double.NaN;
