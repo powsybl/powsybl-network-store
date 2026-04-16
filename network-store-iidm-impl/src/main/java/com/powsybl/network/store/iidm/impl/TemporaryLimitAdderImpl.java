@@ -74,16 +74,16 @@ class TemporaryLimitAdderImpl<S,
     @Override
     public A endTemporaryLimit() {
         if (Double.isNaN(value)) {
-            throw new ValidationException(activePowerLimitsAdder.getOwner(), "temporary limit value is not set");
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "temporary limit value is not set for '" + name + "' within limit set '" + activePowerLimitsAdder.getOperationalGroupId() + "'");
         }
         if (value < 0) {
-            throw new ValidationException(activePowerLimitsAdder.getOwner(), "temporary limit value must be >= 0");
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "temporary limit value must be >= 0 for '" + name + "' within limit set '" + activePowerLimitsAdder.getOperationalGroupId() + "'");
         }
         if (acceptableDuration == null) {
-            throw new ValidationException(activePowerLimitsAdder.getOwner(), "acceptable duration is not set");
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "acceptable duration is not set for '" + name + "' within limit set '" + activePowerLimitsAdder.getOperationalGroupId() + "'");
         }
         if (acceptableDuration < 0) {
-            throw new ValidationException(activePowerLimitsAdder.getOwner(), "acceptable duration must be >= 0");
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "acceptable duration must be >= 0 for '" + name + "' within limit set '" + activePowerLimitsAdder.getOperationalGroupId() + "'");
         }
         checkAndGetUniqueName();
 
@@ -99,7 +99,7 @@ class TemporaryLimitAdderImpl<S,
 
     private void checkAndGetUniqueName() {
         if (name == null) {
-            throw new ValidationException(activePowerLimitsAdder.getOwner(), "name is not set");
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "name is not set within limit set '" + activePowerLimitsAdder.getOperationalGroupId() + "'");
         }
         if (ensureNameUnicity) {
             int i = 0;
@@ -109,6 +109,10 @@ class TemporaryLimitAdderImpl<S,
                 i++;
             }
             name = uniqueName;
+        } else if (nameExists(name)) {
+            throw new ValidationException(activePowerLimitsAdder.getOwner(),
+                    "temporary limit name '" + name + "' should be unique within limit set '"
+                            + activePowerLimitsAdder.getOperationalGroupId() + "'");
         }
     }
 

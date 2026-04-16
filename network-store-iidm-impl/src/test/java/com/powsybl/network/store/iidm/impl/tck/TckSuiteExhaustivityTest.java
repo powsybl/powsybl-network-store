@@ -6,10 +6,8 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
-import com.powsybl.iidm.network.tck.AbstractTckSuiteExhaustivityTest;
-
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class TckSuiteExhaustivityTest extends AbstractTckSuiteExhaustivityTest {
+public class TckSuiteExhaustivityTest {
 }

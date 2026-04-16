@@ -62,6 +62,11 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
     }
 
     @Override
+    public String getOperationalGroupId() {
+        return operationalGroupId;
+    }
+
+    @Override
     public double getPermanentLimit() {
         return this.permanentLimit;
     }
@@ -141,7 +146,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
         double previousLimit = Double.NaN;
         for (TemporaryLimitAttributes tl : temporaryLimits.values()) { // iterate in ascending order
             if (tl.getName() == null) {
-                throw new ValidationException(owner, "name is not set");
+                throw new ValidationException(owner, "name is not set !!!!!!!!");
             }
             if (Double.isNaN(tl.getValue())) {
                 throw new ValidationException(owner, "temporary limit value is not set");
