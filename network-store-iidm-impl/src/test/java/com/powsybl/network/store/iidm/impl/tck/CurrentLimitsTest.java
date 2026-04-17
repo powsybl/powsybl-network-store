@@ -79,24 +79,28 @@ public class CurrentLimitsTest extends AbstractCurrentLimitsTest {
         return network;
     }
 
+    private void createLimitsWithDuplicateName(Line line) {
+        line.getOrCreateSelectedOperationalLimitsGroup1()
+                .newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setAcceptableDuration(1200)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL") // duplication
+                .setAcceptableDuration(600)
+                .setValue(1400.0)
+                .endTemporaryLimit();
+    }
+
     @Override
     @Test
     public void testNameDuplicationIsAllowed() { // testNameDuplicationIsNotAllowed To RENAME
         Line line = createNetwork().getLine("L");
-        Assertions.assertThrows(ValidationException.class, () -> {
-            line.getOrCreateSelectedOperationalLimitsGroup1()
-                    .newCurrentLimits()
-                    .setPermanentLimit(100.0)
-                    .beginTemporaryLimit()
-                    .setName("TL")
-                    .setAcceptableDuration(1200)
-                    .setValue(1200.0)
-                    .endTemporaryLimit()
-                    .beginTemporaryLimit()
-                    .setName("TL") // duplication
-                    .setAcceptableDuration(600)
-                    .setValue(1400.0)
-                    .endTemporaryLimit();
-        });
+        Assertions.assertThrows(ValidationException.class, () ->
+                createLimitsWithDuplicateName(line)
+        );
     }
 }
