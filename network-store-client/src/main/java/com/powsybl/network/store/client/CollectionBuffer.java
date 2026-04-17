@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.*;
@@ -89,11 +90,11 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
         }
     }
 
-    void remove(String resourceId) {
-        remove(Collections.singletonList(resourceId));
+    void remove(String resourceId, List<ExternalAttributesCollectionBuffer<?>> externalAttributesCollectionBuffers) {
+        remove(Collections.singletonList(resourceId), externalAttributesCollectionBuffers, null);
     }
 
-    void remove(List<String> resourceIds) {
+    void remove(List<String> resourceIds, List<ExternalAttributesCollectionBuffer<?>> externalAttributesCollectionBuffers, ResourceType resourceType) {
         for (String resourceId : resourceIds) {
             // remove directly from the creation buffer if possible, otherwise remove from the server"
             if (createResources.remove(resourceId) == null) {
@@ -103,6 +104,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
                 updateResources.remove(resourceId);
             }
         }
+        externalAttributesCollectionBuffers.forEach(externalAttributesCollectionBuffer -> externalAttributesCollectionBuffer.restoreRemoveByResourcesIds(resourceIds, resourceType));
     }
 
     void flush(UUID networkUuid, int variantNum) {

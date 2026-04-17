@@ -1298,7 +1298,6 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(0.5, activePowerControlAttributes.getParticipationFactor(), 0);
 
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1318,7 +1317,6 @@ public class PreloadingNetworkStoreClientTest {
         assertFalse(apc1Attributes.isPresent());
 
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1364,7 +1362,6 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1, "activepowercontrol");
 
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1388,7 +1385,6 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(0, extensionAttributesMap.size());
 
         server.verify();
-        server.reset();
     }
 
     private void loadTwoIdentifiablesToCache(String identifiableId1, String identifiableId2) throws JsonProcessingException {
@@ -1462,7 +1458,6 @@ public class PreloadingNetworkStoreClientTest {
         Map<String, ExtensionAttributes> extensionAttributesByIdentifiableId = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId1);
         assertEquals(2, extensionAttributesByIdentifiableId.size());
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1519,7 +1514,6 @@ public class PreloadingNetworkStoreClientTest {
         assertTrue(olg2Attributes.isPresent());
 
         server.verify();
-        server.reset();
     }
 
     private void loadTwoLinesToCache(String identifiableId1, String identifiableId2) throws JsonProcessingException {
@@ -1564,7 +1558,6 @@ public class PreloadingNetworkStoreClientTest {
         assertFalse(olg1Attributes.isPresent());
 
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1622,7 +1615,6 @@ public class PreloadingNetworkStoreClientTest {
             Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId1, operationalLimitsGroup2, 1);
         assertTrue(olg1Attributes.isPresent());
         server.verify();
-        server.reset();
     }
 
     private OperationalLimitsGroupAttributes createOperationalLimitsGroupAttributes(String operationalLimitsGroupId) {
@@ -1680,7 +1672,6 @@ public class PreloadingNetworkStoreClientTest {
             Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId2, 1);
         assertEquals(1, olgList2.size());
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1721,6 +1712,7 @@ public class PreloadingNetworkStoreClientTest {
                 .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE,
                 Map.of(branchId2, Map.of(2, Set.of(operationalLimitsGroup2))));
+        cachedClient.flush(networkUuid);
         server.verify();
         server.reset();
 
@@ -1733,7 +1725,6 @@ public class PreloadingNetworkStoreClientTest {
         assertFalse(olg2Attributes.isPresent());
 
         server.verify();
-        server.reset();
     }
 
     @Test
@@ -1778,6 +1769,7 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup3 + "/side/1"))
                 .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(identifiableId1, Map.of(1, Set.of(operationalLimitsGroup3))));
+        cachedClient.flush(networkUuid);
         server.verify();
         server.reset();
 
@@ -1807,6 +1799,7 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
                 .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, targetVariantNum, ResourceType.LINE, Map.of(identifiableId2, Map.of(1, Set.of(operationalLimitsGroup2))));
+        cachedClient.flush(networkUuid);
         server.verify();
         server.reset();
 
@@ -1826,6 +1819,5 @@ public class PreloadingNetworkStoreClientTest {
                 Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId2, operationalLimitsGroup2, 1);
         assertTrue(olg2Attributes.isPresent());
         server.verify();
-        server.reset();
     }
 }
