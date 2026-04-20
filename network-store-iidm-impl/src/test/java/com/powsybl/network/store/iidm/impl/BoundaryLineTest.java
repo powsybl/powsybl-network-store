@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
 import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
