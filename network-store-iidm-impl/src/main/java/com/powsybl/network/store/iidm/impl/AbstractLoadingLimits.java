@@ -11,23 +11,23 @@ import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T extends LoadingLimits> implements LoadingLimits {
+public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T extends LoadingLimits> extends AbstractPropertiesHolder implements LoadingLimits {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
 
     // Epsilon to filter small temporary limit changes (in A, MW and MVA)
     private static final double TEMPORARY_LIMIT_EPSILON = 1e-6;
 
-    public static final class TemporaryLimitImpl implements LoadingLimits.TemporaryLimit {
+    public static final class TemporaryLimitImpl extends AbstractPropertiesHolder implements LoadingLimits.TemporaryLimit {
 
         private final TemporaryLimitAttributes attributes;
 
@@ -59,57 +59,18 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
         }
 
         @Override
-        public boolean hasProperty() {
-            Map<String, String> properties = attributes.getProperties();
-            return properties != null && !properties.isEmpty();
+        protected Map<String, String> getProperties() {
+            return attributes.getProperties();
         }
 
         @Override
-        public boolean hasProperty(String key) {
-            Map<String, String> properties = attributes.getProperties();
-            return properties != null && properties.containsKey(key);
+        protected void setProperties(Map<String, String> properties) {
+            attributes.setProperties(properties);
         }
 
         @Override
-        public String getProperty(String key) {
-            Map<String, String> properties = attributes.getProperties();
-            return properties != null ? properties.get(key) : null;
-        }
-
-        @Override
-        public String getProperty(String key, String defaultValue) {
-            Map<String, String> properties = attributes.getProperties();
-            return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
-        }
-
-        @Override
-        public String setProperty(String key, String value) {
-            MutableObject<String> oldValue = new MutableObject<>();
-            Map<String, String> properties = attributes.getProperties();
-            if (properties == null) {
-                properties = new HashMap<>();
-            }
-            oldValue.setValue(properties.put(key, value));
-
-            Map<String, String> finalProperties = properties;
-            loadingLimits.owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.setProperties(finalProperties));
-            return oldValue.getValue();
-        }
-
-        @Override
-        public boolean removeProperty(String key) {
-            Map<String, String> properties = attributes.getProperties();
-            if (properties != null && properties.containsKey(key)) {
-                loadingLimits.owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public Set<String> getPropertyNames() {
-            Map<String, String> properties = attributes.getProperties();
-            return properties != null ? properties.keySet() : Collections.emptySet();
+        protected void updateResource(Consumer<Void> updater) {
+            loadingLimits.owner.getIdentifiable().updateResourceWithoutNotification(r -> updater.accept(null));
         }
     }
 
@@ -213,56 +174,17 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
     }
 
     @Override
-    public boolean hasProperty() {
-        Map<String, String> properties = attributes.getProperties();
-        return properties != null && !properties.isEmpty();
+    protected Map<String, String> getProperties() {
+        return attributes.getProperties();
     }
 
     @Override
-    public boolean hasProperty(String key) {
-        Map<String, String> properties = attributes.getProperties();
-        return properties != null && properties.containsKey(key);
+    protected void setProperties(Map<String, String> properties) {
+        attributes.setProperties(properties);
     }
 
     @Override
-    public String getProperty(String key) {
-        Map<String, String> properties = attributes.getProperties();
-        return properties != null ? properties.get(key) : null;
-    }
-
-    @Override
-    public String getProperty(String key, String defaultValue) {
-        Map<String, String> properties = attributes.getProperties();
-        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
-    }
-
-    @Override
-    public String setProperty(String key, String value) {
-        MutableObject<String> oldValue = new MutableObject<>();
-        Map<String, String> properties = attributes.getProperties();
-        if (properties == null) {
-            properties = new HashMap<>();
-        }
-        oldValue.setValue(properties.put(key, value));
-
-        Map<String, String> finalProperties = properties;
-        owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.setProperties(finalProperties));
-        return oldValue.getValue();
-    }
-
-    @Override
-    public boolean removeProperty(String key) {
-        Map<String, String> properties = attributes.getProperties();
-        if (properties != null && properties.containsKey(key)) {
-            owner.getIdentifiable().updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public Set<String> getPropertyNames() {
-        Map<String, String> properties = attributes.getProperties();
-        return properties != null ? properties.keySet() : Collections.emptySet();
+    protected void updateResource(Consumer<Void> updater) {
+        owner.getIdentifiable().updateResourceWithoutNotification(r -> updater.accept(null));
     }
 }

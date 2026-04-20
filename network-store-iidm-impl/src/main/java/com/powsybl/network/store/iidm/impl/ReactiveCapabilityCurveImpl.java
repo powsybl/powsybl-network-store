@@ -13,24 +13,22 @@ import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
-import org.apache.commons.lang3.mutable.MutableObject;
 
 import static com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes.COMPARATOR;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
+public class ReactiveCapabilityCurveImpl extends AbstractPropertiesHolder implements ReactiveCapabilityCurve {
 
-    static class PointImpl implements Point {
+    static class PointImpl extends AbstractPropertiesHolder implements Point {
 
         private final ReactiveCapabilityCurvePointAttributes attributes;
         private final AbstractInjectionImpl<?, ?> owner;
@@ -64,57 +62,20 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         }
 
         @Override
-        public boolean hasProperty() {
-            Map<String, String> properties = attributes.getProperties();
-            return properties != null && !properties.isEmpty();
+        protected Map<String, String> getProperties() {
+            return attributes.getProperties();
         }
 
         @Override
-        public boolean hasProperty(String key) {
-            Map<String, String> properties = attributes.getProperties();
-            return properties != null && properties.containsKey(key);
+        protected void setProperties(Map<String, String> properties) {
+            attributes.setProperties(properties);
         }
 
         @Override
-        public String getProperty(String key) {
-            Map<String, String> properties = attributes.getProperties();
-            return properties != null ? properties.get(key) : null;
-        }
-
-        @Override
-        public String getProperty(String key, String defaultValue) {
-            Map<String, String> properties = attributes.getProperties();
-            return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
-        }
-
-        @Override
-        public String setProperty(String key, String value) {
-            MutableObject<String> oldValue = new MutableObject<>();
-            Map<String, String> properties = attributes.getProperties();
-            if (properties == null) {
-                properties = new HashMap<>();
+        protected void updateResource(Consumer<Void> updater) {
+            if (owner != null) {
+                owner.updateResourceWithoutNotification(r -> updater.accept(null));
             }
-            oldValue.setValue(properties.put(key, value));
-
-            Map<String, String> finalProperties = properties;
-            owner.updateResourceWithoutNotification(r -> attributes.setProperties(finalProperties));
-            return oldValue.getValue();
-        }
-
-        @Override
-        public boolean removeProperty(String key) {
-            Map<String, String> properties = attributes.getProperties();
-            if (properties != null && properties.containsKey(key)) {
-                owner.updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public Set<String> getPropertyNames() {
-            Map<String, String> properties = attributes.getProperties();
-            return properties != null ? properties.keySet() : Collections.emptySet();
         }
     }
 
@@ -214,56 +175,19 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     }
 
     @Override
-    public boolean hasProperty() {
-        Map<String, String> properties = attributes.getProperties();
-        return properties != null && !properties.isEmpty();
+    protected Map<String, String> getProperties() {
+        return attributes.getProperties();
     }
 
     @Override
-    public boolean hasProperty(String key) {
-        Map<String, String> properties = attributes.getProperties();
-        return properties != null && properties.containsKey(key);
+    protected void setProperties(Map<String, String> properties) {
+        attributes.setProperties(properties);
     }
 
     @Override
-    public String getProperty(String key) {
-        Map<String, String> properties = attributes.getProperties();
-        return properties != null ? properties.get(key) : null;
-    }
-
-    @Override
-    public String getProperty(String key, String defaultValue) {
-        Map<String, String> properties = attributes.getProperties();
-        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
-    }
-
-    @Override
-    public String setProperty(String key, String value) {
-        MutableObject<String> oldValue = new MutableObject<>();
-        Map<String, String> properties = attributes.getProperties();
-        if (properties == null) {
-            properties = new HashMap<>();
+    protected void updateResource(Consumer<Void> updater) {
+        if (owner != null) {
+            owner.updateResourceWithoutNotification(r -> updater.accept(null));
         }
-        oldValue.setValue(properties.put(key, value));
-
-        Map<String, String> finalProperties = properties;
-        owner.updateResourceWithoutNotification(r -> attributes.setProperties(finalProperties));
-        return oldValue.getValue();
-    }
-
-    @Override
-    public boolean removeProperty(String key) {
-        Map<String, String> properties = attributes.getProperties();
-        if (properties != null && properties.containsKey(key)) {
-            owner.updateResourceWithoutNotification(r -> attributes.getProperties().remove(key));
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public Set<String> getPropertyNames() {
-        Map<String, String> properties = attributes.getProperties();
-        return properties != null ? properties.keySet() : Collections.emptySet();
     }
 }

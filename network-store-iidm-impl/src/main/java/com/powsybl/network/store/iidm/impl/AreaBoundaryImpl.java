@@ -13,18 +13,15 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.util.BoundaryLineBoundaryImpl;
 import com.powsybl.network.store.model.AreaBoundaryAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
-import org.apache.commons.lang3.mutable.MutableObject;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class AreaBoundaryImpl implements AreaBoundary {
+public class AreaBoundaryImpl extends AbstractPropertiesHolder implements AreaBoundary {
 
     private final NetworkObjectIndex index;
 
@@ -75,56 +72,17 @@ public class AreaBoundaryImpl implements AreaBoundary {
     }
 
     @Override
-    public boolean hasProperty() {
-        Map<String, String> properties = areaBoundaryAttributes.getProperties();
-        return properties != null && !properties.isEmpty();
+    protected Map<String, String> getProperties() {
+        return areaBoundaryAttributes.getProperties();
     }
 
     @Override
-    public boolean hasProperty(String key) {
-        Map<String, String> properties = areaBoundaryAttributes.getProperties();
-        return properties != null && properties.containsKey(key);
+    protected void setProperties(Map<String, String> properties) {
+        areaBoundaryAttributes.setProperties(properties);
     }
 
     @Override
-    public String getProperty(String key) {
-        Map<String, String> properties = areaBoundaryAttributes.getProperties();
-        return properties != null ? properties.get(key) : null;
-    }
-
-    @Override
-    public String getProperty(String key, String defaultValue) {
-        Map<String, String> properties = areaBoundaryAttributes.getProperties();
-        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
-    }
-
-    @Override
-    public String setProperty(String key, String value) {
-        MutableObject<String> oldValue = new MutableObject<>();
-        Map<String, String> properties = areaBoundaryAttributes.getProperties();
-        if (properties == null) {
-            properties = new HashMap<>();
-        }
-        oldValue.setValue(properties.put(key, value));
-
-        Map<String, String> finalProperties = properties;
-        ((AreaImpl) getArea()).updateResourceWithoutNotification(r -> areaBoundaryAttributes.setProperties(finalProperties));
-        return oldValue.getValue();
-    }
-
-    @Override
-    public boolean removeProperty(String key) {
-        Map<String, String> properties = areaBoundaryAttributes.getProperties();
-        if (properties != null && properties.containsKey(key)) {
-            ((AreaImpl) getArea()).updateResourceWithoutNotification(r -> areaBoundaryAttributes.getProperties().remove(key));
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public Set<String> getPropertyNames() {
-        Map<String, String> properties = areaBoundaryAttributes.getProperties();
-        return properties != null ? properties.keySet() : Collections.emptySet();
+    protected void updateResource(Consumer<Void> updater) {
+        ((AreaImpl) getArea()).updateResourceWithoutNotification(r -> updater.accept(null));
     }
 }
