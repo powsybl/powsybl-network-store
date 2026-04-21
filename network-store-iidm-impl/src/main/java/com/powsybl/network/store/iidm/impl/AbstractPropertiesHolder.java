@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -23,7 +22,7 @@ public abstract class AbstractPropertiesHolder implements PropertiesHolder {
 
     protected abstract void setProperties(Map<String, String> properties);
 
-    protected abstract void updateResource(Consumer<Void> updater);
+    protected abstract void persistProperties(Map<String, String> properties);
 
     @Override
     public boolean hasProperty() {
@@ -58,8 +57,7 @@ public abstract class AbstractPropertiesHolder implements PropertiesHolder {
         }
         oldValue.setValue(properties.put(key, value));
 
-        Map<String, String> finalProperties = properties;
-        updateResource(r -> setProperties(finalProperties));
+        persistProperties(properties);
         return oldValue.getValue();
     }
 
@@ -67,7 +65,8 @@ public abstract class AbstractPropertiesHolder implements PropertiesHolder {
     public boolean removeProperty(String key) {
         Map<String, String> properties = getProperties();
         if (properties != null && properties.containsKey(key)) {
-            updateResource(r -> getProperties().remove(key));
+            properties.remove(key);
+            persistProperties(properties);
             return true;
         }
         return false;

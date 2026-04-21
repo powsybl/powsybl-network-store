@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
@@ -114,7 +113,7 @@ public class OperationalLimitsGroupImpl<S> extends AbstractPropertiesHolder impl
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
-        owner.getIdentifiable().updateResourceWithoutNotification(r -> updater.accept(null));
+    protected void persistProperties(Map<String, String> properties) {
+        owner.getIdentifiable().updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -62,7 +61,7 @@ public class MinMaxReactiveLimitsImpl extends AbstractPropertiesHolder implement
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
-        owner.updateResourceWithoutNotification(r -> updater.accept(null));
+    protected void persistProperties(Map<String, String> properties) {
+        owner.updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

@@ -11,7 +11,6 @@ import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -69,8 +68,8 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
         }
 
         @Override
-        protected void updateResource(Consumer<Void> updater) {
-            loadingLimits.owner.getIdentifiable().updateResourceWithoutNotification(r -> updater.accept(null));
+        protected void persistProperties(Map<String, String> properties) {
+            loadingLimits.persistProperties(properties);
         }
     }
 
@@ -184,7 +183,7 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
-        owner.getIdentifiable().updateResourceWithoutNotification(r -> updater.accept(null));
+    protected void persistProperties(Map<String, String> properties) {
+        owner.getIdentifiable().updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

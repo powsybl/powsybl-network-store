@@ -13,7 +13,6 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -128,7 +127,7 @@ public class RatioTapChangerStepImpl extends AbstractPropertiesHolder implements
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
-        ratioTapChanger.getTransformer().updateResourceWithoutNotification(r -> updater.accept(null));
+    protected void persistProperties(Map<String, String> properties) {
+        getTransformer().updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

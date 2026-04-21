@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Consumer;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
@@ -72,9 +71,9 @@ public class ReactiveCapabilityCurveImpl extends AbstractPropertiesHolder implem
         }
 
         @Override
-        protected void updateResource(Consumer<Void> updater) {
+        protected void persistProperties(Map<String, String> properties) {
             if (owner != null) {
-                owner.updateResourceWithoutNotification(r -> updater.accept(null));
+                owner.updateResourceWithoutNotification(r -> setProperties(properties));
             }
         }
     }
@@ -185,9 +184,9 @@ public class ReactiveCapabilityCurveImpl extends AbstractPropertiesHolder implem
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
+    protected void persistProperties(Map<String, String> properties) {
         if (owner != null) {
-            owner.updateResourceWithoutNotification(r -> updater.accept(null));
+            owner.updateResourceWithoutNotification(r -> setProperties(properties));
         }
     }
 }
