@@ -246,5 +246,4 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     protected void persistProperties(Map<String, String> properties) {
         getTransformer().updateResourceWithoutNotification(r -> setProperties(properties));
     }
-
 }

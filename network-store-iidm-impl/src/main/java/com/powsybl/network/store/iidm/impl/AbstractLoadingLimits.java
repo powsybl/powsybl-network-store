@@ -7,9 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.LimitsAttributes;
-import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 import java.util.*;

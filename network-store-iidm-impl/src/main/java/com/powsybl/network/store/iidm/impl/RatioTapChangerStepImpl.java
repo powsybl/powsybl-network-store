@@ -7,14 +7,12 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 import lombok.EqualsAndHashCode;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
