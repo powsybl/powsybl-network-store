@@ -15,7 +15,6 @@ import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -93,7 +92,7 @@ public class ShuntCompensatorLinearModelImpl extends AbstractPropertiesHolder im
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
-        shuntCompensator.updateResourceWithoutNotification(r -> updater.accept(null));
+    protected void persistProperties(Map<String, String> properties) {
+        shuntCompensator.updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

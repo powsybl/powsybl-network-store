@@ -16,7 +16,6 @@ import com.powsybl.network.store.model.TerminalRefAttributes;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -82,7 +81,7 @@ public class AreaBoundaryImpl extends AbstractPropertiesHolder implements AreaBo
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
-        ((AreaImpl) getArea()).updateResourceWithoutNotification(r -> updater.accept(null));
+    protected void persistProperties(Map<String, String> properties) {
+        ((AreaImpl) getArea()).updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

@@ -114,7 +114,7 @@ public class OperationalLimitsGroupImpl<S> extends AbstractPropertiesHolder impl
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
-        owner.getIdentifiable().updateResourceWithoutNotification(r -> updater.accept(null));
+    protected void persistProperties(Map<String, String> properties) {
+        owner.getIdentifiable().updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

@@ -8,15 +8,11 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ShuntCompensatorNonLinearModel;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ShuntCompensatorAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorNonLinearModelAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorNonLinearSectionAttributes;
+import com.powsybl.network.store.model.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -84,8 +80,8 @@ public class ShuntCompensatorNonLinearModelImpl extends AbstractPropertiesHolder
         }
 
         @Override
-        protected void updateResource(Consumer<Void> updater) {
-            shuntCompensator.updateResourceWithoutNotification(r -> updater.accept(null));
+        protected void persistProperties(Map<String, String> properties) {
+            shuntCompensator.updateResourceWithoutNotification(r -> setProperties(properties));
         }
     }
 
@@ -126,7 +122,7 @@ public class ShuntCompensatorNonLinearModelImpl extends AbstractPropertiesHolder
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
-        shuntCompensator.updateResourceWithoutNotification(r -> updater.accept(null));
+    protected void persistProperties(Map<String, String> properties) {
+        shuntCompensator.updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

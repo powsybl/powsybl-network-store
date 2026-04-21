@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 import lombok.EqualsAndHashCode;
@@ -143,7 +144,7 @@ public class PhaseTapChangerStepImpl extends AbstractPropertiesHolder implements
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
-        getTransformer().updateResourceWithoutNotification(r -> updater.accept(null));
+    protected void persistProperties(Map<String, String> properties) {
+        getTransformer().updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

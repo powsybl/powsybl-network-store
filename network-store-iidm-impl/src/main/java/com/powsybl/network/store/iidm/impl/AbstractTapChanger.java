@@ -7,17 +7,13 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TapChangerAttributes;
-import com.powsybl.network.store.model.TapChangerStepAttributes;
+import com.powsybl.network.store.model.*;
 import lombok.Getter;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
-import java.util.function.Consumer;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -247,7 +243,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     @Override
-    protected void updateResource(Consumer<Void> updater) {
-        parent.getTransformer().updateResourceWithoutNotification(r -> updater.accept(null));
+    protected void persistProperties(Map<String, String> properties) {
+        getTransformer().updateResourceWithoutNotification(r -> setProperties(properties));
     }
+
 }

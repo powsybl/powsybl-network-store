@@ -27,7 +27,7 @@ public interface LimitsOwner<SIDE> extends Validable {
 
     void setApparentPowerLimits(SIDE side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId);
 
-    AbstractIdentifiableImpl getIdentifiable();
+    AbstractIdentifiableImpl<?, ? extends IdentifiableAttributes> getIdentifiable();
 
     // this references the method in powsybl core : https://github.com/powsybl/powsybl-core/blob/cea16b70fbca5ca7589cccdc0dec86f3d560d2dd/iidm/iidm-impl/src/main/java/com/powsybl/iidm/network/impl/OperationalLimitsGroupsImpl.java#L151
     static <D extends IdentifiableAttributes> void updateOperationalLimitsResource(Resource<D> resource, Identifiable<?> identifiable, Network network, Consumer<Resource<D>> modifier, String attribute, OperationalLimitsGroupAttributes oldValue, OperationalLimitsGroupAttributes newValue, NetworkObjectIndex index) {
