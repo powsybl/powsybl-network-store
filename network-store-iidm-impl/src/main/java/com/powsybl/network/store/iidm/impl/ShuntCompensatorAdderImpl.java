@@ -72,6 +72,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                     .bPerSection(bPerSection)
                     .gPerSection(gPerSection)
                     .maximumSectionCount(maximumSectionCount)
+                    .properties(properties)
                     .build();
             owner.setModel(attributes);
             return ShuntCompensatorAdderImpl.this;
@@ -116,6 +117,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                 ShuntCompensatorNonLinearSectionAttributes shuntCompensatorNonLinearSectionAttributes = ShuntCompensatorNonLinearSectionAttributes.builder()
                                 .b(b)
                                 .g(g)
+                                .properties(properties)
                                 .build();
 
                 sections.add(shuntCompensatorNonLinearSectionAttributes);

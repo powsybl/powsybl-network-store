@@ -56,6 +56,7 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> extend
         ReactiveCapabilityCurveAttributes attributes = ReactiveCapabilityCurveAttributes.builder()
                 .points(points)
                 .ownerDescription(owner.getMessageHeader().toString())
+                .properties(properties)
                 .build();
         owner.setReactiveLimits(attributes);
         return new ReactiveCapabilityCurveImpl(attributes, injection);

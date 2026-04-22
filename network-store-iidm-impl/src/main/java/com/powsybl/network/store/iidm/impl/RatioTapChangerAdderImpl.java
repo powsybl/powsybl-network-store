@@ -85,6 +85,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                     .r(r)
                     .rho(rho)
                     .x(x)
+                    .properties(properties)
                     .build();
             RatioTapChangerImpl.validateStep(ratioTapChangerStepAttributes, tapChangerParent);
             steps.add(ratioTapChangerStepAttributes);
@@ -175,6 +176,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .solvedTapPosition(solvedTapPosition)
                 .targetDeadband(targetDeadband)
                 .regulationValue(regulationValue)
+                .properties(properties)
                 .steps(steps)
                 .regulatingPoint(regulatingPointAttributes)
                 .build();

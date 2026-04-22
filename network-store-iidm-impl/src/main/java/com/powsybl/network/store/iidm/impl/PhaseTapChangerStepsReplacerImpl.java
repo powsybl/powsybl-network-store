@@ -77,6 +77,7 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
                     .r(r)
                     .rho(rho)
                     .x(x)
+                    .properties(properties)
                     .build();
             steps.add(phaseTapChangerStepAttributes);
             return PhaseTapChangerStepsReplacerImpl.this;

@@ -68,6 +68,7 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
                     .r(r)
                     .rho(rho)
                     .x(x)
+                    .properties(properties)
                     .build();
             steps.add(ratioTapChangerStepAttributes);
             return RatioTapChangerStepsReplacerImpl.this;

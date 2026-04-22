@@ -93,6 +93,7 @@ class TemporaryLimitAdderImpl<S,
                 .value(value)
                 .acceptableDuration(acceptableDuration)
                 .fictitious(fictitious)
+                .properties(properties)
                 .build();
         activePowerLimitsAdder.addTemporaryLimit(attributes);
         return (A) activePowerLimitsAdder;

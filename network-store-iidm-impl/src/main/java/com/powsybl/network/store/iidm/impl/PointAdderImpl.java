@@ -82,6 +82,7 @@ class PointAdderImpl extends AbstractBasePropertiesHolder implements ReactiveCap
                 .p(p)
                 .minQ(minQ)
                 .maxQ(maxQ)
+                .properties(properties)
                 .build();
         reactiveCapabilityCurveAdder.addPoint(attributes);
         return reactiveCapabilityCurveAdder;
