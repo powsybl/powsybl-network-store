@@ -27,6 +27,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class BusbarSectionPositionTest extends AbstractBusbarSectionPositionTest {
     @Override
     @Test
+    //
+    // Test overrided from AbstractBusbarSectionPositionTest, because powsybl has a unique execption message for a bad index,
+    // whereas it is a bad busbar index or a bad section index
+    // In network store, we distinguish the both cases with a specific execption message
+    //
     public void testExtension() {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
