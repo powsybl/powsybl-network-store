@@ -549,7 +549,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
      */
     @Override
     public boolean disconnect() {
-        return disconnect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+        return disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
     }
 
     @Override
