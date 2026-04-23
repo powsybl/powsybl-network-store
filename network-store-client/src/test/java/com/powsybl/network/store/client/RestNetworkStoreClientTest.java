@@ -247,8 +247,8 @@ public class RestNetworkStoreClientTest {
                 .id("tieLine1")
                 .attributes(TieLineAttributes.builder()
                         .name("tieLine1")
-                        .danglingLine1Id("dl1")
-                        .danglingLine2Id("dl2")
+                        .boundaryLine1Id("dl1")
+                        .boundaryLine2Id("dl2")
                         .build())
                 .build();
 
@@ -340,7 +340,7 @@ public class RestNetworkStoreClientTest {
         testDeleteAllByType(ids, "batteries", (List<String> identifiableIds) -> restNetworkStoreClient.removeBatteries(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "busbar-sections", (List<String> identifiableIds) -> restNetworkStoreClient.removeBusBarSections(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "configured-buses", (List<String> identifiableIds) -> restNetworkStoreClient.removeConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
-        testDeleteAllByType(ids, "dangling-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "boundary-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "vsc-converter-stations", (List<String> identifiableIds) -> restNetworkStoreClient.removeVscConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "lcc-converter-stations", (List<String> identifiableIds) -> restNetworkStoreClient.removeLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));

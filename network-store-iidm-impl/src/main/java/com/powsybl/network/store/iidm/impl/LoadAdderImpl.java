@@ -83,7 +83,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
     @Override
     public ZipLoadModelAdder newZipModel() {
         //FIXME Dummy zip load model adder
-        return new ZipLoadModelAdder() {
+        class ZipLoadModelAdderImpl extends AbstractBasePropertiesHolder implements ZipLoadModelAdder {
             @Override
             public ZipLoadModelAdder setC0p(double v) {
                 return this;
@@ -118,13 +118,15 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
             public LoadAdder add() {
                 return null;
             }
-        };
+        }
+
+        return new ZipLoadModelAdderImpl();
     }
 
     @Override
     public ExponentialLoadModelAdder newExponentialModel() {
         //FIXME Dummy exponential load model adder
-        return new ExponentialLoadModelAdder() {
+        class ExponentialModelAdderImpl extends AbstractBasePropertiesHolder implements ExponentialLoadModelAdder {
             @Override
             public ExponentialLoadModelAdder setNp(double v) {
                 return this;
@@ -139,6 +141,8 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
             public LoadAdder add() {
                 return null;
             }
-        };
+        }
+
+        return new ExponentialModelAdderImpl();
     }
 }

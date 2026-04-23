@@ -6,11 +6,11 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
-import com.powsybl.iidm.network.tck.AbstractDanglingLineTest;
+import com.powsybl.iidm.network.tck.AbstractBoundaryLineTest;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DanglingLineTest extends AbstractDanglingLineTest {
+public class BoundaryLineTest extends AbstractBoundaryLineTest {
 
 }

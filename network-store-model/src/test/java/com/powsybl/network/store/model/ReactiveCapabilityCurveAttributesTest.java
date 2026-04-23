@@ -3,6 +3,7 @@ package com.powsybl.network.store.model;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 import static com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes.COMPARATOR;
@@ -24,8 +25,8 @@ class ReactiveCapabilityCurveAttributesTest {
         assertNull(attributes.getOwnerDescription());
 
         // Check the TreeMap with some values added
-        ReactiveCapabilityCurvePointAttributes pointAttributes = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0);
-        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0);
+        ReactiveCapabilityCurvePointAttributes pointAttributes = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0, null);
+        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0, null);
         points.put(0.0, pointAttributes);
         points.put(0.5, pointAttributes2);
         assertEquals(2, points.size());
@@ -40,18 +41,19 @@ class ReactiveCapabilityCurveAttributesTest {
     void testConstructorAllArgs() {
         // Parameters
         TreeMap<Double, ReactiveCapabilityCurvePointAttributes> expectedPoints = new TreeMap<>(COMPARATOR);
-        ReactiveCapabilityCurvePointAttributes pointAttributes = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0);
-        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0);
+        ReactiveCapabilityCurvePointAttributes pointAttributes = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0, null);
+        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0, null);
         expectedPoints.put(0.0, pointAttributes);
         expectedPoints.put(0.5, pointAttributes2);
 
         // Create the object
-        ReactiveCapabilityCurveAttributes attributes = new ReactiveCapabilityCurveAttributes(expectedPoints, "test");
+        ReactiveCapabilityCurveAttributes attributes = new ReactiveCapabilityCurveAttributes(expectedPoints, "test", Map.of("prop1", "value1"));
 
         // Default values
         assertEquals(ReactiveLimitsKind.CURVE, attributes.getKind());
         TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = attributes.getPoints();
         assertEquals("test", attributes.getOwnerDescription());
+        assertEquals(Map.of("prop1", "value1"), attributes.getProperties());
 
         // Check the TreeMap with some values added
         assertEquals(2, points.size());
@@ -65,8 +67,8 @@ class ReactiveCapabilityCurveAttributesTest {
     @Test
     void testSetPoints() {
         // Points
-        ReactiveCapabilityCurvePointAttributes pointAttributes1 = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0);
-        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0);
+        ReactiveCapabilityCurvePointAttributes pointAttributes1 = new ReactiveCapabilityCurvePointAttributes(0.0, 0.0, 0.0, null);
+        ReactiveCapabilityCurvePointAttributes pointAttributes2 = new ReactiveCapabilityCurvePointAttributes(0.5, 0.0, 0.0, null);
 
         // Create the object with default parameters
         ReactiveCapabilityCurveAttributes attributes = new ReactiveCapabilityCurveAttributes();

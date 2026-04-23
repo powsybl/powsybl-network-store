@@ -10,15 +10,19 @@ import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
 
+import java.util.Map;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MinMaxReactiveLimitsImpl implements MinMaxReactiveLimits {
+public class MinMaxReactiveLimitsImpl extends AbstractPropertiesHolder implements MinMaxReactiveLimits {
 
     private final MinMaxReactiveLimitsAttributes attributes;
+    private final AbstractInjectionImpl<?, ?> owner;
 
-    MinMaxReactiveLimitsImpl(MinMaxReactiveLimitsAttributes attributes) {
+    MinMaxReactiveLimitsImpl(MinMaxReactiveLimitsAttributes attributes, AbstractInjectionImpl<?, ?> injection) {
         this.attributes = attributes;
+        this.owner = injection;
     }
 
     @Override
@@ -44,5 +48,20 @@ public class MinMaxReactiveLimitsImpl implements MinMaxReactiveLimits {
     @Override
     public double getMaxQ(double p) {
         return attributes.getMaxQ();
+    }
+
+    @Override
+    protected Map<String, String> getProperties() {
+        return attributes.getProperties();
+    }
+
+    @Override
+    protected void setProperties(Map<String, String> properties) {
+        attributes.setProperties(properties);
+    }
+
+    @Override
+    protected void persistProperties(Map<String, String> properties) {
+        owner.updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

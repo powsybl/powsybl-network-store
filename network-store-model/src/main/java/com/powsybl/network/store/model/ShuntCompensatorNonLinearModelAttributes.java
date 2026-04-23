@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -31,6 +32,9 @@ public class ShuntCompensatorNonLinearModelAttributes implements ShuntCompensato
 
     @Schema(description = "Sections")
     private List<ShuntCompensatorNonLinearSectionAttributes> sections;
+
+    @Schema(description = "Properties")
+    private Map<String, String> properties;
 
     @JsonIgnore
     @Override

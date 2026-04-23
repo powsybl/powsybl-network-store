@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.network.store.iidm.impl.LoadImpl;
 import com.powsybl.network.store.model.LoadDetailAttributes;
 
+import static com.powsybl.network.store.iidm.impl.extensions.LoadDetailImpl.checkPower;
+
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
@@ -32,10 +34,10 @@ public class LoadDetailAdderImpl extends AbstractIidmExtensionAdder<Load, LoadDe
     @Override
     protected LoadDetail createExtension(Load load) {
         LoadDetailAttributes attributes = LoadDetailAttributes.builder()
-                .fixedActivePower(fixedActivePower)
-                .fixedReactivePower(fixedReactivePower)
-                .variableActivePower(variableActivePower)
-                .variableReactivePower(variableReactivePower)
+                .fixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower", load))
+                .fixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower", load))
+                .variableActivePower(checkPower(variableActivePower, "Invalid variableActivePower", load))
+                .variableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower", load))
                 .build();
         ((LoadImpl) load).updateResourceWithoutNotification(res -> res.getAttributes().setLoadDetail(attributes));
         return new LoadDetailImpl((LoadImpl) load);

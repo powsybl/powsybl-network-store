@@ -1081,61 +1081,61 @@ public class PreloadingNetworkStoreClientTest {
     }
 
     @Test
-    public void testDanglingLineCache() throws IOException {
-        // Two successive dangling line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<DanglingLineAttributes> danglingLine = Resource.danglingLineBuilder()
+    public void testBoundaryLineCache() throws IOException {
+        // Two successive boundary line retrievals, only the first should send a REST request, the second uses the cache
+        Resource<BoundaryLineAttributes> boundaryLine = Resource.boundaryLineBuilder()
                 .id("dl1")
-                .attributes(DanglingLineAttributes.builder()
+                .attributes(BoundaryLineAttributes.builder()
                         .voltageLevelId("vl1")
                         .name("dl1")
                         .q0(10)
                         .build())
                 .build();
 
-        String danglingLinesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(danglingLine)));
+        String boundaryLinesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(boundaryLine)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/dangling-lines"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/boundary-lines"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(danglingLinesJson, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(boundaryLinesJson, MediaType.APPLICATION_JSON));
 
-        // First time dangling line retrieval by Id
-        Resource<DanglingLineAttributes> danglingLineAttributesResource = cachedClient.getDanglingLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
-        assertNotNull(danglingLineAttributesResource);
-        assertEquals(10., danglingLineAttributesResource.getAttributes().getQ0(), 0.001);
+        // First time boundary line retrieval by Id
+        Resource<BoundaryLineAttributes> boundaryLineAttributesResource = cachedClient.getBoundaryLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
+        assertNotNull(boundaryLineAttributesResource);
+        assertEquals(10., boundaryLineAttributesResource.getAttributes().getQ0(), 0.001);
 
-        danglingLineAttributesResource.getAttributes().setQ0(60);
+        boundaryLineAttributesResource.getAttributes().setQ0(60);
 
-        // Second time dangling line retrieval by Id
-        danglingLineAttributesResource = cachedClient.getDanglingLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
-        assertNotNull(danglingLineAttributesResource);
-        assertEquals(60., danglingLineAttributesResource.getAttributes().getQ0(), 0.001);
+        // Second time boundary line retrieval by Id
+        boundaryLineAttributesResource = cachedClient.getBoundaryLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
+        assertNotNull(boundaryLineAttributesResource);
+        assertEquals(60., boundaryLineAttributesResource.getAttributes().getQ0(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
-        cachedClient.removeDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("dl1"));
-        assertEquals(0, cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        assertEquals(1, cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        cachedClient.removeBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("dl1"));
+        assertEquals(0, cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
         // Recreate line
-        cachedClient.createDanglingLines(networkUuid, List.of(danglingLine));
-        List<Resource<DanglingLineAttributes>> danglingLines = cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
-        assertEquals(1, danglingLines.size());
-        assertNotNull(danglingLines.get(0));
-        assertEquals(10., danglingLines.get(0).getAttributes().getQ0(), 0.001);
+        cachedClient.createBoundaryLines(networkUuid, List.of(boundaryLine));
+        List<Resource<BoundaryLineAttributes>> boundaryLines = cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, boundaryLines.size());
+        assertNotNull(boundaryLines.get(0));
+        assertEquals(10., boundaryLines.get(0).getAttributes().getQ0(), 0.001);
 
         // Update line
-        Resource<DanglingLineAttributes> updateDanglingLine = Resource.danglingLineBuilder()
+        Resource<BoundaryLineAttributes> updateBoundaryLine = Resource.boundaryLineBuilder()
                 .id("dl1")
-                .attributes(DanglingLineAttributes.builder()
+                .attributes(BoundaryLineAttributes.builder()
                         .voltageLevelId("vl1")
                         .name("dl1")
                         .q0(60)
                         .build())
                 .build();
-        cachedClient.updateDanglingLines(networkUuid, List.of(updateDanglingLine), null);
-        danglingLines = cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
-        assertEquals(1, danglingLines.size());
-        assertNotNull(danglingLines.get(0));
-        assertEquals(60., danglingLines.get(0).getAttributes().getQ0(), 0.001);
+        cachedClient.updateBoundaryLines(networkUuid, List.of(updateBoundaryLine), null);
+        boundaryLines = cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, boundaryLines.size());
+        assertNotNull(boundaryLines.get(0));
+        assertEquals(60., boundaryLines.get(0).getAttributes().getQ0(), 0.001);
 
         server.verify();
     }
@@ -1147,8 +1147,8 @@ public class PreloadingNetworkStoreClientTest {
                 .id("tieLine1")
                 .attributes(TieLineAttributes.builder()
                         .name("tieLine1")
-                        .danglingLine1Id("dl1")
-                        .danglingLine2Id("dl2")
+                        .boundaryLine1Id("dl1")
+                        .boundaryLine2Id("dl2")
                         .build())
                 .build();
 
@@ -1161,14 +1161,14 @@ public class PreloadingNetworkStoreClientTest {
         // First time tie line retrieval by Id
         Resource<TieLineAttributes> tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
         assertNotNull(tieLineAttributesResource);
-        assertEquals("dl1", tieLineAttributesResource.getAttributes().getDanglingLine1Id());
+        assertEquals("dl1", tieLineAttributesResource.getAttributes().getBoundaryLine1Id());
 
-        tieLineAttributesResource.getAttributes().setDanglingLine1Id("dll1");
+        tieLineAttributesResource.getAttributes().setBoundaryLine1Id("dll1");
 
         // Second time tie line retrieval by Id
         tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
         assertNotNull(tieLineAttributesResource);
-        assertEquals("dll1", tieLineAttributesResource.getAttributes().getDanglingLine1Id());
+        assertEquals("dll1", tieLineAttributesResource.getAttributes().getBoundaryLine1Id());
 
         // Remove component
         assertEquals(1, cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
@@ -1180,22 +1180,22 @@ public class PreloadingNetworkStoreClientTest {
         List<Resource<TieLineAttributes>> tieLines = cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, tieLines.size());
         assertNotNull(tieLines.get(0));
-        assertEquals("dl1", tieLines.get(0).getAttributes().getDanglingLine1Id());
+        assertEquals("dl1", tieLines.get(0).getAttributes().getBoundaryLine1Id());
 
         // Update line
         Resource<TieLineAttributes> updateTieLine = Resource.tieLineBuilder()
                 .id("tieLine1")
                 .attributes(TieLineAttributes.builder()
                         .name("tieLine1")
-                        .danglingLine1Id("dll1")
-                        .danglingLine2Id("dl2")
+                        .boundaryLine1Id("dll1")
+                        .boundaryLine2Id("dl2")
                         .build())
                 .build();
         cachedClient.updateTieLines(networkUuid, List.of(updateTieLine), null);
         tieLines = cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, tieLines.size());
         assertNotNull(tieLines.get(0));
-        assertEquals("dll1", tieLines.get(0).getAttributes().getDanglingLine1Id());
+        assertEquals("dll1", tieLines.get(0).getAttributes().getBoundaryLine1Id());
 
         server.verify();
     }
