@@ -59,7 +59,7 @@ public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterS
 
     @Override
     public LccConverterStation setLossFactor(float lossFactor) {
-        ValidationUtil.checkLossFactor(this, lossFactor, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLossFactor(this, lossFactor, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
             updateResource(res -> res.getAttributes().setLossFactor(lossFactor),
