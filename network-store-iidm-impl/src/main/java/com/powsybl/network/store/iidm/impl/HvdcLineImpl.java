@@ -72,7 +72,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setConvertersMode(ConvertersMode mode) {
-        ValidationUtil.checkConvertersMode(this, mode, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkConvertersMode(this, mode, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ConvertersMode oldValue = getResource().getAttributes().getConvertersMode();
         if (mode != oldValue) {
             updateResource(res -> res.getAttributes().setConvertersMode(mode),
@@ -120,7 +120,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setActivePowerSetpoint(double activePowerSetpoint) {
-        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getActivePowerSetpoint();
         if (activePowerSetpoint != oldValue) {
             updateResource(res -> res.getAttributes().setActivePowerSetpoint(activePowerSetpoint),
