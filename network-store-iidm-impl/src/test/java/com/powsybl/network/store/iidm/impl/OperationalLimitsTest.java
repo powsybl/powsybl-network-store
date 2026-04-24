@@ -60,13 +60,13 @@ class OperationalLimitsTest {
         }
         l1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, l1.getCurrentLimits1().get().getPermanentLimit());
+        assertEquals(9999, l1.getCurrentLimits1().get().getPermanentLimit(), 0.001);
         l1.newActivePowerLimits1().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, l1.getActivePowerLimits1().get().getPermanentLimit());
+        assertEquals(9999, l1.getActivePowerLimits1().get().getPermanentLimit(), 0.001);
         l1.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, l1.getApparentPowerLimits1().get().getPermanentLimit());
+        assertEquals(9999, l1.getApparentPowerLimits1().get().getPermanentLimit(), 0.001);
         assertNotNull(l1.getSelectedOperationalLimitsGroup1());
     }
 
@@ -101,13 +101,13 @@ class OperationalLimitsTest {
         }
         l1.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, l1.getCurrentLimits2().get().getPermanentLimit());
+        assertEquals(9999, l1.getCurrentLimits2().get().getPermanentLimit(), 0.001);
         l1.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, l1.getActivePowerLimits2().get().getPermanentLimit());
+        assertEquals(9999, l1.getActivePowerLimits2().get().getPermanentLimit(), 0.001);
         l1.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, l1.getApparentPowerLimits2().get().getPermanentLimit());
+        assertEquals(9999, l1.getApparentPowerLimits2().get().getPermanentLimit(), 0.001);
     }
 
     @Test
@@ -186,13 +186,13 @@ class OperationalLimitsTest {
         }
         leg1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, leg1.getCurrentLimits().get().getPermanentLimit());
+        assertEquals(9999, leg1.getCurrentLimits().get().getPermanentLimit(), 0.001);
         leg1.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, leg1.getActivePowerLimits().get().getPermanentLimit());
+        assertEquals(9999, leg1.getActivePowerLimits().get().getPermanentLimit(), 0.001);
         leg1.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, leg1.getApparentPowerLimits().get().getPermanentLimit());
+        assertEquals(9999, leg1.getApparentPowerLimits().get().getPermanentLimit(), 0.001);
         assertNotNull(leg1.getSelectedOperationalLimitsGroup());
     }
 
@@ -206,13 +206,13 @@ class OperationalLimitsTest {
         assertTrue(operationalLimitsGroup.isEmpty());
         operationalLimitsGroup.newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, operationalLimitsGroup.getCurrentLimits().get().getPermanentLimit());
+        assertEquals(9999, operationalLimitsGroup.getCurrentLimits().get().getPermanentLimit(), 0.001);
         operationalLimitsGroup.newActivePowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, operationalLimitsGroup.getActivePowerLimits().get().getPermanentLimit());
+        assertEquals(9999, operationalLimitsGroup.getActivePowerLimits().get().getPermanentLimit(), 0.001);
         operationalLimitsGroup.newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
-        assertEquals(9999, operationalLimitsGroup.getApparentPowerLimits().get().getPermanentLimit());
+        assertEquals(9999, operationalLimitsGroup.getApparentPowerLimits().get().getPermanentLimit(), 0.001);
         operationalLimitsGroup.removeCurrentLimits();
         assertEquals(Optional.empty(), operationalLimitsGroup.getCurrentLimits());
         operationalLimitsGroup.removeActivePowerLimits();
@@ -329,7 +329,7 @@ class OperationalLimitsTest {
         Object oldValueUpdated = listener.getAllOldValueUpdated().getFirst();
         assertInstanceOf(LimitsAttributes.class, oldValueUpdated);
         LimitsAttributes limitsAttributes = (LimitsAttributes) oldValueUpdated;
-        assertEquals(931, limitsAttributes.getPermanentLimit());
+        assertEquals(931, limitsAttributes.getPermanentLimit(), 0.001);
         assertNull(limitsAttributes.getTemporaryLimits());
         assertNull(listener.getAllOldValueUpdated().get(1));
 
@@ -338,9 +338,9 @@ class OperationalLimitsTest {
         Object lastNewValueUpdated = listener.getAllNewValueUpdated().get(1);
         assertInstanceOf(LimitsAttributes.class, lastNewValueUpdated);
         LimitsAttributes newValuelimitsAttributes = (LimitsAttributes) lastNewValueUpdated;
-        assertEquals(10, newValuelimitsAttributes.getPermanentLimit());
+        assertEquals(10, newValuelimitsAttributes.getPermanentLimit(), 0.001);
         assertEquals(1, newValuelimitsAttributes.getTemporaryLimits().size());
-        assertEquals(100, newValuelimitsAttributes.getTemporaryLimits().get(60).getValue());
+        assertEquals(100, newValuelimitsAttributes.getTemporaryLimits().get(60).getValue(), 0.1);
         assertEquals("limit", newValuelimitsAttributes.getTemporaryLimits().get(60).getName());
 
         newOlg.newActivePowerLimits()
