@@ -8,11 +8,15 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -29,4 +33,23 @@ class DanglingLineTest {
         assertFalse(danglingLine.removeExtension(ConnectablePosition.class));
     }
 
+    @Test
+    void updateWithInvalidP0() {
+        Network network = DanglingLineNetworkFactory.create();
+        DanglingLine danglingLine = network.getDanglingLine("DL");
+        assertEquals("Dangling line 'DL': p0 is invalid",
+                assertThrows(ValidationException.class, () -> danglingLine.setP0(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        danglingLine.setP0(Double.NaN);
+    }
+
+    @Test
+    void updateWithInvalidQ0() {
+        Network network = DanglingLineNetworkFactory.create();
+        DanglingLine danglingLine = network.getDanglingLine("DL");
+        assertEquals("Dangling line 'DL': q0 is invalid",
+                assertThrows(ValidationException.class, () -> danglingLine.setQ0(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        danglingLine.setQ0(Double.NaN);
+    }
 }
