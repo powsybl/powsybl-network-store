@@ -6,12 +6,16 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 import java.util.Set;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.network.store.model.LimitsAttributes;
 import org.junit.jupiter.api.Assertions;
@@ -285,6 +289,17 @@ class OperationalLimitsTest {
         danglingLine.setSelectedOperationalLimitsGroup("test");
         OperationalLimitsGroup testOperationalGroup = danglingLine.getOrCreateSelectedOperationalLimitsGroup();
         Assertions.assertEquals("test", testOperationalGroup.getId());
+    }
+
+    @Test
+    void updateLineWithInvalidPermanentLimit() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        Line line = network.getLine("NHV1_NHV2_1");
+        CurrentLimits currentLimits = line.getCurrentLimits2().orElseThrow();
+        Assertions.assertEquals("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present",
+                assertThrows(ValidationException.class, () -> currentLimits.setPermanentLimit(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        currentLimits.setPermanentLimit(Double.NaN);
     }
 
     @Test
