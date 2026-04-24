@@ -68,8 +68,8 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
         @Override
         public DanglingLineAdder add() {
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
-            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
-            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
 
             generation = DanglingLineGenerationAttributes
                     .builder()
