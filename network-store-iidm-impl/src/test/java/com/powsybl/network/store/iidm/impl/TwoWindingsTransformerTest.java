@@ -476,6 +476,28 @@ class TwoWindingsTransformerTest {
     }
 
     @Test
+    void updateWithInvalidRegulationMode() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        PhaseTapChanger ptc = twt.getPhaseTapChanger();
+        assertEquals("2 windings transformer 'TWT': phase regulation mode is not set",
+                assertThrows(ValidationException.class, () -> ptc.setRegulationMode(null)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        ptc.setRegulationMode(null);
+    }
+
+    @Test
+    void updateWithInvalidTargetDeadband() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        RatioTapChanger rtc = twt.getRatioTapChanger();
+        assertEquals("2 windings transformer 'TWT': Undefined value for target deadband of regulating ratio tap changer",
+                assertThrows(ValidationException.class, () -> rtc.setTargetDeadband(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        rtc.setTargetDeadband(Double.NaN);
+    }
+
+    @Test
     void removeExtension() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("TWT");
