@@ -8,14 +8,13 @@ package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tck.AbstractCurrentLimitsTest;
-import static org.junit.Assert.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CurrentLimitsTest extends AbstractCurrentLimitsTest {
+class CurrentLimitsTest extends AbstractCurrentLimitsTest {
     // TODO: this test is overridden because the validation rule has changed:temporary limit name duplication is no longer allowed.
 
     private static Network createNetwork() {
