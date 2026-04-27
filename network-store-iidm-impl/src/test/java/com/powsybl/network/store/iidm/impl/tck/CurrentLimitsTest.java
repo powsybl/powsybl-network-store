@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tck.AbstractCurrentLimitsTest;
+import static org.junit.Assert.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -99,8 +100,94 @@ public class CurrentLimitsTest extends AbstractCurrentLimitsTest {
     @Test
     public void testNameDuplicationIsAllowed() { // testNameDuplicationIsNotAllowed To RENAME
         Line line = createNetwork().getLine("L");
-        Assertions.assertThrows(ValidationException.class, () ->
+        assertThrows(ValidationException.class, () ->
                 createLimitsWithDuplicateName(line)
         );
+        String message = Assertions.assertThrows(ValidationException.class, () ->
+                createLimitsWithDuplicateName(line)
+        ).getMessage();
+        Assertions.assertEquals("AC line 'L': temporary limit name 'TL' should be unique within limit set 'DEFAULT'", message);
+    }
+
+    @Test
+    public void testTemporaryLimitValueIsNotSetMessage() {
+        Line line = createNetwork().getLine("L");
+
+        ValidationException e = Assertions.assertThrows(ValidationException.class, () ->
+                line.getOrCreateSelectedOperationalLimitsGroup1()
+                        .newCurrentLimits()
+                        .setPermanentLimit(100.0)
+                        .beginTemporaryLimit()
+                        .setName("TL")
+                        .setAcceptableDuration(1200)
+                        .endTemporaryLimit()
+        );
+        Assertions.assertEquals("AC line 'L': temporary limit value is not set for 'TL' within limit set 'DEFAULT'", e.getMessage());
+    }
+
+    @Test
+    public void testTemporaryLimitValueIsNegativeMessage() {
+        Line line = createNetwork().getLine("L");
+
+        ValidationException e = Assertions.assertThrows(ValidationException.class, () ->
+                line.getOrCreateSelectedOperationalLimitsGroup1()
+                        .newCurrentLimits()
+                        .setPermanentLimit(100.0)
+                        .beginTemporaryLimit()
+                        .setName("TL")
+                        .setAcceptableDuration(1200)
+                        .setValue(-1.0)
+                        .endTemporaryLimit()
+        );
+        Assertions.assertEquals("AC line 'L': temporary limit value must be >= 0 for 'TL' within limit set 'DEFAULT'", e.getMessage());
+    }
+
+    @Test
+    public void testTemporaryLimitAcceptableDurationIsNotSetMessage() {
+        Line line = createNetwork().getLine("L");
+
+        ValidationException e = Assertions.assertThrows(ValidationException.class, () ->
+                line.getOrCreateSelectedOperationalLimitsGroup1()
+                        .newCurrentLimits()
+                        .setPermanentLimit(100.0)
+                        .beginTemporaryLimit()
+                        .setName("TL")
+                        .setValue(1200.0)
+                        .endTemporaryLimit()
+        );
+        Assertions.assertEquals("AC line 'L': acceptable duration is not set for 'TL' within limit set 'DEFAULT'", e.getMessage());
+    }
+
+    @Test
+    public void testTemporaryLimitAcceptableDurationIsNegativeMessage() {
+        Line line = createNetwork().getLine("L");
+
+        ValidationException e = Assertions.assertThrows(ValidationException.class, () ->
+                line.getOrCreateSelectedOperationalLimitsGroup1()
+                        .newCurrentLimits()
+                        .setPermanentLimit(100.0)
+                        .beginTemporaryLimit()
+                        .setName("TL")
+                        .setAcceptableDuration(-1)
+                        .setValue(1200.0)
+                        .endTemporaryLimit()
+        );
+        Assertions.assertEquals("AC line 'L': acceptable duration must be >= 0 for 'TL' within limit set 'DEFAULT'", e.getMessage());
+    }
+
+    @Test
+    public void testTemporaryLimitNameIsNotSetMessage() {
+        Line line = createNetwork().getLine("L");
+
+        ValidationException e = Assertions.assertThrows(ValidationException.class, () ->
+                line.getOrCreateSelectedOperationalLimitsGroup1()
+                        .newCurrentLimits()
+                        .setPermanentLimit(100.0)
+                        .beginTemporaryLimit()
+                        .setAcceptableDuration(1200)
+                        .setValue(1200.0)
+                        .endTemporaryLimit()
+        );
+        Assertions.assertEquals("AC line 'L': name is not set within limit set 'DEFAULT'", e.getMessage());
     }
 }
