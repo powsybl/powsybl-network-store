@@ -31,7 +31,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     private double targetDeadband = Double.NaN;
 
-    class ShuntCompensatorLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> implements ShuntCompensatorLinearModelAdder {
+    class ShuntCompensatorLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> extends AbstractBasePropertiesHolder implements ShuntCompensatorLinearModelAdder {
 
         private final O owner;
 
@@ -72,19 +72,20 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                     .bPerSection(bPerSection)
                     .gPerSection(gPerSection)
                     .maximumSectionCount(maximumSectionCount)
+                    .properties(properties)
                     .build();
             owner.setModel(attributes);
             return ShuntCompensatorAdderImpl.this;
         }
     }
 
-    class ShuntCompensatorNonLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> implements ShuntCompensatorNonLinearModelAdder {
+    class ShuntCompensatorNonLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> extends AbstractBasePropertiesHolder implements ShuntCompensatorNonLinearModelAdder {
 
         private final O owner;
 
         private final List<ShuntCompensatorNonLinearSectionAttributes> sections = new ArrayList<>();
 
-        class SectionAdderImpl implements SectionAdder {
+        class SectionAdderImpl extends AbstractBasePropertiesHolder implements SectionAdder {
 
             private double b = Double.NaN;
 
@@ -116,6 +117,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                 ShuntCompensatorNonLinearSectionAttributes shuntCompensatorNonLinearSectionAttributes = ShuntCompensatorNonLinearSectionAttributes.builder()
                                 .b(b)
                                 .g(g)
+                                .properties(properties)
                                 .build();
 
                 sections.add(shuntCompensatorNonLinearSectionAttributes);

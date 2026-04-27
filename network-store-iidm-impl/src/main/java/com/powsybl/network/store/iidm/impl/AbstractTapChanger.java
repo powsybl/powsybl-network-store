@@ -7,20 +7,18 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TapChangerAttributes;
-import com.powsybl.network.store.model.TapChangerStepAttributes;
+import com.powsybl.network.store.model.*;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> implements Validable {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> extends AbstractPropertiesHolder implements Validable, PropertiesHolder {
 
     protected final H parent;
 
@@ -232,5 +230,20 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         throw new ValidationException(parent, "incorrect solved tap position "
             + solvedTapPosition + " [" + getLowTapPosition() + ", " + highTapPosition
             + "]");
+    }
+
+    @Override
+    protected Map<String, String> getProperties() {
+        return getAttributes().getProperties();
+    }
+
+    @Override
+    protected void setProperties(Map<String, String> properties) {
+        getAttributes().setProperties(properties);
+    }
+
+    @Override
+    protected void persistProperties(Map<String, String> properties) {
+        getTransformer().updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

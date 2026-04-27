@@ -9,6 +9,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.PhaseTapChangerStepsReplacer;
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 
 /**
@@ -16,7 +17,7 @@ import com.powsybl.network.store.model.TapChangerStepAttributes;
  */
 public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsReplacer<PhaseTapChangerStepsReplacerImpl> implements PhaseTapChangerStepsReplacer {
 
-    class StepAdderImpl implements PhaseTapChangerStepsReplacer.StepAdder {
+    class StepAdderImpl extends AbstractBasePropertiesHolder implements PhaseTapChangerStepsReplacer.StepAdder {
 
         private double alpha = Double.NaN;
 
@@ -76,6 +77,7 @@ public class PhaseTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
                     .r(r)
                     .rho(rho)
                     .x(x)
+                    .properties(properties)
                     .build();
             steps.add(phaseTapChangerStepAttributes);
             return PhaseTapChangerStepsReplacerImpl.this;

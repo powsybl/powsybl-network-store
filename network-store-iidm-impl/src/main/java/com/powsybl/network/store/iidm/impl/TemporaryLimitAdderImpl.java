@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import com.powsybl.iidm.network.LoadingLimitsAdder.TemporaryLimitAdder;
@@ -23,7 +24,7 @@ class TemporaryLimitAdderImpl<S,
                               L extends LoadingLimits,
                               A extends LoadingLimitsAdder<L, A>,
                               B extends LoadingLimitsAdderExt<S, O, L, A>>
-        implements TemporaryLimitAdder<A> {
+        extends AbstractBasePropertiesHolder implements TemporaryLimitAdder<A> {
 
     private final B activePowerLimitsAdder;
 
@@ -92,6 +93,7 @@ class TemporaryLimitAdderImpl<S,
                 .value(value)
                 .acceptableDuration(acceptableDuration)
                 .fictitious(fictitious)
+                .properties(properties)
                 .build();
         activePowerLimitsAdder.addTemporaryLimit(attributes);
         return (A) activePowerLimitsAdder;
@@ -119,5 +121,11 @@ class TemporaryLimitAdderImpl<S,
     private boolean nameExists(String name) {
         Collection<TemporaryLimitAttributes> values = activePowerLimitsAdder.getTemporaryLimits().values();
         return values.stream().anyMatch(t -> t.getName().equals(name));
+    }
+
+    @Override
+    public TemporaryLimitAdder<A> addProperty(String property, String value) {
+        setProperty(property, value);
+        return this;
     }
 }

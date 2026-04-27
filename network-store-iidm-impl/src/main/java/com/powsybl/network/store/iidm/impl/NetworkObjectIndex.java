@@ -273,7 +273,7 @@ public class NetworkObjectIndex {
 
     private final ObjectCache<HvdcLine, HvdcLineImpl, HvdcLineAttributes> hvdcLineCache;
 
-    private final ObjectCache<DanglingLine, DanglingLineImpl, DanglingLineAttributes> danglingLineCache;
+    private final ObjectCache<BoundaryLine, BoundaryLineImpl, BoundaryLineAttributes> boundaryLineCache;
 
     private final ObjectCache<Ground, GroundImpl, GroundAttributes> groundCache;
 
@@ -375,12 +375,12 @@ public class NetworkObjectIndex {
             () -> storeClient.getHvdcLines(network.getUuid(), workingVariantNum),
             id -> storeClient.removeHvdcLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> HvdcLineImpl.create(NetworkObjectIndex.this, resource));
-        danglingLineCache = new ObjectCache<>(resource -> storeClient.createDanglingLines(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getDanglingLine(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelDanglingLines(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getDanglingLines(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeDanglingLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
-            resource -> DanglingLineImpl.create(NetworkObjectIndex.this, resource));
+        boundaryLineCache = new ObjectCache<>(resource -> storeClient.createBoundaryLines(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getBoundaryLine(network.getUuid(), workingVariantNum, id),
+            voltageLevelId -> storeClient.getVoltageLevelBoundaryLines(network.getUuid(), workingVariantNum, voltageLevelId),
+            () -> storeClient.getBoundaryLines(network.getUuid(), workingVariantNum),
+            id -> storeClient.removeBoundaryLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            resource -> BoundaryLineImpl.create(NetworkObjectIndex.this, resource));
         groundCache = new ObjectCache<>(resource -> storeClient.createGrounds(network.getUuid(), Collections.singletonList(resource)),
             id -> storeClient.getGround(network.getUuid(), workingVariantNum, id),
             voltageLevelId -> storeClient.getVoltageLevelGrounds(network.getUuid(), workingVariantNum, voltageLevelId),
@@ -421,7 +421,7 @@ public class NetworkObjectIndex {
         objectCachesByResourceType.put(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTransformerCache);
         objectCachesByResourceType.put(ResourceType.LINE, lineCache);
         objectCachesByResourceType.put(ResourceType.HVDC_LINE, hvdcLineCache);
-        objectCachesByResourceType.put(ResourceType.DANGLING_LINE, danglingLineCache);
+        objectCachesByResourceType.put(ResourceType.BOUNDARY_LINE, boundaryLineCache);
         objectCachesByResourceType.put(ResourceType.GROUND, groundCache);
         objectCachesByResourceType.put(ResourceType.CONFIGURED_BUS, configuredBusCache);
         objectCachesByResourceType.put(ResourceType.TIE_LINE, tieLineCache);
@@ -468,7 +468,7 @@ public class NetworkObjectIndex {
             threeWindingsTransformerCache.setResourcesToObjects();
             lineCache.setResourcesToObjects();
             hvdcLineCache.setResourcesToObjects();
-            danglingLineCache.setResourcesToObjects();
+            boundaryLineCache.setResourcesToObjects();
             groundCache.setResourcesToObjects();
             configuredBusCache.setResourcesToObjects();
             areaCache.setResourcesToObjects();
@@ -958,22 +958,22 @@ public class NetworkObjectIndex {
         hvdcLineCache.remove(hvdcLineId);
     }
 
-    // Dangling line
+    // Boundary line
 
-    Optional<DanglingLineImpl> getDanglingLine(String id) {
-        return danglingLineCache.getOne(id);
+    Optional<BoundaryLineImpl> getBoundaryLine(String id) {
+        return boundaryLineCache.getOne(id);
     }
 
-    List<DanglingLine> getDanglingLines() {
-        return danglingLineCache.getAll().collect(Collectors.toList());
+    List<BoundaryLine> getBoundaryLines() {
+        return boundaryLineCache.getAll().collect(Collectors.toList());
     }
 
-    List<DanglingLine> getDanglingLines(String voltageLevelId) {
-        return danglingLineCache.getSome(voltageLevelId).collect(Collectors.toList());
+    List<BoundaryLine> getBoundaryLines(String voltageLevelId) {
+        return boundaryLineCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    public DanglingLineImpl createDanglingLine(Resource<DanglingLineAttributes> resource) {
-        return danglingLineCache.create(resource);
+    public BoundaryLineImpl createBoundaryLine(Resource<BoundaryLineAttributes> resource) {
+        return boundaryLineCache.create(resource);
     }
 
     // Ground
@@ -1033,7 +1033,7 @@ public class NetworkObjectIndex {
                 .addAll(getThreeWindingsTransformers())
                 .addAll(getLines())
                 .addAll(getHvdcLines())
-                .addAll(getDanglingLines())
+                .addAll(getBoundaryLines())
                 .addAll(getGrounds())
                 .addAll(getAreas())
                 .addAll(getConfiguredBuses())
@@ -1050,7 +1050,7 @@ public class NetworkObjectIndex {
             case BATTERY -> getBattery(connectableId).orElse(null);
             case LOAD -> getLoad(connectableId).orElse(null);
             case SHUNT_COMPENSATOR -> getShuntCompensator(connectableId).orElse(null);
-            case DANGLING_LINE -> getDanglingLine(connectableId).orElse(null);
+            case BOUNDARY_LINE -> getBoundaryLine(connectableId).orElse(null);
             case GROUND -> getGround(connectableId).orElse(null);
             case STATIC_VAR_COMPENSATOR -> getStaticVarCompensator(connectableId).orElse(null);
             case HVDC_CONVERTER_STATION -> getHvdcConverterStation(connectableId).orElse(null);
@@ -1106,8 +1106,8 @@ public class NetworkObjectIndex {
         return null;
     }
 
-    public void removeDanglingLine(String danglingLineId) {
-        danglingLineCache.remove(danglingLineId);
+    public void removeBoundaryLine(String boundaryLineId) {
+        boundaryLineCache.remove(boundaryLineId);
     }
 
     // configured buses
@@ -1162,7 +1162,7 @@ public class NetworkObjectIndex {
             case THREE_WINDINGS_TRANSFORMER -> updateThreeWindingsTransformerResource((Resource<ThreeWindingsTransformerAttributes>) resource, attributeFilter);
             case LINE -> updateLineResource((Resource<LineAttributes>) resource, attributeFilter);
             case HVDC_LINE -> updateHvdcLineResource((Resource<HvdcLineAttributes>) resource, attributeFilter);
-            case DANGLING_LINE -> updateDanglingLineResource((Resource<DanglingLineAttributes>) resource, attributeFilter);
+            case BOUNDARY_LINE -> updateBoundaryLineResource((Resource<BoundaryLineAttributes>) resource, attributeFilter);
             case GROUND -> updateGroundResource((Resource<GroundAttributes>) resource, attributeFilter);
             case CONFIGURED_BUS -> updateConfiguredBusResource((Resource<ConfiguredBusAttributes>) resource, attributeFilter);
             case TIE_LINE -> updateTieLineResource((Resource<TieLineAttributes>) resource, attributeFilter);
@@ -1203,8 +1203,8 @@ public class NetworkObjectIndex {
         storeClient.updateThreeWindingsTransformers(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
-    void updateDanglingLineResource(Resource<DanglingLineAttributes> resource, AttributeFilter attributeFilter) {
-        storeClient.updateDanglingLines(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    void updateBoundaryLineResource(Resource<BoundaryLineAttributes> resource, AttributeFilter attributeFilter) {
+        storeClient.updateBoundaryLines(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
     void updateGroundResource(Resource<GroundAttributes> resource, AttributeFilter attributeFilter) {

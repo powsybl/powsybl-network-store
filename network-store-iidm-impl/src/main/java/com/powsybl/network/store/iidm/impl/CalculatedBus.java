@@ -419,15 +419,15 @@ public final class CalculatedBus implements BaseBus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLineStream().collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLineStream().collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
+    public Stream<BoundaryLine> getBoundaryLineStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == IdentifiableType.DANGLING_LINE)
-                .map(v -> index.getDanglingLine(v.getId()).orElseThrow(IllegalAccessError::new));
+                .filter(v -> v.getConnectableType() == IdentifiableType.BOUNDARY_LINE)
+                .map(v -> index.getBoundaryLine(v.getId()).orElseThrow(IllegalAccessError::new));
     }
 
     @Override

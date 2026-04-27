@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>, L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>>
-        implements LoadingLimitsAdderExt<S, O, L, A> {
+    extends AbstractBasePropertiesHolder implements LoadingLimitsAdderExt<S, O, L, A> {
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
@@ -174,7 +175,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     @Override
     public L add() {
-        Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toList());
+        Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(l -> new TemporaryLimitImpl(l, null)).collect(Collectors.toList());
         ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd, ValidationLevel.STEADY_STATE_HYPOTHESIS, owner.getIdentifiable().getNetwork().getReportNodeContext().getReportNode());
         checkTemporaryLimits();
 

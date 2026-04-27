@@ -46,7 +46,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.THREE_WINDINGS_TRANSFORMER,
         ResourceType.LINE,
         ResourceType.HVDC_LINE,
-        ResourceType.DANGLING_LINE,
+        ResourceType.BOUNDARY_LINE,
         ResourceType.TIE_LINE
     );
 
@@ -82,7 +82,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             case THREE_WINDINGS_TRANSFORMER -> delegate.getThreeWindingsTransformers(networkUuid, variantNum);
             case LINE -> delegate.getLines(networkUuid, variantNum);
             case HVDC_LINE -> delegate.getHvdcLines(networkUuid, variantNum);
-            case DANGLING_LINE -> delegate.getDanglingLines(networkUuid, variantNum);
+            case BOUNDARY_LINE -> delegate.getBoundaryLines(networkUuid, variantNum);
             case CONFIGURED_BUS -> delegate.getConfiguredBuses(networkUuid, variantNum);
             case TIE_LINE -> delegate.getTieLines(networkUuid, variantNum);
             default -> {
@@ -353,9 +353,9 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
-        return delegate.getVoltageLevelDanglingLines(networkUuid, variantNum, voltageLevelId);
+    public List<Resource<BoundaryLineAttributes>> getVoltageLevelBoundaryLines(UUID networkUuid, int variantNum, String voltageLevelId) {
+        ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, variantNum);
+        return delegate.getVoltageLevelBoundaryLines(networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
@@ -765,37 +765,37 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
-        for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
-            ensureCached(ResourceType.DANGLING_LINE, networkUuid, danglingLineResource.getVariantNum());
+    public void createBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources) {
+        for (Resource<BoundaryLineAttributes> boundaryLineResource : boundaryLineResources) {
+            ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, boundaryLineResource.getVariantNum());
         }
-        delegate.createDanglingLines(networkUuid, danglingLineResources);
+        delegate.createBoundaryLines(networkUuid, boundaryLineResources);
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
-        ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
-        return delegate.getDanglingLines(networkUuid, variantNum);
+    public List<Resource<BoundaryLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
+        ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, variantNum);
+        return delegate.getBoundaryLines(networkUuid, variantNum);
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
-        ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
-        return delegate.getDanglingLine(networkUuid, variantNum, danglingLineId);
+    public Optional<Resource<BoundaryLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String boundaryLineId) {
+        ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, variantNum);
+        return delegate.getBoundaryLine(networkUuid, variantNum, boundaryLineId);
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
-        for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
-            ensureCached(ResourceType.DANGLING_LINE, networkUuid, danglingLineResource.getVariantNum());
+    public void updateBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources, AttributeFilter attributeFilter) {
+        for (Resource<BoundaryLineAttributes> boundaryLineResource : boundaryLineResources) {
+            ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, boundaryLineResource.getVariantNum());
         }
-        delegate.updateDanglingLines(networkUuid, danglingLineResources, attributeFilter);
+        delegate.updateBoundaryLines(networkUuid, boundaryLineResources, attributeFilter);
     }
 
     @Override
-    public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
-        ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
-        delegate.removeDanglingLines(networkUuid, variantNum, danglingLinesId);
+    public void removeBoundaryLines(UUID networkUuid, int variantNum, List<String> boundaryLinesId) {
+        ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, variantNum);
+        delegate.removeBoundaryLines(networkUuid, variantNum, boundaryLinesId);
     }
 
     @Override
