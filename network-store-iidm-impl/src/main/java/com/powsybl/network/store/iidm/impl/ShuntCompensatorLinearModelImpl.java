@@ -13,12 +13,13 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearModel {
+public class ShuntCompensatorLinearModelImpl extends AbstractPropertiesHolder implements ShuntCompensatorLinearModel {
 
     private final ShuntCompensatorImpl shuntCompensator;
 
@@ -78,5 +79,20 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
                 "maximumSectionCount", oldValue, maximumSectionCount);
         }
         return this;
+    }
+
+    @Override
+    protected Map<String, String> getProperties() {
+        return getAttributes().getProperties();
+    }
+
+    @Override
+    protected void setProperties(Map<String, String> properties) {
+        getAttributes().setProperties(properties);
+    }
+
+    @Override
+    protected void persistProperties(Map<String, String> properties) {
+        shuntCompensator.updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

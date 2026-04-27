@@ -32,7 +32,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private double regulationValue = Double.NaN;
 
-    class StepAdderImpl implements PhaseTapChangerAdder.StepAdder {
+    class StepAdderImpl extends AbstractBasePropertiesHolder implements PhaseTapChangerAdder.StepAdder {
 
         private double alpha = Double.NaN;
 
@@ -92,6 +92,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                             .r(r)
                             .rho(rho)
                             .x(x)
+                            .properties(properties)
                             .build();
             PhaseTapChangerImpl.validateStep(phaseTapChangerStepAttributes, tapChangerParent);
             steps.add(phaseTapChangerStepAttributes);
@@ -189,6 +190,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)
                 .lowTapPosition(lowTapPosition)
                 .regulationValue(regulationValue)
+                .properties(properties)
                 .steps(steps)
                 .tapPosition(tapPosition)
                 .solvedTapPosition(solvedTapPosition)

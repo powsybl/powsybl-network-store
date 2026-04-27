@@ -10,16 +10,17 @@ import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.AreaBoundary;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
+import com.powsybl.iidm.network.util.BoundaryLineBoundaryImpl;
 import com.powsybl.network.store.model.AreaBoundaryAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class AreaBoundaryImpl implements AreaBoundary {
+public class AreaBoundaryImpl extends AbstractPropertiesHolder implements AreaBoundary {
 
     private final NetworkObjectIndex index;
 
@@ -47,11 +48,11 @@ public class AreaBoundaryImpl implements AreaBoundary {
 
     @Override
     public Optional<Boundary> getBoundary() {
-        if (areaBoundaryAttributes.getBoundaryDanglingLineId() == null) {
+        if (areaBoundaryAttributes.getBoundaryBoundaryLineId() == null) {
             return Optional.empty();
         }
-        Optional<DanglingLineImpl> danglingLine = index.getDanglingLine(areaBoundaryAttributes.getBoundaryDanglingLineId());
-        return danglingLine.map(DanglingLineBoundaryImpl::new);
+        Optional<BoundaryLineImpl> boundaryLine = index.getBoundaryLine(areaBoundaryAttributes.getBoundaryBoundaryLineId());
+        return boundaryLine.map(BoundaryLineBoundaryImpl::new);
     }
 
     @Override
@@ -67,5 +68,20 @@ public class AreaBoundaryImpl implements AreaBoundary {
     @Override
     public double getQ() {
         return getBoundary().map(Boundary::getQ).orElseGet(() -> getRefTerminal().getQ());
+    }
+
+    @Override
+    protected Map<String, String> getProperties() {
+        return areaBoundaryAttributes.getProperties();
+    }
+
+    @Override
+    protected void setProperties(Map<String, String> properties) {
+        areaBoundaryAttributes.setProperties(properties);
+    }
+
+    @Override
+    protected void persistProperties(Map<String, String> properties) {
+        ((AreaImpl) getArea()).updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

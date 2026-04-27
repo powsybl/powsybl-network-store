@@ -17,40 +17,40 @@ import java.util.Objects;
 
 public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> implements TieLineAdder {
 
-    private String danglingLine1;
-    private String danglingLine2;
+    private String boundaryLine1;
+    private String boundaryLine2;
 
     public TieLineAdderImpl(NetworkObjectIndex index) {
         super(index);
     }
 
     @Override
-    public TieLineAdder setDanglingLine1(String danglingLine1) {
-        this.danglingLine1 = danglingLine1;
+    public TieLineAdder setBoundaryLine1(String boundaryLine1) {
+        this.boundaryLine1 = boundaryLine1;
         return this;
     }
 
     @Override
-    public TieLineAdder setDanglingLine2(String danglingLine2) {
-        this.danglingLine2 = danglingLine2;
+    public TieLineAdder setBoundaryLine2(String boundaryLine2) {
+        this.boundaryLine2 = boundaryLine2;
         return this;
     }
 
     @Override
     public TieLine add() {
         String id = checkAndGetUniqueId();
-        if (danglingLine1 == null || danglingLine2 == null) {
-            throw new ValidationException(this, "undefined dangling line");
+        if (boundaryLine1 == null || boundaryLine2 == null) {
+            throw new ValidationException(this, "undefined boundary line");
         }
 
-        DanglingLineImpl dl1 = index.getDanglingLine(danglingLine1).orElseThrow(() -> new ValidationException(this, danglingLine1 + " are not dangling lines in the network"));
-        DanglingLineImpl dl2 = index.getDanglingLine(danglingLine2).orElseThrow(() -> new ValidationException(this, danglingLine2 + " are not dangling lines in the network"));
+        BoundaryLineImpl dl1 = index.getBoundaryLine(boundaryLine1).orElseThrow(() -> new ValidationException(this, boundaryLine1 + " are not boundary lines in the network"));
+        BoundaryLineImpl dl2 = index.getBoundaryLine(boundaryLine2).orElseThrow(() -> new ValidationException(this, boundaryLine2 + " are not boundary lines in the network"));
 
         if (dl1 == dl2) {
-            throw new ValidationException(this, "danglingLine1 and danglingLine2 are identical (" + dl1.getId() + ")");
+            throw new ValidationException(this, "boundaryLine1 and boundaryLine2 are identical (" + dl1.getId() + ")");
         }
         if (dl1.getTieLine().isPresent() || dl2.getTieLine().isPresent()) {
-            throw new ValidationException(this, "danglingLine1 (" + danglingLine1 + ") and/or danglingLine2 (" + danglingLine2 + ") already has a tie line");
+            throw new ValidationException(this, "boundaryLine1 (" + boundaryLine1 + ") and/or boundaryLine2 (" + boundaryLine2 + ") already has a tie line");
         }
         if (dl1.getPairingKey() != null && dl2.getPairingKey() != null && !Objects.equals(dl1.getPairingKey(), dl2.getPairingKey())) {
             throw new ValidationException(this, "pairingKey is not consistent");
@@ -60,8 +60,8 @@ public class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
                 .attributes(TieLineAttributes.builder()
-                        .danglingLine1Id(dl1.getId())
-                        .danglingLine2Id(dl2.getId())
+                        .boundaryLine1Id(dl1.getId())
+                        .boundaryLine2Id(dl2.getId())
                         .build()).build();
         getIndex().createTieLine(resource);
         TieLineImpl tieLine = new TieLineImpl(getIndex(), resource);
