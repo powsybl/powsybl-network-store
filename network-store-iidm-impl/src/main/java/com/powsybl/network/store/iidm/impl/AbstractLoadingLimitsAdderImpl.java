@@ -62,6 +62,11 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
     }
 
     @Override
+    public String getOperationalGroupId() {
+        return operationalGroupId;
+    }
+
+    @Override
     public double getPermanentLimit() {
         return this.permanentLimit;
     }
