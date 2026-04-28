@@ -9,6 +9,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.RatioTapChangerStepsReplacer;
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 
 /**
@@ -16,7 +17,7 @@ import com.powsybl.network.store.model.TapChangerStepAttributes;
  */
 public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsReplacer<RatioTapChangerStepsReplacerImpl> implements RatioTapChangerStepsReplacer {
 
-    class StepAdderImpl implements RatioTapChangerStepsReplacer.StepAdder {
+    class StepAdderImpl extends AbstractBasePropertiesHolder implements RatioTapChangerStepsReplacer.StepAdder {
 
         private double rho = Double.NaN;
 
@@ -67,6 +68,7 @@ public class RatioTapChangerStepsReplacerImpl extends AbstractTapChangerStepsRep
                     .r(r)
                     .rho(rho)
                     .x(x)
+                    .properties(properties)
                     .build();
             steps.add(ratioTapChangerStepAttributes);
             return RatioTapChangerStepsReplacerImpl.this;

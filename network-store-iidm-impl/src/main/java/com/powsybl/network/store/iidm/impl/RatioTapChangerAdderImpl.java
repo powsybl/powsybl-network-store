@@ -33,7 +33,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private RatioTapChanger.RegulationMode regulationMode;
 
-    class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
+    class StepAdderImpl extends AbstractBasePropertiesHolder implements RatioTapChangerAdder.StepAdder {
 
         private double rho = Double.NaN;
 
@@ -83,6 +83,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                     .r(r)
                     .rho(rho)
                     .x(x)
+                    .properties(properties)
                     .build();
             RatioTapChangerImpl.validateStep(ratioTapChangerStepAttributes, tapChangerParent);
             steps.add(ratioTapChangerStepAttributes);
@@ -171,6 +172,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .solvedTapPosition(solvedTapPosition)
                 .targetDeadband(targetDeadband)
                 .regulationValue(regulationValue)
+                .properties(properties)
                 .steps(steps)
                 .regulatingPoint(regulatingPointAttributes)
                 .build();

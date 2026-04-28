@@ -13,7 +13,7 @@ import com.powsybl.network.store.model.*;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
+public class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAdderImpl> implements BoundaryLineAdder {
 
     class GenerationAdderImpl implements GenerationAdder {
 
@@ -66,12 +66,12 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
         }
 
         @Override
-        public DanglingLineAdder add() {
-            ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
-            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        public BoundaryLineAdder add() {
+            ValidationUtil.checkActivePowerLimits(BoundaryLineAdderImpl.this, minP, maxP);
+            ValidationUtil.checkActivePowerSetpoint(BoundaryLineAdderImpl.this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+            ValidationUtil.checkVoltageControl(BoundaryLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
 
-            generation = DanglingLineGenerationAttributes
+            generation = BoundaryLineGenerationAttributes
                     .builder()
                     .minP(minP)
                     .maxP(maxP)
@@ -80,7 +80,7 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
                     .targetV(targetV)
                     .voltageRegulationOn(voltageRegulationOn)
                     .build();
-            return DanglingLineAdderImpl.this;
+            return BoundaryLineAdderImpl.this;
         }
     }
 
@@ -98,50 +98,50 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
     private String pairingKey = null;
 
-    private DanglingLineGenerationAttributes generation;
+    private BoundaryLineGenerationAttributes generation;
 
-    DanglingLineAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
+    BoundaryLineAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
     }
 
     @Override
-    public DanglingLineAdder setP0(double p0) {
+    public BoundaryLineAdder setP0(double p0) {
         this.p0 = p0;
         return this;
     }
 
     @Override
-    public DanglingLineAdder setQ0(double q0) {
+    public BoundaryLineAdder setQ0(double q0) {
         this.q0 = q0;
         return this;
     }
 
     @Override
-    public DanglingLineAdder setR(double r) {
+    public BoundaryLineAdder setR(double r) {
         this.r = r;
         return this;
     }
 
     @Override
-    public DanglingLineAdder setX(double x) {
+    public BoundaryLineAdder setX(double x) {
         this.x = x;
         return this;
     }
 
     @Override
-    public DanglingLineAdder setG(double g) {
+    public BoundaryLineAdder setG(double g) {
         this.g = g;
         return this;
     }
 
     @Override
-    public DanglingLineAdder setB(double b) {
+    public BoundaryLineAdder setB(double b) {
         this.b = b;
         return this;
     }
 
     @Override
-    public DanglingLineAdder setPairingKey(String pairingKey) {
+    public BoundaryLineAdder setPairingKey(String pairingKey) {
         this.pairingKey = pairingKey;
         return this;
     }
@@ -152,7 +152,7 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
     }
 
     @Override
-    public DanglingLine add() {
+    public BoundaryLine add() {
         String id = checkAndGetUniqueId();
         checkNodeBus();
 
@@ -163,10 +163,10 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
 
-        Resource<DanglingLineAttributes> resource = Resource.danglingLineBuilder()
+        Resource<BoundaryLineAttributes> resource = Resource.boundaryLineBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
-                .attributes(DanglingLineAttributes.builder()
+                .attributes(BoundaryLineAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
                         .fictitious(isFictitious())
@@ -183,13 +183,13 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
                         .pairingKey(pairingKey)
                         .build())
                 .build();
-        DanglingLineImpl danglingLine = getIndex().createDanglingLine(resource);
-        danglingLine.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        return danglingLine;
+        BoundaryLineImpl boundaryLine = getIndex().createBoundaryLine(resource);
+        boundaryLine.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return boundaryLine;
     }
 
     @Override
     protected String getTypeDescription() {
-        return ResourceType.DANGLING_LINE.getDescription();
+        return ResourceType.BOUNDARY_LINE.getDescription();
     }
 }

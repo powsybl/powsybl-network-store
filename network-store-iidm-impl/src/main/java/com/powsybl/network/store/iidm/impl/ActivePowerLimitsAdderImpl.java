@@ -29,6 +29,8 @@ public class ActivePowerLimitsAdderImpl<S, O extends LimitsOwner<S>>
     @Override
     protected ActivePowerLimitsImpl<S, O> createAndSetLimit(LimitsAttributes attributes) {
         owner.setActivePowerLimits(side, attributes, operationalGroupId);
-        return new ActivePowerLimitsImpl<>(owner, side, operationalGroupId, attributes);
+        ActivePowerLimitsImpl<S, O> activePowerLimits = new ActivePowerLimitsImpl<>(owner, side, operationalGroupId, attributes);
+        this.copyPropertiesTo(activePowerLimits);
+        return activePowerLimits;
     }
 }
