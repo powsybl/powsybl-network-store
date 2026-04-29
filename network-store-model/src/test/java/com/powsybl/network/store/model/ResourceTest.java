@@ -423,7 +423,7 @@ public class ResourceTest {
         assertNull(resourceShunt.getAttributes().getRegulatingPoint().getLocalTerminal().getSide());
         assertEquals(100., resourceShunt.getAttributes().getP(), 0.001);
         assertEquals(200, resourceShunt.getAttributes().getQ(), 0.001);
-        assertEquals(2, resourceShunt.getAttributes().getSectionCount());
+        assertEquals((Integer) 2, resourceShunt.getAttributes().getSectionCount());
         assertEquals(ShuntCompensatorModelType.LINEAR, resourceShunt.getAttributes().getModel().getType());
         assertEquals(1, ((ShuntCompensatorLinearModelAttributes) resourceShunt.getAttributes().getModel()).getBPerSection(), 0.001);
         assertEquals(2, ((ShuntCompensatorLinearModelAttributes) resourceShunt.getAttributes().getModel()).getGPerSection(), 0.001);

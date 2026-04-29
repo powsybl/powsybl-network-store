@@ -85,7 +85,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     @Override
     protected void validate() {
         super.validate();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
     }
 

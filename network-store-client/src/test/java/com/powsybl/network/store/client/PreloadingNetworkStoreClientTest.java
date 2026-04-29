@@ -496,14 +496,14 @@ public class PreloadingNetworkStoreClientTest {
         // First time shunt compensator retrieval by Id
         Resource<ShuntCompensatorAttributes> shuntCompensatorAttributesResource = cachedClient.getShuntCompensator(networkUuid, Resource.INITIAL_VARIANT_NUM, "sc1").orElse(null);
         assertNotNull(shuntCompensatorAttributesResource);
-        assertEquals(5, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
+        assertEquals((Integer) 5, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
 
         shuntCompensatorAttributesResource.getAttributes().setSectionCount(8);
 
         // Second time shunt compensator retrieval by Id
         shuntCompensatorAttributesResource = cachedClient.getShuntCompensator(networkUuid, Resource.INITIAL_VARIANT_NUM, "sc1").orElse(null);
         assertNotNull(shuntCompensatorAttributesResource);
-        assertEquals(8, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
+        assertEquals((Integer) 8, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
 
         // Remove component
         assertEquals(1, cachedClient.getShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
@@ -516,7 +516,7 @@ public class PreloadingNetworkStoreClientTest {
         List<Resource<ShuntCompensatorAttributes>> shuntCompensators = cachedClient.getShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, shuntCompensators.size());
         assertNotNull(shuntCompensators.get(0));
-        assertEquals(5, shuntCompensators.get(0).getAttributes().getSectionCount());
+        assertEquals((Integer) 5, shuntCompensators.get(0).getAttributes().getSectionCount());
 
         // Update shunt compensator
         Resource<ShuntCompensatorAttributes> updateShuntCompensator = Resource.shuntCompensatorBuilder()
@@ -531,7 +531,7 @@ public class PreloadingNetworkStoreClientTest {
         shuntCompensators = cachedClient.getShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, shuntCompensators.size());
         assertNotNull(shuntCompensators.get(0));
-        assertEquals(8, shuntCompensators.get(0).getAttributes().getSectionCount());
+        assertEquals((Integer) 8, shuntCompensators.get(0).getAttributes().getSectionCount());
 
         server.verify();
     }
