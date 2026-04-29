@@ -194,6 +194,7 @@ class ShuntCompensatorTest {
         assertEquals("sectionValue2", retrievedSection.getProperty("sectionProp2"));
         assertFalse(retrievedSection.hasProperty("sectionProp3"));
     }
+
     @Test
     void updateWithInvalidTargetV() {
         Network network = FourSubstationsNodeBreakerFactory.create();
