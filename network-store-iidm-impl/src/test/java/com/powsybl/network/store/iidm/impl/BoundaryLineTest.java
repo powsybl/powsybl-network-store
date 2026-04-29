@@ -6,18 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.ActivePowerLimits;
-import com.powsybl.iidm.network.ActivePowerLimitsAdder;
-import com.powsybl.iidm.network.ApparentPowerLimits;
-import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
-import com.powsybl.iidm.network.BoundaryLine;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.OperationalLimitsGroup;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
@@ -42,6 +31,26 @@ class BoundaryLineTest {
         assertTrue(boundaryLine.removeExtension(ConnectablePosition.class));
         assertNull(boundaryLine.getExtension(ConnectablePosition.class));
         assertFalse(boundaryLine.removeExtension(ConnectablePosition.class));
+    }
+
+    @Test
+    void updateWithInvalidP0() {
+        Network network = BoundaryLineNetworkFactory.create();
+        BoundaryLine danglingLine = network.getBoundaryLine("BL");
+        assertEquals("Boundary line 'BL': p0 is invalid",
+                assertThrows(ValidationException.class, () -> danglingLine.setP0(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        danglingLine.setP0(Double.NaN);
+    }
+
+    @Test
+    void updateWithInvalidQ0() {
+        Network network = BoundaryLineNetworkFactory.create();
+        BoundaryLine danglingLine = network.getBoundaryLine("BL");
+        assertEquals("Boundary line 'BL': q0 is invalid",
+                assertThrows(ValidationException.class, () -> danglingLine.setQ0(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        danglingLine.setQ0(Double.NaN);
     }
 
     @Test

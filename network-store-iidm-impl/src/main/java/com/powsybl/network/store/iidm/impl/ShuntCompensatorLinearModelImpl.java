@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
-import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
@@ -72,7 +71,7 @@ public class ShuntCompensatorLinearModelImpl extends AbstractPropertiesHolder im
 
     @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
-        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount, ValidationLevel.STEADY_STATE_HYPOTHESIS, shuntCompensator.getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount, shuntCompensator.getNetwork().getMinValidationLevel(), shuntCompensator.getNetwork().getReportNodeContext().getReportNode());
         int oldValue = getAttributes().getMaximumSectionCount();
         if (maximumSectionCount != oldValue) {
             shuntCompensator.updateResource(res -> getAttributes(res).setMaximumSectionCount(maximumSectionCount),

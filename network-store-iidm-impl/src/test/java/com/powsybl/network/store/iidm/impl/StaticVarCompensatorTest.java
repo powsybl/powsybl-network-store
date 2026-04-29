@@ -8,10 +8,14 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -43,4 +47,28 @@ class StaticVarCompensatorTest {
         assertFalse(staticVarCompensator.removeExtension(VoltagePerReactivePowerControl.class));
     }
 
+    @Test
+    void updateWithInvalidVoltageSetpoint() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC");
+        svc.setRegulating(true);
+        svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+        assertEquals("Static var compensator 'SVC': invalid value (NaN) for voltage setpoint",
+                assertThrows(ValidationException.class, () -> svc.setVoltageSetpoint(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        svc.setVoltageSetpoint(Double.NaN);
+    }
+
+    @Test
+    void updateWithInvalidReactivePowerSetpoint() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC");
+        svc.setRegulating(true);
+        svc.setReactivePowerSetpoint(100.0);
+        svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        assertEquals("Static var compensator 'SVC': invalid value (NaN) for reactive power setpoint",
+                assertThrows(ValidationException.class, () -> svc.setReactivePowerSetpoint(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        svc.setReactivePowerSetpoint(Double.NaN);
+    }
 }

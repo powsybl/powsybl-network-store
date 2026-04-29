@@ -49,7 +49,7 @@ public class BoundaryLineImpl extends AbstractInjectionImpl<BoundaryLine, Bounda
 
         @Override
         public GenerationImpl setTargetP(double targetP) {
-            ValidationUtil.checkActivePowerSetpoint(boundaryLine, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, boundaryLine.getNetwork().getReportNodeContext().getReportNode());
+            ValidationUtil.checkActivePowerSetpoint(boundaryLine, targetP, boundaryLine.getNetwork().getMinValidationLevel(), boundaryLine.getNetwork().getReportNodeContext().getReportNode());
             double oldValue = getAttributes().getTargetP();
             if (targetP != oldValue) {
                 boundaryLine.updateResource(res -> getAttributes(res).setTargetP(targetP),
@@ -99,7 +99,7 @@ public class BoundaryLineImpl extends AbstractInjectionImpl<BoundaryLine, Bounda
 
         @Override
         public GenerationImpl setTargetQ(double targetQ) {
-            ValidationUtil.checkVoltageControl(boundaryLine, isVoltageRegulationOn(), getTargetV(), targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, boundaryLine.getNetwork().getReportNodeContext().getReportNode());
+            ValidationUtil.checkVoltageControl(boundaryLine, isVoltageRegulationOn(), getTargetV(), targetQ, boundaryLine.getNetwork().getMinValidationLevel(), boundaryLine.getNetwork().getReportNodeContext().getReportNode());
             double oldValue = getAttributes().getTargetQ();
             if (targetQ != oldValue) {
                 boundaryLine.updateResource(res -> getAttributes(res).setTargetQ(targetQ),
@@ -115,7 +115,7 @@ public class BoundaryLineImpl extends AbstractInjectionImpl<BoundaryLine, Bounda
 
         @Override
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
-            ValidationUtil.checkVoltageControl(boundaryLine, voltageRegulationOn, getTargetV(), getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS, boundaryLine.getNetwork().getReportNodeContext().getReportNode());
+            ValidationUtil.checkVoltageControl(boundaryLine, voltageRegulationOn, getTargetV(), getTargetQ(), boundaryLine.getNetwork().getMinValidationLevel(), boundaryLine.getNetwork().getReportNodeContext().getReportNode());
             boolean oldValue = getAttributes().isVoltageRegulationOn();
             if (voltageRegulationOn != oldValue) {
                 boundaryLine.updateResource(res -> getAttributes(res).setVoltageRegulationOn(voltageRegulationOn),
@@ -131,7 +131,7 @@ public class BoundaryLineImpl extends AbstractInjectionImpl<BoundaryLine, Bounda
 
         @Override
         public GenerationImpl setTargetV(double targetV) {
-            ValidationUtil.checkVoltageControl(boundaryLine, isVoltageRegulationOn(), targetV, getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS, boundaryLine.getNetwork().getReportNodeContext().getReportNode());
+            ValidationUtil.checkVoltageControl(boundaryLine, isVoltageRegulationOn(), targetV, getTargetQ(), boundaryLine.getNetwork().getMinValidationLevel(), boundaryLine.getNetwork().getReportNodeContext().getReportNode());
             double oldValue = getAttributes().getTargetV();
             if (targetV != oldValue) {
                 boundaryLine.updateResource(res -> getAttributes(res).setTargetV(targetV),
@@ -232,7 +232,7 @@ public class BoundaryLineImpl extends AbstractInjectionImpl<BoundaryLine, Bounda
 
     @Override
     public BoundaryLine setP0(double p0) {
-        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkP0(this, p0, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getP0();
         if (p0 != oldValue) {
             updateResource(res -> res.getAttributes().setP0(p0),
@@ -248,7 +248,7 @@ public class BoundaryLineImpl extends AbstractInjectionImpl<BoundaryLine, Bounda
 
     @Override
     public BoundaryLine setQ0(double q0) {
-        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkQ0(this, q0, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getQ0();
         if (q0 != oldValue) {
             updateResource(res -> res.getAttributes().setQ0(q0),
