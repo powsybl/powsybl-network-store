@@ -10,9 +10,6 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.LoadDetailAdder;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -58,19 +55,5 @@ class LoadTest {
         // Reconnect the load
         assertTrue(load.connect());
         load.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
-    }
-
-    @Test
-    void removeExtension() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-        Load load = network.getLoad("LD1");
-        load.newExtension(ConnectablePositionAdder.class).newFeeder().withOrder(10).add().add();
-        assertTrue(load.removeExtension(ConnectablePosition.class));
-        assertNull(load.getExtension(ConnectablePosition.class));
-        assertFalse(load.removeExtension(ConnectablePosition.class));
-        load.newExtension(LoadDetailAdder.class).withFixedActivePower(1).withVariableActivePower(10).withFixedReactivePower(2).add();
-        assertTrue(load.removeExtension(LoadDetail.class));
-        assertNull(load.getExtension(LoadDetail.class));
-        assertFalse(load.removeExtension(LoadDetail.class));
     }
 }

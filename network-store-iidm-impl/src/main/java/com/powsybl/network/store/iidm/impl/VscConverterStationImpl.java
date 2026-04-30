@@ -6,9 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.*;
 
 /**
@@ -175,19 +173,5 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
                 || hvdcLine.getConverterStation2().getId().equals(getId()))
             .findFirst()
             .orElse(null);
-    }
-
-    @Override
-    public <E extends Extension<VscConverterStation>> boolean removeExtension(Class<E> type) {
-        super.removeExtension(type);
-        if (type.isAssignableFrom(ConnectablePosition.class)) {
-            var resource = getResource();
-            if (resource.getAttributes().getPosition() != null) {
-                resource.getAttributes().setPosition(null);
-                return true;
-            }
-            return false;
-        }
-        return false;
     }
 }

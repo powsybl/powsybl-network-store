@@ -6,13 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
-
-import static com.powsybl.network.store.iidm.impl.util.Utils.removeConnectionPositionForBranches;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -143,14 +139,5 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         invalidateCalculatedBuses(getTerminals());
         index.removeLine(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-    }
-
-    @Override
-    public <E extends Extension<Line>> boolean removeExtension(Class<E> type) {
-        super.removeExtension(type);
-        if (type.isAssignableFrom(ConnectablePosition.class)) {
-            return removeConnectionPositionForBranches(getResource());
-        }
-        return false;
     }
 }

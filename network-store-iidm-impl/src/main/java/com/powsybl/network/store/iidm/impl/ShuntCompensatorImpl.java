@@ -7,9 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
@@ -209,19 +207,5 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         invalidateCalculatedBuses(getTerminals());
         index.removeShuntCompensator(resource.getId());
         index.notifyAfterRemoval(resource.getId());
-    }
-
-    @Override
-    public <E extends Extension<ShuntCompensator>> boolean removeExtension(Class<E> type) {
-        super.removeExtension(type);
-        if (type.isAssignableFrom(ConnectablePosition.class)) {
-            var resource = getResource();
-            if (resource.getAttributes().getPosition() != null) {
-                resource.getAttributes().setPosition(null);
-                return true;
-            }
-            return false;
-        }
-        return false;
     }
 }

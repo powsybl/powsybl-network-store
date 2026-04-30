@@ -18,10 +18,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
-import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
-import com.powsybl.network.store.model.CimCharacteristicsAttributes;
-import com.powsybl.network.store.model.NetworkAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
@@ -1343,27 +1340,5 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     public boolean isUseCalculatedBusFictitiousP0Q0() {
         return useCalculatedBusFictitiousP0Q0;
-    }
-
-    @Override
-    public <E extends Extension<Network>> boolean removeExtension(Class<E> type) {
-        super.removeExtension(type);
-        if (type == BaseVoltageMapping.class) {
-            var resource = getResource();
-            if (resource.getAttributes().getBaseVoltageMapping() != null) {
-                resource.getAttributes().setBaseVoltageMapping(null);
-                return true;
-            }
-            return false;
-        }
-        if (type == CimCharacteristics.class) {
-            var resource = getResource();
-            if (resource.getAttributes().getCimCharacteristics() != null) {
-                resource.getAttributes().setCimCharacteristics(null);
-                return true;
-            }
-            return false;
-        }
-        return false;
     }
 }
