@@ -613,8 +613,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public <E extends Extension<VoltageLevel>> boolean removeExtension(Class<E> type) {
-        // as buffer is not implemented yet for remove extensions, if an extension is removed
-        // when network is imported it crash as the network is still in the buffer and not yet in the database.
+        // FIXME : as buffer is not implemented yet for remove extensions, if an extension is removed when network is imported it crash as the network is still in the buffer and not yet in the database.
         // super.removeExtension(type);
         if (type == SlackTerminal.class) {
             var resource = getResource();
