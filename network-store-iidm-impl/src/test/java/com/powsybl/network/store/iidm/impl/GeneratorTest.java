@@ -117,4 +117,34 @@ class GeneratorTest {
         assertFalse(generator.removeExtension(ConnectablePosition.class));
     }
 
+    @Test
+    void updateWithInvalidTargetP() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Generator generator = network.getGenerator("GH3");
+        assertEquals("Generator 'GH3': invalid value (NaN) for active power setpoint",
+                assertThrows(ValidationException.class, () -> generator.setTargetP(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        generator.setTargetP(Double.NaN);
+    }
+
+    @Test
+    void updateWithInvalidTargetV() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Generator generator = network.getGenerator("GH3");
+        assertEquals("Generator 'GH3': invalid value (NaN) for voltage setpoint (voltage regulator is on)",
+                assertThrows(ValidationException.class, () -> generator.setTargetV(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        generator.setTargetV(Double.NaN);
+    }
+
+    @Test
+    void updateWithInvalidTargetQ() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Generator generator = network.getGenerator("GH3");
+        generator.setVoltageRegulatorOn(false);
+        assertEquals("Generator 'GH3': invalid value (NaN) for reactive power setpoint (voltage regulator is off)",
+                assertThrows(ValidationException.class, () -> generator.setTargetQ(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        generator.setTargetQ(Double.NaN);
+    }
 }

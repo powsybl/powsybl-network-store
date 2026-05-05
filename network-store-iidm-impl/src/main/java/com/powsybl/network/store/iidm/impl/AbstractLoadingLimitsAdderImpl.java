@@ -6,11 +6,11 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.iidm.impl.AbstractLoadingLimits.TemporaryLimitImpl;
 import com.powsybl.network.store.model.LimitsAttributes;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>, L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>>
-        implements LoadingLimitsAdderExt<S, O, L, A> {
+    extends AbstractBasePropertiesHolder implements LoadingLimitsAdderExt<S, O, L, A> {
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
@@ -59,6 +59,11 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     public O getOwner() {
         return owner;
+    }
+
+    @Override
+    public String getOperationalGroupId() {
+        return operationalGroupId;
     }
 
     @Override
@@ -169,8 +174,9 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     @Override
     public L add() {
-        Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toList());
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd, ValidationLevel.STEADY_STATE_HYPOTHESIS, owner.getIdentifiable().getNetwork().getReportNodeContext().getReportNode());
+        NetworkImpl network = owner.getIdentifiable().getNetwork();
+        Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(l -> new TemporaryLimitImpl(l, null)).collect(Collectors.toList());
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         checkTemporaryLimits();
 
         LimitsAttributes attributes = LimitsAttributes.builder()

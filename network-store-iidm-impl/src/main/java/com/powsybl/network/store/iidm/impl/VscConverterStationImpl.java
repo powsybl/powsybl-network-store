@@ -42,7 +42,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         boolean oldValue = this.isRegulating();
         if (voltageRegulatorOn != oldValue) {
             this.setRegulating(voltageRegulatorOn);
@@ -59,7 +59,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getVoltageSetPoint();
         if (Double.compare(voltageSetpoint, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetpoint),
@@ -75,7 +75,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
         if (Double.compare(reactivePowerSetpoint, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint),
@@ -91,7 +91,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public VscConverterStation setLossFactor(float lossFactor) {
-        ValidationUtil.checkLossFactor(this, lossFactor, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLossFactor(this, lossFactor, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
             updateResource(res -> res.getAttributes().setLossFactor(lossFactor),
@@ -111,9 +111,9 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
     public ReactiveLimits getReactiveLimits() {
         ReactiveLimitsAttributes reactiveLimitsAttributes = getResource().getAttributes().getReactiveLimits();
         if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
-            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
+            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes, this);
         } else {
-            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes);
+            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes, this);
         }
     }
 
@@ -138,7 +138,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl<>(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this, this);
     }
 
     @Override

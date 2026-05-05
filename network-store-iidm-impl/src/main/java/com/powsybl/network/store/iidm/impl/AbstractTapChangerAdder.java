@@ -6,9 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.RegulatingPointAttributes;
 import com.powsybl.network.store.model.RegulatingTapChangerType;
 import com.powsybl.network.store.model.ResourceType;
@@ -19,7 +20,9 @@ import java.util.Objects;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public abstract class AbstractTapChangerAdder {
+public abstract class AbstractTapChangerAdder extends AbstractBasePropertiesHolder {
+
+    protected final TapChangerParent tapChangerParent;
 
     protected final NetworkObjectIndex index;
 
@@ -37,7 +40,8 @@ public abstract class AbstractTapChangerAdder {
 
     protected Integer solvedTapPosition;
 
-    protected AbstractTapChangerAdder(NetworkObjectIndex index) {
+    protected AbstractTapChangerAdder(TapChangerParent tapChangerParent, NetworkObjectIndex index) {
+        this.tapChangerParent = Objects.requireNonNull(tapChangerParent);
         this.index = Objects.requireNonNull(index);
     }
 
@@ -56,11 +60,19 @@ public abstract class AbstractTapChangerAdder {
             null, terminalRefAttributes, regulationMode, resourceType, regulating);
     }
 
-    public static void checkPositionCreation(Integer position, int lowTapPosition, int highTapPosition, TapChangerParent tapChangerParent, String message) {
+    protected void checkPosition() {
+        if (tapPosition == null) {
+            NetworkImpl network = index.getNetwork();
+            ValidationUtil.throwExceptionOrIgnore(tapChangerParent, "tap position is not set", network.getMinValidationLevel());
+        }
+    }
+
+    protected void checkPositionRange(Integer position, int lowTapPosition, int highTapPosition, String message) {
         if (position != null && (position < lowTapPosition || position > highTapPosition)) {
-            throw new ValidationException(tapChangerParent, "incorrect " + message + " "
-                + position + " [" + lowTapPosition + ", "
-                + highTapPosition + "]");
+            NetworkImpl network = index.getNetwork();
+            ValidationUtil.throwExceptionOrIgnore(tapChangerParent, "incorrect " + message + " "
+                    + position + " [" + lowTapPosition + ", "
+                    + highTapPosition + "]", network.getMinValidationLevel());
         }
     }
 }

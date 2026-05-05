@@ -41,7 +41,7 @@ public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttri
     private ShuntCompensatorModelAttributes model;
 
     @Schema(description = "Count of sections in service")
-    private int sectionCount;
+    private Integer sectionCount;
 
     @Schema(description = "Solved value count of sections in service")
     private Integer solvedSectionCount;

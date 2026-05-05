@@ -41,7 +41,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public Battery setTargetP(double targetP) {
-        ValidationUtil.checkP0(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkP0(this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP());
         double oldValue = getTargetP();
         if (targetP != oldValue) {
@@ -58,7 +58,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public Battery setTargetQ(double targetQ) {
-        ValidationUtil.checkQ0(this, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS, getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkQ0(this, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetQ();
         if (targetQ != oldValue) {
             updateResource(res -> res.getAttributes().setTargetQ(targetQ),
@@ -118,9 +118,9 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         var resource = getResource();
         ReactiveLimitsAttributes reactiveLimitsAttributes = resource.getAttributes().getReactiveLimits();
         if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
-            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
+            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes, this);
         } else {
-            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes);
+            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes, this);
         }
     }
 
@@ -190,7 +190,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl<>(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this, this);
     }
 
     @Override

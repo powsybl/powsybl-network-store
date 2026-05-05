@@ -266,33 +266,33 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
-    public DanglingLineAdder newDanglingLine() {
-        return new DanglingLineAdderImpl(getResource(), index);
+    public BoundaryLineAdder newBoundaryLine() {
+        return new BoundaryLineAdderImpl(getResource(), index);
     }
 
     @Override
-    public List<DanglingLine> getDanglingLines() {
-        return index.getDanglingLines(getResource().getId());
+    public List<BoundaryLine> getBoundaryLines() {
+        return index.getBoundaryLines(getResource().getId());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getDanglingLines().stream();
+    public Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLines().stream();
     }
 
     @Override
-    public int getDanglingLineCount() {
-        return getDanglingLines().size();
+    public int getBoundaryLineCount() {
+        return getBoundaryLines().size();
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getConnectableStream(BoundaryLine.class).filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
@@ -416,7 +416,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         connectables.addAll(getStaticVarCompensators());
         connectables.addAll(index.getTwoWindingsTransformers(resource.getId()));
         connectables.addAll(index.getThreeWindingsTransformers(resource.getId()));
-        connectables.addAll(getDanglingLines());
+        connectables.addAll(getBoundaryLines());
         connectables.addAll(index.getLines(resource.getId()));
         connectables.addAll(index.getGrounds(resource.getId()));
         return connectables;
@@ -459,8 +459,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             return (List<T>) index.getTwoWindingsTransformers(resource.getId());
         } else if (clazz == ThreeWindingsTransformer.class) {
             return (List<T>) index.getThreeWindingsTransformers(resource.getId());
-        } else if (clazz == DanglingLine.class) {
-            return (List<T>) getDanglingLines();
+        } else if (clazz == BoundaryLine.class) {
+            return (List<T>) getBoundaryLines();
         } else if (clazz == Line.class) {
             return (List<T>) index.getLines(resource.getId());
         } else if (clazz == BusbarSection.class) {
@@ -546,8 +546,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 visitor.visitLine(line, TwoSides.TWO);
             }
         }
-        for (DanglingLine danglingLine : getDanglingLines()) {
-            visitor.visitDanglingLine(danglingLine);
+        for (BoundaryLine boundaryLine : getBoundaryLines()) {
+            visitor.visitBoundaryLine(boundaryLine);
         }
         for (Ground ground : getGrounds()) {
             visitor.visitGround(ground);
@@ -613,7 +613,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public <E extends Extension<VoltageLevel>> boolean removeExtension(Class<E> type) {
-        super.removeExtension(type);
+        // FIXME : as buffer is not implemented yet for remove extensions, if an extension is removed when network is imported it crash as the network is still in the buffer and not yet in the database.
+        // super.removeExtension(type);
         if (type == SlackTerminal.class) {
             var resource = getResource();
             if (resource.getAttributes().getSlackTerminal() != null) {

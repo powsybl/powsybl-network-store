@@ -24,8 +24,6 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PhaseTapChangerAdderImpl.class);
 
-    private final TapChangerParent tapChangerParent;
-
     private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
@@ -34,7 +32,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private double regulationValue = Double.NaN;
 
-    class StepAdderImpl implements PhaseTapChangerAdder.StepAdder {
+    class StepAdderImpl extends AbstractBasePropertiesHolder implements PhaseTapChangerAdder.StepAdder {
 
         private double alpha = Double.NaN;
 
@@ -94,6 +92,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                             .r(r)
                             .rho(rho)
                             .x(x)
+                            .properties(properties)
                             .build();
             PhaseTapChangerImpl.validateStep(phaseTapChangerStepAttributes, tapChangerParent);
             steps.add(phaseTapChangerStepAttributes);
@@ -103,8 +102,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     public PhaseTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index,
                                     Function<Attributes, TapChangerParentAttributes> attributesGetter) {
-        super(index);
-        this.tapChangerParent = tapChangerParent;
+        super(tapChangerParent, index);
         this.attributesGetter = attributesGetter;
         this.loadTapChangingCapabilities = true;
     }
@@ -170,22 +168,21 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     @Override
     public PhaseTapChanger add() {
-        if (tapPosition == null) {
-            throw new ValidationException(tapChangerParent, "tap position is not set");
-        }
+        checkPosition();
         if (steps.isEmpty()) {
             throw new ValidationException(tapChangerParent, "phase tap changer should have at least one step");
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
-        checkPositionCreation(tapPosition, lowTapPosition, highTapPosition, tapChangerParent, "tap position");
-        checkPositionCreation(solvedTapPosition, lowTapPosition, highTapPosition, tapChangerParent, "solved tap position");
-        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities, regulatingTerminal, tapChangerParent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS, index.getNetwork().getReportNodeContext().getReportNode());
-        ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
+        checkPositionRange(tapPosition, lowTapPosition, highTapPosition, "tap position");
+        checkPositionRange(solvedTapPosition, lowTapPosition, highTapPosition, "solved tap position");
+        NetworkImpl network = index.getNetwork();
+        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities, regulatingTerminal, network, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
         tapChangers.addAll(tapChangerParent.getAllTapChangers());
         tapChangers.remove(tapChangerParent.getPhaseTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, ValidationLevel.STEADY_STATE_HYPOTHESIS, tapChangerParent.getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
 
         RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.PHASE_TAP_CHANGER, regulationMode.toString(), regulating);
 
@@ -193,6 +190,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)
                 .lowTapPosition(lowTapPosition)
                 .regulationValue(regulationValue)
+                .properties(properties)
                 .steps(steps)
                 .tapPosition(tapPosition)
                 .solvedTapPosition(solvedTapPosition)
