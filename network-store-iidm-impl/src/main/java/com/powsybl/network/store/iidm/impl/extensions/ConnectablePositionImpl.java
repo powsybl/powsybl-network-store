@@ -104,7 +104,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
         @Override
         public Direction getDirection() {
-            return getAttributes().getDirection();
+            return Objects.requireNonNullElse(getAttributes().getDirection(), Direction.UNDEFINED);
         }
 
         @Override
