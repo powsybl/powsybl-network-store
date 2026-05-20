@@ -111,10 +111,6 @@ class TemporaryLimitAdderImpl<S,
                 i++;
             }
             name = uniqueName;
-        } else if (nameExists(name)) {
-            throw new ValidationException(limitsAdder.getOwner(),
-                    "temporary limit name '" + name + "' should be unique within limit set '"
-                            + limitsAdder.getOperationalGroupId() + "'");
         }
     }
 

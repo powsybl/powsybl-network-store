@@ -95,16 +95,6 @@ class CurrentLimitsTest extends AbstractCurrentLimitsTest {
                 .endTemporaryLimit();
     }
 
-    @Override
-    @Test
-    public void testNameDuplicationIsAllowed() { // testNameDuplicationIsNotAllowed To RENAME
-        Line line = createNetwork().getLine("L");
-        String message = Assertions.assertThrows(ValidationException.class, () ->
-                createLimitsWithDuplicateName(line)
-        ).getMessage();
-        Assertions.assertEquals("AC line 'L': temporary limit name 'TL' should be unique within limit set 'DEFAULT'", message);
-    }
-
     @Test
     void testTemporaryLimitValueIsNotSetMessage() {
         Line line = createNetwork().getLine("L");
