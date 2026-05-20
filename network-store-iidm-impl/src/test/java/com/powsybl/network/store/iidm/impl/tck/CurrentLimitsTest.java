@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.tck.AbstractCurrentLimitsTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -93,6 +95,28 @@ class CurrentLimitsTest extends AbstractCurrentLimitsTest {
                 .setAcceptableDuration(600)
                 .setValue(1400.0)
                 .endTemporaryLimit();
+    }
+
+    @Override
+    @Test
+    public void testNameDuplicationIsAllowed() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimits currentLimits = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .add();
+
+        assertEquals("TL", currentLimits.getTemporaryLimit(20 * 60).getName());
+        assertEquals("TL#0", currentLimits.getTemporaryLimit(10 * 60).getName());
     }
 
     @Test

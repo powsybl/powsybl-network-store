@@ -36,7 +36,7 @@ class TemporaryLimitAdderImpl<S,
 
     private boolean fictitious;
 
-    private boolean ensureNameUnicity = false;
+    private boolean ensureNameUnicity = true;
 
     TemporaryLimitAdderImpl(B activePowerLimitsAdder) {
         this.limitsAdder = Objects.requireNonNull(activePowerLimitsAdder);
