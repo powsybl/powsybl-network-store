@@ -36,7 +36,7 @@ class TemporaryLimitAdderImpl<S,
 
     private boolean fictitious;
 
-    private boolean ensureNameUnicity = false;
+    private boolean ensureNameUnicity = true;
 
     TemporaryLimitAdderImpl(B activePowerLimitsAdder) {
         this.limitsAdder = Objects.requireNonNull(activePowerLimitsAdder);
@@ -111,10 +111,6 @@ class TemporaryLimitAdderImpl<S,
                 i++;
             }
             name = uniqueName;
-        } else if (nameExists(name)) {
-            throw new ValidationException(limitsAdder.getOwner(),
-                    "temporary limit name '" + name + "' should be unique within limit set '"
-                            + limitsAdder.getOperationalGroupId() + "'");
         }
     }
 
