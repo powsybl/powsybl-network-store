@@ -12,7 +12,6 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.model.*;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections4.CollectionUtils;
@@ -20,7 +19,6 @@ import org.apache.commons.collections4.MapUtils;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -50,7 +48,7 @@ public final class CalculatedBus implements BaseBus {
 
     private final ComponentImpl synchronousComponent;
 
-    private final Function<Terminal, Bus> getBusFromTerminal;
+    private final List<Integer> nodes;
 
     CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, Resource<VoltageLevelAttributes> voltageLevelResource,
                   int calculatedBusNum, boolean isBusView) {
@@ -63,7 +61,21 @@ public final class CalculatedBus implements BaseBus {
         this.isBusView = isBusView;
         connectedComponent = new ComponentImpl(this, ComponentType.CONNECTED);
         synchronousComponent = new ComponentImpl(this, ComponentType.SYNCHRONOUS);
-        getBusFromTerminal = isBusView ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
+        this.nodes = new ArrayList<>();
+    }
+
+    CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, Resource<VoltageLevelAttributes> voltageLevelResource,
+                  int calculatedBusNum, boolean isBusView, List<Integer> nodes) {
+        this.index = Objects.requireNonNull(index);
+        this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
+        this.id = Objects.requireNonNull(id);
+        this.name = name;
+        this.voltageLevelResource = Objects.requireNonNull(voltageLevelResource);
+        this.calculatedBusNum = calculatedBusNum;
+        this.isBusView = isBusView;
+        connectedComponent = new ComponentImpl(this, ComponentType.CONNECTED);
+        synchronousComponent = new ComponentImpl(this, ComponentType.SYNCHRONOUS);
+        this.nodes = new ArrayList<>(nodes);
     }
 
     boolean isBusView() {
@@ -201,20 +213,8 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public double getFictitiousP0() {
-        if (!getNetwork().isUseCalculatedBusFictitiousP0Q0()) {
-            // [performance.hack] TODO: this should absolutely not stay like this
-            /*
-            For now this method is not used in any service, and it is not filled (value is set to 0 in any bus) because
-            it will be filled later on by estimation computation. At this time we will have to fix this.
-            We introduce this hack because it causes serious performance regressions in loadflow computation
-            due to unpersisted bus graph. So, we will have to fix this issue before restablishing the original code.
-            Search [performance.hack] tag to see where it should be fixed in the code
-             */
-            return 0;
-        }
-
         return TopologyKind.NODE_BREAKER == getVoltageLevel().getTopologyKind() ?
-            Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal)
+            nodes.stream()
                 .mapToDouble(n -> getVoltageLevel().getNodeBreakerView().getFictitiousP0(n))
                 .reduce(0.0, Double::sum) :
             getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct()
@@ -225,11 +225,11 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Bus setFictitiousP0(double p0) {
         if (TopologyKind.NODE_BREAKER == getVoltageLevel().getTopologyKind()) {
-            Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal).forEach(n -> getVoltageLevel().getNodeBreakerView().setFictitiousP0(n, 0.0));
-            getVoltageLevel().getNodeBreakerView().setFictitiousP0(Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal)
-                    .findFirst()
-                    .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
-                p0);
+            if (nodes.isEmpty()) {
+                throw new PowsyblException("Bus " + id + " should contain at least one node");
+            }
+            nodes.forEach(n -> getVoltageLevel().getNodeBreakerView().setFictitiousP0(n, 0.0));
+            getVoltageLevel().getNodeBreakerView().setFictitiousP0(nodes.getFirst(), p0);
         } else {
             getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct().forEach(b -> b.setFictitiousP0(p0));
         }
@@ -238,34 +238,23 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public double getFictitiousQ0() {
-        if (!getNetwork().isUseCalculatedBusFictitiousP0Q0()) {
-            // [performance.hack] TODO: this should absolutely not stay like this
-            /*
-            For now this method is not used in any service, and it is not filled (value is set to 0 in any bus) because
-            it will be filled later on by estimation computation. At this time we will have to fix this.
-            We introduce this hack because it causes serious performance regressions in loadflow computation
-            due to unpersisted bus graph. So, we will have to fix this issue before restablishing the original code.
-            Search [performance.hack] tag to see where it should be fixed in the code
-             */
-            return 0;
-        }
         return TopologyKind.NODE_BREAKER == getVoltageLevel().getTopologyKind() ?
-            Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal)
-                .mapToDouble(n -> getVoltageLevel().getNodeBreakerView().getFictitiousQ0(n))
-                .reduce(0.0, Double::sum) :
-            getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct()
-                .map(Bus::getFictitiousQ0)
-                .reduce(0.0, Double::sum);
+                nodes.stream()
+                    .mapToDouble(n -> getVoltageLevel().getNodeBreakerView().getFictitiousQ0(n))
+                    .reduce(0.0, Double::sum) :
+                getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct()
+                    .map(Bus::getFictitiousQ0)
+                    .reduce(0.0, Double::sum);
     }
 
     @Override
     public Bus setFictitiousQ0(double q0) {
         if (TopologyKind.NODE_BREAKER == getVoltageLevel().getTopologyKind()) {
-            Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal).forEach(n -> getVoltageLevel().getNodeBreakerView().setFictitiousQ0(n, 0.0));
-            getVoltageLevel().getNodeBreakerView().setFictitiousQ0(Networks.getNodes(id, getVoltageLevel(), getBusFromTerminal)
-                    .findFirst()
-                    .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
-                q0);
+            if (nodes.isEmpty()) {
+                throw new PowsyblException("Bus " + id + " should contain at least one node");
+            }
+            nodes.forEach(n -> getVoltageLevel().getNodeBreakerView().setFictitiousQ0(n, 0.0));
+            getVoltageLevel().getNodeBreakerView().setFictitiousQ0(nodes.getFirst(), q0);
         } else {
             getAllTerminalsStream().map(t -> t.getBusBreakerView().getBus()).distinct().forEach(b -> b.setFictitiousQ0(q0));
         }
