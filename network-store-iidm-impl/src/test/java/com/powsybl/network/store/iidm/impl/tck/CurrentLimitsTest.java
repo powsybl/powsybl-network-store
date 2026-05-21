@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.tck.AbstractCurrentLimitsTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -79,30 +81,26 @@ class CurrentLimitsTest extends AbstractCurrentLimitsTest {
         return network;
     }
 
-    private void createLimitsWithDuplicateName(Line line) {
-        line.getOrCreateSelectedOperationalLimitsGroup1()
-                .newCurrentLimits()
+    @Override
+    @Test
+    public void testNameDuplicationIsAllowed() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimits currentLimits = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                 .setName("TL")
-                .setAcceptableDuration(1200)
+                .setAcceptableDuration(20 * 60)
                 .setValue(1200.0)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
-                .setName("TL") // duplication
-                .setAcceptableDuration(600)
+                .setName("TL")
+                .setAcceptableDuration(10 * 60)
                 .setValue(1400.0)
-                .endTemporaryLimit();
-    }
+                .endTemporaryLimit()
+                .add();
 
-    @Override
-    @Test
-    public void testNameDuplicationIsAllowed() { // testNameDuplicationIsNotAllowed To RENAME
-        Line line = createNetwork().getLine("L");
-        String message = Assertions.assertThrows(ValidationException.class, () ->
-                createLimitsWithDuplicateName(line)
-        ).getMessage();
-        Assertions.assertEquals("AC line 'L': temporary limit name 'TL' should be unique within limit set 'DEFAULT'", message);
+        assertEquals("TL", currentLimits.getTemporaryLimit(20 * 60).getName());
+        assertEquals("TL#0", currentLimits.getTemporaryLimit(10 * 60).getName());
     }
 
     @Test
