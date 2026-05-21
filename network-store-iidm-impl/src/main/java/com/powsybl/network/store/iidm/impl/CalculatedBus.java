@@ -50,22 +50,14 @@ public final class CalculatedBus implements BaseBus {
 
     private final List<Integer> nodes;
 
-    CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, Resource<VoltageLevelAttributes> voltageLevelResource,
-                  int calculatedBusNum, boolean isBusView) {
-        this.index = Objects.requireNonNull(index);
-        this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
-        this.id = Objects.requireNonNull(id);
-        this.name = name;
-        this.voltageLevelResource = Objects.requireNonNull(voltageLevelResource);
-        this.calculatedBusNum = calculatedBusNum;
-        this.isBusView = isBusView;
-        connectedComponent = new ComponentImpl(this, ComponentType.CONNECTED);
-        synchronousComponent = new ComponentImpl(this, ComponentType.SYNCHRONOUS);
-        this.nodes = new ArrayList<>();
+    CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name,
+                  Resource<VoltageLevelAttributes> voltageLevelResource, int calculatedBusNum, boolean isBusView) {
+        this(index, voltageLevelId, id, name, voltageLevelResource, calculatedBusNum, isBusView, Collections.emptyList());
     }
 
-    CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, Resource<VoltageLevelAttributes> voltageLevelResource,
-                  int calculatedBusNum, boolean isBusView, List<Integer> nodes) {
+    CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name,
+                  Resource<VoltageLevelAttributes> voltageLevelResource, int calculatedBusNum, boolean isBusView,
+                  List<Integer> nodes) {
         this.index = Objects.requireNonNull(index);
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
         this.id = Objects.requireNonNull(id);
