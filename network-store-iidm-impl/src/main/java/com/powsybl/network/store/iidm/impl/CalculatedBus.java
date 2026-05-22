@@ -50,6 +50,7 @@ public final class CalculatedBus implements BaseBus {
 
     private final List<Integer> nodes;
 
+    // Used in bus-breaker view as nodes are not defined and won't be used in calculations
     CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name,
                   Resource<VoltageLevelAttributes> voltageLevelResource, int calculatedBusNum, boolean isBusView) {
         this(index, voltageLevelId, id, name, voltageLevelResource, calculatedBusNum, isBusView, Collections.emptyList());
