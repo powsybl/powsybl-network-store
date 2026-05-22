@@ -14,6 +14,8 @@ import com.powsybl.network.store.iidm.impl.AbstractInjectionImpl;
 import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 
+import java.util.Objects;
+
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
@@ -35,7 +37,7 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
 
         private Integer order;
 
-        private ConnectablePosition.Direction direction;
+        private ConnectablePosition.Direction direction = ConnectablePosition.Direction.UNDEFINED;
 
         public FeederAdderImpl withName(String name) {
             this.name = name;
@@ -48,7 +50,7 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
         }
 
         public FeederAdderImpl withDirection(ConnectablePosition.Direction direction) {
-            this.direction = direction;
+            this.direction = Objects.requireNonNullElse(direction, ConnectablePosition.Direction.UNDEFINED);
             return this;
         }
 
