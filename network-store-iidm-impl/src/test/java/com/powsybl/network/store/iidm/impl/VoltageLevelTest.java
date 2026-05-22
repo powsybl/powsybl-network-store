@@ -23,6 +23,10 @@ import static org.junit.Assert.*;
  */
 public class VoltageLevelTest {
 
+    private static final double EPSILON = 0.0001;
+    private static final double FICTITIOUS_P0 = 10.;
+    private static final double FICTITIOUS_Q0 = 15.;
+
     @Test
     // For busbreaker topology,
     // set in busbreakerview when busview cache exists
@@ -221,5 +225,150 @@ public class VoltageLevelTest {
         assertNotNull(vl1.getExtension(IdentifiableShortCircuit.class));
         assertTrue(vl1.removeExtension(IdentifiableShortCircuit.class));
         assertNull(vl1.getExtension(IdentifiableShortCircuit.class));
+    }
+
+    @Test
+    public void testFictitiousInjectionsInNodeBreaker() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+
+        assertEquals(0., vl1.getNodeBreakerView().getFictitiousP0(0), EPSILON);
+        assertEquals(0., vl1.getNodeBreakerView().getFictitiousQ0(0), EPSILON);
+
+        assertEquals(0., vl1.getBusBreakerView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(0., vl1.getBusBreakerView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+
+        assertEquals(0., vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(0., vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+
+        vl1.getNodeBreakerView().setFictitiousP0(0, FICTITIOUS_P0);
+        vl1.getNodeBreakerView().setFictitiousQ0(0, FICTITIOUS_Q0);
+
+        assertEquals(FICTITIOUS_P0, vl1.getNodeBreakerView().getFictitiousP0(0), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getNodeBreakerView().getFictitiousQ0(0), EPSILON);
+
+        assertEquals(FICTITIOUS_P0, vl1.getBusBreakerView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+
+        assertEquals(FICTITIOUS_P0, vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+    }
+
+    @Test
+    public void testFictitiousInjectionsInNodeBreakerWithSeveralBBSAreRecomputedAfterDisconnection() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        addBusBarSection(vl1);
+        vl1.getNodeBreakerView().setFictitiousP0(0, FICTITIOUS_P0);
+        vl1.getNodeBreakerView().setFictitiousQ0(0, FICTITIOUS_Q0);
+        vl1.getNodeBreakerView().setFictitiousP0(7, FICTITIOUS_P0);
+        vl1.getNodeBreakerView().setFictitiousQ0(7, FICTITIOUS_Q0);
+
+        assertEquals(FICTITIOUS_P0, vl1.getNodeBreakerView().getFictitiousP0(0), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getNodeBreakerView().getFictitiousQ0(0), EPSILON);
+
+        assertEquals(2 * FICTITIOUS_P0, vl1.getBusBreakerView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(2 * FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+
+        assertEquals(2 * FICTITIOUS_P0, vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(2 * FICTITIOUS_Q0, vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+
+        vl1.getNodeBreakerView().getSwitch("D3").setOpen(true);
+        assertEquals(FICTITIOUS_P0, vl1.getNodeBreakerView().getFictitiousP0(0), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getNodeBreakerView().getFictitiousQ0(0), EPSILON);
+        assertEquals(FICTITIOUS_P0, vl1.getNodeBreakerView().getFictitiousP0(7), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getNodeBreakerView().getFictitiousQ0(7), EPSILON);
+
+        assertEquals(FICTITIOUS_P0, vl1.getBusBreakerView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+        assertEquals(FICTITIOUS_P0, vl1.getBusBreakerView().getBus("VL1_7").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("VL1_7").getFictitiousQ0(), EPSILON);
+
+        assertEquals(FICTITIOUS_P0, vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+        assertEquals(FICTITIOUS_P0, vl1.getBusView().getBus("VL1_7").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusView().getBus("VL1_7").getFictitiousQ0(), EPSILON);
+    }
+
+    @Test
+    public void testFictitiousInjectionsInBusBreaker() {
+        Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+
+        assertEquals(0., vl1.getBusBreakerView().getBus("B1").getFictitiousP0(), EPSILON);
+        assertEquals(0., vl1.getBusBreakerView().getBus("B1").getFictitiousQ0(), EPSILON);
+        assertEquals(0., vl1.getBusBreakerView().getBus("B2").getFictitiousP0(), EPSILON);
+        assertEquals(0., vl1.getBusBreakerView().getBus("B2").getFictitiousQ0(), EPSILON);
+
+        assertEquals(0., vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(0., vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+
+        vl1.getBusBreakerView().getBus("B2").setFictitiousP0(FICTITIOUS_P0);
+        vl1.getBusBreakerView().getBus("B2").setFictitiousQ0(FICTITIOUS_Q0);
+
+        assertEquals(0., vl1.getBusBreakerView().getBus("B1").getFictitiousP0(), EPSILON);
+        assertEquals(0., vl1.getBusBreakerView().getBus("B1").getFictitiousQ0(), EPSILON);
+        assertEquals(FICTITIOUS_P0, vl1.getBusBreakerView().getBus("B2").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("B2").getFictitiousQ0(), EPSILON);
+
+        assertEquals(FICTITIOUS_P0, vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+    }
+
+    @Test
+    public void testFictitiousInjectionsInBusBreakerWithSeveralBusesAreReComputedAfterDisconnection() {
+        Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        vl1.getBusBreakerView().getBus("B1").setFictitiousP0(FICTITIOUS_P0);
+        vl1.getBusBreakerView().getBus("B1").setFictitiousQ0(FICTITIOUS_Q0);
+        vl1.getBusBreakerView().getBus("B2").setFictitiousP0(FICTITIOUS_P0);
+        vl1.getBusBreakerView().getBus("B2").setFictitiousQ0(FICTITIOUS_Q0);
+
+        assertEquals(FICTITIOUS_P0, vl1.getBusBreakerView().getBus("B1").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("B1").getFictitiousQ0(), EPSILON);
+        assertEquals(FICTITIOUS_P0, vl1.getBusBreakerView().getBus("B2").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("B2").getFictitiousQ0(), EPSILON);
+
+        assertEquals(2 * FICTITIOUS_P0, vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(2 * FICTITIOUS_Q0, vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+
+        vl1.getBusBreakerView().getSwitch("BR1").setOpen(true);
+        assertEquals(FICTITIOUS_P0, vl1.getBusBreakerView().getBus("B1").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("B1").getFictitiousQ0(), EPSILON);
+        assertEquals(FICTITIOUS_P0, vl1.getBusBreakerView().getBus("B2").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("B2").getFictitiousQ0(), EPSILON);
+
+        assertEquals(FICTITIOUS_P0, vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+        assertEquals(FICTITIOUS_P0, vl1.getBusView().getBus("VL1_1").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusView().getBus("VL1_1").getFictitiousQ0(), EPSILON);
+    }
+
+    private void addBusBarSection(VoltageLevel vl1) {
+        vl1.getNodeBreakerView().newBusbarSection()
+                .setId("BBS3")
+                .setNode(7)
+                .add();
+        vl1.getNodeBreakerView().newDisconnector()
+                .setId("D4")
+                .setNode1(7)
+                .setNode2(8)
+                .setOpen(false)
+                .add();
+        vl1.newGenerator()
+                .setId("G3")
+                .setNode(8)
+                .setMaxP(100.0)
+                .setMinP(50.0)
+                .setTargetP(100.0)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
+                .add();
+        vl1.getNodeBreakerView().newDisconnector()
+                .setId("D3")
+                .setNode1(0)
+                .setNode2(7)
+                .setOpen(false)
+                .add();
     }
 }
