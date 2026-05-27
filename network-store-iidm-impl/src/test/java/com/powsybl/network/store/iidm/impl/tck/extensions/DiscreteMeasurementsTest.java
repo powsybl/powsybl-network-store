@@ -10,17 +10,27 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
+import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 import com.powsybl.iidm.network.tck.extensions.AbstractDiscreteMeasurementsTest;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.network.store.iidm.impl.TwoWindingsTransformerImpl;
+import com.powsybl.network.store.model.DiscreteMeasurementAttributes;
+import com.powsybl.network.store.model.DiscreteMeasurementsAttributes;
+import com.powsybl.network.store.model.ExtensionAttributes;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
+import java.util.UUID;
 
+import static com.powsybl.iidm.network.extensions.DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER;
 import static com.powsybl.iidm.network.extensions.DiscreteMeasurement.ValueType.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -114,5 +124,54 @@ public class DiscreteMeasurementsTest extends AbstractDiscreteMeasurementsTest {
 
         ptcPos.remove();
         assertTrue(twtDisMeasurements.getDiscreteMeasurements().isEmpty());
+    }
+
+    @Test
+    void addDiscreteMeasurementShouldUpdateResourceWithoutNotification() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        TwoWindingsTransformerImpl twt = (TwoWindingsTransformerImpl) network.getTwoWindingsTransformer("NGEN_NHV1");
+        TwoWindingsTransformerImpl twtSpy = Mockito.spy(twt);
+        DiscreteMeasurementsAdder<?> discreteMeasurementsAdder = twtSpy.newExtension(DiscreteMeasurementsAdder.class);
+        DiscreteMeasurements<?> discreteMeasurements = discreteMeasurementsAdder.add();
+
+        String expectedId = UUID.randomUUID().toString();
+        boolean expectedValidity = true;
+        int expectedValue = 100;
+        DiscreteMeasurement.Type expectedType = DiscreteMeasurement.Type.TAP_POSITION;
+        DiscreteMeasurement.TapChanger expectedTapChanger = RATIO_TAP_CHANGER;
+        DiscreteMeasurementAdder dmAdder = discreteMeasurements.newDiscreteMeasurement()
+                .setId(expectedId)
+                .setType(expectedType)
+                .setValid(expectedValidity)
+                .setValue(expectedValue)
+                .setTapChanger(expectedTapChanger);
+        Mockito.clearInvocations(twtSpy);
+        dmAdder.add();
+
+        Map<String, ExtensionAttributes> extensionAttributes = twtSpy.getResource()
+                .getAttributes()
+                .getExtensionAttributes();
+        DiscreteMeasurementsAttributes twtDiscreteMeasurementsAttributes = (DiscreteMeasurementsAttributes) extensionAttributes.get(DiscreteMeasurements.NAME);
+        ArgumentCaptor<DiscreteMeasurementAttributes> argumentCaptor = ArgumentCaptor.forClass(DiscreteMeasurementAttributes.class);
+        Mockito.verify(twtSpy).updateResourceExtension(Mockito.eq(discreteMeasurements), Mockito.any(), Mockito.eq("discreteMeasurements.discreteMeasurement"), Mockito.eq(null), argumentCaptor.capture());
+        DiscreteMeasurementAttributes actualMeasurementAttributesFromResourceUpdate = argumentCaptor.getValue();
+        assertEquals(1, extensionAttributes.size());
+        assertEquals(1, twtDiscreteMeasurementsAttributes.getDiscreteMeasurementAttributes().size());
+        assertDiscreteMeasurementAttributes(twtDiscreteMeasurementsAttributes.getDiscreteMeasurementAttributes().getFirst(), expectedId, expectedValidity, expectedValue, expectedType, expectedTapChanger);
+        assertDiscreteMeasurementAttributes(actualMeasurementAttributesFromResourceUpdate, expectedId, expectedValidity, expectedValue, expectedType, expectedTapChanger);
+    }
+
+    private void assertDiscreteMeasurementAttributes(DiscreteMeasurementAttributes discreteMeasurementAttributes,
+                                                     String expectedId,
+                                                     boolean expectedValidity,
+                                                     int expectedValue,
+                                                     DiscreteMeasurement.Type expectedType,
+                                                     DiscreteMeasurement.TapChanger expectedTapChanger) {
+        assertEquals(expectedId, discreteMeasurementAttributes.getId());
+        assertEquals(expectedValidity, discreteMeasurementAttributes.isValid());
+        assertEquals(expectedValue, discreteMeasurementAttributes.getValue());
+        assertEquals(expectedType, discreteMeasurementAttributes.getType());
+        assertEquals(expectedTapChanger, discreteMeasurementAttributes.getTapChanger());
     }
 }
