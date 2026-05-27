@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DiscreteMeasurementsTest extends AbstractDiscreteMeasurementsTest {
+class DiscreteMeasurementsTest extends AbstractDiscreteMeasurementsTest {
 
     //FIXME delete this test when extension deletion is implemented
     @Test

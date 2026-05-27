@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class CgmesTapChangersTest {
+class CgmesTapChangersTest {
     @Test
     void addTapChangerShouldUpdateResourceWithoutNotification() {
         Network network = EurostagTutorialExample1Factory.create();

@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class ReferencePrioritiesTest {
+class ReferencePrioritiesTest {
     @Test
     void addReferencePriorityShouldUpdateResourceWithoutNotification() {
         Network network = EurostagTutorialExample1Factory.create();
