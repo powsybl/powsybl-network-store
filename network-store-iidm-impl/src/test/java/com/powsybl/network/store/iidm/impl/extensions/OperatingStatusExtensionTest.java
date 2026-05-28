@@ -193,7 +193,7 @@ public class OperatingStatusExtensionTest {
         assertNull(l1.getExtension(OperatingStatus.class));
     }
 
-    private static class MockNetworkListenerWithExceptions extends DummyNetworkListener {
+    private static final class MockNetworkListenerWithExceptions extends DummyNetworkListener {
         @Override
         public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
             throw new UnsupportedOperationException("error'");

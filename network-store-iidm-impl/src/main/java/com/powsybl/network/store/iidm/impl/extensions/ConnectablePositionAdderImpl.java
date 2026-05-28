@@ -31,7 +31,7 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
         super(connectable);
     }
 
-    private class FeederAdderImpl implements FeederAdder<C> {
+    private final class FeederAdderImpl implements FeederAdder<C> {
 
         private String name;
 
