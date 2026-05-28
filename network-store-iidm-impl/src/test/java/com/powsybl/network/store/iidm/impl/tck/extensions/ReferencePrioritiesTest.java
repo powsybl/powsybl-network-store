@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class ReferencePrioritiesTest {
     @Test
-    void addReferencePriorityShouldUpdateResourceWithoutNotification() {
+    void addReferencePriorityShouldUpdateResource() {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         TwoWindingsTransformerImpl twt = (TwoWindingsTransformerImpl) network.getTwoWindingsTransformer("NGEN_NHV1");
