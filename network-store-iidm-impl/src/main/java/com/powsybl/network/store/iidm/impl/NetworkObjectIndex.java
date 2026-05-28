@@ -843,7 +843,6 @@ public class NetworkObjectIndex {
         tieLineCache.remove(tieLineId);
     }
 
-
     // shunt compensator
 
     Optional<ShuntCompensatorImpl> getShuntCompensator(String id) {
