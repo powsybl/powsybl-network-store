@@ -352,7 +352,6 @@ public interface NetworkStoreClient {
      */
     Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side);
 
-
     /**
      * For one identifiable with a specific identifiable id, retrieves the selected operational limits group attributes.
      * @return {@link LimitsAttributes} which is a subset of an identifiable resource.
