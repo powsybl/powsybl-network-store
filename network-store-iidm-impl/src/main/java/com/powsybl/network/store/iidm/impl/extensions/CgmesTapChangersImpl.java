@@ -12,8 +12,9 @@ import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
-import com.powsybl.network.store.model.TransformerAttributes;
+import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl;
+import com.powsybl.network.store.iidm.impl.TwoWindingsTransformerImpl;
+import com.powsybl.network.store.model.CgmesTapChangersAttributes;
 
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -30,13 +31,18 @@ public class CgmesTapChangersImpl<C extends Connectable<C>> extends AbstractExte
         super(transformer);
     }
 
-    private TransformerAttributes getAttributes() {
-        return (TransformerAttributes) ((AbstractIdentifiableImpl<?, ?>) getExtendable()).getResource().getAttributes();
+    CgmesTapChangersAttributes getAttributes() {
+        if (getExtendable() instanceof TwoWindingsTransformerImpl twt) {
+            return (CgmesTapChangersAttributes) twt.getResource().getAttributes().getExtensionAttributes().get(CgmesTapChangers.NAME);
+        } else if (getExtendable() instanceof ThreeWindingsTransformerImpl twt) {
+            return (CgmesTapChangersAttributes) twt.getResource().getAttributes().getExtensionAttributes().get(CgmesTapChangers.NAME);
+        }
+        throw new PowsyblException("Cgmes tap changer extension is not allowed on identifiable type: " + getExtendable().getType());
     }
 
     @Override
     public Set<CgmesTapChanger> getTapChangers() {
-        return getAttributes().getCgmesTapChangerAttributesList()
+        return getAttributes().getCgmesTapChangers()
                 .stream()
                 .map(attributes -> (CgmesTapChanger) new CgmesTapChangerImpl(attributes))
                 .sorted(Comparator.comparing(CgmesTapChanger::getId))
@@ -59,9 +65,9 @@ public class CgmesTapChangersImpl<C extends Connectable<C>> extends AbstractExte
     }
 
     void putTapChanger(CgmesTapChangerImpl tapChanger) {
-        if (getAttributes().getCgmesTapChangerAttributesList().stream().anyMatch(attribute -> attribute.getId().equals(tapChanger.getId()))) {
+        if (getAttributes().getCgmesTapChangers().stream().anyMatch(attribute -> attribute.getId().equals(tapChanger.getId()))) {
             throw new PowsyblException(String.format("Tap changer %s has already been added", tapChanger.getId()));
         }
-        getAttributes().getCgmesTapChangerAttributesList().add(tapChanger.getAttributes());
+        getAttributes().getCgmesTapChangers().add(tapChanger.getAttributes());
     }
 }
