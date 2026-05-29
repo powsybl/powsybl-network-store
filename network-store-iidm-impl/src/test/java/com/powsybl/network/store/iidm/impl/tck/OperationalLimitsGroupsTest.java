@@ -59,10 +59,12 @@ public class OperationalLimitsGroupsTest extends AbstractOperationalLimitsGroups
     }
 
     @Override
-    public void violationUtilCheckTemporaryLimits(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value, Collection<ExpectedOverload> expected) {
+    public void violationUtilCheckTemporaryLimits(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value,
+            Collection<ExpectedOverload> expected) {
     }
 
     @Override
-    public void operationalLimitsGroupLimitReductionValueSelection(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, Collection<String> groupsToApplyLimitReduction, LimitType type, double value, Collection<ExpectedOverload> expected) {
+    public void operationalLimitsGroupLimitReductionValueSelection(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, Collection<String> groupsToApplyLimitReduction,
+            LimitType type, double value, Collection<ExpectedOverload> expected) {
     }
 }

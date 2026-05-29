@@ -6,21 +6,18 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.Optional;
-import java.util.Set;
-
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl.LegImpl;
 import com.powsybl.network.store.model.LimitsAttributes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl.LegImpl;
+import java.util.Optional;
+import java.util.Set;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */

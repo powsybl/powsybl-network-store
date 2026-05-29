@@ -7,11 +7,9 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

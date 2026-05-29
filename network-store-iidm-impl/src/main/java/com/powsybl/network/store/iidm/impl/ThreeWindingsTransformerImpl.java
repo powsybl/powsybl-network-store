@@ -49,7 +49,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
 
         private final NetworkObjectIndex index;
 
-        public LegImpl(ThreeWindingsTransformerImpl transformer, Function<ThreeWindingsTransformerAttributes, LegAttributes> legGetter, NetworkObjectIndex index) {
+        LegImpl(ThreeWindingsTransformerImpl transformer, Function<ThreeWindingsTransformerAttributes, LegAttributes> legGetter, NetworkObjectIndex index) {
             this.transformer = transformer;
             this.legGetter = legGetter;
             this.index = index;

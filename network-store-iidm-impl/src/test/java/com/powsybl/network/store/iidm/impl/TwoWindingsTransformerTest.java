@@ -430,8 +430,10 @@ class TwoWindingsTransformerTest {
         assertNull(network.getTwoWindingsTransformer(twoWindingsTransformerId));
         List<? extends Record> expectedEvents = List.of(
                 new RemovalNetworkEvent(twoWindingsTransformerId, false),
-                new UpdateNetworkEvent(twoWindingsTransformerId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
-                new UpdateNetworkEvent(generatorId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.ONE.name()).build(), TerminalRefAttributes.builder().connectableId(generatorId).build()),
+                new UpdateNetworkEvent(twoWindingsTransformerId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(
+                        twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
+                new UpdateNetworkEvent(generatorId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(
+                        TwoSides.ONE.name()).build(), TerminalRefAttributes.builder().connectableId(generatorId).build()),
                 new UpdateNetworkEvent(generatorId, "regulatedResourceType", VariantManagerConstants.INITIAL_VARIANT_ID, ResourceType.TWO_WINDINGS_TRANSFORMER, ResourceType.GENERATOR),
                 new UpdateNetworkEvent(generatorId, "regulating", VariantManagerConstants.INITIAL_VARIANT_ID, true, false),
                 new RemovalNetworkEvent(twoWindingsTransformerId, true));

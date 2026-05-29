@@ -336,7 +336,8 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         return (VoltageLevelImpl) vl2;
     }
 
-    private void testSetMultipleBusAcrossViews(Supplier<VoltageLevel> networkVoltageLevelSupplier, Map<String, String> busBreakerViewBusToBusViewBus, Map<String, List<String>> busViewBusToBusBreakerViewBus,
+    private void testSetMultipleBusAcrossViews(Supplier<VoltageLevel> networkVoltageLevelSupplier, Map<String, String> busBreakerViewBusToBusViewBus, Map<String,
+            List<String>> busViewBusToBusBreakerViewBus,
             Function<Bus, Double> getter, BiConsumer<Bus, Double> setter) {
 
         VoltageLevel vl;
@@ -345,7 +346,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         // test with views that are initialized but unset, new network each time
         // currently no need to be deterministic for this to work, the last set
         // in the busbreakerview is applied to the busview
-        for (Map.Entry<String, String > entry : busBreakerViewBusToBusViewBus.entrySet()) {
+        for (Map.Entry<String, String> entry : busBreakerViewBusToBusViewBus.entrySet()) {
             String busbreakerviewbusid = entry.getKey();
             String busviewbusid = entry.getValue();
             vl = networkVoltageLevelSupplier.get();
@@ -361,7 +362,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         // currently no need to be deterministic for this to work, the last set
         // in the busbreakerview is applied to the busview
         vl = networkVoltageLevelSupplier.get();
-        for (Map.Entry<String, String > entry : busBreakerViewBusToBusViewBus.entrySet()) {
+        for (Map.Entry<String, String> entry : busBreakerViewBusToBusViewBus.entrySet()) {
             String busbreakerviewbusid = entry.getKey();
             String busviewbusid = entry.getValue();
             setAllBusBreakerViewBusAndBusViewBus(vl, Double.NaN, setter);
@@ -370,7 +371,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
 
         // test with both views invalid, new network each time,
         // in this case we need to set all bbvbs to get a deterministic behavior
-        for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : busViewBusToBusBreakerViewBus.entrySet()) {
             String busviewbusid = entry.getKey();
             List<String> busbreakerviewbusids = entry.getValue();
             vl = networkVoltageLevelSupplier.get();
@@ -385,7 +386,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
 
         // test with busview invalid, busbreakerview unset, new network each time
         // in this case we need to set all bbvbs to get a deterministic behavior
-        for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : busViewBusToBusBreakerViewBus.entrySet()) {
             String busviewbusid = entry.getKey();
             List<String> busbreakerviewbusids = entry.getValue();
             vl = networkVoltageLevelSupplier.get();
@@ -400,7 +401,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
 
             // test with busbreakerview invalid, busview unset
             // in this case we need to set all bbvbs to get a deterministic behavior
-            for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
+            for (Map.Entry<String, List<String>> entry : busViewBusToBusBreakerViewBus.entrySet()) {
                 String busviewbusid = entry.getKey();
                 List<String> busbreakerviewbusids = entry.getValue();
                 vl = networkVoltageLevelSupplier.get();
@@ -411,7 +412,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         }
 
         // test with views that are not initialized at all, new network each time
-        for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : busViewBusToBusBreakerViewBus.entrySet()) {
             String busviewbusid = entry.getKey();
             List<String> busbreakerviewbusids = entry.getValue();
             vl = networkVoltageLevelSupplier.get();
@@ -470,7 +471,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         // test with views that are initialized but unset, new network each time
         // currently no need to be deterministic for this to work, the last set
         // in the busbreakerview is applied to the busview
-        for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : busViewBusToBusBreakerViewBus.entrySet()) {
             String busviewbusid = entry.getKey();
             List<String> busbreakerviewbusids = entry.getValue();
             vl = networkVoltageLevelSupplier.get();
@@ -483,7 +484,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
 
         // test with views that is initialized and everything set to nan, reuse network
         vl = networkVoltageLevelSupplier.get();
-        for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : busViewBusToBusBreakerViewBus.entrySet()) {
             String busviewbusid = entry.getKey();
             List<String> busbreakerviewbusids = entry.getValue();
             setAllBusBreakerViewBusAndBusViewBus(vl, Double.NaN, setter);
@@ -491,7 +492,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         }
 
         // test with both views invalid, new network each time
-        for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : busViewBusToBusBreakerViewBus.entrySet()) {
             String busviewbusid = entry.getKey();
             List<String> busbreakerviewbusids = entry.getValue();
             vl = networkVoltageLevelSupplier.get();
@@ -505,7 +506,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         }
 
         // test with busview invalid, busbreakerview unset, new network each time
-        for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : busViewBusToBusBreakerViewBus.entrySet()) {
             String busviewbusid = entry.getKey();
             List<String> busbreakerviewbusids = entry.getValue();
             vl = networkVoltageLevelSupplier.get();
@@ -519,7 +520,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
             // for busbreakertopology it's the same as all views uninitialized
 
             // test with busbreakerview invalid, busview unset
-            for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
+            for (Map.Entry<String, List<String>> entry : busViewBusToBusBreakerViewBus.entrySet()) {
                 String busviewbusid = entry.getKey();
                 List<String> busbreakerviewbusids = entry.getValue();
                 vl = networkVoltageLevelSupplier.get();
@@ -530,7 +531,7 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
         }
 
         // test with views that are not initialized at all, new network each time
-        for (Map.Entry<String, List<String> > entry : busViewBusToBusBreakerViewBus.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : busViewBusToBusBreakerViewBus.entrySet()) {
             String busviewbusid = entry.getKey();
             List<String> busbreakerviewbusids = entry.getValue();
             vl = networkVoltageLevelSupplier.get();

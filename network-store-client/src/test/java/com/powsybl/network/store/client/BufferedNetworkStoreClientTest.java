@@ -209,7 +209,8 @@ public class BufferedNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
                 .andExpect(method(PUT))
                 // no operational limits group in request, no filter field (PRIMARY)
-                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"regulatingEquipments\":[]}}]"))
+                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":"
+                        + "6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"regulatingEquipments\":[]}}]"))
                 .andRespond(withSuccess());
         bufferedClient.flush(networkUuid);
         server.verify();
@@ -252,7 +253,8 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.updateLines(networkUuid, List.of(l1, l2), AttributeFilter.SV);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/sv"))
                 .andExpect(method(PUT))
-                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}},{\"type\":\"LINE\",\"id\":\"LINE_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
+                .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}"
+                        + "},{\"type\":\"LINE\",\"id\":\"LINE_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
                 .andRespond(withSuccess());
         bufferedClient.flush(networkUuid);
         server.verify();
@@ -285,7 +287,9 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.SV);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers/sv"))
                 .andExpect(method(PUT))
-                .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
+                .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,"
+                        + "\"p2\":2.0,\"q2\":4.0}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":"
+                              + "3.0,\"p2\":2.0,\"q2\":4.0}}]"))
                 .andRespond(withSuccess());
         bufferedClient.flush(networkUuid);
         server.verify();
@@ -295,7 +299,13 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.PRIMARY_AS_NULL);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers"))
                 .andExpect(method(PUT))
-                .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}}]"))
+                .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":"
+                        + "{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,"
+                              + "\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\","
+                                    + "\"regulatingTapChangerType\":\"NONE\"}]}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"attributes\":{\"fictitious\":"
+                                          + "false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0,\"g\":0.0,\"b\":0.0,\"ratedU1\":0.0,\"ratedU2\":0.0,\"ratedS\":0.0,\"p1\":1.0,"
+                                                + "\"q1\":3.0,\"p2\":2.0,\"q2\":4.0,\"selectedOperationalLimitsGroupId1\":\"selectedGroupId1\",\"regulatingEquipments\":[{"
+                                                      + "\"equipmentId\":\"loadId\",\"resourceType\":\"LOAD\",\"regulatingTapChangerType\":\"NONE\"}]}}]"))
                 .andRespond(withSuccess());
         bufferedClient.flush(networkUuid);
         server.verify();

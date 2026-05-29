@@ -48,7 +48,8 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractExtension<HvdcLine
     public HvdcOperatorActivePowerRangeImpl setOprFromCS1toCS2(float oprFromCS1toCS2) {
         float oldValue = getOprFromCS1toCS2();
         if (oldValue != oprFromCS1toCS2) {
-            getHvdcLine().updateResourceExtension(this, res -> res.getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS1toCS2(checkOPR(oprFromCS1toCS2, getHvdcLine().getConverterStation1(), getHvdcLine().getConverterStation2())), "oprFromCS1toCS2", oldValue, oprFromCS1toCS2);
+            getHvdcLine().updateResourceExtension(this, res -> res.getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS1toCS2(checkOPR(oprFromCS1toCS2, getHvdcLine().getConverterStation1(),
+                    getHvdcLine().getConverterStation2())), "oprFromCS1toCS2", oldValue, oprFromCS1toCS2);
         }
         return this;
     }
@@ -57,7 +58,8 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractExtension<HvdcLine
     public HvdcOperatorActivePowerRangeImpl setOprFromCS2toCS1(float oprFromCS2toCS1) {
         float oldValue = getOprFromCS2toCS1();
         if (oldValue != oprFromCS2toCS1) {
-            getHvdcLine().updateResourceExtension(this, res -> res.getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS2toCS1(checkOPR(oprFromCS2toCS1, getHvdcLine().getConverterStation1(), getHvdcLine().getConverterStation2())), "oprFromCS2toCS1", oldValue, oprFromCS2toCS1);
+            getHvdcLine().updateResourceExtension(this, res -> res.getAttributes().getHvdcOperatorActivePowerRange().setOprFromCS2toCS1(checkOPR(oprFromCS2toCS1, getHvdcLine().getConverterStation1(),
+                    getHvdcLine().getConverterStation2())), "oprFromCS2toCS1", oldValue, oprFromCS2toCS1);
         }
         return this;
     }

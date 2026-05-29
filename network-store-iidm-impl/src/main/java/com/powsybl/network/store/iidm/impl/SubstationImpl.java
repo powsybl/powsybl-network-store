@@ -200,7 +200,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     @Override
     @SuppressWarnings("unchecked")
     public <E extends Extension<Substation>> E getExtensionByName(String name) {
-        if (name.equals("entsoeArea")) {
+        if ("entsoeArea".equals(name)) {
             return (E) createEntsoeArea();
         }
         return super.getExtensionByName(name);

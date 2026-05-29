@@ -66,10 +66,12 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
         String oldValue = getProperty(name);
         this.abstractIdentifiable.updateResourceExtension(discreteMeasurements,
             resource -> {
-                int index = ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().indexOf(this.discreteMeasurementAttributes);
+                int index = ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().indexOf(this
+                        .discreteMeasurementAttributes);
                 if (index != -1) {
                     this.discreteMeasurementAttributes.getProperties().put(name, value);
-                    ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().set(index, this.discreteMeasurementAttributes);
+                    ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().set(index, this
+                            .discreteMeasurementAttributes);
                 }
             }, "property " + name + " for " + getInfo(), oldValue, value);
         return this;
@@ -166,7 +168,8 @@ public class DiscreteMeasurementImpl implements DiscreteMeasurement {
     @Override
     public void remove() {
         this.abstractIdentifiable.updateResourceExtension(discreteMeasurements, resource ->
-                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().remove(this.discreteMeasurementAttributes),
+                ((DiscreteMeasurementsAttributes) resource.getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME)).getDiscreteMeasurementAttributes().remove(this
+                        .discreteMeasurementAttributes),
             getInfo(), this.discreteMeasurementAttributes, null);
     }
 

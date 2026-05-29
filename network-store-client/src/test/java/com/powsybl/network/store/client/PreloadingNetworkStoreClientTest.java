@@ -897,7 +897,8 @@ public class PreloadingNetworkStoreClientTest {
                 .andRespond(withSuccess(threeWindingsTransformerJson, MediaType.APPLICATION_JSON));
 
         // First time three windings transformer retrieval by Id
-        Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerAttributesResource = cachedClient.getThreeWindingsTransformer(networkUuid, Resource.INITIAL_VARIANT_NUM, "tw1").orElse(null);
+        Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerAttributesResource = cachedClient.getThreeWindingsTransformer(networkUuid, Resource.INITIAL_VARIANT_NUM,
+                "tw1").orElse(null);
         assertNotNull(threeWindingsTransformerAttributesResource);
         assertEquals(50, threeWindingsTransformerAttributesResource.getAttributes().getP2(), 0.001);
         assertEquals(60, threeWindingsTransformerAttributesResource.getAttributes().getQ3(), 0.001);
@@ -1283,7 +1284,8 @@ public class PreloadingNetworkStoreClientTest {
 
         String extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
         }).writeValueAsString(Map.of(identifiableId1, apc1, identifiableId2, apc2));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/activepowercontrol"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/"
+                + "activepowercontrol"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
 
@@ -1307,7 +1309,8 @@ public class PreloadingNetworkStoreClientTest {
         String identifiableId1 = "GEN";
         String extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
         }).writeValueAsString(Map.of());
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/activepowercontrol"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/"
+                + "activepowercontrol"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
 
@@ -1354,7 +1357,8 @@ public class PreloadingNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
 
-        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
+        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR,
+                identifiableId1);
         assertEquals(2, extensionAttributesMap.size());
 
         extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
@@ -1381,7 +1385,8 @@ public class PreloadingNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
 
-        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
+        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR,
+                identifiableId1);
         assertEquals(0, extensionAttributesMap.size());
 
         extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
@@ -1459,7 +1464,8 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId);
 
         // Verify that the cache is copied and there is no new fetch
-        Map<String, ExtensionAttributes> extensionAttributesByIdentifiableId = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId1);
+        Map<String, ExtensionAttributes> extensionAttributesByIdentifiableId = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, targetVariantNum, ResourceType.GENERATOR,
+                identifiableId1);
         assertEquals(2, extensionAttributesByIdentifiableId.size());
         server.verify();
         server.reset();
@@ -1497,7 +1503,8 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
             .andExpect(method(GET));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup1 + "/side/" + "1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup1 + "/side/" + "1"))
             .andExpect(method(GET));
 
         olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
@@ -1511,7 +1518,8 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
             .andExpect(method(GET));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/" + "2"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/" + "2"))
             .andExpect(method(GET));
 
         Optional<OperationalLimitsGroupAttributes> olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
@@ -1606,7 +1614,8 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
             .andExpect(method(GET));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
             .andExpect(method(GET));
         olg1Attributes = cachedClient.getSelectedOperationalLimitsGroupAttributes(networkUuid,
             Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId2, operationalLimitsGroup3, 1);
@@ -1717,7 +1726,8 @@ public class PreloadingNetworkStoreClientTest {
             .andExpect(method(DELETE))
             .andExpect(content().string("{\"line2\":{\"2\":[\"olg2\"]}}"))
             .andRespond(withSuccess());
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/2"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/2"))
                 .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE,
                 Map.of(branchId2, Map.of(2, Set.of(operationalLimitsGroup2))));
@@ -1725,7 +1735,8 @@ public class PreloadingNetworkStoreClientTest {
         server.reset();
 
         // getting the removed olg will not call the rest api and return empty
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/2"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/2"))
             .andExpect(method(GET));
 
         Optional<OperationalLimitsGroupAttributes> olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
@@ -1775,7 +1786,8 @@ public class PreloadingNetworkStoreClientTest {
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"lineId\":{\"1\":[\"olg3\"]}}"))
                 .andRespond(withSuccess());
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup3 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup3 + "/side/1"))
                 .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(identifiableId1, Map.of(1, Set.of(operationalLimitsGroup3))));
         server.verify();
@@ -1790,7 +1802,8 @@ public class PreloadingNetworkStoreClientTest {
         server.reset();
 
         // get olg3 on new variant it does not fetch because the cached was copied
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup3 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup3 + "/side/1"))
                 .andExpect(method(GET));
         Optional<OperationalLimitsGroupAttributes> olg3Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
                 targetVariantNum, ResourceType.LINE, identifiableId1, operationalLimitsGroup3, 1);
@@ -1804,14 +1817,16 @@ public class PreloadingNetworkStoreClientTest {
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"LINE1\":{\"1\":[\"olg2\"]}}"))
                 .andRespond(withSuccess());
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
                 .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, targetVariantNum, ResourceType.LINE, Map.of(identifiableId2, Map.of(1, Set.of(operationalLimitsGroup2))));
         server.verify();
         server.reset();
 
         // get olg2 on variant 1
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
                 .andExpect(method(GET));
         Optional<OperationalLimitsGroupAttributes> olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
                 targetVariantNum, ResourceType.LINE, identifiableId2, operationalLimitsGroup2, 1);
@@ -1820,7 +1835,8 @@ public class PreloadingNetworkStoreClientTest {
         server.reset();
 
         // checking olg2 on variant 0
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
                 .andExpect(method(GET));
         olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
                 Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId2, operationalLimitsGroup2, 1);
