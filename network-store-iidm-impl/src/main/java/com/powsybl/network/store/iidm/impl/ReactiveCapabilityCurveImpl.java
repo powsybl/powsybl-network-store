@@ -8,18 +8,15 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
 import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
 import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
-
-import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
-
 import static com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes.COMPARATOR;
 
 /**
@@ -32,7 +29,7 @@ public class ReactiveCapabilityCurveImpl extends AbstractPropertiesHolder implem
         private final ReactiveCapabilityCurvePointAttributes attributes;
         private final AbstractInjectionImpl<?, ?> owner;
 
-        public PointImpl(ReactiveCapabilityCurvePointAttributes attributes, AbstractInjectionImpl<?, ?> injection) {
+        PointImpl(ReactiveCapabilityCurvePointAttributes attributes, AbstractInjectionImpl<?, ?> injection) {
             this.attributes = attributes;
             this.owner = injection;
         }

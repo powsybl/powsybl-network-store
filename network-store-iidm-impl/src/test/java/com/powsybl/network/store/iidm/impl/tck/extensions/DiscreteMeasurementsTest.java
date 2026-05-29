@@ -154,11 +154,13 @@ class DiscreteMeasurementsTest extends AbstractDiscreteMeasurementsTest {
                 .getExtensionAttributes();
         DiscreteMeasurementsAttributes twtDiscreteMeasurementsAttributes = (DiscreteMeasurementsAttributes) extensionAttributes.get(DiscreteMeasurements.NAME);
         ArgumentCaptor<DiscreteMeasurementAttributes> argumentCaptor = ArgumentCaptor.forClass(DiscreteMeasurementAttributes.class);
-        Mockito.verify(twtSpy).updateResourceExtension(Mockito.eq(discreteMeasurements), Mockito.any(), Mockito.eq("discreteMeasurements.discreteMeasurement"), Mockito.eq(null), argumentCaptor.capture());
+        Mockito.verify(twtSpy).updateResourceExtension(Mockito.eq(discreteMeasurements), Mockito.any(),
+                Mockito.eq("discreteMeasurements.discreteMeasurement"), Mockito.eq(null), argumentCaptor.capture());
         DiscreteMeasurementAttributes actualMeasurementAttributesFromResourceUpdate = argumentCaptor.getValue();
         assertEquals(1, extensionAttributes.size());
         assertEquals(1, twtDiscreteMeasurementsAttributes.getDiscreteMeasurementAttributes().size());
-        assertDiscreteMeasurementAttributes(twtDiscreteMeasurementsAttributes.getDiscreteMeasurementAttributes().getFirst(), expectedId, expectedValidity, expectedValue, expectedType, expectedTapChanger);
+        assertDiscreteMeasurementAttributes(twtDiscreteMeasurementsAttributes.getDiscreteMeasurementAttributes().getFirst(),
+                expectedId, expectedValidity, expectedValue, expectedType, expectedTapChanger);
         assertDiscreteMeasurementAttributes(actualMeasurementAttributesFromResourceUpdate, expectedId, expectedValidity, expectedValue, expectedType, expectedTapChanger);
     }
 

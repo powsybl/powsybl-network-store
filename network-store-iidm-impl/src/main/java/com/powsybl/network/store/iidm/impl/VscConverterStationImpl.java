@@ -42,7 +42,8 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
+                .getReportNode());
         boolean oldValue = this.isRegulating();
         if (voltageRegulatorOn != oldValue) {
             this.setRegulating(voltageRegulatorOn);
@@ -59,7 +60,8 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
+                .getReportNode());
         double oldValue = getResource().getAttributes().getVoltageSetPoint();
         if (Double.compare(voltageSetpoint, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetpoint),
@@ -75,7 +77,8 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
+                .getReportNode());
         double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
         if (Double.compare(reactivePowerSetpoint, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint),

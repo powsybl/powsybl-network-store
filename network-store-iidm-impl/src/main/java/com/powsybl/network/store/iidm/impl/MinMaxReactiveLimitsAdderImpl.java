@@ -6,15 +6,16 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
-import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@SuppressWarnings("checkstyle:ClassTypeParameterName")
 public class MinMaxReactiveLimitsAdderImpl<OWNER extends ReactiveLimitsOwner> extends AbstractBasePropertiesHolder implements MinMaxReactiveLimitsAdder {
 
     private final OWNER owner;

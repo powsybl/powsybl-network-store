@@ -112,7 +112,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     @Override
     @SuppressWarnings("unchecked")
     public <E extends Extension<Load>> E getExtensionByName(String name) {
-        if (name.equals("loadDetail")) {
+        if ("loadDetail".equals(name)) {
             return createLoadDetail();
         }
         return super.getExtensionByName(name);

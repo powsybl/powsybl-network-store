@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public abstract class AbstractShortCircuitExtensionImpl <T extends Extendable<T>, S extends AbstractShortCircuitExtensionImpl<T, ?>>
+public abstract class AbstractShortCircuitExtensionImpl<T extends Extendable<T>, S extends AbstractShortCircuitExtensionImpl<T, ?>>
     extends AbstractExtension<T> implements ShortCircuitExtension<T> {
 
     private final ShortCircuitAttributes attributes;

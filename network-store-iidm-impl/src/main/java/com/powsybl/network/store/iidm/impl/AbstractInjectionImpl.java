@@ -69,7 +69,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
     @Override
     public <E extends Extension<I>> E getExtensionByName(String name) {
         E extension;
-        if (name.equals("position")) {
+        if ("position".equals(name)) {
             extension = createConnectablePositionExtension();
         } else {
             extension = super.getExtensionByName(name);

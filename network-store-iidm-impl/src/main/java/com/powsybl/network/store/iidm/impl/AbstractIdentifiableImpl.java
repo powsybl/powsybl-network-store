@@ -208,6 +208,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     @Override
+    @SuppressWarnings("checkstyle:LambdaBodyLength")
     public void addAlias(String alias, String aliasType, boolean ensureAliasUnicity) {
         Objects.requireNonNull(alias);
         String uniqueAlias = ensureAliasUnicity ? Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains) : alias;

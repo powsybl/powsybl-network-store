@@ -16,7 +16,8 @@ import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttr
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class TwoWindingsTransformerPhaseAngleClockAdderImpl extends AbstractIidmExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerPhaseAngleClock> implements TwoWindingsTransformerPhaseAngleClockAdder {
+public class TwoWindingsTransformerPhaseAngleClockAdderImpl extends AbstractIidmExtensionAdder<TwoWindingsTransformer,
+        TwoWindingsTransformerPhaseAngleClock> implements TwoWindingsTransformerPhaseAngleClockAdder {
 
     private int phaseAngleClock = -1;
 

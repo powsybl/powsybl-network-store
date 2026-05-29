@@ -9,12 +9,10 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -95,7 +93,8 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
 
     @Override
     public T setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getTemporaryLimits(), owner.getIdentifiable().getNetwork().getMinValidationLevel(), owner.getIdentifiable().getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getTemporaryLimits(), owner.getIdentifiable().getNetwork().getMinValidationLevel(), owner.getIdentifiable().getNetwork()
+                .getReportNodeContext().getReportNode());
         attributes.setPermanentLimit(permanentLimit);
         return (T) this;
     }

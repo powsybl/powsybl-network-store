@@ -6,18 +6,18 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
-import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
 import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
-
+import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
 import java.util.TreeMap;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@SuppressWarnings("checkstyle:ClassTypeParameterName")
 class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> extends AbstractBasePropertiesHolder implements ReactiveCapabilityCurveAdder {
 
     private final OWNER owner;

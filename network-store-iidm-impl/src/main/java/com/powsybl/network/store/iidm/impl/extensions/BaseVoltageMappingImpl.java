@@ -62,11 +62,13 @@ public class BaseVoltageMappingImpl extends AbstractExtension<Network> implement
             BaseVoltageSourceAttribute oldValue = resourcesBaseVoltages.get(nominalVoltage);
             if (oldValue.getSource().equals(Source.IGM) && source.equals(Source.BOUNDARY)) {
                 BaseVoltageSourceAttribute attributes = new BaseVoltageSourceAttribute(baseVoltageId, nominalVoltage, source);
-                getNetwork().updateResourceExtension(this, res -> res.getAttributes().getBaseVoltageMapping().getBaseVoltages().put(nominalVoltage, attributes), "base voltage(id=" + baseVoltageId + ", nominalVoltage=" + nominalVoltage + ")", oldValue, attributes);
+                getNetwork().updateResourceExtension(this, res -> res.getAttributes().getBaseVoltageMapping().getBaseVoltages().put(nominalVoltage, attributes),
+                        "base voltage(id=" + baseVoltageId + ", nominalVoltage=" + nominalVoltage + ")", oldValue, attributes);
             }
         } else {
             BaseVoltageSourceAttribute attributes = new BaseVoltageSourceAttribute(baseVoltageId, nominalVoltage, source);
-            getNetwork().updateResourceExtension(this, res -> res.getAttributes().getBaseVoltageMapping().getBaseVoltages().put(nominalVoltage, attributes), "base voltage(id=" + baseVoltageId + ", nominalVoltage=" + nominalVoltage + ")", null, attributes);
+            getNetwork().updateResourceExtension(this, res -> res.getAttributes().getBaseVoltageMapping().getBaseVoltages().put(nominalVoltage, attributes), "base voltage(id=" + baseVoltageId + ","
+                    + " nominalVoltage=" + nominalVoltage + ")", null, attributes);
         }
         return this;
     }

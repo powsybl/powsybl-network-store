@@ -49,7 +49,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         private final int legNumber;
 
-        public LegAdderImpl(int legNumber, ThreeWindingsTransformerAdder threeWindingsTransformerAdder) {
+        LegAdderImpl(int legNumber, ThreeWindingsTransformerAdder threeWindingsTransformerAdder) {
             this.threeWindingsTransformerAdder = threeWindingsTransformerAdder;
             this.legNumber = legNumber;
         }
@@ -283,7 +283,8 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
         VoltageLevel voltageLevel3 = getNetwork().getVoltageLevel(leg3.getVoltageLevelId());
 
         if (substation != null) {
-            if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
+            if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(
+                    s -> s != substation).orElse(true)) {
                 throw new ValidationException(this,
                         "the 3 windings of the transformer shall belong to the substation '"
                                 + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"

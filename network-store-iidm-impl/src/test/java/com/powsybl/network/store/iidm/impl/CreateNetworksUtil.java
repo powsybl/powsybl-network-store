@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
 public final class CreateNetworksUtil {
+    @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 
     static String BUS_UNKNOW_ID = "unknown";
 
@@ -160,6 +161,7 @@ public final class CreateNetworksUtil {
         return visited.stream().collect(Collectors.toList());
     }
 
+    @SuppressWarnings("checkstyle:MethodLength")
     private static Network createNetwokWithMultipleEquipments(TopologyKind topologyKind) {
         Network network = Network.create("test", "test");
 

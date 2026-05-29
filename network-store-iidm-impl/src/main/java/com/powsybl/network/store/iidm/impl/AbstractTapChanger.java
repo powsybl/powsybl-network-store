@@ -18,7 +18,8 @@ import java.util.OptionalInt;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> extends AbstractPropertiesHolder implements Validable, PropertiesHolder {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> extends AbstractPropertiesHolder implements Validable,
+        PropertiesHolder {
 
     protected final H parent;
 

@@ -154,7 +154,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         checkPositionRange(tapPosition, lowTapPosition, highTapPosition, "tap position");
         checkPositionRange(solvedTapPosition, lowTapPosition, highTapPosition, "solved tap position");
         NetworkImpl network = index.getNetwork();
-        ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, regulationMode, regulationValue, network, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, regulationMode, regulationValue, network, network
+                .getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();

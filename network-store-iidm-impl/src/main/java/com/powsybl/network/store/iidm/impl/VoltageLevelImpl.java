@@ -582,9 +582,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @Override
     @SuppressWarnings("unchecked")
     public <E extends Extension<VoltageLevel>> E getExtensionByName(String name) {
-        if (name.equals("slackTerminal")) {
+        if ("slackTerminal".equals(name)) {
             return (E) createSlackTerminal();
-        } else if (name.equals("identifiableShortCircuit")) {
+        } else if ("identifiableShortCircuit".equals(name)) {
             return (E) createIdentifiableShortCircuitExtension();
         }
         return super.getExtensionByName(name);
@@ -613,7 +613,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public <E extends Extension<VoltageLevel>> boolean removeExtension(Class<E> type) {
-        // FIXME : as buffer is not implemented yet for remove extensions, if an extension is removed when network is imported it crash as the network is still in the buffer and not yet in the database.
+        // FIXME : as buffer is not implemented yet for remove extensions,
+        // if an extension is removed when network is imported it crash as the network is still in the buffer and not yet in the database.
         // super.removeExtension(type);
         if (type == SlackTerminal.class) {
             var resource = getResource();
