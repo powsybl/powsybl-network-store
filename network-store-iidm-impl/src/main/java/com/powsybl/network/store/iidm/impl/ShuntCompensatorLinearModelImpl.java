@@ -71,7 +71,8 @@ public class ShuntCompensatorLinearModelImpl extends AbstractPropertiesHolder im
 
     @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
-        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount, shuntCompensator.getNetwork().getMinValidationLevel(), shuntCompensator.getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount, shuntCompensator.getNetwork().getMinValidationLevel(), shuntCompensator.getNetwork(
+                ).getReportNodeContext().getReportNode());
         int oldValue = getAttributes().getMaximumSectionCount();
         if (maximumSectionCount != oldValue) {
             shuntCompensator.updateResource(res -> getAttributes(res).setMaximumSectionCount(maximumSectionCount),

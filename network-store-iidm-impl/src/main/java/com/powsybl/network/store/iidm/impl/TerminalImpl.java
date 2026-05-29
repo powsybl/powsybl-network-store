@@ -72,7 +72,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     private TopologyPoint getTopologyPoint() {
-        return isNodeBeakerTopologyKind() ? new NodeTopologyPointImpl(getAttributes().getVoltageLevelId(), getNodeBreakerView().getNode()) : new BusTopologyPointImpl(getAttributes().getVoltageLevelId(), getBusBreakerView().getConnectableBus().getId(), isConnected());
+        return isNodeBeakerTopologyKind() ? new NodeTopologyPointImpl(getAttributes().getVoltageLevelId(), getNodeBreakerView().getNode()) : new BusTopologyPointImpl(getAttributes().getVoltageLevelId(
+                ), getBusBreakerView().getConnectableBus().getId(), isConnected());
     }
 
     @Override
@@ -385,14 +386,16 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             )
             .collect(Collectors.toSet());
 
-        Set<Integer> twoWindingsTransformerNodes = index.getStoreClient().getVoltageLevelTwoWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+        Set<Integer> twoWindingsTransformerNodes = index.getStoreClient().getVoltageLevelTwoWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId(
+                ))
             .stream().map(resource -> resource.getAttributes().getVoltageLevelId1().equals(getVoltageLevelId())
                 ? resource.getAttributes().getNode1()
                 : resource.getAttributes().getNode2()
             )
             .collect(Collectors.toSet());
 
-        Set<Integer> threeWindingsTransformerNodes = index.getStoreClient().getVoltageLevelThreeWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+        Set<Integer> threeWindingsTransformerNodes = index.getStoreClient().getVoltageLevelThreeWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(),
+                voltageLevelResource.getId())
             .stream().map(resource -> {
                 if (resource.getAttributes().getLeg1().getVoltageLevelId().equals(getVoltageLevelId())) {
                     return resource.getAttributes().getLeg1().getNode();
@@ -670,6 +673,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                 regulatingPoint.getRegulatingEquipmentType(), regulatingPoint.getRegulatingTapChangerType()));
     }
 
+    @SuppressWarnings("checkstyle:LambdaBodyLength")
     public void removeAsRegulatingPoint() {
         getAttributes().getRegulatingEquipments().forEach(regulatingEquipmentIdentifier -> {
             Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());

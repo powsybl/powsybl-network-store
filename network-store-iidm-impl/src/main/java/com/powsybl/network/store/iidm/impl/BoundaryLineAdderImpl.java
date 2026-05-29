@@ -69,7 +69,8 @@ public class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAd
         public BoundaryLineAdder add() {
             ValidationUtil.checkActivePowerLimits(BoundaryLineAdderImpl.this, minP, maxP);
             ValidationUtil.checkActivePowerSetpoint(BoundaryLineAdderImpl.this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-            ValidationUtil.checkVoltageControl(BoundaryLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+            ValidationUtil.checkVoltageControl(BoundaryLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
+                    .getReportNode());
 
             generation = BoundaryLineGenerationAttributes
                     .builder()

@@ -1001,10 +1001,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <E extends Extension<Network>> E getExtensionByName(String name) {
-        if (name.equals("cimCharacteristics")) {
+        if ("cimCharacteristics".equals(name)) {
             return createCimCharacteristics();
         }
-        if (name.equals("baseVoltageMapping")) {
+        if ("baseVoltageMapping".equals(name)) {
             return createBaseVoltageMapping();
         }
         return super.getExtensionByName(name);

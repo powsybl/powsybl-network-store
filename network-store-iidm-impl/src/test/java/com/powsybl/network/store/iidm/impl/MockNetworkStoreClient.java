@@ -27,11 +27,11 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
         extensionAttributeLoaderCalled = true;
-        if (identifiableId.equals("l1") && extensionName.equals("operatingStatus")) {
+        if ("l1".equals(identifiableId) && "operatingStatus".equals(extensionName)) {
             return Optional.of(createOperatinStatusAttributes());
-        } else if (identifiableId.equals("l1") && extensionName.equals("activePowerControl")) {
+        } else if ("l1".equals(identifiableId) && "activePowerControl".equals(extensionName)) {
             return Optional.of(createActivePowerControlAttributes1());
-        } else if (identifiableId.equals("l2") && extensionName.equals("activePowerControl")) {
+        } else if ("l2".equals(identifiableId) && "activePowerControl".equals(extensionName)) {
             return Optional.of(createActivePowerControlAttributes2());
         }
         return Optional.empty();
@@ -40,7 +40,7 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
         extensionAttributesLoaderByResourceTypeAndNameCalled = true;
-        if (extensionName.equals("activePowerControl")) {
+        if ("activePowerControl".equals(extensionName)) {
             return Map.of("l1", createActivePowerControlAttributes1(), "l2", createActivePowerControlAttributes2());
         }
         return Map.of();
@@ -49,9 +49,9 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId) {
         extensionAttributesLoaderByIdCalled = true;
-        if (identifiableId.equals("l1")) {
+        if ("l1".equals(identifiableId)) {
             return Map.of("activePowerControl", createActivePowerControlAttributes1(), "operatingStatus", createOperatinStatusAttributes());
-        } else if (identifiableId.equals("l2")) {
+        } else if ("l2".equals(identifiableId)) {
             return Map.of("activePowerControl", createActivePowerControlAttributes2());
         }
         return Map.of();
@@ -61,7 +61,8 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         extensionAttributesLoaderByResourceTypeCalled = true;
         if (resourceType == ResourceType.LOAD) {
-            return Map.of("l1", Map.of("activePowerControl", createActivePowerControlAttributes1(), "operatingStatus", createOperatinStatusAttributes()), "l2", Map.of("activePowerControl", createActivePowerControlAttributes2()));
+            return Map.of("l1", Map.of("activePowerControl", createActivePowerControlAttributes1(), "operatingStatus", createOperatinStatusAttributes()), "l2", Map.of("activePowerControl",
+                    createActivePowerControlAttributes2()));
         }
         return Map.of();
     }
@@ -95,12 +96,14 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String operationalLimitGroupName, int side) {
+    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId,
+            String operationalLimitGroupName, int side) {
         return Optional.empty();
     }
 
     @Override
-    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side) {
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId,
+            String operationalLimitGroupName, int side) {
         return Optional.empty();
     }
 
@@ -115,7 +118,8 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum,
+            ResourceType resourceType) {
         return Map.of();
     }
 

@@ -10,10 +10,8 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import java.util.Properties;
+import static org.junit.Assert.*;
 
 /**
  *

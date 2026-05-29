@@ -342,8 +342,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     private String getSelectedOperationalLimitsGroupId(TwoSides side) {
         return switch (side) {
-            case ONE -> getResource().getAttributes().getSelectedOperationalLimitsGroupId1() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId1() : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
-            case TWO -> getResource().getAttributes().getSelectedOperationalLimitsGroupId2() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId2() : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+            case ONE -> getResource().getAttributes().getSelectedOperationalLimitsGroupId1() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId1(
+                    ) : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+            case TWO -> getResource().getAttributes().getSelectedOperationalLimitsGroupId2() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId2(
+                    ) : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
         };
     }
 
@@ -629,7 +631,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public <E extends Extension<T>> E getExtensionByName(String name) {
         E extension;
-        if (name.equals("position")) {
+        if ("position".equals(name)) {
             extension = createConnectablePositionExtension();
         } else {
             extension = super.getExtensionByName(name);

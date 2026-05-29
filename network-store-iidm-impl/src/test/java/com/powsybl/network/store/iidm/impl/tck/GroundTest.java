@@ -9,10 +9,8 @@ package com.powsybl.network.store.iidm.impl.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Ground;
 import com.powsybl.iidm.network.Network;
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.iidm.network.tck.AbstractGroundTest;
-
+import org.junit.jupiter.api.Test;
 import static com.powsybl.network.store.iidm.impl.CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments;
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -157,7 +157,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     @Override
     public <E extends Extension<Battery>> E getExtensionByName(String name) {
         E extension;
-        if (name.equals("batteryShortCircuit")) {
+        if ("batteryShortCircuit".equals(name)) {
             extension = createBatteryShortCircuitExtension();
         } else {
             extension = super.getExtensionByName(name);

@@ -317,13 +317,13 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
     @Override
     public <E extends Extension<Generator>> E getExtensionByName(String name) {
         E extension = super.getExtensionByName(name);
-        if (name.equals("coordinatedReactiveControl")) {
+        if ("coordinatedReactiveControl".equals(name)) {
             extension = createCoordinatedReactiveControlExtension();
-        } else if (name.equals("entsoeCategory")) {
+        } else if ("entsoeCategory".equals(name)) {
             extension = createEntsoeCategoryExtension();
-        } else if (name.equals("remoteReactivePowerControl")) {
+        } else if ("remoteReactivePowerControl".equals(name)) {
             extension = createRemoteReactivePowerControlExtension();
-        } else if (name.equals("generatorShortCircuit")) {
+        } else if ("generatorShortCircuit".equals(name)) {
             extension = createGeneratorShortCircuitExtension();
         }
         return extension;

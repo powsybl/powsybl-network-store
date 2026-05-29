@@ -173,9 +173,9 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     @Override
     @SuppressWarnings("unchecked")
     public <E extends Extension<HvdcLine>> E getExtensionByName(String name) {
-        if (name.equals("hvdcAngleDroopActivePowerControl")) {
+        if ("hvdcAngleDroopActivePowerControl".equals(name)) {
             return createHvdcAngleDroopActivePowerControl();
-        } else if (name.equals("hvdcOperatorActivePowerRange")) {
+        } else if ("hvdcOperatorActivePowerRange".equals(name)) {
             return createHvdcOperatorActivePowerRange();
         }
         return super.getExtensionByName(name);

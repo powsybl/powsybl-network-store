@@ -6,12 +6,11 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
-import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.OperationalLimitsGroupAttributes;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>

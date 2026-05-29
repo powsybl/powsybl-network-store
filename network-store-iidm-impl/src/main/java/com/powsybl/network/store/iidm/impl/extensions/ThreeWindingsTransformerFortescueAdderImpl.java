@@ -22,7 +22,8 @@ import static com.powsybl.iidm.network.extensions.FortescueConstants.*;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractIidmExtensionAdder<ThreeWindingsTransformer, ThreeWindingsTransformerFortescue> implements ThreeWindingsTransformerFortescueAdder {
+public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractIidmExtensionAdder<ThreeWindingsTransformer,
+        ThreeWindingsTransformerFortescue> implements ThreeWindingsTransformerFortescueAdder {
 
     private final LegFortescueAdderImpl legAdder1 = new LegFortescueAdderImpl(DEFAULT_LEG1_CONNECTION_TYPE);
     private final LegFortescueAdderImpl legAdder2 = new LegFortescueAdderImpl(DEFAULT_LEG2_CONNECTION_TYPE);
@@ -52,7 +53,7 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractIidmExte
         private double groundingR = DEFAULT_GROUNDING_R;
         private double groundingX = DEFAULT_GROUNDING_X;
 
-        public LegFortescueAdderImpl(WindingConnectionType connectionType) {
+        LegFortescueAdderImpl(WindingConnectionType connectionType) {
             this.connectionType = Objects.requireNonNull(connectionType);
         }
 

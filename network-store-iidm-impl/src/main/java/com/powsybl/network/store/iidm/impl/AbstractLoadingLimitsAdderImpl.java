@@ -175,7 +175,8 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
     @Override
     public L add() {
         NetworkImpl network = owner.getIdentifiable().getNetwork();
-        Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(l -> new TemporaryLimitImpl(l, null)).collect(Collectors.toList());
+        Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(l -> new TemporaryLimitImpl(l, null)).collect(
+                Collectors.toList());
         ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         checkTemporaryLimits();
 

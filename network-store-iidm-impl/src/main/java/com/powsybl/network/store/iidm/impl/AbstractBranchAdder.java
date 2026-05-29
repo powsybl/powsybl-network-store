@@ -31,7 +31,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     private String voltageLevelId2;
 
-    public AbstractBranchAdder(NetworkObjectIndex index) {
+    AbstractBranchAdder(NetworkObjectIndex index) {
         super(index);
     }
 

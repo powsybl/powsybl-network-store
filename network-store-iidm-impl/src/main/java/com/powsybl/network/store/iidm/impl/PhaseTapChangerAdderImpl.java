@@ -176,7 +176,8 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         checkPositionRange(tapPosition, lowTapPosition, highTapPosition, "tap position");
         checkPositionRange(solvedTapPosition, lowTapPosition, highTapPosition, "solved tap position");
         NetworkImpl network = index.getNetwork();
-        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities, regulatingTerminal, network, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities, regulatingTerminal, network, network
+                .getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();

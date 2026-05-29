@@ -846,6 +846,7 @@ public class NetworkObjectIndex {
     // shunt compensator
 
     Optional<ShuntCompensatorImpl> getShuntCompensator(String id) {
+
         return shuntCompensatorCache.getOne(id);
     }
 
