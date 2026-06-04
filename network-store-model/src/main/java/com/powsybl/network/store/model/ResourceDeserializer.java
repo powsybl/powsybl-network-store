@@ -23,7 +23,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         super(Resource.class);
     }
 
-    private static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
+    static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
         Objects.requireNonNull(type);
         // The client currently doesn't send AttributeFilter.LIMITS or AttributeFilter.FULL, but if it did
         // we don't want to reject it, we know we should deserialize to normal DTOs
@@ -65,7 +65,9 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case THREE_WINDINGS_TRANSFORMER -> ThreeWindingsTransformerSvAttributes.class;
                     case HVDC_LINE -> HvdcLineAttributes.class;
                     case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
-                    default -> throw new IllegalStateException("Unknown resource type: " + type);
+                    case GROUND -> GroundAttributes.class;
+                    case TIE_LINE -> TieLineAttributes.class;
+                    case AREA -> AreaAttributes.class;
                 };
             } else {
                 throw new IllegalStateException("Unknown attribute filter: " + filter);
