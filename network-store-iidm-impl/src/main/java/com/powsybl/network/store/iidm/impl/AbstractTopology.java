@@ -367,8 +367,10 @@ public abstract class AbstractTopology<T> {
         // whether we preserve or not the phase/angle values accross the other
         // view. For now we do not preserve to be consistent with the behavior
         // of not preserving values from the same view after invalidation.
-        List<CalculatedBusAttributes> calculatedBusAttributesInOtherView = isBusView ? voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() : voltageLevelResource.getAttributes().getCalculatedBusesForBusView();
-        Map<Integer, Integer> nodesToCalculatedBusesInOtherView = isBusView ? voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView() : voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView();
+        List<CalculatedBusAttributes> calculatedBusAttributesInOtherView = isBusView ? voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() : voltageLevelResource.getAttributes(
+                ).getCalculatedBusesForBusView();
+        Map<Integer, Integer> nodesToCalculatedBusesInOtherView = isBusView ? voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView() : voltageLevelResource.getAttributes(
+                ).getNodeToCalculatedBusForBusView();
         Set<Integer> nodes = (Set<Integer>) connectedSet.getConnectedNodesOrBuses();
         if (voltageLevelResource.getAttributes().isCalculatedBusesValid()
             && !CollectionUtils.isEmpty(calculatedBusAttributesInOtherView)

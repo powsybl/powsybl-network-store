@@ -6,31 +6,30 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
-import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
 import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
-
+import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
 import java.util.TreeMap;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> extends AbstractBasePropertiesHolder implements ReactiveCapabilityCurveAdder {
+class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner> extends AbstractBasePropertiesHolder implements ReactiveCapabilityCurveAdder {
 
-    private final OWNER owner;
+    private final O owner;
     private final AbstractInjectionImpl<?, ?> injection;
 
     private final TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = new TreeMap<>();
 
     ReactiveCapabilityCurveAdderImpl(AbstractInjectionImpl<?, ?> injection) {
-        this.owner = (OWNER) injection;
+        this.owner = (O) injection;
         this.injection = injection;
     }
 
-    ReactiveCapabilityCurveAdderImpl(OWNER owner, AbstractInjectionImpl<?, ?> injection) {
+    ReactiveCapabilityCurveAdderImpl(O owner, AbstractInjectionImpl<?, ?> injection) {
         this.owner = owner;
         this.injection = injection;
     }

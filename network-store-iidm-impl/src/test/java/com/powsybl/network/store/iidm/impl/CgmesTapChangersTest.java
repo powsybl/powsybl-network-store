@@ -43,7 +43,8 @@ class CgmesTapChangersTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> ctc2wt.newTapChanger().setId("tc1").setControlId("control1").setStep(1).setType("type1").setHiddenStatus(true).add());
         assertEquals("Hidden tap changers should have an ID for the combined tap changer", e.getMessage());
 
-        e = assertThrows(PowsyblException.class, () -> ctc2wt.newTapChanger().setId("tc1").setControlId("control1").setStep(1).setType("type1").setHiddenStatus(false).setCombinedTapChangerId("a").add());
+        e = assertThrows(PowsyblException.class, () -> ctc2wt.newTapChanger().setId("tc1").setControlId("control1").setStep(1).setType("type1").setHiddenStatus(false).setCombinedTapChangerId("a").add(
+                ));
         assertEquals("Non-hidden tap changers do not have a different ID for the combined tap changer", e.getMessage());
 
         ctc2wt.newTapChanger().setId("tc1").setControlId("control1").setStep(1).setType("type1").setHiddenStatus(true).setCombinedTapChangerId("a").add();

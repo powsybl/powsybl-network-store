@@ -26,7 +26,7 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
 
     private final VoltageLevelImpl voltageLevel;
 
-    public VoltageLevelBusViewImpl(NetworkObjectIndex index, VoltageLevelImpl voltageLevel) {
+    VoltageLevelBusViewImpl(NetworkObjectIndex index, VoltageLevelImpl voltageLevel) {
         this.index = index;
         this.voltageLevel = voltageLevel;
     }

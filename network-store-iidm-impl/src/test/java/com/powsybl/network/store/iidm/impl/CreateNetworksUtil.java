@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public final class CreateNetworksUtil {
 
-    static String BUS_UNKNOW_ID = "unknown";
+    private static final String BUS_UNKNOWN_ID = "unknown";
 
     private CreateNetworksUtil() {
     }
@@ -28,7 +28,7 @@ public final class CreateNetworksUtil {
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             adder.setNode(node--);
         } else {
-            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
+            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
         }
         return node;
     }
@@ -38,7 +38,7 @@ public final class CreateNetworksUtil {
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             adder.setNode(node--);
         } else {
-            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
+            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
         }
         return node;
     }
@@ -49,8 +49,8 @@ public final class CreateNetworksUtil {
             adder.setNode1(node--);
             adder.setNode2(node--);
         } else {
-            adder.setConnectableBus1(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
-            adder.setConnectableBus2(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
+            adder.setConnectableBus1(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
+            adder.setConnectableBus2(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
         }
         return node;
     }
@@ -62,9 +62,9 @@ public final class CreateNetworksUtil {
                 .setNominalV(nominalV)
                 .add();
 
-        if (topologyKind == TopologyKind.BUS_BREAKER && vl.getNetwork().getBusBreakerView().getBus(BUS_UNKNOW_ID) == null) {
+        if (topologyKind == TopologyKind.BUS_BREAKER && vl.getNetwork().getBusBreakerView().getBus(BUS_UNKNOWN_ID) == null) {
             vl.getBusBreakerView().newBus()
-                    .setId(BUS_UNKNOW_ID)
+                    .setId(BUS_UNKNOWN_ID)
                     .add();
         }
 
@@ -160,6 +160,7 @@ public final class CreateNetworksUtil {
         return visited.stream().collect(Collectors.toList());
     }
 
+    @SuppressWarnings("checkstyle:MethodLength")
     private static Network createNetwokWithMultipleEquipments(TopologyKind topologyKind) {
         Network network = Network.create("test", "test");
 

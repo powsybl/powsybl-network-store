@@ -39,7 +39,8 @@ class CgmesMetadataModelsTest {
         assertEquals("http://elia.be/CGMES/2.4.15", cgmesSvModel.get().getModelingAuthoritySet());
         assertTrue(cgmesSvModel.get().getSupersedes().isEmpty());
         assertEquals(3, cgmesSvModel.get().getDependentOn().size());
-        assertTrue(CollectionUtils.isEqualCollection(Set.of("urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73", "urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20", "urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66"), cgmesSvModel.get().getDependentOn()));
+        assertTrue(CollectionUtils.isEqualCollection(Set.of("urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73", "urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20", "urn:uuid:"
+                + "2399cbd1-9a39-11e0-aa80-0800200c9a66"), cgmesSvModel.get().getDependentOn()));
         assertEquals(1, cgmesSvModel.get().getProfiles().size());
         assertTrue(CollectionUtils.isEqualCollection(Set.of("http://entsoe.eu/CIM/StateVariables/4/1"), cgmesSvModel.get().getProfiles()));
 

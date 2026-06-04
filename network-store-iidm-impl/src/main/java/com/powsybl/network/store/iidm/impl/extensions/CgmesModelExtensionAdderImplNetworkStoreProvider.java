@@ -26,7 +26,7 @@ public class CgmesModelExtensionAdderImplNetworkStoreProvider
      */
     private static class CgmesModelExtensionAdderImplExt extends CgmesModelExtensionAdderImpl {
 
-        public CgmesModelExtensionAdderImplExt(Network extendable) {
+        CgmesModelExtensionAdderImplExt(Network extendable) {
             super(extendable);
         }
     }

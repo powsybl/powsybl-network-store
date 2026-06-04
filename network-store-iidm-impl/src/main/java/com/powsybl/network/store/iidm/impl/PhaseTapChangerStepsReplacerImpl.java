@@ -8,8 +8,8 @@
 
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.PhaseTapChangerStepsReplacer;
 import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
+import com.powsybl.iidm.network.PhaseTapChangerStepsReplacer;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 
 /**

@@ -28,7 +28,7 @@ public class ShuntCompensatorNonLinearModelImpl extends AbstractPropertiesHolder
 
         private final int index;
 
-        public SectionImpl(ShuntCompensatorImpl shuntCompensator, int index) {
+        SectionImpl(ShuntCompensatorImpl shuntCompensator, int index) {
             this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
             this.index = index;
         }

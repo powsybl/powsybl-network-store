@@ -10,16 +10,14 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorNonLinearModel;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationLevel;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
-
 import java.util.Set;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;

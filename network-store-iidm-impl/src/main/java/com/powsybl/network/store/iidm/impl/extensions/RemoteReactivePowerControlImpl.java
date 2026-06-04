@@ -90,7 +90,8 @@ public class RemoteReactivePowerControlImpl extends AbstractIidmExtension<Genera
         if (attributes != null) {
             TerminalRefAttributes oldValue = attributes.getRegulatingTerminal();
             TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getRemoteReactivePowerControl().setRegulatingTerminal(terminalRefAttributes), "regulatingTerminal", oldValue, terminalRefAttributes);
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getRemoteReactivePowerControl().setRegulatingTerminal(terminalRefAttributes), "regulatingTerminal", oldValue,
+                    terminalRefAttributes);
         }
         return this;
     }

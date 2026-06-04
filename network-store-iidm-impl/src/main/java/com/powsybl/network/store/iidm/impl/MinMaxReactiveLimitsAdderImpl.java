@@ -6,25 +6,25 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
-import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MinMaxReactiveLimitsAdderImpl<OWNER extends ReactiveLimitsOwner> extends AbstractBasePropertiesHolder implements MinMaxReactiveLimitsAdder {
+public class MinMaxReactiveLimitsAdderImpl<O extends ReactiveLimitsOwner> extends AbstractBasePropertiesHolder implements MinMaxReactiveLimitsAdder {
 
-    private final OWNER owner;
+    private final O owner;
     private final AbstractInjectionImpl<?, ?> injection;
 
     private double minQ = Double.NaN;
 
     private double maxQ = Double.NaN;
 
-    MinMaxReactiveLimitsAdderImpl(OWNER owner, AbstractInjectionImpl<?, ?> injection) {
+    MinMaxReactiveLimitsAdderImpl(O owner, AbstractInjectionImpl<?, ?> injection) {
         this.owner = owner;
         this.injection = injection;
     }

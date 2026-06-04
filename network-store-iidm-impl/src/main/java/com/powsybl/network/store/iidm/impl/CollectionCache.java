@@ -633,7 +633,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     /**
      * Add operational limits groups attributes in the cache for single operational limits groups attributes loading.<br/>
      * This method is only used to get operational limits groups attributes from the server so even if it adds some checks and reduces performance by a tiny bit,
-     * we avoid to overwrite already loaded operational limits groups attributes because they are referenced in the operational limits groups attributes field of the resources or resourcesByContainerId map,
+     * we avoid to overwrite already loaded operational limits groups attributes because they are referenced in the operational limits groups
+     * attributes field of the resources or resourcesByContainerId map,
      * but also directly in any identifiable with the iidm api.
      */
     private void addOperationalLimitsGroupAttributesToCache(String branchId, String operationalLimitsGroupName, int side, OperationalLimitsGroupAttributes operationalLimitsGroupAttributes) {
