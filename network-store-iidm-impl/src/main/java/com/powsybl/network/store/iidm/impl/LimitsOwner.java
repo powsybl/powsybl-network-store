@@ -19,14 +19,13 @@ import java.util.function.Consumer;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-@SuppressWarnings("checkstyle:InterfaceTypeParameterName")
-public interface LimitsOwner<SIDE> extends Validable {
+public interface LimitsOwner<S> extends Validable {
 
-    void setCurrentLimits(SIDE side, LimitsAttributes currentLimits, String operationalLimitsGroupId);
+    void setCurrentLimits(S side, LimitsAttributes currentLimits, String operationalLimitsGroupId);
 
-    void setActivePowerLimits(SIDE side, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId);
+    void setActivePowerLimits(S side, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId);
 
-    void setApparentPowerLimits(SIDE side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId);
+    void setApparentPowerLimits(S side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId);
 
     AbstractIdentifiableImpl getIdentifiable();
 

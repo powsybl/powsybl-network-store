@@ -17,20 +17,19 @@ import java.util.TreeMap;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@SuppressWarnings("checkstyle:ClassTypeParameterName")
-class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> extends AbstractBasePropertiesHolder implements ReactiveCapabilityCurveAdder {
+class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner> extends AbstractBasePropertiesHolder implements ReactiveCapabilityCurveAdder {
 
-    private final OWNER owner;
+    private final O owner;
     private final AbstractInjectionImpl<?, ?> injection;
 
     private final TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = new TreeMap<>();
 
     ReactiveCapabilityCurveAdderImpl(AbstractInjectionImpl<?, ?> injection) {
-        this.owner = (OWNER) injection;
+        this.owner = (O) injection;
         this.injection = injection;
     }
 
-    ReactiveCapabilityCurveAdderImpl(OWNER owner, AbstractInjectionImpl<?, ?> injection) {
+    ReactiveCapabilityCurveAdderImpl(O owner, AbstractInjectionImpl<?, ?> injection) {
         this.owner = owner;
         this.injection = injection;
     }
