@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
@@ -29,13 +30,24 @@ class SvAttributesContractTest {
 
             // Get FULL attributes for resource type
             Class<? extends Attributes> fullAttributesType = ResourceDeserializer.getTypeClass(resourceType, AttributeFilter.FULL);
-            if (fullAttributesType == svAttributesType) {
+
+            // Continue if there is no @JsonView(AttributeFilter.JsonViews.OnlySv.class) in the FULL attribute
+            Set<String> jsonViewSvAnnotatedFieldNames = getJsonViewSvAnnotatedFieldNames(fullAttributesType);
+            if (jsonViewSvAnnotatedFieldNames.isEmpty()) {
                 continue;
             }
 
+            // Check that an attribute with @JsonView(AttributeFilter.JsonViews.OnlySv.class) fields has an SV attributes class
+            assertNotEquals(
+                    fullAttributesType,
+                    svAttributesType,
+                    () -> resourceType + " declares OnlySv fields in " + fullAttributesType.getSimpleName()
+                            + " but has no dedicated SV attributes class"
+            );
+
             // Check that all annotated @JsonView(AttributeFilter.JsonViews.OnlySv.class) fields in the FULL view are present in the SV attributes and reciprocally
             assertEquals(
-                    getJsonViewSvAnnotatedFieldNames(fullAttributesType),
+                    jsonViewSvAnnotatedFieldNames,
                     getFieldNames(svAttributesType),
                     () -> resourceType + " should map " + fullAttributesType.getSimpleName()
                             + " OnlySv fields to " + svAttributesType.getSimpleName()
