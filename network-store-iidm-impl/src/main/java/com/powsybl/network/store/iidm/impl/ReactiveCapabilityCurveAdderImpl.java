@@ -6,25 +6,32 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
 import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
-
+import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
 import java.util.TreeMap;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implements ReactiveCapabilityCurveAdder {
+class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner> extends AbstractBasePropertiesHolder implements ReactiveCapabilityCurveAdder {
 
-    private final OWNER owner;
+    private final O owner;
+    private final AbstractInjectionImpl<?, ?> injection;
 
     private final TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = new TreeMap<>();
 
-    ReactiveCapabilityCurveAdderImpl(OWNER owner) {
+    ReactiveCapabilityCurveAdderImpl(AbstractInjectionImpl<?, ?> injection) {
+        this.owner = (O) injection;
+        this.injection = injection;
+    }
+
+    ReactiveCapabilityCurveAdderImpl(O owner, AbstractInjectionImpl<?, ?> injection) {
         this.owner = owner;
+        this.injection = injection;
     }
 
     public ReactiveCapabilityCurvePointAttributes getPoint(Double p) {
@@ -48,8 +55,9 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implem
         ReactiveCapabilityCurveAttributes attributes = ReactiveCapabilityCurveAttributes.builder()
                 .points(points)
                 .ownerDescription(owner.getMessageHeader().toString())
+                .properties(properties)
                 .build();
         owner.setReactiveLimits(attributes);
-        return new ReactiveCapabilityCurveImpl(attributes);
+        return new ReactiveCapabilityCurveImpl(attributes, injection);
     }
 }

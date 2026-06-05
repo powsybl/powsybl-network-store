@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Map;
+
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
@@ -33,6 +35,9 @@ public class AreaBoundaryAttributes extends AbstractAttributes implements Attrib
     @Schema(description = "Area Id")
     private String areaId;
 
-    @Schema(description = "Boundary Dangling Line Id")
-    private String boundaryDanglingLineId;
+    @Schema(description = "Boundary boundary Line Id")
+    private String boundaryBoundaryLineId;
+
+    @Schema(description = "Properties")
+    private Map<String, String> properties;
 }

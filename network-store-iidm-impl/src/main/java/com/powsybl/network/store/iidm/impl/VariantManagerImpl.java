@@ -12,10 +12,8 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.model.VariantInfos;
 import com.powsybl.network.store.model.utils.VariantUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.*;
 import java.util.stream.Collectors;
 

@@ -21,7 +21,7 @@ class ReferencePriorityImpl implements ReferencePriority {
     private final ReferencePriorityAttributes attributes;
     private final NetworkObjectIndex index;
 
-    public ReferencePriorityImpl(ReferencePriorityAttributes attributes, NetworkObjectIndex index) {
+    ReferencePriorityImpl(ReferencePriorityAttributes attributes, NetworkObjectIndex index) {
         this.attributes = attributes;
         this.index = index;
     }

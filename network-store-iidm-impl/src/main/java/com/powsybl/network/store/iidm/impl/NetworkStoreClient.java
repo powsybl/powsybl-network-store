@@ -92,7 +92,7 @@ public interface NetworkStoreClient {
 
     List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId);
+    List<Resource<BoundaryLineAttributes>> getVoltageLevelBoundaryLines(UUID networkUuid, int variantNum, String voltageLevelId);
 
     List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum, String voltageLevelId);
 
@@ -254,17 +254,17 @@ public interface NetworkStoreClient {
 
     void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources, AttributeFilter attributeFilter);
 
-    // Dangling line
+    // Boundary line
 
-    void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources);
+    void createBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources);
 
-    List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum);
+    List<Resource<BoundaryLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum);
 
-    Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId);
+    Optional<Resource<BoundaryLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String boundaryLineId);
 
-    void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId);
+    void removeBoundaryLines(UUID networkUuid, int variantNum, List<String> boundaryLinesId);
 
-    void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter);
+    void updateBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources, AttributeFilter attributeFilter);
 
     // Ground
 
@@ -350,19 +350,21 @@ public interface NetworkStoreClient {
      * For one identifiable with a specific identifiable id, retrieves one operational limits group attributes by its name.
      * @return {@link LimitsAttributes} which is a subset of an identifiable resource.
      */
-    Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side);
-
+    Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName,
+            int side);
 
     /**
      * For one identifiable with a specific identifiable id, retrieves the selected operational limits group attributes.
      * @return {@link LimitsAttributes} which is a subset of an identifiable resource.
      */
-    Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side);
+    Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId,
+            String operationalLimitGroupName, int side);
 
     /**
      * For one identifiable with a specific identifiable id, retrieves all operational limits groups of one side.
      * @return a list of {@link OperationalLimitsGroupAttributes}.
      */
+
     List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side);
 
     /**

@@ -32,7 +32,7 @@ class ReactiveCapabilityCurveImplTest {
             .points(map)
             .ownerDescription("ReactiveCapabilityCurve owner")
             .build();
-        return new ReactiveCapabilityCurveImpl(reactiveCapabilityCurveAttributes);
+        return new ReactiveCapabilityCurveImpl(reactiveCapabilityCurveAttributes, null);
     }
 
     @Test

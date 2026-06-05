@@ -6,10 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.network.store.iidm.impl.BusbarSectionImpl;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.network.store.iidm.impl.BusbarSectionImpl;
 import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
 
 /**

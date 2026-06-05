@@ -6,8 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
@@ -37,4 +36,23 @@ class HvdcTest {
         Assertions.assertFalse(hvdc.removeExtension(HvdcOperatorActivePowerRange.class));
     }
 
+    @Test
+    void updateWithInvalidConvertersMode() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        HvdcLine hvdc = network.getHvdcLine("HVDC1");
+        Assertions.assertEquals("HVDC line 'HVDC1': converter mode is invalid",
+                Assertions.assertThrows(ValidationException.class, () -> hvdc.setConvertersMode(null)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        hvdc.setConvertersMode(null);
+    }
+
+    @Test
+    void updateWithInvalidActivePowerSetpoint() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        HvdcLine hvdc = network.getHvdcLine("HVDC1");
+        Assertions.assertEquals("HVDC line 'HVDC1': invalid value (NaN) for active power setpoint",
+                Assertions.assertThrows(ValidationException.class, () -> hvdc.setActivePowerSetpoint(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        hvdc.setActivePowerSetpoint(Double.NaN);
+    }
 }

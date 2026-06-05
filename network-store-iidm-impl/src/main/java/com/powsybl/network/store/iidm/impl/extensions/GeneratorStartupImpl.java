@@ -8,6 +8,8 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
 import com.powsybl.network.store.model.GeneratorStartupAttributes;
@@ -38,7 +40,8 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
     public GeneratorStartupImpl setPlannedActivePowerSetpoint(double predefinedActivePowerSetpoint) {
         double oldValue = getPlannedActivePowerSetpoint();
         if (oldValue != predefinedActivePowerSetpoint) {
-            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setPlannedActivePowerSetpoint(predefinedActivePowerSetpoint), "plannedActivePowerSetpoint", oldValue, predefinedActivePowerSetpoint);
+            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setPlannedActivePowerSetpoint(
+                    predefinedActivePowerSetpoint), "plannedActivePowerSetpoint", oldValue, predefinedActivePowerSetpoint);
         }
         return this;
     }
@@ -52,7 +55,8 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
     public GeneratorStartup setStartupCost(double startUpCost) {
         double oldValue = getStartupCost();
         if (oldValue != startUpCost) {
-            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setStartupCost(startUpCost), "startupCost", oldValue, startUpCost);
+            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setStartupCost(startUpCost),
+                    "startupCost", oldValue, startUpCost);
         }
         return this;
     }
@@ -66,7 +70,8 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
     public GeneratorStartupImpl setMarginalCost(double marginalCost) {
         double oldValue = getMarginalCost();
         if (oldValue != marginalCost) {
-            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setMarginalCost(marginalCost), "marginalCost", oldValue, marginalCost);
+            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setMarginalCost(marginalCost),
+                    "marginalCost", oldValue, marginalCost);
         }
         return this;
     }
@@ -78,9 +83,11 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setPlannedOutageRate(double plannedOutageRate) {
+        ValidationUtil.checkRate((Validable) getExtendable(), "GeneratorStartup", plannedOutageRate, "planned outage rate");
         double oldValue = getPlannedOutageRate();
         if (oldValue != plannedOutageRate) {
-            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setPlannedOutageRate(plannedOutageRate), "plannedOutageRate", oldValue, plannedOutageRate);
+            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setPlannedOutageRate(
+                    plannedOutageRate), "plannedOutageRate", oldValue, plannedOutageRate);
         }
         return this;
     }
@@ -92,9 +99,11 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setForcedOutageRate(double forcedOutageRate) {
+        ValidationUtil.checkRate((Validable) getExtendable(), "GeneratorStartup", forcedOutageRate, "forced outage rate");
         double oldValue = getForcedOutageRate();
         if (oldValue != forcedOutageRate) {
-            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setForcedOutageRate(forcedOutageRate), "forcedOutageRate", oldValue, forcedOutageRate);
+            getGenerator().updateResourceExtension(this, res -> ((GeneratorStartupAttributes) res.getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME)).setForcedOutageRate(
+                    forcedOutageRate), "forcedOutageRate", oldValue, forcedOutageRate);
         }
         return this;
     }

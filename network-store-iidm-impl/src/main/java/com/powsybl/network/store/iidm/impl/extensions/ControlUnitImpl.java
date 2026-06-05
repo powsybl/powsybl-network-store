@@ -27,7 +27,7 @@ class ControlUnitImpl implements ControlUnit {
 
     private final NetworkImpl network;
 
-    public ControlUnitImpl(SecondaryVoltageControl secondaryVoltageControl, ControlZone controlZone, NetworkImpl network, ControlUnitAttributes controlUnitAttributes) {
+    ControlUnitImpl(SecondaryVoltageControl secondaryVoltageControl, ControlZone controlZone, NetworkImpl network, ControlUnitAttributes controlUnitAttributes) {
         this.secondaryVoltageControl = secondaryVoltageControl;
         this.controlZone = controlZone;
         this.controlUnitAttributes = Objects.requireNonNull(controlUnitAttributes);

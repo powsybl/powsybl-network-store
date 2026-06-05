@@ -7,13 +7,12 @@
 
 package com.powsybl.network.store.model.utils;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.network.store.model.VariantInfos;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.network.store.model.VariantInfos;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>

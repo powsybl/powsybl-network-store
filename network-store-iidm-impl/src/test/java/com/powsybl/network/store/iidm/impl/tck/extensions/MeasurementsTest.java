@@ -36,7 +36,7 @@ class MeasurementsTest extends AbstractMeasurementsTest {
     // This test covers a bug that made newly added measurements not being persisted. This was possible because the
     // NetworkStoreClient wasn't notified of the change and didn't update the element when flushing the buffers.
     @Test
-    void addMeasurementShouldUpdateResourceWithoutNotification() {
+    void addMeasurementShouldUpdateResource() {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         LineImpl line = (LineImpl) network.getLine("NHV1_NHV2_1");

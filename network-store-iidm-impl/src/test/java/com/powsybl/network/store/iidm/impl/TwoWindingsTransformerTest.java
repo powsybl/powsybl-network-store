@@ -430,8 +430,10 @@ class TwoWindingsTransformerTest {
         assertNull(network.getTwoWindingsTransformer(twoWindingsTransformerId));
         List<? extends Record> expectedEvents = List.of(
                 new RemovalNetworkEvent(twoWindingsTransformerId, false),
-                new UpdateNetworkEvent(twoWindingsTransformerId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
-                new UpdateNetworkEvent(generatorId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.ONE.name()).build(), TerminalRefAttributes.builder().connectableId(generatorId).build()),
+                new UpdateNetworkEvent(twoWindingsTransformerId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(
+                        twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
+                new UpdateNetworkEvent(generatorId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(
+                        TwoSides.ONE.name()).build(), TerminalRefAttributes.builder().connectableId(generatorId).build()),
                 new UpdateNetworkEvent(generatorId, "regulatedResourceType", VariantManagerConstants.INITIAL_VARIANT_ID, ResourceType.TWO_WINDINGS_TRANSFORMER, ResourceType.GENERATOR),
                 new UpdateNetworkEvent(generatorId, "regulating", VariantManagerConstants.INITIAL_VARIANT_ID, true, false),
                 new RemovalNetworkEvent(twoWindingsTransformerId, true));
@@ -473,6 +475,28 @@ class TwoWindingsTransformerTest {
         ratioTapChanger.setLowTapPosition(2);
         assertEquals(2, ratioTapChanger.getLowTapPosition());
         assertEquals(11, ratioTapChanger.getTapPosition());
+    }
+
+    @Test
+    void updateWithInvalidRegulationMode() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        PhaseTapChanger ptc = twt.getPhaseTapChanger();
+        assertEquals("2 windings transformer 'TWT': phase regulation mode is not set",
+                assertThrows(ValidationException.class, () -> ptc.setRegulationMode(null)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        ptc.setRegulationMode(null);
+    }
+
+    @Test
+    void updateWithInvalidTargetDeadband() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        RatioTapChanger rtc = twt.getRatioTapChanger();
+        assertEquals("2 windings transformer 'TWT': Undefined value for target deadband of regulating ratio tap changer",
+                assertThrows(ValidationException.class, () -> rtc.setTargetDeadband(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        rtc.setTargetDeadband(Double.NaN);
     }
 
     @Test

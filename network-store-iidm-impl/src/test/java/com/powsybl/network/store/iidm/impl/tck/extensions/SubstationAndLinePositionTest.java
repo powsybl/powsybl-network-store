@@ -30,7 +30,7 @@ public class SubstationAndLinePositionTest extends AbstractSubstationAndLinePosi
     public void testLinePositionException() {
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
-        assertEquals("Line position extension only supported for lines and dangling lines", assertThrows(PowsyblException.class, () -> vl.newExtension(LinePositionAdder.class)).getMessage());
+        assertEquals("Line position extension only supported for lines and boundary lines", assertThrows(PowsyblException.class, () -> vl.newExtension(LinePositionAdder.class)).getMessage());
 
     }
 

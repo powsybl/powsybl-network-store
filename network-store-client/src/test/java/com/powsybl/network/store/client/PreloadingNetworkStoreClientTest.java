@@ -496,14 +496,14 @@ public class PreloadingNetworkStoreClientTest {
         // First time shunt compensator retrieval by Id
         Resource<ShuntCompensatorAttributes> shuntCompensatorAttributesResource = cachedClient.getShuntCompensator(networkUuid, Resource.INITIAL_VARIANT_NUM, "sc1").orElse(null);
         assertNotNull(shuntCompensatorAttributesResource);
-        assertEquals(5, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
+        assertEquals((Integer) 5, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
 
         shuntCompensatorAttributesResource.getAttributes().setSectionCount(8);
 
         // Second time shunt compensator retrieval by Id
         shuntCompensatorAttributesResource = cachedClient.getShuntCompensator(networkUuid, Resource.INITIAL_VARIANT_NUM, "sc1").orElse(null);
         assertNotNull(shuntCompensatorAttributesResource);
-        assertEquals(8, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
+        assertEquals((Integer) 8, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
 
         // Remove component
         assertEquals(1, cachedClient.getShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
@@ -516,7 +516,7 @@ public class PreloadingNetworkStoreClientTest {
         List<Resource<ShuntCompensatorAttributes>> shuntCompensators = cachedClient.getShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, shuntCompensators.size());
         assertNotNull(shuntCompensators.get(0));
-        assertEquals(5, shuntCompensators.get(0).getAttributes().getSectionCount());
+        assertEquals((Integer) 5, shuntCompensators.get(0).getAttributes().getSectionCount());
 
         // Update shunt compensator
         Resource<ShuntCompensatorAttributes> updateShuntCompensator = Resource.shuntCompensatorBuilder()
@@ -531,7 +531,7 @@ public class PreloadingNetworkStoreClientTest {
         shuntCompensators = cachedClient.getShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, shuntCompensators.size());
         assertNotNull(shuntCompensators.get(0));
-        assertEquals(8, shuntCompensators.get(0).getAttributes().getSectionCount());
+        assertEquals((Integer) 8, shuntCompensators.get(0).getAttributes().getSectionCount());
 
         server.verify();
     }
@@ -897,7 +897,8 @@ public class PreloadingNetworkStoreClientTest {
                 .andRespond(withSuccess(threeWindingsTransformerJson, MediaType.APPLICATION_JSON));
 
         // First time three windings transformer retrieval by Id
-        Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerAttributesResource = cachedClient.getThreeWindingsTransformer(networkUuid, Resource.INITIAL_VARIANT_NUM, "tw1").orElse(null);
+        Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerAttributesResource = cachedClient.getThreeWindingsTransformer(networkUuid, Resource.INITIAL_VARIANT_NUM,
+                "tw1").orElse(null);
         assertNotNull(threeWindingsTransformerAttributesResource);
         assertEquals(50, threeWindingsTransformerAttributesResource.getAttributes().getP2(), 0.001);
         assertEquals(60, threeWindingsTransformerAttributesResource.getAttributes().getQ3(), 0.001);
@@ -1081,61 +1082,61 @@ public class PreloadingNetworkStoreClientTest {
     }
 
     @Test
-    public void testDanglingLineCache() throws IOException {
-        // Two successive dangling line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<DanglingLineAttributes> danglingLine = Resource.danglingLineBuilder()
+    public void testBoundaryLineCache() throws IOException {
+        // Two successive boundary line retrievals, only the first should send a REST request, the second uses the cache
+        Resource<BoundaryLineAttributes> boundaryLine = Resource.boundaryLineBuilder()
                 .id("dl1")
-                .attributes(DanglingLineAttributes.builder()
+                .attributes(BoundaryLineAttributes.builder()
                         .voltageLevelId("vl1")
                         .name("dl1")
                         .q0(10)
                         .build())
                 .build();
 
-        String danglingLinesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(danglingLine)));
+        String boundaryLinesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(boundaryLine)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/dangling-lines"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/boundary-lines"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(danglingLinesJson, MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(boundaryLinesJson, MediaType.APPLICATION_JSON));
 
-        // First time dangling line retrieval by Id
-        Resource<DanglingLineAttributes> danglingLineAttributesResource = cachedClient.getDanglingLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
-        assertNotNull(danglingLineAttributesResource);
-        assertEquals(10., danglingLineAttributesResource.getAttributes().getQ0(), 0.001);
+        // First time boundary line retrieval by Id
+        Resource<BoundaryLineAttributes> boundaryLineAttributesResource = cachedClient.getBoundaryLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
+        assertNotNull(boundaryLineAttributesResource);
+        assertEquals(10., boundaryLineAttributesResource.getAttributes().getQ0(), 0.001);
 
-        danglingLineAttributesResource.getAttributes().setQ0(60);
+        boundaryLineAttributesResource.getAttributes().setQ0(60);
 
-        // Second time dangling line retrieval by Id
-        danglingLineAttributesResource = cachedClient.getDanglingLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
-        assertNotNull(danglingLineAttributesResource);
-        assertEquals(60., danglingLineAttributesResource.getAttributes().getQ0(), 0.001);
+        // Second time boundary line retrieval by Id
+        boundaryLineAttributesResource = cachedClient.getBoundaryLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "dl1").orElse(null);
+        assertNotNull(boundaryLineAttributesResource);
+        assertEquals(60., boundaryLineAttributesResource.getAttributes().getQ0(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
-        cachedClient.removeDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("dl1"));
-        assertEquals(0, cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        assertEquals(1, cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
+        cachedClient.removeBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM, Collections.singletonList("dl1"));
+        assertEquals(0, cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
 
         // Recreate line
-        cachedClient.createDanglingLines(networkUuid, List.of(danglingLine));
-        List<Resource<DanglingLineAttributes>> danglingLines = cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
-        assertEquals(1, danglingLines.size());
-        assertNotNull(danglingLines.get(0));
-        assertEquals(10., danglingLines.get(0).getAttributes().getQ0(), 0.001);
+        cachedClient.createBoundaryLines(networkUuid, List.of(boundaryLine));
+        List<Resource<BoundaryLineAttributes>> boundaryLines = cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, boundaryLines.size());
+        assertNotNull(boundaryLines.get(0));
+        assertEquals(10., boundaryLines.get(0).getAttributes().getQ0(), 0.001);
 
         // Update line
-        Resource<DanglingLineAttributes> updateDanglingLine = Resource.danglingLineBuilder()
+        Resource<BoundaryLineAttributes> updateBoundaryLine = Resource.boundaryLineBuilder()
                 .id("dl1")
-                .attributes(DanglingLineAttributes.builder()
+                .attributes(BoundaryLineAttributes.builder()
                         .voltageLevelId("vl1")
                         .name("dl1")
                         .q0(60)
                         .build())
                 .build();
-        cachedClient.updateDanglingLines(networkUuid, List.of(updateDanglingLine), null);
-        danglingLines = cachedClient.getDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
-        assertEquals(1, danglingLines.size());
-        assertNotNull(danglingLines.get(0));
-        assertEquals(60., danglingLines.get(0).getAttributes().getQ0(), 0.001);
+        cachedClient.updateBoundaryLines(networkUuid, List.of(updateBoundaryLine), null);
+        boundaryLines = cachedClient.getBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
+        assertEquals(1, boundaryLines.size());
+        assertNotNull(boundaryLines.get(0));
+        assertEquals(60., boundaryLines.get(0).getAttributes().getQ0(), 0.001);
 
         server.verify();
     }
@@ -1147,8 +1148,8 @@ public class PreloadingNetworkStoreClientTest {
                 .id("tieLine1")
                 .attributes(TieLineAttributes.builder()
                         .name("tieLine1")
-                        .danglingLine1Id("dl1")
-                        .danglingLine2Id("dl2")
+                        .boundaryLine1Id("dl1")
+                        .boundaryLine2Id("dl2")
                         .build())
                 .build();
 
@@ -1161,14 +1162,14 @@ public class PreloadingNetworkStoreClientTest {
         // First time tie line retrieval by Id
         Resource<TieLineAttributes> tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
         assertNotNull(tieLineAttributesResource);
-        assertEquals("dl1", tieLineAttributesResource.getAttributes().getDanglingLine1Id());
+        assertEquals("dl1", tieLineAttributesResource.getAttributes().getBoundaryLine1Id());
 
-        tieLineAttributesResource.getAttributes().setDanglingLine1Id("dll1");
+        tieLineAttributesResource.getAttributes().setBoundaryLine1Id("dll1");
 
         // Second time tie line retrieval by Id
         tieLineAttributesResource = cachedClient.getTieLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "tieLine1").orElse(null);
         assertNotNull(tieLineAttributesResource);
-        assertEquals("dll1", tieLineAttributesResource.getAttributes().getDanglingLine1Id());
+        assertEquals("dll1", tieLineAttributesResource.getAttributes().getBoundaryLine1Id());
 
         // Remove component
         assertEquals(1, cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
@@ -1180,22 +1181,22 @@ public class PreloadingNetworkStoreClientTest {
         List<Resource<TieLineAttributes>> tieLines = cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, tieLines.size());
         assertNotNull(tieLines.get(0));
-        assertEquals("dl1", tieLines.get(0).getAttributes().getDanglingLine1Id());
+        assertEquals("dl1", tieLines.get(0).getAttributes().getBoundaryLine1Id());
 
         // Update line
         Resource<TieLineAttributes> updateTieLine = Resource.tieLineBuilder()
                 .id("tieLine1")
                 .attributes(TieLineAttributes.builder()
                         .name("tieLine1")
-                        .danglingLine1Id("dll1")
-                        .danglingLine2Id("dl2")
+                        .boundaryLine1Id("dll1")
+                        .boundaryLine2Id("dl2")
                         .build())
                 .build();
         cachedClient.updateTieLines(networkUuid, List.of(updateTieLine), null);
         tieLines = cachedClient.getTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(1, tieLines.size());
         assertNotNull(tieLines.get(0));
-        assertEquals("dll1", tieLines.get(0).getAttributes().getDanglingLine1Id());
+        assertEquals("dll1", tieLines.get(0).getAttributes().getBoundaryLine1Id());
 
         server.verify();
     }
@@ -1283,7 +1284,8 @@ public class PreloadingNetworkStoreClientTest {
 
         String extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
         }).writeValueAsString(Map.of(identifiableId1, apc1, identifiableId2, apc2));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/activepowercontrol"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/"
+                + "activepowercontrol"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
 
@@ -1307,7 +1309,8 @@ public class PreloadingNetworkStoreClientTest {
         String identifiableId1 = "GEN";
         String extensionAttributes = objectMapper.writerFor(new TypeReference<Map<String, ExtensionAttributes>>() {
         }).writeValueAsString(Map.of());
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/activepowercontrol"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/"
+                + "activepowercontrol"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(extensionAttributes, MediaType.APPLICATION_JSON));
 
@@ -1354,7 +1357,8 @@ public class PreloadingNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
 
-        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
+        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR,
+                identifiableId1);
         assertEquals(2, extensionAttributesMap.size());
 
         extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
@@ -1381,7 +1385,8 @@ public class PreloadingNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(multipleExtensionAttributes, MediaType.APPLICATION_JSON));
 
-        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
+        Map<String, ExtensionAttributes> extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR,
+                identifiableId1);
         assertEquals(0, extensionAttributesMap.size());
 
         extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId1);
@@ -1459,7 +1464,8 @@ public class PreloadingNetworkStoreClientTest {
         cachedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum, targetVariantId);
 
         // Verify that the cache is copied and there is no new fetch
-        Map<String, ExtensionAttributes> extensionAttributesByIdentifiableId = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, targetVariantNum, ResourceType.GENERATOR, identifiableId1);
+        Map<String, ExtensionAttributes> extensionAttributesByIdentifiableId = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, targetVariantNum, ResourceType.GENERATOR,
+                identifiableId1);
         assertEquals(2, extensionAttributesByIdentifiableId.size());
         server.verify();
         server.reset();
@@ -1497,7 +1503,8 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
             .andExpect(method(GET));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup1 + "/side/" + "1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup1 + "/side/" + "1"))
             .andExpect(method(GET));
 
         olg1Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
@@ -1511,7 +1518,8 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/"))
             .andExpect(method(GET));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/" + "2"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/" + "2"))
             .andExpect(method(GET));
 
         Optional<OperationalLimitsGroupAttributes> olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
@@ -1606,7 +1614,8 @@ public class PreloadingNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
             .andExpect(method(GET));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
             .andExpect(method(GET));
         olg1Attributes = cachedClient.getSelectedOperationalLimitsGroupAttributes(networkUuid,
             Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId2, operationalLimitsGroup3, 1);
@@ -1717,7 +1726,8 @@ public class PreloadingNetworkStoreClientTest {
             .andExpect(method(DELETE))
             .andExpect(content().string("{\"line2\":{\"2\":[\"olg2\"]}}"))
             .andRespond(withSuccess());
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/2"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/2"))
                 .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE,
                 Map.of(branchId2, Map.of(2, Set.of(operationalLimitsGroup2))));
@@ -1725,7 +1735,8 @@ public class PreloadingNetworkStoreClientTest {
         server.reset();
 
         // getting the removed olg will not call the rest api and return empty
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/2"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + branchId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/2"))
             .andExpect(method(GET));
 
         Optional<OperationalLimitsGroupAttributes> olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
@@ -1775,7 +1786,8 @@ public class PreloadingNetworkStoreClientTest {
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"lineId\":{\"1\":[\"olg3\"]}}"))
                 .andRespond(withSuccess());
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup3 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup3 + "/side/1"))
                 .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(identifiableId1, Map.of(1, Set.of(operationalLimitsGroup3))));
         server.verify();
@@ -1790,7 +1802,8 @@ public class PreloadingNetworkStoreClientTest {
         server.reset();
 
         // get olg3 on new variant it does not fetch because the cached was copied
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup3 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId1 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup3 + "/side/1"))
                 .andExpect(method(GET));
         Optional<OperationalLimitsGroupAttributes> olg3Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
                 targetVariantNum, ResourceType.LINE, identifiableId1, operationalLimitsGroup3, 1);
@@ -1804,14 +1817,16 @@ public class PreloadingNetworkStoreClientTest {
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"LINE1\":{\"1\":[\"olg2\"]}}"))
                 .andRespond(withSuccess());
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
                 .andExpect(method(GET));
         cachedClient.removeOperationalLimitsGroupAttributes(networkUuid, targetVariantNum, ResourceType.LINE, Map.of(identifiableId2, Map.of(1, Set.of(operationalLimitsGroup2))));
         server.verify();
         server.reset();
 
         // get olg2 on variant 1
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
                 .andExpect(method(GET));
         Optional<OperationalLimitsGroupAttributes> olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
                 targetVariantNum, ResourceType.LINE, identifiableId2, operationalLimitsGroup2, 1);
@@ -1820,7 +1835,8 @@ public class PreloadingNetworkStoreClientTest {
         server.reset();
 
         // checking olg2 on variant 0
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operationalLimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/" + identifiableId2 + "/types/" + ResourceType.LINE + "/operational"
+                + "LimitsGroup/" + operationalLimitsGroup2 + "/side/1"))
                 .andExpect(method(GET));
         olg2Attributes = cachedClient.getOperationalLimitsGroupAttributes(networkUuid,
                 Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, identifiableId2, operationalLimitsGroup2, 1);

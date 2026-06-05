@@ -30,7 +30,7 @@ public class TapChangerAttributes extends AbstractRegulatingEquipmentAttributes 
     private int lowTapPosition;
 
     @Schema(description = "tapPosition")
-    private int tapPosition;
+    private Integer tapPosition;
 
     @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "solved tap position")

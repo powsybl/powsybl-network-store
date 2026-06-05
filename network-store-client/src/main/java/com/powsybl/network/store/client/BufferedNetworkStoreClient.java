@@ -102,10 +102,10 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                 delegate::updateHvdcLines,
                 delegate::removeHvdcLines));
 
-    private final NetworkCollectionIndex<CollectionBuffer<DanglingLineAttributes>> danglingLineResourcesToFlush
-            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createDanglingLines,
-                delegate::updateDanglingLines,
-                delegate::removeDanglingLines));
+    private final NetworkCollectionIndex<CollectionBuffer<BoundaryLineAttributes>> boundaryLineResourcesToFlush
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createBoundaryLines,
+                delegate::updateBoundaryLines,
+                delegate::removeBoundaryLines));
 
     private final NetworkCollectionIndex<CollectionBuffer<GroundAttributes>> groundResourcesToFlush
             = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createGrounds,
@@ -155,7 +155,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             svcResourcesToFlush,
             vscConverterStationResourcesToFlush,
             lccConverterStationResourcesToFlush,
-            danglingLineResourcesToFlush,
+            boundaryLineResourcesToFlush,
             hvdcLineResourcesToFlush,
             groundResourcesToFlush,
             twoWindingsTransformerResourcesToFlush,
@@ -513,22 +513,22 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
-    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
-        for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
-            danglingLineResourcesToFlush.getCollection(networkUuid, danglingLineResource.getVariantNum()).create(danglingLineResource);
+    public void createBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources) {
+        for (Resource<BoundaryLineAttributes> boundaryLineResource : boundaryLineResources) {
+            boundaryLineResourcesToFlush.getCollection(networkUuid, boundaryLineResource.getVariantNum()).create(boundaryLineResource);
         }
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
-        for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
-            danglingLineResourcesToFlush.getCollection(networkUuid, danglingLineResource.getVariantNum()).update(danglingLineResource, attributeFilter);
+    public void updateBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources, AttributeFilter attributeFilter) {
+        for (Resource<BoundaryLineAttributes> boundaryLineResource : boundaryLineResources) {
+            boundaryLineResourcesToFlush.getCollection(networkUuid, boundaryLineResource.getVariantNum()).update(boundaryLineResource, attributeFilter);
         }
     }
 
     @Override
-    public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
-        danglingLineResourcesToFlush.getCollection(networkUuid, variantNum).remove(danglingLinesId);
+    public void removeBoundaryLines(UUID networkUuid, int variantNum, List<String> boundaryLinesId) {
+        boundaryLineResourcesToFlush.getCollection(networkUuid, variantNum).remove(boundaryLinesId);
     }
 
     @Override
@@ -639,7 +639,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(lccConverterStationResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(svcResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(hvdcLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
-        cloneBuffer(danglingLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(boundaryLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(busResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(substationResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(voltageLevelResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);

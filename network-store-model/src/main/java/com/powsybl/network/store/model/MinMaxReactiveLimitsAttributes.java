@@ -13,6 +13,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
@@ -32,4 +34,6 @@ public class MinMaxReactiveLimitsAttributes implements ReactiveLimitsAttributes 
     @Schema(description = "Reactive power maximum value")
     private double maxQ;
 
+    @Schema(description = "Properties")
+    private Map<String, String> properties;
 }

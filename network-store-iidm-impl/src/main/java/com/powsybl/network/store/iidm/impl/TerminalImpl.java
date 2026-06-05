@@ -72,7 +72,8 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     private TopologyPoint getTopologyPoint() {
-        return isNodeBeakerTopologyKind() ? new NodeTopologyPointImpl(getAttributes().getVoltageLevelId(), getNodeBreakerView().getNode()) : new BusTopologyPointImpl(getAttributes().getVoltageLevelId(), getBusBreakerView().getConnectableBus().getId(), isConnected());
+        return isNodeBeakerTopologyKind() ? new NodeTopologyPointImpl(getAttributes().getVoltageLevelId(), getNodeBreakerView().getNode()) : new BusTopologyPointImpl(getAttributes().getVoltageLevelId(
+                ), getBusBreakerView().getConnectableBus().getId(), isConnected());
     }
 
     @Override
@@ -385,14 +386,16 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             )
             .collect(Collectors.toSet());
 
-        Set<Integer> twoWindingsTransformerNodes = index.getStoreClient().getVoltageLevelTwoWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+        Set<Integer> twoWindingsTransformerNodes = index.getStoreClient().getVoltageLevelTwoWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId(
+                ))
             .stream().map(resource -> resource.getAttributes().getVoltageLevelId1().equals(getVoltageLevelId())
                 ? resource.getAttributes().getNode1()
                 : resource.getAttributes().getNode2()
             )
             .collect(Collectors.toSet());
 
-        Set<Integer> threeWindingsTransformerNodes = index.getStoreClient().getVoltageLevelThreeWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+        Set<Integer> threeWindingsTransformerNodes = index.getStoreClient().getVoltageLevelThreeWindingsTransformers(index.getNetwork().getUuid(), index.getWorkingVariantNum(),
+                voltageLevelResource.getId())
             .stream().map(resource -> {
                 if (resource.getAttributes().getLeg1().getVoltageLevelId().equals(getVoltageLevelId())) {
                     return resource.getAttributes().getLeg1().getNode();
@@ -419,7 +422,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
         Set<Integer> staticVarCompensatorNodes = index.getStoreClient().getVoltageLevelStaticVarCompensators(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
             .stream().map(resource -> resource.getAttributes().getNode())
             .collect(Collectors.toSet());
-        Set<Integer> danglingLineNodes = index.getStoreClient().getVoltageLevelDanglingLines(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
+        Set<Integer> boundaryLineNodes = index.getStoreClient().getVoltageLevelBoundaryLines(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
             .stream().map(resource -> resource.getAttributes().getNode())
             .collect(Collectors.toSet());
         Set<Integer> lccConverterStationNodes = index.getStoreClient().getVoltageLevelLccConverterStations(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
@@ -433,7 +436,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
             .collect(Collectors.toSet());
 
         return Stream.of(busbarSectionNodes, lineNodes, twoWindingsTransformerNodes, threeWindingsTransformerNodes, generatorNodes,
-                  batteryNodes, loadNodes, shuntCompensatorNodes, staticVarCompensatorNodes, danglingLineNodes,
+                  batteryNodes, loadNodes, shuntCompensatorNodes, staticVarCompensatorNodes, boundaryLineNodes,
                   lccConverterStationNodes, vscConverterStationNodes, groundNodes).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
@@ -542,14 +545,14 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
     }
 
     /**
-     * Disconnect the terminal, using by default the {@link SwitchPredicates} IS_CLOSED_BREAKER.<br/>
+     * Disconnect the terminal, using by default the {@link SwitchPredicates} IS_NONFICTIONAL_BREAKER.<br/>
      * Depends on the working variant.
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */
     @Override
     public boolean disconnect() {
-        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
+        return disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
     }
 
     @Override
@@ -670,6 +673,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
                 regulatingPoint.getRegulatingEquipmentType(), regulatingPoint.getRegulatingTapChangerType()));
     }
 
+    @SuppressWarnings("checkstyle:LambdaBodyLength")
     public void removeAsRegulatingPoint() {
         getAttributes().getRegulatingEquipments().forEach(regulatingEquipmentIdentifier -> {
             Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());

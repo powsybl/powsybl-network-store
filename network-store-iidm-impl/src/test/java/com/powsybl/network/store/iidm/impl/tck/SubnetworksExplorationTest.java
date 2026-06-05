@@ -114,7 +114,7 @@ public class SubnetworksExplorationTest extends AbstractSubnetworksExplorationTe
     }
 
     @Override
-    public void testExploreDanglingLines() {
+    public void testExploreBoundaryLines() {
         // FIXME
     }
 

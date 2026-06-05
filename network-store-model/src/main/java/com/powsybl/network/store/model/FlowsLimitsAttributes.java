@@ -6,9 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Map;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>

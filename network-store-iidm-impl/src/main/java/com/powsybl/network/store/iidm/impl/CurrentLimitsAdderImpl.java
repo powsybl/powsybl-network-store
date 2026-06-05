@@ -28,6 +28,8 @@ public class CurrentLimitsAdderImpl<S, O extends LimitsOwner<S>>
     @Override
     protected CurrentLimitsImpl<S, O> createAndSetLimit(LimitsAttributes attributes) {
         owner.setCurrentLimits(side, attributes, operationalGroupId);
-        return new CurrentLimitsImpl<>(owner, side, operationalGroupId, attributes);
+        CurrentLimitsImpl<S, O> currentLimts = new CurrentLimitsImpl<>(owner, side, operationalGroupId, attributes);
+        this.copyPropertiesTo(currentLimts);
+        return currentLimts;
     }
 }

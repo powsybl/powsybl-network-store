@@ -354,9 +354,11 @@ public class CollectionCacheTest {
 
     @Test
     public void getExtensionAttributesWithResourceNotCachedMustThrow() {
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1", "activePowerControl"));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1",
+                "activePowerControl"));
         assertTrue(exception.getMessage().startsWith("Cannot manipulate extensions for identifiable"));
-        exception = assertThrows(PowsyblException.class, () -> collectionCache.loadAllExtensionsAttributesByResourceTypeAndExtensionName(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "activePowerControl"));
+        exception = assertThrows(PowsyblException.class, () -> collectionCache.loadAllExtensionsAttributesByResourceTypeAndExtensionName(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD,
+                "activePowerControl"));
         assertTrue(exception.getMessage().startsWith("Cannot manipulate extensions for identifiable"));
         exception = assertThrows(PowsyblException.class, () -> collectionCache.getAllExtensionsAttributesByIdentifiableId(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1"));
         assertTrue(exception.getMessage().startsWith("Cannot manipulate extensions for identifiable"));
@@ -531,7 +533,8 @@ public class CollectionCacheTest {
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByIdCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeCalled());
         // Load extension by identifiable id twice and verify that we can then get the single extension from the same identifiable without new fetch as it's already cached
-        assertEquals(Map.of("activePowerControl", apc1, "operatingStatus", os1), collectionCache.getAllExtensionsAttributesByIdentifiableId(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1"));
+        assertEquals(Map.of("activePowerControl", apc1, "operatingStatus", os1), collectionCache.getAllExtensionsAttributesByIdentifiableId(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM,
+                ResourceType.LOAD, "l1"));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());
         assertTrue(mockNetworkStoreClient.isExtensionAttributesLoaderByIdCalled());
@@ -591,7 +594,8 @@ public class CollectionCacheTest {
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByIdCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeCalled());
         // Load extension in the resource
-        ActivePowerControlAttributes apc1Result = (ActivePowerControlAttributes) collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1", "activePowerControl").orElse(null);
+        ActivePowerControlAttributes apc1Result = (ActivePowerControlAttributes) collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1",
+                "activePowerControl").orElse(null);
         assertEquals(apc1, apc1Result);
         assertTrue(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());
@@ -601,7 +605,8 @@ public class CollectionCacheTest {
         // Update the extension
         apc1Result.setDroop(8.7);
         // Load extension again with getExtensions
-        Map<String, ExtensionAttributes> extensionsAttributesByIdentifiableIdResult = collectionCache.getAllExtensionsAttributesByIdentifiableId(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1");
+        Map<String, ExtensionAttributes> extensionsAttributesByIdentifiableIdResult = collectionCache.getAllExtensionsAttributesByIdentifiableId(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM,
+                ResourceType.LOAD, "l1");
         apc1Result = (ActivePowerControlAttributes) extensionsAttributesByIdentifiableIdResult.get(ActivePowerControl.NAME);
         ActivePowerControlAttributes updatedApc1 = ActivePowerControlAttributes.builder()
                 .droop(8.7)
@@ -626,7 +631,8 @@ public class CollectionCacheTest {
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeCalled());
         // Load extension in the resource with getExtension in preloading collection
         collectionCache.loadAllExtensionsAttributesByResourceTypeAndExtensionName(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, ActivePowerControl.NAME);
-        ActivePowerControlAttributes apc1Result = (ActivePowerControlAttributes) collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1", "activePowerControl").orElse(null);
+        ActivePowerControlAttributes apc1Result = (ActivePowerControlAttributes) collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1",
+                "activePowerControl").orElse(null);
         assertEquals(apc1, apc1Result);
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
         assertTrue(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());
@@ -637,7 +643,8 @@ public class CollectionCacheTest {
         apc1Result.setDroop(8.7);
         // Load extension again with getExtensions in preloading collection
         collectionCache.loadAllExtensionsAttributesByResourceType(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD);
-        Map<String, ExtensionAttributes> extensionsAttributesByIdentifiableIdResult = collectionCache.getAllExtensionsAttributesByIdentifiableId(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1");
+        Map<String, ExtensionAttributes> extensionsAttributesByIdentifiableIdResult = collectionCache.getAllExtensionsAttributesByIdentifiableId(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM,
+                ResourceType.LOAD, "l1");
         apc1Result = (ActivePowerControlAttributes) extensionsAttributesByIdentifiableIdResult.get(ActivePowerControl.NAME);
         ActivePowerControlAttributes updatedApc1 = ActivePowerControlAttributes.builder()
                 .droop(8.7)

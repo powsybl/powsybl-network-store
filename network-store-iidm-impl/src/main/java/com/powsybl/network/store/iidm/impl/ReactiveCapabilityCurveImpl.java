@@ -8,34 +8,34 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
 import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
 import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
-
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
-
-import com.powsybl.iidm.network.util.ReactiveCapabilityCurveUtil;
-
 import static com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes.COMPARATOR;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
+public class ReactiveCapabilityCurveImpl extends AbstractPropertiesHolder implements ReactiveCapabilityCurve {
 
-    static class PointImpl implements Point {
+    static class PointImpl extends AbstractPropertiesHolder implements Point {
 
         private final ReactiveCapabilityCurvePointAttributes attributes;
+        private final AbstractInjectionImpl<?, ?> owner;
 
-        public PointImpl(ReactiveCapabilityCurvePointAttributes attributes) {
+        PointImpl(ReactiveCapabilityCurvePointAttributes attributes, AbstractInjectionImpl<?, ?> injection) {
             this.attributes = attributes;
+            this.owner = injection;
         }
 
-        static PointImpl create(ReactiveCapabilityCurvePointAttributes attributes) {
-            return new PointImpl(attributes);
+        static PointImpl create(ReactiveCapabilityCurvePointAttributes attributes, AbstractInjectionImpl<?, ?> injection) {
+            return new PointImpl(attributes, injection);
         }
 
         @Override
@@ -56,17 +56,36 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         protected ReactiveCapabilityCurvePointAttributes getAttributes() {
             return attributes;
         }
+
+        @Override
+        protected Map<String, String> getProperties() {
+            return attributes.getProperties();
+        }
+
+        @Override
+        protected void setProperties(Map<String, String> properties) {
+            attributes.setProperties(properties);
+        }
+
+        @Override
+        protected void persistProperties(Map<String, String> properties) {
+            if (owner != null) {
+                owner.updateResourceWithoutNotification(r -> setProperties(properties));
+            }
+        }
     }
 
     private final ReactiveCapabilityCurveAttributes attributes;
+    private final AbstractInjectionImpl<?, ?> owner;
 
-    public ReactiveCapabilityCurveImpl(ReactiveCapabilityCurveAttributes attributes) {
+    public ReactiveCapabilityCurveImpl(ReactiveCapabilityCurveAttributes attributes, AbstractInjectionImpl<?, ?> injection) {
         this.attributes = attributes;
+        this.owner = injection;
     }
 
     @Override
     public Collection<Point> getPoints() {
-        return Collections.unmodifiableCollection(attributes.getPoints().values().stream().map(PointImpl::create).collect(Collectors.toList()));
+        return Collections.unmodifiableCollection(attributes.getPoints().values().stream().map(attributes -> PointImpl.create(attributes, owner)).collect(Collectors.toList()));
     }
 
     @Override
@@ -124,10 +143,10 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         if (extrapolateReactiveLimitSlope) {
             // Points map
             TreeMap<Double, ReactiveCapabilityCurve.Point> pointsMap = new TreeMap<>(COMPARATOR);
-            attributes.getPoints().forEach((k, point) -> pointsMap.put(k, PointImpl.create(point)));
+            attributes.getPoints().forEach((k, point) -> pointsMap.put(k, PointImpl.create(point, owner)));
 
             PointImpl extrapolatedPoint = (PointImpl) ReactiveCapabilityCurveUtil.extrapolateReactiveLimitsSlope(p,
-                pointsMap, (localP, minQ, maxQ) -> PointImpl.create(ReactiveCapabilityCurvePointAttributes.builder().p(localP).minQ(minQ).maxQ(maxQ).build()),
+                pointsMap, (localP, minQ, maxQ) -> PointImpl.create(ReactiveCapabilityCurvePointAttributes.builder().p(localP).minQ(minQ).maxQ(maxQ).build(), owner),
                 attributes.getOwnerDescription());
             return getMinOrMaxQ.applyAsDouble(extrapolatedPoint.getAttributes());
         }
@@ -149,5 +168,22 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     @Override
     public ReactiveLimitsKind getKind() {
         return ReactiveLimitsKind.CURVE;
+    }
+
+    @Override
+    protected Map<String, String> getProperties() {
+        return attributes.getProperties();
+    }
+
+    @Override
+    protected void setProperties(Map<String, String> properties) {
+        attributes.setProperties(properties);
+    }
+
+    @Override
+    protected void persistProperties(Map<String, String> properties) {
+        if (owner != null) {
+            owner.updateResourceWithoutNotification(r -> setProperties(properties));
+        }
     }
 }

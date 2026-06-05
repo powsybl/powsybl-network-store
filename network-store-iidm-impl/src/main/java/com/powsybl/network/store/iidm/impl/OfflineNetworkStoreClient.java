@@ -232,7 +232,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
+    public List<Resource<BoundaryLineAttributes>> getVoltageLevelBoundaryLines(UUID networkUuid, int variantNum, String voltageLevelId) {
         return Collections.emptyList();
     }
 
@@ -517,27 +517,27 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+    public void createBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources) {
         // nothing to do
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
+    public List<Resource<BoundaryLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
         return Collections.emptyList();
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
+    public Optional<Resource<BoundaryLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String boundaryLineId) {
         return Optional.empty();
     }
 
     @Override
-    public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
+    public void removeBoundaryLines(UUID networkUuid, int variantNum, List<String> boundaryLinesId) {
         // nothing to do
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
+    public void updateBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources, AttributeFilter attributeFilter) {
         // nothing to do
     }
 
@@ -632,12 +632,14 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String operationalLimitGroupName, int side) {
+    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId,
+            String operationalLimitGroupName, int side) {
         return Optional.empty();
     }
 
     @Override
-    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side) {
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId,
+            String operationalLimitGroupName, int side) {
         return Optional.empty();
     }
 
@@ -652,7 +654,8 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum,
+            ResourceType resourceType) {
         return Map.of();
     }
 

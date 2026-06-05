@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public final class CreateNetworksUtil {
 
-    static String BUS_UNKNOW_ID = "unknown";
+    private static final String BUS_UNKNOWN_ID = "unknown";
 
     private CreateNetworksUtil() {
     }
@@ -28,7 +28,7 @@ public final class CreateNetworksUtil {
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             adder.setNode(node--);
         } else {
-            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
+            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
         }
         return node;
     }
@@ -38,7 +38,7 @@ public final class CreateNetworksUtil {
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             adder.setNode(node--);
         } else {
-            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
+            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
         }
         return node;
     }
@@ -49,8 +49,8 @@ public final class CreateNetworksUtil {
             adder.setNode1(node--);
             adder.setNode2(node--);
         } else {
-            adder.setConnectableBus1(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
-            adder.setConnectableBus2(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
+            adder.setConnectableBus1(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
+            adder.setConnectableBus2(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
         }
         return node;
     }
@@ -62,9 +62,9 @@ public final class CreateNetworksUtil {
                 .setNominalV(nominalV)
                 .add();
 
-        if (topologyKind == TopologyKind.BUS_BREAKER && vl.getNetwork().getBusBreakerView().getBus(BUS_UNKNOW_ID) == null) {
+        if (topologyKind == TopologyKind.BUS_BREAKER && vl.getNetwork().getBusBreakerView().getBus(BUS_UNKNOWN_ID) == null) {
             vl.getBusBreakerView().newBus()
-                    .setId(BUS_UNKNOW_ID)
+                    .setId(BUS_UNKNOWN_ID)
                     .add();
         }
 
@@ -131,8 +131,8 @@ public final class CreateNetworksUtil {
             }
 
             @Override
-            public void visitDanglingLine(DanglingLine danglingLine) {
-                visited.add(danglingLine.getId());
+            public void visitBoundaryLine(BoundaryLine boundaryLine) {
+                visited.add(boundaryLine.getId());
             }
 
             @Override
@@ -160,6 +160,7 @@ public final class CreateNetworksUtil {
         return visited.stream().collect(Collectors.toList());
     }
 
+    @SuppressWarnings("checkstyle:MethodLength")
     private static Network createNetwokWithMultipleEquipments(TopologyKind topologyKind) {
         Network network = Network.create("test", "test");
 
@@ -285,18 +286,18 @@ public final class CreateNetworksUtil {
                 .setVoltageSetpoint(213)
                 .add();
 
-        adder = vl1.newDanglingLine();
+        adder = vl1.newBoundaryLine();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
-        DanglingLine danglingLine1 = ((DanglingLineAdder) adder)
-                .setId("DL1")
-                .setName("Dangling line 1")
+        BoundaryLine boundaryLine1 = ((BoundaryLineAdder) adder)
+                .setId("BL1")
+                .setName("Boundary line 1")
                 .setP0(533)
                 .setQ0(242)
                 .setR(27)
                 .setX(44)
                 .setG(89)
                 .setB(11)
-                .setPairingKey("UCTE_DL1")
+                .setPairingKey("UCTE_BL1")
                 .newGeneration()
                 .setTargetP(100)
                 .setTargetQ(200)
@@ -306,12 +307,12 @@ public final class CreateNetworksUtil {
                 .setVoltageRegulationOn(true)
                 .add()
                 .add();
-        danglingLine1.getGeneration()
+        boundaryLine1.getGeneration()
                 .newMinMaxReactiveLimits()
                 .setMinQ(200)
                 .setMaxQ(800)
                 .add();
-        danglingLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(256)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -327,18 +328,18 @@ public final class CreateNetworksUtil {
                 .endTemporaryLimit()
                 .add();
 
-        adder = vl1.newDanglingLine();
+        adder = vl1.newBoundaryLine();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
-        DanglingLine danglingLine2 = ((DanglingLineAdder) adder)
-                .setId("DL2")
-                .setName("Dangling line 2")
+        BoundaryLine boundaryLine2 = ((BoundaryLineAdder) adder)
+                .setId("BL2")
+                .setName("Boundary line 2")
                 .setP0(533)
                 .setQ0(242)
                 .setR(27)
                 .setX(44)
                 .setG(89)
                 .setB(11)
-                .setPairingKey("UCTE_DL2")
+                .setPairingKey("UCTE_BL2")
                 .newGeneration()
                 .setTargetP(100)
                 .setTargetQ(200)
@@ -348,7 +349,7 @@ public final class CreateNetworksUtil {
                 .setVoltageRegulationOn(true)
                 .add()
                 .add();
-        danglingLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(256)
                 .beginTemporaryLimit()
                 .setName("TL2")
@@ -902,11 +903,11 @@ public final class CreateNetworksUtil {
         LccConverterStationImpl lcc2 = (LccConverterStationImpl) network.getLccConverterStation("LCC2");
         lcc2.getResource().getAttributes().setNode(1);
 
-        DanglingLineImpl dl1 = (DanglingLineImpl) network.getDanglingLine("DL1");
-        dl1.getResource().getAttributes().setNode(2);
+        BoundaryLineImpl bl1 = (BoundaryLineImpl) network.getBoundaryLine("BL1");
+        bl1.getResource().getAttributes().setNode(2);
 
-        DanglingLineImpl dl2 = (DanglingLineImpl) network.getDanglingLine("DL2");
-        dl2.getResource().getAttributes().setNode(3);
+        BoundaryLineImpl bl2 = (BoundaryLineImpl) network.getBoundaryLine("BL2");
+        bl2.getResource().getAttributes().setNode(3);
 
         LineImpl l1 = (LineImpl) network.getLine("LINE1");
         l1.getResource().getAttributes().setNode1(5);
@@ -962,11 +963,11 @@ public final class CreateNetworksUtil {
         LccConverterStationImpl lcc2 = (LccConverterStationImpl) network.getLccConverterStation("LCC2");
         lcc2.getResource().getAttributes().setConnectableBus("BUS2");
 
-        DanglingLineImpl dl1 = (DanglingLineImpl) network.getDanglingLine("DL1");
-        dl1.getResource().getAttributes().setConnectableBus("BUS1");
+        BoundaryLineImpl bl1 = (BoundaryLineImpl) network.getBoundaryLine("BL1");
+        bl1.getResource().getAttributes().setConnectableBus("BUS1");
 
-        DanglingLineImpl dl2 = (DanglingLineImpl) network.getDanglingLine("DL2");
-        dl2.getResource().getAttributes().setConnectableBus("BUS1");
+        BoundaryLineImpl bl2 = (BoundaryLineImpl) network.getBoundaryLine("BL2");
+        bl2.getResource().getAttributes().setConnectableBus("BUS1");
 
         LineImpl l1 = (LineImpl) network.getLine("LINE1");
         l1.getResource().getAttributes().setConnectableBus1("BUS1");
@@ -1002,9 +1003,9 @@ public final class CreateNetworksUtil {
         Substation s2 = network.newSubstation().setId("S2").add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
-        DanglingLine dl1 = vl1.newDanglingLine().setId("DL1").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
-        DanglingLine dl2 = vl2.newDanglingLine().setId("DL2").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
-        network.newTieLine().setId("TL").setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId()).add();
+        BoundaryLine bl1 = vl1.newBoundaryLine().setId("BL1").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        BoundaryLine bl2 = vl2.newBoundaryLine().setId("BL2").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        network.newTieLine().setId("TL").setBoundaryLine1(bl1.getId()).setBoundaryLine2(bl2.getId()).add();
         return network;
     }
 }
