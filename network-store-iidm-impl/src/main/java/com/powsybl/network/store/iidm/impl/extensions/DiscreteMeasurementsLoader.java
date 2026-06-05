@@ -22,7 +22,7 @@ public class DiscreteMeasurementsLoader<I extends Identifiable<I>> implements Ex
 
     @Override
     public Extension<I> load(I identifiable) {
-        return new DiscreteMeasurementsImpl<>(identifiable);
+        return new DiscreteMeasurementsImpl<I>(identifiable);
     }
 
     @Override
