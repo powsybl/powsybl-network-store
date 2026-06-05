@@ -261,7 +261,7 @@ public final class CalculatedBus implements BaseBus {
 
     void setConnectedComponentNum(int num) {
         getAttributes().setConnectedComponentNumber(num);
-        index.updateVoltageLevelResource(voltageLevelResource);
+        index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
     }
 
     int getSynchronousComponentNum() {
@@ -271,7 +271,7 @@ public final class CalculatedBus implements BaseBus {
 
     public void setSynchronousComponentNum(int num) {
         getAttributes().setSynchronousComponentNumber(num);
-        index.updateVoltageLevelResource(voltageLevelResource);
+        index.updateVoltageLevelResource(voltageLevelResource, AttributeFilter.SV);
     }
 
     public boolean isInMainConnectedComponent() {

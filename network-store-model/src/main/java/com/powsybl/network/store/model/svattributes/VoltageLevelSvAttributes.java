@@ -29,9 +29,6 @@ public class VoltageLevelSvAttributes extends AbstractAttributes implements Attr
     @Schema(description = "Calculated buses for bus view")
     private List<CalculatedBusAttributes> calculatedBusesForBusView;
 
-    @Schema(description = "Calculated buses for bus breaker view")
-    private List<CalculatedBusAttributes> calculatedBusesForBusBreakerView;
-
-    @Schema(description = "Node to calculated bus for bus breaker view")
-    private Map<Integer, Integer> nodeToCalculatedBusForBusBreakerView;
+    @Schema(description = "Node to calculated bus for bus view")
+    private Map<Integer, Integer> nodeToCalculatedBusForBusView;
 }

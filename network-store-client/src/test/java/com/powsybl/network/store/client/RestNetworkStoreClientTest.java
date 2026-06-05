@@ -566,6 +566,20 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withSuccess());
         restNetworkStoreClient.updateThreeWindingsTransformers(networkUuid, List.of(tw3Resource), AttributeFilter.SV);
         server.verify();
+        server.reset();
+
+        VoltageLevelAttributes voltageLevelAttributes = new VoltageLevelAttributes();
+        voltageLevelAttributes.setBusToCalculatedBusForBusView(Map.of("bus1", 1, "bus2", 4));
+        voltageLevelAttributes.setNodeToCalculatedBusForBusView(Map.of(1, 2));
+        Resource<VoltageLevelAttributes> vlResource = Resource.create(ResourceType.VOLTAGE_LEVEL, "vl", 0, voltageLevelAttributes);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/voltage-levels/sv"))
+                .andExpect(content().string(
+                        "[{\"type\":\"VOLTAGE_LEVEL\",\"id\":\"vl\",\"variantNum\":0,\"filter\":\"SV\"," +
+                                "\"attributes\":{\"nodeToCalculatedBusForBusView\":{\"1\":2}}}]"))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        restNetworkStoreClient.updateVoltageLevels(networkUuid, List.of(vlResource), AttributeFilter.SV);
+        server.verify();
     }
 
     private static TwoWindingsTransformerAttributes createTwoWindingsTransformerAttributes() {
