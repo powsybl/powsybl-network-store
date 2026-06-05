@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,7 @@ import java.util.Map;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Three windings transformer leg attributes")
+@JsonView(AttributeFilter.JsonViews.Primary.class)
 public class LegAttributes implements TapChangerParentAttributes, FlowsLimitsAttributes {
 
     @Schema(description = "Voltage level ID")
@@ -59,9 +61,11 @@ public class LegAttributes implements TapChangerParentAttributes, FlowsLimitsAtt
     @Schema(description = "Leg number")
     private int legNumber;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "PhaseTapChangerAttributes")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "RatioTapChangerAttributes")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
