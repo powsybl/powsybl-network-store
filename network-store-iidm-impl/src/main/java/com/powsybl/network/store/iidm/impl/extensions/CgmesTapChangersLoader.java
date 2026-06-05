@@ -20,7 +20,7 @@ import com.powsybl.network.store.model.ExtensionLoader;
 public class CgmesTapChangersLoader<C extends Connectable<C>> implements ExtensionLoader<C, CgmesTapChangers<C>, CgmesTapChangersAttributes> {
 
     public Extension<C> load(C extendable) {
-        return new CgmesTapChangersImpl<C>(extendable);
+        return new CgmesTapChangersImpl<>(extendable);
     }
 
     public String getName() {

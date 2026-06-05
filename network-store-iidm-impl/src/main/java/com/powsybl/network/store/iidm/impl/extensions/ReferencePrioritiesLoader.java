@@ -20,7 +20,7 @@ import com.powsybl.network.store.model.ReferencePrioritiesAttributes;
 public class ReferencePrioritiesLoader<C extends Connectable<C>> implements ExtensionLoader<C, ReferencePriorities<C>, ReferencePrioritiesAttributes> {
     @Override
     public Extension<C> load(C connectable) {
-        return new ReferencePrioritiesImpl<C>(connectable);
+        return new ReferencePrioritiesImpl<>(connectable);
     }
 
     @Override
