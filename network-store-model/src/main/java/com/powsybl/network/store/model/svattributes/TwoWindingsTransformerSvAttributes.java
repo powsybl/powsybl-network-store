@@ -4,8 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network.store.model;
+package com.powsybl.network.store.model.svattributes;
 
+import com.powsybl.network.store.model.AbstractAttributes;
+import com.powsybl.network.store.model.Attributes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -18,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@Schema(description = "2 windings transformer attributes")
+@Schema(description = "2 windings transformer attributes for sv model")
 public class TwoWindingsTransformerSvAttributes extends AbstractAttributes implements Attributes {
 
     @Schema(description = "Side 1 active power in MW")
@@ -39,8 +41,8 @@ public class TwoWindingsTransformerSvAttributes extends AbstractAttributes imple
 
     // contains
     @Schema(description = "Phase tap changer")
-    private PhaseTapChangerAttributes phaseTapChangerAttributes;
+    private TapChangerSvAttributes phaseTapChangerAttributes;
 
     @Schema(description = "Ratio tap changer")
-    private RatioTapChangerAttributes ratioTapChangerAttributes;
+    private TapChangerSvAttributes ratioTapChangerAttributes;
 }

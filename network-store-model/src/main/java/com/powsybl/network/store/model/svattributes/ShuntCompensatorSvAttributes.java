@@ -4,8 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network.store.model;
+package com.powsybl.network.store.model.svattributes;
 
+import com.powsybl.network.store.model.AbstractAttributes;
+import com.powsybl.network.store.model.Attributes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -18,17 +20,17 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@Schema(description = "Shunt compensator attributes")
+@Schema(description = "Shunt compensator attributes for sv model")
 public class ShuntCompensatorSvAttributes extends AbstractAttributes implements Attributes {
 
     @Schema(description = "Count of sections in service")
-    private int solvedSectionCount;
+    private Integer solvedSectionCount;
 
     @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
 
-    @Schema(description = "Reactive power in MW")
+    @Schema(description = "Reactive power in MVar")
     @Builder.Default
     private double q = Double.NaN;
 }

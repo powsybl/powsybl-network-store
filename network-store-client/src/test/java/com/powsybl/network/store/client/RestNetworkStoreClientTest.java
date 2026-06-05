@@ -19,7 +19,6 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.network.store.iidm.impl.DuplicateVariantNumException;
 import com.powsybl.network.store.model.*;
 import org.hamcrest.Matchers;
-import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -569,7 +568,7 @@ public class RestNetworkStoreClientTest {
         server.verify();
     }
 
-    private static @NonNull TwoWindingsTransformerAttributes createTwoWindingsTransformerAttributes() {
+    private static TwoWindingsTransformerAttributes createTwoWindingsTransformerAttributes() {
         TwoWindingsTransformerAttributes twoWindingsTransformerAttributes = new TwoWindingsTransformerAttributes();
         twoWindingsTransformerAttributes.setP1(1.0);
         twoWindingsTransformerAttributes.setQ1(-1.0);
@@ -584,7 +583,7 @@ public class RestNetworkStoreClientTest {
         return twoWindingsTransformerAttributes;
     }
 
-    private static @NonNull ThreeWindingsTransformerAttributes createThreeWindingsTransformerAttributes() {
+    private static ThreeWindingsTransformerAttributes createThreeWindingsTransformerAttributes() {
         ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
         threeWindingsTransformerAttributes.setP1(1.0);
         threeWindingsTransformerAttributes.setQ1(-1.0);
