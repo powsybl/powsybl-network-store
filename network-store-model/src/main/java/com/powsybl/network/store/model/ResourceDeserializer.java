@@ -23,7 +23,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         super(Resource.class);
     }
 
-    private static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
+    static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
         Objects.requireNonNull(type);
         // The client currently doesn't send AttributeFilter.LIMITS or AttributeFilter.FULL, but if it did
         // we don't want to reject it, we know we should deserialize to normal DTOs
@@ -57,7 +57,8 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case NETWORK -> NetworkAttributes.class;
                     case SUBSTATION -> SubstationAttributes.class;
                     case VOLTAGE_LEVEL -> VoltageLevelSvAttributes.class;
-                    case LOAD, GENERATOR, BATTERY, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BOUNDARY_LINE ->
+                    case LOAD, GENERATOR, BATTERY, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BOUNDARY_LINE,
+                         GROUND ->
                         InjectionSvAttributes.class;
                     case BUSBAR_SECTION -> BusbarSectionAttributes.class;
                     case SWITCH -> SwitchAttributes.class;
@@ -65,7 +66,8 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case THREE_WINDINGS_TRANSFORMER -> ThreeWindingsTransformerSvAttributes.class;
                     case HVDC_LINE -> HvdcLineAttributes.class;
                     case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
-                    default -> throw new IllegalStateException("Unknown resource type: " + type);
+                    case TIE_LINE -> TieLineAttributes.class;
+                    case AREA -> AreaAttributes.class;
                 };
             } else {
                 throw new IllegalStateException("Unknown attribute filter: " + filter);

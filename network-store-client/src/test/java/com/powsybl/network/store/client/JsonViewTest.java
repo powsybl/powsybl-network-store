@@ -116,4 +116,31 @@ class JsonViewTest {
         assertEquals(expectedWithLimitsResult, withLimitsResult);
     }
 
+    @Test
+    void testViewSerializationWithGround() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        GroundAttributes groundAttributes = GroundAttributes.builder()
+                .name("ground1")
+                .voltageLevelId("vl1")
+                .node(1)
+                .bus("bus1")
+                .connectableBus("cb1")
+                .p(1)
+                .q(2)
+                .build();
+
+        String primaryResultExpected = "{\"name\":\"ground1\",\"fictitious\":false,\"extensionAttributes\":{}," +
+                "\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"connectableBus\":\"cb1\",\"p\":1.0,\"q\":2.0," +
+                "\"regulatingEquipments\":[]}";
+        String primaryResult = mapper
+                .writerWithView(AttributeFilter.JsonViews.Primary.class)
+                .writeValueAsString(groundAttributes);
+        assertEquals(primaryResultExpected, primaryResult);
+
+        String svResult = mapper
+                .writerWithView(AttributeFilter.JsonViews.OnlySv.class)
+                .writeValueAsString(groundAttributes);
+        assertEquals("{\"p\":1.0,\"q\":2.0}", svResult);
+    }
+
 }
