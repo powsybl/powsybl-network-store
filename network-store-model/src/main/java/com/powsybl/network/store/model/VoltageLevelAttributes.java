@@ -56,6 +56,7 @@ public class VoltageLevelAttributes extends AbstractIdentifiableAttributes imple
     @Schema(description = "Bus to calculated bus for bus view")
     private Map<String, Integer> busToCalculatedBusForBusView;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Calculated buses for bus breaker view")
     private List<CalculatedBusAttributes> calculatedBusesForBusBreakerView;
 
