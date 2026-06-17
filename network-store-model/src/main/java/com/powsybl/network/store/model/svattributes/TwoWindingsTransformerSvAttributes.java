@@ -39,7 +39,6 @@ public class TwoWindingsTransformerSvAttributes extends AbstractAttributes imple
     @Builder.Default
     private double q2 = Double.NaN;
 
-    // contains
     @Schema(description = "Phase tap changer")
     private TapChangerSvAttributes phaseTapChangerAttributes;
 

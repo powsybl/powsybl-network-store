@@ -524,7 +524,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testUpdateWithNewSvAttributes() {
+    public void testUpdateWithSvAttributes() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         ShuntCompensatorAttributes shuntCompensatorAttributes = new ShuntCompensatorAttributes();
         shuntCompensatorAttributes.setP(1);

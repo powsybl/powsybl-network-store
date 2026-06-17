@@ -21,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@Schema(description = "Phase tap changer attributes for sv model")
+@Schema(description = "Tap changer attributes for sv model")
 public class TapChangerSvAttributes {
     @Schema(description = "solved tap position")
     private Integer solvedTapPosition;
