@@ -4,8 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network.store.model;
+package com.powsybl.network.store.model.svattributes;
 
+import com.powsybl.network.store.model.AbstractAttributes;
+import com.powsybl.network.store.model.Attributes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -17,7 +19,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Load attributes")
+@Schema(description = "Three windings transformer SV attributes")
 public class ThreeWindingsTransformerSvAttributes extends AbstractAttributes implements Attributes {
 
     @Schema(description = "Side 1 active power in MW")
@@ -43,4 +45,13 @@ public class ThreeWindingsTransformerSvAttributes extends AbstractAttributes imp
     @Schema(description = "Side 3 reactive power in MVar")
     @Builder.Default
     private double q3 = Double.NaN;
+
+    @Schema(description = "Side 1 leg sv attributes")
+    private LegSvAttributes leg1;
+
+    @Schema(description = "Side 2 leg sv attributes")
+    private LegSvAttributes leg2;
+
+    @Schema(description = "Side 3 leg sv attributes")
+    private LegSvAttributes leg3;
 }

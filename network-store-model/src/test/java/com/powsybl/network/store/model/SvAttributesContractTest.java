@@ -7,6 +7,8 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.powsybl.network.store.model.svattributes.LegSvAttributes;
+import com.powsybl.network.store.model.svattributes.TapChangerSvAttributes;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -71,5 +73,33 @@ class SvAttributesContractTest {
         return Arrays.stream(attributesType.getDeclaredFields())
                 .map(Field::getName)
                 .collect(Collectors.toSet());
+    }
+
+    @Test
+    void testLegAttributes() {
+        assertNotEquals(
+                LegAttributes.class,
+                LegSvAttributes.class,
+                () -> "LegAttributes declares OnlySv fields but has no dedicated SV attributes class"
+        );
+        assertEquals(
+                getJsonViewSvAnnotatedFieldNames(LegAttributes.class),
+                getFieldNames(LegSvAttributes.class),
+                () -> "LegAttributes should map OnlySv fields to LegSvAttributes"
+        );
+    }
+
+    @Test
+    void testTapChangerAttributes() {
+        assertNotEquals(
+                TapChangerAttributes.class,
+                TapChangerSvAttributes.class,
+                () -> "TapChangerAttributes declares OnlySv fields but has no dedicated SV attributes class"
+        );
+        assertEquals(
+                getJsonViewSvAnnotatedFieldNames(TapChangerAttributes.class),
+                getFieldNames(TapChangerSvAttributes.class),
+                () -> "TapChangerAttributes should map OnlySv fields to TapChangerSvAttributes"
+        );
     }
 }
