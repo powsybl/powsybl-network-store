@@ -94,4 +94,28 @@ class StaticVarCompensatorTest {
         assertFalse(svc.isRegulating());
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
+
+    @Test
+    void undefinedRegulating() {
+        Network network = Network.create("test", "test");
+        VoltageLevel voltageLevel = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add()
+                .newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        ValidationException e = assertThrows(ValidationException.class, () -> voltageLevel.newStaticVarCompensator()
+                .setId("SVC3")
+                .setNode(0)
+                .setBmin(0.0002)
+                .setBmax(0.0008)
+                .setReactivePowerSetpoint(1.0)
+                .add());
+
+        assertEquals("Static var compensator 'SVC3': regulating is not set", e.getMessage());
+    }
 }
