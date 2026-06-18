@@ -108,13 +108,13 @@ class StaticVarCompensatorTest {
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
 
-        ValidationException e = assertThrows(ValidationException.class, () -> voltageLevel.newStaticVarCompensator()
+        StaticVarCompensatorAdder svc3 = voltageLevel.newStaticVarCompensator()
                 .setId("SVC3")
                 .setNode(0)
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setReactivePowerSetpoint(1.0)
-                .add());
+                .setReactivePowerSetpoint(1.0);
+        ValidationException e = assertThrows(ValidationException.class, svc3::add);
 
         assertEquals("Static var compensator 'SVC3': regulating is not set", e.getMessage());
     }
