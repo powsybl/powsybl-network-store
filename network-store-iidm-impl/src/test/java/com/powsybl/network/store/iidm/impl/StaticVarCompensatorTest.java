@@ -6,10 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
@@ -70,5 +67,55 @@ class StaticVarCompensatorTest {
                 assertThrows(ValidationException.class, () -> svc.setReactivePowerSetpoint(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         svc.setReactivePowerSetpoint(Double.NaN);
+    }
+
+    @Test
+    void undefinedRegulatingWithEquipmentValidationLevel() {
+        Network network = Network.create("test", "test");
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        VoltageLevel voltageLevel = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add()
+                .newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        StaticVarCompensator svc = voltageLevel.newStaticVarCompensator()
+                .setId("SVC3")
+                .setNode(0)
+                .setBmin(0.0002)
+                .setBmax(0.0008)
+                .setReactivePowerSetpoint(1.0)
+                .add();
+
+        assertFalse(svc.isRegulating());
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+    }
+
+    @Test
+    void undefinedRegulating() {
+        Network network = Network.create("test", "test");
+        VoltageLevel voltageLevel = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add()
+                .newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        StaticVarCompensatorAdder svc3 = voltageLevel.newStaticVarCompensator()
+                .setId("SVC3")
+                .setNode(0)
+                .setBmin(0.0002)
+                .setBmax(0.0008)
+                .setReactivePowerSetpoint(1.0);
+        ValidationException e = assertThrows(ValidationException.class, svc3::add);
+
+        assertEquals("Static var compensator 'SVC3': regulating is not set", e.getMessage());
     }
 }

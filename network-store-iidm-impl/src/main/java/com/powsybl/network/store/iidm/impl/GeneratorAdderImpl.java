@@ -117,6 +117,10 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     @Override
     public Generator add() {
+        NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
+            voltageRegulatorOn = false;
+        }
         String id = checkAndGetUniqueId();
         checkNodeBus();
         ValidationUtil.checkEnergySource(this, energySource);

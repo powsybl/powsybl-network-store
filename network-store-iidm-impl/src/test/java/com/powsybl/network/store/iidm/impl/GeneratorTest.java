@@ -147,4 +147,31 @@ class GeneratorTest {
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         generator.setTargetQ(Double.NaN);
     }
+
+    @Test
+    void undefinedVoltageRegulatorOnWithEquipmentValidationLevel() {
+        Network network = Network.create("test", "test");
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        VoltageLevel voltageLevel = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add()
+                .newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        Generator generator = voltageLevel.newGenerator()
+                .setId("GEN")
+                .setMaxP(Double.MAX_VALUE)
+                .setMinP(-Double.MAX_VALUE)
+                .setTargetP(30.0)
+                .setTargetQ(40.0)
+                .setNode(0)
+                .add();
+
+        assertFalse(generator.isVoltageRegulatorOn());
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+    }
 }

@@ -52,6 +52,10 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
 
     @Override
     public VscConverterStation add() {
+        NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
+            voltageRegulatorOn = false;
+        }
         String id = checkAndGetUniqueId();
         checkNodeBus();
         validate();

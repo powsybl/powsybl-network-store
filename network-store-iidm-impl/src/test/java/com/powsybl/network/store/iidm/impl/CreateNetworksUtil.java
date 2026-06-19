@@ -261,6 +261,7 @@ public final class CreateNetworksUtil {
                 .setBmax(0.0008)
                 .setReactivePowerSetpoint(200)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(false)
                 .setVoltageSetpoint(390)
                 .add();
         svc.getTerminal().setP(435);
