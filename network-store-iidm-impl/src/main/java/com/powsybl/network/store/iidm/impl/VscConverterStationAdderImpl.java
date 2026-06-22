@@ -64,12 +64,6 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(id, ResourceType.VSC_CONVERTER_STATION, RegulatingTapChangerType.NONE,
             new TerminalRefAttributes(id, null), terminalRefAttributes, null, ResourceType.VSC_CONVERTER_STATION, voltageRegulatorOn);
 
-        MinMaxReactiveLimitsAttributes minMaxAttributes =
-                MinMaxReactiveLimitsAttributes.builder()
-                        .minQ(-Double.MAX_VALUE)
-                        .maxQ(Double.MAX_VALUE)
-                        .build();
-
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
@@ -84,7 +78,6 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
                         .regulatingPoint(regulatingPointAttributes)
-                        .reactiveLimits(minMaxAttributes)
                         .build())
                 .build();
         VscConverterStationImpl station = getIndex().createVscConverterStation(resource);
