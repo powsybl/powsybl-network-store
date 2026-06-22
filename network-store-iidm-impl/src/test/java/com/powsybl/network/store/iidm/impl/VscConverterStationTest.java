@@ -91,7 +91,6 @@ class VscConverterStationTest {
     @Test
     void testReactiveLimitsCreation() {
         Network network = Network.create("test", "test");
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         VoltageLevel voltageLevel = network.newSubstation()
                 .setId("S1")
                 .setCountry(Country.FR)
