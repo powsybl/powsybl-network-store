@@ -16,8 +16,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -108,6 +106,7 @@ class VscConverterStationTest {
                 .setNode(0)
                 .setReactivePowerSetpoint(123)
                 .setLossFactor(1.1f)
+                .setVoltageRegulatorOn(false)
                 .add();
 
         ReactiveLimits reactiveLimits = converterStation.getReactiveLimits();
