@@ -47,8 +47,9 @@ public class VscConverterStationAttributes extends AbstractRegulatingEquipmentAt
     @Schema(description = "Voltage set point in Kv")
     private double voltageSetPoint;
 
-    @Schema(description = "Reactive limits of the generator")
-    private ReactiveLimitsAttributes reactiveLimits;
+    @Schema(description = "Reactive limits of the vsc station")
+    @Builder.Default
+    private ReactiveLimitsAttributes reactiveLimits = new MinMaxReactiveLimitsAttributes(-Double.MAX_VALUE, Double.MAX_VALUE, null);
 
     @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Active power in MW")
