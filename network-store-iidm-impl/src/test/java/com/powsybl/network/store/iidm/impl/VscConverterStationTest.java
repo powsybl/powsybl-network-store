@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -112,7 +113,7 @@ class VscConverterStationTest {
         ReactiveLimits reactiveLimits = converterStation.getReactiveLimits();
         assertInstanceOf(MinMaxReactiveLimits.class, reactiveLimits);
         MinMaxReactiveLimits minMaxReactiveLimits = (MinMaxReactiveLimits) reactiveLimits;
-        assertTrue(Double.compare(Double.MAX_VALUE, minMaxReactiveLimits.getMaxQ()) == 0);
-        assertTrue(Double.compare(-Double.MAX_VALUE, minMaxReactiveLimits.getMinQ()) == 0);
+        Assertions.assertEquals(0, Double.compare(Double.MAX_VALUE, minMaxReactiveLimits.getMaxQ()));
+        Assertions.assertEquals(0, Double.compare(-Double.MAX_VALUE, minMaxReactiveLimits.getMinQ()));
     }
 }
