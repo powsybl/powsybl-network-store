@@ -113,7 +113,7 @@ class VscConverterStationTest {
         ReactiveLimits reactiveLimits = converterStation.getReactiveLimits();
         assertInstanceOf(MinMaxReactiveLimits.class, reactiveLimits);
         MinMaxReactiveLimits minMaxReactiveLimits = (MinMaxReactiveLimits) reactiveLimits;
-        Assertions.assertEquals(0, Double.compare(Double.MAX_VALUE, minMaxReactiveLimits.getMaxQ()));
-        Assertions.assertEquals(0, Double.compare(-Double.MAX_VALUE, minMaxReactiveLimits.getMinQ()));
+        Assertions.assertEquals(Double.MAX_VALUE, minMaxReactiveLimits.getMaxQ());
+        Assertions.assertEquals(-Double.MAX_VALUE, minMaxReactiveLimits.getMinQ());
     }
 }
