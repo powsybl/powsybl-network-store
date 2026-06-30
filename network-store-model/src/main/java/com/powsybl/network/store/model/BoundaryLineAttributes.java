@@ -23,8 +23,8 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@Schema(description = "Dangling line attributes")
-public class DanglingLineAttributes extends AbstractIdentifiableAttributes implements FlowsLimitsAttributes, InjectionAttributes, LimitHolder {
+@Schema(description = "Boundary line attributes")
+public class BoundaryLineAttributes extends AbstractIdentifiableAttributes implements FlowsLimitsAttributes, InjectionAttributes, LimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -51,7 +51,7 @@ public class DanglingLineAttributes extends AbstractIdentifiableAttributes imple
     private double b;
 
     @Schema(description = "Generation")
-    private DanglingLineGenerationAttributes generation;
+    private BoundaryLineGenerationAttributes generation;
 
     @Schema(description = "Pairing key")
     private String pairingKey;
@@ -84,7 +84,7 @@ public class DanglingLineAttributes extends AbstractIdentifiableAttributes imple
     @Schema(description = "Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @Schema(description = "Tie line ID in case of a paired dangling line")
+    @Schema(description = "Tie line ID in case of a paired boundary line")
     private String tieLineId;
 
     @Builder.Default

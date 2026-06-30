@@ -14,6 +14,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
  */
@@ -51,4 +53,7 @@ public class TapChangerStepAttributes {
 
     @JsonIgnore
     private TapChangerType type;
+
+    @Schema(description = "Properties")
+    private Map<String, String> properties;
 }

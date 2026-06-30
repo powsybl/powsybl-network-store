@@ -56,7 +56,7 @@ public abstract class AbstractTopology<T> {
 
         private void count(Vertex vertex) {
             switch (vertex.getConnectableType()) {
-                case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, DANGLING_LINE -> {
+                case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, BOUNDARY_LINE -> {
                     branchCount++;
                     feederCount++;
                 }
@@ -80,7 +80,7 @@ public abstract class AbstractTopology<T> {
             case SHUNT_COMPENSATOR -> IdentifiableType.SHUNT_COMPENSATOR;
             case VSC_CONVERTER_STATION, LCC_CONVERTER_STATION -> IdentifiableType.HVDC_CONVERTER_STATION;
             case STATIC_VAR_COMPENSATOR -> IdentifiableType.STATIC_VAR_COMPENSATOR;
-            case DANGLING_LINE -> IdentifiableType.DANGLING_LINE;
+            case BOUNDARY_LINE -> IdentifiableType.BOUNDARY_LINE;
             case GROUND -> IdentifiableType.GROUND;
             default -> throw new IllegalStateException("Resource is not an injection: " + resource.getType());
         };
@@ -221,7 +221,7 @@ public abstract class AbstractTopology<T> {
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelDanglingLines(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelBoundaryLines(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
@@ -367,8 +367,10 @@ public abstract class AbstractTopology<T> {
         // whether we preserve or not the phase/angle values accross the other
         // view. For now we do not preserve to be consistent with the behavior
         // of not preserving values from the same view after invalidation.
-        List<CalculatedBusAttributes> calculatedBusAttributesInOtherView = isBusView ? voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() : voltageLevelResource.getAttributes().getCalculatedBusesForBusView();
-        Map<Integer, Integer> nodesToCalculatedBusesInOtherView = isBusView ? voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView() : voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView();
+        List<CalculatedBusAttributes> calculatedBusAttributesInOtherView = isBusView ? voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() : voltageLevelResource.getAttributes(
+                ).getCalculatedBusesForBusView();
+        Map<Integer, Integer> nodesToCalculatedBusesInOtherView = isBusView ? voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView() : voltageLevelResource.getAttributes(
+                ).getNodeToCalculatedBusForBusView();
         Set<Integer> nodes = (Set<Integer>) connectedSet.getConnectedNodesOrBuses();
         if (voltageLevelResource.getAttributes().isCalculatedBusesValid()
             && !CollectionUtils.isEmpty(calculatedBusAttributesInOtherView)
@@ -495,8 +497,8 @@ public abstract class AbstractTopology<T> {
             case LOAD -> index.getLoad(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
             case SHUNT_COMPENSATOR ->
                 index.getShuntCompensator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
-            case DANGLING_LINE ->
-                index.getDanglingLine(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case BOUNDARY_LINE ->
+                index.getBoundaryLine(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
             case STATIC_VAR_COMPENSATOR ->
                 index.getStaticVarCompensator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
             case HVDC_CONVERTER_STATION ->

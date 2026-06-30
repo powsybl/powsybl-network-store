@@ -183,7 +183,8 @@ public class RestNetworkStoreClientTest {
 
         server.expect(requestTo("/networks/" + networkUuid))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(objectMapper.writeValueAsString(List.of(new VariantInfos(VariantManagerConstants.INITIAL_VARIANT_ID, Resource.INITIAL_VARIANT_NUM))), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(objectMapper.writeValueAsString(List.of(new VariantInfos(VariantManagerConstants.INITIAL_VARIANT_ID, Resource.INITIAL_VARIANT_NUM))),
+                        MediaType.APPLICATION_JSON));
 
         // line
         Resource<LineAttributes> line = Resource.lineBuilder()
@@ -247,8 +248,8 @@ public class RestNetworkStoreClientTest {
                 .id("tieLine1")
                 .attributes(TieLineAttributes.builder()
                         .name("tieLine1")
-                        .danglingLine1Id("dl1")
-                        .danglingLine2Id("dl2")
+                        .boundaryLine1Id("dl1")
+                        .boundaryLine2Id("dl2")
                         .build())
                 .build();
 
@@ -340,16 +341,21 @@ public class RestNetworkStoreClientTest {
         testDeleteAllByType(ids, "batteries", (List<String> identifiableIds) -> restNetworkStoreClient.removeBatteries(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "busbar-sections", (List<String> identifiableIds) -> restNetworkStoreClient.removeBusBarSections(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "configured-buses", (List<String> identifiableIds) -> restNetworkStoreClient.removeConfiguredBuses(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
-        testDeleteAllByType(ids, "dangling-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeDanglingLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
-        testDeleteAllByType(ids, "vsc-converter-stations", (List<String> identifiableIds) -> restNetworkStoreClient.removeVscConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
-        testDeleteAllByType(ids, "lcc-converter-stations", (List<String> identifiableIds) -> restNetworkStoreClient.removeLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "boundary-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeBoundaryLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "vsc-convert"
+                + "er-stations", (List<String> identifiableIds) -> restNetworkStoreClient.removeVscConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "lcc-convert"
+                + "er-stations", (List<String> identifiableIds) -> restNetworkStoreClient.removeLccConverterStations(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "shunt-compensators", (List<String> identifiableIds) -> restNetworkStoreClient.removeShuntCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "hvdc-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeHvdcLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "switches", (List<String> identifiableIds) -> restNetworkStoreClient.removeSwitches(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
-        testDeleteAllByType(ids, "static-var-compensators", (List<String> identifiableIds) -> restNetworkStoreClient.removeStaticVarCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
-        testDeleteAllByType(ids, "2-windings-transformers", (List<String> identifiableIds) -> restNetworkStoreClient.removeTwoWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
-        testDeleteAllByType(ids, "3-windings-transformers", (List<String> identifiableIds) -> restNetworkStoreClient.removeThreeWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "static-var-"
+                + "compensators", (List<String> identifiableIds) -> restNetworkStoreClient.removeStaticVarCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "2-windings-"
+                + "transformers", (List<String> identifiableIds) -> restNetworkStoreClient.removeTwoWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
+        testDeleteAllByType(ids, "3-windings-"
+                + "transformers", (List<String> identifiableIds) -> restNetworkStoreClient.removeThreeWindingsTransformers(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "tie-lines", (List<String> identifiableIds) -> restNetworkStoreClient.removeTieLines(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
         testDeleteAllByType(ids, "grounds", (List<String> identifiableIds) -> restNetworkStoreClient.removeGrounds(networkUuid, Resource.INITIAL_VARIANT_NUM, identifiableIds));
     }
@@ -377,7 +383,8 @@ public class RestNetworkStoreClientTest {
                 .andRespond(request -> {
                     throw new ResourceAccessException("ResourceAccessException error");
                 });
-        ResourceAccessException httpClientErrorException = assertThrows(ResourceAccessException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM, wrongId2));
+        ResourceAccessException httpClientErrorException = assertThrows(ResourceAccessException.class, () -> restNetworkStoreClient.removeSubstations(networkUuid, Resource.INITIAL_VARIANT_NUM,
+                wrongId2));
         server.verify();
         assertEquals("ResourceAccessException error", httpClientErrorException.getMessage());
     }
@@ -412,7 +419,9 @@ public class RestNetworkStoreClientTest {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess("{\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0},\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}}", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("{\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,"
+                        + "\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0},\"unknownExtension\":{\"extensionName\":\"unknownExtension\","
+                              + "\"attribute1\":5.0}}", MediaType.APPLICATION_JSON));
         Map<String, ExtensionAttributes> result = restNetworkStoreClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, 0, ResourceType.GENERATOR, identifiableId);
         server.verify();
         assertNotNull(result);
@@ -437,7 +446,10 @@ public class RestNetworkStoreClientTest {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess("{\"identifiableId2\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}},\"identifiableId1\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0},\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":0.0}}}", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("{\"identifiableId2\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0}},"
+                        + "\"identifiableId1\":{\"unknownExtension\":{\"extensionName\":\"unknownExtension\",\"attribute1\":5.0},\"activePowerControl\":"
+                              + "{\"extensionName\":\"activePowerControl\",\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":"
+                                    + "0.0,\"maxTargetP\":0.0}}}", MediaType.APPLICATION_JSON));
         Map<String, Map<String, ExtensionAttributes>> result = restNetworkStoreClient.getAllExtensionsAttributesByResourceType(networkUuid, 0, ResourceType.GENERATOR);
         server.verify();
         assertNotNull(result);
@@ -453,8 +465,12 @@ public class RestNetworkStoreClientTest {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess("{\"lineId\":{\"1\":{\"olg1\":{\"id\":\"olg1\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}},\"LINE1\":{\"2\":{\"olg2\":{\"id\":\"olg2\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}}}", MediaType.APPLICATION_JSON));
-        Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> result = restNetworkStoreClient.getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, 0, ResourceType.LINE);
+                .andRespond(withSuccess("{\"lineId\":{\"1\":{\"olg1\":{\"id\":\"olg1\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":"
+                        + "{\"10\":{\"name\":\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}},\"LINE1\":{\"2\":"
+                              + "{\"olg2\":{\"id\":\"olg2\",\"currentLimits\":{\"permanentLimit\":1.0,\"temporaryLimits\":{\"10\":{\"name\":"
+                                    + "\"temporarylimit1\",\"value\":12.0,\"acceptableDuration\":10,\"fictitious\":false}}}}}}}", MediaType.APPLICATION_JSON));
+        Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> result = restNetworkStoreClient.getAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, 0,
+                ResourceType.LINE);
         server.verify();
         assertNotNull(result);
         // Identifiables with empty maps are filtered (like identifiableId2)
@@ -505,5 +521,114 @@ public class RestNetworkStoreClientTest {
         restNetworkStoreClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
         server.verify();
         assertEquals(AttributeFilter.SV, loadResources.getFirst().getFilter());
+    }
+
+    @Test
+    public void testUpdateWithSvAttributes() {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+        ShuntCompensatorAttributes shuntCompensatorAttributes = new ShuntCompensatorAttributes();
+        shuntCompensatorAttributes.setP(1);
+        shuntCompensatorAttributes.setQ(-1);
+        shuntCompensatorAttributes.setSolvedSectionCount(2);
+        Resource<ShuntCompensatorAttributes> shuntResource = Resource.create(ResourceType.SHUNT_COMPENSATOR, "shuntId", 0, shuntCompensatorAttributes);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/shunt-compensators/sv"))
+                .andExpect(content().string("[{\"type\":\"SHUNT_COMPENSATOR\",\"id\":\"shuntId\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"solvedSectionCount\":2,\"p\":1.0,\"q\":-1.0}}]"))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        restNetworkStoreClient.updateShuntCompensators(networkUuid, List.of(shuntResource), AttributeFilter.SV);
+        server.verify();
+        server.reset();
+
+        TwoWindingsTransformerAttributes twoWindingsTransformerAttributes = createTwoWindingsTransformerAttributes();
+        Resource<TwoWindingsTransformerAttributes> twtResource = Resource.create(ResourceType.TWO_WINDINGS_TRANSFORMER, "twtId", 0, twoWindingsTransformerAttributes);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers/sv"))
+                .andExpect(content().string(
+                        "[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"twtId\",\"variantNum\":0,\"filter\":\"SV\"," +
+                                "\"attributes\":{\"p1\":1.0,\"q1\":-1.0,\"p2\":2.0,\"q2\":-2.0," +
+                                "\"phaseTapChangerAttributes\":{\"solvedTapPosition\":2}," +
+                                "\"ratioTapChangerAttributes\":{\"solvedTapPosition\":1}}}]"))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        restNetworkStoreClient.updateTwoWindingsTransformers(networkUuid, List.of(twtResource), AttributeFilter.SV);
+        server.verify();
+        server.reset();
+
+        ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = createThreeWindingsTransformerAttributes();
+        Resource<ThreeWindingsTransformerAttributes> tw3Resource = Resource.create(ResourceType.THREE_WINDINGS_TRANSFORMER, "tw3Id", 0, threeWindingsTransformerAttributes);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/3-windings-transformers/sv"))
+                .andExpect(content().string(
+                        "[{\"type\":\"THREE_WINDINGS_TRANSFORMER\",\"id\":\"tw3Id\",\"variantNum\":0,\"filter\":\"SV\"," +
+                                "\"attributes\":{\"p1\":1.0,\"q1\":-1.0,\"p2\":2.0,\"q2\":-2.0,\"p3\":3.0,\"q3\":-3.0," +
+                                "\"leg1\":{\"phaseTapChangerAttributes\":{\"solvedTapPosition\":2},\"ratioTapChangerAttributes\":{\"solvedTapPosition\":1}}," +
+                                "\"leg2\":{\"phaseTapChangerAttributes\":{\"solvedTapPosition\":4},\"ratioTapChangerAttributes\":{\"solvedTapPosition\":3}}," +
+                                "\"leg3\":{\"phaseTapChangerAttributes\":{\"solvedTapPosition\":6},\"ratioTapChangerAttributes\":{\"solvedTapPosition\":5}}}}]"))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        restNetworkStoreClient.updateThreeWindingsTransformers(networkUuid, List.of(tw3Resource), AttributeFilter.SV);
+        server.verify();
+        server.reset();
+
+        VoltageLevelAttributes voltageLevelAttributes = new VoltageLevelAttributes();
+        voltageLevelAttributes.setBusToCalculatedBusForBusView(Map.of("bus1", 1, "bus2", 4));
+        voltageLevelAttributes.setNodeToCalculatedBusForBusView(Map.of(1, 2));
+        Resource<VoltageLevelAttributes> vlResource = Resource.create(ResourceType.VOLTAGE_LEVEL, "vl", 0, voltageLevelAttributes);
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/voltage-levels/sv"))
+                .andExpect(content().string(
+                        "[{\"type\":\"VOLTAGE_LEVEL\",\"id\":\"vl\",\"variantNum\":0,\"filter\":\"SV\"," +
+                                "\"attributes\":{\"nodeToCalculatedBusForBusView\":{\"1\":2}}}]"))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        restNetworkStoreClient.updateVoltageLevels(networkUuid, List.of(vlResource), AttributeFilter.SV);
+        server.verify();
+    }
+
+    private static TwoWindingsTransformerAttributes createTwoWindingsTransformerAttributes() {
+        TwoWindingsTransformerAttributes twoWindingsTransformerAttributes = new TwoWindingsTransformerAttributes();
+        twoWindingsTransformerAttributes.setP1(1.0);
+        twoWindingsTransformerAttributes.setQ1(-1.0);
+        twoWindingsTransformerAttributes.setP2(2.0);
+        twoWindingsTransformerAttributes.setQ2(-2.0);
+        RatioTapChangerAttributes ratioTapChangerAttributes = new RatioTapChangerAttributes();
+        ratioTapChangerAttributes.setSolvedTapPosition(1);
+        PhaseTapChangerAttributes phaseTapChangerAttributes = new PhaseTapChangerAttributes();
+        phaseTapChangerAttributes.setSolvedTapPosition(2);
+        twoWindingsTransformerAttributes.setRatioTapChangerAttributes(ratioTapChangerAttributes);
+        twoWindingsTransformerAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
+        return twoWindingsTransformerAttributes;
+    }
+
+    private static ThreeWindingsTransformerAttributes createThreeWindingsTransformerAttributes() {
+        ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
+        threeWindingsTransformerAttributes.setP1(1.0);
+        threeWindingsTransformerAttributes.setQ1(-1.0);
+        threeWindingsTransformerAttributes.setP2(2.0);
+        threeWindingsTransformerAttributes.setQ2(-2.0);
+        threeWindingsTransformerAttributes.setP3(3.0);
+        threeWindingsTransformerAttributes.setQ3(-3.0);
+        RatioTapChangerAttributes ratioTapChangerAttributes1 = new RatioTapChangerAttributes();
+        ratioTapChangerAttributes1.setSolvedTapPosition(1);
+        PhaseTapChangerAttributes phaseTapChangerAttributes1 = new PhaseTapChangerAttributes();
+        phaseTapChangerAttributes1.setSolvedTapPosition(2);
+        LegAttributes legAttributes1 = new LegAttributes();
+        legAttributes1.setRatioTapChangerAttributes(ratioTapChangerAttributes1);
+        legAttributes1.setPhaseTapChangerAttributes(phaseTapChangerAttributes1);
+        RatioTapChangerAttributes ratioTapChangerAttributes2 = new RatioTapChangerAttributes();
+        ratioTapChangerAttributes2.setSolvedTapPosition(3);
+        PhaseTapChangerAttributes phaseTapChangerAttributes2 = new PhaseTapChangerAttributes();
+        phaseTapChangerAttributes2.setSolvedTapPosition(4);
+        LegAttributes legAttributes2 = new LegAttributes();
+        legAttributes2.setRatioTapChangerAttributes(ratioTapChangerAttributes2);
+        legAttributes2.setPhaseTapChangerAttributes(phaseTapChangerAttributes2);
+        RatioTapChangerAttributes ratioTapChangerAttributes3 = new RatioTapChangerAttributes();
+        ratioTapChangerAttributes3.setSolvedTapPosition(5);
+        PhaseTapChangerAttributes phaseTapChangerAttributes3 = new PhaseTapChangerAttributes();
+        phaseTapChangerAttributes3.setSolvedTapPosition(6);
+        LegAttributes legAttributes3 = new LegAttributes();
+        legAttributes3.setRatioTapChangerAttributes(ratioTapChangerAttributes3);
+        legAttributes3.setPhaseTapChangerAttributes(phaseTapChangerAttributes3);
+        threeWindingsTransformerAttributes.setLeg1(legAttributes1);
+        threeWindingsTransformerAttributes.setLeg2(legAttributes2);
+        threeWindingsTransformerAttributes.setLeg3(legAttributes3);
+        return threeWindingsTransformerAttributes;
     }
 }

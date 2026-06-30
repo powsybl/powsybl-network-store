@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,8 +30,9 @@ public class TapChangerAttributes extends AbstractRegulatingEquipmentAttributes 
     private int lowTapPosition;
 
     @Schema(description = "tapPosition")
-    private int tapPosition;
+    private Integer tapPosition;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "solved tap position")
     private Integer solvedTapPosition;
 

@@ -7,11 +7,9 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
 import java.util.*;
 
 /**
@@ -96,9 +94,11 @@ public class TwoWindingsTransformerAttributes extends AbstractIdentifiableAttrib
     @Schema(description = "Side 2 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position2;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Phase tap changer")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Ratio tap changer")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 

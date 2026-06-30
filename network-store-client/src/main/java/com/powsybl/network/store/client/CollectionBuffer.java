@@ -162,7 +162,8 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
      */
     public CollectionBuffer<T> clone(ObjectMapper objectMapper, int newVariantNum, Consumer<Resource<T>> resourcePostProcessor) {
         List<Resource<T>> clonedCreateResources = Resource.cloneResourcesToVariant(createResources.values(), newVariantNum, objectMapper, resourcePostProcessor);
-        List<Resource<T>> clonedUpdateResources = Resource.cloneResourcesToVariant(updateResources.values().stream().map(ResourceAndFilter::getResource).collect(Collectors.toList()), newVariantNum, objectMapper, resourcePostProcessor);
+        List<Resource<T>> clonedUpdateResources = Resource.cloneResourcesToVariant(updateResources.values().stream().map(ResourceAndFilter::getResource).collect(Collectors.toList()), newVariantNum,
+                objectMapper, resourcePostProcessor);
 
         var clonedBuffer = new CollectionBuffer<>(createFct, updateFct, removeFct);
         for (Resource<T> clonedResource : clonedCreateResources) {

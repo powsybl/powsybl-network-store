@@ -117,6 +117,10 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     @Override
     public Generator add() {
+        NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
+            voltageRegulatorOn = false;
+        }
         String id = checkAndGetUniqueId();
         checkNodeBus();
         ValidationUtil.checkEnergySource(this, energySource);
@@ -128,12 +132,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
-
-        MinMaxReactiveLimitsAttributes minMaxAttributes =
-                MinMaxReactiveLimitsAttributes.builder()
-                        .minQ(-Double.MAX_VALUE)
-                        .maxQ(Double.MAX_VALUE)
-                        .build();
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
         RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(id, ResourceType.GENERATOR, RegulatingTapChangerType.NONE,
@@ -157,7 +155,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .targetV(targetV)
                         .equivalentLocalTargetV(equivalentLocalTargetV)
                         .ratedS(ratedS)
-                        .reactiveLimits(minMaxAttributes)
                         .regulatingPoint(regulatingPointAttributes)
                         .condenser(condenser)
                         .build())

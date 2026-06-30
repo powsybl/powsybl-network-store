@@ -11,13 +11,14 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 import lombok.EqualsAndHashCode;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 @EqualsAndHashCode
-public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
+public class PhaseTapChangerStepImpl extends AbstractPropertiesHolder implements PhaseTapChangerStep {
 
     private final PhaseTapChangerImpl phaseTapChanger;
 
@@ -128,5 +129,20 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
                 "alpha", oldValue, alpha);
         }
         return this;
+    }
+
+    @Override
+    protected Map<String, String> getProperties() {
+        return getTapChangerStepAttributes().getProperties();
+    }
+
+    @Override
+    protected void setProperties(Map<String, String> properties) {
+        getTapChangerStepAttributes().setProperties(properties);
+    }
+
+    @Override
+    protected void persistProperties(Map<String, String> properties) {
+        getTransformer().updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

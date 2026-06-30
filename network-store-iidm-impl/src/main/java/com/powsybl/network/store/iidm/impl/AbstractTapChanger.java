@@ -7,20 +7,19 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TapChangerAttributes;
-import com.powsybl.network.store.model.TapChangerStepAttributes;
+import com.powsybl.network.store.model.*;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> implements Validable {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, A>, A extends TapChangerAttributes> extends AbstractPropertiesHolder implements Validable,
+        PropertiesHolder {
 
     protected final H parent;
 
@@ -91,7 +90,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public C setRegulating(boolean regulating) {
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband(), parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
         boolean oldValue = isRegulating();
         if (regulating != oldValue) {
             regulatingPoint.setRegulating(getTapChangerAttribute() + ".regulating", regulating);
@@ -127,7 +126,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public C setTargetDeadband(double targetDeadBand) {
-        ValidationUtil.checkTargetDeadband(parent, type, isRegulating(), targetDeadBand, ValidationLevel.STEADY_STATE_HYPOTHESIS, parent.getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(parent, type, isRegulating(), targetDeadBand, parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getAttributes().getTargetDeadband();
         if (Double.compare(targetDeadBand, oldValue) != 0) {
             getTransformer().updateResource(res -> getAttributes(res).setTargetDeadband(targetDeadBand),
@@ -216,14 +215,14 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         if (solvedTapPosition < getLowTapPosition() || solvedTapPosition > getHighTapPosition()) {
             throwIncorrectSolvedTapPosition(solvedTapPosition, getHighTapPosition());
         }
-        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(solvedTapPosition),
+        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(solvedTapPosition), AttributeFilter.SV,
             getTapChangerAttribute() + ".solvedTapPosition", oldValue, solvedTapPosition);
         return (C) this;
     }
 
     public C unsetSolvedTapPosition() {
         Integer oldValue = getSolvedTapPosition();
-        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(null),
+        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(null), AttributeFilter.SV,
             getTapChangerAttribute() + ".solvedTapPosition", oldValue, null);
         return (C) this;
     }
@@ -232,5 +231,20 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         throw new ValidationException(parent, "incorrect solved tap position "
             + solvedTapPosition + " [" + getLowTapPosition() + ", " + highTapPosition
             + "]");
+    }
+
+    @Override
+    protected Map<String, String> getProperties() {
+        return getAttributes().getProperties();
+    }
+
+    @Override
+    protected void setProperties(Map<String, String> properties) {
+        getAttributes().setProperties(properties);
+    }
+
+    @Override
+    protected void persistProperties(Map<String, String> properties) {
+        getTransformer().updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

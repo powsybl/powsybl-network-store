@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.extensions.ReferencePriorityAdder;
-import com.powsybl.network.store.iidm.impl.AbstractIdentifiableImpl;
+import com.powsybl.network.store.iidm.impl.AbstractConnectableImpl;
 import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
 import com.powsybl.network.store.model.ReferencePriorityAttributes;
 
@@ -52,10 +52,10 @@ public class ReferencePriorityAdderImpl implements ReferencePriorityAdder {
             throw new PowsyblException(String.format("Priority (%s) of terminal (equipment %s) should be zero or positive for ReferencePriority extension",
                 priority, terminal.getConnectable().getId()));
         }
-
-        if (!referencePriorities.getExtendable().getTerminals().contains(terminal)) {
+        AbstractConnectableImpl<?, ?> extendable = (AbstractConnectableImpl<?, ?>) referencePriorities.getExtendable();
+        if (!extendable.getTerminals().contains(terminal)) {
             throw new PowsyblException(String.format("The provided terminal does not belong to the connectable %s",
-                referencePriorities.getExtendable().getId()));
+                    extendable.getId()));
         }
 
         ReferencePriorityAttributes attributes = ReferencePriorityAttributes.builder()
@@ -63,8 +63,8 @@ public class ReferencePriorityAdderImpl implements ReferencePriorityAdder {
             .priority(priority)
             .build();
 
-        var referencePriority = new ReferencePriorityImpl(attributes, ((AbstractIdentifiableImpl<?, ?>) referencePriorities.getExtendable()).getIndex());
-        referencePriorities.putReferencePriority(referencePriority);
-        return referencePriority;
+        extendable.updateResourceExtension(referencePriorities, resource -> referencePriorities.getAttributes().putReferencePriority(attributes),
+                "referencePriorities.referencePriority", null, attributes);
+        return new ReferencePriorityImpl(attributes, extendable.getIndex());
     }
 }

@@ -7,10 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -28,11 +28,10 @@ import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
 import com.powsybl.network.store.model.Resource;
-import org.apache.commons.collections4.MapUtils;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 import org.apache.commons.collections4.CollectionUtils;
-
+import org.apache.commons.collections4.MapUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -352,13 +351,13 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLineStream().collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLineStream().collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(IdentifiableType.DANGLING_LINE).map(DanglingLine.class::cast);
+    public Stream<BoundaryLine> getBoundaryLineStream() {
+        return getConnectableStream(IdentifiableType.BOUNDARY_LINE).map(BoundaryLine.class::cast);
     }
 
     @Override

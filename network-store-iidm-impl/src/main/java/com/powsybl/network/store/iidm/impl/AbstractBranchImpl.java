@@ -15,6 +15,7 @@ import com.powsybl.network.store.iidm.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -341,8 +342,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
 
     private String getSelectedOperationalLimitsGroupId(TwoSides side) {
         return switch (side) {
-            case ONE -> getResource().getAttributes().getSelectedOperationalLimitsGroupId1() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId1() : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
-            case TWO -> getResource().getAttributes().getSelectedOperationalLimitsGroupId2() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId2() : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+            case ONE -> getResource().getAttributes().getSelectedOperationalLimitsGroupId1() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId1(
+                    ) : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+            case TWO -> getResource().getAttributes().getSelectedOperationalLimitsGroupId2() != null ? getResource().getAttributes().getSelectedOperationalLimitsGroupId2(
+                    ) : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
         };
     }
 
@@ -524,15 +527,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public int getOverloadDuration() {
-        Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
-        Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
-        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        return Math.min(duration1, duration2);
-    }
-
-    @Override
     public Overload checkTemporaryLimits(TwoSides side, LimitType type) {
         return this.checkTemporaryLimits(side, 1.0F, type);
     }
@@ -637,7 +631,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     @Override
     public <E extends Extension<T>> E getExtensionByName(String name) {
         E extension;
-        if (name.equals("position")) {
+        if ("position".equals(name)) {
             extension = createConnectablePositionExtension();
         } else {
             extension = super.getExtensionByName(name);
@@ -700,5 +694,93 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         if (groupId != null) {
             index.loadSelectedOperationalLimitsGroupAttributes(getResource().getType(), getId(), groupId, side.getNum());
         }
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+        //
+        // TODO : to be completed later, when we will handle multiple selected operational limits groups on one side
+        // For now, we only return the one selected
+        //
+        Optional<OperationalLimitsGroup> selectedOperationalLimitsGroup = side == TwoSides.ONE ?
+            getSelectedOperationalLimitsGroup1() :
+            getSelectedOperationalLimitsGroup2();
+        return selectedOperationalLimitsGroup.map(Set::of).orElseGet(Set::of);
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side) {
+        //
+        // TODO : to be completed later, when we will handle multiple selected operational limits groups on one side
+        // For now, we only return the one selected id
+        //
+        Optional<String> selectedOperationalLimitsGroupId = side == TwoSides.ONE ?
+            getSelectedOperationalLimitsGroupId1() :
+            getSelectedOperationalLimitsGroupId2();
+        return selectedOperationalLimitsGroupId.map(Set::of).orElseGet(Set::of);
+    }
+
+    @Override
+    public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides side) {
+        Optional<String> selectedOperationalLimitsGroupId = side == TwoSides.ONE ?
+            getSelectedOperationalLimitsGroupId1() :
+            getSelectedOperationalLimitsGroupId2();
+        return selectedOperationalLimitsGroupId.map(List::of).orElseGet(List::of);
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
+        //
+        // TODO : to be completed later, when we will handle multiple selected operational limits groups on one side
+        // For now, we only use the first id
+        //
+        if (ids == null || ids.length == 0) {
+            return;
+        }
+        if (side == TwoSides.ONE) {
+            setSelectedOperationalLimitsGroup1(ids[0]);
+        } else {
+            setSelectedOperationalLimitsGroup2(ids[0]);
+        }
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate) {
+        if (side == null || operationalLimitsGroupIdPredicate == null) {
+            return;
+        }
+        addSelectedOperationalLimitsGroups(side,
+            (side == TwoSides.ONE ? getOperationalLimitsGroups1() : getOperationalLimitsGroups2()).stream()
+                .map(OperationalLimitsGroup::getId)
+                .filter(operationalLimitsGroupIdPredicate)
+                .toArray(String[]::new)
+        );
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups(TwoSides side, String... ids) {
+        //
+        // TODO : to be completed later, when we will handle multiple selected operational limits groups on one side
+        // For now, we only use the first id
+        //
+        if (ids == null || ids.length == 0) {
+            return;
+        }
+        if (side == TwoSides.ONE) {
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId1();
+            if (selectedOperationalLimitsGroupId.isPresent() && List.of(ids).contains(selectedOperationalLimitsGroupId.get())) {
+                cancelSelectedOperationalLimitsGroup1();
+            }
+        } else {
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId2();
+            if (selectedOperationalLimitsGroupId.isPresent() && List.of(ids).contains(selectedOperationalLimitsGroupId.get())) {
+                cancelSelectedOperationalLimitsGroup2();
+            }
+        }
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
     }
 }

@@ -13,6 +13,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -34,6 +36,9 @@ public class ShuntCompensatorLinearModelAttributes implements ShuntCompensatorMo
 
     @Schema(description = "Maximum number of section")
     private int maximumSectionCount;
+
+    @Schema(description = "Properties")
+    private Map<String, String> properties;
 
     @Override
     public int getMaximumSectionCount() {

@@ -82,7 +82,7 @@ public class BusbarSectionImpl extends AbstractConnectableImpl<BusbarSection, Bu
     @Override
     public <E extends Extension<BusbarSection>> E getExtensionByName(String name) {
         E extension;
-        if (name.equals("position")) {
+        if ("position".equals(name)) {
             extension = createBusbarSectionPositionExtension();
         } else {
             extension = super.getExtensionByName(name);

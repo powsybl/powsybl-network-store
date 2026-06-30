@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.network.store.model.svattributes.*;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -23,7 +24,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         super(Resource.class);
     }
 
-    private static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
+    static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
         Objects.requireNonNull(type);
         // The client currently doesn't send AttributeFilter.LIMITS or AttributeFilter.FULL, but if it did
         // we don't want to reject it, we know we should deserialize to normal DTOs
@@ -45,7 +46,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                 case THREE_WINDINGS_TRANSFORMER -> ThreeWindingsTransformerAttributes.class;
                 case LINE -> LineAttributes.class;
                 case HVDC_LINE -> HvdcLineAttributes.class;
-                case DANGLING_LINE -> DanglingLineAttributes.class;
+                case BOUNDARY_LINE -> BoundaryLineAttributes.class;
                 case GROUND -> GroundAttributes.class;
                 case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
                 case TIE_LINE -> TieLineAttributes.class;
@@ -57,15 +58,18 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case NETWORK -> NetworkAttributes.class;
                     case SUBSTATION -> SubstationAttributes.class;
                     case VOLTAGE_LEVEL -> VoltageLevelSvAttributes.class;
-                    case LOAD, GENERATOR, BATTERY, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, DANGLING_LINE ->
+                    case LOAD, GENERATOR, BATTERY, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, BOUNDARY_LINE, GROUND ->
                         InjectionSvAttributes.class;
+                    case SHUNT_COMPENSATOR -> ShuntCompensatorSvAttributes.class;
                     case BUSBAR_SECTION -> BusbarSectionAttributes.class;
                     case SWITCH -> SwitchAttributes.class;
-                    case TWO_WINDINGS_TRANSFORMER, LINE -> BranchSvAttributes.class;
+                    case LINE -> BranchSvAttributes.class;
+                    case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerSvAttributes.class;
                     case THREE_WINDINGS_TRANSFORMER -> ThreeWindingsTransformerSvAttributes.class;
                     case HVDC_LINE -> HvdcLineAttributes.class;
                     case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
-                    default -> throw new IllegalStateException("Unknown resource type: " + type);
+                    case TIE_LINE -> TieLineAttributes.class;
+                    case AREA -> AreaAttributes.class;
                 };
             } else {
                 throw new IllegalStateException("Unknown attribute filter: " + filter);

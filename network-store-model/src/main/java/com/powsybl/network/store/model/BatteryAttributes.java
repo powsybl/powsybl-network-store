@@ -63,7 +63,8 @@ public class BatteryAttributes extends AbstractIdentifiableAttributes implements
     private ConnectablePositionAttributes position;
 
     @Schema(description = "reactiveLimits")
-    private ReactiveLimitsAttributes reactiveLimits;
+    @Builder.Default
+    private ReactiveLimitsAttributes reactiveLimits = new MinMaxReactiveLimitsAttributes(-Double.MAX_VALUE, Double.MAX_VALUE, null);
 
     @Schema(description = "Battery short circuit attributes")
     private ShortCircuitAttributes batteryShortCircuitAttributes;

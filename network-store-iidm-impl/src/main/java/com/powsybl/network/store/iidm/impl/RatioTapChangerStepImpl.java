@@ -11,13 +11,14 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TapChangerStepAttributes;
 import lombok.EqualsAndHashCode;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 @EqualsAndHashCode
-public class RatioTapChangerStepImpl implements RatioTapChangerStep {
+public class RatioTapChangerStepImpl extends AbstractPropertiesHolder implements RatioTapChangerStep {
 
     private final RatioTapChangerImpl ratioTapChanger;
 
@@ -113,5 +114,20 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
                 "b", oldValue, b);
         }
         return this;
+    }
+
+    @Override
+    protected Map<String, String> getProperties() {
+        return getTapChangerStepAttributes().getProperties();
+    }
+
+    @Override
+    protected void setProperties(Map<String, String> properties) {
+        getTapChangerStepAttributes().setProperties(properties);
+    }
+
+    @Override
+    protected void persistProperties(Map<String, String> properties) {
+        getTransformer().updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

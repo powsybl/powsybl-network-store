@@ -6,15 +6,13 @@
  */
 package com.powsybl.network.store.model;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>

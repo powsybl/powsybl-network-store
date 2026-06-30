@@ -6,8 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.extensions.LoadDetail;
@@ -72,5 +71,25 @@ class LoadTest {
         assertTrue(load.removeExtension(LoadDetail.class));
         assertNull(load.getExtension(LoadDetail.class));
         assertFalse(load.removeExtension(LoadDetail.class));
+    }
+
+    @Test
+    void updateWithInvalidP0() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Load load = network.getLoad("LD1");
+        assertEquals("Load 'LD1': p0 is invalid",
+                assertThrows(ValidationException.class, () -> load.setP0(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        load.setP0(Double.NaN);
+    }
+
+    @Test
+    void updateWithInvalidQ0() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Load load = network.getLoad("LD1");
+        assertEquals("Load 'LD1': q0 is invalid",
+                assertThrows(ValidationException.class, () -> load.setQ0(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        load.setQ0(Double.NaN);
     }
 }

@@ -8,6 +8,8 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -15,6 +17,8 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -35,4 +39,23 @@ class BatteryTest {
         assertFalse(battery.removeExtension(ConnectablePosition.class));
     }
 
+    @Test
+    void updateWithInvalidTargetP() {
+        Network network = BatteryNetworkFactory.create();
+        Battery battery = network.getBattery("BAT");
+        assertEquals("Battery 'BAT': p0 is invalid",
+                assertThrows(ValidationException.class, () -> battery.setTargetP(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        battery.setTargetP(Double.NaN);
+    }
+
+    @Test
+    void updateWithInvalidTargetQ() {
+        Network network = BatteryNetworkFactory.create();
+        Battery battery = network.getBattery("BAT");
+        assertEquals("Battery 'BAT': q0 is invalid",
+                assertThrows(ValidationException.class, () -> battery.setTargetQ(Double.NaN)).getMessage());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        battery.setTargetQ(Double.NaN);
+    }
 }

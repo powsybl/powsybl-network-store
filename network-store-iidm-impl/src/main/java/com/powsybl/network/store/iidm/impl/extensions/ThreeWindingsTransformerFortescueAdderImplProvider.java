@@ -16,7 +16,8 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class ThreeWindingsTransformerFortescueAdderImplProvider implements ExtensionAdderProvider<ThreeWindingsTransformer, ThreeWindingsTransformerFortescue, ThreeWindingsTransformerFortescueAdderImpl> {
+public class ThreeWindingsTransformerFortescueAdderImplProvider implements ExtensionAdderProvider<ThreeWindingsTransformer, ThreeWindingsTransformerFortescue,
+        ThreeWindingsTransformerFortescueAdderImpl> {
 
     @Override
     public String getImplementationName() {

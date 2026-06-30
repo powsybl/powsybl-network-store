@@ -98,10 +98,10 @@ public class OperatingStatusExtensionTest {
     }
 
     @Test
-    public void testDanglingLineOperatingStatusExtension() {
+    public void testBoundaryLineOperatingStatusExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
-        DanglingLine dl = network.getDanglingLine("DL1");
+        BoundaryLine dl = network.getBoundaryLine("BL1");
         assertNotNull(dl);
 
         assertNull(dl.getExtension(OperatingStatus.class));
@@ -193,7 +193,7 @@ public class OperatingStatusExtensionTest {
         assertNull(l1.getExtension(OperatingStatus.class));
     }
 
-    private static class MockNetworkListenerWithExceptions extends DummyNetworkListener {
+    private static final class MockNetworkListenerWithExceptions extends DummyNetworkListener {
         @Override
         public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
             throw new UnsupportedOperationException("error'");

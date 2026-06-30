@@ -9,6 +9,8 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangerAdder;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.network.store.iidm.impl.AbstractConnectableImpl;
 import com.powsybl.network.store.model.CgmesTapChangerAttributes;
 
 import java.util.Objects;
@@ -18,7 +20,7 @@ import java.util.Objects;
  */
 public class CgmesTapChangerAdderImpl implements CgmesTapChangerAdder {
 
-    private final CgmesTapChangersImpl<?> tapChangers;
+    private final CgmesTapChangersImpl<? extends Connectable<?>> tapChangers;
 
     private String id;
     private String combinedTapChangerId;
@@ -95,8 +97,9 @@ public class CgmesTapChangerAdderImpl implements CgmesTapChangerAdder {
                 .controlId(controlId)
                 .build();
 
-        var tapChanger = new CgmesTapChangerImpl(attributes);
-        tapChangers.putTapChanger(tapChanger);
-        return tapChanger;
+        AbstractConnectableImpl<?, ?> extendable = (AbstractConnectableImpl<?, ?>) tapChangers.getExtendable();
+        extendable.updateResourceExtension(tapChangers, res -> tapChangers.getAttributes().getCgmesTapChangers().add(attributes),
+                "tapChangers.tapChanger", null, attributes);
+        return new CgmesTapChangerImpl(attributes);
     }
 }

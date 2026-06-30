@@ -27,11 +27,11 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
         extensionAttributeLoaderCalled = true;
-        if (identifiableId.equals("l1") && extensionName.equals("operatingStatus")) {
+        if ("l1".equals(identifiableId) && "operatingStatus".equals(extensionName)) {
             return Optional.of(createOperatinStatusAttributes());
-        } else if (identifiableId.equals("l1") && extensionName.equals("activePowerControl")) {
+        } else if ("l1".equals(identifiableId) && "activePowerControl".equals(extensionName)) {
             return Optional.of(createActivePowerControlAttributes1());
-        } else if (identifiableId.equals("l2") && extensionName.equals("activePowerControl")) {
+        } else if ("l2".equals(identifiableId) && "activePowerControl".equals(extensionName)) {
             return Optional.of(createActivePowerControlAttributes2());
         }
         return Optional.empty();
@@ -40,7 +40,7 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
         extensionAttributesLoaderByResourceTypeAndNameCalled = true;
-        if (extensionName.equals("activePowerControl")) {
+        if ("activePowerControl".equals(extensionName)) {
             return Map.of("l1", createActivePowerControlAttributes1(), "l2", createActivePowerControlAttributes2());
         }
         return Map.of();
@@ -49,9 +49,9 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId) {
         extensionAttributesLoaderByIdCalled = true;
-        if (identifiableId.equals("l1")) {
+        if ("l1".equals(identifiableId)) {
             return Map.of("activePowerControl", createActivePowerControlAttributes1(), "operatingStatus", createOperatinStatusAttributes());
-        } else if (identifiableId.equals("l2")) {
+        } else if ("l2".equals(identifiableId)) {
             return Map.of("activePowerControl", createActivePowerControlAttributes2());
         }
         return Map.of();
@@ -61,7 +61,8 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         extensionAttributesLoaderByResourceTypeCalled = true;
         if (resourceType == ResourceType.LOAD) {
-            return Map.of("l1", Map.of("activePowerControl", createActivePowerControlAttributes1(), "operatingStatus", createOperatinStatusAttributes()), "l2", Map.of("activePowerControl", createActivePowerControlAttributes2()));
+            return Map.of("l1", Map.of("activePowerControl", createActivePowerControlAttributes1(), "operatingStatus", createOperatinStatusAttributes()), "l2", Map.of("activePowerControl",
+                    createActivePowerControlAttributes2()));
         }
         return Map.of();
     }
@@ -95,12 +96,14 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String operationalLimitGroupName, int side) {
+    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId,
+            String operationalLimitGroupName, int side) {
         return Optional.empty();
     }
 
     @Override
-    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupName, int side) {
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId,
+            String operationalLimitGroupName, int side) {
         return Optional.empty();
     }
 
@@ -115,7 +118,8 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+    public Map<String, Map<Integer, Map<String, OperationalLimitsGroupAttributes>>> getAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum,
+            ResourceType resourceType) {
         return Map.of();
     }
 
@@ -290,7 +294,7 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
+    public List<Resource<BoundaryLineAttributes>> getVoltageLevelBoundaryLines(UUID networkUuid, int variantNum, String voltageLevelId) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 
@@ -630,27 +634,27 @@ class MockNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+    public void createBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
+    public List<Resource<BoundaryLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
+    public Optional<Resource<BoundaryLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String boundaryLineId) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 
     @Override
-    public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
+    public void removeBoundaryLines(UUID networkUuid, int variantNum, List<String> boundaryLinesId) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
+    public void updateBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources, AttributeFilter attributeFilter) {
         throw new UnsupportedOperationException("Unimplemented method");
     }
 

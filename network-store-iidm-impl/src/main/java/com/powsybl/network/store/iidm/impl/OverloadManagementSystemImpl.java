@@ -6,21 +6,20 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import java.util.List;
-
 import com.powsybl.iidm.network.OverloadManagementSystem;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class OverloadManagementSystemImpl extends AbstractIdentifiableImpl<OverloadManagementSystem, IdentifiableAttributes> implements OverloadManagementSystem {
 
-    public OverloadManagementSystemImpl(NetworkObjectIndex index, Resource<IdentifiableAttributes> resource) {
+    OverloadManagementSystemImpl(NetworkObjectIndex index, Resource<IdentifiableAttributes> resource) {
         super(index, resource);
     }
 

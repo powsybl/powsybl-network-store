@@ -98,8 +98,9 @@ public class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     @Override
     public DiscreteMeasurement add() {
         id = checkId(id, idUnicity, discreteMeasurements);
-        checkType(type, discreteMeasurements.getExtendable());
-        checkTapChanger(tapChanger, type, discreteMeasurements.getExtendable());
+        AbstractIdentifiableImpl<?, ?> extendable = (AbstractIdentifiableImpl<?, ?>) discreteMeasurements.getExtendable();
+        checkType(type, extendable);
+        checkTapChanger(tapChanger, type, extendable);
         checkValue(value, valid);
         DiscreteMeasurementAttributes discreteMeasurementAttributes = DiscreteMeasurementAttributes.builder()
                 .id(id)
@@ -110,7 +111,10 @@ public class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
                 .type(type)
                 .valid(valid)
                 .build();
-        discreteMeasurements.getMeasurementsAttributes().getDiscreteMeasurementAttributes().add(discreteMeasurementAttributes);
-        return new DiscreteMeasurementImpl(discreteMeasurements, (AbstractIdentifiableImpl) discreteMeasurements.getExtendable(), discreteMeasurementAttributes);
+        extendable.updateResourceExtension(discreteMeasurements, res ->
+                discreteMeasurements.getMeasurementsAttributes()
+                        .getDiscreteMeasurementAttributes()
+                        .add(discreteMeasurementAttributes), "discreteMeasurements.discreteMeasurement", null, discreteMeasurementAttributes);
+        return new DiscreteMeasurementImpl(discreteMeasurements, extendable, discreteMeasurementAttributes);
     }
 }

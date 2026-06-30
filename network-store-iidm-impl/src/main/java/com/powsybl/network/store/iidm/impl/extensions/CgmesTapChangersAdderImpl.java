@@ -12,6 +12,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl;
+import com.powsybl.network.store.iidm.impl.TwoWindingsTransformerImpl;
+import com.powsybl.network.store.model.CgmesTapChangersAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,10 +27,16 @@ class CgmesTapChangersAdderImpl<C extends Connectable<C>> extends AbstractIidmEx
 
     @Override
     protected CgmesTapChangers<C> createExtension(C extendable) {
-        if (extendable instanceof TwoWindingsTransformer || extendable instanceof ThreeWindingsTransformer) {
-            return new CgmesTapChangersImpl<>(extendable);
+        if (extendable instanceof TwoWindingsTransformer) {
+            ((TwoWindingsTransformerImpl) extendable).updateResourceWithoutNotification(res ->
+                    res.getAttributes().getExtensionAttributes().put(CgmesTapChangers.NAME, new CgmesTapChangersAttributes()));
+        } else if (extendable instanceof ThreeWindingsTransformer) {
+            ((ThreeWindingsTransformerImpl) extendable).updateResourceWithoutNotification(res ->
+                    res.getAttributes().getExtensionAttributes().put(CgmesTapChangers.NAME, new CgmesTapChangersAttributes()));
+        } else {
+            throw new PowsyblException("CGMES Tap Changers can only be added on transformers");
         }
-        throw new PowsyblException("CGMES Tap Changers can only be added on transformers");
+        return new CgmesTapChangersImpl<>(extendable);
     }
 }
 

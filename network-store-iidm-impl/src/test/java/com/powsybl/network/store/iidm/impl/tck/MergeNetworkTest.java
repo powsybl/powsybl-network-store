@@ -34,7 +34,7 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     }
 
     @Override
-    public void multipleDanglingLinesInMergedNetwork() {
+    public void multipleBoundaryLinesInMergedNetwork() {
         // FIXME
     }
 
@@ -49,7 +49,7 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     }
 
     @Override
-    public void multipleDanglingLinesInMergingNetwork() {
+    public void multipleBoundaryLinesInMergingNetwork() {
         // FIXME
     }
 
@@ -89,7 +89,7 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     }
 
     @Override
-    public void failMergeDanglingLinesWithSameId() {
+    public void failMergeBoundaryLinesWithSameId() {
         // FIXME
     }
 
@@ -139,27 +139,27 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     }
 
     @Override
-    public void dontCreateATieLineWithAlreadyMergedDanglingLinesInMergedNetwork() {
+    public void dontCreateATieLineWithAlreadyMergedBoundaryLinesInMergedNetwork() {
         // FIXME
     }
 
     @Override
-    public void dontCreateATieLineWithAlreadyMergedDanglingLinesInMergingNetwork() {
+    public void dontCreateATieLineWithAlreadyMergedBoundaryLinesInMergingNetwork() {
         // FIXME
     }
 
     @Override
-    public void multipleConnectedDanglingLinesInMergedNetwork() {
+    public void multipleConnectedBoundaryLinesInMergedNetwork() {
         // FIXME
     }
 
     @Override
-    public void multipleConnectedDanglingLinesWithSamePairingKey() {
+    public void multipleConnectedBoundaryLinesWithSamePairingKey() {
        // FIXME
     }
 
     @Override
-    public void invertDanglingLinesWhenCreatingATieLine() {
+    public void invertBoundaryLinesWhenCreatingATieLine() {
         // FIXME
     }
 

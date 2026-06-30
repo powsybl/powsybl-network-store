@@ -9,29 +9,30 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T extends LoadingLimits> implements LoadingLimits {
+public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T extends LoadingLimits> extends AbstractPropertiesHolder implements LoadingLimits {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
 
     // Epsilon to filter small temporary limit changes (in A, MW and MVA)
     private static final double TEMPORARY_LIMIT_EPSILON = 1e-6;
 
-    public static final class TemporaryLimitImpl implements LoadingLimits.TemporaryLimit {
+    public static final class TemporaryLimitImpl extends AbstractPropertiesHolder implements LoadingLimits.TemporaryLimit {
 
         private final TemporaryLimitAttributes attributes;
 
-        public TemporaryLimitImpl(TemporaryLimitAttributes attributes) {
+        private final AbstractLoadingLimits<?, ?, ?> loadingLimits;
+
+        public TemporaryLimitImpl(TemporaryLimitAttributes attributes, AbstractLoadingLimits<?, ?, ?> loadingLimits) {
             this.attributes = attributes;
+            this.loadingLimits = loadingLimits;
         }
 
         @Override
@@ -52,6 +53,21 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
         @Override
         public boolean isFictitious() {
             return attributes.isFictitious();
+        }
+
+        @Override
+        protected Map<String, String> getProperties() {
+            return attributes.getProperties();
+        }
+
+        @Override
+        protected void setProperties(Map<String, String> properties) {
+            attributes.setProperties(properties);
+        }
+
+        @Override
+        protected void persistProperties(Map<String, String> properties) {
+            loadingLimits.persistProperties(properties);
         }
     }
 
@@ -77,7 +93,8 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
 
     @Override
     public T setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getTemporaryLimits(), ValidationLevel.STEADY_STATE_HYPOTHESIS, owner.getIdentifiable().getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getTemporaryLimits(), owner.getIdentifiable().getNetwork().getMinValidationLevel(), owner.getIdentifiable().getNetwork()
+                .getReportNodeContext().getReportNode());
         attributes.setPermanentLimit(permanentLimit);
         return (T) this;
     }
@@ -85,7 +102,7 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
     @Override
     public Collection<TemporaryLimit> getTemporaryLimits() {
         return attributes.getTemporaryLimits() == null ? Collections.emptyList()
-            : attributes.getTemporaryLimits().values().stream().sorted().map(TemporaryLimitImpl::new).collect(Collectors.toUnmodifiableList());
+            : attributes.getTemporaryLimits().values().stream().sorted().map(l -> new TemporaryLimitImpl(l, this)).collect(Collectors.toUnmodifiableList());
     }
 
     @Override
@@ -94,7 +111,7 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
             return null;
         }
         TemporaryLimitAttributes temporaryLimitAttributes = attributes.getTemporaryLimits().get(acceptableDuration);
-        return temporaryLimitAttributes == null ? null : new TemporaryLimitImpl(temporaryLimitAttributes);
+        return temporaryLimitAttributes == null ? null : new TemporaryLimitImpl(temporaryLimitAttributes, this);
     }
 
     @Override
@@ -152,5 +169,20 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
             && biggerDurationEntry.getValue().getAcceptableDuration() > acceptableDuration
             && biggerDurationEntry.getValue().getValue() < temporaryLimitValue;
         return temporaryLimitValue > attributes.getPermanentLimit() && checkAgainstBigger && checkAgainstSmaller;
+    }
+
+    @Override
+    protected Map<String, String> getProperties() {
+        return attributes.getProperties();
+    }
+
+    @Override
+    protected void setProperties(Map<String, String> properties) {
+        attributes.setProperties(properties);
+    }
+
+    @Override
+    protected void persistProperties(Map<String, String> properties) {
+        owner.getIdentifiable().updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

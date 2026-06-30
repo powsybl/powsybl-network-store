@@ -20,6 +20,8 @@ public interface LoadingLimitsAdderExt<S, O extends LimitsOwner<S>, L extends Lo
 
     O getOwner();
 
+    String getOperationalGroupId();
+
     void addTemporaryLimit(TemporaryLimitAttributes temporaryLimitAttribute);
 
     Map<Integer, TemporaryLimitAttributes> getTemporaryLimits();
