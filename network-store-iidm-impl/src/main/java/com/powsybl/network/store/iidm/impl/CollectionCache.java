@@ -543,12 +543,16 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         }
     }
 
-    public void removeExtensionAttributesByExtensionName(String identifiableId, String extensionName) {
-        Objects.requireNonNull(identifiableId);
-        Objects.requireNonNull(extensionName);
-        if (resources.containsKey(identifiableId)) {
-            getCachedExtensionAttributes(identifiableId).remove(extensionName);
-            removedExtensionAttributes.computeIfAbsent(identifiableId, k -> new HashSet<>()).add(extensionName);
+    public void removeExtensionAttributesByIdentifiableIds(Map<String, Set<String>> extensionsByIdentifiableId) {
+        for (Map.Entry<String, Set<String>> entry : extensionsByIdentifiableId.entrySet()) {
+            Set<String> extensionNames = entry.getValue();
+            String identifiableId = entry.getKey();
+            if (resources.containsKey(identifiableId)) {
+                for (String extensionName : extensionNames) {
+                    getCachedExtensionAttributes(identifiableId).remove(extensionName);
+                    removedExtensionAttributes.computeIfAbsent(identifiableId, k -> new HashSet<>()).add(extensionName);
+                }
+            }
         }
     }
 
