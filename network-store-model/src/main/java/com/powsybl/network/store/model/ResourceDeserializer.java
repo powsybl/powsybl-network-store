@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.network.store.model.svattributes.*;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -57,12 +58,13 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case NETWORK -> NetworkAttributes.class;
                     case SUBSTATION -> SubstationAttributes.class;
                     case VOLTAGE_LEVEL -> VoltageLevelSvAttributes.class;
-                    case LOAD, GENERATOR, BATTERY, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BOUNDARY_LINE,
-                         GROUND ->
+                    case LOAD, GENERATOR, BATTERY, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, BOUNDARY_LINE, GROUND ->
                         InjectionSvAttributes.class;
+                    case SHUNT_COMPENSATOR -> ShuntCompensatorSvAttributes.class;
                     case BUSBAR_SECTION -> BusbarSectionAttributes.class;
                     case SWITCH -> SwitchAttributes.class;
-                    case TWO_WINDINGS_TRANSFORMER, LINE -> BranchSvAttributes.class;
+                    case LINE -> BranchSvAttributes.class;
+                    case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerSvAttributes.class;
                     case THREE_WINDINGS_TRANSFORMER -> ThreeWindingsTransformerSvAttributes.class;
                     case HVDC_LINE -> HvdcLineAttributes.class;
                     case CONFIGURED_BUS -> ConfiguredBusAttributes.class;

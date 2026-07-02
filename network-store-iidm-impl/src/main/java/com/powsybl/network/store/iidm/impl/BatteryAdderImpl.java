@@ -62,12 +62,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
 
-        MinMaxReactiveLimitsAttributes minMaxAttributes =
-                MinMaxReactiveLimitsAttributes.builder()
-                        .minQ(-Double.MAX_VALUE)
-                        .maxQ(Double.MAX_VALUE)
-                        .build();
-
         Resource<BatteryAttributes> resource = Resource.batteryBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
@@ -82,7 +76,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
                         .minP(minP)
                         .targetP(targetP)
                         .targetQ(targetQ)
-                        .reactiveLimits(minMaxAttributes)
                         .build())
                 .build();
         BatteryImpl battery = getIndex().createBattery(resource);

@@ -87,6 +87,7 @@ class RegulatingTest {
                 .setReactivePowerSetpoint(200)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(390)
+                .setRegulating(false)
                 .add();
         vl1.newStaticVarCompensator().setId("SVC1").setEnsureIdUnicity(true).setNode(1)
                 .setBmin(0.0002)
@@ -94,6 +95,7 @@ class RegulatingTest {
                 .setReactivePowerSetpoint(200)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(390)
+                .setRegulating(false)
                 .add();
 
         Assertions.assertEquals("SVC1", network.getStaticVarCompensator("SVC1").getRegulatingTerminal().getConnectable().getId());

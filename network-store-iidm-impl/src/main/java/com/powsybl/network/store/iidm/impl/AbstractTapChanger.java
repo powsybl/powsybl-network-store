@@ -215,14 +215,14 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         if (solvedTapPosition < getLowTapPosition() || solvedTapPosition > getHighTapPosition()) {
             throwIncorrectSolvedTapPosition(solvedTapPosition, getHighTapPosition());
         }
-        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(solvedTapPosition),
+        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(solvedTapPosition), AttributeFilter.SV,
             getTapChangerAttribute() + ".solvedTapPosition", oldValue, solvedTapPosition);
         return (C) this;
     }
 
     public C unsetSolvedTapPosition() {
         Integer oldValue = getSolvedTapPosition();
-        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(null),
+        getTransformer().updateResource(res -> getAttributes().setSolvedTapPosition(null), AttributeFilter.SV,
             getTapChangerAttribute() + ".solvedTapPosition", oldValue, null);
         return (C) this;
     }

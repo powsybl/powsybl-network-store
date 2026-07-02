@@ -4,12 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network.store.model;
+package com.powsybl.network.store.model.svattributes;
 
+import com.powsybl.network.store.model.AbstractAttributes;
+import com.powsybl.network.store.model.Attributes;
+import com.powsybl.network.store.model.CalculatedBusAttributes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,6 +28,9 @@ public class VoltageLevelSvAttributes extends AbstractAttributes implements Attr
 
     @Schema(description = "Calculated buses for bus view")
     private List<CalculatedBusAttributes> calculatedBusesForBusView;
+
+    @Schema(description = "Node to calculated bus for bus view")
+    private Map<Integer, Integer> nodeToCalculatedBusForBusView;
 
     @Schema(description = "Calculated buses for bus breaker view")
     private List<CalculatedBusAttributes> calculatedBusesForBusBreakerView;
