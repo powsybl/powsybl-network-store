@@ -7,7 +7,9 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.DetectionKind;
 import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.network.store.model.LimitsAttributes;
 import lombok.EqualsAndHashCode;
 
@@ -30,5 +32,20 @@ public class CurrentLimitsImpl<S, O extends LimitsOwner<S>> extends AbstractLoad
     @Override
     public void remove() {
         owner.setCurrentLimits(side, null, operationalGroupId);
+    }
+
+    @Override
+    public DetectionKind getDetectionKind() {
+        return DetectionKind.HIGH;
+    }
+
+    @Override
+    public String getPermanentLimitName() {
+        return "";
+    }
+
+    @Override
+    public LoadingLimits setPermanentLimitName(String name) {
+        return null;
     }
 }

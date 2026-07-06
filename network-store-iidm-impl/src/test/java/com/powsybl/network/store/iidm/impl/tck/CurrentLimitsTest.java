@@ -169,4 +169,9 @@ class CurrentLimitsTest extends AbstractCurrentLimitsTest {
         ValidationException e = Assertions.assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit);
         Assertions.assertEquals("AC line 'L': name is not set within limit set 'DEFAULT'", e.getMessage());
     }
+
+    @Test
+    public void testSetterGetter() {
+        // FIXME: to be removed when permanentLimitName is implemented
+    }
 }

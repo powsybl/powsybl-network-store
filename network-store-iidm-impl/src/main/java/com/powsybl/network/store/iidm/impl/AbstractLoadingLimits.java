@@ -93,8 +93,9 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
 
     @Override
     public T setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getTemporaryLimits(), owner.getIdentifiable().getNetwork().getMinValidationLevel(), owner.getIdentifiable().getNetwork()
-                .getReportNodeContext().getReportNode());
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getDetectionKind(), getTemporaryLimits(),
+                owner.getIdentifiable().getNetwork().getMinValidationLevel(),
+                owner.getIdentifiable().getNetwork().getReportNodeContext().getReportNode());
         attributes.setPermanentLimit(permanentLimit);
         return (T) this;
     }
