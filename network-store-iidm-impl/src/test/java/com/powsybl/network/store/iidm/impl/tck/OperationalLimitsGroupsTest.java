@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.tck.AbstractOperationalLimitsGroupsTest;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
@@ -22,8 +23,12 @@ public class OperationalLimitsGroupsTest extends AbstractOperationalLimitsGroups
     // TODO : all following overrided tests will be removed later, when we will handle multiple selected operational limits groups
     // on one side
     //
+    @Test
+    public void operationalLimitsGroupIdsOrdering() {
+    }
+
     @Override
-    public void operationalLimitsGroupOrdering() {
+    public void getOperationalLimitsGroupsOrdering() {
     }
 
     @Override
