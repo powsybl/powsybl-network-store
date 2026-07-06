@@ -106,6 +106,9 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             throw new ValidationException(this, "bus only used in a bus breaker topology");
         }
+        if (connectionBus == null) {
+            throw new ValidationException(this, "connectable bus is not set");
+        }
         if (index.getConfiguredBus(connectionBus).isEmpty()) {
             throw new ValidationException(this, "connectable bus '" + connectionBus + "' not found");
         }
@@ -114,6 +117,9 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
     public void checkNode(Integer node, VoltageLevel voltageLevel) {
         if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
             throw new ValidationException(this, "node only used in a node breaker topology");
+        }
+        if (node == null) {
+            throw new ValidationException(this, "node is not set");
         }
 
         Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);

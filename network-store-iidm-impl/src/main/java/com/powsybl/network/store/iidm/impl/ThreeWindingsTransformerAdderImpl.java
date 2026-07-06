@@ -151,16 +151,12 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                 throw new ValidationException(this, "connection node and connection bus leg " + legNumber + " are exclusives");
             }
 
-            if (node == null && connectionBus == null) {
-                throw new ValidationException(this, "connectable bus is not set");
-            }
-
             if (connectionBus != null && index.getConfiguredBus(connectionBus).isEmpty()) {
                 throw new ValidationException(this, "connectable bus leg " + legNumber + " '" + connectionBus + " not found");
             }
 
             VoltageLevel voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
-            if (connectionBus != null) {
+            if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
                 checkBus(connectionBus, voltageLevel);
             } else {
                 checkNode(node, voltageLevel);

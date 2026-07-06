@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VoltageLevel;
 
@@ -80,16 +81,12 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
             throw new ValidationException(this, "connection node 1 and connection bus 1 are exclusives");
         }
 
-        if (node1 == null && connectionBus == null) {
-            throw new ValidationException(this, "connectable bus 1 is not set");
-        }
-
         if (connectionBus != null && index.getConfiguredBus(connectionBus).isEmpty()) {
             throw new ValidationException(this, "connectable bus 1 '" + connectionBus + " not found");
         }
 
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(voltageLevelId1);
-        if (connectionBus != null) {
+        if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
             checkBus(connectionBus, voltageLevel);
         } else {
             checkNode(node1, voltageLevel);
