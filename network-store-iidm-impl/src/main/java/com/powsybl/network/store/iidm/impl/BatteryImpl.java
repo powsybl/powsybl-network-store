@@ -139,6 +139,11 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     }
 
     @Override
+    public ReactiveCapabilityShapeAdder newReactiveCapabilityShape() {
+        throw new UnsupportedOperationException("Reactive capability shape feature not implemented yet");
+    }
+
+    @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
         return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
