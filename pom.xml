@@ -57,6 +57,7 @@
         <sonar.organization>powsybl-ci-github</sonar.organization>
         <sonar.projectKey>com.powsybl:powsybl-network-store</sonar.projectKey>
         <assertj.version>3.27.7</assertj.version>
+        <powsybl-core.version>7.3.0</powsybl-core.version>
     </properties>
 
     <modules>
@@ -69,6 +70,13 @@
     <dependencyManagement>
         <dependencies>
             <!-- overrides of imports -->
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-core</artifactId>
+                <version>${powsybl-core.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 
             <!-- imports -->
             <dependency>
