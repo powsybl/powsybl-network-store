@@ -58,6 +58,46 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
     }
 
     @Override
+    public double getG1z() {
+        return 0;
+    }
+
+    @Override
+    public void setG1z(double g1z) {
+
+    }
+
+    @Override
+    public double getB1z() {
+        return 0;
+    }
+
+    @Override
+    public void setB1z(double b1z) {
+
+    }
+
+    @Override
+    public double getG2z() {
+        return 0;
+    }
+
+    @Override
+    public void setG2z(double g2z) {
+
+    }
+
+    @Override
+    public double getB2z() {
+        return 0;
+    }
+
+    @Override
+    public void setB2z(double b2z) {
+
+    }
+
+    @Override
     public boolean isOpenPhaseA() {
         return getLineFortescueAttributes().isOpenPhaseA();
     }

@@ -73,6 +73,16 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     }
 
     @Override
+    public double getXm() {
+        return 0;
+    }
+
+    @Override
+    public void setXm(double xm) {
+
+    }
+
+    @Override
     public WindingConnectionType getConnectionType1() {
         return getTwoWindingsTransformerFortescueAttributes().getConnectionType1();
     }
