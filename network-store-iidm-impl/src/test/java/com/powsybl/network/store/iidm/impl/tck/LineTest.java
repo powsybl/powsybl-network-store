@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
@@ -40,10 +39,10 @@ public class LineTest extends AbstractLineTest {
         Network network = NoEquipmentNetworkFactory.create();
 
         // Changes listener
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
+        NetworkListener exceptionListener = mock(NetworkListener.class);
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), anyString(), any(), any());
 
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(exceptionListener);
         network.addListener(mockedListener);

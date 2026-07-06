@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
@@ -24,7 +23,7 @@ public class PropertiesTest {
 
     @Test
     public void testPropertiesChangesNotification() {
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         network.addListener(mockedListener);
         Load load = network.getLoad("L");

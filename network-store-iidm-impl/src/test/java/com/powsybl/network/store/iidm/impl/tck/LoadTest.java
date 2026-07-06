@@ -61,7 +61,7 @@ class LoadTest extends AbstractLoadTest {
         // to be removed when changing the name will notify the update with the variant id provided (instead of null) in powsybl-core
 
         Network network = FictitiousSwitchFactory.create();
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         network.addListener(mockedListener);
         Load load = network.getLoad("CE");
         assertNotNull(load);
