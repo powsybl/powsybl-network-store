@@ -76,8 +76,7 @@ public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes i
     private ConnectablePositionAttributes position;
 
     @Schema(description = "reactiveLimits")
-    @Builder.Default
-    private ReactiveLimitsAttributes reactiveLimits = new MinMaxReactiveLimitsAttributes(-Double.MAX_VALUE, Double.MAX_VALUE, null);
+    private ReactiveLimitsAttributes reactiveLimits;
 
     @Schema(description = "Coordinated reactive power control")
     private CoordinatedReactiveControlAttributes coordinatedReactiveControl;
