@@ -651,6 +651,16 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(buffer, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, null);
     }
 
+    private static void cloneExtensionBuffer(NetworkCollectionIndex<ExtensionCollectionBuffer<?>> extensionBufferCollection, UUID networkUuid, int sourceVariantNum, int targetVariantNum) {
+        ExtensionCollectionBuffer<?> extensionClonedCollection = extensionBufferCollection.getCollection(networkUuid, sourceVariantNum).clone();
+        extensionBufferCollection.addCollection(networkUuid, targetVariantNum, extensionClonedCollection);
+    }
+
+    private static void cloneLimitsBuffer(NetworkCollectionIndex<OperationalLimitsCollectionBuffer<?>> limitsBufferCollection, UUID networkUuid, int sourceVariantNum, int targetVariantNum) {
+        OperationalLimitsCollectionBuffer<?> extensionClonedCollection = limitsBufferCollection.getCollection(networkUuid, sourceVariantNum).clone();
+        limitsBufferCollection.addCollection(networkUuid, targetVariantNum, extensionClonedCollection);
+    }
+
     @Override
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
@@ -681,10 +691,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(voltageLevelResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(tieLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(areaResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
-        ExtensionCollectionBuffer<?> extensionClonedCollection = extensionsToFlush.getCollection(networkUuid, sourceVariantNum).clone();
-        extensionsToFlush.addCollection(networkUuid, targetVariantNum, extensionClonedCollection);
-        OperationalLimitsCollectionBuffer<?> limitsClonedCollection = operationalLimitsToFlush.getCollection(networkUuid, sourceVariantNum).clone();
-        operationalLimitsToFlush.addCollection(networkUuid, targetVariantNum, limitsClonedCollection);
+        cloneExtensionBuffer(extensionsToFlush, networkUuid, sourceVariantNum, targetVariantNum);
+        cloneLimitsBuffer(operationalLimitsToFlush, networkUuid, sourceVariantNum, targetVariantNum);
         cloneBuffer(networkResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
                 networkResource -> {
                     NetworkAttributes networkAttributes = networkResource.getAttributes();
