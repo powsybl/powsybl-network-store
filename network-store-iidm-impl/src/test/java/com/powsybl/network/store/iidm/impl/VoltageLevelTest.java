@@ -316,6 +316,87 @@ public class VoltageLevelTest {
     }
 
     @Test
+    public void testFictitiousInjectionsInBusBreakerWithDisconnectedConnectable() {
+        Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+
+        // JUST DISCONNECTING ONE CONNECTABLE
+
+        network.getLoad("LD2").getTerminal().disconnect();
+
+        assertEquals(0., vl1.getBusBreakerView().getBus("B1").getFictitiousP0(), EPSILON);
+        assertEquals(0., vl1.getBusBreakerView().getBus("B1").getFictitiousQ0(), EPSILON);
+        assertEquals(0., vl1.getBusBreakerView().getBus("B2").getFictitiousP0(), EPSILON);
+        assertEquals(0., vl1.getBusBreakerView().getBus("B2").getFictitiousQ0(), EPSILON);
+
+        assertEquals(0., vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(0., vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+
+        vl1.getBusBreakerView().getBus("B2").setFictitiousP0(FICTITIOUS_P0);
+        vl1.getBusBreakerView().getBus("B2").setFictitiousQ0(FICTITIOUS_Q0);
+
+        assertEquals(0., vl1.getBusBreakerView().getBus("B1").getFictitiousP0(), EPSILON);
+        assertEquals(0., vl1.getBusBreakerView().getBus("B1").getFictitiousQ0(), EPSILON);
+        assertEquals(FICTITIOUS_P0, vl1.getBusBreakerView().getBus("B2").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("B2").getFictitiousQ0(), EPSILON);
+
+        assertEquals(FICTITIOUS_P0, vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+    }
+
+    @Test
+    public void testFictitiousInjectionsInBusBreakerWithConfiguredBusWithoutConnectable() {
+        Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+
+        // Add a configured bus that carries no connectable, connected to B2 by a closed switch
+        // so that it belongs to the same calculated bus (VL1_0).
+        vl1.getBusBreakerView().newBus()
+                .setId("B3")
+                .add();
+        vl1.getBusBreakerView().newSwitch()
+                .setId("BR2")
+                .setBus1("B3")
+                .setBus2("B2")
+                .setOpen(false)
+                .add();
+
+        // A fictitious injection set on the equipment-less bus must still be aggregated by the calculated bus.
+        vl1.getBusBreakerView().getBus("B3").setFictitiousP0(FICTITIOUS_P0);
+        vl1.getBusBreakerView().getBus("B3").setFictitiousQ0(FICTITIOUS_Q0);
+
+        assertEquals(FICTITIOUS_P0, vl1.getBusBreakerView().getBus("B3").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusBreakerView().getBus("B3").getFictitiousQ0(), EPSILON);
+
+        assertEquals(FICTITIOUS_P0, vl1.getBusView().getBus("VL1_0").getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, vl1.getBusView().getBus("VL1_0").getFictitiousQ0(), EPSILON);
+    }
+
+    @Test
+    public void testSetAndGetFictitiousInjectionsOnCalculatedBusInBusBreaker() {
+        Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+
+        // BR1 is closed so B1 and B2 are merged into the single calculated bus VL1_0.
+        // Setting a value on the calculated bus and reading it back must round-trip correctly.
+        Bus calculatedBus = vl1.getBusView().getBus("VL1_0");
+
+        calculatedBus.setFictitiousP0(FICTITIOUS_P0);
+        calculatedBus.setFictitiousQ0(FICTITIOUS_Q0);
+
+        assertEquals(FICTITIOUS_P0, calculatedBus.getFictitiousP0(), EPSILON);
+        assertEquals(FICTITIOUS_Q0, calculatedBus.getFictitiousQ0(), EPSILON);
+
+        // The aggregated value must equal the sum of the underlying configured buses.
+        assertEquals(FICTITIOUS_P0,
+                vl1.getBusBreakerView().getBus("B1").getFictitiousP0() + vl1.getBusBreakerView().getBus("B2").getFictitiousP0(),
+                EPSILON);
+        assertEquals(FICTITIOUS_Q0,
+                vl1.getBusBreakerView().getBus("B1").getFictitiousQ0() + vl1.getBusBreakerView().getBus("B2").getFictitiousQ0(),
+                EPSILON);
+    }
+
+    @Test
     public void testFictitiousInjectionsInBusBreakerWithSeveralBusesAreReComputedAfterDisconnection() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
