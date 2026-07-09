@@ -46,7 +46,7 @@ public class ActivePowerLimitsImpl<S, O extends LimitsOwner<S>> extends Abstract
 
     @Override
     public LoadingLimits setPermanentLimitName(String name) {
-        return null;
+        return this;
     }
 }
 

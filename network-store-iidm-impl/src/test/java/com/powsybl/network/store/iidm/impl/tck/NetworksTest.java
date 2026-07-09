@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
  */
 public class NetworksTest extends AbstractNetworksTest {
 
+    @Override
     @Test
     public void unsetDcSolvedValues() {
         // FIXME: implement the new DC model

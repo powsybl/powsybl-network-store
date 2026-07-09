@@ -170,6 +170,7 @@ class CurrentLimitsTest extends AbstractCurrentLimitsTest {
         Assertions.assertEquals("AC line 'L': name is not set within limit set 'DEFAULT'", e.getMessage());
     }
 
+    @Override
     @Test
     public void testSetterGetter() {
         // FIXME: to be removed when permanentLimitName is implemented

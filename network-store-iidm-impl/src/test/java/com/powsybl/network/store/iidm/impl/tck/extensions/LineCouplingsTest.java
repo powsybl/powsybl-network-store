@@ -11,51 +11,65 @@ import com.powsybl.network.store.iidm.impl.tck.ExcludeTestsExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
 @ExtendWith(ExcludeTestsExtension.class)
-public class LineCouplingsTest extends AbstractLineCouplingsTest {
+class LineCouplingsTest extends AbstractLineCouplingsTest {
 
     @Override
     @Test
     public void test() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 
     @Test
     void testSameLine() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 
     @Test
     void testNullLine() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 
     @Test
     void testDuplicateCoupling() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 
     @Test
     void testFindSymmetric() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 
     @Test
     void testRemoveByLines() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 
     @Test
     void testRemoveByMutualCoupling() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 
     @Test
     void testSetters() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 
     @Test
     void testInvalidLineSegment() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 
     @Test
     void testInvalidRAndX() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 
     @Test
     void testListener() {
+        // FIXME: to be removed when homopolar shorticurcuit is implemented
     }
 }

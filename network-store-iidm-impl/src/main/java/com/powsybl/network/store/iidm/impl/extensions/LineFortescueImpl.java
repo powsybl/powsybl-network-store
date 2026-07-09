@@ -64,7 +64,7 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
 
     @Override
     public void setG1z(double g1z) {
-
+        // FIXME: to be implemented with homopolar shortcircuit
     }
 
     @Override
@@ -74,7 +74,7 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
 
     @Override
     public void setB1z(double b1z) {
-
+        // FIXME: to be implemented with homopolar shortcircuit
     }
 
     @Override
@@ -84,7 +84,7 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
 
     @Override
     public void setG2z(double g2z) {
-
+        // FIXME: to be implemented with homopolar shortcircuit
     }
 
     @Override
@@ -94,7 +94,7 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
 
     @Override
     public void setB2z(double b2z) {
-
+        // FIXME: to be implemented with homopolar shortcircuit
     }
 
     @Override

@@ -79,7 +79,7 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
 
     @Override
     public void setXm(double xm) {
-
+        // FIXME: to be implemented with homopolar shortcircuit
     }
 
     @Override

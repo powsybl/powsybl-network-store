@@ -188,7 +188,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     @Override
     public DetectionKind getDetectionKind() {
-        return DetectionKind.HIGH;
+        return detectionKind;
     }
 
     @Override

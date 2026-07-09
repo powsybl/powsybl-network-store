@@ -9,6 +9,9 @@ package com.powsybl.network.store.iidm.impl.tck;
 import com.powsybl.iidm.network.tck.AbstractIdentifiableTest;
 import org.junit.jupiter.api.Test;
 
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
 public class IdentifiableTest extends AbstractIdentifiableTest {
 
     @Override

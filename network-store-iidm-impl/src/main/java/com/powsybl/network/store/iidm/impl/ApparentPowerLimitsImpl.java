@@ -46,7 +46,7 @@ public class ApparentPowerLimitsImpl<S, O extends LimitsOwner<S>> extends Abstra
 
     @Override
     public LoadingLimits setPermanentLimitName(String name) {
-        return null;
+        return this;
     }
 }
 

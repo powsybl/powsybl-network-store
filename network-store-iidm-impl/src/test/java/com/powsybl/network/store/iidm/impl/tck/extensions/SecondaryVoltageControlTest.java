@@ -21,6 +21,7 @@ public class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControl
         // it should be implemented
     }
 
+    @Override
     @Test
     public void secondaryVoltageControlUpdateListenerTest() {
         // FIXME: to be removed when Identifiable#setId is implemented

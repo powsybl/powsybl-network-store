@@ -9,15 +9,20 @@ package com.powsybl.network.store.iidm.impl.tck;
 import com.powsybl.iidm.network.tck.AbstractDcConnectableTest;
 import org.junit.jupiter.api.Test;
 
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
 public class DcConnectableTest extends AbstractDcConnectableTest {
 
     @Override
     @Test
     public void connectAndDisconnect() {
+        // FIXME: to be removed when detailed DC model is implemented
     }
 
     @Override
     @Test
     public void connectAndDisconnectAcDcConverter() {
+        // FIXME: to be removed when detailed DC model is implemented
     }
 }

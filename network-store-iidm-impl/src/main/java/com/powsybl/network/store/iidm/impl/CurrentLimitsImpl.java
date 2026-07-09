@@ -46,6 +46,6 @@ public class CurrentLimitsImpl<S, O extends LimitsOwner<S>> extends AbstractLoad
 
     @Override
     public LoadingLimits setPermanentLimitName(String name) {
-        return null;
+        return this;
     }
 }
