@@ -90,7 +90,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
     }
 
     void remove(String resourceId) {
-        remove(List.of(resourceId));
+        remove(Collections.singletonList(resourceId));
     }
 
     void remove(List<String> resourceIds) {
