@@ -10,10 +10,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -134,6 +131,6 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
         int firstNode = nodes.stream().min(Integer::compare).orElseThrow(IllegalStateException::new);
         String busId = voltageLevelResource.getId() + calculatedBusSeparator + firstNode;
         String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + calculatedBusSeparator + firstNode : null;
-        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum, isBusView, nodes);
+        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum, isBusView, nodes, Collections.emptyList());
     }
 }
