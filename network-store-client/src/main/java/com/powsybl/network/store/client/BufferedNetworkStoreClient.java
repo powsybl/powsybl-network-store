@@ -36,6 +36,12 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BufferedNetworkStoreClient.class);
 
+    private static final EnumSet<ResourceType> RESOURCE_TYPES_WITH_OPERATIONAL_LIMITS = EnumSet.of(ResourceType.LINE, ResourceType.TWO_WINDINGS_TRANSFORMER);
+
+    private static boolean hasOperationalLimits(ResourceType resourceType) {
+        return RESOURCE_TYPES_WITH_OPERATIONAL_LIMITS.contains(resourceType);
+    }
+
     // equipment buffers
     private final NetworkCollectionIndex<CollectionBuffer<NetworkAttributes>> networkResourcesToFlush
             = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>((networkUuid, resources) -> delegate.createNetworks(resources),
@@ -718,7 +724,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             NetworkCollectionIndex<CollectionBuffer<T>> collectionIndex, UUID networkUuid, int variantNum, List<String> ids, ResourceType resourceType) {
         collectionIndex.getCollection(networkUuid, variantNum).remove(ids);
         extensionsToFlush.getCollection(networkUuid, variantNum).restoreRemoveByResourcesIds(ids, resourceType);
-        if (resourceType == ResourceType.LINE || resourceType == ResourceType.TWO_WINDINGS_TRANSFORMER) {
+        if (hasOperationalLimits(resourceType)) {
             operationalLimitsToFlush.getCollection(networkUuid, variantNum).restoreRemoveByResourcesIds(ids, resourceType);
         }
     }
