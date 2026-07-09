@@ -229,8 +229,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         delegate.deleteNetwork(networkUuid, variantNum);
         // clear buffers as server side delete network already remove all equipments of the network
         allBuffers.values().forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
-        operationalLimitsToFlush.removeCollection(networkUuid);
-        extensionsToFlush.removeCollection(networkUuid);
+        operationalLimitsToFlush.removeCollection(networkUuid, variantNum);
+        extensionsToFlush.removeCollection(networkUuid, variantNum);
     }
 
     @Override
@@ -249,7 +249,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeSubstations(UUID networkUuid, int variantNum, List<String> substationsIds) {
-        removeElementsExtensionAndLimitsFromBuffers(substationResourcesToFlush, networkUuid, variantNum, substationsIds, SUBSTATION);
+        removeFromAllBuffers(substationResourcesToFlush, networkUuid, variantNum, substationsIds, SUBSTATION);
     }
 
     @Override
@@ -268,7 +268,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeVoltageLevels(UUID networkUuid, int variantNum, List<String> voltageLevelsIds) {
-        removeElementsExtensionAndLimitsFromBuffers(voltageLevelResourcesToFlush, networkUuid, variantNum, voltageLevelsIds, ResourceType.VOLTAGE_LEVEL);
+        removeFromAllBuffers(voltageLevelResourcesToFlush, networkUuid, variantNum, voltageLevelsIds, ResourceType.VOLTAGE_LEVEL);
     }
 
     @Override
@@ -287,7 +287,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeSwitches(UUID networkUuid, int variantNum, List<String> switchesIds) {
-        removeElementsExtensionAndLimitsFromBuffers(switchResourcesToFlush, networkUuid, variantNum, switchesIds, ResourceType.SWITCH);
+        removeFromAllBuffers(switchResourcesToFlush, networkUuid, variantNum, switchesIds, ResourceType.SWITCH);
     }
 
     @Override
@@ -306,7 +306,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeBusBarSections(UUID networkUuid, int variantNum, List<String> busBarSectionsIds) {
-        removeElementsExtensionAndLimitsFromBuffers(busbarSectionResourcesToFlush, networkUuid, variantNum, busBarSectionsIds, ResourceType.BUSBAR_SECTION);
+        removeFromAllBuffers(busbarSectionResourcesToFlush, networkUuid, variantNum, busBarSectionsIds, ResourceType.BUSBAR_SECTION);
     }
 
     @Override
@@ -325,7 +325,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeLoads(UUID networkUuid, int variantNum, List<String> loadsId) {
-        removeElementsExtensionAndLimitsFromBuffers(loadResourcesToFlush, networkUuid, variantNum, loadsId, ResourceType.LOAD);
+        removeFromAllBuffers(loadResourcesToFlush, networkUuid, variantNum, loadsId, ResourceType.LOAD);
     }
 
     @Override
@@ -344,7 +344,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeGenerators(UUID networkUuid, int variantNum, List<String> generatorsId) {
-        removeElementsExtensionAndLimitsFromBuffers(generatorResourcesToFlush, networkUuid, variantNum, generatorsId, ResourceType.GENERATOR);
+        removeFromAllBuffers(generatorResourcesToFlush, networkUuid, variantNum, generatorsId, ResourceType.GENERATOR);
     }
 
     @Override
@@ -363,7 +363,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeBatteries(UUID networkUuid, int variantNum, List<String> batteriesId) {
-        removeElementsExtensionAndLimitsFromBuffers(batteryResourcesToFlush, networkUuid, variantNum, batteriesId, ResourceType.BATTERY);
+        removeFromAllBuffers(batteryResourcesToFlush, networkUuid, variantNum, batteriesId, ResourceType.BATTERY);
     }
 
     @Override
@@ -382,7 +382,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeTwoWindingsTransformers(UUID networkUuid, int variantNum, List<String> twoWindingsTransformersId) {
-        removeElementsExtensionAndLimitsFromBuffers(twoWindingsTransformerResourcesToFlush,
+        removeFromAllBuffers(twoWindingsTransformerResourcesToFlush,
                 networkUuid, variantNum, twoWindingsTransformersId, ResourceType.TWO_WINDINGS_TRANSFORMER);
     }
 
@@ -404,7 +404,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
-        removeElementsExtensionAndLimitsFromBuffers(groundResourcesToFlush, networkUuid, variantNum, groundsId, ResourceType.GROUND);
+        removeFromAllBuffers(groundResourcesToFlush, networkUuid, variantNum, groundsId, ResourceType.GROUND);
     }
 
     // 3 windings transformer
@@ -424,7 +424,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeThreeWindingsTransformers(UUID networkUuid, int variantNum, List<String> threeWindingsTransformersId) {
-        removeElementsExtensionAndLimitsFromBuffers(threeWindingsTransformerResourcesToFlush, networkUuid, variantNum, threeWindingsTransformersId, ResourceType.THREE_WINDINGS_TRANSFORMER);
+        removeFromAllBuffers(threeWindingsTransformerResourcesToFlush, networkUuid, variantNum, threeWindingsTransformersId, ResourceType.THREE_WINDINGS_TRANSFORMER);
     }
 
     @Override
@@ -443,7 +443,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeLines(UUID networkUuid, int variantNum, List<String> linesId) {
-        removeElementsExtensionAndLimitsFromBuffers(lineResourcesToFlush, networkUuid, variantNum, linesId, ResourceType.LINE);
+        removeFromAllBuffers(lineResourcesToFlush, networkUuid, variantNum, linesId, ResourceType.LINE);
     }
 
     @Override
@@ -462,7 +462,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeShuntCompensators(UUID networkUuid, int variantNum, List<String> shuntCompensatorsId) {
-        removeElementsExtensionAndLimitsFromBuffers(shuntCompensatorResourcesToFlush,
+        removeFromAllBuffers(shuntCompensatorResourcesToFlush,
                 networkUuid, variantNum, shuntCompensatorsId, ResourceType.SHUNT_COMPENSATOR);
     }
 
@@ -482,7 +482,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeVscConverterStations(UUID networkUuid, int variantNum, List<String> vscConverterStationsId) {
-        removeElementsExtensionAndLimitsFromBuffers(vscConverterStationResourcesToFlush,
+        removeFromAllBuffers(vscConverterStationResourcesToFlush,
                 networkUuid, variantNum, vscConverterStationsId, ResourceType.VSC_CONVERTER_STATION);
     }
 
@@ -502,7 +502,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeLccConverterStations(UUID networkUuid, int variantNum, List<String> lccConverterStationsId) {
-        removeElementsExtensionAndLimitsFromBuffers(lccConverterStationResourcesToFlush,
+        removeFromAllBuffers(lccConverterStationResourcesToFlush,
                 networkUuid, variantNum, lccConverterStationsId, ResourceType.LCC_CONVERTER_STATION);
     }
 
@@ -522,7 +522,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeStaticVarCompensators(UUID networkUuid, int variantNum, List<String> staticVarCompensatorsId) {
-        removeElementsExtensionAndLimitsFromBuffers(svcResourcesToFlush,
+        removeFromAllBuffers(svcResourcesToFlush,
                 networkUuid, variantNum, staticVarCompensatorsId, ResourceType.STATIC_VAR_COMPENSATOR);
     }
 
@@ -542,7 +542,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeHvdcLines(UUID networkUuid, int variantNum, List<String> hvdcLinesId) {
-        removeElementsExtensionAndLimitsFromBuffers(hvdcLineResourcesToFlush, networkUuid, variantNum, hvdcLinesId, ResourceType.HVDC_LINE);
+        removeFromAllBuffers(hvdcLineResourcesToFlush, networkUuid, variantNum, hvdcLinesId, ResourceType.HVDC_LINE);
     }
 
     @Override
@@ -561,7 +561,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeBoundaryLines(UUID networkUuid, int variantNum, List<String> boundaryLinesId) {
-        removeElementsExtensionAndLimitsFromBuffers(boundaryLineResourcesToFlush, networkUuid, variantNum, boundaryLinesId, ResourceType.BOUNDARY_LINE);
+        removeFromAllBuffers(boundaryLineResourcesToFlush, networkUuid, variantNum, boundaryLinesId, ResourceType.BOUNDARY_LINE);
     }
 
     @Override
@@ -580,7 +580,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId) {
-        removeElementsExtensionAndLimitsFromBuffers(busResourcesToFlush, networkUuid, variantNum, busesId, ResourceType.CONFIGURED_BUS);
+        removeFromAllBuffers(busResourcesToFlush, networkUuid, variantNum, busesId, ResourceType.CONFIGURED_BUS);
     }
 
     @Override
@@ -599,7 +599,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
-        removeElementsExtensionAndLimitsFromBuffers(tieLineResourcesToFlush, networkUuid, variantNum, tieLinesId, ResourceType.TIE_LINE);
+        removeFromAllBuffers(tieLineResourcesToFlush, networkUuid, variantNum, tieLinesId, ResourceType.TIE_LINE);
     }
 
     // Areas
@@ -619,7 +619,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void removeAreas(UUID networkUuid, int variantNum, List<String> areasId) {
-        removeElementsExtensionAndLimitsFromBuffers(areaResourcesToFlush, networkUuid, variantNum, areasId, ResourceType.AREA);
+        removeFromAllBuffers(areaResourcesToFlush, networkUuid, variantNum, areasId, ResourceType.AREA);
     }
 
     @Override
@@ -725,7 +725,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         return identifiablesIds;
     }
 
-    private <T extends IdentifiableAttributes> void removeElementsExtensionAndLimitsFromBuffers(
+    private <T extends IdentifiableAttributes> void removeFromAllBuffers(
             NetworkCollectionIndex<CollectionBuffer<T>> collectionIndex, UUID networkUuid, int variantNum, List<String> ids, ResourceType resourceType) {
         collectionIndex.getCollection(networkUuid, variantNum).remove(ids);
         extensionsToFlush.getCollection(networkUuid, variantNum).restoreRemoveByResourcesIds(ids, resourceType);
