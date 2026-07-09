@@ -658,12 +658,12 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     private static void cloneExtensionsBuffer(NetworkCollectionIndex<ExtensionsCollectionBuffer<?>> extensionsBufferCollection, UUID networkUuid, int sourceVariantNum, int targetVariantNum) {
-        ExtensionsCollectionBuffer<?> extensionsClonedCollection = extensionsBufferCollection.getCollection(networkUuid, sourceVariantNum).clone();
+        ExtensionsCollectionBuffer<?> extensionsClonedCollection = extensionsBufferCollection.getCollection(networkUuid, sourceVariantNum).cloneBuffer();
         extensionsBufferCollection.addCollection(networkUuid, targetVariantNum, extensionsClonedCollection);
     }
 
     private static void cloneLimitsBuffer(NetworkCollectionIndex<OperationalLimitsCollectionBuffer<?>> limitsBufferCollection, UUID networkUuid, int sourceVariantNum, int targetVariantNum) {
-        OperationalLimitsCollectionBuffer<?> limitsClonedCollection = limitsBufferCollection.getCollection(networkUuid, sourceVariantNum).clone();
+        OperationalLimitsCollectionBuffer<?> limitsClonedCollection = limitsBufferCollection.getCollection(networkUuid, sourceVariantNum).cloneBuffer();
         limitsBufferCollection.addCollection(networkUuid, targetVariantNum, limitsClonedCollection);
     }
 

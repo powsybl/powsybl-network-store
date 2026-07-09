@@ -23,7 +23,7 @@ public class OperationalLimitsCollectionBuffer<T extends NetworkStoreClient> {
         this.delegate = delegate;
     }
 
-    public OperationalLimitsCollectionBuffer<T> clone() {
+    public OperationalLimitsCollectionBuffer<T> cloneBuffer() {
         var clonedBuffer = new OperationalLimitsCollectionBuffer<>(delegate);
         removedOperationalLimitsIds.forEach((resourceType, operationalLimitsGroupIds) ->
                 operationalLimitsGroupIds.forEach((resourceId, operationalLimitsIds) ->

@@ -23,7 +23,7 @@ public class ExtensionsCollectionBuffer<T extends NetworkStoreClient> {
         this.delegate = delegate;
     }
 
-    public ExtensionsCollectionBuffer<T> clone() {
+    public ExtensionsCollectionBuffer<T> cloneBuffer() {
         var clonedBuffer = new ExtensionsCollectionBuffer<>(delegate);
         removedExtensionIds.forEach((resourceType, extensionsIds) ->
                 extensionsIds.forEach((resourceId, limitIdSet) ->
