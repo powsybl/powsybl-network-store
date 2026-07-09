@@ -168,7 +168,7 @@ public class BufferedNetworkStoreClientTest {
         UUID networkUuid = UUID.randomUUID();
         int targetVariantNum1 = 1;
         String targetVariantId1 = "variant1";
-        bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, Map.of("load", Set.of("ActivePowerControl")));
+        bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, Map.of("load", Set.of("ActivePowerControl")));
         // Partial clone 0 -> 1
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
                 .andExpect(method(PUT))
@@ -473,8 +473,8 @@ public class BufferedNetworkStoreClientTest {
         String generator1 = "GEN1";
         String generator2 = "GEN2";
         // remove three operational limits group without the cache will call only the server once
-        bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
-        bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator2, Set.of(ActivePowerControl.NAME),
+        bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
+        bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator2, Set.of(ActivePowerControl.NAME),
                 generator1, Set.of(CoordinatedReactiveControl.NAME)));
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(DELETE))
@@ -489,7 +489,7 @@ public class BufferedNetworkStoreClientTest {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String generator1 = "GEN1";
-        bufferedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
+        bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
         bufferedClient.removeGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(generator1));
         // remove three operational limits group without the cache will call only the server once
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))

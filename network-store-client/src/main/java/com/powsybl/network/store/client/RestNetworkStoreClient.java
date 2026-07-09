@@ -302,7 +302,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Set<String>> extensionsByIdentifiableId) {
+    public void removeExtensionsAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Set<String>> extensionsByIdentifiableId) {
         String url = "/networks/{networkUuid}/{variantNum}/identifiables/types/{resourceType}/extensions";
         for (List<Map.Entry<String, Set<String>>> partitionEntries : Iterables.partition(extensionsByIdentifiableId.entrySet(), RESOURCES_CREATION_CHUNK_SIZE)) {
             Map<String, Set<String>> partitionMap = partitionEntries.stream()

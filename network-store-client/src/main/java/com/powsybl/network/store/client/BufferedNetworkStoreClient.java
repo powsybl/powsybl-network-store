@@ -145,8 +145,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     private final NetworkCollectionIndex<OperationalLimitsCollectionBuffer<?>> operationalLimitsToFlush =
             new NetworkCollectionIndex<>(() -> new OperationalLimitsCollectionBuffer<>(delegate));
 
-    private final NetworkCollectionIndex<ExtensionCollectionBuffer<?>> extensionsToFlush =
-            new NetworkCollectionIndex<>(() -> new ExtensionCollectionBuffer<>(delegate));
+    private final NetworkCollectionIndex<ExtensionsCollectionBuffer<?>> extensionsToFlush =
+            new NetworkCollectionIndex<>(() -> new ExtensionsCollectionBuffer<>(delegate));
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = new EnumMap<>(ResourceType.class);
 
@@ -613,7 +613,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
-    public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Set<String>> extensionsByIdentifiableId) {
+    public void removeExtensionsAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Set<String>> extensionsByIdentifiableId) {
         // if element is creating, we should not remove the extension attributes
         Set<String> createdEquipmentIds = allBuffers.get(resourceType).getCollection(networkUuid, variantNum).getCreateResourcesIds();
         Map<String, Set<String>> finalExtensionsByIdentifiableIds = new HashMap<>(extensionsByIdentifiableId);
@@ -651,14 +651,14 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(buffer, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, null);
     }
 
-    private static void cloneExtensionBuffer(NetworkCollectionIndex<ExtensionCollectionBuffer<?>> extensionBufferCollection, UUID networkUuid, int sourceVariantNum, int targetVariantNum) {
-        ExtensionCollectionBuffer<?> extensionClonedCollection = extensionBufferCollection.getCollection(networkUuid, sourceVariantNum).clone();
-        extensionBufferCollection.addCollection(networkUuid, targetVariantNum, extensionClonedCollection);
+    private static void cloneExtensionsBuffer(NetworkCollectionIndex<ExtensionsCollectionBuffer<?>> extensionsBufferCollection, UUID networkUuid, int sourceVariantNum, int targetVariantNum) {
+        ExtensionsCollectionBuffer<?> extensionsClonedCollection = extensionsBufferCollection.getCollection(networkUuid, sourceVariantNum).clone();
+        extensionsBufferCollection.addCollection(networkUuid, targetVariantNum, extensionsClonedCollection);
     }
 
     private static void cloneLimitsBuffer(NetworkCollectionIndex<OperationalLimitsCollectionBuffer<?>> limitsBufferCollection, UUID networkUuid, int sourceVariantNum, int targetVariantNum) {
-        OperationalLimitsCollectionBuffer<?> extensionClonedCollection = limitsBufferCollection.getCollection(networkUuid, sourceVariantNum).clone();
-        limitsBufferCollection.addCollection(networkUuid, targetVariantNum, extensionClonedCollection);
+        OperationalLimitsCollectionBuffer<?> limitsClonedCollection = limitsBufferCollection.getCollection(networkUuid, sourceVariantNum).clone();
+        limitsBufferCollection.addCollection(networkUuid, targetVariantNum, limitsClonedCollection);
     }
 
     @Override
@@ -691,7 +691,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(voltageLevelResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(tieLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(areaResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
-        cloneExtensionBuffer(extensionsToFlush, networkUuid, sourceVariantNum, targetVariantNum);
+        cloneExtensionsBuffer(extensionsToFlush, networkUuid, sourceVariantNum, targetVariantNum);
         cloneLimitsBuffer(operationalLimitsToFlush, networkUuid, sourceVariantNum, targetVariantNum);
         cloneBuffer(networkResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
                 networkResource -> {

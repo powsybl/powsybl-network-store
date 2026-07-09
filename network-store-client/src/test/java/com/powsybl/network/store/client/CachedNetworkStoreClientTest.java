@@ -531,7 +531,7 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
 
-        removeExtensionAttributes(networkUuid, identifiableId, cachedClient, ActivePowerControl.NAME);
+        removeExtensionsAttributes(networkUuid, identifiableId, cachedClient, ActivePowerControl.NAME);
 
         // When removing the generator, the extension attributes should be removed from the cache as well
         GeneratorStartupAttributes gs1 = GeneratorStartupAttributes.builder()
@@ -555,10 +555,10 @@ public class CachedNetworkStoreClientTest {
         assertFalse(gs1Attributes.isPresent());
     }
 
-    private void removeExtensionAttributes(UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient, String extensionName) {
+    private void removeExtensionsAttributes(UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient, String extensionName) {
         // When calling removeExtensionAttributes, the attributes should be removed from the cache and no new request should be done
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"));
-        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(identifiableId, Set.of(extensionName)));
+        cachedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(identifiableId, Set.of(extensionName)));
         Optional<ExtensionAttributes> extensionAttributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, extensionName);
         assertFalse(extensionAttributes.isPresent());
         server.verify();
@@ -624,7 +624,7 @@ public class CachedNetworkStoreClientTest {
 
         // When calling removeExtensionAttributes, the attributes should be removed from the cache and no new request should be done
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"));
-        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(identifiableId, Set.of(ActivePowerControl.NAME)));
+        cachedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(identifiableId, Set.of(ActivePowerControl.NAME)));
 
         extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId);
         assertEquals(1, extensionAttributesMap.size());
@@ -653,7 +653,7 @@ public class CachedNetworkStoreClientTest {
         getExtensionAttributes(os1, networkUuid, identifiableId, cachedClient, OperatingStatus.NAME);
 
         // Remove extension attributes to check that the removed cache is cloned
-        removeExtensionAttributes(networkUuid, identifiableId, cachedClient, OperatingStatus.NAME);
+        removeExtensionsAttributes(networkUuid, identifiableId, cachedClient, OperatingStatus.NAME);
         // When cloning the network, the cached attributes should remained cached
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
                 .andExpect(method(PUT))

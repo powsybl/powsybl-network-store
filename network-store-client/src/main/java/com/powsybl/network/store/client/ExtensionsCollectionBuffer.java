@@ -14,17 +14,17 @@ import java.util.*;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class ExtensionCollectionBuffer<T extends NetworkStoreClient> {
+public class ExtensionsCollectionBuffer<T extends NetworkStoreClient> {
 
     private final Map<ResourceType, Map<String, Set<String>>> removedExtensionIds = new EnumMap<>(ResourceType.class);
     private final T delegate;
 
-    public ExtensionCollectionBuffer(T delegate) {
+    public ExtensionsCollectionBuffer(T delegate) {
         this.delegate = delegate;
     }
 
-    public ExtensionCollectionBuffer<T> clone() {
-        var clonedBuffer = new ExtensionCollectionBuffer<>(delegate);
+    public ExtensionsCollectionBuffer<T> clone() {
+        var clonedBuffer = new ExtensionsCollectionBuffer<>(delegate);
         removedExtensionIds.forEach((resourceType, extensionsIds) ->
                 extensionsIds.forEach((resourceId, limitIdSet) ->
                         clonedBuffer.removedExtensionIds.computeIfAbsent(resourceType, s -> new HashMap<>())
@@ -50,7 +50,7 @@ public class ExtensionCollectionBuffer<T extends NetworkStoreClient> {
     void flush(UUID networkUuid, int variantNum) {
         if (!removedExtensionIds.isEmpty()) {
             removedExtensionIds.forEach((resourceType, resourceIds) ->
-                    delegate.removeExtensionAttributes(networkUuid, variantNum, resourceType, removedExtensionIds.get(resourceType)));
+                    delegate.removeExtensionsAttributes(networkUuid, variantNum, resourceType, removedExtensionIds.get(resourceType)));
         }
         removedExtensionIds.clear();
     }
