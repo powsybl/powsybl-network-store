@@ -25,7 +25,10 @@ public class OperationalLimitsCollectionBuffer<T extends NetworkStoreClient> {
 
     public OperationalLimitsCollectionBuffer<T> clone() {
         var clonedBuffer = new OperationalLimitsCollectionBuffer<>(delegate);
-        clonedBuffer.removedOperationalLimitsIds.putAll(removedOperationalLimitsIds);
+        removedOperationalLimitsIds.forEach((resourceType, operationalLimitsGroupIds) ->
+                operationalLimitsGroupIds.forEach((resourceId, operationalLimitsIds) ->
+                                clonedBuffer.removedOperationalLimitsIds.computeIfAbsent(resourceType, s -> new HashMap<>())
+                                        .put(resourceId, new HashMap<>(operationalLimitsIds))));
         return clonedBuffer;
     }
 

@@ -25,17 +25,14 @@ public class ExtensionCollectionBuffer<T extends NetworkStoreClient> {
 
     public ExtensionCollectionBuffer<T> clone() {
         var clonedBuffer = new ExtensionCollectionBuffer<>(delegate);
-        clonedBuffer.removedExtensionIds.putAll(removedExtensionIds);
+        removedExtensionIds.forEach((resourceType, extensionsIds) ->
+                clonedBuffer.removedExtensionIds.put(resourceType, new HashMap<>(extensionsIds)));
         return clonedBuffer;
     }
 
     void remove(Map<String, Set<String>> extensionsIds, ResourceType resourceType) {
         removedExtensionIds.computeIfAbsent(resourceType, s -> new HashMap<>());
         mergeExtensions(removedExtensionIds.get(resourceType), extensionsIds);
-    }
-
-    void restoreRemoveExternalAttributes(Map<String, Set<String>> resourceIds, ResourceType resourceType) {
-        restoreRemovedExtensions(removedExtensionIds.get(resourceType), resourceIds);
     }
 
     void restoreRemoveByResourcesIds(List<String> resourceIds, ResourceType resourceType) {
@@ -62,14 +59,4 @@ public class ExtensionCollectionBuffer<T extends NetworkStoreClient> {
                         .addAll(extensionsByIdentifiable));
     }
 
-    private static void restoreRemovedExtensions(Map<String, Set<String>> deletedExtensionMap, Map<String, Set<String>> extensionsToRestore) {
-        if (deletedExtensionMap == null) {
-            return;
-        }
-        extensionsToRestore.forEach((identifiableId, extensionsByIdentifiable) ->
-                extensionsByIdentifiable.forEach(identifiablesId ->
-                        Optional.ofNullable(deletedExtensionMap.get(identifiableId))
-                                .ifPresent(limitIdSet -> limitIdSet.remove(identifiablesId))));
-        deletedExtensionMap.entrySet().removeIf(entry -> entry.getValue().isEmpty());
-    }
 }
