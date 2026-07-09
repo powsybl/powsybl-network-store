@@ -27,18 +27,17 @@ public class OperationalLimitsCollectionBuffer<T extends NetworkStoreClient> {
         var clonedBuffer = new OperationalLimitsCollectionBuffer<>(delegate);
         removedOperationalLimitsIds.forEach((resourceType, operationalLimitsGroupIds) ->
                 operationalLimitsGroupIds.forEach((resourceId, operationalLimitsIds) ->
+                        operationalLimitsIds.forEach((side, limitIdSet) ->
                                 clonedBuffer.removedOperationalLimitsIds.computeIfAbsent(resourceType, s -> new HashMap<>())
-                                        .put(resourceId, new HashMap<>(operationalLimitsIds))));
+                                        .computeIfAbsent(resourceId, s -> new HashMap<>())
+                                        .computeIfAbsent(side, s -> new HashSet<>())
+                                        .addAll(limitIdSet))));
         return clonedBuffer;
     }
 
     void remove(Map<String, Map<Integer, Set<String>>> operationalLimitsGroupIds, ResourceType resourceType) {
         removedOperationalLimitsIds.computeIfAbsent(resourceType, s -> new HashMap<>());
         mergeOperationalLimitsGroups(removedOperationalLimitsIds.get(resourceType), operationalLimitsGroupIds);
-    }
-
-    void restoreRemoveExternalAttributes(Map<String, Map<Integer, Set<String>>> resourceIds, ResourceType resourceType) {
-        restoreRemovedOperationalLimitsGroups(removedOperationalLimitsIds.get(resourceType), resourceIds);
     }
 
     void restoreRemoveByResourcesIds(List<String> resourceIds, ResourceType resourceType) {
@@ -68,25 +67,4 @@ public class OperationalLimitsCollectionBuffer<T extends NetworkStoreClient> {
                                 .addAll(limitIdSet)));
     }
 
-    private static void restoreRemovedOperationalLimitsGroups(Map<String, Map<Integer, Set<String>>> deletedOperationalLimitsGroups,
-                                                              Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToRestore) {
-        if (deletedOperationalLimitsGroups == null) {
-            return;
-        }
-        operationalLimitsGroupsToRestore.forEach((branchId, limitSetBySide) ->
-                limitSetBySide.forEach((side, limitIdSet) -> {
-                    Map<Integer, Set<String>> deletedLimitsBySide = deletedOperationalLimitsGroups.get(branchId);
-                    if (deletedLimitsBySide != null) {
-                        Set<String> limitToRestoreSet = deletedLimitsBySide.get(side);
-                        if (limitToRestoreSet != null) {
-                            limitToRestoreSet.removeAll(limitIdSet);
-                        }
-                    }
-                })
-        );
-        deletedOperationalLimitsGroups.values().forEach(limitSetBySide ->
-                limitSetBySide.entrySet().removeIf(entry -> entry.getValue().isEmpty())
-        );
-        deletedOperationalLimitsGroups.entrySet().removeIf(entry -> entry.getValue().isEmpty());
-    }
 }

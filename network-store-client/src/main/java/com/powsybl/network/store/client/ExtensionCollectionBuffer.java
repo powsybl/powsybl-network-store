@@ -26,7 +26,9 @@ public class ExtensionCollectionBuffer<T extends NetworkStoreClient> {
     public ExtensionCollectionBuffer<T> clone() {
         var clonedBuffer = new ExtensionCollectionBuffer<>(delegate);
         removedExtensionIds.forEach((resourceType, extensionsIds) ->
-                clonedBuffer.removedExtensionIds.put(resourceType, new HashMap<>(extensionsIds)));
+                extensionsIds.forEach((resourceId, limitIdSet) ->
+                        clonedBuffer.removedExtensionIds.computeIfAbsent(resourceType, s -> new HashMap<>())
+                                .computeIfAbsent(resourceId, s -> new HashSet<>()).addAll(limitIdSet)));
         return clonedBuffer;
     }
 
