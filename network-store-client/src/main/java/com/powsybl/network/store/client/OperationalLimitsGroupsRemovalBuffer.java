@@ -14,24 +14,24 @@ import java.util.*;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class OperationalLimitsCollectionBuffer<T extends NetworkStoreClient> {
+public class OperationalLimitsGroupsRemovalBuffer<T extends NetworkStoreClient> {
 
     private final Map<ResourceType, Map<String, Map<Integer, Set<String>>>> removedOperationalLimitsIds = new EnumMap<>(ResourceType.class);
     private final T delegate;
 
-    public OperationalLimitsCollectionBuffer(T delegate) {
+    public OperationalLimitsGroupsRemovalBuffer(T delegate) {
         this.delegate = delegate;
     }
 
-    public OperationalLimitsCollectionBuffer<T> cloneBuffer() {
-        var clonedBuffer = new OperationalLimitsCollectionBuffer<>(delegate);
-        removedOperationalLimitsIds.forEach((resourceType, operationalLimitsGroupIds) ->
-                operationalLimitsGroupIds.forEach((resourceId, operationalLimitsIds) ->
-                        operationalLimitsIds.forEach((side, limitIdSet) ->
+    public OperationalLimitsGroupsRemovalBuffer<T> cloneBuffer() {
+        var clonedBuffer = new OperationalLimitsGroupsRemovalBuffer<>(delegate);
+        removedOperationalLimitsIds.forEach((resourceType, operationalLimitsGroupIdsMap) ->
+                operationalLimitsGroupIdsMap.forEach((branchId, operationalLimitsGroupIdsBySide) ->
+                        operationalLimitsGroupIdsBySide.forEach((side, limitsGroupIds) ->
                                 clonedBuffer.removedOperationalLimitsIds.computeIfAbsent(resourceType, s -> new HashMap<>())
-                                        .computeIfAbsent(resourceId, s -> new HashMap<>())
+                                        .computeIfAbsent(branchId, s -> new HashMap<>())
                                         .computeIfAbsent(side, s -> new HashSet<>())
-                                        .addAll(limitIdSet))));
+                                        .addAll(limitsGroupIds))));
         return clonedBuffer;
     }
 
@@ -40,7 +40,7 @@ public class OperationalLimitsCollectionBuffer<T extends NetworkStoreClient> {
         mergeOperationalLimitsGroups(removedOperationalLimitsIds.get(resourceType), operationalLimitsGroupIds);
     }
 
-    void restoreRemoveByResourcesIds(List<String> resourceIds, ResourceType resourceType) {
+    void clearPendingRemovalsForResources(List<String> resourceIds, ResourceType resourceType) {
         Map<String, Map<Integer, Set<String>>> removeExternalAttributesIdsByResource = removedOperationalLimitsIds.get(resourceType);
         if (removeExternalAttributesIdsByResource != null) {
             removeExternalAttributesIdsByResource.entrySet().removeIf(entry -> resourceIds.contains(entry.getKey()));
@@ -58,11 +58,11 @@ public class OperationalLimitsCollectionBuffer<T extends NetworkStoreClient> {
         removedOperationalLimitsIds.clear();
     }
 
-    private static void mergeOperationalLimitsGroups(Map<String, Map<Integer, Set<String>>> globalMap,
-                                                     Map<String, Map<Integer, Set<String>>> mapToAdd) {
-        mapToAdd.forEach((branchId, limitSetBySide) ->
-                limitSetBySide.forEach((side, limitIdSet) ->
-                        globalMap.computeIfAbsent(branchId, s -> new HashMap<>())
+    private static void mergeOperationalLimitsGroups(Map<String, Map<Integer, Set<String>>> savedOperationalLimitsGroupsToRemove,
+                                                     Map<String, Map<Integer, Set<String>>> newOperationalLimitsGroupsToRemove) {
+        newOperationalLimitsGroupsToRemove.forEach((branchId, operationalLimitsGroupIdsBySide) ->
+                operationalLimitsGroupIdsBySide.forEach((side, limitIdSet) ->
+                        savedOperationalLimitsGroupsToRemove.computeIfAbsent(branchId, s -> new HashMap<>())
                                 .computeIfAbsent(side, s -> new HashSet<>())
                                 .addAll(limitIdSet)));
     }

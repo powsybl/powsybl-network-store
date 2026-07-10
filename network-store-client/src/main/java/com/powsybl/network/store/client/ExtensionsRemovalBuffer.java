@@ -14,21 +14,21 @@ import java.util.*;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class ExtensionsCollectionBuffer<T extends NetworkStoreClient> {
+public class ExtensionsRemovalBuffer<T extends NetworkStoreClient> {
 
     private final Map<ResourceType, Map<String, Set<String>>> removedExtensionIds = new EnumMap<>(ResourceType.class);
     private final T delegate;
 
-    public ExtensionsCollectionBuffer(T delegate) {
+    public ExtensionsRemovalBuffer(T delegate) {
         this.delegate = delegate;
     }
 
-    public ExtensionsCollectionBuffer<T> cloneBuffer() {
-        var clonedBuffer = new ExtensionsCollectionBuffer<>(delegate);
-        removedExtensionIds.forEach((resourceType, extensionsIds) ->
-                extensionsIds.forEach((resourceId, limitIdSet) ->
+    public ExtensionsRemovalBuffer<T> cloneBuffer() {
+        var clonedBuffer = new ExtensionsRemovalBuffer<>(delegate);
+        removedExtensionIds.forEach((resourceType, extensionsIdsByIdentifiable) ->
+                extensionsIdsByIdentifiable.forEach((identifiableId, extensionIds) ->
                         clonedBuffer.removedExtensionIds.computeIfAbsent(resourceType, s -> new HashMap<>())
-                                .computeIfAbsent(resourceId, s -> new HashSet<>()).addAll(limitIdSet)));
+                                .computeIfAbsent(identifiableId, s -> new HashSet<>()).addAll(extensionIds)));
         return clonedBuffer;
     }
 
@@ -37,7 +37,7 @@ public class ExtensionsCollectionBuffer<T extends NetworkStoreClient> {
         mergeExtensions(removedExtensionIds.get(resourceType), extensionsIds);
     }
 
-    void restoreRemoveByResourcesIds(List<String> resourceIds, ResourceType resourceType) {
+    void restoreRemoveByResourcesIdsclearPendingRemovalsForResources(List<String> resourceIds, ResourceType resourceType) {
         Map<String, Set<String>> removeExternalAttributesIdsByResource = removedExtensionIds.get(resourceType);
         if (removeExternalAttributesIdsByResource != null) {
             removeExternalAttributesIdsByResource.entrySet().removeIf(entry -> resourceIds.contains(entry.getKey()));
@@ -55,10 +55,10 @@ public class ExtensionsCollectionBuffer<T extends NetworkStoreClient> {
         removedExtensionIds.clear();
     }
 
-    private static void mergeExtensions(Map<String, Set<String>> globalMap, Map<String, Set<String>> mapToAdd) {
-        mapToAdd.forEach((identifiableId, extensionsByIdentifiable) ->
-                globalMap.computeIfAbsent(identifiableId, s -> new HashSet<>())
-                        .addAll(extensionsByIdentifiable));
+    private static void mergeExtensions(Map<String, Set<String>> savedExtensionsToRemove, Map<String, Set<String>> newExtensionsToRemove) {
+        newExtensionsToRemove.forEach((identifiableId, extensionIds) ->
+                savedExtensionsToRemove.computeIfAbsent(identifiableId, s -> new HashSet<>())
+                        .addAll(extensionIds));
     }
 
 }
