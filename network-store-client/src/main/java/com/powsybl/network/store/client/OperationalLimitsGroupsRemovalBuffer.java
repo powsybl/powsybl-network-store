@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.client.util.QuadriConsumer;
 import com.powsybl.network.store.model.ResourceType;
 
 import java.util.*;
@@ -14,17 +14,17 @@ import java.util.*;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class OperationalLimitsGroupsRemovalBuffer<T extends NetworkStoreClient> {
+public class OperationalLimitsGroupsRemovalBuffer {
 
     private final Map<ResourceType, Map<String, Map<Integer, Set<String>>>> removedOperationalLimitsIds = new EnumMap<>(ResourceType.class);
-    private final T delegate;
+    private final QuadriConsumer<UUID, Integer, ResourceType, Map<String, Map<Integer, Set<String>>>> removeFct;
 
-    public OperationalLimitsGroupsRemovalBuffer(T delegate) {
-        this.delegate = delegate;
+    public OperationalLimitsGroupsRemovalBuffer(QuadriConsumer<UUID, Integer, ResourceType, Map<String, Map<Integer, Set<String>>>> removeFct) {
+        this.removeFct = removeFct;
     }
 
-    public OperationalLimitsGroupsRemovalBuffer<T> cloneBuffer() {
-        var clonedBuffer = new OperationalLimitsGroupsRemovalBuffer<>(delegate);
+    public OperationalLimitsGroupsRemovalBuffer cloneBuffer() {
+        var clonedBuffer = new OperationalLimitsGroupsRemovalBuffer(removeFct);
         removedOperationalLimitsIds.forEach((resourceType, operationalLimitsGroupIdsMap) ->
                 operationalLimitsGroupIdsMap.forEach((branchId, operationalLimitsGroupIdsBySide) ->
                         operationalLimitsGroupIdsBySide.forEach((side, limitsGroupIds) ->
@@ -53,7 +53,7 @@ public class OperationalLimitsGroupsRemovalBuffer<T extends NetworkStoreClient> 
     void flush(UUID networkUuid, int variantNum) {
         if (!removedOperationalLimitsIds.isEmpty()) {
             removedOperationalLimitsIds.forEach((resourceType, resourceIds) ->
-                    delegate.removeOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, removedOperationalLimitsIds.get(resourceType)));
+                    removeFct.accept(networkUuid, variantNum, resourceType, removedOperationalLimitsIds.get(resourceType)));
         }
         removedOperationalLimitsIds.clear();
     }

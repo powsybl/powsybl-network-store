@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.client.util.QuadriConsumer;
 import com.powsybl.network.store.model.ResourceType;
 
 import java.util.*;
@@ -14,17 +14,18 @@ import java.util.*;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class ExtensionsRemovalBuffer<T extends NetworkStoreClient> {
+public class ExtensionsRemovalBuffer {
 
     private final Map<ResourceType, Map<String, Set<String>>> removedExtensionIds = new EnumMap<>(ResourceType.class);
-    private final T delegate;
+    private final QuadriConsumer<UUID, Integer, ResourceType, Map<String, Set<String>>> removeFct;
 
-    public ExtensionsRemovalBuffer(T delegate) {
-        this.delegate = delegate;
+    public ExtensionsRemovalBuffer(QuadriConsumer<UUID, Integer, ResourceType, Map
+                <String, Set<String>>> removeFct) {
+        this.removeFct = removeFct;
     }
 
-    public ExtensionsRemovalBuffer<T> cloneBuffer() {
-        var clonedBuffer = new ExtensionsRemovalBuffer<>(delegate);
+    public ExtensionsRemovalBuffer cloneBuffer() {
+        var clonedBuffer = new ExtensionsRemovalBuffer(removeFct);
         removedExtensionIds.forEach((resourceType, extensionsIdsByIdentifiable) ->
                 extensionsIdsByIdentifiable.forEach((identifiableId, extensionIds) ->
                         clonedBuffer.removedExtensionIds.computeIfAbsent(resourceType, s -> new HashMap<>())
@@ -50,7 +51,8 @@ public class ExtensionsRemovalBuffer<T extends NetworkStoreClient> {
     void flush(UUID networkUuid, int variantNum) {
         if (!removedExtensionIds.isEmpty()) {
             removedExtensionIds.forEach((resourceType, resourceIds) ->
-                    delegate.removeExtensionsAttributes(networkUuid, variantNum, resourceType, removedExtensionIds.get(resourceType)));
+                    removeFct.accept(networkUuid, variantNum, resourceType, removedExtensionIds.get(resourceType))
+            );
         }
         removedExtensionIds.clear();
     }
