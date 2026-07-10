@@ -176,11 +176,11 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
         server.verify();
         server.reset();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/0/identifiables/types/LOAD/extensions"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/0/identifiables/extensions"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"load\":[\"ActivePowerControl\"]}"))
                 .andRespond(withSuccess());
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/1/identifiables/types/LOAD/extensions"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/1/identifiables/extensions"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"load\":[\"ActivePowerControl\"]}"))
                 .andRespond(withSuccess());
@@ -476,7 +476,7 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
         bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator2, Set.of(ActivePowerControl.NAME),
                 generator1, Set.of(CoordinatedReactiveControl.NAME)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/extensions"))
                 .andExpect(method(DELETE))
                 .andExpect(content().json("{\"GEN1\":[\"coordinatedReactiveControl\", \"activePowerControl\"],\"GEN2\":[\"activePowerControl\"]}"))
                 .andRespond(withSuccess());
@@ -495,7 +495,7 @@ public class BufferedNetworkStoreClientTest {
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
                 .andExpect(method(DELETE))
                 .andRespond(withStatus(HttpStatus.OK));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/extensions"))
                 .andExpect(method(DELETE));
         bufferedClient.flush(networkUuid);
         server.verify();
