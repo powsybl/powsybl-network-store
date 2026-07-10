@@ -37,7 +37,7 @@ public class ExtensionsRemovalBuffer<T extends NetworkStoreClient> {
         mergeExtensions(removedExtensionIds.get(resourceType), extensionsIds);
     }
 
-    void restoreRemoveByResourcesIdsclearPendingRemovalsForResources(List<String> resourceIds, ResourceType resourceType) {
+    void clearPendingRemovalsForResources(List<String> resourceIds, ResourceType resourceType) {
         Map<String, Set<String>> removeExternalAttributesIdsByResource = removedExtensionIds.get(resourceType);
         if (removeExternalAttributesIdsByResource != null) {
             removeExternalAttributesIdsByResource.entrySet().removeIf(entry -> resourceIds.contains(entry.getKey()));

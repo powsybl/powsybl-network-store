@@ -723,7 +723,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     private <T extends IdentifiableAttributes> void removeFromAllBuffers(
             NetworkCollectionIndex<CollectionBuffer<T>> collectionIndex, UUID networkUuid, int variantNum, List<String> ids, ResourceType resourceType) {
         collectionIndex.getCollection(networkUuid, variantNum).remove(ids);
-        extensionsToFlush.getCollection(networkUuid, variantNum).restoreRemoveByResourcesIdsclearPendingRemovalsForResources(ids, resourceType);
+        extensionsToFlush.getCollection(networkUuid, variantNum).clearPendingRemovalsForResources(ids, resourceType);
         if (hasOperationalLimits(resourceType)) {
             operationalLimitsToFlush.getCollection(networkUuid, variantNum).clearPendingRemovalsForResources(ids, resourceType);
         }
