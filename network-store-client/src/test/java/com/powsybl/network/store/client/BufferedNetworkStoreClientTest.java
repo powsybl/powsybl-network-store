@@ -491,7 +491,7 @@ public class BufferedNetworkStoreClientTest {
         String generator1 = "GEN1";
         bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
         bufferedClient.removeGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(generator1));
-        // remove three operational limits group without the cache will call only the server once
+        // remove extension elements and then remove the generator containing it will call only the server once
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
                 .andExpect(method(DELETE))
                 .andRespond(withStatus(HttpStatus.OK));
