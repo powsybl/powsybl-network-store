@@ -148,6 +148,9 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                 delegate::updateAreas,
                 delegate::removeAreas));
 
+    // operational limits and extensions have their owned buffer only used to remove them in the server on flush
+    // it is used because powsybl api expose method to delete them particularly. these buffers allow removing them very efficiently,
+    // without them there is one http request per deletion.
     private final NetworkCollectionIndex<OperationalLimitsGroupsRemovalBuffer> operationalLimitsToRemoveOnFlush =
             new NetworkCollectionIndex<>(() -> new OperationalLimitsGroupsRemovalBuffer(delegate::removeOperationalLimitsGroupAttributes));
 
