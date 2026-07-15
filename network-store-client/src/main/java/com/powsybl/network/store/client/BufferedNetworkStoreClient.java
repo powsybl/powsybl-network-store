@@ -151,7 +151,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     private final NetworkCollectionIndex<OperationalLimitsGroupsRemovalBuffer> operationalLimitsToRemoveOnFlush =
             new NetworkCollectionIndex<>(() -> new OperationalLimitsGroupsRemovalBuffer(delegate::removeOperationalLimitsGroupAttributes));
 
-    private final NetworkCollectionIndex<ExtensionsRemovalBuffer> extensionsToFlush =
+    private final NetworkCollectionIndex<ExtensionsRemovalBuffer> extensionsToRemoveOnFlush =
             new NetworkCollectionIndex<>(() -> new ExtensionsRemovalBuffer(delegate::removeExtensionsAttributes));
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = new EnumMap<>(ResourceType.class);
@@ -208,7 +208,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         // clear buffers as server side delete network already remove all equipments of the network
         allBuffers.values().forEach(buffer -> buffer.removeCollection(networkUuid));
         operationalLimitsToRemoveOnFlush.removeCollection(networkUuid);
-        extensionsToFlush.removeCollection(networkUuid);
+        extensionsToRemoveOnFlush.removeCollection(networkUuid);
     }
 
     @Override
@@ -217,7 +217,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         // clear buffers as server side delete network already remove all equipments of the network
         allBuffers.values().forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
         operationalLimitsToRemoveOnFlush.removeCollection(networkUuid, variantNum);
-        extensionsToFlush.removeCollection(networkUuid, variantNum);
+        extensionsToRemoveOnFlush.removeCollection(networkUuid, variantNum);
     }
 
     @Override
@@ -624,7 +624,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         Set<String> createdEquipmentIds = allBuffers.get(resourceType).getCollection(networkUuid, variantNum).getCreateResourcesIds();
         Map<String, Set<String>> finalExtensionsByIdentifiableIds = new HashMap<>(extensionsByIdentifiableId);
         finalExtensionsByIdentifiableIds.keySet().removeAll(createdEquipmentIds);
-        extensionsToFlush.getCollection(networkUuid, variantNum).remove(finalExtensionsByIdentifiableIds, resourceType);
+        extensionsToRemoveOnFlush.getCollection(networkUuid, variantNum).remove(finalExtensionsByIdentifiableIds, resourceType);
     }
 
     @Override
@@ -637,7 +637,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         futures.add(executorService.submit(() ->
                 operationalLimitsToRemoveOnFlush.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
         futures.add(executorService.submit(() ->
-                extensionsToFlush.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
+                extensionsToRemoveOnFlush.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
         ExecutorUtil.waitAllFutures(futures);
         stopwatch.stop();
         LOGGER.info("All buffers flushed in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -697,7 +697,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         cloneBuffer(voltageLevelResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(tieLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneBuffer(areaResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
-        cloneExtensionsBuffer(extensionsToFlush, networkUuid, sourceVariantNum, targetVariantNum);
+        cloneExtensionsBuffer(extensionsToRemoveOnFlush, networkUuid, sourceVariantNum, targetVariantNum);
         cloneLimitsBuffer(operationalLimitsToRemoveOnFlush, networkUuid, sourceVariantNum, targetVariantNum);
         cloneBuffer(networkResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
                 networkResource -> {
@@ -723,7 +723,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     private <T extends IdentifiableAttributes> void removeFromAllBuffers(
             NetworkCollectionIndex<CollectionBuffer<T>> collectionIndex, UUID networkUuid, int variantNum, List<String> ids, ResourceType resourceType) {
         collectionIndex.getCollection(networkUuid, variantNum).remove(ids);
-        extensionsToFlush.getCollection(networkUuid, variantNum).clearPendingRemovalsForResources(ids, resourceType);
+        extensionsToRemoveOnFlush.getCollection(networkUuid, variantNum).clearPendingRemovalsForResources(ids, resourceType);
         if (hasOperationalLimits(resourceType)) {
             operationalLimitsToRemoveOnFlush.getCollection(networkUuid, variantNum).clearPendingRemovalsForResources(ids, resourceType);
         }
