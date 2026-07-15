@@ -313,7 +313,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private <T> void removePartition(T partition, int size, String url, String target, Object... uriVariables) {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Deleting {} {} resources ({})...", partition, target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
+            LOGGER.info("Deleting {} {} resources ({})...", size, target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
         try {
