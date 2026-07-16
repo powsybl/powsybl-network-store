@@ -531,7 +531,7 @@ public class CachedNetworkStoreClientTest {
         server.verify();
         server.reset();
 
-        removeExtensionAttributes(networkUuid, identifiableId, cachedClient, ActivePowerControl.NAME);
+        removeExtensionsAttributes(networkUuid, identifiableId, cachedClient, ActivePowerControl.NAME);
 
         // When removing the generator, the extension attributes should be removed from the cache as well
         GeneratorStartupAttributes gs1 = GeneratorStartupAttributes.builder()
@@ -555,13 +555,10 @@ public class CachedNetworkStoreClientTest {
         assertFalse(gs1Attributes.isPresent());
     }
 
-    private void removeExtensionAttributes(UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient, String extensionName) {
+    private void removeExtensionsAttributes(UUID networkUuid, String identifiableId, CachedNetworkStoreClient cachedClient, String extensionName) {
         // When calling removeExtensionAttributes, the attributes should be removed from the cache and no new request should be done
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + extensionName))
-                .andExpect(method(DELETE))
-                .andRespond(withSuccess());
-        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, extensionName);
-
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"));
+        cachedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(identifiableId, Set.of(extensionName)));
         Optional<ExtensionAttributes> extensionAttributes = cachedClient.getExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, extensionName);
         assertFalse(extensionAttributes.isPresent());
         server.verify();
@@ -626,10 +623,8 @@ public class CachedNetworkStoreClientTest {
         server.reset();
 
         // When calling removeExtensionAttributes, the attributes should be removed from the cache and no new request should be done
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions/" + ActivePowerControl.NAME))
-                .andExpect(method(DELETE))
-                .andRespond(withSuccess());
-        cachedClient.removeExtensionAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId, ActivePowerControl.NAME);
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"));
+        cachedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(identifiableId, Set.of(ActivePowerControl.NAME)));
 
         extensionAttributesMap = cachedClient.getAllExtensionsAttributesByIdentifiableId(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, identifiableId);
         assertEquals(1, extensionAttributesMap.size());
@@ -658,7 +653,7 @@ public class CachedNetworkStoreClientTest {
         getExtensionAttributes(os1, networkUuid, identifiableId, cachedClient, OperatingStatus.NAME);
 
         // Remove extension attributes to check that the removed cache is cloned
-        removeExtensionAttributes(networkUuid, identifiableId, cachedClient, OperatingStatus.NAME);
+        removeExtensionsAttributes(networkUuid, identifiableId, cachedClient, OperatingStatus.NAME);
         // When cloning the network, the cached attributes should remained cached
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum + "?targetVariantId=" + targetVariantId))
                 .andExpect(method(PUT))
@@ -1312,7 +1307,7 @@ public class CachedNetworkStoreClientTest {
         getOperationalLimitsGroup(olg1, networkUuid, branchId, cachedClient, operationalLimitsGroupId, 1);
 
         // remove the operational limits group will not call the api as the olg was loaded just before
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                 + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
             .andExpect(method(DELETE))
             .andExpect(content().string("{\"LINE\":{\"1\":[\"toRemove\"]}}"))

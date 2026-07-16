@@ -9,6 +9,8 @@ package com.powsybl.network.store.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.network.store.model.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,22 +22,21 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
@@ -159,6 +160,95 @@ public class BufferedNetworkStoreClientTest {
                 .andRespond(withSuccess());
         bufferedClient.flush(networkUuid);
         server.verify();
+    }
+
+    @Test
+    public void testExtensionsBufferWithClone() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.randomUUID();
+        int targetVariantNum1 = 1;
+        String targetVariantId1 = "variant1";
+        bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, Map.of("load", Set.of("ActivePowerControl")));
+        // Partial clone 0 -> 1
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
+        server.verify();
+        server.reset();
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/0/identifiables/extensions"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("{\"load\":[\"ActivePowerControl\"]}"))
+                .andRespond(withSuccess());
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/1/identifiables/extensions"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("{\"load\":[\"ActivePowerControl\"]}"))
+                .andRespond(withSuccess());
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testLimitsBufferWithClone() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.randomUUID();
+        bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of("line", Map.of(1, Set.of("olg1toRemove"))));
+        int targetVariantNum1 = 1;
+        String targetVariantId1 = "variant1";
+        // Partial clone 0 -> 1
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
+        server.verify();
+        server.reset();
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/0/branch/types/LINE/operationalLimitsGroup"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("{\"line\":{\"1\":[\"olg1toRemove\"]}}"))
+                .andRespond(withSuccess());
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/1/branch/types/LINE/operationalLimitsGroup"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("{\"line\":{\"1\":[\"olg1toRemove\"]}}"))
+                .andRespond(withSuccess());
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
+    }
+
+    @Test
+    public void testLoadBufferWithClone() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.randomUUID();
+        LoadAttributes loadAttributes = new LoadAttributes();
+        loadAttributes.setP(200);
+        loadAttributes.setQ(-200);
+        Resource<LoadAttributes> loadResource = Resource.create(ResourceType.LOAD, "loadId", 0, loadAttributes);
+        bufferedClient.updateLoads(networkUuid, List.of(loadResource), AttributeFilter.PRIMARY_AS_NULL);
+        int targetVariantNum1 = 1;
+        String targetVariantId1 = "variant1";
+        // Partial clone 0 -> 1
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+        bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
+        server.verify();
+        server.reset();
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads"))
+                .andExpect(method(PUT))
+                .andExpect(content().string(
+                        "[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"attributes\":{\"fictitious\":false," +
+                                "\"extensionAttributes\":{},\"p0\":0.0,\"q0\":0.0,\"p\":200.0,\"q\":-200.0,\"regulatingEquipments\":[]}}]"))
+                .andRespond(withSuccess());
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads"))
+                .andExpect(method(PUT))
+                .andExpect(content().string(
+                        "[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":1,\"attributes\":{\"fictitious\":false," +
+                                "\"extensionAttributes\":{},\"p0\":0.0,\"q0\":0.0,\"p\":200.0,\"q\":-200.0,\"regulatingEquipments\":[]}}]"))
+                .andRespond(withSuccess());
+        bufferedClient.flush(networkUuid);
+        server.verify();
+        server.reset();
     }
 
     @Test
@@ -352,5 +442,83 @@ public class BufferedNetworkStoreClientTest {
         bufferedClient.flush(networkUuid);
         server.verify();
         assertEquals(AttributeFilter.SV, loadResources.getFirst().getFilter());
+    }
+
+    @Test
+    public void testRemoveOperationalLimitsGroupWithBuffer() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String branchId = "LINE";
+        String operationalLimitsGroupId = "toRemove1";
+        String operationalLimitsGroupId2 = "toRemove2";
+        String operationalLimitsGroupId3 = "toRemove3";
+
+        // remove three operational limits group without the cache will call only the server once
+        bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId))));
+        bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId2))));
+        bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(2, Set.of(operationalLimitsGroupId3))));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                        + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
+                .andExpect(method(DELETE))
+                .andExpect(content().string("{\"LINE\":{\"1\":[\"toRemove2\",\"toRemove1\"],\"2\":[\"toRemove3\"]}}"))
+                .andRespond(withSuccess());
+        bufferedClient.flush(networkUuid);
+        server.verify();
+    }
+
+    @Test
+    public void testRemoveExtensionWithBuffer() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String generator1 = "GEN1";
+        String generator2 = "GEN2";
+        // remove three operational limits group without the cache will call only the server once
+        bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
+        bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator2, Set.of(ActivePowerControl.NAME),
+                generator1, Set.of(CoordinatedReactiveControl.NAME)));
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/extensions"))
+                .andExpect(method(DELETE))
+                .andExpect(content().json("{\"GEN1\":[\"coordinatedReactiveControl\", \"activePowerControl\"],\"GEN2\":[\"activePowerControl\"]}"))
+                .andRespond(withSuccess());
+        bufferedClient.flush(networkUuid);
+        server.verify();
+    }
+
+    @Test
+    public void testRemoveExtensionThenGeneratorContainingIt() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String generator1 = "GEN1";
+        bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
+        bufferedClient.removeGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(generator1));
+        // remove extension elements and then remove the generator containing it will call only the server once
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
+                .andExpect(method(DELETE))
+                .andRespond(withStatus(HttpStatus.OK));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/extensions"))
+                .andExpect(method(DELETE));
+        bufferedClient.flush(networkUuid);
+        server.verify();
+    }
+
+    @Test
+    public void testRemoveOlgThenLineContaining() {
+        BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        String branchId = "LINE";
+        String operationalLimitsGroupId2 = "olg2";
+
+        bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId2))));
+        bufferedClient.removeLines(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(branchId));
+
+        // removing olg and then removing the line will only remove the line (because it contains the olg)
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
+                .andExpect(method(DELETE))
+                .andRespond(withStatus(HttpStatus.OK));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                        + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
+                .andExpect(method(DELETE));
+        bufferedClient.flush(networkUuid);
+        server.verify();
     }
 }

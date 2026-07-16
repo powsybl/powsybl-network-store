@@ -59,6 +59,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private static final String STR_AREA = "area";
     private static final String STR_GROUND = "ground";
     private static final String STR_OPERATIONAL_LIMITS_GROUP = "operational limits group";
+    private static final String STR_EXTENSION = "extension";
 
     private final RestClient restClient;
 
@@ -300,9 +301,19 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
+    @Override
+    public void removeExtensionsAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Set<String>> extensionsByIdentifiableId) {
+        String url = "/networks/{networkUuid}/{variantNum}/identifiables/extensions";
+        for (List<Map.Entry<String, Set<String>>> partitionEntries : Iterables.partition(extensionsByIdentifiableId.entrySet(), RESOURCES_CREATION_CHUNK_SIZE)) {
+            Map<String, Set<String>> partitionMap = partitionEntries.stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            removePartition(partitionMap, partitionMap.size(), url, STR_EXTENSION, networkUuid, variantNum);
+        }
+    }
+
     private <T> void removePartition(T partition, int size, String url, String target, Object... uriVariables) {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Deleting {} {} resources ({})...", partition, target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
+            LOGGER.info("Deleting {} {} resources ({})...", size, target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
         try {
@@ -1051,11 +1062,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Map<String, Map<String, ExtensionAttributes>> getAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
         return getExtensionAttributesNestedMap("/networks/{networkUuid}/{variantNum}/identifiables/types/{resourceType}/extensions", networkUuid, variantNum, resourceType);
-    }
-
-    @Override
-    public void removeExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
-        restClient.delete("/networks/{networkUuid}/{variantNum}/identifiables/{identifiableId}/extensions/{extensionName}", networkUuid, variantNum, identifiableId, extensionName);
     }
 
     @Override
