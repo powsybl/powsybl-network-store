@@ -10,16 +10,16 @@ import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.logging.log4j.util.TriConsumer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -40,7 +40,7 @@ public class CollectionBufferTest {
 
     private final UUID uuid = UUID.randomUUID();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         created.clear();
         updated.clear();

@@ -10,16 +10,16 @@ import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.util.TriFunction;
 import io.micrometer.context.ContextExecutorService;
 import io.micrometer.context.ContextRegistry;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Mohamed Benrejeb <mohamed.ben-rejeb at rte-france.com>
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NetworkStoreServiceTest {
 
     @Mock
@@ -54,7 +54,7 @@ public class NetworkStoreServiceTest {
         service.createNetwork("network-id", "source-format");
 
         ExecutorService executorService = executorHolder.get();
-        assertTrue("executor should be wrapped in ContextExecutorService", executorService instanceof ContextExecutorService);
+        assertTrue(executorService instanceof ContextExecutorService, "executor should be wrapped in ContextExecutorService");
 
         assertEquals("trace-123", executorService.submit(TraceHolderTest::get).get());
 

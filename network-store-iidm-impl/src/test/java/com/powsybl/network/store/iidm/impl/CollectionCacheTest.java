@@ -11,13 +11,13 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.network.store.iidm.impl.util.TriFunction;
 import com.powsybl.network.store.model.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.function.BiFunction;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -47,7 +47,7 @@ public class CollectionCacheTest {
     private TriFunction<UUID, Integer, String, List<Resource<LoadAttributes>>> containerLoader;
     private BiFunction<UUID, Integer, List<Resource<LoadAttributes>>> allLoader;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         oneLoaderCalled = false;
         containerLoaderCalled = false;

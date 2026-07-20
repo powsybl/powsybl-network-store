@@ -12,14 +12,14 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.EnergySource;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static com.powsybl.network.store.model.ResourceType.GENERATOR;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -132,7 +132,8 @@ public class TopLevelDocumentTest {
                         + "\"regulatingPoint\":{\"regulatingEquipmentId\":\"gen1\",\"regulatingResourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\","
                                 + "\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,"
                                         + "\"regulatedResourceType\":\"GENERATOR\",\"regulating\":true},\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\","
-                                                + "\"minP\":2.0,\"maxP\":1.0,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"condenser\":false,"
+                                                 + "\"minP\":2.0,\"maxP\":1.0,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,"
+                                                         + "\"equivalentLocalTargetV\":0.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"condenser\":false,"
                                                         + "\"regulatingEquipments\":[{\"equipmentId\":\"gen1\",\"resourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\"},"
                                                                 + "{\"equipmentId\":\"gen2\",\"resourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\"}]}}],\"meta\":{}}";
         assertEquals(jsonRef, json);

@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.powsybl.network.store.iidm.impl.CreateNetworksUtil.createNodeBreakerNetworkWithLine;
 import static org.junit.jupiter.api.Assertions.*;

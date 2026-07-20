@@ -11,14 +11,14 @@ import com.powsybl.iidm.network.DefaultTopologyVisitor;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NpeGetConnectableTerminalWhenRemovingLineTest {
 
-    @Test(expected = Test.None.class)
+    @Test
     public void test() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         network.getLine("LINE_S2S3").remove();

@@ -7,14 +7,14 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
@@ -25,7 +25,7 @@ public class TapChangerParentTest {
     List<TapChangerStepAttributes> tapChangerStepsB;
     List<TapChangerStepAttributes> tapChangerStepsC;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         tapChangerStepsA = new ArrayList<>();
         tapChangerStepsA.add(TapChangerStepAttributes.builder()
