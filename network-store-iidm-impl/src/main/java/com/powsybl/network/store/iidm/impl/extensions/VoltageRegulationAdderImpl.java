@@ -22,7 +22,7 @@ public class VoltageRegulationAdderImpl extends AbstractIidmExtensionAdder<Batte
 
     private boolean voltageRegulatorOn;
 
-    private double targetV;
+    private double targetV = Double.NaN;
 
     private Terminal regulatingTerminal;
 
