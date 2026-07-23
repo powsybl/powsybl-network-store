@@ -634,6 +634,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     public void flush(UUID networkUuid) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         // olg and extension buffers must be flushed before equipments buffers.
+        // because in server deleting olg/extensions can interact with updating equipment containing olg/extensions
         List<Future<?>> externalBuffersFutures = new ArrayList<>(2);
         externalBuffersFutures.add(executorService.submit(() ->
                 operationalLimitsToRemoveOnFlush.applyToCollection(networkUuid, (variantNum, b) -> b.flush(networkUuid, variantNum))));
