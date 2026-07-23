@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SlackTerminalTest extends AbstractSlackTerminalTest {
+class SlackTerminalTest extends AbstractSlackTerminalTest {
 
     /* This test is overwritten because SlackTerminal.isEmpty doesn't do the same in our implementation.
        In this implementation the isEmpty return true if the slackTerminal is empty for the current variant only

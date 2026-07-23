@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractShuntCompensatorTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ShuntCompensatorTest extends AbstractShuntCompensatorTest {
+class ShuntCompensatorTest extends AbstractShuntCompensatorTest {
     @Override
     public void baseLinearShuntTest() {
         // FIXME remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/2847

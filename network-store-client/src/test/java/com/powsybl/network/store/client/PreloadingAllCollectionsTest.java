@@ -9,21 +9,21 @@ package com.powsybl.network.store.client;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.OfflineNetworkStoreClient;
 import com.powsybl.network.store.model.ResourceType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PreloadingAllCollectionsTest {
+class PreloadingAllCollectionsTest {
 
     @Test
-    public void test() {
+    void test() {
         var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         client.getSubstations(networkUuid, 0);
@@ -36,7 +36,7 @@ public class PreloadingAllCollectionsTest {
     }
 
     @Test
-    public void testWithAllCollections() {
+    void testWithAllCollections() {
         var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), true, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         client.getSubstations(networkUuid, 0);

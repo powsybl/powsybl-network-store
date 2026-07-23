@@ -10,22 +10,22 @@ import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.logging.log4j.util.TriConsumer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CollectionBufferTest {
+class CollectionBufferTest {
 
     private static final UUID NETWORK_UUID = UUID.randomUUID();
 
@@ -40,8 +40,8 @@ public class CollectionBufferTest {
 
     private final UUID uuid = UUID.randomUUID();
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         created.clear();
         updated.clear();
         removed.clear();
@@ -66,7 +66,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void createTest() {
+    void createTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
@@ -78,7 +78,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void createThenUpdateTest() {
+    void createThenUpdateTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
@@ -91,7 +91,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void updateTest() {
+    void updateTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
@@ -103,7 +103,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void removeTest() {
+    void removeTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
@@ -115,7 +115,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void createThenRemoveTest() {
+    void createThenRemoveTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
@@ -128,7 +128,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void updateThenRemoveTest() {
+    void updateThenRemoveTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());

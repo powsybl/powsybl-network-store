@@ -8,22 +8,22 @@ package com.powsybl.network.store.model;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
-public class LoaderTest {
+class LoaderTest {
     @Test
-    public void testLoaderNotFound() {
+    void testLoaderNotFound() {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoaderByName("unknown"));
         assertEquals("ExtensionLoader not found", exception.getMessage());
     }
 
     @Test
-    public void testLoaderExists() {
+    void testLoaderExists() {
         assertTrue(ExtensionLoaders.loaderExists("loader"));
         assertFalse(ExtensionLoaders.loaderExists("unknown"));
         assertTrue(ExtensionLoaders.loaderExists(Extension.class));
@@ -31,7 +31,7 @@ public class LoaderTest {
     }
 
     @Test
-    public void testDuplicatedLoader() {
+    void testDuplicatedLoader() {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> ExtensionLoaders.findLoaderByName("loader"));
         assertEquals("Multiple ExtensionLoaders configuration providers found", exception.getMessage());
     }

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractComponentCalculationBugWhenMergingTe
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ComponentCalculationBugWhenMergingTest extends AbstractComponentCalculationBugWhenMergingTest {
+class ComponentCalculationBugWhenMergingTest extends AbstractComponentCalculationBugWhenMergingTest {
     @Override
     public void shouldNotThrowShouldNotHappen() {
         // FIXME remove this test when network merge are implemented

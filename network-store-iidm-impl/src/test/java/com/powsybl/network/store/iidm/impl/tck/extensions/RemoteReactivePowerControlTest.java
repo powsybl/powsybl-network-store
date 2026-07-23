@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractRemoteReactivePowerContro
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RemoteReactivePowerControlTest extends AbstractRemoteReactivePowerControlTest {
+class RemoteReactivePowerControlTest extends AbstractRemoteReactivePowerControlTest {
 }

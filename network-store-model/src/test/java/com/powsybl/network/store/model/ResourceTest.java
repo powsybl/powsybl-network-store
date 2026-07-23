@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -22,16 +22,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ResourceTest {
+class ResourceTest {
 
     @Test
-    public void networkTest() throws IOException {
+    void networkTest() throws IOException {
         Resource<NetworkAttributes> resource = Resource.networkBuilder().id("foo")
                 .attributes(NetworkAttributes.builder()
                         .uuid(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"))
@@ -54,7 +54,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void substationTest() throws IOException {
+    void substationTest() throws IOException {
         Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id("S")
                 .attributes(SubstationAttributes.builder()
@@ -79,7 +79,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void configuredBus() {
+    void configuredBus() {
         ConfiguredBusAttributes configuredBusAttributes = ConfiguredBusAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -99,7 +99,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void switchTest() {
+    void switchTest() {
         Resource<SwitchAttributes> resourceBreaker = Resource.switchBuilder()
                 .id("idBreaker")
                 .attributes(SwitchAttributes.builder()
@@ -138,7 +138,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void lineTest() {
+    void lineTest() {
         Resource<LineAttributes> resourceLine = Resource.lineBuilder()
                 .id("idLine")
                 .attributes(LineAttributes.builder()
@@ -173,7 +173,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void twoWindingsTransformer() {
+    void twoWindingsTransformer() {
         Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder()
                 .id("id2WT")
                 .attributes(TwoWindingsTransformerAttributes.builder()
@@ -208,7 +208,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void threeWindingsTransformer() {
+    void threeWindingsTransformer() {
         Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder()
                 .id("id3WT")
                 .attributes(ThreeWindingsTransformerAttributes.builder()
@@ -239,7 +239,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void load() {
+    void load() {
         LoadAttributes loadAttributes = LoadAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -265,7 +265,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void generator() {
+    void generator() {
         TerminalRefAttributes regulatingTerminal = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
         RegulatingPointAttributes regulatingPointAttributes = RegulatingPointAttributes.builder()
             .regulatingEquipmentId("gen")
@@ -313,7 +313,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void battery() {
+    void battery() {
         BatteryAttributes batteryAttributes = BatteryAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -347,7 +347,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void ground() {
+    void ground() {
         GroundAttributes groundAttributes = GroundAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -374,7 +374,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void shuntCompensator() {
+    void shuntCompensator() {
         ShuntCompensatorLinearModelAttributes linearModelAttributes = ShuntCompensatorLinearModelAttributes.builder()
                         .bPerSection(1)
                         .gPerSection(2)
@@ -434,7 +434,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void boundaryLine() throws JsonProcessingException {
+    void boundaryLine() throws JsonProcessingException {
         BoundaryLineGenerationAttributes boundaryLineGenerationAttributes = BoundaryLineGenerationAttributes
                 .builder()
                 .minP(100)
@@ -507,7 +507,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void tieLine() throws JsonProcessingException {
+    void tieLine() throws JsonProcessingException {
         TieLineAttributes tieLineAttributes = TieLineAttributes
                 .builder()
                 .name("tieLine1")
@@ -530,7 +530,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void busBarSection() {
+    void busBarSection() {
         Resource<BusbarSectionAttributes> resourceTransformer = Resource.busbarSectionBuilder()
             .id("idBbs")
             .attributes(BusbarSectionAttributes.builder()

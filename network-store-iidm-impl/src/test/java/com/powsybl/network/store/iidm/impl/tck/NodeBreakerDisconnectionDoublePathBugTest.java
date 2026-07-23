@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractNodeBreakerDisconnectionDoublePathBu
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeBreakerDisconnectionDoublePathBugTest extends AbstractNodeBreakerDisconnectionDoublePathBugTest { }
+class NodeBreakerDisconnectionDoublePathBugTest extends AbstractNodeBreakerDisconnectionDoublePathBugTest { }

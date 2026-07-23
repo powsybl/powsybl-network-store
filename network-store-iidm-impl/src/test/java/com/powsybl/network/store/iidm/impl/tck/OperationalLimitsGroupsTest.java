@@ -18,7 +18,7 @@ import java.util.Collection;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class OperationalLimitsGroupsTest extends AbstractOperationalLimitsGroupsTest {
+class OperationalLimitsGroupsTest extends AbstractOperationalLimitsGroupsTest {
     //
     // TODO : all following overrided tests will be removed later, when we will handle multiple selected operational limits groups
     // on one side

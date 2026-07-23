@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractNullPointerWhenRemovingMergedLineBug
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NullPointerWhenRemovingMergedLineBugTest extends AbstractNullPointerWhenRemovingMergedLineBugTest {
+class NullPointerWhenRemovingMergedLineBugTest extends AbstractNullPointerWhenRemovingMergedLineBugTest {
 
     //TODO remove this test when network merge is implemented
     @Override

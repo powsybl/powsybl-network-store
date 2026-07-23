@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractSwitchSetRetainedTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest {
+class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest {
 }

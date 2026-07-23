@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.powsybl.network.store.iidm.impl.CreateNetworksUtil.createNodeBreakerNetworkWithLine;
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
 
-public class ConnectablePositionExtensionTest {
+class ConnectablePositionExtensionTest {
     @Test
-    public void testModifyConnectablePositionExtensionOfBranch() {
+    void testModifyConnectablePositionExtensionOfBranch() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         Line l1 = network.getLine("L1");
 
@@ -51,7 +51,7 @@ public class ConnectablePositionExtensionTest {
     }
 
     @Test
-    public void testModifyConnectablePositionExtensionOfInjection() {
+    void testModifyConnectablePositionExtensionOfInjection() {
         Network network = createNodeBreakerNetworkWithLine();
         Load load = network.getLoad("LD");
 
@@ -74,7 +74,7 @@ public class ConnectablePositionExtensionTest {
     }
 
     @Test
-    public void testModifyConnectablePositionExtensionOfThreeWindingsTransformer() {
+    void testModifyConnectablePositionExtensionOfThreeWindingsTransformer() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         ThreeWindingsTransformer twt1 = network.getThreeWindingsTransformer("TWT1");

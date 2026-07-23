@@ -14,14 +14,14 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class VoltageLevelTest {
+class VoltageLevelTest {
 
     private static final double EPSILON = 0.0001;
     private static final double FICTITIOUS_P0 = 10.;
@@ -32,7 +32,7 @@ public class VoltageLevelTest {
     // set in busbreakerview when busview cache exists
     // here we use setV and in other tests we use setAngle to test
     // all combinations of topology and update order
-    public void testBusBreakerSetVUpdateVoltageLevel() {
+    void testBusBreakerSetVUpdateVoltageLevel() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
@@ -40,14 +40,14 @@ public class VoltageLevelTest {
         l1.getTerminal1().getBusView().getBus().setV(222);
 
         // Verify voltage update in BusBreakerView configured bus
-        assertEquals("Voltage should match in BusBreakerView after update in BusView", 222, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
+        assertEquals(222, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0, "Voltage should match in BusBreakerView after update in BusView");
 
         // Set voltage using BusBreakerView configured bus, should set the existing cache of the BusView calculated bus immediately
         // deterministic when the cache is existing
         l1.getTerminal1().getBusBreakerView().getBus().setV(400.0);
 
         // Verify voltage update in pre-existing cached BusView calculated bus
-        assertEquals("Voltage should match in BusView after update in BusBreakerView", 400.0, l1.getTerminal1().getBusView().getBus().getV(), 0.0);
+        assertEquals(400.0, l1.getTerminal1().getBusView().getBus().getV(), 0.0, "Voltage should match in BusView after update in BusBreakerView");
     }
 
     @Test
@@ -56,7 +56,7 @@ public class VoltageLevelTest {
     // and then set in busview when busbreakerview cache exists
     // here we use setV and in other tests we use setAngle to test
     // all combinations of topology and update order
-    public void testNodeBreakerSetVUpdateVoltageLevel() {
+    void testNodeBreakerSetVUpdateVoltageLevel() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
@@ -65,13 +65,13 @@ public class VoltageLevelTest {
         l1.getTerminal1().getBusBreakerView().getBus().setV(222);
 
         // Verify the voltage update in BusView calculated bus, here it should getV from BusBreakerView calculated bus when creating the cache
-        assertEquals("Voltage should match in BusBreakerView after second update in BusView", 222, l1.getTerminal1().getBusView().getBus().getV(), 0.0);
+        assertEquals(222, l1.getTerminal1().getBusView().getBus().getV(), 0.0, "Voltage should match in BusBreakerView after second update in BusView");
 
         // Set voltage using BusView calculated bus, should setV in the existing BusBreakerView calculated bus cache immediately
         l1.getTerminal1().getBusView().getBus().setV(400.0);
 
         // Verify voltage update in pre-existing cached BusBreakerView calculated bus
-        assertEquals("Voltage should match in BusBreakerView after update in BusView", 400.0, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0);
+        assertEquals(400.0, l1.getTerminal1().getBusBreakerView().getBus().getV(), 0.0, "Voltage should match in BusBreakerView after update in BusView");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class VoltageLevelTest {
     // set in busbreakerview when busview cache doesn't exist
     // here we use setAngle and in other tests we use setV to test
     // all combinations of topology and update order
-    public void testBusBreakerSetAngleUpdateVoltageLevel() {
+    void testBusBreakerSetAngleUpdateVoltageLevel() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
@@ -89,13 +89,13 @@ public class VoltageLevelTest {
         l1.getTerminal1().getVoltageLevel().getBusBreakerView().getBuses().forEach(bus -> bus.setAngle(111));
 
         // Verify the angle update in BusView calculated bus, here it should getAngle from BusBreakerView configured bus when creating the cache
-        assertEquals("Angle should match in BusView after update in BusBreakerView", 111, l1.getTerminal1().getBusView().getBus().getAngle(), 0.0);
+        assertEquals(111, l1.getTerminal1().getBusView().getBus().getAngle(), 0.0, "Angle should match in BusView after update in BusBreakerView");
 
         // Set angle using BusView calculated bus, should setAngle in the BusBreakerView configured bus immediately
         l1.getTerminal1().getBusView().getBus().setAngle(400.0);
 
         // Verify Angle update in BusBreakerView configured bus
-        assertEquals("Angle should match in BusView after update in BusBreakerView", 400.0, l1.getTerminal1().getBusView().getBus().getAngle(), 0.0);
+        assertEquals(400.0, l1.getTerminal1().getBusView().getBus().getAngle(), 0.0, "Angle should match in BusView after update in BusBreakerView");
     }
 
     @Test
@@ -104,7 +104,7 @@ public class VoltageLevelTest {
     // and then set in busbreakerview when busview cache exists
     // here we use setAngle and in other tests we use setV to test
     // all combinations of topology and update order
-    public void testNodeBreakerSetAngleUpdateVoltageLevel() {
+    void testNodeBreakerSetAngleUpdateVoltageLevel() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         LineImpl l1 = (LineImpl) network.getLine("L1");
 
@@ -112,18 +112,18 @@ public class VoltageLevelTest {
         l1.getTerminal1().getBusView().getBus().setAngle(222);
 
         // Verify the angle update in BusBreakerView calculated bus, here it should getV from BusView calculated bus when creating the cache
-        assertEquals("Angle should match in BusBreakerView after second update in BusView", 222, l1.getTerminal1().getBusBreakerView().getBus().getAngle(), 0.0);
+        assertEquals(222, l1.getTerminal1().getBusBreakerView().getBus().getAngle(), 0.0, "Angle should match in BusBreakerView after second update in BusView");
 
         // Set angle using BusBreakerView calculated bus, should also setAngle in the existing BusView calculated bus cache immediately
         // deterministic when the cache is existing
         l1.getTerminal1().getBusBreakerView().getBus().setAngle(400.0);
 
         // Verify angle update in BusBreakerView
-        assertEquals("Angle should match in BusBreakerView after update in BusView", 400.0, l1.getTerminal1().getBusBreakerView().getBus().getAngle(), 0.0);
+        assertEquals(400.0, l1.getTerminal1().getBusBreakerView().getBus().getAngle(), 0.0, "Angle should match in BusBreakerView after update in BusView");
     }
 
     @Test
-    public void testBusBreakerConnectables() {
+    void testBusBreakerConnectables() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
 
         assertEquals(network.getLine("L1"), network.getVoltageLevel("VL1").getConnectable("L1", Line.class));
@@ -134,7 +134,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testNodeBreakerConnectables() {
+    void testNodeBreakerConnectables() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         assertEquals(network.getLine("L1"), network.getVoltageLevel("VL1").getConnectable("L1", Line.class));
@@ -144,7 +144,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testBusbarSectionPositions() {
+    void testBusbarSectionPositions() {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
             .setId("S")
@@ -199,7 +199,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testDeleteVoltageLevelWithForkNode() {
+    void testDeleteVoltageLevelWithForkNode() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         assertNotNull(vl1);
@@ -218,7 +218,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testRemoveIdentifiableShortCircuitExtensionOnVl() {
+    void testRemoveIdentifiableShortCircuitExtensionOnVl() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         vl1.newExtension(IdentifiableShortCircuitAdder.class).withIpMin(1).withIpMax(2).add();
@@ -228,7 +228,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testFictitiousInjectionsInNodeBreaker() {
+    void testFictitiousInjectionsInNodeBreaker() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -255,7 +255,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testFictitiousInjectionsInNodeBreakerWithSeveralBBSAreRecomputedAfterDisconnection() {
+    void testFictitiousInjectionsInNodeBreakerWithSeveralBBSAreRecomputedAfterDisconnection() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         addBusBarSection(vl1);
@@ -291,7 +291,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testFictitiousInjectionsInBusBreaker() {
+    void testFictitiousInjectionsInBusBreaker() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -316,7 +316,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testFictitiousInjectionsInBusBreakerWithDisconnectedConnectable() {
+    void testFictitiousInjectionsInBusBreakerWithDisconnectedConnectable() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -345,7 +345,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testFictitiousInjectionsInBusBreakerWithConfiguredBusWithoutConnectable() {
+    void testFictitiousInjectionsInBusBreakerWithConfiguredBusWithoutConnectable() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -373,7 +373,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testSetAndGetFictitiousInjectionsOnCalculatedBusInBusBreaker() {
+    void testSetAndGetFictitiousInjectionsOnCalculatedBusInBusBreaker() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -397,7 +397,7 @@ public class VoltageLevelTest {
     }
 
     @Test
-    public void testFictitiousInjectionsInBusBreakerWithSeveralBusesAreReComputedAfterDisconnection() {
+    void testFictitiousInjectionsInBusBreakerWithSeveralBusesAreReComputedAfterDisconnection() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         vl1.getBusBreakerView().getBus("B1").setFictitiousP0(FICTITIOUS_P0);

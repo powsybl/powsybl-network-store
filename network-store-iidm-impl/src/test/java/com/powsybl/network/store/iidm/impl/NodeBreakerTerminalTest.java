@@ -10,17 +10,17 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class NodeBreakerTerminalTest {
+class NodeBreakerTerminalTest {
 
     @Test
-    public void testBusView() {
+    void testBusView() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -50,7 +50,7 @@ public class NodeBreakerTerminalTest {
     }
 
     @Test
-    public void testBusViewDisconnect() {
+    void testBusViewDisconnect() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -93,7 +93,7 @@ public class NodeBreakerTerminalTest {
     }
 
     @Test
-    public void testBusBreakerView() {
+    void testBusBreakerView() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -123,7 +123,7 @@ public class NodeBreakerTerminalTest {
     }
 
     @Test
-    public void testBusBreakerViewDisconnect() {
+    void testBusBreakerViewDisconnect() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 

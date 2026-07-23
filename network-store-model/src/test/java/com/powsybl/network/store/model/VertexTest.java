@@ -8,22 +8,22 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.IdentifiableType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VertexTest {
+class VertexTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void testNodeBreaker() throws IOException {
+    void testNodeBreaker() throws IOException {
         Vertex v = new Vertex("l", IdentifiableType.LINE, 3, null, "ONE");
         String json = objectMapper.writeValueAsString(v);
 

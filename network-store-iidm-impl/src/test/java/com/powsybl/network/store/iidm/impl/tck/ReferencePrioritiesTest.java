@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractReferencePrioritiesTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ReferencePrioritiesTest extends AbstractReferencePrioritiesTest {
+class ReferencePrioritiesTest extends AbstractReferencePrioritiesTest {
 }

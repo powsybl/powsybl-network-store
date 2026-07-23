@@ -11,6 +11,6 @@ import com.powsybl.iidm.network.tck.AbstractTapChangerTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TapChangerTest extends AbstractTapChangerTest {
+class TapChangerTest extends AbstractTapChangerTest {
 
 }

@@ -7,18 +7,18 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkGetBranchTest {
+class NetworkGetBranchTest {
 
     @Test
-    public void test() {
+    void test() {
         var network = EurostagTutorialExample1Factory.create();
         assertNotNull(network.getBranch("NHV1_NHV2_1"));
         assertNotNull(network.getBranch("NGEN_NHV1"));

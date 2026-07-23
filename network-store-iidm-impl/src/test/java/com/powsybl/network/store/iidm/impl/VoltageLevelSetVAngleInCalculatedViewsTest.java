@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -21,17 +21,17 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  *
  * complex specific exhaustive tests for setV and setAngle interactions with calculated views.
  */
-public class VoltageLevelSetVAngleInCalculatedViewsTest {
+class VoltageLevelSetVAngleInCalculatedViewsTest {
     @Test
-    public void testWithMultipleBusInBusBreakerAndBusView() {
+    void testWithMultipleBusInBusBreakerAndBusView() {
         testSetMultipleBusAcrossViews(() -> {
             Network network = Network.create("test_mcc", "test");
             return createNodeBreaker(network);
@@ -433,8 +433,8 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
             setAllBusBreakerViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
-                assertTrue("case nodebreakertopology " + bbvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view",
-                        Double.isNaN(getter.apply(bbvb)));
+                assertTrue(Double.isNaN(getter.apply(bbvb)),
+                        "case nodebreakertopology " + bbvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view");
             }
 
             // test one other view
@@ -442,8 +442,8 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
             setAllBusViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
-                assertTrue("case nodebreakertopology " + bbvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view",
-                        Double.isNaN(getter.apply(bbvb)));
+                assertTrue(Double.isNaN(getter.apply(bbvb)),
+                        "case nodebreakertopology " + bbvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view");
             }
         } else { // BUS_BREAKER
             // No need to test the busbreakerview in busbreakertopology,
@@ -456,12 +456,12 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
             for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
                 if (!busBreakerViewBusToBusViewBus.get(bbvb.getId()).isEmpty()) {
                     //only test non pruned bbvb because we set in the busview, so pruned bbvb are unset
-                    assertEquals("case busbreakertopology not pruned " + bbvb.getId() + " (busbreakerviewbus) is unset, but should have been set when setting on the busview",
-                            1, getter.apply(bbvb), 0.0);
+                    assertEquals(1, getter.apply(bbvb), 0.0,
+                            "case busbreakertopology not pruned " + bbvb.getId() + " (busbreakerviewbus) is unset, but should have been set when setting on the busview");
                 } else {
                     // the pruned ones should be unset
-                    assertTrue("case busbreakertopology pruned " + bbvb.getId() + " (busbreakerviewbus) is set, should not have been set because it is pruned from the busview",
-                            Double.isNaN(getter.apply(bbvb)));
+                    assertTrue(Double.isNaN(getter.apply(bbvb)),
+                            "case busbreakertopology pruned " + bbvb.getId() + " (busbreakerviewbus) is set, should not have been set because it is pruned from the busview");
                 }
             }
         }
@@ -550,8 +550,8 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
             setAllBusViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bvb : vl.getBusView().getBuses()) {
-                assertTrue("case " + bvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view",
-                        Double.isNaN(getter.apply(bvb)));
+                assertTrue(Double.isNaN(getter.apply(bvb)),
+                        "case " + bvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view");
             }
 
             // test one other view
@@ -559,8 +559,8 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
             setAllBusViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bvb : vl.getBusView().getBuses()) {
-                assertTrue("case " + bvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view",
-                        Double.isNaN(getter.apply(bvb)));
+                assertTrue(Double.isNaN(getter.apply(bvb)),
+                        "case " + bvb.getId() + " (busbreakerviewbus) is set, should not have been carried over from invalid previous view");
             }
         } else { // BUS_BREAKER
             // No need to test the busbreakerview in busbreakertopology,
@@ -571,8 +571,8 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
             setAllBusViewBus(vl, 1.0, setter);
             ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
             for (Bus bvb : vl.getBusView().getBuses()) {
-                assertEquals("case busbreakertopology " + bvb.getId() + " (busbreakerviewbus) is not set but should be copied from configured buses",
-                        1, getter.apply(bvb), 0.0);
+                assertEquals(1, getter.apply(bvb), 0.0,
+                        "case busbreakertopology " + bvb.getId() + " (busbreakerviewbus) is not set but should be copied from configured buses");
             }
         }
     }
@@ -599,19 +599,19 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
     private void setAndCheckBusViewBus(VoltageLevel vl, String busviewbusid, List<String> busbreakerviewbusids, Function<Bus, Double> getter, BiConsumer<Bus, Double> setter) {
         setter.accept(vl.getBusView().getBus(busviewbusid), 1.);
         for (String busbreakerviewbusid : busbreakerviewbusids) {
-            assertEquals("case " + busviewbusid + " (busviewbus) is set, " + busbreakerviewbusid + " (busbreakerviewbus) should have been set",
-                    1, getter.apply(vl.getBusBreakerView().getBus(busbreakerviewbusid)), 0);
+            assertEquals(1, getter.apply(vl.getBusBreakerView().getBus(busbreakerviewbusid)), 0,
+                    "case " + busviewbusid + " (busviewbus) is set, " + busbreakerviewbusid + " (busbreakerviewbus) should have been set");
         }
         for (Bus bvb : vl.getBusView().getBuses()) {
             if (!busviewbusid.equals(bvb.getId())) {
-                assertTrue("case " + busviewbusid + " (busviewbus) is set, " + bvb.getId() + " (busviewbus) should not have been set",
-                        Double.isNaN(getter.apply(bvb)));
+                assertTrue(Double.isNaN(getter.apply(bvb)),
+                        "case " + busviewbusid + " (busviewbus) is set, " + bvb.getId() + " (busviewbus) should not have been set");
             }
         }
         for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
             if (!busbreakerviewbusids.contains(bbvb.getId())) {
-                assertTrue("case " + busviewbusid + " (busviewbus) is set, " + bbvb.getId() + " (busbreakerviewbus) should not have been set",
-                        Double.isNaN(getter.apply(bbvb)));
+                assertTrue(Double.isNaN(getter.apply(bbvb)),
+                        "case " + busviewbusid + " (busviewbus) is set, " + bbvb.getId() + " (busbreakerviewbus) should not have been set");
             }
         }
     }
@@ -619,19 +619,19 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
     private void setAndCheckBusBreakerBus(VoltageLevel vl, String busbreakerviewbusid, String busviewbusid, Function<Bus, Double> getter, BiConsumer<Bus, Double> setter) {
         setter.accept(vl.getBusBreakerView().getBus(busbreakerviewbusid), 1.);
         if (!busviewbusid.isEmpty()) {
-            assertEquals("case " + busbreakerviewbusid + " (busbreakerviewbus) is set, " + busviewbusid + " (busviewbus) should have been set",
-                    1, getter.apply(vl.getBusView().getBus(busviewbusid)), 0);
+            assertEquals(1, getter.apply(vl.getBusView().getBus(busviewbusid)), 0,
+                    "case " + busbreakerviewbusid + " (busbreakerviewbus) is set, " + busviewbusid + " (busviewbus) should have been set");
         }
         for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
             if (!busbreakerviewbusid.equals(bbvb.getId())) {
-                assertTrue("case " + busbreakerviewbusid + " (busbreakerviewbus) is set, " + bbvb.getId() + " (busbreakerviewbus) should not have been set",
-                        Double.isNaN(getter.apply(bbvb)));
+                assertTrue(Double.isNaN(getter.apply(bbvb)),
+                        "case " + busbreakerviewbusid + " (busbreakerviewbus) is set, " + bbvb.getId() + " (busbreakerviewbus) should not have been set");
             }
         }
         for (Bus bvb : vl.getBusView().getBuses()) {
             if (!busviewbusid.equals(bvb.getId())) {
-                assertTrue("case " + busbreakerviewbusid + "(busbreakerviewbus) is set, " + bvb.getId() + " (busviewbus) should not have been set",
-                        Double.isNaN(getter.apply(bvb)));
+                assertTrue(Double.isNaN(getter.apply(bvb)),
+                        "case " + busbreakerviewbusid + "(busbreakerviewbus) is set, " + bvb.getId() + " (busviewbus) should not have been set");
             }
         }
     }
@@ -642,19 +642,19 @@ public class VoltageLevelSetVAngleInCalculatedViewsTest {
             setter.accept(vl.getBusBreakerView().getBus(busbreakerviewbusid), 1.);
         }
         if (!busviewbusid.isEmpty()) {
-            assertEquals("case " + busbreakerviewbusids + " (busbreakerviewbus) is set, " + busviewbusid + " (busviewbus) should have been set",
-                    1, getter.apply(vl.getBusView().getBus(busviewbusid)), 0);
+            assertEquals(1, getter.apply(vl.getBusView().getBus(busviewbusid)), 0,
+                    "case " + busbreakerviewbusids + " (busbreakerviewbus) is set, " + busviewbusid + " (busviewbus) should have been set");
         }
         for (Bus bbvb : vl.getBusBreakerView().getBuses()) {
             if (!busbreakerviewbusids.contains(bbvb.getId())) {
-                assertTrue("case " + busbreakerviewbusids + " (busbreakerviewbus) is set, " + bbvb.getId() + " (busbreakerviewbus) should not have been set",
-                        Double.isNaN(getter.apply(bbvb)));
+                assertTrue(Double.isNaN(getter.apply(bbvb)),
+                        "case " + busbreakerviewbusids + " (busbreakerviewbus) is set, " + bbvb.getId() + " (busbreakerviewbus) should not have been set");
             }
         }
         for (Bus bvb : vl.getBusView().getBuses()) {
             if (!busviewbusid.equals(bvb.getId())) {
-                assertTrue("case " + busbreakerviewbusids + "(busbreakerviewbus) is set, " + bvb.getId() + " (busviewbus) should not have been set",
-                        Double.isNaN(getter.apply(bvb)));
+                assertTrue(Double.isNaN(getter.apply(bvb)),
+                        "case " + busbreakerviewbusids + "(busbreakerviewbus) is set, " + bvb.getId() + " (busviewbus) should not have been set");
             }
         }
     }

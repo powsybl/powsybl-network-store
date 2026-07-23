@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class IdentifiableTest extends AbstractIdentifiableTest {
+class IdentifiableTest extends AbstractIdentifiableTest {
 
     @Override
     @Test

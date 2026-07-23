@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractBatteryTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BatteryTest extends AbstractBatteryTest {
+class BatteryTest extends AbstractBatteryTest {
 }

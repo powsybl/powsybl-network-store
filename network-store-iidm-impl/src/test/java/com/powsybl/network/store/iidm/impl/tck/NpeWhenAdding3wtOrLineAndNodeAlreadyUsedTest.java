@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractNpeWhenAdding3wtOrLineAndNodeAlready
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NpeWhenAdding3wtOrLineAndNodeAlreadyUsedTest extends AbstractNpeWhenAdding3wtOrLineAndNodeAlreadyUsedTest {
+class NpeWhenAdding3wtOrLineAndNodeAlreadyUsedTest extends AbstractNpeWhenAdding3wtOrLineAndNodeAlreadyUsedTest {
 }

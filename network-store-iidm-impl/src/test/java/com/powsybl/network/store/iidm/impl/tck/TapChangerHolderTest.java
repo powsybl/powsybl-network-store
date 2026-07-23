@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractTapChangerHolderTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class TapChangerHolderTest extends AbstractTapChangerHolderTest {
+class TapChangerHolderTest extends AbstractTapChangerHolderTest {
 }

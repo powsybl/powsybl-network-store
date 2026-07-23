@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractIdentifiableExtensionTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class IdentifiableExtensionTest extends AbstractIdentifiableExtensionTest {
+class IdentifiableExtensionTest extends AbstractIdentifiableExtensionTest {
 
     @Override
     public void test() {

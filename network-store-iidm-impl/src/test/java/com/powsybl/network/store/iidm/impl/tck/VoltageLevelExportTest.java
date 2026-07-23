@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractVoltageLevelExportTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VoltageLevelExportTest extends AbstractVoltageLevelExportTest {
+class VoltageLevelExportTest extends AbstractVoltageLevelExportTest {
     @Override
     public void nodeBreakerTest() {
         // FIXME remove this test when VoltageLevelImpl.exportTopology is implemented

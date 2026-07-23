@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractConnectionNotificationTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ConnectionNotificationTest extends AbstractConnectionNotificationTest {
+class ConnectionNotificationTest extends AbstractConnectionNotificationTest {
 }

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import com.powsybl.iidm.network.tck.extensions.AbstractStandbyAutomatonTest;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
+class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
 
     @Test
     /*

@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractConnectedComponentWithTieLineBugTest
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ConnectedComponentWithTieLineBugTest extends AbstractConnectedComponentWithTieLineBugTest { }
+class ConnectedComponentWithTieLineBugTest extends AbstractConnectedComponentWithTieLineBugTest { }

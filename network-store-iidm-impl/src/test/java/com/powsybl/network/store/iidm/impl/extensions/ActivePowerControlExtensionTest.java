@@ -14,16 +14,16 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.network.store.iidm.impl.BatteryImpl;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
 import com.powsybl.network.store.iidm.impl.DummyNetworkListener;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ActivePowerControlExtensionTest {
+class ActivePowerControlExtensionTest {
 
     @Test
-    public void testBatteryActivePowerControlExtension() {
+    void testBatteryActivePowerControlExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         // add dummy listener to check notification
@@ -70,7 +70,7 @@ public class ActivePowerControlExtensionTest {
     }
 
     @Test
-    public void testActivePowerControlGetExtension() {
+    void testActivePowerControlGetExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         Battery battery = network.getBattery("battery");

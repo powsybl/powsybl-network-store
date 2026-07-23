@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractAreaTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class AreaTest extends AbstractAreaTest {
+class AreaTest extends AbstractAreaTest {
     @Override
     public void mergeAndFlatten() {
         // merge is not implemented

@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LineTest extends AbstractLineTest {
+class LineTest extends AbstractLineTest {
 
     @Override
     @Test

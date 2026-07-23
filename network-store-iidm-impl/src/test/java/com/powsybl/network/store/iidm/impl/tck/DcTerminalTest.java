@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractDcTerminalTest;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class DcTerminalTest extends AbstractDcTerminalTest {
+class DcTerminalTest extends AbstractDcTerminalTest {
 
     // These methods will allow for more detailed modeling of HVDCs.
     // This is a long-term work on the powsybl side.

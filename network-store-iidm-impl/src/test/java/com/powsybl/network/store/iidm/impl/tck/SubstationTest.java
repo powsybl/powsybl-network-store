@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractSubstationTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SubstationTest extends AbstractSubstationTest {
+class SubstationTest extends AbstractSubstationTest {
 }

@@ -11,6 +11,6 @@ import com.powsybl.iidm.network.tck.AbstractNodeBreakerDisconnectionDiamondPathB
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeBreakerDisconnectionDiamondPathBugTest extends AbstractNodeBreakerDisconnectionDiamondPathBugTest {
+class NodeBreakerDisconnectionDiamondPathBugTest extends AbstractNodeBreakerDisconnectionDiamondPathBugTest {
 
 }

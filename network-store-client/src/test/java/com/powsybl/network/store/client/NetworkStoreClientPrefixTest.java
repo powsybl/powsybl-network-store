@@ -9,13 +9,11 @@ package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import java.util.*;
 import static org.springframework.http.HttpMethod.*;
@@ -31,10 +29,10 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * uses the same restclient in all its usages (pass it to the network,
  * other methods in networkstoreservice, etc)
  */
-@RunWith(SpringRunner.class)
+
 @RestClientTest(RestClient.class)
 @ContextConfiguration(classes = RestClientImpl.class)
-public class NetworkStoreClientPrefixTest {
+class NetworkStoreClientPrefixTest {
 
     @Autowired
     private RestClient restClient;
@@ -48,7 +46,7 @@ public class NetworkStoreClientPrefixTest {
     private static final String DEFAULT_PREFIX = "http://network-store-server/v1";
 
     @Test
-    public void testGetIds() throws JsonProcessingException {
+    void testGetIds() throws JsonProcessingException {
         try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE)) {
             // Is there a way to avoid stubbing the response (we only want to test the request?)
             server.expect(requestTo(DEFAULT_PREFIX + "/networks"))

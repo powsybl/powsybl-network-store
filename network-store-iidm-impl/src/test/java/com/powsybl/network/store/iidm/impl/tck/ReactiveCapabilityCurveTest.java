@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractReactiveCapabilityCurveTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ReactiveCapabilityCurveTest extends AbstractReactiveCapabilityCurveTest { }
+class ReactiveCapabilityCurveTest extends AbstractReactiveCapabilityCurveTest { }

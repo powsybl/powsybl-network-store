@@ -18,9 +18,8 @@ import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.model.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
@@ -30,18 +29,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
-
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
@@ -51,15 +47,15 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-@RunWith(SpringRunner.class)
+
 @RestClientTest
-public class CachedNetworkStoreClientTest {
+class CachedNetworkStoreClientTest {
 
     // Necessary with empty @RestClientTest for this
     // lib which doesn't have a @SpringBootApplication in
     // its main sources.
     @SpringBootConfiguration
-    public static class EmptyConfig {
+    static class EmptyConfig {
 
     }
 
@@ -87,13 +83,13 @@ public class CachedNetworkStoreClientTest {
 
     private RestNetworkStoreClient restStoreClient;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() {
         restStoreClient = new RestNetworkStoreClient(restClient);
     }
 
     @Test
-    public void testSingleLineCache() throws IOException {
+    void testSingleLineCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
@@ -193,7 +189,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testVoltageLevelLineCache() throws IOException {
+    void testVoltageLevelLineCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
@@ -266,7 +262,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testAllLinesCache() throws IOException {
+    void testAllLinesCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
@@ -350,7 +346,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testAllGroundsCache() throws IOException {
+    void testAllGroundsCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
@@ -429,7 +425,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testSwitchCache() throws IOException {
+    void testSwitchCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
@@ -469,7 +465,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testGetIdentifiable() throws IOException {
+    void testGetIdentifiable() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         int variantNum = 0;
@@ -504,7 +500,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testGetExtensionCache() throws IOException {
+    void testGetExtensionCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
@@ -583,7 +579,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testGetExtensionsCache() throws IOException {
+    void testGetExtensionsCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
@@ -633,7 +629,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testGetExtensionCacheWithClonedNetwork() throws IOException {
+    void testGetExtensionCacheWithClonedNetwork() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         int targetVariantNum = 1;
@@ -674,7 +670,7 @@ public class CachedNetworkStoreClientTest {
     * getVoltageLevelGenerator()
     * getGenerators()
      */
-    public void testGetExtensionOverwriteCache1() throws IOException {
+    void testGetExtensionOverwriteCache1() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
@@ -706,7 +702,7 @@ public class CachedNetworkStoreClientTest {
      * getGenerators()
      * getVoltageLevelGenerator()
      */
-    public void testGetExtensionOverwriteCache2() throws IOException {
+    void testGetExtensionOverwriteCache2() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
@@ -738,7 +734,7 @@ public class CachedNetworkStoreClientTest {
      * getVoltageLevelGenerator()
      * getGenerators()
      */
-    public void testGetExtensionOverwriteCache3() throws IOException {
+    void testGetExtensionOverwriteCache3() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
@@ -770,7 +766,7 @@ public class CachedNetworkStoreClientTest {
      * getGenerators()
      * getVoltageLevelGenerator()
      */
-    public void testGetExtensionOverwriteCache4() throws IOException {
+    void testGetExtensionOverwriteCache4() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
@@ -802,7 +798,7 @@ public class CachedNetworkStoreClientTest {
      * getVoltageLevelGenerator()
      * getGenerator()
      */
-    public void testGetExtensionOverwriteCache5() throws IOException {
+    void testGetExtensionOverwriteCache5() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
@@ -828,7 +824,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testRemovedIdentifiableInCachePresentOnServer() throws IOException {
+    void testRemovedIdentifiableInCachePresentOnServer() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "GEN";
@@ -973,7 +969,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testGetOperationalLimitsGroupCache() throws IOException {
+    void testGetOperationalLimitsGroupCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "LINE";
@@ -1011,7 +1007,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testLoadingAllSelectedOperationalLimitsGroups() throws IOException {
+    void testLoadingAllSelectedOperationalLimitsGroups() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "LINE";
@@ -1101,7 +1097,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testClone() throws IOException {
+    void testClone() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.randomUUID();
         int targetVariantNum1 = 1;
@@ -1147,7 +1143,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testLoadingAllOperationalLimitsGroupsForBranch() throws IOException {
+    void testLoadingAllOperationalLimitsGroupsForBranch() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "LINE";
@@ -1208,7 +1204,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testLoadingAllOperationalLimitsGroups() throws IOException {
+    void testLoadingAllOperationalLimitsGroups() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String identifiableId = "LINE_1";
@@ -1264,7 +1260,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testUpdatingLineWithOperationalLimitsGroup() {
+    void testUpdatingLineWithOperationalLimitsGroup() {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
@@ -1292,7 +1288,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testRemoveOperationalLimitsGroupCache() throws IOException {
+    void testRemoveOperationalLimitsGroupCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String branchId = "LINE";
@@ -1330,7 +1326,7 @@ public class CachedNetworkStoreClientTest {
     }
 
     @Test
-    public void testGetNetworkAfterCreateAvoidServerCall() {
+    void testGetNetworkAfterCreateAvoidServerCall() {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool()));
         UUID networkUuid1 = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         UUID networkUuid2 = UUID.fromString("9028181c-7977-4592-ba19-88027e4254e4");

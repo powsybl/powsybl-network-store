@@ -12,9 +12,8 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.network.store.model.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
@@ -23,17 +22,14 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
-
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
@@ -42,9 +38,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
-@RunWith(SpringRunner.class)
+
 @RestClientTest
-public class BufferedNetworkStoreClientTest {
+class BufferedNetworkStoreClientTest {
 
     // Necessary with empty @RestClientTest for this
     // lib which doesn't have a @SpringBootApplication in
@@ -78,13 +74,13 @@ public class BufferedNetworkStoreClientTest {
 
     private RestNetworkStoreClient restStoreClient;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         restStoreClient = new RestNetworkStoreClient(restClient);
     }
 
     @Test
-    public void testClone() throws IOException {
+    void testClone() throws IOException {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.randomUUID();
         int targetVariantNum1 = 1;
@@ -163,7 +159,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testExtensionsBufferWithClone() {
+    void testExtensionsBufferWithClone() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.randomUUID();
         int targetVariantNum1 = 1;
@@ -190,7 +186,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testLimitsBufferWithClone() {
+    void testLimitsBufferWithClone() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.randomUUID();
         bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of("line", Map.of(1, Set.of("olg1toRemove"))));
@@ -217,7 +213,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testLoadBufferWithClone() {
+    void testLoadBufferWithClone() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.randomUUID();
         LoadAttributes loadAttributes = new LoadAttributes();
@@ -252,7 +248,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testUpdateLine() throws JsonProcessingException {
+    void testUpdateLine() throws JsonProcessingException {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.randomUUID();
         LineAttributes lineAttributes = LineAttributes.builder()
@@ -319,7 +315,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testViewWithUpdateLines() {
+    void testViewWithUpdateLines() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.randomUUID();
         LineAttributes lineAttributes = LineAttributes.builder()
@@ -351,7 +347,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testViewWithUpdateTwoWindingsTransformer() throws JsonProcessingException {
+    void testViewWithUpdateTwoWindingsTransformer() throws JsonProcessingException {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.randomUUID();
         TwoWindingsTransformerAttributes twoWindingsTransformerAttributes = TwoWindingsTransformerAttributes.builder()
@@ -412,7 +408,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testUpdateAllWithAttributeFilter() {
+    void testUpdateAllWithAttributeFilter() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.randomUUID();
         LoadAttributes loadAttributes = new LoadAttributes();
@@ -445,7 +441,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testRemoveOperationalLimitsGroupWithBuffer() {
+    void testRemoveOperationalLimitsGroupWithBuffer() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String branchId = "LINE";
@@ -467,7 +463,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testRemoveExtensionWithBuffer() {
+    void testRemoveExtensionWithBuffer() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String generator1 = "GEN1";
@@ -485,7 +481,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testRemoveExtensionThenGeneratorContainingIt() {
+    void testRemoveExtensionThenGeneratorContainingIt() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String generator1 = "GEN1";
@@ -502,7 +498,7 @@ public class BufferedNetworkStoreClientTest {
     }
 
     @Test
-    public void testRemoveOlgThenLineContaining() {
+    void testRemoveOlgThenLineContaining() {
         BufferedNetworkStoreClient bufferedClient = new BufferedNetworkStoreClient(restStoreClient, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         String branchId = "LINE";

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractDroopCurveTest;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class DroopCurveTest extends AbstractDroopCurveTest {
+class DroopCurveTest extends AbstractDroopCurveTest {
     @Override
     public void testAdder() {
         // FIXME setup() uses DcNode that is not implemented in network store

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractNetworkReportNodeTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class NetworkReportNodeTest extends AbstractNetworkReportNodeTest {
+class NetworkReportNodeTest extends AbstractNetworkReportNodeTest {
     @Override
     public void onSubnetworkTest() {
         // FIXME remove this when subnetworks are implemented

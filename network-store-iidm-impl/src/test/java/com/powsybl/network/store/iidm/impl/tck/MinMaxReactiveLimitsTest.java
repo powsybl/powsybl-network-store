@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractMinMaxReactiveLimitsTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MinMaxReactiveLimitsTest extends AbstractMinMaxReactiveLimitsTest { }
+class MinMaxReactiveLimitsTest extends AbstractMinMaxReactiveLimitsTest { }
