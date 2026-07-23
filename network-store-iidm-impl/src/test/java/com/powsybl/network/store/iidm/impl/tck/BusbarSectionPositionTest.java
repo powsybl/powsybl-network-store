@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.extensions.AbstractBusbarSectionPositionTest
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class BusbarSectionPositionTest extends AbstractBusbarSectionPositionTest { }
+class BusbarSectionPositionTest extends AbstractBusbarSectionPositionTest { }

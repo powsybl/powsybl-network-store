@@ -27,9 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class LineTest {
+class LineTest {
     @Test
-    public void testAddConnectablePositionExtensionToLine() {
+    void testAddConnectablePositionExtensionToLine() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         Line l1 = network.getLine("L1");
 
@@ -101,7 +101,7 @@ public class LineTest {
     }
 
     @Test
-    public void testTieLine() {
+    void testTieLine() {
         Properties properties = new Properties();
         properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
@@ -131,7 +131,7 @@ public class LineTest {
     }
 
     @Test
-    public void testBoundaryLines() {
+    void testBoundaryLines() {
         Properties properties = new Properties();
         properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
@@ -171,7 +171,7 @@ public class LineTest {
     }
 
     @Test
-    public void testTieLineTerminals() {
+    void testTieLineTerminals() {
         Properties properties = new Properties();
         properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
@@ -206,7 +206,7 @@ public class LineTest {
     }
 
     @Test
-    public void testTieLineLimits() {
+    void testTieLineLimits() {
         Properties properties = new Properties();
         properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
@@ -245,7 +245,7 @@ public class LineTest {
     }
 
     @Test
-    public void testTieLineLimitsCreation() {
+    void testTieLineLimitsCreation() {
         Properties properties = new Properties();
         properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
@@ -334,7 +334,7 @@ public class LineTest {
     }
 
     @Test
-    public void testTieLineLimitsCheck() {
+    void testTieLineLimitsCheck() {
         Properties properties = new Properties();
         properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")
@@ -368,7 +368,7 @@ public class LineTest {
     }
 
     @Test
-    public void testConnectDisconnect() {
+    void testConnectDisconnect() {
         // Network elements
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         Line l1 = network.getLine("L1");
@@ -386,7 +386,7 @@ public class LineTest {
     }
 
     @Test
-    public void settersTest() {
+    void settersTest() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         Line l1 = network.getLine("L1");
 
@@ -405,7 +405,7 @@ public class LineTest {
     }
 
     @Test
-    public void removeExtension() {
+    void removeExtension() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         Line line = network.getLine("LINE_S3S4");
         testRemoveWithOneFeeder(line, line.newExtension(ConnectablePositionAdder.class).newFeeder1());

@@ -35,7 +35,7 @@ class TopologyTraverseDepthAndBreadthTest {
     private Network network;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = Network.create("test", "test");
         Substation s1 = network.newSubstation().setId("S1").setCountry(Country.FR).add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(400f).setTopologyKind(TopologyKind.NODE_BREAKER).add();

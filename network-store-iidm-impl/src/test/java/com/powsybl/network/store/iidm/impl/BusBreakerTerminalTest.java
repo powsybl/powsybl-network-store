@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class BusBreakerTerminalTest {
+class BusBreakerTerminalTest {
 
     @Test
-    public void testBusView() {
+    void testBusView() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -76,7 +76,7 @@ public class BusBreakerTerminalTest {
     }
 
     @Test
-    public void testBusBreakerView() {
+    void testBusBreakerView() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -126,7 +126,7 @@ public class BusBreakerTerminalTest {
     }
 
     @Test
-    public void testBusBreakerViewSetConnectable() {
+    void testBusBreakerViewSetConnectable() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Disabled;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInternalConnectionsTest {
+class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInternalConnectionsTest {
 
     @Override
     @Disabled("wrong expected result in powsybl-tck")

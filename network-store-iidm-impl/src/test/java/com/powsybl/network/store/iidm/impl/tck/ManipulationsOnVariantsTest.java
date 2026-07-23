@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class ManipulationsOnVariantsTest extends AbstractManipulationsOnVariantsTest {
+class ManipulationsOnVariantsTest extends AbstractManipulationsOnVariantsTest {
 
     @Test
     @Override

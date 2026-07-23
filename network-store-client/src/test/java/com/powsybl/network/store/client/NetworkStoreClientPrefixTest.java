@@ -32,7 +32,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 @RestClientTest(RestClient.class)
 @ContextConfiguration(classes = RestClientImpl.class)
-public class NetworkStoreClientPrefixTest {
+class NetworkStoreClientPrefixTest {
 
     @Autowired
     private RestClient restClient;
@@ -46,7 +46,7 @@ public class NetworkStoreClientPrefixTest {
     private static final String DEFAULT_PREFIX = "http://network-store-server/v1";
 
     @Test
-    public void testGetIds() throws JsonProcessingException {
+    void testGetIds() throws JsonProcessingException {
         try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE)) {
             // Is there a way to avoid stubbing the response (we only want to test the request?)
             server.expect(requestTo(DEFAULT_PREFIX + "/networks"))

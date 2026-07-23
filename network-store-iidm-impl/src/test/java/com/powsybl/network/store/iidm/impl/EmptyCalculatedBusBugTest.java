@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class EmptyCalculatedBusBugTest {
+class EmptyCalculatedBusBugTest {
 
     @Test
-    public void testCalculatedBuses1() {
+    void testCalculatedBuses1() {
         Network network = CreateNetworksUtil.createEmptyNodeBreakerNetwork();
         VoltageLevel vl = network.getVoltageLevel("VL");
 
@@ -29,7 +29,7 @@ public class EmptyCalculatedBusBugTest {
     }
 
     @Test
-    public void testCalculatedBuses2() {
+    void testCalculatedBuses2() {
         Network network = CreateNetworksUtil.createEmptyNodeBreakerNetwork();
         VoltageLevel vl = network.getVoltageLevel("VL");
         vl.getNodeBreakerView()

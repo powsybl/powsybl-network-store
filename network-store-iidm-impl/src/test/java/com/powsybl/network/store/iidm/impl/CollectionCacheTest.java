@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CollectionCacheTest {
+class CollectionCacheTest {
 
     private static final UUID NETWORK_UUID = UUID.randomUUID();
 
@@ -48,7 +48,7 @@ public class CollectionCacheTest {
     private BiFunction<UUID, Integer, List<Resource<LoadAttributes>>> allLoader;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         oneLoaderCalled = false;
         containerLoaderCalled = false;
         allLoaderCalled = false;
@@ -117,7 +117,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void getResourcesFirstTest() {
+    void getResourcesFirstTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -136,7 +136,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void getResourceFirstTest() {
+    void getResourceFirstTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -160,14 +160,14 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void incorrectGetContainerResourcesTest() {
+    void incorrectGetContainerResourcesTest() {
         CollectionCache<LoadAttributes> otherCollectionCache = new CollectionCache<>(oneLoader, null, allLoader, null);
         PowsyblException exception = assertThrows(PowsyblException.class, () -> otherCollectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ""));
         assertEquals("it is not possible to load resources by container, if container resources loader has not been specified", exception.getMessage());
     }
 
     @Test
-    public void getContainerResourcesFirstTest() {
+    void getContainerResourcesFirstTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -182,7 +182,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void getResourceCountTest() {
+    void getResourceCountTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -193,7 +193,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void createResourceTest() {
+    void createResourceTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -212,7 +212,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void createThenRemoveResourceTest() {
+    void createThenRemoveResourceTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -228,7 +228,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void removeThenCreateResourceTest() {
+    void removeThenCreateResourceTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -248,7 +248,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void updateResourceTest() {
+    void updateResourceTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -269,7 +269,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void getThenUpdateResourceTest() {
+    void getThenUpdateResourceTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -292,7 +292,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void initTest() {
+    void initTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -304,7 +304,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void initContainerTest() {
+    void initContainerTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -320,7 +320,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void getContainerResourcesThenRemoveTest() {
+    void getContainerResourcesThenRemoveTest() {
         collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1");
         assertEquals(2, collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1").size());
         collectionCache.removeResource("l1");
@@ -328,14 +328,14 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void removeResourceThenGetContainerTest() {
+    void removeResourceThenGetContainerTest() {
         collectionCache.removeResource("l1");
         collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1");
         assertEquals(1, collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1").size());
     }
 
     @Test
-    public void initExtensionsTest() {
+    void initExtensionsTest() {
         assertEquals(Arrays.asList(l1, l2, l3), collectionCache.getResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
         assertFalse(mockNetworkStoreClient.isExtensionAttributesLoaderByResourceTypeAndNameCalled());
@@ -353,7 +353,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void getExtensionAttributesWithResourceNotCachedMustThrow() {
+    void getExtensionAttributesWithResourceNotCachedMustThrow() {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> collectionCache.getExtensionAttributes(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, "l1",
                 "activePowerControl"));
         assertTrue(exception.getMessage().startsWith("Cannot manipulate extensions for identifiable"));
@@ -367,7 +367,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void getExtensionAttributes() {
+    void getExtensionAttributes() {
         // Load resources in cache
         assertEquals(l1, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElse(null));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
@@ -389,7 +389,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void removeExtensionAttributes() {
+    void removeExtensionAttributes() {
         // Load resources in cache
         assertEquals(Arrays.asList(l1, l2, l3), collectionCache.getResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
@@ -413,7 +413,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void extensionIsCachedAndResourceIsRemovedAndAddedAgainWithoutExtensions() {
+    void extensionIsCachedAndResourceIsRemovedAndAddedAgainWithoutExtensions() {
         // Load resources in cache
         assertEquals(l1, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElse(null));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
@@ -448,7 +448,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void extensionIsCachedAndResourceIsRemovedAndAddedAgainWithDifferentExtensions() {
+    void extensionIsCachedAndResourceIsRemovedAndAddedAgainWithDifferentExtensions() {
         // Load resources in cache
         assertEquals(l1, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElse(null));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
@@ -478,7 +478,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void whenExtensionIsCachedThenRemovedClearExtensionCache() {
+    void whenExtensionIsCachedThenRemovedClearExtensionCache() {
         // Load resources in cache
         assertEquals(l1, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElse(null));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
@@ -501,7 +501,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void loadExtensionAttributesByResourceTypeAndName() {
+    void loadExtensionAttributesByResourceTypeAndName() {
         // Load resources in cache
         assertEquals(Arrays.asList(l1, l2, l3), collectionCache.getResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
@@ -525,7 +525,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void getExtensionAttributesLoaderById() {
+    void getExtensionAttributesLoaderById() {
         // Load resources in cache
         assertEquals(Arrays.asList(l1, l2, l3), collectionCache.getResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
@@ -549,7 +549,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void loadExtensionAttributesByResourceType() {
+    void loadExtensionAttributesByResourceType() {
         // Load resources in cache
         assertEquals(Arrays.asList(l1, l2, l3), collectionCache.getResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
@@ -574,7 +574,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void createThrowTest() {
+    void createThrowTest() {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -586,7 +586,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void extensionGetExtensionThenUpdateThenGetExtensions() {
+    void extensionGetExtensionThenUpdateThenGetExtensions() {
         // Load resources in cache
         assertEquals(l1, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElse(null));
         assertFalse(mockNetworkStoreClient.isExtensionAttributeLoaderCalled());
@@ -621,7 +621,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void extensionGetExtensionThenUpdateThenGetExtensionPreloadingCollection() {
+    void extensionGetExtensionThenUpdateThenGetExtensionPreloadingCollection() {
         // Load resourcess in cache
         assertEquals(l1, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElse(null));
         assertEquals(l2, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l2").orElse(null));
@@ -659,7 +659,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void cloneCollectionContainerLoading() {
+    void cloneCollectionContainerLoading() {
         // Load resources in cache
         Resource<LoadAttributes> l1Result = collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElse(null);
         assertEquals(l1, l1Result);
@@ -686,7 +686,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void cloneCollectionFullCollectionLoading() {
+    void cloneCollectionFullCollectionLoading() {
         // Load resources in cache
         Resource<LoadAttributes> l1Result = collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElse(null);
         assertEquals(l1, l1Result);

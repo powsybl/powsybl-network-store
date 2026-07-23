@@ -20,10 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
-public class AttributesTest {
+class AttributesTest {
 
     @Test
-    public void testSerialization() throws JsonProcessingException {
+    void testSerialization() throws JsonProcessingException {
         GeneratorStartupAttributes generatorStartupAttributes = new GeneratorStartupAttributes(0.5, 10, 5, 3, 5);
         ObjectMapper mapper = new ObjectMapper();
         String serialized = mapper.writeValueAsString(generatorStartupAttributes);
@@ -31,7 +31,7 @@ public class AttributesTest {
     }
 
     @Test
-    public void testSerDeserialization() throws JsonProcessingException {
+    void testSerDeserialization() throws JsonProcessingException {
         GeneratorStartupAttributes generatorStartupAttributes = new GeneratorStartupAttributes(0.5, 10, 5, 3, 5);
         ObjectMapper mapper = new ObjectMapper();
         String serialized = mapper.writeValueAsString(generatorStartupAttributes);
@@ -44,7 +44,7 @@ public class AttributesTest {
     }
 
     @Test
-    public void testDeserializeExtensionWithNotExistingLoader() throws JsonProcessingException {
+    void testDeserializeExtensionWithNotExistingLoader() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         String json = "{\"extensionName\":\"unknownName\",\"unknownAttribute1\":0.5,\"unknownAttribute2\":10.0,\"unknownAttribute3\": {\"unknownAttribute4\":3.0,\"unknownAttribute5\":5.0}}";
 
@@ -62,7 +62,7 @@ public class AttributesTest {
     }
 
     @Test
-    public void testGetUnknownExtension() {
+    void testGetUnknownExtension() {
         NetworkImpl network = (NetworkImpl) CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
         LineImpl line = (LineImpl) network.getLine("LINE1");
         assertNotNull(line);

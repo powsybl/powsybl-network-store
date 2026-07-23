@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractAliasesTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AliasesTest extends AbstractAliasesTest {
+class AliasesTest extends AbstractAliasesTest {
 
     @Override
     public void mergeFailWhenAliasEqualsToAnAliasOfOtherNetwork() {

@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TopLevelDocumentTest {
+class TopLevelDocumentTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id("S")
                 .attributes(SubstationAttributes.builder()
@@ -44,7 +44,7 @@ public class TopLevelDocumentTest {
     }
 
     @Test
-    public void testMultiResources() throws IOException {
+    void testMultiResources() throws IOException {
         Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id("S")
                 .attributes(SubstationAttributes.builder()
@@ -65,7 +65,7 @@ public class TopLevelDocumentTest {
     }
 
     @Test
-    public void testEmpty() throws IOException {
+    void testEmpty() throws IOException {
         TopLevelDocument document = TopLevelDocument.empty();
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
@@ -74,7 +74,7 @@ public class TopLevelDocumentTest {
     }
 
     @Test
-    public void testMeta() throws IOException {
+    void testMeta() throws IOException {
         Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id("S")
                 .attributes(SubstationAttributes.builder()
@@ -95,7 +95,7 @@ public class TopLevelDocumentTest {
     }
 
     @Test
-    public void testGenerator() throws IOException {
+    void testGenerator() throws IOException {
         TerminalRefAttributes regulatedTerminalAttributes =
             TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
         RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes("gen1", GENERATOR, RegulatingTapChangerType.NONE,
@@ -142,7 +142,7 @@ public class TopLevelDocumentTest {
     }
 
     @Test
-    public void testEmptyExtensionAttributes() throws IOException {
+    void testEmptyExtensionAttributes() throws IOException {
         ExtensionAttributesTopLevelDocument document = ExtensionAttributesTopLevelDocument.empty();
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
@@ -151,7 +151,7 @@ public class TopLevelDocumentTest {
     }
 
     @Test
-    public void testEmptyOperationalLimitsGroupAttributes() throws IOException {
+    void testEmptyOperationalLimitsGroupAttributes() throws IOException {
         OperationalLimitsGroupAttributesTopLevelDocument document = OperationalLimitsGroupAttributesTopLevelDocument.empty();
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);

@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ConfiguredBusBugTest {
+class ConfiguredBusBugTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create(new NetworkFactoryImpl());
         List<String> ids = network.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toList());
         assertEquals(List.of("P1", "P2", "VLGEN", "VLHV1", "VLHV2", "VLLOAD", "GEN", "LOAD", "NGEN_NHV1", "NHV2_NLOAD",

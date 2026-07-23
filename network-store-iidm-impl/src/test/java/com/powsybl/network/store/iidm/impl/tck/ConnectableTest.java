@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ConnectableTest extends AbstractConnectableTest {
+class ConnectableTest extends AbstractConnectableTest {
 
     @Override
     @Test

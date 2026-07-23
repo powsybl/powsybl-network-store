@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractForkConnectDisconnectTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ForkConnectDisconnectTest extends AbstractForkConnectDisconnectTest {
+class ForkConnectDisconnectTest extends AbstractForkConnectDisconnectTest {
 }

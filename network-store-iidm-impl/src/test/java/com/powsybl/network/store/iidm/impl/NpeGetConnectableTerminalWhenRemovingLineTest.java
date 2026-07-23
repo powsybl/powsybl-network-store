@@ -13,18 +13,22 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NpeGetConnectableTerminalWhenRemovingLineTest {
+class NpeGetConnectableTerminalWhenRemovingLineTest {
 
     @Test
-    public void test() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-        network.getLine("LINE_S2S3").remove();
-        VoltageLevel vl = network.getVoltageLevel("S2VL1");
-        for (Bus b : vl.getBusView().getBuses()) {
-            b.visitConnectedEquipments(new DefaultTopologyVisitor());
-        }
+    void test() {
+        assertDoesNotThrow(() -> {
+            Network network = FourSubstationsNodeBreakerFactory.create();
+            network.getLine("LINE_S2S3").remove();
+            VoltageLevel vl = network.getVoltageLevel("S2VL1");
+            for (Bus b : vl.getBusView().getBuses()) {
+                b.visitConnectedEquipments(new DefaultTopologyVisitor());
+            }
+        });
     }
 }

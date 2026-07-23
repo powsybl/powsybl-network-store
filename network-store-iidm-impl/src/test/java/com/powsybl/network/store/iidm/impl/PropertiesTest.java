@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author David Braquart <david.braquart at rte-france.com>
  */
-public class PropertiesTest {
+class PropertiesTest {
 
     @Test
-    public void testPropertiesChangesNotification() {
+    void testPropertiesChangesNotification() {
         NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         network.addListener(mockedListener);

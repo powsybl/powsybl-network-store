@@ -29,9 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * complex specific exhaustive tests for setV and setAngle interactions with calculated views.
  */
-public class VoltageLevelSetVAngleInCalculatedViewsTest {
+class VoltageLevelSetVAngleInCalculatedViewsTest {
     @Test
-    public void testWithMultipleBusInBusBreakerAndBusView() {
+    void testWithMultipleBusInBusBreakerAndBusView() {
         testSetMultipleBusAcrossViews(() -> {
             Network network = Network.create("test_mcc", "test");
             return createNodeBreaker(network);

@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractMoveConnectableNotifTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class MoveConnectableNotifTest extends AbstractMoveConnectableNotifTest {
+class MoveConnectableNotifTest extends AbstractMoveConnectableNotifTest {
 }

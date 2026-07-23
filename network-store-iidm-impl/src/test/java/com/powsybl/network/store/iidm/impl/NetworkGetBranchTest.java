@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkGetBranchTest {
+class NetworkGetBranchTest {
 
     @Test
-    public void test() {
+    void test() {
         var network = EurostagTutorialExample1Factory.create();
         assertNotNull(network.getBranch("NHV1_NHV2_1"));
         assertNotNull(network.getBranch("NGEN_NHV1"));

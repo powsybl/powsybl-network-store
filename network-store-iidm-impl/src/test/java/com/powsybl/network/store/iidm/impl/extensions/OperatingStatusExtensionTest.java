@@ -20,10 +20,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class OperatingStatusExtensionTest {
+class OperatingStatusExtensionTest {
 
     @Test
-    public void testLineOperatingStatusExtension() {
+    void testLineOperatingStatusExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         Line line = network.getLine("LINE1");
@@ -49,7 +49,7 @@ public class OperatingStatusExtensionTest {
     }
 
     @Test
-    public void testTwoWindingsTransformerOperatingStatusExtension() {
+    void testTwoWindingsTransformerOperatingStatusExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TwoWT1");
@@ -73,7 +73,7 @@ public class OperatingStatusExtensionTest {
     }
 
     @Test
-    public void testThreeWindingsTransformerOperatingStatusExtension() {
+    void testThreeWindingsTransformerOperatingStatusExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("TWT1");
@@ -97,7 +97,7 @@ public class OperatingStatusExtensionTest {
     }
 
     @Test
-    public void testBoundaryLineOperatingStatusExtension() {
+    void testBoundaryLineOperatingStatusExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         BoundaryLine dl = network.getBoundaryLine("BL1");
@@ -121,7 +121,7 @@ public class OperatingStatusExtensionTest {
     }
 
     @Test
-    public void testTieLineOperatingStatusExtension() {
+    void testTieLineOperatingStatusExtension() {
         Network network = CreateNetworksUtil.createDummyNodeBreakerWithTieLineNetwork();
 
         TieLine tl = network.getTieLine("TL");
@@ -145,7 +145,7 @@ public class OperatingStatusExtensionTest {
     }
 
     @Test
-    public void testHvdcLineOperatingStatusExtension() {
+    void testHvdcLineOperatingStatusExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         HvdcLine hvdcLine = network.getHvdcLine("HVDC1");
@@ -169,7 +169,7 @@ public class OperatingStatusExtensionTest {
     }
 
     @Test
-    public void testRemoveExtension() {
+    void testRemoveExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         DummyNetworkListener listener1 = new DummyNetworkListener();
         MockNetworkListenerWithExceptions listener2 = new MockNetworkListenerWithExceptions();

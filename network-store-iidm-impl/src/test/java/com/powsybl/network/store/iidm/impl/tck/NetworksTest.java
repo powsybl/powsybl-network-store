@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworksTest extends AbstractNetworksTest {
+class NetworksTest extends AbstractNetworksTest {
 
     @Override
     @Test

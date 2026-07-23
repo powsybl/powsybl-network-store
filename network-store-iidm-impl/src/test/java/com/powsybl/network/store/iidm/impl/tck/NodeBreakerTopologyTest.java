@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.util.AbstractNodeBreakerTopologyTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class NodeBreakerTopologyTest extends AbstractNodeBreakerTopologyTest {
+class NodeBreakerTopologyTest extends AbstractNodeBreakerTopologyTest {
 }

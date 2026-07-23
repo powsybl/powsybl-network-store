@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractDcSwitchTest;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class DcSwithTest extends AbstractDcSwitchTest {
+class DcSwithTest extends AbstractDcSwitchTest {
 
     // These methods will allow for more detailed modeling of HVDCs.
     // This is a long-term work on the powsybl side.

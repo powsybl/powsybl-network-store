@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class ComponentTest {
+class ComponentTest {
 
     @Test
-    public void testBusBreakerComponent() {
+    void testBusBreakerComponent() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
@@ -66,7 +66,7 @@ public class ComponentTest {
     }
 
     @Test
-    public void testConfiguredBusComponent() {
+    void testConfiguredBusComponent() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
@@ -106,7 +106,7 @@ public class ComponentTest {
     }
 
     @Test
-    public void testNodeBreakerComponent() {
+    void testNodeBreakerComponent() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
@@ -148,7 +148,7 @@ public class ComponentTest {
     }
 
     @Test
-    public void testBugComponentsCalculationWithVariants() {
+    void testBugComponentsCalculationWithVariants() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         // Calculate buses without components calculation

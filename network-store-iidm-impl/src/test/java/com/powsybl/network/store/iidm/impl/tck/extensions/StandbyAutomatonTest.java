@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
+class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
 
     @Test
     /*

@@ -46,7 +46,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  */
 
 @RestClientTest
-public class RestNetworkStoreClientTest {
+class RestNetworkStoreClientTest {
 
     // Necessary with empty @RestClientTest for this
     // lib which doesn't have a @SpringBootApplication in
@@ -83,7 +83,7 @@ public class RestNetworkStoreClientTest {
     private final UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         objectMapper.registerModule(new JavaTimeModule())
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
@@ -255,7 +255,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void test() throws JsonProcessingException {
+    void test() throws JsonProcessingException {
         setupNetworkStubs();
         try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE)) {
             assertEquals(Collections.singletonMap(networkUuid, "n1"), service.getNetworkIds());
@@ -323,7 +323,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testRemoveAll() {
+    void testRemoveAll() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
 
         List<String> ids = List.of("id1", "id2", "id3");
@@ -355,7 +355,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testRemoveError() {
+    void testRemoveError() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         List<String> wrongId = List.of("wrongId");
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
@@ -368,7 +368,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testRemoveWithResourceAccessException() {
+    void testRemoveWithResourceAccessException() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         List<String> wrongId2 = List.of("wrongId2");
         server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
@@ -395,7 +395,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testRawExtensionAttributes() {
+    void testRawExtensionAttributes() {
         String identifiableId = "identifiableId";
         String extensionName = "extensionName1";
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
@@ -408,7 +408,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testRawExtensionAttributesByIdentifiableId() {
+    void testRawExtensionAttributesByIdentifiableId() {
         String identifiableId = "identifiableId";
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/" + identifiableId + "/extensions"))
@@ -424,7 +424,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testRawExtensionAttributesByResourceTypeAndExtensionName() {
+    void testRawExtensionAttributesByResourceTypeAndExtensionName() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions/" + ActivePowerControl.NAME))
                 .andExpect(method(GET))
@@ -436,7 +436,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testRawExtensionAttributesByResourceType() {
+    void testRawExtensionAttributesByResourceType() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/types/" + ResourceType.GENERATOR + "/extensions"))
                 .andExpect(method(GET))
@@ -455,7 +455,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testOperationalLimitsGroupAttributesByResourceType() {
+    void testOperationalLimitsGroupAttributesByResourceType() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup/selected"))
                 .andExpect(method(GET))
@@ -474,7 +474,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testExceptionHandlerOnDuplicateKeyError() {
+    void testExceptionHandlerOnDuplicateKeyError() {
         UUID newNetworkUuid = UUID.randomUUID();
         int sourceVariantNum = 0;
         int targetVariantNum = 1;
@@ -488,7 +488,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testUpdateDoesNotChangeResourceAttributeFilter() {
+    void testUpdateDoesNotChangeResourceAttributeFilter() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         LoadAttributes loadAttributes = new LoadAttributes();
         loadAttributes.setP(100);
@@ -518,7 +518,7 @@ public class RestNetworkStoreClientTest {
     }
 
     @Test
-    public void testUpdateWithSvAttributes() {
+    void testUpdateWithSvAttributes() {
         RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
         ShuntCompensatorAttributes shuntCompensatorAttributes = new ShuntCompensatorAttributes();
         shuntCompensatorAttributes.setP(1);

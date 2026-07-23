@@ -20,10 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PreloadingAllCollectionsTest {
+class PreloadingAllCollectionsTest {
 
     @Test
-    public void test() {
+    void test() {
         var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         client.getSubstations(networkUuid, 0);
@@ -36,7 +36,7 @@ public class PreloadingAllCollectionsTest {
     }
 
     @Test
-    public void testWithAllCollections() {
+    void testWithAllCollections() {
         var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), true, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         client.getSubstations(networkUuid, 0);

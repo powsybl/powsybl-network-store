@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.util.AbstractSwitchPredicatesTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class SwitchPredicatesTest extends AbstractSwitchPredicatesTest {
+class SwitchPredicatesTest extends AbstractSwitchPredicatesTest {
 }

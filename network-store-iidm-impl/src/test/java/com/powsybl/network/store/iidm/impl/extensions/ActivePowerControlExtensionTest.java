@@ -20,10 +20,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ActivePowerControlExtensionTest {
+class ActivePowerControlExtensionTest {
 
     @Test
-    public void testBatteryActivePowerControlExtension() {
+    void testBatteryActivePowerControlExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         // add dummy listener to check notification
@@ -70,7 +70,7 @@ public class ActivePowerControlExtensionTest {
     }
 
     @Test
-    public void testActivePowerControlGetExtension() {
+    void testActivePowerControlGetExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         Battery battery = network.getBattery("battery");

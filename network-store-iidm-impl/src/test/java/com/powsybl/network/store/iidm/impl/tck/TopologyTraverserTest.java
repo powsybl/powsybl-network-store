@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
+class TopologyTraverserTest extends AbstractTopologyTraverserTest {
 
     @Test
     public void testTerminateTraverser() {
@@ -48,7 +48,7 @@ public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
     }
 
     @Test
-    public void testTraversalOrder() {
+    void testTraversalOrder() {
         Network network = FictitiousSwitchFactory.create();
         List<Pair<String, Integer>> visited = getVisitedList(network.getGenerator("CB").getTerminal(), s -> TraverseResult.CONTINUE);
         assertEquals(List.of(Pair.of("CB", 0), Pair.of("O", 0), Pair.of("P", 0), Pair.of("CF", 0),

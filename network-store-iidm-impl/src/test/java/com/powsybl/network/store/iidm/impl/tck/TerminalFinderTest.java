@@ -12,5 +12,5 @@ import com.powsybl.iidm.network.tck.AbstractTerminalFinderTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TerminalFinderTest extends AbstractTerminalFinderTest {
+class TerminalFinderTest extends AbstractTerminalFinderTest {
 }

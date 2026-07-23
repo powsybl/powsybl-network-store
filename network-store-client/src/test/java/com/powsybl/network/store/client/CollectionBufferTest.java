@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CollectionBufferTest {
+class CollectionBufferTest {
 
     private static final UUID NETWORK_UUID = UUID.randomUUID();
 
@@ -41,7 +41,7 @@ public class CollectionBufferTest {
     private final UUID uuid = UUID.randomUUID();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         created.clear();
         updated.clear();
         removed.clear();
@@ -66,7 +66,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void createTest() {
+    void createTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
@@ -78,7 +78,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void createThenUpdateTest() {
+    void createThenUpdateTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
@@ -91,7 +91,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void updateTest() {
+    void updateTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
@@ -103,7 +103,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void removeTest() {
+    void removeTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
@@ -115,7 +115,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void createThenRemoveTest() {
+    void createThenRemoveTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());
@@ -128,7 +128,7 @@ public class CollectionBufferTest {
     }
 
     @Test
-    public void updateThenRemoveTest() {
+    void updateThenRemoveTest() {
         assertTrue(created.isEmpty());
         assertTrue(updated.isEmpty());
         assertTrue(removed.isEmpty());

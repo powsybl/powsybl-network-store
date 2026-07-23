@@ -17,13 +17,13 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BoundaryTest {
+class BoundaryTest {
 
     private static final double EPS1 = Math.pow(10, -1);
     private static final double EPS2 = Math.pow(10, -2);
 
     @Test
-    public void boundaryLineTest() {
+    void boundaryLineTest() {
         Network network = Importer.find("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), new NetworkFactoryImpl(), null);
         BoundaryLine dl = network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
@@ -43,7 +43,7 @@ public class BoundaryTest {
     }
 
     @Test
-    public void tieLineTest() {
+    void tieLineTest() {
         Properties properties = new Properties();
         properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importer.find("CGMES")

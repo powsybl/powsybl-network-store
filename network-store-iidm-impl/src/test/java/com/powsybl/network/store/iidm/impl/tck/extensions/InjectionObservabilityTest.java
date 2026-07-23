@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class InjectionObservabilityTest extends AbstractInjectionObservabilityTest {
+class InjectionObservabilityTest extends AbstractInjectionObservabilityTest {
     // TODO : add this test method later in AbstractInjectionObservabilityTest
     @Test
-    public void testOnBusbarSections() {
+    void testOnBusbarSections() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         BusbarSection bbs = network.getBusbarSection("S1VL1_BBS");
         assertNotNull(bbs);

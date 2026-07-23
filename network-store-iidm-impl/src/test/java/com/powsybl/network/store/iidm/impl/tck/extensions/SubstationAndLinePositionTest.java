@@ -25,9 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SubstationAndLinePositionTest extends AbstractSubstationAndLinePositionTest {
+class SubstationAndLinePositionTest extends AbstractSubstationAndLinePositionTest {
     @Test
-    public void testLinePositionException() {
+    void testLinePositionException() {
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
         assertEquals("Line position extension only supported for lines and boundary lines", assertThrows(PowsyblException.class, () -> vl.newExtension(LinePositionAdder.class)).getMessage());
@@ -35,7 +35,7 @@ public class SubstationAndLinePositionTest extends AbstractSubstationAndLinePosi
     }
 
     @Test
-    public void testExtensionsName() {
+    void testExtensionsName() {
         Network network = EurostagTutorialExample1Factory.create();
 
         Substation p1 = network.getSubstation("P1");

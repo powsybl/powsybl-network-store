@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class NodeBreakerCalculatedBusTest {
+class NodeBreakerCalculatedBusTest {
 
     @Test
-    public void testCalculatedBuses() {
+    void testCalculatedBuses() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -48,7 +48,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testCalculatedBusesSwitchRetain() {
+    void testCalculatedBusesSwitchRetain() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         CreateNetworksUtil.addBusBarSection(vl1);
@@ -99,7 +99,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testCalculatedBusesSwitch1() {
+    void testCalculatedBusesSwitch1() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         CreateNetworksUtil.addBusBarSection(vl1);
@@ -124,7 +124,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testCalculatedBusesSwitch2() {
+    void testCalculatedBusesSwitch2() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         CreateNetworksUtil.addBusBarSection(vl1);
@@ -151,7 +151,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testCalculatedBusesSwitch3() {
+    void testCalculatedBusesSwitch3() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         CreateNetworksUtil.addBusBarSection(vl1);
@@ -180,7 +180,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testCalculatedBusesSwitch4() {
+    void testCalculatedBusesSwitch4() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         CreateNetworksUtil.addBusBarSection(vl1);
@@ -207,7 +207,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testBusViewTerminals() {
+    void testBusViewTerminals() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
@@ -267,7 +267,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testBusViewVisitConnectedEquipments() {
+    void testBusViewVisitConnectedEquipments() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
@@ -293,7 +293,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testBusBreakerViewTerminals() {
+    void testBusBreakerViewTerminals() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
@@ -354,7 +354,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testBusBreakerViewVisitConnectedEquipments() {
+    void testBusBreakerViewVisitConnectedEquipments() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
@@ -387,7 +387,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testBusBreakerViewTerminalsVl1() {
+    void testBusBreakerViewTerminalsVl1() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
@@ -421,7 +421,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testBusBreakerViewTerminalsVl2() {
+    void testBusBreakerViewTerminalsVl2() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
@@ -455,7 +455,7 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testBusBreakerViewTerminalsOtherVls() {
+    void testBusBreakerViewTerminalsOtherVls() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
         VoltageLevel vl3 = network.getVoltageLevel("VL3");
         VoltageLevel vl4 = network.getVoltageLevel("VL4");
@@ -484,17 +484,18 @@ public class NodeBreakerCalculatedBusTest {
     }
 
     @Test
-    public void testGetConnectedComponentNumWithBusBreakerViewBug() {
+    void testGetConnectedComponentNumWithBusBreakerViewBug() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
-        // just assert there is not more exception thrown
-        for (Bus bus : network.getBusBreakerView().getBuses()) {
-            bus.getConnectedComponent();
-            bus.getSynchronousComponent();
-        }
+        assertDoesNotThrow(() -> {
+            for (Bus bus : network.getBusBreakerView().getBuses()) {
+                bus.getConnectedComponent();
+                bus.getSynchronousComponent();
+            }
+        });
     }
 
     @Test
-    public void testGetBusCacheInvalidation() {
+    void testGetBusCacheInvalidation() {
         String newVariant = "new_variant";
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");

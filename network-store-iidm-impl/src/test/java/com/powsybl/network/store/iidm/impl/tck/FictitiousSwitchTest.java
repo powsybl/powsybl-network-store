@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractFictitiousSwitchTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class FictitiousSwitchTest extends AbstractFictitiousSwitchTest { }
+class FictitiousSwitchTest extends AbstractFictitiousSwitchTest { }

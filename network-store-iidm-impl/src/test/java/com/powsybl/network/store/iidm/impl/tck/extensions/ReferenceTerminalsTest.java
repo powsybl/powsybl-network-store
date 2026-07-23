@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractReferenceTerminalsTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ReferenceTerminalsTest extends AbstractReferenceTerminalsTest {
+class ReferenceTerminalsTest extends AbstractReferenceTerminalsTest {
     @Override
     public void test() {
         // FIXME

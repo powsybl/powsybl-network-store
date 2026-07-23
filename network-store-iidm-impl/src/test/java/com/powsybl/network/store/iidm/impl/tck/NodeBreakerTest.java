@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeBreakerTest extends AbstractNodeBreakerTest {
+class NodeBreakerTest extends AbstractNodeBreakerTest {
 
     @Test
     public void testCalculatedBus() {

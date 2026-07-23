@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.tck.extensions.AbstractFortescueExtensionTest;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class FortescueExtensionTest extends AbstractFortescueExtensionTest {
+class FortescueExtensionTest extends AbstractFortescueExtensionTest {
     @Override
     public void testGenerator() {
         // FIXME

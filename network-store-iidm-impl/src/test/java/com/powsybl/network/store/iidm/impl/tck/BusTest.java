@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BusTest extends AbstractBusBreakerTest {
+class BusTest extends AbstractBusBreakerTest {
     @Test
-    public void testFictitiousNodeBreakerView() {
+    void testFictitiousNodeBreakerView() {
         Network network = NetworkTest1Factory.create();
         VoltageLevel voltageLevel1 = network.getVoltageLevel("voltageLevel1");
         assertNotNull(voltageLevel1);

@@ -23,10 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class TerminalTopologyTraverserTest {
+class TerminalTopologyTraverserTest {
 
     @Test
-    public void testWithOneBus() {
+    void testWithOneBus() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithOneBus();
         Terminal start = network.getLoad("LD1").getTerminal();
         List<String> traversed = recordTraversed(start, aSwitch -> aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER);
@@ -34,7 +34,7 @@ public class TerminalTopologyTraverserTest {
     }
 
     @Test
-    public void testTwoBuses() {
+    void testTwoBuses() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithTwoBuses();
         Predicate<Switch> switchPredicate = aSwitch -> aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
 
@@ -61,7 +61,7 @@ public class TerminalTopologyTraverserTest {
     }
 
     @Test
-    public void testMultiBuses() {
+    void testMultiBuses() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithMultiBuses();
         Predicate<Switch> switchPredicate = aSwitch -> aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
 
@@ -106,7 +106,7 @@ public class TerminalTopologyTraverserTest {
     }
 
     @Test
-    public void testWithLine() {
+    void testWithLine() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
 
         List<String> traversed = recordTraversed(network.getLoad("LD1").getTerminal(), s -> true);
@@ -136,7 +136,7 @@ public class TerminalTopologyTraverserTest {
     }
 
     @Test
-    public void testWithNodeBreaker() {
+    void testWithNodeBreaker() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         Terminal start = network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSection("BBS1").getTerminal();
@@ -185,7 +185,7 @@ public class TerminalTopologyTraverserTest {
     }
 
     @Test
-    public void testWithNodeBreakerWithSwitch() {
+    void testWithNodeBreakerWithSwitch() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         Predicate<Switch> switchPredicate = aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
@@ -213,7 +213,7 @@ public class TerminalTopologyTraverserTest {
     }
 
     @Test
-    public void testWithNodeBreakerWithSwitch1() {
+    void testWithNodeBreakerWithSwitch1() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         Predicate<Switch> switchPredicate = aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
@@ -231,7 +231,7 @@ public class TerminalTopologyTraverserTest {
     }
 
     @Test
-    public void testWithNodeBreakerWithSwitch2() {
+    void testWithNodeBreakerWithSwitch2() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         Predicate<Switch> switchPredicate = aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
@@ -247,7 +247,7 @@ public class TerminalTopologyTraverserTest {
     }
 
     @Test
-    public void testWithNodeBreakerWithSwitch3() {
+    void testWithNodeBreakerWithSwitch3() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         Predicate<Switch> switchPredicate = aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
@@ -264,7 +264,7 @@ public class TerminalTopologyTraverserTest {
     }
 
     @Test
-    public void testWithNodeBreakerWithSwitch4() {
+    void testWithNodeBreakerWithSwitch4() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         Predicate<Switch> switchPredicate = aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;

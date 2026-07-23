@@ -19,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
-public class CoordinateDeserializerTest {
+class CoordinateDeserializerTest {
 
     private ObjectMapper mapper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Coordinate.class, new CoordinateDeserializer());
@@ -32,7 +32,7 @@ public class CoordinateDeserializerTest {
     }
 
     @Test
-    public void testDeserialize() throws JsonProcessingException {
+    void testDeserialize() throws JsonProcessingException {
         String json = "{\"latitude\": 45.3, \"longitude\": 42}";
 
         Coordinate coordinate = mapper.readValue(json, Coordinate.class);
@@ -42,7 +42,7 @@ public class CoordinateDeserializerTest {
     }
 
     @Test
-    public void testDeserializeMissingFields() throws JsonProcessingException {
+    void testDeserializeMissingFields() throws JsonProcessingException {
         String json = "{\"latitude\": 45.3}";
 
         Coordinate coordinate = mapper.readValue(json, Coordinate.class);
@@ -52,7 +52,7 @@ public class CoordinateDeserializerTest {
     }
 
     @Test
-    public void testDeserializeUnexpectedField() {
+    void testDeserializeUnexpectedField() {
         String json = "{\"lat\": 45.3, \"longitude\": 42}";
 
         assertThrows(IllegalStateException.class, () -> {
@@ -61,7 +61,7 @@ public class CoordinateDeserializerTest {
     }
 
     @Test
-    public void testDeserializeWithAdditionalFields() {
+    void testDeserializeWithAdditionalFields() {
         String json = "{ \"latitude\": 45.3, \"longitude\": 42, \"field1\": 12}";
 
         assertThrows(IllegalStateException.class, () -> {

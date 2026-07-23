@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class OfflineModeTest {
+class OfflineModeTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
         assertEquals(2, network.getSubstationCount()); // thanks to the cache, network is not empty even if no server data backing
     }

@@ -19,14 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
  */
-public class TapChangerParentTest {
+class TapChangerParentTest {
 
     List<TapChangerStepAttributes> tapChangerStepsA;
     List<TapChangerStepAttributes> tapChangerStepsB;
     List<TapChangerStepAttributes> tapChangerStepsC;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         tapChangerStepsA = new ArrayList<>();
         tapChangerStepsA.add(TapChangerStepAttributes.builder()
             .rho(1.)
@@ -87,7 +87,7 @@ public class TapChangerParentTest {
     }
 
     @Test
-    public void twoWindingsTransformertapChangerAttributesTest() {
+    void twoWindingsTransformertapChangerAttributesTest() {
         RegulatingPointAttributes phaseTapChangerRegulatingPointAttributes = RegulatingPointAttributes.builder()
             .regulatingEquipmentId("id2WT")
             .regulatingResourceType(ResourceType.TWO_WINDINGS_TRANSFORMER)
@@ -174,7 +174,7 @@ public class TapChangerParentTest {
     }
 
     @Test
-    public void threeWindingsTransformertapChangerAttributesTest() {
+    void threeWindingsTransformertapChangerAttributesTest() {
         RegulatingPointAttributes phaseTapChangerRegulatingPointAttributes = RegulatingPointAttributes.builder()
             .regulatingEquipmentId("id2WT")
             .regulatingResourceType(ResourceType.TWO_WINDINGS_TRANSFORMER)

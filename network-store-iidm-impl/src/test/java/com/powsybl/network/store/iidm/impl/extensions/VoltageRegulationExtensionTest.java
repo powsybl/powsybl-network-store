@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class VoltageRegulationExtensionTest {
+class VoltageRegulationExtensionTest {
 
     @Test
-    public void testBatteryVoltageRegulationExtension() {
+    void testBatteryVoltageRegulationExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         // add dummy listener to check notification
@@ -85,7 +85,7 @@ public class VoltageRegulationExtensionTest {
     }
 
     @Test
-    public void testVoltageRegulationGetExtension() {
+    void testVoltageRegulationGetExtension() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         Battery battery = network.getBattery("battery");
@@ -107,7 +107,7 @@ public class VoltageRegulationExtensionTest {
     }
 
     @Test
-    public void testRegulatingTerminal() {
+    void testRegulatingTerminal() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
 
         Battery battery = network.getBattery("battery");

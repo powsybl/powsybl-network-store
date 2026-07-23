@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class NetworkTest {
+class NetworkTest {
 
     @Test
-    public void testBusBreakerComponent() {
+    void testBusBreakerComponent() {
         Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
 
         assertEquals(1, network.getSubstationStream().count());
@@ -43,7 +43,7 @@ public class NetworkTest {
     }
 
     @Test
-    public void testNodeBreakerComponent() {
+    void testNodeBreakerComponent() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         assertEquals(2, network.getSubstationStream().count());
@@ -64,7 +64,7 @@ public class NetworkTest {
     }
 
     @Test
-    public void testDcValues() {
+    void testDcValues() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         assertTrue(((List) network.getDcConnectables()).isEmpty());
         assertTrue(((List) network.getDcGrounds()).isEmpty());
@@ -85,7 +85,7 @@ public class NetworkTest {
     }
 
     @Test
-    public void removeExtension() {
+    void removeExtension() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         network.newExtension(BaseVoltageMappingAdder.class).addBaseVoltage("voltage", 1.0, BOUNDARY).add();
         assertTrue(network.removeExtension(BaseVoltageMapping.class));

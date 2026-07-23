@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
  * @author Mohamed Benrejeb <mohamed.ben-rejeb at rte-france.com>
  */
 @ExtendWith(MockitoExtension.class)
-public class NetworkStoreServiceTest {
+class NetworkStoreServiceTest {
 
     @Mock
     private RestClient restClient;
@@ -36,7 +36,7 @@ public class NetworkStoreServiceTest {
     private static final String TRACE_KEY = "trace-id";
 
     @Test
-    public void executorServicePropagatesContext() throws ExecutionException, InterruptedException {
+    void executorServicePropagatesContext() throws ExecutionException, InterruptedException {
         AtomicReference<ExecutorService> executorHolder = new AtomicReference<>();
         TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator = (rest, strategy, executor) -> {
             executorHolder.set(executor);

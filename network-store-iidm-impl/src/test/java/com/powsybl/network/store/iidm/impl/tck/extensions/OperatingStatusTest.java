@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractOperatingStatusTest;
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
-public class OperatingStatusTest extends AbstractOperatingStatusTest {
+class OperatingStatusTest extends AbstractOperatingStatusTest {
 }

@@ -18,12 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VertexTest {
+class VertexTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void testNodeBreaker() throws IOException {
+    void testNodeBreaker() throws IOException {
         Vertex v = new Vertex("l", IdentifiableType.LINE, 3, null, "ONE");
         String json = objectMapper.writeValueAsString(v);
 

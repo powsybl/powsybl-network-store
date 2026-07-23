@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractAcDcConverterTest;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class AcDcConverterTest extends AbstractAcDcConverterTest {
+class AcDcConverterTest extends AbstractAcDcConverterTest {
 
     @Override
     public void testDroopCurve() {

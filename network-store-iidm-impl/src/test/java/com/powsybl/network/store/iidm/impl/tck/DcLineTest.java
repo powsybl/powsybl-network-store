@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.tck.AbstractDcLineTest;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class DcLineTest extends AbstractDcLineTest {
+class DcLineTest extends AbstractDcLineTest {
     // These methods will allow for more detailed modeling of HVDCs.
     // This is a long-term work on the powsybl side.
     // It is too early to implement it on the network-store side and the need remains to be verified.
