@@ -546,7 +546,7 @@ public class TieLineImpl extends AbstractIdentifiableImpl<TieLine, TieLineAttrib
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
         return side == TwoSides.ONE ?
             getBoundaryLine1().getAllSelectedOperationalLimitsGroups() :
             getBoundaryLine2().getAllSelectedOperationalLimitsGroups();

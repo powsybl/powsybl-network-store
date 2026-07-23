@@ -459,8 +459,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         }
 
         @Override
-        public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
-            return getSelectedOperationalLimitsGroup().map(Set::of).orElseGet(Set::of);
+        public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+            return getSelectedOperationalLimitsGroup().map(List::of).orElseGet(List::of);
         }
 
         @Override

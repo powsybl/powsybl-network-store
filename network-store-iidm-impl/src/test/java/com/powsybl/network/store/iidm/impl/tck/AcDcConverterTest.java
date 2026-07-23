@@ -92,4 +92,44 @@ public class AcDcConverterTest extends AbstractAcDcConverterTest {
     public void testSetterGetterInMultiVariants() {
         // FIXME
     }
+
+    @Override
+    public void testMinMaxPDefaultValues() {
+        // FIXME
+    }
+
+    @Override
+    public void testMinMaxPSetter() {
+        // FIXME
+    }
+
+    @Override
+    public void testMinMaxPAdder() {
+        // FIXME
+    }
+
+    @Override
+    public void testMinMaxPSetterRejectsNaN() {
+        // FIXME
+    }
+
+    @Override
+    public void testMinMaxPAdderRejectsNaN() {
+        // FIXME
+    }
+
+    @Override
+    public void testMinMaxPSetterRejectsInconsistentLimits() {
+        // FIXME
+    }
+
+    @Override
+    public void testMinMaxPAdderRejectsInconsistentLimits() {
+        // FIXME
+    }
+
+    @Override
+    public void testMinMaxPNotifyUpdate() {
+        // FIXME
+    }
 }

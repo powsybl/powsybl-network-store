@@ -6,12 +6,8 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
-import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
-import com.powsybl.iidm.network.LoadingLimitsAdder;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.iidm.impl.AbstractLoadingLimits.TemporaryLimitImpl;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
@@ -44,6 +40,8 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
     protected double permanentLimit = Double.NaN;
 
     protected TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
+
+    protected DetectionKind detectionKind = DetectionKind.HIGH;
 
     protected AbstractLoadingLimitsAdderImpl(S side, O owner, String operationalGroupId) {
         this.owner = owner;
@@ -177,7 +175,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
         NetworkImpl network = owner.getIdentifiable().getNetwork();
         Collection<TemporaryLimit> temporaryLimitsToAdd = temporaryLimits == null ? Collections.emptyList() : temporaryLimits.values().stream().map(l -> new TemporaryLimitImpl(l, null)).collect(
                 Collectors.toList());
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit, temporaryLimitsToAdd, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit, getDetectionKind(), temporaryLimitsToAdd, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         checkTemporaryLimits();
 
         LimitsAttributes attributes = LimitsAttributes.builder()
@@ -186,5 +184,22 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
                 .build();
 
         return createAndSetLimit(attributes);
+    }
+
+    @Override
+    public DetectionKind getDetectionKind() {
+        return detectionKind;
+    }
+
+    @Override
+    public A setDetectionKind(DetectionKind detectionKind) {
+        this.detectionKind = detectionKind;
+        return (A) this;
+    }
+
+    @Override
+    public A setPermanentLimitName(String limitName) {
+        // TODO: to implement
+        return (A) this;
     }
 }

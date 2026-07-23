@@ -183,6 +183,11 @@ public class BoundaryLineImpl extends AbstractInjectionImpl<BoundaryLine, Bounda
         }
 
         @Override
+        public ReactiveCapabilityShapeAdder newReactiveCapabilityShape() {
+            throw new UnsupportedOperationException("Reactive capability shape feature not implemented yet");
+        }
+
+        @Override
         public MessageHeader getMessageHeader() {
             return new DefaultMessageHeader("generation part for boundary line", boundaryLine.getId());
         }
@@ -591,8 +596,8 @@ public class BoundaryLineImpl extends AbstractInjectionImpl<BoundaryLine, Bounda
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
-        return getSelectedOperationalLimitsGroup().map(Set::of).orElseGet(Set::of);
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+        return getSelectedOperationalLimitsGroup().map(List::of).orElseGet(List::of);
     }
 
     @Override

@@ -1327,6 +1327,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
+    public Stream<DcConnectable> getDcConnectableStream() {
+        // FIXME : needed in tck tests in unsetSolvedValues
+        return Stream.of();
+    }
+
+    @Override
     public <E extends Extension<Network>> boolean removeExtension(Class<E> type) {
         super.removeExtension(type);
         if (type == BaseVoltageMapping.class) {

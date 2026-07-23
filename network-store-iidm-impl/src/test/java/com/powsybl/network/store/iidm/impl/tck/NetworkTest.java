@@ -192,11 +192,11 @@ class NetworkTest extends AbstractNetworkTest {
         // FIXME-Override KO assertEquals(0, busCalc.getConnectedComponent().getNum());
 
         // Changes listener
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
+        NetworkListener exceptionListener = mock(NetworkListener.class);
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyAdded(any(), anyString(), any());
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyReplaced(any(), anyString(),
                 any(), any());
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(NetworkListener.class);
 
         // Identifiable properties
         // FIXME-Override properties assertions made on voltageLevel1 rather than busCalc, cause CalculatedBus is NOT AbstractIdentifiable in network-store

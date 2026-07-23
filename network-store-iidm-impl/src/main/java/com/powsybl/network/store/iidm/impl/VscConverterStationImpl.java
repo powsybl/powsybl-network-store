@@ -135,6 +135,11 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
     }
 
     @Override
+    public ReactiveCapabilityShapeAdder newReactiveCapabilityShape() {
+        throw new UnsupportedOperationException("Reactive capability shape feature not implemented yet");
+    }
+
+    @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
         return new ReactiveCapabilityCurveAdderImpl<>(this);
     }

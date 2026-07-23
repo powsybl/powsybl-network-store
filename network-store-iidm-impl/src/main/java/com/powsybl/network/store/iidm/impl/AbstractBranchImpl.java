@@ -697,7 +697,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
         //
         // TODO : to be completed later, when we will handle multiple selected operational limits groups on one side
         // For now, we only return the one selected
@@ -705,7 +705,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
         Optional<OperationalLimitsGroup> selectedOperationalLimitsGroup = side == TwoSides.ONE ?
             getSelectedOperationalLimitsGroup1() :
             getSelectedOperationalLimitsGroup2();
-        return selectedOperationalLimitsGroup.map(Set::of).orElseGet(Set::of);
+        return selectedOperationalLimitsGroup.map(List::of).orElseGet(List::of);
     }
 
     @Override

@@ -59,6 +59,26 @@ public class LineFortescueAdderImpl extends AbstractIidmExtensionAdder<Line, Lin
     }
 
     @Override
+    public LineFortescueAdder withG1z(double g1z) {
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdder withB1z(double b1z) {
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdder withG2z(double g2z) {
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdder withB2z(double b2z) {
+        return this;
+    }
+
+    @Override
     public LineFortescueAdder withOpenPhaseA(boolean openPhaseA) {
         this.openPhaseA = openPhaseA;
         return this;

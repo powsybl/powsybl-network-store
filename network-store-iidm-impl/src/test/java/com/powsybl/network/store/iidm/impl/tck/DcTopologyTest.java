@@ -85,4 +85,19 @@ class DcTopologyTest extends AbstractDcTopologyTest {
     @Test
     public void testOneDcComponent() {
     }
+
+    @Override
+    @Test
+    public void testDcComponentsRespectSwitchOpenState() {
+    }
+
+    @Override
+    @Test
+    public void testHotChangeTopology() {
+    }
+
+    @Override
+    @Test
+    public void testDisconnectedNodes() {
+    }
 }

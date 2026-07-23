@@ -18,6 +18,11 @@ public class DcSwithTest extends AbstractDcSwitchTest {
     // It is too early to implement it on the network-store side and the need remains to be verified.
 
     @Override
+    public void testCreateSimple2NodesDcSwitch() {
+        // FIXME: implement the new DC model
+    }
+
+    @Override
     public void testBase() {
         // FIXME: implement the new DC model
     }

@@ -76,6 +76,11 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractIidmExtens
     }
 
     @Override
+    public TwoWindingsTransformerFortescueAdder withXm(double xm) {
+        return this;
+    }
+
+    @Override
     public TwoWindingsTransformerFortescueAdderImpl withConnectionType1(WindingConnectionType connectionType1) {
         this.connectionType1 = Objects.requireNonNull(connectionType1);
         return this;

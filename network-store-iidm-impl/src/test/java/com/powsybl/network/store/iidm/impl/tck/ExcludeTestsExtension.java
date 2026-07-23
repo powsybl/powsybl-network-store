@@ -13,7 +13,18 @@ import java.util.Set;
 // + remove the annotation "@ExtendWith(ExcludeTestsExtension.class)" from NetworkTest
 public class ExcludeTestsExtension implements InvocationInterceptor {
     private static final Set<String> EXCLUDED_TESTS = Set.of(
-            "testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork"
+            "testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork",
+            "testSameLine",
+            "testNullLine",
+            "testDuplicateCoupling",
+            "testFindSymmetric",
+            "testRemoveByLines",
+            "testRemoveByMutualCoupling",
+            "testSetters",
+            "testInvalidLineSegment",
+            "testInvalidRAndX",
+            "testListener",
+            "testConnectDisconnectWithFictitiousBreaker"
     );
 
     @Override

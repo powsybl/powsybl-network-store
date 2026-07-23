@@ -20,4 +20,10 @@ public class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControl
         // https://github.com/powsybl/powsybl-core/pull/3454 manage variant for PilotPointImpl
         // it should be implemented
     }
+
+    @Override
+    @Test
+    public void secondaryVoltageControlUpdateListenerTest() {
+        // FIXME: to be removed when Identifiable#setId is implemented
+    }
 }

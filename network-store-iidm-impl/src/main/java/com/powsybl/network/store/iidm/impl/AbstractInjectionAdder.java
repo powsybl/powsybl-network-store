@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.network.store.model.Resource;
@@ -62,16 +63,13 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
 
     protected void checkNodeBus() {
         String connectionBus = getConnectionBus();
-        if (node == null && connectionBus == null) {
-            throw new ValidationException(this, "connectable bus is not set");
-        }
 
         if (node != null && connectionBus != null) {
             throw new ValidationException(this, "connection node and connection bus are exclusives");
         }
 
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(getVoltageLevelResource().getId());
-        if (connectionBus != null) {
+        if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
             checkBus(connectionBus, voltageLevel);
         } else {
             checkNode(node, voltageLevel);
