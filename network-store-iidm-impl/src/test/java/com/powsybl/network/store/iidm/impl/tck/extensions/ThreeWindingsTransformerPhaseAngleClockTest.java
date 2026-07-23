@@ -12,28 +12,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractThreeWindingsTransformerP
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ThreeWindingsTransformerPhaseAngleClockTest extends AbstractThreeWindingsTransformerPhaseAngleClockTest {
-    @Override
-    public void testEnd() {
-        // FIXME
-    }
 
-    @Override
-    public void testError1Leg2() {
-        // FIXME
-    }
-
-    @Override
-    public void testError1Leg3() {
-        // FIXME
-    }
-
-    @Override
-    public void testError2Leg2() {
-        // FIXME
-    }
-
-    @Override
-    public void testError2Leg3() {
-        // FIXME
-    }
 }

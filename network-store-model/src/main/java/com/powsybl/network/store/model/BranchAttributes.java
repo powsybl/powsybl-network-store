@@ -8,15 +8,15 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
-import com.powsybl.commons.PowsyblException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitHolder, BranchStatusHolder {
+public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitHolder, RegulatedEquipmentAttributes {
 
     String getVoltageLevelId1();
 
@@ -74,29 +74,58 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
 
     void setPosition2(ConnectablePositionAttributes position);
 
-    LimitsAttributes getCurrentLimits1();
+    Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups1();
 
-    void setCurrentLimits1(LimitsAttributes currentLimits);
+    String getSelectedOperationalLimitsGroupId1();
 
-    LimitsAttributes getCurrentLimits2();
+    void setOperationalLimitsGroups1(Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups);
 
-    void setCurrentLimits2(LimitsAttributes currentLimits);
+    default OperationalLimitsGroupAttributes getOperationalLimitsGroup1(String id) {
+        return getOperationalLimitsGroups1().get(id);
+    }
 
-    LimitsAttributes getApparentPowerLimits1();
+    default OperationalLimitsGroupAttributes getOrCreateOperationalLimitsGroup1(String id) {
+        return getOperationalLimitsGroups1().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null, null));
+    }
 
-    void setApparentPowerLimits1(LimitsAttributes apparentPowerLimit);
+    default OperationalLimitsGroupAttributes getOrCreateOperationalLimitsGroup2(String id) {
+        return getOperationalLimitsGroups2().computeIfAbsent(id, s -> new OperationalLimitsGroupAttributes(id, null, null, null, null));
+    }
 
-    LimitsAttributes getApparentPowerLimits2();
+    @JsonIgnore
+    default OperationalLimitsGroupAttributes getSelectedOperationalLimitsGroup1() {
+        return getOperationalLimitsGroup1(getSelectedOperationalLimitsGroupId1());
+    }
 
-    void setApparentPowerLimits2(LimitsAttributes apparentPowerLimit);
+    void setSelectedOperationalLimitsGroupId1(String id);
 
-    LimitsAttributes getActivePowerLimits1();
+    Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups2();
 
-    void setActivePowerLimits1(LimitsAttributes activePowerLimits);
+    String getSelectedOperationalLimitsGroupId2();
 
-    LimitsAttributes getActivePowerLimits2();
+    void setOperationalLimitsGroups2(Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups);
 
-    void setActivePowerLimits2(LimitsAttributes activePowerLimits);
+    default OperationalLimitsGroupAttributes getOperationalLimitsGroup2(String id) {
+        return getOperationalLimitsGroups2().get(id);
+    }
+
+    @JsonIgnore
+    default OperationalLimitsGroupAttributes getSelectedOperationalLimitsGroup2() {
+        return getOperationalLimitsGroup2(getSelectedOperationalLimitsGroupId2());
+    }
+
+    void setSelectedOperationalLimitsGroupId2(String id);
+
+    @Override
+    default Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
+        if (side == 1) {
+            return getOperationalLimitsGroups1();
+        } else if (side == 2) {
+            return getOperationalLimitsGroups2();
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
 
     @JsonIgnore
     default Set<String> getContainerIds() {
@@ -112,78 +141,4 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
         return List.of(1, 2);
     }
 
-    @Override
-    default LimitsAttributes getCurrentLimits(int side) {
-        if (side == 1) {
-            return getCurrentLimits1();
-        }
-        if (side == 2) {
-            return getCurrentLimits2();
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    default LimitsAttributes getApparentPowerLimits(int side) {
-        if (side == 1) {
-            return getApparentPowerLimits1();
-        }
-        if (side == 2) {
-            return getApparentPowerLimits2();
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    default LimitsAttributes getActivePowerLimits(int side) {
-        if (side == 1) {
-            return getActivePowerLimits1();
-        }
-        if (side == 2) {
-            return getActivePowerLimits2();
-        }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-    }
-
-    @Override
-    default void setCurrentLimits(int side, LimitsAttributes limits) {
-        if (side == 1) {
-            setCurrentLimits1(limits);
-        } else if (side == 2) {
-            setCurrentLimits2(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
-    @Override
-    default void setApparentPowerLimits(int side, LimitsAttributes limits) {
-        if (side == 1) {
-            setApparentPowerLimits1(limits);
-        } else if (side == 2) {
-            setApparentPowerLimits2(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
-    @Override
-    default void setActivePowerLimits(int side, LimitsAttributes limits) {
-        if (side == 1) {
-            setActivePowerLimits1(limits);
-        } else if (side == 2) {
-            setActivePowerLimits2(limits);
-        } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
-        }
-    }
-
-    @JsonIgnore
-    @Override
-    default Attributes filter(AttributeFilter filter) {
-        if (filter != AttributeFilter.SV) {
-            throw new PowsyblException("Unsupported attribute filter: " + filter);
-        }
-        return new BranchSvAttributes(getP1(), getQ1(), getP2(), getQ2());
-    }
 }

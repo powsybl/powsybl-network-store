@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,22 +24,23 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TapChangerAttributes {
+public class TapChangerAttributes extends AbstractRegulatingEquipmentAttributes {
 
     @Schema(description = "lowTapPosition")
     private int lowTapPosition;
 
     @Schema(description = "tapPosition")
-    private int tapPosition;
+    private Integer tapPosition;
 
-    @Schema(description = "regulating")
-    private boolean regulating;
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
+    @Schema(description = "solved tap position")
+    private Integer solvedTapPosition;
 
     @Schema(description = "targetDeadband")
     private double targetDeadband;
 
-    @Schema(description = "regulatingTerminal")
-    private TerminalRefAttributes regulatingTerminal;
+    @Schema(description = "loadTapChangingCapabilities")
+    private boolean loadTapChangingCapabilities;
 
     @Schema(description = "steps")
     private List<TapChangerStepAttributes> steps;

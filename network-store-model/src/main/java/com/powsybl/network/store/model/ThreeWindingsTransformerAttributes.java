@@ -7,10 +7,11 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.google.common.collect.ImmutableSet;
-import com.powsybl.commons.PowsyblException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.*;
 
@@ -21,56 +22,49 @@ import java.util.*;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder, BranchStatusHolder {
+public class ThreeWindingsTransformerAttributes extends AbstractIdentifiableAttributes implements Contained, TransformerAttributes, LimitHolder, RegulatedEquipmentAttributes {
 
-    @Schema(description = "3 windings transformer name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
-
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 1 active power in MW")
     @Builder.Default
     private double p1 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 1 reactive power in MVar")
     @Builder.Default
     private double q1 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 2 active power in MW")
     @Builder.Default
     private double p2 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 2 reactive power in MVar")
     @Builder.Default
     private double q2 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 3 active power in MW")
     @Builder.Default
     private double p3 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 3 reactive power in MVar")
     @Builder.Default
     private double q3 = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 1 leg")
     private LegAttributes leg1;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 2 leg")
     private LegAttributes leg2;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Side 3 leg")
     private LegAttributes leg3;
 
@@ -89,11 +83,12 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @Schema(description = "Phase angle clock for leg 2 and 3")
     private ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock;
 
-    @Schema(description = "Branch status")
-    private String branchStatus;
-
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 
     @Override
     @JsonIgnore
@@ -125,41 +120,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     }
 
     @Override
-    public LimitsAttributes getCurrentLimits(int side) {
-        return getLeg(side).getCurrentLimitsAttributes();
-    }
-
-    @Override
-    public LimitsAttributes getApparentPowerLimits(int side) {
-        return getLeg(side).getApparentPowerLimitsAttributes();
-    }
-
-    @Override
-    public LimitsAttributes getActivePowerLimits(int side) {
-        return getLeg(side).getActivePowerLimitsAttributes();
-    }
-
-    @Override
-    public void setCurrentLimits(int side, LimitsAttributes limits) {
-        getLeg(side).setCurrentLimitsAttributes(limits);
-    }
-
-    @Override
-    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
-        getLeg(side).setApparentPowerLimitsAttributes(limits);
-    }
-
-    @Override
-    public void setActivePowerLimits(int side, LimitsAttributes limits) {
-        getLeg(side).setActivePowerLimitsAttributes(limits);
-    }
-
-    @JsonIgnore
-    @Override
-    public Attributes filter(AttributeFilter filter) {
-        if (filter != AttributeFilter.SV) {
-            throw new PowsyblException("Unsupported attribute filter: " + filter);
-        }
-        return new ThreeWindingsTransformerSvAttributes(getP1(), getQ1(), getP2(), getQ2(), getP3(), getQ3());
+    public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
+        return getLeg(side).getOperationalLimitsGroups();
     }
 }

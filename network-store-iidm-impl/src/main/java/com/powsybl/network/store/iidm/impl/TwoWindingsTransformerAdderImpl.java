@@ -11,6 +11,8 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -32,9 +34,19 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private double ratedS = Double.NaN;
 
+    private final TwoWindingsTransformer copiedTwoWindingsTransformer;
+
     TwoWindingsTransformerAdderImpl(NetworkObjectIndex index, SubstationImpl substation) {
         super(index);
         this.substation = substation;
+        this.copiedTwoWindingsTransformer = null;
+    }
+
+    TwoWindingsTransformerAdderImpl(NetworkObjectIndex index, SubstationImpl substation, TwoWindingsTransformer copiedTwoWindingsTransformer) {
+        super(index);
+        this.substation = substation;
+        this.copiedTwoWindingsTransformer = copiedTwoWindingsTransformer;
+        TwoWindingsTransformerAdder.fillTwoWindingsTransformerAdder(this, copiedTwoWindingsTransformer);
     }
 
     @Override
@@ -138,6 +150,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
                         .build())
                 .build();
         TwoWindingsTransformerImpl transformer = getIndex().createTwoWindingsTransformer(resource);
+        copyOperationalLimits(copiedTwoWindingsTransformer, transformer);
         transformer.getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
         transformer.getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
         return transformer;

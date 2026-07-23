@@ -9,6 +9,8 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
@@ -54,29 +56,16 @@ public abstract class AbstractTopology<T> {
 
         private void count(Vertex vertex) {
             switch (vertex.getConnectableType()) {
-                case LINE:
-                case TWO_WINDINGS_TRANSFORMER:
-                case THREE_WINDINGS_TRANSFORMER:
-                case HVDC_CONVERTER_STATION:
-                case DANGLING_LINE:
+                case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, BOUNDARY_LINE -> {
                     branchCount++;
                     feederCount++;
-                    break;
-
-                case LOAD:
-                case GENERATOR:
-                case BATTERY:
-                case SHUNT_COMPENSATOR:
-                case STATIC_VAR_COMPENSATOR:
-                    feederCount++;
-                    break;
-
-                case BUSBAR_SECTION:
-                    busbarSectionCount++;
-                    break;
-
-                default:
-                    throw new IllegalStateException();
+                }
+                case LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR -> feederCount++;
+                case BUSBAR_SECTION -> busbarSectionCount++;
+                case GROUND -> {
+                    // Do nothing
+                }
+                default -> throw new IllegalStateException();
             }
         }
     }
@@ -84,33 +73,17 @@ public abstract class AbstractTopology<T> {
     protected abstract <U extends InjectionAttributes> T getInjectionNodeOrBus(Resource<U> resource);
 
     private <U extends InjectionAttributes> Vertex createVertexFromInjection(Resource<U> resource) {
-        IdentifiableType connectableType;
-        switch (resource.getType()) {
-            case LOAD:
-                connectableType = IdentifiableType.LOAD;
-                break;
-            case GENERATOR:
-                connectableType = IdentifiableType.GENERATOR;
-                break;
-            case BATTERY:
-                connectableType = IdentifiableType.BATTERY;
-                break;
-            case SHUNT_COMPENSATOR:
-                connectableType = IdentifiableType.SHUNT_COMPENSATOR;
-                break;
-            case VSC_CONVERTER_STATION:
-            case LCC_CONVERTER_STATION:
-                connectableType = IdentifiableType.HVDC_CONVERTER_STATION;
-                break;
-            case STATIC_VAR_COMPENSATOR:
-                connectableType = IdentifiableType.STATIC_VAR_COMPENSATOR;
-                break;
-            case DANGLING_LINE:
-                connectableType = IdentifiableType.DANGLING_LINE;
-                break;
-            default:
-                throw new IllegalStateException("Resource is not an injection: " + resource.getType());
-        }
+        IdentifiableType connectableType = switch (resource.getType()) {
+            case LOAD -> IdentifiableType.LOAD;
+            case GENERATOR -> IdentifiableType.GENERATOR;
+            case BATTERY -> IdentifiableType.BATTERY;
+            case SHUNT_COMPENSATOR -> IdentifiableType.SHUNT_COMPENSATOR;
+            case VSC_CONVERTER_STATION, LCC_CONVERTER_STATION -> IdentifiableType.HVDC_CONVERTER_STATION;
+            case STATIC_VAR_COMPENSATOR -> IdentifiableType.STATIC_VAR_COMPENSATOR;
+            case BOUNDARY_LINE -> IdentifiableType.BOUNDARY_LINE;
+            case GROUND -> IdentifiableType.GROUND;
+            default -> throw new IllegalStateException("Resource is not an injection: " + resource.getType());
+        };
         T nodeOrBus = getInjectionNodeOrBus(resource);
         return nodeOrBus == null ? null : createVertex(resource.getId(), connectableType, nodeOrBus, null);
     }
@@ -121,27 +94,21 @@ public abstract class AbstractTopology<T> {
 
     private <U extends BranchAttributes> List<Vertex> createVertextFromBranch(Resource<U> resource, Resource<VoltageLevelAttributes> voltageLevelResource) {
         List<Vertex> vertices = new ArrayList<>(2);
-        IdentifiableType connectableType;
-        switch (resource.getType()) {
-            case LINE:
-                connectableType = IdentifiableType.LINE;
-                break;
-            case TWO_WINDINGS_TRANSFORMER:
-                connectableType = IdentifiableType.TWO_WINDINGS_TRANSFORMER;
-                break;
-            default:
-                throw new IllegalStateException("Resource is not a branch: " + resource.getType());
-        }
+        IdentifiableType connectableType = switch (resource.getType()) {
+            case LINE -> IdentifiableType.LINE;
+            case TWO_WINDINGS_TRANSFORMER -> IdentifiableType.TWO_WINDINGS_TRANSFORMER;
+            default -> throw new IllegalStateException("Resource is not a branch: " + resource.getType());
+        };
         if (voltageLevelResource.getId().equals(resource.getAttributes().getVoltageLevelId1())) {
             T nodeOrBus = getBranchNodeOrBus1(resource);
             if (nodeOrBus != null) {
-                vertices.add(createVertex(resource.getId(), connectableType, nodeOrBus, Branch.Side.ONE.name()));
+                vertices.add(createVertex(resource.getId(), connectableType, nodeOrBus, TwoSides.ONE.name()));
             }
         }
         if (voltageLevelResource.getId().equals(resource.getAttributes().getVoltageLevelId2())) {
             T nodeOrBus = getBranchNodeOrBus2(resource);
             if (nodeOrBus != null) {
-                vertices.add(createVertex(resource.getId(), connectableType, nodeOrBus, Branch.Side.TWO.name()));
+                vertices.add(createVertex(resource.getId(), connectableType, nodeOrBus, TwoSides.TWO.name()));
             }
         }
         return vertices;
@@ -158,19 +125,19 @@ public abstract class AbstractTopology<T> {
         if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg1().getVoltageLevelId())) {
             T nodeOrBus = get3wtNodeOrBus1(resource);
             if (nodeOrBus != null) {
-                vertices.add(createVertex(resource.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.ONE.name()));
+                vertices.add(createVertex(resource.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeSides.ONE.name()));
             }
         }
         if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg2().getVoltageLevelId())) {
             T nodeOrBus = get3wtNodeOrBus2(resource);
             if (nodeOrBus != null) {
-                vertices.add(createVertex(resource.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.TWO.name()));
+                vertices.add(createVertex(resource.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeSides.TWO.name()));
             }
         }
         if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg3().getVoltageLevelId())) {
             T nodeOrBus = get3wtNodeOrBus3(resource);
             if (nodeOrBus != null) {
-                vertices.add(createVertex(resource.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.THREE.name()));
+                vertices.add(createVertex(resource.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeSides.THREE.name()));
             }
         }
         return vertices;
@@ -254,7 +221,12 @@ public abstract class AbstractTopology<T> {
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelDanglingLines(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelBoundaryLines(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
+                .stream()
+                .map(this::createVertexFromInjection)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
+        vertices.addAll(index.getStoreClient().getVoltageLevelGrounds(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
@@ -387,6 +359,64 @@ public abstract class AbstractTopology<T> {
         }
     }
 
+    private CalculatedBusAttributes findFirstMatchingNodeBreakerCalculatedBusAttributes(Resource<VoltageLevelAttributes> voltageLevelResource,
+            ConnectedSetResult<T> connectedSet, boolean isBusView) {
+        // TODO Some day we may decide to start preserving phase/angle values
+        // in nodebreaker topology even after invalidating the views, so we
+        // could remove the check for isCalculatedBusesValid. Here it controls
+        // whether we preserve or not the phase/angle values accross the other
+        // view. For now we do not preserve to be consistent with the behavior
+        // of not preserving values from the same view after invalidation.
+        List<CalculatedBusAttributes> calculatedBusAttributesInOtherView = isBusView ? voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() : voltageLevelResource.getAttributes(
+                ).getCalculatedBusesForBusView();
+        Map<Integer, Integer> nodesToCalculatedBusesInOtherView = isBusView ? voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView() : voltageLevelResource.getAttributes(
+                ).getNodeToCalculatedBusForBusView();
+        Set<Integer> nodes = (Set<Integer>) connectedSet.getConnectedNodesOrBuses();
+        if (voltageLevelResource.getAttributes().isCalculatedBusesValid()
+            && !CollectionUtils.isEmpty(calculatedBusAttributesInOtherView)
+            && !MapUtils.isEmpty(nodesToCalculatedBusesInOtherView)
+            && !nodes.isEmpty()) {
+            // busNumInOtherView is deterministic for the busbreakerview because all busbreakerviewbuses correspond
+            // to the same busviewbus. For the busview, busNumInOtherView will be non deterministic, it will
+            // be one of the busbreakerbuses of this busviewbus.
+            Integer node = nodes.iterator().next();
+            Integer busNumInOtherView = nodesToCalculatedBusesInOtherView.get(node);
+            if (busNumInOtherView != null) {
+                return calculatedBusAttributesInOtherView.get(busNumInOtherView);
+            }
+        }
+        return null;
+    }
+
+    private CalculatedBusAttributes createCalculatedBusAttributesWithVAndAngle(NetworkObjectIndex index,
+                                           Resource<VoltageLevelAttributes> voltageLevelResource,
+                                           ConnectedSetResult<T> connectedSet,
+                                           boolean isBusView) {
+        double v = Double.NaN;
+        double angle = Double.NaN;
+        if (voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            CalculatedBusAttributes busAttributes = findFirstMatchingNodeBreakerCalculatedBusAttributes(voltageLevelResource, connectedSet, isBusView);
+            if (busAttributes != null) {
+                v = busAttributes.getV();
+                angle = busAttributes.getAngle();
+            }
+        } else { // BUS_BREAKER
+            // currently for busbreakertopology the phase/angle values are preserved
+            // when set in the busbreakerview which is in a sense always valid.
+            // So mimic the behavior and always preserve them also in the busview
+            // by *not* testing for isCalculatedBusesValid.
+            Set<String> configuredBusesIds = (Set<String>) connectedSet.getConnectedNodesOrBuses();
+            if (!configuredBusesIds.isEmpty()) {
+                // nondeterministic, chooses a random configuredbus in this busviewbus
+                String configuredBusId = configuredBusesIds.iterator().next();
+                Bus b = index.getConfiguredBus(configuredBusId).orElseThrow(IllegalStateException::new);
+                v = b.getV();
+                angle = b.getAngle();
+            }
+        }
+        return new CalculatedBusAttributes(connectedSet.getConnectedVertices(), null, null, v, angle);
+    }
+
     private CalculationResult<T> getCalculatedBusAttributesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
         List<CalculatedBusAttributes> calculatedBusAttributesList;
         Map<T, Integer> nodeOrBusToCalculatedBusNum;
@@ -398,7 +428,13 @@ public abstract class AbstractTopology<T> {
             List<ConnectedSetResult<T>> connectedSetList = findConnectedSetList(index, voltageLevelResource, isBusView);
             calculatedBusAttributesList = connectedSetList
                     .stream()
-                    .map(connectedSet -> new CalculatedBusAttributes(connectedSet.getConnectedVertices(), null, null, Double.NaN, Double.NaN))
+                    //TODO in this case in nodebreaker topology we currently don't preserve any values from
+                    //the same view if it was already computed but is invalidated.
+                    //we could do it some day (we need to define good heuristics to
+                    //match previous values to new buses).
+                    //NOTE: We chose to have the same behavior when getting the values from the other view
+                    // get V and Angle values from other view if available
+                    .map(connectedSet -> createCalculatedBusAttributesWithVAndAngle(index, voltageLevelResource, connectedSet, isBusView))
                     .collect(Collectors.toList());
             setCalculatedBuses(voltageLevelResource, isBusView, calculatedBusAttributesList);
 
@@ -447,31 +483,28 @@ public abstract class AbstractTopology<T> {
     public static Terminal getTerminal(NetworkObjectIndex index, Vertex vertex) {
         Objects.requireNonNull(index);
         Objects.requireNonNull(vertex);
-        switch (vertex.getConnectableType()) {
-            case BUSBAR_SECTION:
-                return index.getBusbarSection(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
-            case LINE:
-                return index.getLine(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal(Branch.Side.valueOf(vertex.getSide()));
-            case TWO_WINDINGS_TRANSFORMER:
-                return index.getTwoWindingsTransformer(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal(Branch.Side.valueOf(vertex.getSide()));
-            case THREE_WINDINGS_TRANSFORMER:
-                return index.getThreeWindingsTransformer(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal(ThreeWindingsTransformer.Side.valueOf(vertex.getSide()));
-            case GENERATOR:
-                return index.getGenerator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
-            case BATTERY:
-                return index.getBattery(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
-            case LOAD:
-                return index.getLoad(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
-            case SHUNT_COMPENSATOR:
-                return index.getShuntCompensator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
-            case DANGLING_LINE:
-                return index.getDanglingLine(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
-            case STATIC_VAR_COMPENSATOR:
-                return index.getStaticVarCompensator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
-            case HVDC_CONVERTER_STATION:
-                return index.getHvdcConverterStation(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
-            default:
+        return switch (vertex.getConnectableType()) {
+            case BUSBAR_SECTION ->
+                index.getBusbarSection(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case LINE ->
+                index.getLine(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal(TwoSides.valueOf(vertex.getSide()));
+            case TWO_WINDINGS_TRANSFORMER ->
+                index.getTwoWindingsTransformer(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal(TwoSides.valueOf(vertex.getSide()));
+            case THREE_WINDINGS_TRANSFORMER ->
+                index.getThreeWindingsTransformer(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal(ThreeSides.valueOf(vertex.getSide()));
+            case GENERATOR -> index.getGenerator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case BATTERY -> index.getBattery(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case LOAD -> index.getLoad(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case SHUNT_COMPENSATOR ->
+                index.getShuntCompensator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case BOUNDARY_LINE ->
+                index.getBoundaryLine(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case STATIC_VAR_COMPENSATOR ->
+                index.getStaticVarCompensator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case HVDC_CONVERTER_STATION ->
+                index.getHvdcConverterStation(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            default ->
                 throw new IllegalStateException("Connectable type not supported: " + vertex.getConnectableType());
-        }
+        };
     }
 }

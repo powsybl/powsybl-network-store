@@ -6,10 +6,49 @@
  */
 package com.powsybl.network.store.iidm.impl.tck.extensions;
 
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.GeneratorStartup;
+import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import com.powsybl.iidm.network.tck.extensions.AbstractGeneratorStartupTest;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GeneratorStartupTest extends AbstractGeneratorStartupTest {
+class GeneratorStartupTest extends AbstractGeneratorStartupTest {
+    @Test
+    void test2() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Generator generator = network.getGenerator("GEN");
+        GeneratorStartup startup = generator.newExtension(GeneratorStartupAdder.class)
+            .withPlannedActivePowerSetpoint(600.0)
+            .withStartupCost(5.0)
+            .withMarginalCost(10.0)
+            .withPlannedOutageRate(0.8)
+            .withForcedOutageRate(0.7)
+            .add();
+        assertEquals(600.0, startup.getPlannedActivePowerSetpoint(), 0.0);
+        assertEquals(5.0, startup.getStartupCost(), 0.0);
+        assertEquals(10.0, startup.getMarginalCost(), 0.0);
+        assertEquals(0.8, startup.getPlannedOutageRate(), 0.0);
+        assertEquals(0.7, startup.getForcedOutageRate(), 0.0);
+        startup.setPlannedActivePowerSetpoint(610.0).setStartupCost(4.0).setMarginalCost(12.0).setPlannedOutageRate(0.7).setForcedOutageRate(0.8);
+        assertEquals(610.0, startup.getPlannedActivePowerSetpoint(), 0.0);
+        assertEquals(4.0, startup.getStartupCost(), 0.0);
+        assertEquals(12.0, startup.getMarginalCost(), 0.0);
+        assertEquals(0.7, startup.getPlannedOutageRate(), 0.0);
+        assertEquals(0.8, startup.getForcedOutageRate(), 0.0);
+
+        // setting the same values, for condition coverage
+        startup.setPlannedActivePowerSetpoint(610.0).setStartupCost(4.0).setMarginalCost(12.0).setPlannedOutageRate(0.7).setForcedOutageRate(0.8);
+        assertEquals(610.0, startup.getPlannedActivePowerSetpoint(), 0.0);
+        assertEquals(4.0, startup.getStartupCost(), 0.0);
+        assertEquals(12.0, startup.getMarginalCost(), 0.0);
+        assertEquals(0.7, startup.getPlannedOutageRate(), 0.0);
+        assertEquals(0.8, startup.getForcedOutageRate(), 0.0);
+    }
 }

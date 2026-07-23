@@ -62,9 +62,8 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
         var resource = getResource();
         boolean wasOpen = resource.getAttributes().isOpen();
         if (open != wasOpen) {
-            updateResource(r -> r.getAttributes().setOpen(open));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "open", variantId, wasOpen, open);
+            updateResource(r -> r.getAttributes().setOpen(open),
+                "open", wasOpen, open);
             // invalidate calculated buses
             getVoltageLevel().invalidateCalculatedBuses();
         }
@@ -82,9 +81,8 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
         }
         boolean oldValue = getResource().getAttributes().isRetained();
         if (retained != oldValue) {
-            updateResource(r -> r.getAttributes().setRetained(retained));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "retained", variantId, oldValue, retained);
+            updateResource(r -> r.getAttributes().setRetained(retained),
+                "retained", oldValue, retained);
             // invalidate calculated buses
             getVoltageLevel().invalidateCalculatedBuses();
         }

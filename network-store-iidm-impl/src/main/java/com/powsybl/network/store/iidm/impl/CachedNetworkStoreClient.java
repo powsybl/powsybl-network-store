@@ -6,10 +6,14 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -19,108 +23,187 @@ import java.util.stream.Collectors;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
+public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient<NetworkStoreClient> implements NetworkStoreClient {
+
+    private static final int MAX_GET_IDENTIFIABLE_CALL_COUNT = 10;
 
     private final Map<UUID, List<VariantInfos>> variantsInfosByNetworkUuid = new HashMap<>();
 
-    private final NetworkCollectionIndex<CollectionCache<NetworkAttributes>> networksCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        (networkUuid, variantNum, id) -> delegate.getNetwork(networkUuid, variantNum),
-        null,
-        (networkUuid, variantNum) -> delegate.getNetwork(networkUuid, variantNum).stream().collect(Collectors.toList())));
+    private final NetworkCollectionIndex<CollectionCache<NetworkAttributes>> networksCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    (networkUuid, variantNum, id) -> delegate.getNetwork(networkUuid, variantNum),
+                    null,
+                    (networkUuid, variantNum) -> delegate.getNetwork(networkUuid, variantNum).stream().collect(Collectors.toList()),
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<SubstationAttributes>> substationsCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getSubstation,
-        null,
-        delegate::getSubstations));
+    private final NetworkCollectionIndex<CollectionCache<SubstationAttributes>> substationsCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getSubstation,
+                    null,
+                    delegate::getSubstations,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<VoltageLevelAttributes>> voltageLevelsCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getVoltageLevel,
-        delegate::getVoltageLevelsInSubstation,
-        delegate::getVoltageLevels));
+    private final NetworkCollectionIndex<CollectionCache<VoltageLevelAttributes>> voltageLevelsCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getVoltageLevel,
+                    delegate::getVoltageLevelsInSubstation,
+                    delegate::getVoltageLevels,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<SwitchAttributes>> switchesCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getSwitch,
-        delegate::getVoltageLevelSwitches,
-        delegate::getSwitches));
+    private final NetworkCollectionIndex<CollectionCache<SwitchAttributes>> switchesCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getSwitch,
+                    delegate::getVoltageLevelSwitches,
+                    delegate::getSwitches,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<BusbarSectionAttributes>> busbarSectionsCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getBusbarSection,
-        delegate::getVoltageLevelBusbarSections,
-        delegate::getBusbarSections));
+    private final NetworkCollectionIndex<CollectionCache<BusbarSectionAttributes>> busbarSectionsCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getBusbarSection,
+                    delegate::getVoltageLevelBusbarSections,
+                    delegate::getBusbarSections,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<LoadAttributes>> loadsCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getLoad,
-        delegate::getVoltageLevelLoads,
-        delegate::getLoads));
+    private final NetworkCollectionIndex<CollectionCache<LoadAttributes>> loadsCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getLoad,
+                    delegate::getVoltageLevelLoads,
+                    delegate::getLoads,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<GeneratorAttributes>> generatorsCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getGenerator,
-        delegate::getVoltageLevelGenerators,
-        delegate::getGenerators));
+    private final NetworkCollectionIndex<CollectionCache<GeneratorAttributes>> generatorsCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getGenerator,
+                    delegate::getVoltageLevelGenerators,
+                    delegate::getGenerators,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<BatteryAttributes>> batteriesCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getBattery,
-        delegate::getVoltageLevelBatteries,
-        delegate::getBatteries));
+    private final NetworkCollectionIndex<CollectionCache<BatteryAttributes>> batteriesCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getBattery,
+                    delegate::getVoltageLevelBatteries,
+                    delegate::getBatteries,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<TwoWindingsTransformerAttributes>> twoWindingsTransformerCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getTwoWindingsTransformer,
-        delegate::getVoltageLevelTwoWindingsTransformers,
-        delegate::getTwoWindingsTransformers));
+    private final NetworkCollectionIndex<CollectionCache<TwoWindingsTransformerAttributes>> twoWindingsTransformerCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getTwoWindingsTransformer,
+                    delegate::getVoltageLevelTwoWindingsTransformers,
+                    delegate::getTwoWindingsTransformers,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<ThreeWindingsTransformerAttributes>> threeWindingsTranqformerCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getThreeWindingsTransformer,
-        delegate::getVoltageLevelThreeWindingsTransformers,
-        delegate::getThreeWindingsTransformers));
+    private final NetworkCollectionIndex<CollectionCache<ThreeWindingsTransformerAttributes>> threeWindingsTransformerCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getThreeWindingsTransformer,
+                    delegate::getVoltageLevelThreeWindingsTransformers,
+                    delegate::getThreeWindingsTransformers,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<LineAttributes>> linesCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getLine,
-        delegate::getVoltageLevelLines,
-        delegate::getLines));
+    private final NetworkCollectionIndex<CollectionCache<LineAttributes>> linesCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getLine,
+                    delegate::getVoltageLevelLines,
+                    delegate::getLines,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<ShuntCompensatorAttributes>> shuntCompensatorsCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getShuntCompensator,
-        delegate::getVoltageLevelShuntCompensators,
-        delegate::getShuntCompensators));
+    private final NetworkCollectionIndex<CollectionCache<ShuntCompensatorAttributes>> shuntCompensatorsCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getShuntCompensator,
+                    delegate::getVoltageLevelShuntCompensators,
+                    delegate::getShuntCompensators,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<VscConverterStationAttributes>> vscConverterStationCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getVscConverterStation,
-        delegate::getVoltageLevelVscConverterStations,
-        delegate::getVscConverterStations));
+    private final NetworkCollectionIndex<CollectionCache<VscConverterStationAttributes>> vscConverterStationCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getVscConverterStation,
+                    delegate::getVoltageLevelVscConverterStations,
+                    delegate::getVscConverterStations,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<LccConverterStationAttributes>> lccConverterStationCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getLccConverterStation,
-        delegate::getVoltageLevelLccConverterStations,
-        delegate::getLccConverterStations));
+    private final NetworkCollectionIndex<CollectionCache<LccConverterStationAttributes>> lccConverterStationCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getLccConverterStation,
+                    delegate::getVoltageLevelLccConverterStations,
+                    delegate::getLccConverterStations,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<StaticVarCompensatorAttributes>> staticVarCompensatorCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getStaticVarCompensator,
-        delegate::getVoltageLevelStaticVarCompensators,
-        delegate::getStaticVarCompensators));
+    private final NetworkCollectionIndex<CollectionCache<StaticVarCompensatorAttributes>> staticVarCompensatorCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getStaticVarCompensator,
+                    delegate::getVoltageLevelStaticVarCompensators,
+                    delegate::getStaticVarCompensators,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<HvdcLineAttributes>> hvdcLinesCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getHvdcLine,
-        null,
-        delegate::getHvdcLines));
+    private final NetworkCollectionIndex<CollectionCache<HvdcLineAttributes>> hvdcLinesCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getHvdcLine,
+                    null,
+                    delegate::getHvdcLines,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<DanglingLineAttributes>> danglingLinesCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getDanglingLine,
-        delegate::getVoltageLevelDanglingLines,
-        delegate::getDanglingLines));
+    private final NetworkCollectionIndex<CollectionCache<BoundaryLineAttributes>> boundaryLinesCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getBoundaryLine,
+                    delegate::getVoltageLevelBoundaryLines,
+                    delegate::getBoundaryLines,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<ConfiguredBusAttributes>> configuredBusesCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-        delegate::getConfiguredBus,
-        delegate::getVoltageLevelConfiguredBuses,
-        delegate::getConfiguredBuses));
+    private final NetworkCollectionIndex<CollectionCache<ConfiguredBusAttributes>> configuredBusesCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getConfiguredBus,
+                    delegate::getVoltageLevelConfiguredBuses,
+                    delegate::getConfiguredBuses,
+                    delegate)
+            );
 
-    private final NetworkCollectionIndex<CollectionCache<TieLineAttributes>> tieLinesCache = new NetworkCollectionIndex<>(() -> new CollectionCache<>(
-            delegate::getTieLine,
-            null,
-            delegate::getTieLines));
+    private final NetworkCollectionIndex<CollectionCache<TieLineAttributes>> tieLinesCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getTieLine,
+                    null,
+                    delegate::getTieLines,
+                    delegate)
+            );
+
+    private final NetworkCollectionIndex<CollectionCache<GroundAttributes>> groundsCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getGround,
+                    delegate::getVoltageLevelGrounds,
+                    delegate::getGrounds,
+                    delegate)
+            );
+
+    private final NetworkCollectionIndex<CollectionCache<AreaAttributes>> areasCache =
+            new NetworkCollectionIndex<>(() -> new CollectionCache<>(
+                    delegate::getArea,
+                    null,
+                    delegate::getAreas,
+                    delegate)
+            );
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = new EnumMap<>(ResourceType.class);
 
     private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCaches = new EnumMap<>(ResourceType.class);
+
+    private final Map<Pair<UUID, Integer>, MutableInt> identifiableCallCountByNetworkVariant = new HashMap<>();
+
+    private final Map<Pair<UUID, Integer>, Set<String>> identifiablesIdsByNetworkVariant = new HashMap<>();
 
     public CachedNetworkStoreClient(NetworkStoreClient delegate) {
         super(delegate);
@@ -130,20 +213,22 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         voltageLevelContainersCaches.put(ResourceType.GENERATOR, generatorsCache);
         voltageLevelContainersCaches.put(ResourceType.BATTERY, batteriesCache);
         voltageLevelContainersCaches.put(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerCache);
-        voltageLevelContainersCaches.put(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTranqformerCache);
+        voltageLevelContainersCaches.put(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTransformerCache);
         voltageLevelContainersCaches.put(ResourceType.LINE, linesCache);
         voltageLevelContainersCaches.put(ResourceType.SHUNT_COMPENSATOR, shuntCompensatorsCache);
         voltageLevelContainersCaches.put(ResourceType.VSC_CONVERTER_STATION, vscConverterStationCache);
         voltageLevelContainersCaches.put(ResourceType.LCC_CONVERTER_STATION, lccConverterStationCache);
         voltageLevelContainersCaches.put(ResourceType.STATIC_VAR_COMPENSATOR, staticVarCompensatorCache);
         voltageLevelContainersCaches.put(ResourceType.HVDC_LINE, hvdcLinesCache);
-        voltageLevelContainersCaches.put(ResourceType.DANGLING_LINE, danglingLinesCache);
+        voltageLevelContainersCaches.put(ResourceType.BOUNDARY_LINE, boundaryLinesCache);
         voltageLevelContainersCaches.put(ResourceType.CONFIGURED_BUS, configuredBusesCache);
+        voltageLevelContainersCaches.put(ResourceType.GROUND, groundsCache);
 
         networkContainersCaches.putAll(voltageLevelContainersCaches);
         networkContainersCaches.put(ResourceType.SUBSTATION, substationsCache);
         networkContainersCaches.put(ResourceType.VOLTAGE_LEVEL, voltageLevelsCache);
         networkContainersCaches.put(ResourceType.TIE_LINE, tieLinesCache);
+        networkContainersCaches.put(ResourceType.AREA, areasCache);
     }
 
     @Override
@@ -152,7 +237,10 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         for (Resource<NetworkAttributes> networkResource : networkResources) {
             UUID networkUuid = networkResource.getAttributes().getUuid();
             int variantNum = networkResource.getVariantNum();
+            // initialize network collection cache to set to fully loaded
+            networksCache.getCollection(networkUuid, variantNum).init();
             networksCache.getCollection(networkUuid, variantNum).createResource(networkResource);
+            addIdentifiableId(networkUuid, networkResource);
 
             // initialize network sub-collection cache to set to fully loaded
             networkContainersCaches.values().forEach(cache -> cache.getCollection(networkUuid, networkResource.getVariantNum()).init());
@@ -170,6 +258,14 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     @Override
     public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        return this.getVariantsInfos(networkUuid, false);
+    }
+
+    @Override
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid, boolean disableCache) {
+        if (disableCache) {
+            return variantsInfosByNetworkUuid.compute(networkUuid, (uuid, oldValue) -> delegate.getVariantsInfos(uuid, true));
+        }
         return variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, delegate::getVariantsInfos);
     }
 
@@ -224,9 +320,10 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     @Override
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
-
-        var objectMapper = JsonUtil.createObjectMapper();
-        objectMapper.registerModule(new JodaModule());
+        var objectMapper = JsonUtil.createObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
 
         // clone each collection and re-assign variant number and id
         cloneCollection(switchesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
@@ -235,20 +332,28 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         cloneCollection(generatorsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(batteriesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(twoWindingsTransformerCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
-        cloneCollection(threeWindingsTranqformerCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(threeWindingsTransformerCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(linesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(shuntCompensatorsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(vscConverterStationCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(lccConverterStationCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(staticVarCompensatorCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(hvdcLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
-        cloneCollection(danglingLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(boundaryLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(tieLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(areasCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(configuredBusesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(groundsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(substationsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(voltageLevelsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(networksCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
-            networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
+                networkResource -> {
+                    NetworkAttributes networkAttributes = networkResource.getAttributes();
+                    networkAttributes.setVariantId(targetVariantId);
+                    if (networkAttributes.isFullVariant()) {
+                        networkAttributes.setFullVariantNum(sourceVariantNum);
+                    }
+                });
 
         variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
                 .add(new VariantInfos(targetVariantId, targetVariantNum));
@@ -260,6 +365,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
         for (Resource<SubstationAttributes> substationResource : substationResources) {
             substationsCache.getCollection(networkUuid, substationResource.getVariantNum()).createResource(substationResource);
+            addIdentifiableId(networkUuid, substationResource);
 
             // initialize voltage level cache to set to fully loaded
             voltageLevelsCache.getCollection(networkUuid, substationResource.getVariantNum()).initContainer(substationResource.getId());
@@ -288,6 +394,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeSubstations(UUID networkUuid, int variantNum, List<String> substationsId) {
         delegate.removeSubstations(networkUuid, variantNum, substationsId);
         substationsCache.getCollection(networkUuid, variantNum).removeResources(substationsId);
+        removeIdentifiableIds(networkUuid, variantNum, substationsId);
     }
 
     @Override
@@ -295,6 +402,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createVoltageLevels(networkUuid, voltageLevelResources);
         for (Resource<VoltageLevelAttributes> voltageLevelResource : voltageLevelResources) {
             voltageLevelsCache.getCollection(networkUuid, voltageLevelResource.getVariantNum()).createResource(voltageLevelResource);
+            addIdentifiableId(networkUuid, voltageLevelResource);
         }
 
         // initialize voltage level sub-collection cache to set to fully loaded
@@ -327,6 +435,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeVoltageLevels(UUID networkUuid, int variantNum, List<String> voltageLevelsId) {
         delegate.removeVoltageLevels(networkUuid, variantNum, voltageLevelsId);
         voltageLevelsCache.getCollection(networkUuid, variantNum).removeResources(voltageLevelsId);
+        removeIdentifiableIds(networkUuid, variantNum, voltageLevelsId);
     }
 
     @Override
@@ -343,6 +452,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeGenerators(UUID networkUuid, int variantNum, List<String> generatorsId) {
         delegate.removeGenerators(networkUuid, variantNum, generatorsId);
         generatorsCache.getCollection(networkUuid, variantNum).removeResources(generatorsId);
+        removeIdentifiableIds(networkUuid, variantNum, generatorsId);
     }
 
     @Override
@@ -354,6 +464,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeBatteries(UUID networkUuid, int variantNum, List<String> batteriesId) {
         delegate.removeBatteries(networkUuid, variantNum, batteriesId);
         batteriesCache.getCollection(networkUuid, variantNum).removeResources(batteriesId);
+        removeIdentifiableIds(networkUuid, variantNum, batteriesId);
     }
 
     @Override
@@ -365,6 +476,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeLoads(UUID networkUuid, int variantNum, List<String> loadsId) {
         delegate.removeLoads(networkUuid, variantNum, loadsId);
         loadsCache.getCollection(networkUuid, variantNum).removeResources(loadsId);
+        removeIdentifiableIds(networkUuid, variantNum, loadsId);
     }
 
     @Override
@@ -376,6 +488,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeShuntCompensators(UUID networkUuid, int variantNum, List<String> shuntCompensatorsId) {
         delegate.removeShuntCompensators(networkUuid, variantNum, shuntCompensatorsId);
         shuntCompensatorsCache.getCollection(networkUuid, variantNum).removeResources(shuntCompensatorsId);
+        removeIdentifiableIds(networkUuid, variantNum, shuntCompensatorsId);
     }
 
     @Override
@@ -387,6 +500,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeStaticVarCompensators(UUID networkUuid, int variantNum, List<String> staticVarCompensatorsId) {
         delegate.removeStaticVarCompensators(networkUuid, variantNum, staticVarCompensatorsId);
         staticVarCompensatorCache.getCollection(networkUuid, variantNum).removeResources(staticVarCompensatorsId);
+        removeIdentifiableIds(networkUuid, variantNum, staticVarCompensatorsId);
     }
 
     @Override
@@ -398,6 +512,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeVscConverterStations(UUID networkUuid, int variantNum, List<String> vscConverterStationsId) {
         delegate.removeVscConverterStations(networkUuid, variantNum, vscConverterStationsId);
         vscConverterStationCache.getCollection(networkUuid, variantNum).removeResources(vscConverterStationsId);
+        removeIdentifiableIds(networkUuid, variantNum, vscConverterStationsId);
     }
 
     @Override
@@ -409,6 +524,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeLccConverterStations(UUID networkUuid, int variantNum, List<String> lccConverterStationsId) {
         delegate.removeLccConverterStations(networkUuid, variantNum, lccConverterStationsId);
         lccConverterStationCache.getCollection(networkUuid, variantNum).removeResources(lccConverterStationsId);
+        removeIdentifiableIds(networkUuid, variantNum, lccConverterStationsId);
     }
 
     @Override
@@ -420,17 +536,19 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeTwoWindingsTransformers(UUID networkUuid, int variantNum, List<String> twoWindingsTransformersId) {
         delegate.removeTwoWindingsTransformers(networkUuid, variantNum, twoWindingsTransformersId);
         twoWindingsTransformerCache.getCollection(networkUuid, variantNum).removeResources(twoWindingsTransformersId);
+        removeIdentifiableIds(networkUuid, variantNum, twoWindingsTransformersId);
     }
 
     @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return threeWindingsTranqformerCache.getCollection(networkUuid, variantNum).getContainerResources(networkUuid, variantNum, voltageLevelId);
+        return threeWindingsTransformerCache.getCollection(networkUuid, variantNum).getContainerResources(networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
     public void removeThreeWindingsTransformers(UUID networkUuid, int variantNum, List<String> threeWindingsTransformersId) {
         delegate.removeThreeWindingsTransformers(networkUuid, variantNum, threeWindingsTransformersId);
-        threeWindingsTranqformerCache.getCollection(networkUuid, variantNum).removeResources(threeWindingsTransformersId);
+        threeWindingsTransformerCache.getCollection(networkUuid, variantNum).removeResources(threeWindingsTransformersId);
+        removeIdentifiableIds(networkUuid, variantNum, threeWindingsTransformersId);
     }
 
     @Override
@@ -442,11 +560,17 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeLines(UUID networkUuid, int variantNum, List<String> linesId) {
         delegate.removeLines(networkUuid, variantNum, linesId);
         linesCache.getCollection(networkUuid, variantNum).removeResources(linesId);
+        removeIdentifiableIds(networkUuid, variantNum, linesId);
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return danglingLinesCache.getCollection(networkUuid, variantNum).getContainerResources(networkUuid, variantNum, voltageLevelId);
+    public List<Resource<BoundaryLineAttributes>> getVoltageLevelBoundaryLines(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return boundaryLinesCache.getCollection(networkUuid, variantNum).getContainerResources(networkUuid, variantNum, voltageLevelId);
+    }
+
+    @Override
+    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return groundsCache.getCollection(networkUuid, variantNum).getContainerResources(networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
@@ -454,6 +578,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createSwitches(networkUuid, switchResources);
         for (Resource<SwitchAttributes> switchResource : switchResources) {
             switchesCache.getCollection(networkUuid, switchResource.getVariantNum()).createResource(switchResource);
+            addIdentifiableId(networkUuid, switchResource);
         }
     }
 
@@ -484,6 +609,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeSwitches(UUID networkUuid, int variantNum, List<String> switchesId) {
         delegate.removeSwitches(networkUuid, variantNum, switchesId);
         switchesCache.getCollection(networkUuid, variantNum).removeResources(switchesId);
+        removeIdentifiableIds(networkUuid, variantNum, switchesId);
     }
 
     @Override
@@ -491,6 +617,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createBusbarSections(networkUuid, busbarSectionResources);
         for (Resource<BusbarSectionAttributes> busbarSectionResource : busbarSectionResources) {
             busbarSectionsCache.getCollection(networkUuid, busbarSectionResource.getVariantNum()).createResource(busbarSectionResource);
+            addIdentifiableId(networkUuid, busbarSectionResource);
         }
     }
 
@@ -498,6 +625,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeBusBarSections(UUID networkUuid, int variantNum, List<String> busbarSectionsId) {
         delegate.removeBusBarSections(networkUuid, variantNum, busbarSectionsId);
         busbarSectionsCache.getCollection(networkUuid, variantNum).removeResources(busbarSectionsId);
+        removeIdentifiableIds(networkUuid, variantNum, busbarSectionsId);
     }
 
     @Override
@@ -528,6 +656,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createLoads(networkUuid, loadResources);
         for (Resource<LoadAttributes> loadResource : loadResources) {
             loadsCache.getCollection(networkUuid, loadResource.getVariantNum()).createResource(loadResource);
+            addIdentifiableId(networkUuid, loadResource);
         }
     }
 
@@ -554,6 +683,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createGenerators(networkUuid, generatorResources);
         for (Resource<GeneratorAttributes> generatorResource : generatorResources) {
             generatorsCache.getCollection(networkUuid, generatorResource.getVariantNum()).createResource(generatorResource);
+            addIdentifiableId(networkUuid, generatorResource);
         }
     }
 
@@ -580,6 +710,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createBatteries(networkUuid, batteryResources);
         for (Resource<BatteryAttributes> batteryResource : batteryResources) {
             batteriesCache.getCollection(networkUuid, batteryResource.getVariantNum()).createResource(batteryResource);
+            addIdentifiableId(networkUuid, batteryResource);
         }
     }
 
@@ -606,6 +737,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createTwoWindingsTransformers(networkUuid, twoWindingsTransformerResources);
         for (Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource : twoWindingsTransformerResources) {
             twoWindingsTransformerCache.getCollection(networkUuid, twoWindingsTransformerResource.getVariantNum()).createResource(twoWindingsTransformerResource);
+            addIdentifiableId(networkUuid, twoWindingsTransformerResource);
         }
     }
 
@@ -633,25 +765,26 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
         delegate.createThreeWindingsTransformers(networkUuid, threeWindingsTransformerResources);
         for (Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource : threeWindingsTransformerResources) {
-            threeWindingsTranqformerCache.getCollection(networkUuid, threeWindingsTransformerResource.getVariantNum()).createResource(threeWindingsTransformerResource);
+            threeWindingsTransformerCache.getCollection(networkUuid, threeWindingsTransformerResource.getVariantNum()).createResource(threeWindingsTransformerResource);
+            addIdentifiableId(networkUuid, threeWindingsTransformerResource);
         }
     }
 
     @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
-        return threeWindingsTranqformerCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
+        return threeWindingsTransformerCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
     }
 
     @Override
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
-        return threeWindingsTranqformerCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, threeWindingsTransformerId);
+        return threeWindingsTransformerCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, threeWindingsTransformerId);
     }
 
     @Override
     public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources, AttributeFilter attributeFilter) {
         delegate.updateThreeWindingsTransformers(networkUuid, threeWindingsTransformerResources, attributeFilter);
         for (Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource : threeWindingsTransformerResources) {
-            threeWindingsTranqformerCache.getCollection(networkUuid, threeWindingsTransformerResource.getVariantNum()).updateResource(threeWindingsTransformerResource);
+            threeWindingsTransformerCache.getCollection(networkUuid, threeWindingsTransformerResource.getVariantNum()).updateResource(threeWindingsTransformerResource);
         }
     }
 
@@ -660,6 +793,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createLines(networkUuid, lineResources);
         for (Resource<LineAttributes> lineResource : lineResources) {
             linesCache.getCollection(networkUuid, lineResource.getVariantNum()).createResource(lineResource);
+            addIdentifiableId(networkUuid, lineResource);
         }
     }
 
@@ -686,6 +820,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createShuntCompensators(networkUuid, shuntCompensatorResources);
         for (Resource<ShuntCompensatorAttributes> shuntCompensatorResource : shuntCompensatorResources) {
             shuntCompensatorsCache.getCollection(networkUuid, shuntCompensatorResource.getVariantNum()).createResource(shuntCompensatorResource);
+            addIdentifiableId(networkUuid, shuntCompensatorResource);
         }
     }
 
@@ -712,6 +847,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createVscConverterStations(networkUuid, vscConverterStationResources);
         for (Resource<VscConverterStationAttributes> vscConverterStationResource : vscConverterStationResources) {
             vscConverterStationCache.getCollection(networkUuid, vscConverterStationResource.getVariantNum()).createResource(vscConverterStationResource);
+            addIdentifiableId(networkUuid, vscConverterStationResource);
         }
     }
 
@@ -738,6 +874,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createLccConverterStations(networkUuid, lccConverterStationResources);
         for (Resource<LccConverterStationAttributes> lccConverterStationResource : lccConverterStationResources) {
             lccConverterStationCache.getCollection(networkUuid, lccConverterStationResource.getVariantNum()).createResource(lccConverterStationResource);
+            addIdentifiableId(networkUuid, lccConverterStationResource);
         }
     }
 
@@ -764,6 +901,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createStaticVarCompensators(networkUuid, svcResources);
         for (Resource<StaticVarCompensatorAttributes> svcResource : svcResources) {
             staticVarCompensatorCache.getCollection(networkUuid, svcResource.getVariantNum()).createResource(svcResource);
+            addIdentifiableId(networkUuid, svcResource);
         }
     }
 
@@ -790,6 +928,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createHvdcLines(networkUuid, hvdcLineResources);
         for (Resource<HvdcLineAttributes> hvdcLineResource : hvdcLineResources) {
             hvdcLinesCache.getCollection(networkUuid, hvdcLineResource.getVariantNum()).createResource(hvdcLineResource);
+            addIdentifiableId(networkUuid, hvdcLineResource);
         }
     }
 
@@ -815,38 +954,41 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeHvdcLines(UUID networkUuid, int variantNum, List<String> hvdcLinesId) {
         delegate.removeHvdcLines(networkUuid, variantNum, hvdcLinesId);
         hvdcLinesCache.getCollection(networkUuid, variantNum).removeResources(hvdcLinesId);
+        removeIdentifiableIds(networkUuid, variantNum, hvdcLinesId);
     }
 
     @Override
-    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
-        delegate.createDanglingLines(networkUuid, danglingLineResources);
-        for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
-            danglingLinesCache.getCollection(networkUuid, danglingLineResource.getVariantNum()).createResource(danglingLineResource);
+    public void createBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources) {
+        delegate.createBoundaryLines(networkUuid, boundaryLineResources);
+        for (Resource<BoundaryLineAttributes> boundaryLineResource : boundaryLineResources) {
+            boundaryLinesCache.getCollection(networkUuid, boundaryLineResource.getVariantNum()).createResource(boundaryLineResource);
+            addIdentifiableId(networkUuid, boundaryLineResource);
         }
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
-        return danglingLinesCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
+    public List<Resource<BoundaryLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
+        return boundaryLinesCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
-        return danglingLinesCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, danglingLineId);
+    public Optional<Resource<BoundaryLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String boundaryLineId) {
+        return boundaryLinesCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, boundaryLineId);
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
-        delegate.updateDanglingLines(networkUuid, danglingLineResources, attributeFilter);
-        for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
-            danglingLinesCache.getCollection(networkUuid, danglingLineResource.getVariantNum()).updateResource(danglingLineResource);
+    public void updateBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources, AttributeFilter attributeFilter) {
+        delegate.updateBoundaryLines(networkUuid, boundaryLineResources, attributeFilter);
+        for (Resource<BoundaryLineAttributes> boundaryLineResource : boundaryLineResources) {
+            boundaryLinesCache.getCollection(networkUuid, boundaryLineResource.getVariantNum()).updateResource(boundaryLineResource);
         }
     }
 
     @Override
-    public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
-        delegate.removeDanglingLines(networkUuid, variantNum, danglingLinesId);
-        danglingLinesCache.getCollection(networkUuid, variantNum).removeResources(danglingLinesId);
+    public void removeBoundaryLines(UUID networkUuid, int variantNum, List<String> boundaryLinesId) {
+        delegate.removeBoundaryLines(networkUuid, variantNum, boundaryLinesId);
+        boundaryLinesCache.getCollection(networkUuid, variantNum).removeResources(boundaryLinesId);
+        removeIdentifiableIds(networkUuid, variantNum, boundaryLinesId);
     }
 
     @Override
@@ -854,6 +996,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.createTieLines(networkUuid, tieLineResources);
         for (Resource<TieLineAttributes> tieLineResource : tieLineResources) {
             tieLinesCache.getCollection(networkUuid, tieLineResource.getVariantNum()).createResource(tieLineResource);
+            addIdentifiableId(networkUuid, tieLineResource);
         }
     }
 
@@ -871,6 +1014,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeTieLines(UUID networkUuid, int variantNum, List<String> tieLinesId) {
         delegate.removeTieLines(networkUuid, variantNum, tieLinesId);
         tieLinesCache.getCollection(networkUuid, variantNum).removeResources(tieLinesId);
+        removeIdentifiableIds(networkUuid, variantNum, tieLinesId);
     }
 
     @Override
@@ -881,11 +1025,79 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         }
     }
 
+    // Area
+    @Override
+    public void createAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources) {
+        delegate.createAreas(networkUuid, areaResources);
+        for (Resource<AreaAttributes> areaResource : areaResources) {
+            areasCache.getCollection(networkUuid, areaResource.getVariantNum()).createResource(areaResource);
+            addIdentifiableId(networkUuid, areaResource);
+        }
+    }
+
+    @Override
+    public List<Resource<AreaAttributes>> getAreas(UUID networkUuid, int variantNum) {
+        return areasCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<AreaAttributes>> getArea(UUID networkUuid, int variantNum, String areaId) {
+        return areasCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, areaId);
+    }
+
+    @Override
+    public void removeAreas(UUID networkUuid, int variantNum, List<String> areaIds) {
+        delegate.removeAreas(networkUuid, variantNum, areaIds);
+        areasCache.getCollection(networkUuid, variantNum).removeResources(areaIds);
+        removeIdentifiableIds(networkUuid, variantNum, areaIds);
+    }
+
+    @Override
+    public void updateAreas(UUID networkUuid, List<Resource<AreaAttributes>> areaResources, AttributeFilter attributeFilter) {
+        delegate.updateAreas(networkUuid, areaResources, attributeFilter);
+        for (Resource<AreaAttributes> areaResource : areaResources) {
+            areasCache.getCollection(networkUuid, areaResource.getVariantNum()).updateResource(areaResource);
+        }
+    }
+
+    @Override
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
+        delegate.createGrounds(networkUuid, groundResources);
+        for (Resource<GroundAttributes> groundResource : groundResources) {
+            groundsCache.getCollection(networkUuid, groundResource.getVariantNum()).createResource(groundResource);
+        }
+    }
+
+    @Override
+    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+        return groundsCache.getCollection(networkUuid, variantNum).getResources(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+        return groundsCache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, groundId);
+    }
+
+    @Override
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundAttributes, AttributeFilter attributeFilter) {
+        delegate.updateGrounds(networkUuid, groundAttributes, attributeFilter);
+        for (Resource<GroundAttributes> groundResource : groundAttributes) {
+            groundsCache.getCollection(networkUuid, groundResource.getVariantNum()).updateResource(groundResource);
+        }
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        delegate.removeGrounds(networkUuid, variantNum, groundsId);
+        groundsCache.getCollection(networkUuid, variantNum).removeResources(groundsId);
+    }
+
     @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busResources) {
         delegate.createConfiguredBuses(networkUuid, busResources);
         for (Resource<ConfiguredBusAttributes> busResource : busResources) {
             configuredBusesCache.getCollection(networkUuid, busResource.getVariantNum()).createResource(busResource);
+            addIdentifiableId(networkUuid, busResource);
         }
     }
 
@@ -916,6 +1128,106 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId) {
         delegate.removeConfiguredBuses(networkUuid, variantNum, busesId);
         configuredBusesCache.getCollection(networkUuid, variantNum).removeResources(busesId);
+        removeIdentifiableIds(networkUuid, variantNum, busesId);
+    }
+
+    @Override
+    public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getExtensionAttributes(networkUuid, variantNum, resourceType, identifiableId, extensionName);
+    }
+
+    public void loadAllExtensionsAttributesByResourceTypeAndExtensionName(UUID networkUuid, int variantNum, ResourceType resourceType, String extensionName) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId) {
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, resourceType, identifiableId);
+    }
+
+    public void loadAllExtensionsAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
+    }
+
+    @Override
+    public void removeExtensionsAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Set<String>> extensionsByIdentifiableId) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).removeExtensionAttributesByIdentifiableIds(extensionsByIdentifiableId);
+        delegate.removeExtensionsAttributes(networkUuid, variantNum, resourceType, extensionsByIdentifiableId);
+    }
+
+    // limits
+    @Override
+    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId,
+            String operationalLimitGroupName, int side) {
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getOperationalLimitsAttributes(networkUuid, variantNum, resourceType, identifiableId, operationalLimitGroupName, side);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId,
+            String operationalLimitGroupName, int side) {
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getSelectedOperationalLimitsAttributes(networkUuid, variantNum, resourceType, identifiableId, operationalLimitGroupName,
+                side);
+    }
+
+    @Override
+    public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
+        return getCache(resourceType).getCollection(networkUuid, variantNum).getOperationalLimitsGroupAttributesForBranchSide(networkUuid, variantNum, resourceType, branchId, side);
+    }
+
+    public void loadAllOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
+    }
+
+    public void loadAllSelectedOperationalLimitsGroupAttributesByResourceType(UUID networkUuid, int variantNum, ResourceType resourceType) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, Map<String, Map<Integer, Set<String>>> operationalLimitsGroupsToDelete) {
+        getCache(resourceType).getCollection(networkUuid, variantNum).removeOperationalLimitsGroupAttributes(operationalLimitsGroupsToDelete);
+        delegate.removeOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, operationalLimitsGroupsToDelete);
+    }
+
+    private NetworkCollectionIndex<? extends CollectionCache<?>> getCache(ResourceType resourceType) {
+        return switch (resourceType) {
+            case NETWORK -> networksCache;
+            case SUBSTATION -> substationsCache;
+            case VOLTAGE_LEVEL -> voltageLevelsCache;
+            case SWITCH -> switchesCache;
+            case BUSBAR_SECTION -> busbarSectionsCache;
+            case LOAD -> loadsCache;
+            case GENERATOR -> generatorsCache;
+            case BATTERY -> batteriesCache;
+            case TWO_WINDINGS_TRANSFORMER -> twoWindingsTransformerCache;
+            case THREE_WINDINGS_TRANSFORMER -> threeWindingsTransformerCache;
+            case LINE -> linesCache;
+            case SHUNT_COMPENSATOR -> shuntCompensatorsCache;
+            case VSC_CONVERTER_STATION -> vscConverterStationCache;
+            case LCC_CONVERTER_STATION -> lccConverterStationCache;
+            case STATIC_VAR_COMPENSATOR -> staticVarCompensatorCache;
+            case HVDC_LINE -> hvdcLinesCache;
+            case BOUNDARY_LINE -> boundaryLinesCache;
+            case CONFIGURED_BUS -> configuredBusesCache;
+            case TIE_LINE -> tieLinesCache;
+            case GROUND -> groundsCache;
+            case AREA -> areasCache;
+        };
+    }
+
+    private void addIdentifiableId(UUID networkUuid, Resource<?> resource) {
+        var p = Pair.of(networkUuid, resource.getVariantNum());
+        Set<String> identifiableIds = identifiablesIdsByNetworkVariant.get(p);
+        if (identifiableIds != null) {
+            identifiableIds.add(resource.getId());
+        }
+    }
+
+    private void removeIdentifiableIds(UUID networkUuid, int variantNum, List<String> ids) {
+        var p = Pair.of(networkUuid, variantNum);
+        Set<String> identifiableIds = identifiablesIdsByNetworkVariant.get(p);
+        if (identifiableIds != null) {
+            identifiableIds.removeAll(ids);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -937,12 +1249,31 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             return Optional.empty();
         }
 
+        // when too many getIdentifiable call go through the cache (and consequently go to the server REST API),
+        // we prefer to load all IDs from the server to be able to check that an ID exists on the server before
+        // getting it from the server
+        var p = Pair.of(networkUuid, variantNum);
+        Set<String> identifiablesIds = identifiablesIdsByNetworkVariant.get(p);
+        if (identifiablesIds == null && identifiableCallCountByNetworkVariant.getOrDefault(p, new MutableInt()).getValue() > MAX_GET_IDENTIFIABLE_CALL_COUNT) {
+            identifiablesIds = new HashSet<>(delegate.getIdentifiablesIds(networkUuid, variantNum));
+            identifiablesIdsByNetworkVariant.put(p, identifiablesIds);
+        }
+
+        if (identifiablesIds != null && !identifiablesIds.contains(id)) {
+            return Optional.empty();
+        }
+
         // if not in one of the caches, get resource from delegate and if present add in corresponding cache
         Optional<Resource<IdentifiableAttributes>> resource = delegate.getIdentifiable(networkUuid, variantNum, id);
         resource.ifPresent(r -> {
             CollectionCache<IdentifiableAttributes> collection = (CollectionCache<IdentifiableAttributes>) networkContainersCaches.get(r.getType()).getCollection(networkUuid, variantNum);
-            collection.addResource(r);
+            // we already checked that the resource is not in the cache so we can directly put it in the cache
+            collection.addOrReplaceResource(r);
         });
+
+        identifiableCallCountByNetworkVariant.computeIfAbsent(p, k -> new MutableInt())
+                .increment();
+
         return resource;
     }
 }

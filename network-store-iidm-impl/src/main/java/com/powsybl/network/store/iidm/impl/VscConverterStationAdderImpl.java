@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ResourceType;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
-import com.powsybl.network.store.model.VscConverterStationAttributes;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,6 +19,8 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     private double reactivePowerSetPoint = Double.NaN;
 
     private double voltageSetPoint = Double.NaN;
+
+    private Terminal regulatingTerminal;
 
     VscConverterStationAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
@@ -46,10 +45,30 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     }
 
     @Override
+    public VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
+    }
+
+    @Override
     public VscConverterStation add() {
+        NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
+            voltageRegulatorOn = false;
+        }
         String id = checkAndGetUniqueId();
         checkNodeBus();
         validate();
+
+        MinMaxReactiveLimitsAttributes minMaxAttributes =
+                MinMaxReactiveLimitsAttributes.builder()
+                        .minQ(-Double.MAX_VALUE)
+                        .maxQ(Double.MAX_VALUE)
+                        .build();
+
+        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(id, ResourceType.VSC_CONVERTER_STATION, RegulatingTapChangerType.NONE,
+            new TerminalRefAttributes(id, null), terminalRefAttributes, null, ResourceType.VSC_CONVERTER_STATION, voltageRegulatorOn);
 
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
@@ -62,24 +81,23 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .bus(getBus())
                         .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .lossFactor(getLossFactor())
-                        .voltageRegulatorOn(voltageRegulatorOn)
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
+                        .regulatingPoint(regulatingPointAttributes)
+                        .reactiveLimits(minMaxAttributes)
                         .build())
                 .build();
         VscConverterStationImpl station = getIndex().createVscConverterStation(resource);
         station.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        station.setRegulatingTerminal(regulatingTerminal);
         return station;
     }
 
     @Override
     protected void validate() {
         super.validate();
-        // FIXME this is a workaround for an issue in powsybl core 4.7.0
-        if (voltageRegulatorOn == null) {
-            throw new ValidationException(this, "voltage regulator status is not set");
-        }
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
     }
 
     @Override

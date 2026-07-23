@@ -8,7 +8,7 @@ package com.powsybl.network.store.model;
 import java.util.Objects;
 
 /**
- * @author Symvain Bouzols <sylvain.bouzols at rte-france.com>
+ * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
  */
 public enum TapChangerType {
     RATIO("RATIO"),

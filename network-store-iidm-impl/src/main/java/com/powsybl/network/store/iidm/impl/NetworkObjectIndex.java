@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
@@ -34,6 +35,10 @@ public class NetworkObjectIndex {
     private NetworkImpl network;
 
     private int workingVariantNum = Resource.INITIAL_VARIANT_NUM;
+
+    /* this field is not redundant with the field network above, it is needed to keep the networkUuid in case we delete
+    the current variant, so we can fetch the network when we switch variants */
+    private UUID networkUuid;
 
     private enum LoadingGranularity {
         ONE,
@@ -268,9 +273,13 @@ public class NetworkObjectIndex {
 
     private final ObjectCache<HvdcLine, HvdcLineImpl, HvdcLineAttributes> hvdcLineCache;
 
-    private final ObjectCache<DanglingLine, DanglingLineImpl, DanglingLineAttributes> danglingLineCache;
+    private final ObjectCache<BoundaryLine, BoundaryLineImpl, BoundaryLineAttributes> boundaryLineCache;
+
+    private final ObjectCache<Ground, GroundImpl, GroundAttributes> groundCache;
 
     private final ObjectCache<Bus, ConfiguredBusImpl, ConfiguredBusAttributes> configuredBusCache;
+
+    private final ObjectCache<Area, AreaImpl, AreaAttributes> areaCache;
 
     private final Map<ResourceType, ObjectCache> objectCachesByResourceType = new EnumMap<>(ResourceType.class);
 
@@ -366,12 +375,18 @@ public class NetworkObjectIndex {
             () -> storeClient.getHvdcLines(network.getUuid(), workingVariantNum),
             id -> storeClient.removeHvdcLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> HvdcLineImpl.create(NetworkObjectIndex.this, resource));
-        danglingLineCache = new ObjectCache<>(resource -> storeClient.createDanglingLines(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getDanglingLine(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelDanglingLines(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getDanglingLines(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeDanglingLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
-            resource -> DanglingLineImpl.create(NetworkObjectIndex.this, resource));
+        boundaryLineCache = new ObjectCache<>(resource -> storeClient.createBoundaryLines(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getBoundaryLine(network.getUuid(), workingVariantNum, id),
+            voltageLevelId -> storeClient.getVoltageLevelBoundaryLines(network.getUuid(), workingVariantNum, voltageLevelId),
+            () -> storeClient.getBoundaryLines(network.getUuid(), workingVariantNum),
+            id -> storeClient.removeBoundaryLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            resource -> BoundaryLineImpl.create(NetworkObjectIndex.this, resource));
+        groundCache = new ObjectCache<>(resource -> storeClient.createGrounds(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getGround(network.getUuid(), workingVariantNum, id),
+            voltageLevelId -> storeClient.getVoltageLevelGrounds(network.getUuid(), workingVariantNum, voltageLevelId),
+            () -> storeClient.getGrounds(network.getUuid(), workingVariantNum),
+            id -> storeClient.removeGrounds(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            resource -> GroundImpl.create(NetworkObjectIndex.this, resource));
         configuredBusCache = new ObjectCache<>(resource -> storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(resource)),
             id -> storeClient.getConfiguredBus(network.getUuid(), workingVariantNum, id),
             voltageLevelId -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), workingVariantNum, voltageLevelId),
@@ -384,6 +399,12 @@ public class NetworkObjectIndex {
             () -> storeClient.getTieLines(network.getUuid(), workingVariantNum),
             id -> storeClient.removeTieLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> TieLineImpl.create(NetworkObjectIndex.this, resource));
+        areaCache = new ObjectCache<>(resource -> storeClient.createAreas(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getArea(network.getUuid(), workingVariantNum, id),
+            null,
+            () -> storeClient.getAreas(network.getUuid(), workingVariantNum),
+            id -> storeClient.removeAreas(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            resource -> AreaImpl.create(NetworkObjectIndex.this, resource));
 
         objectCachesByResourceType.put(ResourceType.SUBSTATION, substationCache);
         objectCachesByResourceType.put(ResourceType.VOLTAGE_LEVEL, voltageLevelCache);
@@ -400,9 +421,11 @@ public class NetworkObjectIndex {
         objectCachesByResourceType.put(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTransformerCache);
         objectCachesByResourceType.put(ResourceType.LINE, lineCache);
         objectCachesByResourceType.put(ResourceType.HVDC_LINE, hvdcLineCache);
-        objectCachesByResourceType.put(ResourceType.DANGLING_LINE, danglingLineCache);
+        objectCachesByResourceType.put(ResourceType.BOUNDARY_LINE, boundaryLineCache);
+        objectCachesByResourceType.put(ResourceType.GROUND, groundCache);
         objectCachesByResourceType.put(ResourceType.CONFIGURED_BUS, configuredBusCache);
         objectCachesByResourceType.put(ResourceType.TIE_LINE, tieLineCache);
+        objectCachesByResourceType.put(ResourceType.AREA, areaCache);
     }
 
     public NetworkStoreClient getStoreClient() {
@@ -411,10 +434,15 @@ public class NetworkObjectIndex {
 
     public void setNetwork(NetworkImpl network) {
         this.network = Objects.requireNonNull(network);
+        this.networkUuid = network.getUuid();
     }
 
     NetworkImpl getNetwork() {
         return network;
+    }
+
+    UUID getNetworkUuid() {
+        return networkUuid;
     }
 
     public int getWorkingVariantNum() {
@@ -423,24 +451,28 @@ public class NetworkObjectIndex {
 
     public void setWorkingVariantNum(int workingVariantNum) {
         this.workingVariantNum = workingVariantNum;
-        network.setResource(storeClient.getNetwork(network.getUuid(), workingVariantNum).orElseThrow());
-        substationCache.setResourcesToObjects();
-        voltageLevelCache.setResourcesToObjects();
-        generatorCache.setResourcesToObjects();
-        batteryCache.setResourcesToObjects();
-        shuntCompensatorCache.setResourcesToObjects();
-        vscConverterStationCache.setResourcesToObjects();
-        lccConverterStationCache.setResourcesToObjects();
-        staticVarCompensatorCache.setResourcesToObjects();
-        loadCache.setResourcesToObjects();
-        busbarSectionCache.setResourcesToObjects();
-        switchCache.setResourcesToObjects();
-        twoWindingsTransformerCache.setResourcesToObjects();
-        threeWindingsTransformerCache.setResourcesToObjects();
-        lineCache.setResourcesToObjects();
-        hvdcLineCache.setResourcesToObjects();
-        danglingLineCache.setResourcesToObjects();
-        configuredBusCache.setResourcesToObjects();
+        if (workingVariantNum != -1) {
+            network.setResource(storeClient.getNetwork(networkUuid, workingVariantNum).orElseThrow());
+            substationCache.setResourcesToObjects();
+            voltageLevelCache.setResourcesToObjects();
+            generatorCache.setResourcesToObjects();
+            batteryCache.setResourcesToObjects();
+            shuntCompensatorCache.setResourcesToObjects();
+            vscConverterStationCache.setResourcesToObjects();
+            lccConverterStationCache.setResourcesToObjects();
+            staticVarCompensatorCache.setResourcesToObjects();
+            loadCache.setResourcesToObjects();
+            busbarSectionCache.setResourcesToObjects();
+            switchCache.setResourcesToObjects();
+            twoWindingsTransformerCache.setResourcesToObjects();
+            threeWindingsTransformerCache.setResourcesToObjects();
+            lineCache.setResourcesToObjects();
+            hvdcLineCache.setResourcesToObjects();
+            boundaryLineCache.setResourcesToObjects();
+            groundCache.setResourcesToObjects();
+            configuredBusCache.setResourcesToObjects();
+            areaCache.setResourcesToObjects();
+        }
     }
 
     void notifyCreation(Identifiable<?> identifiable) {
@@ -473,11 +505,31 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+    public void notifyExtensionBeforeRemoval(Extension<?> extension) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onExtensionBeforeRemoval(extension);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    public void notifyExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onExtensionAfterRemoval(identifiable, extensionName);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    public void notifyExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : network.getListeners()) {
                 try {
-                    listener.onUpdate(identifiable, attribute, oldValue, newValue);
+                    listener.onExtensionUpdate(extension, attribute, variantId, oldValue, newValue);
                 } catch (Exception e) {
                     LOGGER.error(e.toString(), e);
                 }
@@ -485,7 +537,17 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+    public void notifyExtensionCreation(Extension<?> extension) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onExtensionCreation(extension);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    public void notifyUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : network.getListeners()) {
                 try {
@@ -497,48 +559,48 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyElementAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object newValue) {
+    void notifyPropertyAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object newValue) {
         if (!network.getListeners().isEmpty()) {
-            notifyElementAdded(identifiable, attribute.get(), newValue);
+            notifyPropertyAdded(identifiable, attribute.get(), newValue);
         }
     }
 
-    void notifyElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
+    void notifyPropertyAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
         for (NetworkListener listener : network.getListeners()) {
             try {
-                listener.onElementAdded(identifiable, attribute, newValue);
+                listener.onPropertyAdded(identifiable, attribute, newValue);
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
             }
         }
     }
 
-    void notifyElementReplaced(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
+    void notifyPropertyReplaced(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
         if (!network.getListeners().isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyElementReplaced(identifiable, attribute.get(), oldValue, newValue);
+            notifyPropertyReplaced(identifiable, attribute.get(), oldValue, newValue);
         }
     }
 
-    void notifyElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+    void notifyPropertyReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         for (NetworkListener listener : network.getListeners()) {
             try {
-                listener.onElementReplaced(identifiable, attribute, oldValue, newValue);
+                listener.onPropertyReplaced(identifiable, attribute, oldValue, newValue);
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
             }
         }
     }
 
-    void notifyElementRemoved(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue) {
+    void notifyPropertyRemoved(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue) {
         if (!network.getListeners().isEmpty()) {
-            notifyElementRemoved(identifiable, attribute.get(), oldValue);
+            notifyPropertyRemoved(identifiable, attribute.get(), oldValue);
         }
     }
 
-    void notifyElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
+    void notifyPropertyRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
         for (NetworkListener listener : network.getListeners()) {
             try {
-                listener.onElementRemoved(identifiable, attribute, oldValue);
+                listener.onPropertyRemoved(identifiable, attribute, oldValue);
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
             }
@@ -781,10 +843,10 @@ public class NetworkObjectIndex {
         tieLineCache.remove(tieLineId);
     }
 
-
     // shunt compensator
 
     Optional<ShuntCompensatorImpl> getShuntCompensator(String id) {
+
         return shuntCompensatorCache.getOne(id);
     }
 
@@ -896,22 +958,62 @@ public class NetworkObjectIndex {
         hvdcLineCache.remove(hvdcLineId);
     }
 
-    // Dangling line
+    // Boundary line
 
-    Optional<DanglingLineImpl> getDanglingLine(String id) {
-        return danglingLineCache.getOne(id);
+    Optional<BoundaryLineImpl> getBoundaryLine(String id) {
+        return boundaryLineCache.getOne(id);
     }
 
-    List<DanglingLine> getDanglingLines() {
-        return danglingLineCache.getAll().collect(Collectors.toList());
+    List<BoundaryLine> getBoundaryLines() {
+        return boundaryLineCache.getAll().collect(Collectors.toList());
     }
 
-    List<DanglingLine> getDanglingLines(String voltageLevelId) {
-        return danglingLineCache.getSome(voltageLevelId).collect(Collectors.toList());
+    List<BoundaryLine> getBoundaryLines(String voltageLevelId) {
+        return boundaryLineCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    public DanglingLineImpl createDanglingLine(Resource<DanglingLineAttributes> resource) {
-        return danglingLineCache.create(resource);
+    public BoundaryLineImpl createBoundaryLine(Resource<BoundaryLineAttributes> resource) {
+        return boundaryLineCache.create(resource);
+    }
+
+    // Ground
+
+    Optional<GroundImpl> getGround(String id) {
+        return groundCache.getOne(id);
+    }
+
+    List<Ground> getGrounds() {
+        return groundCache.getAll().collect(Collectors.toList());
+    }
+
+    List<Ground> getGrounds(String voltageLevelId) {
+        return groundCache.getSome(voltageLevelId).collect(Collectors.toList());
+    }
+
+    public GroundImpl createGround(Resource<GroundAttributes> resource) {
+        return groundCache.create(resource);
+    }
+
+    public void removeGround(String groundId) {
+        groundCache.remove(groundId);
+    }
+
+    // Area
+
+    Optional<AreaImpl> getArea(String id) {
+        return areaCache.getOne(id);
+    }
+
+    List<Area> getAreas() {
+        return areaCache.getAll().collect(Collectors.toList());
+    }
+
+    public AreaImpl createArea(Resource<AreaAttributes> resource) {
+        return areaCache.create(resource);
+    }
+
+    public void removeArea(String areaId) {
+        areaCache.remove(areaId);
     }
 
     public Collection<Identifiable<?>> getIdentifiables() {
@@ -931,38 +1033,29 @@ public class NetworkObjectIndex {
                 .addAll(getThreeWindingsTransformers())
                 .addAll(getLines())
                 .addAll(getHvdcLines())
-                .addAll(getDanglingLines())
+                .addAll(getBoundaryLines())
+                .addAll(getGrounds())
+                .addAll(getAreas())
                 .addAll(getConfiguredBuses())
                 .build();
     }
 
     public Connectable<?> getConnectable(String connectableId, IdentifiableType connectableType) {
-        switch (connectableType) {
-            case BUSBAR_SECTION:
-                return getBusbarSection(connectableId).orElse(null);
-            case LINE:
-                return getLine(connectableId).orElse(null);
-            case TWO_WINDINGS_TRANSFORMER:
-                return getTwoWindingsTransformer(connectableId).orElse(null);
-            case THREE_WINDINGS_TRANSFORMER:
-                return getThreeWindingsTransformer(connectableId).orElse(null);
-            case GENERATOR:
-                return getGenerator(connectableId).orElse(null);
-            case BATTERY:
-                return getBattery(connectableId).orElse(null);
-            case LOAD:
-                return getLoad(connectableId).orElse(null);
-            case SHUNT_COMPENSATOR:
-                return getShuntCompensator(connectableId).orElse(null);
-            case DANGLING_LINE:
-                return getDanglingLine(connectableId).orElse(null);
-            case STATIC_VAR_COMPENSATOR:
-                return getStaticVarCompensator(connectableId).orElse(null);
-            case HVDC_CONVERTER_STATION:
-                return getHvdcConverterStation(connectableId).orElse(null);
-            default:
-                throw new IllegalStateException("Unexpected connectable type:" + connectableType);
-        }
+        return switch (connectableType) {
+            case BUSBAR_SECTION -> getBusbarSection(connectableId).orElse(null);
+            case LINE -> getLine(connectableId).orElse(null);
+            case TWO_WINDINGS_TRANSFORMER -> getTwoWindingsTransformer(connectableId).orElse(null);
+            case THREE_WINDINGS_TRANSFORMER -> getThreeWindingsTransformer(connectableId).orElse(null);
+            case GENERATOR -> getGenerator(connectableId).orElse(null);
+            case BATTERY -> getBattery(connectableId).orElse(null);
+            case LOAD -> getLoad(connectableId).orElse(null);
+            case SHUNT_COMPENSATOR -> getShuntCompensator(connectableId).orElse(null);
+            case BOUNDARY_LINE -> getBoundaryLine(connectableId).orElse(null);
+            case GROUND -> getGround(connectableId).orElse(null);
+            case STATIC_VAR_COMPENSATOR -> getStaticVarCompensator(connectableId).orElse(null);
+            case HVDC_CONVERTER_STATION -> getHvdcConverterStation(connectableId).orElse(null);
+            default -> throw new IllegalStateException("Unexpected connectable type:" + connectableType);
+        };
     }
 
     public Branch<?> getBranch(String branchId) {
@@ -1013,8 +1106,8 @@ public class NetworkObjectIndex {
         return null;
     }
 
-    public void removeDanglingLine(String danglingLineId) {
-        danglingLineCache.remove(danglingLineId);
+    public void removeBoundaryLine(String boundaryLineId) {
+        boundaryLineCache.remove(boundaryLineId);
     }
 
     // configured buses
@@ -1053,65 +1146,28 @@ public class NetworkObjectIndex {
     @SuppressWarnings("unchecked")
     <T extends IdentifiableAttributes> void updateResource(Resource<T> resource, AttributeFilter attributeFilter) {
         switch (resource.getType()) {
-            case NETWORK:
-                updateNetworkResource((Resource<NetworkAttributes>) resource, attributeFilter);
-                break;
-            case SUBSTATION:
-                updateSubstationResource((Resource<SubstationAttributes>) resource, attributeFilter);
-                break;
-            case VOLTAGE_LEVEL:
-                updateVoltageLevelResource((Resource<VoltageLevelAttributes>) resource, attributeFilter);
-                break;
-            case LOAD:
-                updateLoadResource((Resource<LoadAttributes>) resource, attributeFilter);
-                break;
-            case GENERATOR:
-                updateGeneratorResource((Resource<GeneratorAttributes>) resource, attributeFilter);
-                break;
-            case BATTERY:
-                updateBatteryResource((Resource<BatteryAttributes>) resource, attributeFilter);
-                break;
-            case SHUNT_COMPENSATOR:
-                updateShuntCompensatorResource((Resource<ShuntCompensatorAttributes>) resource, attributeFilter);
-                break;
-            case VSC_CONVERTER_STATION:
-                updateVscConverterStationResource((Resource<VscConverterStationAttributes>) resource, attributeFilter);
-                break;
-            case LCC_CONVERTER_STATION:
-                updateLccConverterStationResource((Resource<LccConverterStationAttributes>) resource, attributeFilter);
-                break;
-            case STATIC_VAR_COMPENSATOR:
-                updateStaticVarCompensatorResource((Resource<StaticVarCompensatorAttributes>) resource, attributeFilter);
-                break;
-            case BUSBAR_SECTION:
-                updateBusbarSectionResource((Resource<BusbarSectionAttributes>) resource, attributeFilter);
-                break;
-            case SWITCH:
-                updateSwitchResource((Resource<SwitchAttributes>) resource, attributeFilter);
-                break;
-            case TWO_WINDINGS_TRANSFORMER:
-                updateTwoWindingsTransformerResource((Resource<TwoWindingsTransformerAttributes>) resource, attributeFilter);
-                break;
-            case THREE_WINDINGS_TRANSFORMER:
-                updateThreeWindingsTransformerResource((Resource<ThreeWindingsTransformerAttributes>) resource, attributeFilter);
-                break;
-            case LINE:
-                updateLineResource((Resource<LineAttributes>) resource, attributeFilter);
-                break;
-            case HVDC_LINE:
-                updateHvdcLineResource((Resource<HvdcLineAttributes>) resource, attributeFilter);
-                break;
-            case DANGLING_LINE:
-                updateDanglingLineResource((Resource<DanglingLineAttributes>) resource, attributeFilter);
-                break;
-            case CONFIGURED_BUS:
-                updateConfiguredBusResource((Resource<ConfiguredBusAttributes>) resource, attributeFilter);
-                break;
-            case TIE_LINE:
-                updateTieLineResource((Resource<TieLineAttributes>) resource, attributeFilter);
-                break;
-            default:
-                throw new IllegalStateException("Unknown resource type: " + resource.getType());
+            case NETWORK -> updateNetworkResource((Resource<NetworkAttributes>) resource, attributeFilter);
+            case SUBSTATION -> updateSubstationResource((Resource<SubstationAttributes>) resource, attributeFilter);
+            case VOLTAGE_LEVEL -> updateVoltageLevelResource((Resource<VoltageLevelAttributes>) resource, attributeFilter);
+            case LOAD -> updateLoadResource((Resource<LoadAttributes>) resource, attributeFilter);
+            case GENERATOR -> updateGeneratorResource((Resource<GeneratorAttributes>) resource, attributeFilter);
+            case BATTERY -> updateBatteryResource((Resource<BatteryAttributes>) resource, attributeFilter);
+            case SHUNT_COMPENSATOR -> updateShuntCompensatorResource((Resource<ShuntCompensatorAttributes>) resource, attributeFilter);
+            case VSC_CONVERTER_STATION -> updateVscConverterStationResource((Resource<VscConverterStationAttributes>) resource, attributeFilter);
+            case LCC_CONVERTER_STATION -> updateLccConverterStationResource((Resource<LccConverterStationAttributes>) resource, attributeFilter);
+            case STATIC_VAR_COMPENSATOR -> updateStaticVarCompensatorResource((Resource<StaticVarCompensatorAttributes>) resource, attributeFilter);
+            case BUSBAR_SECTION -> updateBusbarSectionResource((Resource<BusbarSectionAttributes>) resource, attributeFilter);
+            case SWITCH -> updateSwitchResource((Resource<SwitchAttributes>) resource, attributeFilter);
+            case TWO_WINDINGS_TRANSFORMER -> updateTwoWindingsTransformerResource((Resource<TwoWindingsTransformerAttributes>) resource, attributeFilter);
+            case THREE_WINDINGS_TRANSFORMER -> updateThreeWindingsTransformerResource((Resource<ThreeWindingsTransformerAttributes>) resource, attributeFilter);
+            case LINE -> updateLineResource((Resource<LineAttributes>) resource, attributeFilter);
+            case HVDC_LINE -> updateHvdcLineResource((Resource<HvdcLineAttributes>) resource, attributeFilter);
+            case BOUNDARY_LINE -> updateBoundaryLineResource((Resource<BoundaryLineAttributes>) resource, attributeFilter);
+            case GROUND -> updateGroundResource((Resource<GroundAttributes>) resource, attributeFilter);
+            case CONFIGURED_BUS -> updateConfiguredBusResource((Resource<ConfiguredBusAttributes>) resource, attributeFilter);
+            case TIE_LINE -> updateTieLineResource((Resource<TieLineAttributes>) resource, attributeFilter);
+            case AREA -> updateAreaResource((Resource<AreaAttributes>) resource, attributeFilter);
+            default -> throw new IllegalStateException("Unknown resource type: " + resource.getType());
         }
     }
 
@@ -1147,8 +1203,16 @@ public class NetworkObjectIndex {
         storeClient.updateThreeWindingsTransformers(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
-    void updateDanglingLineResource(Resource<DanglingLineAttributes> resource, AttributeFilter attributeFilter) {
-        storeClient.updateDanglingLines(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    void updateBoundaryLineResource(Resource<BoundaryLineAttributes> resource, AttributeFilter attributeFilter) {
+        storeClient.updateBoundaryLines(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    }
+
+    void updateGroundResource(Resource<GroundAttributes> resource, AttributeFilter attributeFilter) {
+        storeClient.updateGrounds(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    }
+
+    void updateAreaResource(Resource<AreaAttributes> resource, AttributeFilter attributeFilter) {
+        storeClient.updateAreas(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
     void updateTieLineResource(Resource<TieLineAttributes> resource, AttributeFilter attributeFilter) {
@@ -1197,5 +1261,33 @@ public class NetworkObjectIndex {
 
     void updateBusbarSectionResource(Resource<BusbarSectionAttributes> resource, AttributeFilter attributeFilter) {
         storeClient.updateBusbarSections(network.getUuid(), Collections.singletonList(resource), attributeFilter);
+    }
+
+    public void loadExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
+        storeClient.getExtensionAttributes(network.getUuid(), workingVariantNum, type, identifiableId, extensionName);
+    }
+
+    public void loadAllExtensionsAttributesByIdentifiableId(ResourceType type, String identifiableId) {
+        storeClient.getAllExtensionsAttributesByIdentifiableId(network.getUuid(), workingVariantNum, type, identifiableId);
+    }
+
+    public void removeExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
+        storeClient.removeExtensionsAttributes(network.getUuid(), workingVariantNum, type, Map.of(identifiableId, Set.of(extensionName)));
+    }
+
+    public void loadOperationalLimitsGroupAttributes(ResourceType type, String branchId, String operationalLimitGroupName, int side) {
+        storeClient.getOperationalLimitsGroupAttributes(network.getUuid(), workingVariantNum, type, branchId, operationalLimitGroupName, side);
+    }
+
+    public void loadOperationalLimitsGroupAttributesForBranchSide(ResourceType type, String branchId, int side) {
+        storeClient.getOperationalLimitsGroupAttributesForBranchSide(network.getUuid(), workingVariantNum, type, branchId, side);
+    }
+
+    public void loadSelectedOperationalLimitsGroupAttributes(ResourceType type, String branchId, String operationalLimitGroupName, int side) {
+        storeClient.getSelectedOperationalLimitsGroupAttributes(network.getUuid(), workingVariantNum, type, branchId, operationalLimitGroupName, side);
+    }
+
+    public void removeOperationalLimitsGroupAttributes(ResourceType type, String branchId, String operationalLimitGroupName, int side) {
+        storeClient.removeOperationalLimitsGroupAttributes(network.getUuid(), workingVariantNum, type, Map.of(branchId, Map.of(side, Set.of(operationalLimitGroupName))));
     }
 }

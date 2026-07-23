@@ -1,0 +1,108 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.network.store.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
+import java.util.*;
+
+/**
+ * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ */
+@Data
+@ToString(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+@Schema(description = "Boundary line attributes")
+public class BoundaryLineAttributes extends AbstractIdentifiableAttributes implements FlowsLimitsAttributes, InjectionAttributes, LimitHolder {
+
+    @Schema(description = "Voltage level ID")
+    private String voltageLevelId;
+
+    @Schema(description = "Connection node in node/breaker topology")
+    private Integer node;
+
+    @Schema(description = "Constant active power in MW")
+    private double p0;
+
+    @Schema(description = "Constant reactive power in MW")
+    private double q0;
+
+    @Schema(description = "Series resistance")
+    private double r;
+
+    @Schema(description = "Series reactance")
+    private double x;
+
+    @Schema(description = "Shunt conductance in S")
+    private double g;
+
+    @Schema(description = "Shunt susceptance in S")
+    private double b;
+
+    @Schema(description = "Generation")
+    private BoundaryLineGenerationAttributes generation;
+
+    @Schema(description = "Pairing key")
+    private String pairingKey;
+
+    // TODO add lazy loading for dangling lines and annotate with @JsonView(AttributeFilter.JsonViews.WithLimits.class) like in line and 2wt;
+    // not done because there are few dangling lines and the performance impact is low
+    @Schema(description = "OperationalLimitGroup")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups = new HashMap<>();
+
+    @Schema(description = "selected OperationalLimitsGroupId")
+    private String selectedOperationalLimitsGroupId;
+
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
+    @Schema(description = "Active power in MW")
+    @Builder.Default
+    private double p = Double.NaN;
+
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
+    @Schema(description = "Reactive power in MW")
+    @Builder.Default
+    private double q = Double.NaN;
+
+    @Schema(description = "Connectable position (for substation diagram)")
+    private ConnectablePositionAttributes position;
+
+    @Schema(description = "Connection bus in bus/breaker topology")
+    private String bus;
+
+    @Schema(description = "Possible connection bus in bus/breaker topology")
+    private String connectableBus;
+
+    @Schema(description = "Tie line ID in case of a paired boundary line")
+    private String tieLineId;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
+
+    @Override
+    @JsonIgnore
+    public List<Integer> getSideList() {
+        return List.of(1);
+    }
+
+    @Override
+    public Map<String, OperationalLimitsGroupAttributes> getOperationalLimitsGroups(int side) {
+        if (side == 1) {
+            return operationalLimitsGroups;
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
+}

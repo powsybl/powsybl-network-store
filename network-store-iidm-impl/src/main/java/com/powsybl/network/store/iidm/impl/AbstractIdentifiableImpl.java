@@ -6,17 +6,23 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.google.common.base.Strings;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.commons.extensions.ExtensionAdderProvider;
+import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.network.store.model.AttributeFilter;
-import com.powsybl.network.store.model.IdentifiableAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static com.powsybl.network.store.model.ExtensionLoaders.loaderExists;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,41 +34,101 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     private Resource<D> resource;
 
+    // When we remove an identifiable, we need to access to the id
+    // Needed to generate the exception message when accessing a removed identifiable
+    private String idBeforeRemoval;
+
+    private static final String PROPERTIES = "properties";
+
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
         this.resource = resource;
     }
 
-    public void updateResource(Consumer<Resource<D>> modifier) {
-        updateResource(modifier, null);
+    public void updateResourceWithoutNotification(Consumer<Resource<D>> modifier) {
+        updateResourceWithoutNotification(modifier, AttributeFilter.PRIMARY_AS_NULL);
     }
 
-    public void updateResource(Consumer<Resource<D>> modifier, AttributeFilter attributeFilter) {
+    public void updateResourceWithoutNotification(Consumer<Resource<D>> modifier, AttributeFilter attributeFilter) {
         modifier.accept(resource);
         index.updateResource(resource, attributeFilter);
     }
 
+    public void updateResource(Consumer<Resource<D>> modifier, String attribute, Object oldValue, Object newValue) {
+        updateResource(modifier, AttributeFilter.PRIMARY_AS_NULL, attribute, oldValue, newValue);
+    }
+
+    public void updateResource(Consumer<Resource<D>> modifier, AttributeFilter attributeFilter, String attribute, Object oldValue, Object newValue) {
+        modifier.accept(resource);
+        index.updateResource(resource, attributeFilter);
+        String variantId = getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, attribute, variantId, oldValue, newValue);
+    }
+
+    public void updateResource(Consumer<Resource<D>> modifier, String attribute, String variantId, Object oldValue, Supplier<Object> newValueSupplier) {
+        modifier.accept(resource);
+        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
+        index.notifyUpdate(this, attribute, variantId, oldValue, newValueSupplier.get());
+    }
+
+    public void updateResourcePropertyAdded(Consumer<Resource<D>> modifier, String attribute, Object newValue) {
+        modifier.accept(resource);
+        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
+        index.notifyPropertyAdded(this, () -> attribute, newValue);
+    }
+
+    public void updateResourcePropertyReplaced(Consumer<Resource<D>> modifier, String attribute, String oldValue, Object newValue) {
+        modifier.accept(resource);
+        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
+        index.notifyPropertyReplaced(this, () -> attribute, oldValue, newValue);
+    }
+
+    public void updateResourcePropertyRemoved(Consumer<Resource<D>> modifier, String attribute, String oldValue) {
+        modifier.accept(resource);
+        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
+        index.notifyPropertyRemoved(this, attribute, oldValue);
+    }
+
+    public void notifyExtensionCreation(Extension<?> extension) {
+        getIndex().notifyExtensionCreation(extension);
+    }
+
+    public void updateResourceExtension(Extension<?> extension, Consumer<Resource<D>> modifier, String attribute, Object oldValue, Object newValue) {
+        modifier.accept(resource);
+        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
+        String variantId = getNetwork().getVariantManager().getWorkingVariantId();
+        getIndex().notifyExtensionUpdate(extension, attribute, variantId, oldValue, newValue);
+    }
+
     public Resource<D> getNullableResource() {
-        return resource;
+        return getOptionalResource().orElse(null);
     }
 
     public void setResource(Resource<D> resource) {
+        if (resource == null && this.resource != null) {
+            // Save idBeforeRemoval when switching from non-null to null resource
+            idBeforeRemoval = this.resource.getId();
+        } else if (resource != null) {
+            // Clear idBeforeRemoval when setting a non-null resource
+            idBeforeRemoval = null;
+        }
+
         this.resource = resource;
     }
 
     public Resource<D> getResource() {
-        if (resource == null) {
-            throw new PowsyblException("Object has been removed in current variant");
-        }
-        return resource;
+        return getOptionalResource().orElseThrow(() -> new PowsyblException("Object has been removed in current variant"));
     }
 
     protected Optional<Resource<D>> getOptionalResource() {
+        if (index.getWorkingVariantNum() == -1) {
+            throw new PowsyblException("Variant index not set");
+        }
         return Optional.ofNullable(resource);
     }
 
     public String getId() {
-        return getResource().getId();
+        return resource == null ? idBeforeRemoval : resource.getId();
     }
 
     @Deprecated
@@ -85,8 +151,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     public I setName(String name) {
         String oldName = getResource().getAttributes().getName();
         if (!Objects.equals(oldName, name)) {
-            updateResource(r -> r.getAttributes().setName(name));
-            index.notifyUpdate(this, "name", oldName, name);
+            updateResource(r -> r.getAttributes().setName(name),
+                "name", oldName, name);
         }
         return (I) this;
     }
@@ -116,7 +182,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     @Override
     public Optional<String> getAliasFromType(String aliasType) {
-        Objects.requireNonNull(aliasType);
+        if (Strings.isNullOrEmpty(aliasType)) {
+            throw new PowsyblException("Alias type must not be null or empty");
+        }
         var attributes = getResource().getAttributes();
         if (attributes.getAliasByType() != null) {
             return Optional.ofNullable(attributes.getAliasByType().get(aliasType));
@@ -140,13 +208,13 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     @Override
+    @SuppressWarnings("checkstyle:LambdaBodyLength")
     public void addAlias(String alias, String aliasType, boolean ensureAliasUnicity) {
         Objects.requireNonNull(alias);
         String uniqueAlias = ensureAliasUnicity ? Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains) : alias;
         if (!getNetwork().checkAliasUnicity(this, uniqueAlias)) {
             return;
         }
-
         updateResource(r -> {
             var attributes = r.getAttributes();
             var aliasByType = attributes.getAliasByType();
@@ -168,7 +236,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
                 }
                 aliasesWithoutType.add(uniqueAlias);
             }
-        });
+        }, "alias", null, uniqueAlias);
         getNetwork().addAlias(uniqueAlias, this.getId());
     }
 
@@ -185,14 +253,12 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
                 }
             } else {
                 var aliasesWithoutType = attributes.getAliasesWithoutType();
-                if (aliasesWithoutType != null) {
-                    if (!aliasesWithoutType.contains(alias)) {
-                        throw new PowsyblException(String.format("No alias '%s' found in the network", alias));
-                    }
-                    aliasesWithoutType.remove(alias);
+                if (aliasesWithoutType == null || !aliasesWithoutType.contains(alias)) {
+                    throw new PowsyblException(String.format("No alias '%s' found in the network", alias));
                 }
+                aliasesWithoutType.remove(alias);
             }
-        });
+        }, "alias", alias, null);
         getNetwork().removeAlias(alias);
     }
 
@@ -220,7 +286,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     public String getProperty(String key, String defaultValue) {
         Map<String, String> properties = getResource().getAttributes().getProperties();
-        return properties != null ? properties.getOrDefault(key, defaultValue) : null;
+        return properties != null ? properties.getOrDefault(key, defaultValue) : defaultValue;
     }
 
     public Set<String> getPropertyNames() {
@@ -230,20 +296,19 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     public String setProperty(String key, String value) {
         MutableObject<String> oldValue = new MutableObject<>();
+        Map<String, String> properties = getResource().getAttributes().getProperties();
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        oldValue.setValue(properties.put(key, value));
 
-        updateResource(r -> {
-            Map<String, String> properties = r.getAttributes().getProperties();
-            if (properties == null) {
-                properties = new HashMap<>();
-            }
-            r.getAttributes().setProperties(properties);
-            oldValue.setValue(properties.put(key, value));
-        });
-
+        Map<String, String> finalProperties = properties;
         if (Objects.isNull(oldValue.getValue())) {
-            index.notifyElementAdded(this, () -> "properties[" + key + "]", value);
+            updateResourcePropertyAdded(r -> r.getAttributes().setProperties(finalProperties),
+                PROPERTIES + "[" + key + "]", value);
         } else {
-            index.notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue.getValue(), value);
+            updateResourcePropertyReplaced(r -> r.getAttributes().setProperties(finalProperties),
+                PROPERTIES + "[" + key + "]", oldValue.getValue(), value);
         }
         return oldValue.getValue();
     }
@@ -263,15 +328,17 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         Map<String, String> properties = getResource().getAttributes().getProperties();
         if (properties != null && properties.containsKey(key)) {
             String oldValue = properties.get(key);
-            updateResource(r -> r.getAttributes().getProperties().remove(key));
-            index.notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
+            updateResourcePropertyRemoved(r -> r.getAttributes().getProperties().remove(key),
+                PROPERTIES + "[" + key + "]", oldValue);
             return true;
         }
         return false;
     }
 
     public NetworkImpl getNetwork() {
-        getResource();
+        if (resource == null) {
+            throw new PowsyblException("Cannot access network of removed equipment " + getId());
+        }
         return index.getNetwork();
     }
 
@@ -285,19 +352,41 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
-        return null;
+        if (!loaderExists(type)) {
+            return null;
+        }
+        return getExtensionByName(ExtensionLoaders.findLoader(type).getName());
     }
 
     public <E extends Extension<I>> E getExtensionByName(String name) {
+        if (!loaderExists(name)) {
+            return null;
+        }
+        index.loadExtensionAttributes(resource.getType(), resource.getId(), name);
+        if (resource.getAttributes().getExtensionAttributes().containsKey(name)) {
+            return (E) ExtensionLoaders.findLoaderByName(name).load(this);
+        }
         return null;
     }
 
     public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
-        throw new UnsupportedOperationException("TODO");
+        E extension = getExtension(type);
+        if (extension == null) {
+            return false;
+        }
+        extension.cleanup();
+        index.notifyExtensionBeforeRemoval(extension);
+        index.removeExtensionAttributes(resource.getType(), resource.getId(), extension.getName());
+        index.notifyExtensionAfterRemoval(this, extension.getName());
+        return true;
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        return new ArrayList<>();
+        index.loadAllExtensionsAttributesByIdentifiableId(resource.getType(), resource.getId());
+        return resource.getAttributes().getExtensionAttributes().keySet().stream()
+                .filter(ExtensionLoaders::loaderExists)
+                .map(name -> (E) ExtensionLoaders.findLoaderByName(name).load(this))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -320,13 +409,17 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     public void setFictitious(boolean fictitious) {
         boolean oldValue = getResource().getAttributes().isFictitious();
         if (fictitious != oldValue) {
-            updateResource(r -> r.getAttributes().setFictitious(fictitious));
-            index.notifyUpdate(this, "fictitious", oldValue, fictitious);
+            updateResource(r -> r.getAttributes().setFictitious(fictitious),
+                "fictitious", oldValue, fictitious);
         }
     }
 
     @Override
-    public String getMessageHeader() {
+    public MessageHeader getMessageHeader() {
         return resource.getMessageHeader();
+    }
+
+    public NetworkObjectIndex getIndex() {
+        return index;
     }
 }

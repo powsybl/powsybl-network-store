@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.network.store.model.svattributes.*;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -23,85 +24,53 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         super(Resource.class);
     }
 
-    private static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
+    static Class<? extends Attributes> getTypeClass(ResourceType type, AttributeFilter filter) {
         Objects.requireNonNull(type);
-        if (filter == null) {
-            switch (type) {
-                case NETWORK:
-                    return NetworkAttributes.class;
-                case SUBSTATION:
-                    return SubstationAttributes.class;
-                case VOLTAGE_LEVEL:
-                    return VoltageLevelAttributes.class;
-                case LOAD:
-                    return LoadAttributes.class;
-                case GENERATOR:
-                    return GeneratorAttributes.class;
-                case BATTERY:
-                    return BatteryAttributes.class;
-                case VSC_CONVERTER_STATION:
-                    return VscConverterStationAttributes.class;
-                case LCC_CONVERTER_STATION:
-                    return LccConverterStationAttributes.class;
-                case SHUNT_COMPENSATOR:
-                    return ShuntCompensatorAttributes.class;
-                case STATIC_VAR_COMPENSATOR:
-                    return StaticVarCompensatorAttributes.class;
-                case BUSBAR_SECTION:
-                    return BusbarSectionAttributes.class;
-                case SWITCH:
-                    return SwitchAttributes.class;
-                case TWO_WINDINGS_TRANSFORMER:
-                    return TwoWindingsTransformerAttributes.class;
-                case THREE_WINDINGS_TRANSFORMER:
-                    return ThreeWindingsTransformerAttributes.class;
-                case LINE:
-                    return LineAttributes.class;
-                case HVDC_LINE:
-                    return HvdcLineAttributes.class;
-                case DANGLING_LINE:
-                    return DanglingLineAttributes.class;
-                case CONFIGURED_BUS:
-                    return ConfiguredBusAttributes.class;
-                case TIE_LINE:
-                    return TieLineAttributes.class;
-                default:
-                    throw new IllegalStateException("Unknown resource type: " + type);
-            }
+        // The client currently doesn't send AttributeFilter.LIMITS or AttributeFilter.FULL, but if it did
+        // we don't want to reject it, we know we should deserialize to normal DTOs
+        if (filter == AttributeFilter.PRIMARY_AS_NULL || filter == AttributeFilter.LIMITS || filter == AttributeFilter.FULL) {
+            return switch (type) {
+                case NETWORK -> NetworkAttributes.class;
+                case SUBSTATION -> SubstationAttributes.class;
+                case VOLTAGE_LEVEL -> VoltageLevelAttributes.class;
+                case LOAD -> LoadAttributes.class;
+                case GENERATOR -> GeneratorAttributes.class;
+                case BATTERY -> BatteryAttributes.class;
+                case VSC_CONVERTER_STATION -> VscConverterStationAttributes.class;
+                case LCC_CONVERTER_STATION -> LccConverterStationAttributes.class;
+                case SHUNT_COMPENSATOR -> ShuntCompensatorAttributes.class;
+                case STATIC_VAR_COMPENSATOR -> StaticVarCompensatorAttributes.class;
+                case BUSBAR_SECTION -> BusbarSectionAttributes.class;
+                case SWITCH -> SwitchAttributes.class;
+                case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerAttributes.class;
+                case THREE_WINDINGS_TRANSFORMER -> ThreeWindingsTransformerAttributes.class;
+                case LINE -> LineAttributes.class;
+                case HVDC_LINE -> HvdcLineAttributes.class;
+                case BOUNDARY_LINE -> BoundaryLineAttributes.class;
+                case GROUND -> GroundAttributes.class;
+                case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
+                case TIE_LINE -> TieLineAttributes.class;
+                case AREA -> AreaAttributes.class;
+            };
         } else {
             if (filter == AttributeFilter.SV) {
-                switch (type) {
-                    case NETWORK:
-                        return NetworkAttributes.class;
-                    case SUBSTATION:
-                        return SubstationAttributes.class;
-                    case VOLTAGE_LEVEL:
-                        return VoltageLevelSvAttributes.class;
-                    case LOAD:
-                    case GENERATOR:
-                    case BATTERY:
-                    case VSC_CONVERTER_STATION:
-                    case LCC_CONVERTER_STATION:
-                    case SHUNT_COMPENSATOR:
-                    case STATIC_VAR_COMPENSATOR:
-                    case DANGLING_LINE:
-                        return InjectionSvAttributes.class;
-                    case BUSBAR_SECTION:
-                        return BusbarSectionAttributes.class;
-                    case SWITCH:
-                        return SwitchAttributes.class;
-                    case TWO_WINDINGS_TRANSFORMER:
-                    case LINE:
-                        return BranchSvAttributes.class;
-                    case THREE_WINDINGS_TRANSFORMER:
-                        return ThreeWindingsTransformerSvAttributes.class;
-                    case HVDC_LINE:
-                        return HvdcLineAttributes.class;
-                    case CONFIGURED_BUS:
-                        return ConfiguredBusAttributes.class;
-                    default:
-                        throw new IllegalStateException("Unknown resource type: " + type);
-                }
+                return switch (type) {
+                    case NETWORK -> NetworkAttributes.class;
+                    case SUBSTATION -> SubstationAttributes.class;
+                    case VOLTAGE_LEVEL -> VoltageLevelSvAttributes.class;
+                    case LOAD, GENERATOR, BATTERY, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, BOUNDARY_LINE, GROUND ->
+                        InjectionSvAttributes.class;
+                    case SHUNT_COMPENSATOR -> ShuntCompensatorSvAttributes.class;
+                    case BUSBAR_SECTION -> BusbarSectionAttributes.class;
+                    case SWITCH -> SwitchAttributes.class;
+                    case LINE -> BranchSvAttributes.class;
+                    case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerSvAttributes.class;
+                    case THREE_WINDINGS_TRANSFORMER -> ThreeWindingsTransformerSvAttributes.class;
+                    case HVDC_LINE -> HvdcLineAttributes.class;
+                    case CONFIGURED_BUS -> ConfiguredBusAttributes.class;
+                    case TIE_LINE -> TieLineAttributes.class;
+                    case AREA -> AreaAttributes.class;
+                };
             } else {
                 throw new IllegalStateException("Unknown attribute filter: " + filter);
             }
@@ -114,37 +83,30 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
         String id = null;
         int variantNum = -1;
         Attributes attributes = null;
-        AttributeFilter filter = null;
+        AttributeFilter filter = AttributeFilter.PRIMARY_AS_NULL; // used only to getTypeClass() of the DTO
 
         JsonToken token;
         while ((token = parser.nextToken()) != null) {
             if (token == JsonToken.FIELD_NAME) {
                 String fieldName = parser.getCurrentName();
                 switch (fieldName) {
-                    case "type":
-                        type = ResourceType.valueOf(parser.nextTextValue());
-                        break;
-                    case "id":
-                        id = parser.nextTextValue();
-                        break;
-                    case "variantNum":
-                        variantNum = parser.nextIntValue(-1);
-                        break;
-                    case "filter":
-                        filter = AttributeFilter.valueOf(parser.nextTextValue());
-                        break;
-                    case "attributes":
+                    case "type" -> type = ResourceType.valueOf(parser.nextTextValue());
+                    case "id" -> id = parser.nextTextValue();
+                    case "variantNum" -> variantNum = parser.nextIntValue(-1);
+                    case "filter" -> filter = AttributeFilter.valueOf(parser.nextTextValue());
+                    case "attributes" -> {
                         parser.nextValue();
                         attributes = parser.readValueAs(getTypeClass(type, filter));
-                        break;
-                    default:
-                        break;
+                    }
+                    default -> {
+                        // Do nothing
+                    }
                 }
             } else if (token == JsonToken.END_OBJECT) {
                 break;
             }
         }
 
-        return Resource.create(type, id, variantNum, filter, attributes);
+        return Resource.create(type, id, variantNum, attributes);
     }
 }

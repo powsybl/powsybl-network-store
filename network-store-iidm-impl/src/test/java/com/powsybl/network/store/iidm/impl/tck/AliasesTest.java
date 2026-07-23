@@ -12,30 +12,6 @@ import com.powsybl.iidm.network.tck.AbstractAliasesTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class AliasesTest extends AbstractAliasesTest {
-    @Override
-    public void failWhenAliasTypeIsEmpty() {
-        // FIXME
-    }
-
-    @Override
-    public void failWhenAliasTypeIsNull() {
-        // FIXME
-    }
-
-    @Override
-    public void failWhenRemovingNonExistingAlias() {
-        // FIXME
-    }
-
-    @Override
-    public void failWhenAliasEqualToAnId() {
-        // FIXME
-    }
-
-    @Override
-    public void failWhenDuplicatedAlias() {
-        // FIXME
-    }
 
     @Override
     public void mergeFailWhenAliasEqualsToAnAliasOfOtherNetwork() {

@@ -6,14 +6,13 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.powsybl.iidm.network.LimitType;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Map;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -26,14 +25,6 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Temporary limit attributes")
 public class TemporaryLimitAttributes implements Comparable<TemporaryLimitAttributes> {
 
-    @JsonIgnore
-    @Schema(description = "Temporary limit side", required = true)
-    private Integer side;
-
-    @JsonIgnore
-    @Schema(description = "Temporary limit type", required = true)
-    private LimitType limitType;
-
     @Schema(description = "Temporary limit name")
     private String name;
 
@@ -45,6 +36,9 @@ public class TemporaryLimitAttributes implements Comparable<TemporaryLimitAttrib
 
     @Schema(description = "Temporary limit is fictitious")
     private boolean fictitious;
+
+    @Schema(description = "Properties")
+    private Map<String, String> properties;
 
     @Override
     // descending order on acceptableDuration

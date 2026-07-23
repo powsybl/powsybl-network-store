@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
@@ -16,9 +16,10 @@ import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttr
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class TwoWindingsTransformerPhaseAngleClockAdderImpl extends AbstractExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerPhaseAngleClock> implements TwoWindingsTransformerPhaseAngleClockAdder {
+public class TwoWindingsTransformerPhaseAngleClockAdderImpl extends AbstractIidmExtensionAdder<TwoWindingsTransformer,
+        TwoWindingsTransformerPhaseAngleClock> implements TwoWindingsTransformerPhaseAngleClockAdder {
 
-    private int phaseAngleClock;
+    private int phaseAngleClock = -1;
 
     public TwoWindingsTransformerPhaseAngleClockAdderImpl(TwoWindingsTransformer extendable) {
         super(extendable);
@@ -26,10 +27,11 @@ public class TwoWindingsTransformerPhaseAngleClockAdderImpl extends AbstractExte
 
     @Override
     protected TwoWindingsTransformerPhaseAngleClock createExtension(TwoWindingsTransformer twoWindingsTransformer) {
+        checkPhaseAngleClock();
         var attributes = TwoWindingsTransformerPhaseAngleClockAttributes.builder()
                 .phaseAngleClock(phaseAngleClock)
                 .build();
-        ((TwoWindingsTransformerImpl) twoWindingsTransformer).updateResource(res -> res.getAttributes().setPhaseAngleClockAttributes(attributes));
+        ((TwoWindingsTransformerImpl) twoWindingsTransformer).updateResourceWithoutNotification(res -> res.getAttributes().setPhaseAngleClockAttributes(attributes));
         return new TwoWindingsTransformerPhaseAngleClockImpl((TwoWindingsTransformerImpl) twoWindingsTransformer);
     }
 
@@ -37,5 +39,17 @@ public class TwoWindingsTransformerPhaseAngleClockAdderImpl extends AbstractExte
     public TwoWindingsTransformerPhaseAngleClockAdder withPhaseAngleClock(int i) {
         this.phaseAngleClock = i;
         return this;
+    }
+
+    private void checkPhaseAngleClock() {
+        if (phaseAngleClock < 0 || phaseAngleClock > 11) {
+            throw new PowsyblException("Unexpected value for phaseAngleClock: " + phaseAngleClock);
+        }
+    }
+
+    @Override
+    public TwoWindingsTransformerPhaseAngleClock add() {
+        checkPhaseAngleClock();
+        return super.add();
     }
 }

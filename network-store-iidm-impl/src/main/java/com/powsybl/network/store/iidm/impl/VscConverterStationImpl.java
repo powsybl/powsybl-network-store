@@ -6,14 +6,16 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
+public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
 
     public VscConverterStationImpl(NetworkObjectIndex index, Resource<VscConverterStationAttributes> resource) {
         super(index, resource);
@@ -35,15 +37,16 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return getResource().getAttributes().getVoltageRegulatorOn();
+        return this.isRegulating();
     }
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        boolean oldValue = getResource().getAttributes().getVoltageRegulatorOn();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
+                .getReportNode());
+        boolean oldValue = this.isRegulating();
         if (voltageRegulatorOn != oldValue) {
-            updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
+            this.setRegulating(voltageRegulatorOn);
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         }
@@ -57,12 +60,12 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
+                .getReportNode());
         double oldValue = getResource().getAttributes().getVoltageSetPoint();
         if (Double.compare(voltageSetpoint, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetpoint));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetpoint);
+            updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetpoint),
+                "voltageSetpoint", oldValue, voltageSetpoint);
         }
         return this;
     }
@@ -74,12 +77,12 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
+                .getReportNode());
         double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
         if (Double.compare(reactivePowerSetpoint, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
+            updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint),
+                "reactivePowerSetpoint", oldValue, reactivePowerSetpoint);
         }
         return this;
     }
@@ -91,11 +94,11 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public VscConverterStation setLossFactor(float lossFactor) {
-        ValidationUtil.checkLossFactor(this, lossFactor);
+        ValidationUtil.checkLossFactor(this, lossFactor, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
-            updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
-            index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+            updateResource(res -> res.getAttributes().setLossFactor(lossFactor),
+                "lossFactor", oldValue, lossFactor);
         }
         return this;
     }
@@ -103,17 +106,17 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         ReactiveLimitsAttributes oldValue = getResource().getAttributes().getReactiveLimits();
-        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
-        index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
+        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits),
+            "reactiveLimits", oldValue, reactiveLimits);
     }
 
     @Override
     public ReactiveLimits getReactiveLimits() {
         ReactiveLimitsAttributes reactiveLimitsAttributes = getResource().getAttributes().getReactiveLimits();
         if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
-            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
+            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes, this);
         } else {
-            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes);
+            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes, this);
         }
     }
 
@@ -138,12 +141,17 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl<>(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this, this);
     }
 
     @Override
     public void remove() {
         var resource = getResource();
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
+        }
+        regulatingPoint.remove();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
@@ -153,5 +161,36 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         invalidateCalculatedBuses(getTerminals());
         index.removeVscConverterStation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
+        setRegTerminal(regulatingTerminal);
+        return this;
+    }
+
+    @Override
+    public HvdcLine getHvdcLine() {
+        // TODO: to optimize later on, this won't work with a lot of HVDC lines
+        return index.getHvdcLines()
+            .stream()
+            .filter(hvdcLine -> hvdcLine.getConverterStation1().getId().equals(getId())
+                || hvdcLine.getConverterStation2().getId().equals(getId()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public <E extends Extension<VscConverterStation>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

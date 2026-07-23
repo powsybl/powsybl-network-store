@@ -19,7 +19,9 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     private ShuntCompensatorModelAttributes model;
 
-    private int sectionCount = -1;
+    private Integer sectionCount;
+
+    private Integer solvedSectionCount;
 
     private Terminal regulatingTerminal;
 
@@ -29,7 +31,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     private double targetDeadband = Double.NaN;
 
-    class ShuntCompensatorLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> implements ShuntCompensatorLinearModelAdder {
+    class ShuntCompensatorLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> extends AbstractBasePropertiesHolder implements ShuntCompensatorLinearModelAdder {
 
         private final O owner;
 
@@ -70,19 +72,20 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                     .bPerSection(bPerSection)
                     .gPerSection(gPerSection)
                     .maximumSectionCount(maximumSectionCount)
+                    .properties(properties)
                     .build();
             owner.setModel(attributes);
             return ShuntCompensatorAdderImpl.this;
         }
     }
 
-    class ShuntCompensatorNonLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> implements ShuntCompensatorNonLinearModelAdder {
+    class ShuntCompensatorNonLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> extends AbstractBasePropertiesHolder implements ShuntCompensatorNonLinearModelAdder {
 
         private final O owner;
 
         private final List<ShuntCompensatorNonLinearSectionAttributes> sections = new ArrayList<>();
 
-        class SectionAdderImpl implements SectionAdder {
+        class SectionAdderImpl extends AbstractBasePropertiesHolder implements SectionAdder {
 
             private double b = Double.NaN;
 
@@ -114,6 +117,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                 ShuntCompensatorNonLinearSectionAttributes shuntCompensatorNonLinearSectionAttributes = ShuntCompensatorNonLinearSectionAttributes.builder()
                                 .b(b)
                                 .g(g)
+                                .properties(properties)
                                 .build();
 
                 sections.add(shuntCompensatorNonLinearSectionAttributes);
@@ -165,6 +169,12 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
     }
 
     @Override
+    public ShuntCompensatorAdder setSolvedSectionCount(Integer solvedSectionCount) {
+        this.solvedSectionCount = solvedSectionCount;
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = regulatingTerminal;
         return this;
@@ -200,15 +210,16 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
         if (model == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        if (sectionCount < 0 || sectionCount > model.getMaximumSectionCount()) {
+        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        if (getNetwork().getMinValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS && (sectionCount < 0 || sectionCount > model.getMaximumSectionCount())) {
             throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
-
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(id, ResourceType.SHUNT_COMPENSATOR, RegulatingTapChangerType.NONE,
+            new TerminalRefAttributes(id, null), terminalRefAttributes, null, ResourceType.SHUNT_COMPENSATOR, voltageRegulatorOn);
 
         Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder()
                 .id(id)
@@ -221,15 +232,16 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                         .bus(getBus())
                         .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .sectionCount(sectionCount)
+                        .solvedSectionCount(solvedSectionCount)
                         .model(model)
-                        .regulatingTerminal(terminalRefAttributes)
-                        .voltageRegulatorOn(voltageRegulatorOn)
+                        .regulatingPoint(regulatingPointAttributes)
                         .targetV(targetV)
                         .targetDeadband(targetDeadband)
                         .build())
                 .build();
         ShuntCompensatorImpl shuntCompensator = getIndex().createShuntCompensator(resource);
         shuntCompensator.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        shuntCompensator.setRegulatingTerminal(regulatingTerminal);
         return shuntCompensator;
     }
 

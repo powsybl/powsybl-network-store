@@ -9,6 +9,8 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangerAdder;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.network.store.iidm.impl.AbstractConnectableImpl;
 import com.powsybl.network.store.model.CgmesTapChangerAttributes;
 
 import java.util.Objects;
@@ -18,7 +20,7 @@ import java.util.Objects;
  */
 public class CgmesTapChangerAdderImpl implements CgmesTapChangerAdder {
 
-    private final CgmesTapChangersImpl<?> tapChangers;
+    private final CgmesTapChangersImpl<? extends Connectable<?>> tapChangers;
 
     private String id;
     private String combinedTapChangerId;
@@ -72,14 +74,11 @@ public class CgmesTapChangerAdderImpl implements CgmesTapChangerAdder {
         if (id == null) {
             throw new PowsyblException("Tap changer ID should not be null");
         }
-        if (!hidden) {
-            if (step != null) {
-                throw new PowsyblException("Non-hidden tap changers step positions can be directly found on the tap changer" +
-                        " and should not be forced");
-            }
-            if (combinedTapChangerId != null) {
-                throw new PowsyblException("Non-hidden tap changers do not have a different ID for the combined tap changer");
-            }
+        // step is used to record the normalStep of the tapChanger when it is not hidden
+        // A null value is allowed to maintain backward compatibility when reading old extensions
+        // Same as powsybl core
+        if (!hidden && combinedTapChangerId != null) {
+            throw new PowsyblException("Non-hidden tap changers do not have a different ID for the combined tap changer");
         }
         if (hidden) {
             if (step == null) {
@@ -98,8 +97,9 @@ public class CgmesTapChangerAdderImpl implements CgmesTapChangerAdder {
                 .controlId(controlId)
                 .build();
 
-        var tapChanger = new CgmesTapChangerImpl(attributes);
-        tapChangers.putTapChanger(tapChanger);
-        return tapChanger;
+        AbstractConnectableImpl<?, ?> extendable = (AbstractConnectableImpl<?, ?>) tapChangers.getExtendable();
+        extendable.updateResourceExtension(tapChangers, res -> tapChangers.getAttributes().getCgmesTapChangers().add(attributes),
+                "tapChangers.tapChanger", null, attributes);
+        return new CgmesTapChangerImpl(attributes);
     }
 }

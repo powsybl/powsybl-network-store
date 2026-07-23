@@ -6,11 +6,13 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.powsybl.iidm.network.EnergySource;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -20,28 +22,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Generator attributes")
-public class GeneratorAttributes extends AbstractAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "Generator name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "Generator fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
@@ -61,9 +47,6 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @Schema(description = "Maximum active power in MW")
     private double maxP;
 
-    @Schema(description = "Voltage regulation status")
-    private boolean voltageRegulatorOn;
-
     @Schema(description = "Active power target in MW")
     private double targetP;
 
@@ -73,13 +56,18 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @Schema(description = "Voltage target in kV")
     private double targetV;
 
+    @Schema(description = "Equivalent local targetV in kV")
+    private double equivalentLocalTargetV;
+
     @Schema(description = "Rated apparent power in MVA")
     private double ratedS;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Reactive power in MW")
     @Builder.Default
     private double q = Double.NaN;
@@ -90,12 +78,6 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @Schema(description = "reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
-    @Schema(description = "Active power control")
-    private ActivePowerControlAttributes activePowerControl;
-
-    @Schema(description = "regulatingTerminal")
-    private TerminalRefAttributes regulatingTerminal;
-
     @Schema(description = "Coordinated reactive power control")
     private CoordinatedReactiveControlAttributes coordinatedReactiveControl;
 
@@ -105,9 +87,13 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @Schema(description = "Entsoe category attributes")
     private GeneratorEntsoeCategoryAttributes entsoeCategoryAttributes;
 
-    @Schema(description = "Generator Startup attributes attributes")
-    private GeneratorStartupAttributes generatorStartupAttributes;
-
     @Schema(description = "Generator short circuit attributes")
-    private GeneratorShortCircuitAttributes generatorShortCircuitAttributes;
+    private ShortCircuitAttributes generatorShortCircuitAttributes;
+
+    @Schema(description = "Condenser")
+    private boolean condenser;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

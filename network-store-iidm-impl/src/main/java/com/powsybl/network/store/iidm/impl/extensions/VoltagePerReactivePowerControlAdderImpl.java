@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
@@ -16,7 +16,7 @@ import com.powsybl.network.store.model.VoltagePerReactivePowerControlAttributes;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class VoltagePerReactivePowerControlAdderImpl extends AbstractExtensionAdder<StaticVarCompensator, VoltagePerReactivePowerControl> implements VoltagePerReactivePowerControlAdder {
+public class VoltagePerReactivePowerControlAdderImpl extends AbstractIidmExtensionAdder<StaticVarCompensator, VoltagePerReactivePowerControl> implements VoltagePerReactivePowerControlAdder {
 
     private double slope;
 
@@ -26,10 +26,11 @@ public class VoltagePerReactivePowerControlAdderImpl extends AbstractExtensionAd
 
     @Override
     protected VoltagePerReactivePowerControl createExtension(StaticVarCompensator staticVarCompensator) {
+        checkSlope();
         VoltagePerReactivePowerControlAttributes attributes = VoltagePerReactivePowerControlAttributes.builder()
                 .slope(slope)
                 .build();
-        ((StaticVarCompensatorImpl) staticVarCompensator).updateResource(res -> res.getAttributes().setVoltagePerReactiveControl(attributes));
+        ((StaticVarCompensatorImpl) staticVarCompensator).updateResourceWithoutNotification(res -> res.getAttributes().setVoltagePerReactiveControl(attributes));
         return new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) staticVarCompensator);
     }
 
@@ -37,5 +38,14 @@ public class VoltagePerReactivePowerControlAdderImpl extends AbstractExtensionAd
     public VoltagePerReactivePowerControlAdder withSlope(double slope) {
         this.slope = slope;
         return this;
+    }
+
+    private void checkSlope() {
+        if (Double.isNaN(slope)) {
+            throw new PowsyblException("Undefined value for slope");
+        }
+        if (slope < 0) {
+            throw new PowsyblException("Slope value of SVC " + extendable.getId() + " must be positive: " + slope);
+        }
     }
 }

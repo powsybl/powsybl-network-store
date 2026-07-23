@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.powsybl.iidm.network.PhaseTapChanger;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,9 +21,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Schema(description = "PhaseTapChanger attributes")
 public class PhaseTapChangerAttributes extends TapChangerAttributes {
-
-    @Schema(description = "regulationMode")
-    private PhaseTapChanger.RegulationMode regulationMode;
 
     @Schema(description = "regulationValue")
     private double regulationValue;

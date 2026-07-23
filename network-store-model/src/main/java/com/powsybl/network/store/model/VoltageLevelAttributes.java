@@ -7,10 +7,11 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.powsybl.commons.PowsyblException;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.powsybl.iidm.network.TopologyKind;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.*;
 
@@ -21,28 +22,12 @@ import java.util.*;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Voltage level attributes")
-public class VoltageLevelAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
+public class VoltageLevelAttributes extends AbstractIdentifiableAttributes implements Contained {
 
     @Schema(description = "Substation ID")
     private String substationId;
-
-    @Schema(description = "Voltage level name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Nominal voltage in kV")
     private double nominalV;
@@ -60,15 +45,18 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @Builder.Default
     private List<InternalConnectionAttributes> internalConnections = new ArrayList<>();
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Calculated buses for bus view")
     private List<CalculatedBusAttributes> calculatedBusesForBusView;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Node to calculated bus for bus view")
     private Map<Integer, Integer> nodeToCalculatedBusForBusView;
 
     @Schema(description = "Bus to calculated bus for bus view")
     private Map<String, Integer> busToCalculatedBusForBusView;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Calculated buses for bus breaker view")
     private List<CalculatedBusAttributes> calculatedBusesForBusBreakerView;
 
@@ -88,17 +76,19 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @Schema(description = "Calculated buses validity")
     private boolean calculatedBusesValid = false;
 
+    @Schema(description = "Node to fictitious P0")
+    private Map<Integer, Double> nodeToFictitiousP0;
+
+    @Schema(description = "Node to fictitious Q0")
+    private Map<Integer, Double> nodeToFictitiousQ0;
+
+    @Schema(description = "Area ids")
+    private Set<String> areaIds;
+
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {
         return Collections.singleton(substationId);
     }
 
-    @Override
-    public Attributes filter(AttributeFilter filter) {
-        if (filter != AttributeFilter.SV) {
-            throw new PowsyblException("Unsupported attribute filter: " + filter);
-        }
-        return new VoltageLevelSvAttributes(calculatedBusesForBusView, calculatedBusesForBusBreakerView);
-    }
 }

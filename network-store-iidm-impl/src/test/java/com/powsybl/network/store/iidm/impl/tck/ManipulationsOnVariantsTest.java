@@ -7,13 +7,20 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractManipulationsOnVariantsTest;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 public class ManipulationsOnVariantsTest extends AbstractManipulationsOnVariantsTest {
+
+    @Test
     @Override
+    /* we need to override this test because we don't have the same cloneVariant implementation :
+    * when cloning a variant with the overwrite parameters we delete then clone the variant so we never call the
+    * onVariantOverwritten listener but instead the onVariantRemoved and onVariantCreated
+    * should we change this behavior ? */
     public void baseTests() {
-        // FIXME
+        //FIXME see comment
     }
 }

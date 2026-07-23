@@ -24,17 +24,15 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PhaseTapChangerAdderImpl.class);
 
-    private final TapChangerParent tapChangerParent;
-
     private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
     private final List<TapChangerStepAttributes> steps = new ArrayList<>();
 
-    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
+    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 
     private double regulationValue = Double.NaN;
 
-    class StepAdderImpl implements StepAdder {
+    class StepAdderImpl extends AbstractBasePropertiesHolder implements PhaseTapChangerAdder.StepAdder {
 
         private double alpha = Double.NaN;
 
@@ -86,25 +84,6 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
         @Override
         public PhaseTapChangerAdder endStep() {
-            if (Double.isNaN(alpha)) {
-                throw new ValidationException(tapChangerParent, "step alpha is not set");
-            }
-            if (Double.isNaN(rho)) {
-                throw new ValidationException(tapChangerParent, "step rho is not set");
-            }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(tapChangerParent, "step r is not set");
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(tapChangerParent, "step x is not set");
-            }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(tapChangerParent, "step g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(tapChangerParent, "step b is not set");
-            }
-
             TapChangerStepAttributes phaseTapChangerStepAttributes =
                     TapChangerStepAttributes.builder()
                             .alpha(alpha)
@@ -113,7 +92,9 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                             .r(r)
                             .rho(rho)
                             .x(x)
+                            .properties(properties)
                             .build();
+            PhaseTapChangerImpl.validateStep(phaseTapChangerStepAttributes, tapChangerParent);
             steps.add(phaseTapChangerStepAttributes);
             return PhaseTapChangerAdderImpl.this;
         }
@@ -121,9 +102,15 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     public PhaseTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index,
                                     Function<Attributes, TapChangerParentAttributes> attributesGetter) {
-        super(index);
-        this.tapChangerParent = tapChangerParent;
+        super(tapChangerParent, index);
         this.attributesGetter = attributesGetter;
+        this.loadTapChangingCapabilities = true;
+    }
+
+    @Override
+    public PhaseTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
+        return this;
     }
 
     @Override
@@ -136,7 +123,12 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
     public PhaseTapChangerAdder setTapPosition(int tapPosition) {
         this.tapPosition = tapPosition;
         return this;
+    }
 
+    @Override
+    public PhaseTapChangerAdder setSolvedTapPosition(Integer solvedTapPosition) {
+        this.solvedTapPosition = solvedTapPosition;
+        return this;
     }
 
     @Override
@@ -165,7 +157,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
     }
 
     @Override
-    public StepAdder beginStep() {
+    public PhaseTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();
     }
 
@@ -176,37 +168,35 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     @Override
     public PhaseTapChanger add() {
-        if (tapPosition == null) {
-            throw new ValidationException(tapChangerParent, "tap position is not set");
-        }
+        checkPosition();
         if (steps.isEmpty()) {
-            throw new ValidationException(tapChangerParent, "a phase tap changer shall have at least one step");
+            throw new ValidationException(tapChangerParent, "phase tap changer should have at least one step");
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
-        if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-            throw new ValidationException(tapChangerParent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", "
-                    + highTapPosition + "]");
-        }
-        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, regulatingTerminal, index.getNetwork(), true);
-        ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        checkPositionRange(tapPosition, lowTapPosition, highTapPosition, "tap position");
+        checkPositionRange(solvedTapPosition, lowTapPosition, highTapPosition, "solved tap position");
+        NetworkImpl network = index.getNetwork();
+        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities, regulatingTerminal, network, network
+                .getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
 
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
+        Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
         tapChangers.addAll(tapChangerParent.getAllTapChangers());
         tapChangers.remove(tapChangerParent.getPhaseTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, true);
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
 
-        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        RegulatingPointAttributes regulatingPointAttributes = createRegulationPointAttributes(tapChangerParent, RegulatingTapChangerType.PHASE_TAP_CHANGER, regulationMode.toString(), regulating);
 
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
+                .loadTapChangingCapabilities(loadTapChangingCapabilities)
                 .lowTapPosition(lowTapPosition)
-                .regulating(regulating)
-                .regulationMode(regulationMode)
                 .regulationValue(regulationValue)
+                .properties(properties)
                 .steps(steps)
                 .tapPosition(tapPosition)
+                .solvedTapPosition(solvedTapPosition)
                 .targetDeadband(targetDeadband)
-                .regulatingTerminal(terminalRefAttributes)
+                .regulatingPoint(regulatingPointAttributes)
                 .build();
         TapChangerParentAttributes tapChangerParentAttributes = attributesGetter.apply(tapChangerParent.getTransformer().getResource().getAttributes());
         if (tapChangerParentAttributes.getRatioTapChangerAttributes() != null) {
@@ -214,7 +204,8 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
 
         tapChangerParent.setPhaseTapChanger(phaseTapChangerAttributes);
-
-        return new PhaseTapChangerImpl(tapChangerParent, index, attributesGetter);
+        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(tapChangerParent, index, attributesGetter);
+        tapChanger.setRegulationTerminal(regulatingTerminal);
+        return tapChanger;
     }
 }

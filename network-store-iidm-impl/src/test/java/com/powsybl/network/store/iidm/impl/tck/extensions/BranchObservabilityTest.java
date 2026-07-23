@@ -12,18 +12,4 @@ import com.powsybl.iidm.network.tck.extensions.AbstractBranchObservabilityTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class BranchObservabilityTest extends AbstractBranchObservabilityTest {
-    @Override
-    public void testRedundancy() {
-        // FIXME
-    }
-
-    @Override
-    public void test() {
-        // FIXME
-    }
-
-    @Override
-    public void testMissingQuality() {
-        // FIXME
-    }
 }

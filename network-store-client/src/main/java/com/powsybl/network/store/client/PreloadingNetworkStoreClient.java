@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
+public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStoreClient<CachedNetworkStoreClient> implements NetworkStoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PreloadingNetworkStoreClient.class);
 
@@ -41,11 +41,12 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.LCC_CONVERTER_STATION,
         ResourceType.STATIC_VAR_COMPENSATOR,
         ResourceType.BUSBAR_SECTION, // FIXME this should not be in the list but as connectable visitor also visit busbar sections we need to keep it
+        ResourceType.GROUND,
         ResourceType.TWO_WINDINGS_TRANSFORMER,
         ResourceType.THREE_WINDINGS_TRANSFORMER,
         ResourceType.LINE,
         ResourceType.HVDC_LINE,
-        ResourceType.DANGLING_LINE,
+        ResourceType.BOUNDARY_LINE,
         ResourceType.TIE_LINE
     );
 
@@ -65,62 +66,28 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private void loadToCache(ResourceType resourceType, UUID networkUuid, int variantNum) {
         switch (resourceType) {
-            case SUBSTATION:
-                delegate.getSubstations(networkUuid, variantNum);
-                break;
-            case VOLTAGE_LEVEL:
-                delegate.getVoltageLevels(networkUuid, variantNum);
-                break;
-            case LOAD:
-                delegate.getLoads(networkUuid, variantNum);
-                break;
-            case GENERATOR:
-                delegate.getGenerators(networkUuid, variantNum);
-                break;
-            case BATTERY:
-                delegate.getBatteries(networkUuid, variantNum);
-                break;
-            case SHUNT_COMPENSATOR:
-                delegate.getShuntCompensators(networkUuid, variantNum);
-                break;
-            case VSC_CONVERTER_STATION:
-                delegate.getVscConverterStations(networkUuid, variantNum);
-                break;
-            case LCC_CONVERTER_STATION:
-                delegate.getLccConverterStations(networkUuid, variantNum);
-                break;
-            case STATIC_VAR_COMPENSATOR:
-                delegate.getStaticVarCompensators(networkUuid, variantNum);
-                break;
-            case BUSBAR_SECTION:
-                delegate.getBusbarSections(networkUuid, variantNum);
-                break;
-            case SWITCH:
-                delegate.getSwitches(networkUuid, variantNum);
-                break;
-            case TWO_WINDINGS_TRANSFORMER:
-                delegate.getTwoWindingsTransformers(networkUuid, variantNum);
-                break;
-            case THREE_WINDINGS_TRANSFORMER:
-                delegate.getThreeWindingsTransformers(networkUuid, variantNum);
-                break;
-            case LINE:
-                delegate.getLines(networkUuid, variantNum);
-                break;
-            case HVDC_LINE:
-                delegate.getHvdcLines(networkUuid, variantNum);
-                break;
-            case DANGLING_LINE:
-                delegate.getDanglingLines(networkUuid, variantNum);
-                break;
-            case CONFIGURED_BUS:
-                delegate.getConfiguredBuses(networkUuid, variantNum);
-                break;
-            case TIE_LINE:
-                delegate.getTieLines(networkUuid, variantNum);
-                break;
-            default:
-                break;
+            case SUBSTATION -> delegate.getSubstations(networkUuid, variantNum);
+            case VOLTAGE_LEVEL -> delegate.getVoltageLevels(networkUuid, variantNum);
+            case LOAD -> delegate.getLoads(networkUuid, variantNum);
+            case GENERATOR -> delegate.getGenerators(networkUuid, variantNum);
+            case BATTERY -> delegate.getBatteries(networkUuid, variantNum);
+            case SHUNT_COMPENSATOR -> delegate.getShuntCompensators(networkUuid, variantNum);
+            case VSC_CONVERTER_STATION -> delegate.getVscConverterStations(networkUuid, variantNum);
+            case LCC_CONVERTER_STATION -> delegate.getLccConverterStations(networkUuid, variantNum);
+            case STATIC_VAR_COMPENSATOR -> delegate.getStaticVarCompensators(networkUuid, variantNum);
+            case BUSBAR_SECTION -> delegate.getBusbarSections(networkUuid, variantNum);
+            case SWITCH -> delegate.getSwitches(networkUuid, variantNum);
+            case GROUND -> delegate.getGrounds(networkUuid, variantNum);
+            case TWO_WINDINGS_TRANSFORMER -> delegate.getTwoWindingsTransformers(networkUuid, variantNum);
+            case THREE_WINDINGS_TRANSFORMER -> delegate.getThreeWindingsTransformers(networkUuid, variantNum);
+            case LINE -> delegate.getLines(networkUuid, variantNum);
+            case HVDC_LINE -> delegate.getHvdcLines(networkUuid, variantNum);
+            case BOUNDARY_LINE -> delegate.getBoundaryLines(networkUuid, variantNum);
+            case CONFIGURED_BUS -> delegate.getConfiguredBuses(networkUuid, variantNum);
+            case TIE_LINE -> delegate.getTieLines(networkUuid, variantNum);
+            default -> {
+                // Do nothing
+            }
         }
     }
 
@@ -338,6 +305,18 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
+    public List<Resource<GroundAttributes>> getVoltageLevelGrounds(UUID networkUuid, int variantNum, String voltageLevelId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        return delegate.getVoltageLevelGrounds(networkUuid, variantNum, voltageLevelId);
+    }
+
+    @Override
+    public void removeGrounds(UUID networkUuid, int variantNum, List<String> groundsId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        delegate.removeGrounds(networkUuid, variantNum, groundsId);
+    }
+
+    @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
         ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid, variantNum);
         return delegate.getVoltageLevelTwoWindingsTransformers(networkUuid, variantNum, voltageLevelId);
@@ -374,9 +353,9 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
-        return delegate.getVoltageLevelDanglingLines(networkUuid, variantNum, voltageLevelId);
+    public List<Resource<BoundaryLineAttributes>> getVoltageLevelBoundaryLines(UUID networkUuid, int variantNum, String voltageLevelId) {
+        ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, variantNum);
+        return delegate.getVoltageLevelBoundaryLines(networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
@@ -523,6 +502,34 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             ensureCached(ResourceType.BATTERY, networkUuid, batteryResource.getVariantNum());
         }
         delegate.updateBatteries(networkUuid, batteryResources, attributeFilter);
+    }
+
+    @Override
+    public void createGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources) {
+        for (Resource<GroundAttributes> groundResource : groundResources) {
+            ensureCached(ResourceType.GROUND, networkUuid, groundResource.getVariantNum());
+        }
+        delegate.createGrounds(networkUuid, groundResources);
+    }
+
+    @Override
+    public List<Resource<GroundAttributes>> getGrounds(UUID networkUuid, int variantNum) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        return delegate.getGrounds(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<GroundAttributes>> getGround(UUID networkUuid, int variantNum, String groundId) {
+        ensureCached(ResourceType.GROUND, networkUuid, variantNum);
+        return delegate.getGround(networkUuid, variantNum, groundId);
+    }
+
+    @Override
+    public void updateGrounds(UUID networkUuid, List<Resource<GroundAttributes>> groundResources, AttributeFilter attributeFilter) {
+        for (Resource<GroundAttributes> groundResource : groundResources) {
+            ensureCached(ResourceType.GROUND, networkUuid, groundResource.getVariantNum());
+        }
+        delegate.updateGrounds(networkUuid, groundResources, attributeFilter);
     }
 
     @Override
@@ -758,37 +765,37 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
-        for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
-            ensureCached(ResourceType.DANGLING_LINE, networkUuid, danglingLineResource.getVariantNum());
+    public void createBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources) {
+        for (Resource<BoundaryLineAttributes> boundaryLineResource : boundaryLineResources) {
+            ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, boundaryLineResource.getVariantNum());
         }
-        delegate.createDanglingLines(networkUuid, danglingLineResources);
+        delegate.createBoundaryLines(networkUuid, boundaryLineResources);
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
-        ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
-        return delegate.getDanglingLines(networkUuid, variantNum);
+    public List<Resource<BoundaryLineAttributes>> getBoundaryLines(UUID networkUuid, int variantNum) {
+        ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, variantNum);
+        return delegate.getBoundaryLines(networkUuid, variantNum);
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
-        ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
-        return delegate.getDanglingLine(networkUuid, variantNum, danglingLineId);
+    public Optional<Resource<BoundaryLineAttributes>> getBoundaryLine(UUID networkUuid, int variantNum, String boundaryLineId) {
+        ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, variantNum);
+        return delegate.getBoundaryLine(networkUuid, variantNum, boundaryLineId);
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources, AttributeFilter attributeFilter) {
-        for (Resource<DanglingLineAttributes> danglingLineResource : danglingLineResources) {
-            ensureCached(ResourceType.DANGLING_LINE, networkUuid, danglingLineResource.getVariantNum());
+    public void updateBoundaryLines(UUID networkUuid, List<Resource<BoundaryLineAttributes>> boundaryLineResources, AttributeFilter attributeFilter) {
+        for (Resource<BoundaryLineAttributes> boundaryLineResource : boundaryLineResources) {
+            ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, boundaryLineResource.getVariantNum());
         }
-        delegate.updateDanglingLines(networkUuid, danglingLineResources, attributeFilter);
+        delegate.updateBoundaryLines(networkUuid, boundaryLineResources, attributeFilter);
     }
 
     @Override
-    public void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId) {
-        ensureCached(ResourceType.DANGLING_LINE, networkUuid, variantNum);
-        delegate.removeDanglingLines(networkUuid, variantNum, danglingLinesId);
+    public void removeBoundaryLines(UUID networkUuid, int variantNum, List<String> boundaryLinesId) {
+        ensureCached(ResourceType.BOUNDARY_LINE, networkUuid, variantNum);
+        delegate.removeBoundaryLines(networkUuid, variantNum, boundaryLinesId);
     }
 
     @Override
@@ -863,5 +870,37 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> configuredBusesId) {
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid, variantNum);
         delegate.removeConfiguredBuses(networkUuid, variantNum, configuredBusesId);
+    }
+
+    @Override
+    public Optional<ExtensionAttributes> getExtensionAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String identifiableId, String extensionName) {
+        delegate.loadAllExtensionsAttributesByResourceTypeAndExtensionName(networkUuid, variantNum, resourceType, extensionName);
+        return delegate.getExtensionAttributes(networkUuid, variantNum, resourceType, identifiableId, extensionName);
+    }
+
+    @Override
+    public Map<String, ExtensionAttributes> getAllExtensionsAttributesByIdentifiableId(UUID networkUuid, int variantNum, ResourceType resourceType, String id) {
+        delegate.loadAllExtensionsAttributesByResourceType(networkUuid, variantNum, resourceType);
+        return delegate.getAllExtensionsAttributesByIdentifiableId(networkUuid, variantNum, resourceType, id);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, String operationalLimitGroupId,
+            int side) {
+        delegate.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
+        return delegate.getOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitGroupId, side);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroupAttributes> getSelectedOperationalLimitsGroupAttributes(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId,
+            String operationalLimitGroupId, int side) {
+        delegate.loadAllSelectedOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
+        return delegate.getSelectedOperationalLimitsGroupAttributes(networkUuid, variantNum, resourceType, branchId, operationalLimitGroupId, side);
+    }
+
+    @Override
+    public List<OperationalLimitsGroupAttributes> getOperationalLimitsGroupAttributesForBranchSide(UUID networkUuid, int variantNum, ResourceType resourceType, String branchId, int side) {
+        delegate.loadAllOperationalLimitsGroupAttributesByResourceType(networkUuid, variantNum, resourceType);
+        return delegate.getOperationalLimitsGroupAttributesForBranchSide(networkUuid, variantNum, resourceType, branchId, side);
     }
 }

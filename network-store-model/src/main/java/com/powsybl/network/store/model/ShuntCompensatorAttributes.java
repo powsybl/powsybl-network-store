@@ -6,10 +6,12 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -19,28 +21,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Shunt compensator attributes")
-public class ShuntCompensatorAttributes extends AbstractAttributes implements InjectionAttributes {
+public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "Shunt compensator name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
@@ -55,12 +41,18 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
     private ShuntCompensatorModelAttributes model;
 
     @Schema(description = "Count of sections in service")
-    private int sectionCount;
+    private Integer sectionCount;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
+    @Schema(description = "Solved value count of sections in service")
+    private Integer solvedSectionCount;
+
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Reactive power in MW")
     @Builder.Default
     private double q = Double.NaN;
@@ -68,15 +60,13 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @Schema(description = "regulatingTerminal")
-    private TerminalRefAttributes regulatingTerminal;
-
-    @Schema(description = "Voltage regulation status")
-    private boolean voltageRegulatorOn;
-
     @Schema(description = "targetV")
     private double targetV;
 
     @Schema(description = "targetDeadband")
     private double targetDeadband;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
@@ -31,6 +32,17 @@ public class TwoWindingsTransformerPhaseAngleClockImpl extends AbstractExtension
 
     @Override
     public void setPhaseAngleClock(int phaseAngleClock) {
-        getTwoWindingsTransformer().updateResource(res -> res.getAttributes().getPhaseAngleClockAttributes().setPhaseAngleClock(phaseAngleClock));
+        checkPhaseAngleClock(phaseAngleClock);
+        int oldValue = getPhaseAngleClock();
+        if (oldValue != phaseAngleClock) {
+            getTwoWindingsTransformer().updateResourceExtension(this, res -> res.getAttributes().getPhaseAngleClockAttributes().setPhaseAngleClock(phaseAngleClock), "phaseAngleClock", oldValue,
+                    phaseAngleClock);
+        }
+    }
+
+    private void checkPhaseAngleClock(int phaseAngleClock) {
+        if (phaseAngleClock < 0 || phaseAngleClock > 11) {
+            throw new PowsyblException("Unexpected value for phaseAngleClock: " + phaseAngleClock);
+        }
     }
 }

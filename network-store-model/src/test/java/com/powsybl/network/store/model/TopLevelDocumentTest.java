@@ -15,7 +15,10 @@ import com.powsybl.iidm.network.EnergySource;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import static com.powsybl.network.store.model.ResourceType.GENERATOR;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -34,7 +37,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(resource);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\"}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resource, document2.getData().get(0));
@@ -51,7 +54,9 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(ImmutableList.of(resource, resource));
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}},{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}}],\"meta\":{}}";
+        String jsonRef =
+                "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\"}},{\"type\":\"SUBSTATION\","
+                        + "\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\"}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(2, document2.getData().size());
@@ -60,8 +65,44 @@ public class TopLevelDocumentTest {
     }
 
     @Test
-    public void testGenerator() throws IOException {
+    public void testEmpty() throws IOException {
+        TopLevelDocument document = TopLevelDocument.empty();
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writeValueAsString(document);
+        String jsonRef = "{\"data\":[],\"meta\":{}}";
+        assertEquals(jsonRef, json);
+    }
 
+    @Test
+    public void testMeta() throws IOException {
+        Resource<SubstationAttributes> resource = Resource.substationBuilder()
+                .id("S")
+                .attributes(SubstationAttributes.builder()
+                        .country(Country.FR)
+                        .build())
+                .build();
+        TopLevelDocument document = TopLevelDocument.of(resource);
+        document.addMeta("test", "test123");
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writeValueAsString(document);
+        String jsonRef =
+                "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\"}}],"
+                        + "\"meta\":{\"test\":\"test123\"}}";
+        assertEquals(jsonRef, json);
+        TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
+        assertEquals(resource, document2.getData().get(0));
+        assertEquals("test123", document2.getMeta().get("test"));
+    }
+
+    @Test
+    public void testGenerator() throws IOException {
+        TerminalRefAttributes regulatedTerminalAttributes =
+            TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes("gen1", GENERATOR, RegulatingTapChangerType.NONE,
+            new TerminalRefAttributes("gen1", null), regulatedTerminalAttributes, null, GENERATOR, true);
+        Set<RegulatingEquipmentIdentifier> regEquipments = new LinkedHashSet<>();
+        regEquipments.add(new RegulatingEquipmentIdentifier("gen1", GENERATOR));
+        regEquipments.add(new RegulatingEquipmentIdentifier("gen2", GENERATOR));
         GeneratorAttributes generatorAttributes = GeneratorAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -74,7 +115,8 @@ public class TopLevelDocumentTest {
                 .node(1)
                 .targetP(3)
                 .targetV(4)
-                .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
+                .regulatingPoint(regulatingPointAttributes)
+                .regulatingEquipments(regEquipments)
                 .build();
 
         Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder()
@@ -85,9 +127,34 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(resourceGenerator);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"variantNum\":0,\"attributes\":{\"voltageLevelId\":\"vl1\",\"name\":\"name\",\"fictitious\":false,\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\",\"minP\":2.0,\"maxP\":1.0,\"voltageRegulatorOn\":false,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"}}}],\"meta\":{}}";
+        String jsonRef =
+                "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},"
+                        + "\"regulatingPoint\":{\"regulatingEquipmentId\":\"gen1\",\"regulatingResourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\","
+                                + "\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,"
+                                        + "\"regulatedResourceType\":\"GENERATOR\",\"regulating\":true},\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\","
+                                                + "\"minP\":2.0,\"maxP\":1.0,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"condenser\":false,"
+                                                        + "\"regulatingEquipments\":[{\"equipmentId\":\"gen1\",\"resourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\"},"
+                                                                + "{\"equipmentId\":\"gen2\",\"resourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\"}]}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resourceGenerator, document2.getData().get(0));
+    }
+
+    @Test
+    public void testEmptyExtensionAttributes() throws IOException {
+        ExtensionAttributesTopLevelDocument document = ExtensionAttributesTopLevelDocument.empty();
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writeValueAsString(document);
+        String jsonRef = "{\"data\":[],\"meta\":{}}";
+        assertEquals(jsonRef, json);
+    }
+
+    @Test
+    public void testEmptyOperationalLimitsGroupAttributes() throws IOException {
+        OperationalLimitsGroupAttributesTopLevelDocument document = OperationalLimitsGroupAttributesTopLevelDocument.empty();
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writeValueAsString(document);
+        String jsonRef = "{\"data\":[],\"meta\":{}}";
+        assertEquals(jsonRef, json);
     }
 }

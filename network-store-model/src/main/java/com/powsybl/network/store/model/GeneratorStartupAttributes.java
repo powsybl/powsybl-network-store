@@ -7,7 +7,6 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Schema(description = "Generator Startup attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GeneratorStartupAttributes {
+public class GeneratorStartupAttributes implements ExtensionAttributes {
 
     private double plannedActivePowerSetpoint;
 

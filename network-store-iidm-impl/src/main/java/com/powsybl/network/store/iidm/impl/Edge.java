@@ -7,13 +7,16 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.network.store.model.NodeBreakerBiConnectable;
+import lombok.Getter;
+import org.jgrapht.graph.DefaultWeightedEdge;
 
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Edge {
+@Getter
+public class Edge extends DefaultWeightedEdge {
 
     private final NodeBreakerBiConnectable biConnectable;
 
@@ -21,7 +24,4 @@ public class Edge {
         this.biConnectable = Objects.requireNonNull(biConnectable);
     }
 
-    public NodeBreakerBiConnectable getBiConnectable() {
-        return biConnectable;
-    }
 }

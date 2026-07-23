@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.BusbarSectionAdder;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
@@ -36,6 +37,9 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
     @Override
     public BusbarSection add() {
         String id = checkAndGetUniqueId();
+        if (node == null) {
+            throw new ValidationException(this, "node is not set");
+        }
 
         Resource<BusbarSectionAttributes> resource = Resource.busbarSectionBuilder()
                 .id(id)

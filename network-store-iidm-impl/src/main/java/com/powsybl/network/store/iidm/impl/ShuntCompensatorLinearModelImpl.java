@@ -7,18 +7,18 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
-import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearModel {
+public class ShuntCompensatorLinearModelImpl extends AbstractPropertiesHolder implements ShuntCompensatorLinearModel {
 
     private final ShuntCompensatorImpl shuntCompensator;
 
@@ -46,10 +46,10 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
     @Override
     public ShuntCompensatorLinearModel setBPerSection(double bPerSection) {
         ValidationUtil.checkBPerSection(shuntCompensator, bPerSection);
-        double oldValue = getAttributes().getBPerSection();
+        double oldValue = getBPerSection();
         if (bPerSection != oldValue) {
-            shuntCompensator.updateResource(res -> getAttributes(res).setBPerSection(bPerSection));
-            shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);
+            shuntCompensator.updateResource(res -> getAttributes(res).setBPerSection(bPerSection),
+                "bPerSection", oldValue, bPerSection);
         }
         return this;
     }
@@ -63,20 +63,36 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
     public ShuntCompensatorLinearModel setGPerSection(double gPerSection) {
         double oldValue = getAttributes().getGPerSection();
         if (gPerSection != oldValue) {
-            shuntCompensator.updateResource(res -> getAttributes(res).setGPerSection(gPerSection));
-            shuntCompensator.notifyUpdate("gPerSection", oldValue, gPerSection);
+            shuntCompensator.updateResource(res -> getAttributes(res).setGPerSection(gPerSection),
+                "gPerSection", oldValue, gPerSection);
         }
         return this;
     }
 
     @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
-        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount, shuntCompensator.getNetwork().getMinValidationLevel(), shuntCompensator.getNetwork(
+                ).getReportNodeContext().getReportNode());
         int oldValue = getAttributes().getMaximumSectionCount();
         if (maximumSectionCount != oldValue) {
-            shuntCompensator.updateResource(res -> getAttributes(res).setMaximumSectionCount(maximumSectionCount));
-            shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
+            shuntCompensator.updateResource(res -> getAttributes(res).setMaximumSectionCount(maximumSectionCount),
+                "maximumSectionCount", oldValue, maximumSectionCount);
         }
         return this;
+    }
+
+    @Override
+    protected Map<String, String> getProperties() {
+        return getAttributes().getProperties();
+    }
+
+    @Override
+    protected void setProperties(Map<String, String> properties) {
+        getAttributes().setProperties(properties);
+    }
+
+    @Override
+    protected void persistProperties(Map<String, String> properties) {
+        shuntCompensator.updateResourceWithoutNotification(r -> setProperties(properties));
     }
 }

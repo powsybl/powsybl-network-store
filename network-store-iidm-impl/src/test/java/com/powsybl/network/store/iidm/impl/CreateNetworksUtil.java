@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-final class CreateNetworksUtil {
+public final class CreateNetworksUtil {
 
-    static String BUS_UNKNOW_ID = "unknown";
+    private static final String BUS_UNKNOWN_ID = "unknown";
 
     private CreateNetworksUtil() {
     }
@@ -28,7 +28,7 @@ final class CreateNetworksUtil {
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             adder.setNode(node--);
         } else {
-            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
+            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
         }
         return node;
     }
@@ -38,7 +38,7 @@ final class CreateNetworksUtil {
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             adder.setNode(node--);
         } else {
-            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
+            adder.setConnectableBus(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
         }
         return node;
     }
@@ -49,8 +49,8 @@ final class CreateNetworksUtil {
             adder.setNode1(node--);
             adder.setNode2(node--);
         } else {
-            adder.setConnectableBus1(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
-            adder.setConnectableBus2(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOW_ID : null);
+            adder.setConnectableBus1(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
+            adder.setConnectableBus2(topologyKind == TopologyKind.BUS_BREAKER ? BUS_UNKNOWN_ID : null);
         }
         return node;
     }
@@ -62,9 +62,9 @@ final class CreateNetworksUtil {
                 .setNominalV(nominalV)
                 .add();
 
-        if (topologyKind == TopologyKind.BUS_BREAKER && vl.getNetwork().getBusBreakerView().getBus(BUS_UNKNOW_ID) == null) {
+        if (topologyKind == TopologyKind.BUS_BREAKER && vl.getNetwork().getBusBreakerView().getBus(BUS_UNKNOWN_ID) == null) {
             vl.getBusBreakerView().newBus()
-                    .setId(BUS_UNKNOW_ID)
+                    .setId(BUS_UNKNOWN_ID)
                     .add();
         }
 
@@ -73,7 +73,7 @@ final class CreateNetworksUtil {
 
     static void connectAllTerminalsVoltageLevel(VoltageLevel vl) {
         vl.getConnectableStream()
-                .map(c -> c.getTerminals())
+                .map(Connectable::getTerminals)
                 .flatMap(List<Terminal>::stream)
                 .filter(t -> t.getVoltageLevel().getId().equals(vl.getId()))
                 .forEach(Terminal::connect);
@@ -81,7 +81,7 @@ final class CreateNetworksUtil {
 
     static void disconnectAllTerminalsVoltageLevel(VoltageLevel vl) {
         vl.getConnectableStream()
-                .map(c -> c.getTerminals())
+                .map(Connectable::getTerminals)
                 .flatMap(List<Terminal>::stream)
                 .filter(t -> t.getVoltageLevel().getId().equals(vl.getId()))
                 .forEach(Terminal::disconnect);
@@ -96,17 +96,17 @@ final class CreateNetworksUtil {
             }
 
             @Override
-            public void visitLine(Line line, Branch.Side side) {
+            public void visitLine(Line line, TwoSides side) {
                 visited.add(line.getId());
             }
 
             @Override
-            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
                 visited.add(transformer.getId());
             }
 
             @Override
-            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
                 visited.add(transformer.getId());
             }
 
@@ -131,13 +131,18 @@ final class CreateNetworksUtil {
             }
 
             @Override
-            public void visitDanglingLine(DanglingLine danglingLine) {
-                visited.add(danglingLine.getId());
+            public void visitBoundaryLine(BoundaryLine boundaryLine) {
+                visited.add(boundaryLine.getId());
             }
 
             @Override
             public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
                 visited.add(staticVarCompensator.getId());
+            }
+
+            @Override
+            public void visitGround(Ground ground) {
+                visited.add(ground.getId());
             }
 
             @Override
@@ -155,6 +160,7 @@ final class CreateNetworksUtil {
         return visited.stream().collect(Collectors.toList());
     }
 
+    @SuppressWarnings("checkstyle:MethodLength")
     private static Network createNetwokWithMultipleEquipments(TopologyKind topologyKind) {
         Network network = Network.create("test", "test");
 
@@ -243,6 +249,10 @@ final class CreateNetworksUtil {
         battery.getTerminal().setQ(250);
         battery.getTerminal().setP(650);
 
+        adder = vl1.newGround();
+        invalidNode = initAdder(adder, topologyKind, invalidNode);
+        ((GroundAdder) adder).setId("ground").add();
+
         adder = vl2.newStaticVarCompensator();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
         StaticVarCompensator svc = ((StaticVarCompensatorAdder) adder)
@@ -251,6 +261,7 @@ final class CreateNetworksUtil {
                 .setBmax(0.0008)
                 .setReactivePowerSetpoint(200)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(false)
                 .setVoltageSetpoint(390)
                 .add();
         svc.getTerminal().setP(435);
@@ -276,18 +287,18 @@ final class CreateNetworksUtil {
                 .setVoltageSetpoint(213)
                 .add();
 
-        adder = vl1.newDanglingLine();
+        adder = vl1.newBoundaryLine();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
-        DanglingLine danglingLine1 = ((DanglingLineAdder) adder)
-                .setId("DL1")
-                .setName("Dangling line 1")
+        BoundaryLine boundaryLine1 = ((BoundaryLineAdder) adder)
+                .setId("BL1")
+                .setName("Boundary line 1")
                 .setP0(533)
                 .setQ0(242)
                 .setR(27)
                 .setX(44)
                 .setG(89)
                 .setB(11)
-                .setUcteXnodeCode("UCTE_DL1")
+                .setPairingKey("UCTE_BL1")
                 .newGeneration()
                 .setTargetP(100)
                 .setTargetQ(200)
@@ -297,12 +308,12 @@ final class CreateNetworksUtil {
                 .setVoltageRegulationOn(true)
                 .add()
                 .add();
-        danglingLine1.getGeneration()
+        boundaryLine1.getGeneration()
                 .newMinMaxReactiveLimits()
                 .setMinQ(200)
                 .setMaxQ(800)
                 .add();
-        danglingLine1.newCurrentLimits()
+        boundaryLine1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(256)
                 .beginTemporaryLimit()
                 .setName("TL1")
@@ -318,18 +329,18 @@ final class CreateNetworksUtil {
                 .endTemporaryLimit()
                 .add();
 
-        adder = vl1.newDanglingLine();
+        adder = vl1.newBoundaryLine();
         invalidNode = initAdder(adder, topologyKind, invalidNode);
-        DanglingLine danglingLine2 = ((DanglingLineAdder) adder)
-                .setId("DL2")
-                .setName("Dangling line 2")
+        BoundaryLine boundaryLine2 = ((BoundaryLineAdder) adder)
+                .setId("BL2")
+                .setName("Boundary line 2")
                 .setP0(533)
                 .setQ0(242)
                 .setR(27)
                 .setX(44)
                 .setG(89)
                 .setB(11)
-                .setUcteXnodeCode("UCTE_DL2")
+                .setPairingKey("UCTE_BL2")
                 .newGeneration()
                 .setTargetP(100)
                 .setTargetQ(200)
@@ -339,7 +350,7 @@ final class CreateNetworksUtil {
                 .setVoltageRegulationOn(true)
                 .add()
                 .add();
-        danglingLine2.newCurrentLimits()
+        boundaryLine2.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(256)
                 .beginTemporaryLimit()
                 .setName("TL2")
@@ -426,10 +437,10 @@ final class CreateNetworksUtil {
                 .setRatedU2(90)
                 .add();
 
-        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).setP(375);
-        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).setP(225);
-        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).setQ(48);
-        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).setQ(28);
+        twoWindingsTransformer.getTerminal(TwoSides.ONE).setP(375);
+        twoWindingsTransformer.getTerminal(TwoSides.TWO).setP(225);
+        twoWindingsTransformer.getTerminal(TwoSides.ONE).setQ(48);
+        twoWindingsTransformer.getTerminal(TwoSides.TWO).setQ(28);
 
         ThreeWindingsTransformerAdder threeWindingsTransformerAdder = s2.newThreeWindingsTransformer();
 
@@ -465,12 +476,12 @@ final class CreateNetworksUtil {
                 .setName("Three windings transformer 1")
                 .setRatedU0(234)
                 .add();
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).setP(375);
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).setP(225);
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).setP(200);
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).setQ(48);
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).setQ(28);
-        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).setQ(18);
+        threeWindingsTransformer.getTerminal(ThreeSides.ONE).setP(375);
+        threeWindingsTransformer.getTerminal(ThreeSides.TWO).setP(225);
+        threeWindingsTransformer.getTerminal(ThreeSides.THREE).setP(200);
+        threeWindingsTransformer.getTerminal(ThreeSides.ONE).setQ(48);
+        threeWindingsTransformer.getTerminal(ThreeSides.TWO).setQ(28);
+        threeWindingsTransformer.getTerminal(ThreeSides.THREE).setQ(18);
 
         threeWindingsTransformer.getLeg1().newPhaseTapChanger()
                 .setLowTapPosition(0)
@@ -478,7 +489,7 @@ final class CreateNetworksUtil {
                 .setRegulating(true)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(25)
-                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE))
+                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeSides.ONE))
                 .setTargetDeadband(22)
                 .beginStep()
                 .setAlpha(-10)
@@ -509,7 +520,7 @@ final class CreateNetworksUtil {
                 .setLowTapPosition(0)
                 .setTapPosition(0)
                 .setRegulating(false)
-                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE))
+                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeSides.ONE))
                 .setTargetDeadband(22)
                 .setTargetV(220)
                 .beginStep()
@@ -535,8 +546,7 @@ final class CreateNetworksUtil {
                 .endStep()
                 .add();
 
-        threeWindingsTransformer.getLeg1()
-                .newCurrentLimits()
+        threeWindingsTransformer.getLeg1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
                 .setPermanentLimit(25)
                 .add();
 
@@ -752,7 +762,7 @@ final class CreateNetworksUtil {
         return network;
     }
 
-    static Network createNodeBreakerNetworkWithLine() {
+    public static Network createNodeBreakerNetworkWithLine() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -868,7 +878,7 @@ final class CreateNetworksUtil {
         return network;
     }
 
-    static Network createNodeBreakerNetwokWithMultipleEquipments() {
+    public static Network createNodeBreakerNetwokWithMultipleEquipments() {
         Network network = createNetwokWithMultipleEquipments(TopologyKind.NODE_BREAKER);
 
         network.getSubstation("S1");
@@ -894,11 +904,11 @@ final class CreateNetworksUtil {
         LccConverterStationImpl lcc2 = (LccConverterStationImpl) network.getLccConverterStation("LCC2");
         lcc2.getResource().getAttributes().setNode(1);
 
-        DanglingLineImpl dl1 = (DanglingLineImpl) network.getDanglingLine("DL1");
-        dl1.getResource().getAttributes().setNode(2);
+        BoundaryLineImpl bl1 = (BoundaryLineImpl) network.getBoundaryLine("BL1");
+        bl1.getResource().getAttributes().setNode(2);
 
-        DanglingLineImpl dl2 = (DanglingLineImpl) network.getDanglingLine("DL2");
-        dl2.getResource().getAttributes().setNode(3);
+        BoundaryLineImpl bl2 = (BoundaryLineImpl) network.getBoundaryLine("BL2");
+        bl2.getResource().getAttributes().setNode(3);
 
         LineImpl l1 = (LineImpl) network.getLine("LINE1");
         l1.getResource().getAttributes().setNode1(5);
@@ -954,11 +964,11 @@ final class CreateNetworksUtil {
         LccConverterStationImpl lcc2 = (LccConverterStationImpl) network.getLccConverterStation("LCC2");
         lcc2.getResource().getAttributes().setConnectableBus("BUS2");
 
-        DanglingLineImpl dl1 = (DanglingLineImpl) network.getDanglingLine("DL1");
-        dl1.getResource().getAttributes().setConnectableBus("BUS1");
+        BoundaryLineImpl bl1 = (BoundaryLineImpl) network.getBoundaryLine("BL1");
+        bl1.getResource().getAttributes().setConnectableBus("BUS1");
 
-        DanglingLineImpl dl2 = (DanglingLineImpl) network.getDanglingLine("DL2");
-        dl2.getResource().getAttributes().setConnectableBus("BUS1");
+        BoundaryLineImpl bl2 = (BoundaryLineImpl) network.getBoundaryLine("BL2");
+        bl2.getResource().getAttributes().setConnectableBus("BUS1");
 
         LineImpl l1 = (LineImpl) network.getLine("LINE1");
         l1.getResource().getAttributes().setConnectableBus1("BUS1");
@@ -982,6 +992,21 @@ final class CreateNetworksUtil {
         BatteryImpl battery = (BatteryImpl) network.getBattery("battery");
         battery.getResource().getAttributes().setConnectableBus("BUS1");
 
+        GroundImpl ground = (GroundImpl) network.getGround("ground");
+        ground.getResource().getAttributes().setConnectableBus("BUS1");
+
+        return network;
+    }
+
+    public static Network createDummyNodeBreakerWithTieLineNetwork() {
+        Network network = Network.create("test", "test");
+        Substation s1 = network.newSubstation().setId("S1").add();
+        Substation s2 = network.newSubstation().setId("S2").add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        BoundaryLine bl1 = vl1.newBoundaryLine().setId("BL1").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        BoundaryLine bl2 = vl2.newBoundaryLine().setId("BL2").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        network.newTieLine().setId("TL").setBoundaryLine1(bl1.getId()).setBoundaryLine2(bl2.getId()).add();
         return network;
     }
 }

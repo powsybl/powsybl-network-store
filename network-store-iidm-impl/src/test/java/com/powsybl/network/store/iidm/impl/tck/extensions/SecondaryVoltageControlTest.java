@@ -8,15 +8,16 @@
 package com.powsybl.network.store.iidm.impl.tck.extensions;
 
 import com.powsybl.iidm.network.tck.extensions.AbstractSecondaryVoltageControlTest;
-
-import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControlTest {
-    @Override
-    public void test() throws IOException {
-        // FIXME
+
+    @Test
+    public void variantTest() {
+        // https://github.com/powsybl/powsybl-core/pull/3454 manage variant for PilotPointImpl
+        // it should be implemented
     }
 }

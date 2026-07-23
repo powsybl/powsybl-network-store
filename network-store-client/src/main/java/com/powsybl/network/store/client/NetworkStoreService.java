@@ -9,7 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Importer;
@@ -26,14 +26,15 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VariantInfos;
 import com.powsybl.tools.Version;
+import io.micrometer.context.ContextExecutorService;
+import io.micrometer.context.ContextSnapshotFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -54,19 +55,23 @@ public class NetworkStoreService implements AutoCloseable {
 
     private final TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(ResourceType.values().length);
+    private final ContextSnapshotFactory contextSnapshotFactory = ContextSnapshotFactory.builder().build();
+
+    private final ExecutorService executorService = ContextExecutorService.wrap(
+        Executors.newFixedThreadPool(ResourceType.values().length),
+        contextSnapshotFactory::captureAll);
 
     public NetworkStoreService(String baseUri) {
         this(baseUri, PreloadingStrategy.NONE);
     }
 
-    @Autowired
-    public NetworkStoreService(@Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri,
-                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
+    public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy) {
         this(new RestClientImpl(baseUri), defaultPreloadingStrategy);
     }
 
-    public NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
+    @Autowired
+    public NetworkStoreService(RestClient restClient,
+                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
         this(restClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
     }
 
@@ -96,16 +101,12 @@ public class NetworkStoreService implements AutoCloseable {
         Objects.requireNonNull(preloadingStrategy);
         LOGGER.info("Preloading strategy: {}", preloadingStrategy);
         var cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient), executorService));
-        switch (preloadingStrategy) {
-            case NONE:
-                return cachedClient;
-            case COLLECTION:
-                return new PreloadingNetworkStoreClient(cachedClient, false, executorService);
-            case ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW:
-                return new PreloadingNetworkStoreClient(cachedClient, true, executorService);
-            default:
-                throw new IllegalStateException("Unknown preloading strategy: " + preloadingStrategy);
-        }
+        return switch (preloadingStrategy) {
+            case NONE -> cachedClient;
+            case COLLECTION -> new PreloadingNetworkStoreClient(cachedClient, false, executorService);
+            case ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW ->
+                new PreloadingNetworkStoreClient(cachedClient, true, executorService);
+        };
     }
 
     public NetworkFactory getNetworkFactory() {
@@ -128,7 +129,7 @@ public class NetworkStoreService implements AutoCloseable {
         return importNetwork(file, (Properties) null);
     }
 
-    public Network importNetwork(Path file, Reporter report) {
+    public Network importNetwork(Path file, ReportNode report) {
         return importNetwork(DataSource.fromPath(file), null, LocalComputationManager.getDefault(), null, report);
     }
 
@@ -145,15 +146,15 @@ public class NetworkStoreService implements AutoCloseable {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null);
     }
 
-    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter) {
+    public Network importNetwork(ReadOnlyDataSource dataSource, ReportNode reporter) {
         return importNetwork(dataSource, reporter, true);
     }
 
-    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter, boolean flush) {
+    public Network importNetwork(ReadOnlyDataSource dataSource, ReportNode reporter, boolean flush) {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null, reporter, flush);
     }
 
-    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter, Properties parameters, boolean flush) {
+    public Network importNetwork(ReadOnlyDataSource dataSource, ReportNode reporter, Properties parameters, boolean flush) {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), parameters, reporter, flush);
     }
 
@@ -180,12 +181,12 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
-                                 ComputationManager computationManager, Properties parameters, Reporter reporter) {
+                                 ComputationManager computationManager, Properties parameters, ReportNode reporter) {
         return importNetwork(dataSource, preloadingStrategy, computationManager, parameters, reporter, true);
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
-                                 ComputationManager computationManager, Properties parameters, Reporter reporter, boolean flush) {
+                                 ComputationManager computationManager, Properties parameters, ReportNode reporter, boolean flush) {
         Importer importer = Importer.find(dataSource, computationManager);
         if (importer == null) {
             throw new PowsyblException("No importer found");

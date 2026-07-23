@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractNodeBreakerInternalConnectionsTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -14,7 +15,8 @@ import com.powsybl.iidm.network.tck.AbstractNodeBreakerInternalConnectionsTest;
 public class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInternalConnectionsTest {
 
     @Override
+    @Disabled("wrong expected result in powsybl-tck")
     public void testTraversalInternalConnections() {
-        // FIXME
+        // FIXME: Expected result in powsybl-tck is wrong, actual result obtained here is right. Remove this when fixed in powsybl-core.
     }
 }

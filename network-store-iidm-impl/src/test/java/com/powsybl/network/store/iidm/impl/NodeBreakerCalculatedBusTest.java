@@ -8,12 +8,14 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.junit.Test;
 
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -224,7 +226,7 @@ public class NodeBreakerCalculatedBusTest {
                         + busVl1.getThreeWindingsTransformerStream().count()
                         + busVl1.getBatteryStream().count()
                         + busVl1.getShuntCompensatorStream().count()
-                        + busVl1.getDanglingLineStream().count()
+                        + busVl1.getBoundaryLineStream().count()
                         + busVl1.getStaticVarCompensatorStream().count()
                         + busVl1.getLccConverterStationStream().count()
                         + busVl1.getVscConverterStationStream().count()
@@ -253,7 +255,7 @@ public class NodeBreakerCalculatedBusTest {
                         + busVl2.getGeneratorStream().count()
                         + busVl2.getBatteryStream().count()
                         + busVl2.getShuntCompensatorStream().count()
-                        + busVl2.getDanglingLineStream().count()
+                        + busVl2.getBoundaryLineStream().count()
                         + busVl2.getStaticVarCompensatorStream().count()
                         + busVl2.getLccConverterStationStream().count()
                         + busVl2.getVscConverterStationStream().count()
@@ -315,7 +317,7 @@ public class NodeBreakerCalculatedBusTest {
                 busVl1.getTwoWindingsTransformerStream().count()
                         + busVl1.getBatteryStream().count()
                         + busVl1.getShuntCompensatorStream().count()
-                        + busVl1.getDanglingLineStream().count()
+                        + busVl1.getBoundaryLineStream().count()
                         + busVl1.getStaticVarCompensatorStream().count()
                         + busVl1.getLccConverterStationStream().count()
                         + busVl1.getVscConverterStationStream().count());
@@ -335,7 +337,7 @@ public class NodeBreakerCalculatedBusTest {
                         + busVl2.getGeneratorStream().count()
                         + busVl2.getBatteryStream().count()
                         + busVl2.getShuntCompensatorStream().count()
-                        + busVl2.getDanglingLineStream().count()
+                        + busVl2.getBoundaryLineStream().count()
                         + busVl2.getStaticVarCompensatorStream().count()
                         + busVl2.getLccConverterStationStream().count()
                         + busVl2.getVscConverterStationStream().count());
@@ -406,15 +408,15 @@ public class NodeBreakerCalculatedBusTest {
                         + busVl1.getGeneratorStream().count()
                         + busVl1.getBatteryStream().count()
                         + busVl1.getLoadStream().count()
-                        + busVl1.getDanglingLineStream().count()
+                        + busVl1.getBoundaryLineStream().count()
                         + busVl1.getStaticVarCompensatorStream().count()
                         + busVl1.getLccConverterStationStream().count()
                         + busVl1.getVscConverterStationStream().count()
         );
 
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_1").getVscConverterStationStream().count());
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_2").getDanglingLineStream().count());
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_3").getDanglingLineStream().count());
+        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_2").getBoundaryLineStream().count());
+        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_3").getBoundaryLineStream().count());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_4").getBatteryStream().count());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_5").getLineStream().count());
     }
@@ -441,7 +443,7 @@ public class NodeBreakerCalculatedBusTest {
                         + busVl2.getBatteryStream().count()
                         + busVl2.getLoadStream().count()
                         + busVl2.getShuntCompensatorStream().count()
-                        + busVl2.getDanglingLineStream().count()
+                        + busVl2.getBoundaryLineStream().count()
                         + busVl2.getLccConverterStationStream().count()
                         + busVl2.getVscConverterStationStream().count()
         );
@@ -490,5 +492,30 @@ public class NodeBreakerCalculatedBusTest {
             bus.getConnectedComponent();
             bus.getSynchronousComponent();
         }
+    }
+
+    @Test
+    public void testGetBusCacheInvalidation() {
+        String newVariant = "new_variant";
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        CreateNetworksUtil.addBusBarSection(vl1);
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, newVariant);
+
+        // creating the cache and checking VL1_10 is not existing yet
+        assertNull(network.getBusView().getBus("VL1_10"));
+        // creating a new calculated bus by opening a switch, the cache should be invalidated
+        vl1.getNodeBreakerView().getSwitch("BRS12").setOpen(true);
+        // checking the cache has been invalidated and returns the new bus
+        assertNotNull(network.getBusView().getBus("VL1_10"));
+
+        // switch variant, with switch still close
+        network.getVariantManager().setWorkingVariant(newVariant);
+        // cache should have been invalidated, previously checked bus should not exist
+        assertNull(network.getBusView().getBus("VL1_10"));
+
+        // switch to initial variant, cache should be invalidated, bus should exist
+        network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNotNull(network.getBusView().getBus("VL1_10"));
     }
 }

@@ -9,8 +9,9 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
+import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.network.store.iidm.impl.extensions.BatteryShortCircuitImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -40,13 +41,12 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public Battery setTargetP(double targetP) {
-        ValidationUtil.checkP0(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkP0(this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP());
-        double oldValue = getResource().getAttributes().getTargetP();
+        double oldValue = getTargetP();
         if (targetP != oldValue) {
-            updateResource(res -> res.getAttributes().setTargetP(targetP));
-            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetP", variantId, oldValue, targetP);
+            updateResource(res -> res.getAttributes().setTargetP(targetP),
+                "targetP", oldValue, targetP);
         }
         return this;
     }
@@ -58,12 +58,11 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public Battery setTargetQ(double targetQ) {
-        ValidationUtil.checkQ0(this, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkQ0(this, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetQ();
         if (targetQ != oldValue) {
-            updateResource(res -> res.getAttributes().setTargetQ(targetQ));
-            String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
+            updateResource(res -> res.getAttributes().setTargetQ(targetQ),
+                "targetQ", oldValue, targetQ);
         }
         return this;
 
@@ -80,8 +79,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, minP, getMaxP());
         double oldValue = getResource().getAttributes().getMinP();
         if (minP != oldValue) {
-            updateResource(res -> res.getAttributes().setMinP(minP));
-            index.notifyUpdate(this, "minP", oldValue, minP);
+            updateResource(res -> res.getAttributes().setMinP(minP),
+                "minP", oldValue, minP);
         }
         return this;
 
@@ -98,49 +97,11 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP);
         double oldValue = getResource().getAttributes().getMaxP();
         if (maxP != oldValue) {
-            updateResource(res -> res.getAttributes().setMaxP(maxP));
-            index.notifyUpdate(this, "maxP", oldValue, maxP);
+            updateResource(res -> res.getAttributes().setMaxP(maxP),
+                "maxP", oldValue, maxP);
         }
         return this;
 
-    }
-
-    private <E extends Extension<Battery>> E createActivePowerControlExtension() {
-        E extension = null;
-        var resource = getResource();
-        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
-        if (attributes != null) {
-            extension = (E) new ActivePowerControlImpl<>(getInjection());
-        }
-        return extension;
-    }
-
-    @Override
-    public <E extends Extension<Battery>> E getExtension(Class<? super E> type) {
-        E extension = super.getExtension(type);
-        if (type == ActivePowerControl.class) {
-            extension = createActivePowerControlExtension();
-        }
-        return extension;
-    }
-
-    @Override
-    public <E extends Extension<Battery>> E getExtensionByName(String name) {
-        E extension = super.getExtensionByName(name);
-        if (name.equals("activePowerControl")) {
-            extension = createActivePowerControlExtension();
-        }
-        return extension;
-    }
-
-    @Override
-    public <E extends Extension<Battery>> Collection<E> getExtensions() {
-        Collection<E> extensions = super.getExtensions();
-        E extension = createActivePowerControlExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        return extensions;
     }
 
     @Override
@@ -148,8 +109,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         var resource = getResource();
         ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
-        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits));
-        index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
+        updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits),
+            "reactiveLimits", oldValue, reactiveLimits);
     }
 
     @Override
@@ -157,9 +118,9 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         var resource = getResource();
         ReactiveLimitsAttributes reactiveLimitsAttributes = resource.getAttributes().getReactiveLimits();
         if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
-            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
+            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes, this);
         } else {
-            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes);
+            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes, this);
         }
     }
 
@@ -183,17 +144,88 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     }
 
     @Override
+    public <E extends Extension<Battery>> E getExtension(Class<? super E> type) {
+        E extension;
+        if (type == BatteryShortCircuit.class) {
+            extension = createBatteryShortCircuitExtension();
+        } else {
+            extension = super.getExtension(type);
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Battery>> E getExtensionByName(String name) {
+        E extension;
+        if ("batteryShortCircuit".equals(name)) {
+            extension = createBatteryShortCircuitExtension();
+        } else {
+            extension = super.getExtensionByName(name);
+        }
+        return extension;
+    }
+
+    private <E extends Extension<Battery>> E createBatteryShortCircuitExtension() {
+        E extension = null;
+        var resource = getResource();
+        ShortCircuitAttributes attributes = resource.getAttributes().getBatteryShortCircuitAttributes();
+        if (attributes != null) {
+            extension = (E) new BatteryShortCircuitImpl((BatteryImpl) getInjection());
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Battery>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        addIfNotNull(extensions, createBatteryShortCircuitExtension());
+        return extensions;
+    }
+
+    private <E extends Extension<Battery>> void addIfNotNull(Collection<E> list, E extension) {
+        if (extension != null) {
+            list.add(extension);
+        }
+    }
+
+    @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl<>(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this, this);
     }
 
     @Override
     public void remove() {
         var resource = getResource();
         index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
+        }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeBattery(resource.getId());
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public <E extends Extension<Battery>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type == BatteryShortCircuit.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getBatteryShortCircuitAttributes() != null) {
+                resource.getAttributes().setBatteryShortCircuitAttributes(null);
+                return true;
+            }
+            return false;
+        }
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

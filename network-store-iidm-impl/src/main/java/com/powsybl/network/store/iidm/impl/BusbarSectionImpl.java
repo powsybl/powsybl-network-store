@@ -9,7 +9,9 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.network.store.iidm.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -21,7 +23,7 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, BusbarSectionAttributes> implements BusbarSection {
+public class BusbarSectionImpl extends AbstractConnectableImpl<BusbarSection, BusbarSectionAttributes> implements BusbarSection {
 
     protected final TerminalImpl<BusbarSectionAttributes> terminal;
 
@@ -42,6 +44,10 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     public void remove() {
         var resource = getResource();
         index.notifyBeforeRemoval(this);
+        for (Terminal terminalImpl : getTerminals()) {
+            ((TerminalImpl<?>) terminalImpl).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminalImpl).getReferrerManager().notifyOfRemoval();
+        }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeBusBarSection(resource.getId());
@@ -76,7 +82,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     @Override
     public <E extends Extension<BusbarSection>> E getExtensionByName(String name) {
         E extension;
-        if (name.equals("position")) {
+        if ("position".equals(name)) {
             extension = createBusbarSectionPositionExtension();
         } else {
             extension = super.getExtensionByName(name);
@@ -102,5 +108,10 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     @Override
     public double getAngle() {
         return getTerminal().isConnected() ? getTerminal().getBusView().getBus().getAngle() : Double.NaN;
+    }
+
+    @Override
+    public List<Terminal> getTerminals(ThreeSides side) {
+        return (side == null || side.equals(ThreeSides.ONE)) ? Collections.singletonList(terminal) : Collections.emptyList();
     }
 }

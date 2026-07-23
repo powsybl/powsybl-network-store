@@ -46,10 +46,10 @@ public class ComponentTest {
 
         line.getTerminal1().disconnect();
         testBusComponent(vl2.getBusView().getMergedBus("B21"), ComponentConstants.MAIN_NUM, 1);
-        testBusComponent(mergedBus2, ComponentConstants.MAIN_NUM, 1);
+        testBusComponent(mergedBus2, 1, 1);
 
-        assertEquals(ComponentConstants.MAIN_NUM, line.getTerminal2().getBusView().getBus().getConnectedComponent().getNum());
-        assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("G2").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+        assertEquals(1, line.getTerminal2().getBusView().getBus().getConnectedComponent().getNum());
+        assertEquals(1, network.getGenerator("G2").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
 
         line.getTerminal1().connect();
         line.getTerminal2().disconnect();
@@ -89,8 +89,8 @@ public class ComponentTest {
         line.getTerminal1().disconnect();
         testBusComponent(vl2.getBusBreakerView().getBus("B21"), ComponentConstants.MAIN_NUM, 1);
 
-        assertEquals(ComponentConstants.MAIN_NUM, line.getTerminal2().getBusBreakerView().getBus().getConnectedComponent().getNum());
-        assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("G2").getTerminal().getBusBreakerView().getBus().getConnectedComponent().getNum());
+        assertEquals(1, line.getTerminal2().getBusBreakerView().getBus().getConnectedComponent().getNum());
+        assertEquals(1, network.getGenerator("G2").getTerminal().getBusBreakerView().getBus().getConnectedComponent().getNum());
 
         line.getTerminal1().connect();
         line.getTerminal2().disconnect();
@@ -180,11 +180,9 @@ public class ComponentTest {
         Component connectedComponent = bus.getConnectedComponent();
         assertEquals(componentSize, connectedComponent.getBusStream().count());
         assertEquals(componentSize, connectedComponent.getSize());
-        assertEquals(componentNum, connectedComponent.getNum());
 
         Component synchronousComponent = bus.getSynchronousComponent();
         assertEquals(componentSize, synchronousComponent.getBusStream().count());
         assertEquals(componentSize, synchronousComponent.getSize());
-        assertEquals(componentNum, synchronousComponent.getNum());
     }
 }

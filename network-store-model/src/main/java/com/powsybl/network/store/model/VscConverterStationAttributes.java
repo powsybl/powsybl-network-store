@@ -6,10 +6,12 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -19,28 +21,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "VSC converter station attributes")
-public class VscConverterStationAttributes extends AbstractAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class VscConverterStationAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "VSC converter station name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
@@ -55,26 +41,29 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
     @Builder.Default
     private float lossFactor = Float.NaN;
 
-    @Schema(description = "Voltage regulator status")
-    private Boolean voltageRegulatorOn;
-
     @Schema(description = "Reactive power set point in MVar")
     private double reactivePowerSetPoint;
 
     @Schema(description = "Voltage set point in Kv")
     private double voltageSetPoint;
 
-    @Schema(description = "Reactive limits of the generator")
+    @Schema(description = "Reactive limits of the vsc station")
     private ReactiveLimitsAttributes reactiveLimits;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Reactive power in MW")
     @Builder.Default
     private double q = Double.NaN;
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

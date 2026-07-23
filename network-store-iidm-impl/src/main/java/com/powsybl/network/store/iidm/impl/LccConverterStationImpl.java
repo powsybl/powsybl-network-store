@@ -6,10 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.network.store.model.LccConverterStationAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -17,7 +16,7 @@ import com.powsybl.network.store.model.Resource;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation {
+public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation {
 
     public LccConverterStationImpl(NetworkObjectIndex index, Resource<LccConverterStationAttributes> resource) {
         super(index, resource);
@@ -47,8 +46,8 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         ValidationUtil.checkPowerFactor(this, powerFactor);
         float oldValue = getResource().getAttributes().getPowerFactor();
         if (powerFactor != oldValue) {
-            updateResource(res -> res.getAttributes().setPowerFactor(powerFactor));
-            index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
+            updateResource(res -> res.getAttributes().setPowerFactor(powerFactor),
+                "powerFactor", oldValue, powerFactor);
         }
         return this;
     }
@@ -60,11 +59,11 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public LccConverterStation setLossFactor(float lossFactor) {
-        ValidationUtil.checkLossFactor(this, lossFactor);
+        ValidationUtil.checkLossFactor(this, lossFactor, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         float oldValue = getResource().getAttributes().getLossFactor();
         if (lossFactor != oldValue) {
-            updateResource(res -> res.getAttributes().setLossFactor(lossFactor));
-            index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
+            updateResource(res -> res.getAttributes().setLossFactor(lossFactor),
+                "lossFactor", oldValue, lossFactor);
         }
         return this;
     }
@@ -77,9 +76,38 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
         }
         index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
+        }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeLccConverterStation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public HvdcLine getHvdcLine() {
+        // TODO: to optimize later on, this won't work with a lot of HVDC lines
+        return index.getHvdcLines()
+            .stream()
+            .filter(hvdcLine -> hvdcLine.getConverterStation1().getId().equals(getId())
+                || hvdcLine.getConverterStation2().getId().equals(getId()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public <E extends Extension<LccConverterStation>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

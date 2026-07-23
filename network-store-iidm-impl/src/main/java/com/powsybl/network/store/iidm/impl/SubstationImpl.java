@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.Lists;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeAreaImpl;
@@ -40,7 +41,10 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public NetworkImpl getNetwork() {
-        return index.getNetwork();
+        if (getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access network of removed substation " + getId());
+        }
+        return super.getNetwork();
     }
 
     @Override
@@ -57,8 +61,8 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     public Substation setCountry(Country country) {
         var resource = getResource();
         Country oldValue = resource.getAttributes().getCountry();
-        updateResource(r -> r.getAttributes().setCountry(country));
-        index.notifyUpdate(this, "country", oldValue, country);
+        updateResource(r -> r.getAttributes().setCountry(country),
+                "country", oldValue, country);
         return this;
     }
 
@@ -71,8 +75,8 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     public Substation setTso(String tso) {
         var resource = getResource();
         String oldValue = resource.getAttributes().getTso();
-        updateResource(r -> r.getAttributes().setTso(tso));
-        index.notifyUpdate(this, "tso", oldValue, tso);
+        updateResource(r -> r.getAttributes().setTso(tso),
+                "tso", oldValue, tso);
         return this;
     }
 
@@ -96,14 +100,20 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         if (tag == null) {
             throw new ValidationException(this, "geographical tag is null");
         }
-        updateResource(r -> r.getAttributes().getGeographicalTags().add(tag));
-        index.notifyElementAdded(this, "geographicalTags", tag);
+        Set<String> oldGeographicalTags = new HashSet<>(getResource().getAttributes().getGeographicalTags());
+        updateResource(r -> r.getAttributes().getGeographicalTags().add(tag),
+                "geographicalTags", null, oldGeographicalTags, this::getGeographicalTags);
         return this;
     }
 
     @Override
     public TwoWindingsTransformerAdder newTwoWindingsTransformer() {
         return new TwoWindingsTransformerAdderImpl(index, this);
+    }
+
+    @Override
+    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer) {
+        return new TwoWindingsTransformerAdderImpl(index, this, twoWindingsTransformer);
     }
 
     @Override
@@ -158,13 +168,12 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     @Override
     public <E extends Extension<Substation>> void addExtension(Class<? super E> type, E extension) {
         if (type == EntsoeArea.class) {
+            EntsoeAreaAttributes oldValue = getResource().getAttributes().getEntsoeArea();
             EntsoeArea entsoeArea = (EntsoeArea) extension;
-            updateResource(r -> {
-                r.getAttributes().setEntsoeArea(
-                        EntsoeAreaAttributes.builder()
-                                .code(entsoeArea.getCode().toString())
-                                .build());
-            });
+            EntsoeAreaAttributes attributes = EntsoeAreaAttributes.builder()
+                    .code(entsoeArea.getCode().toString())
+                    .build();
+            updateResource(r -> r.getAttributes().setEntsoeArea(attributes), "entsoeArea", oldValue, attributes);
         }
         super.addExtension(type, extension);
     }
@@ -191,7 +200,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     @Override
     @SuppressWarnings("unchecked")
     public <E extends Extension<Substation>> E getExtensionByName(String name) {
-        if (name.equals("entsoeArea")) {
+        if ("entsoeArea".equals(name)) {
             return (E) createEntsoeArea();
         }
         return super.getExtensionByName(name);
@@ -236,5 +245,43 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         // Remove this substation from the network
         index.removeSubstation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public OverloadManagementSystemAdder newOverloadManagementSystem() {
+        // FIXME : implement this method
+        return null;
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        // FIXME : implement this method
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        // FIXME : implement this method
+        return Stream.empty();
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        // FIXME : implement this method
+        return 0;
+    }
+
+    @Override
+    public <E extends Extension<Substation>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type == EntsoeArea.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getEntsoeArea() != null) {
+                resource.getAttributes().setEntsoeArea(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

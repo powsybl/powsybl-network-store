@@ -7,24 +7,28 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.BranchStatus;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
-import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
+import com.powsybl.network.store.iidm.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.powsybl.iidm.network.util.LimitViolationUtils.getValueForLimit;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer {
+public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer {
 
     private final TerminalImpl<ThreeWindingsTransformerAttributes> terminal1;
 
@@ -39,14 +43,13 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     private final LegImpl leg3;
 
     static class LegImpl implements Leg, LimitsOwner<Void>, TapChangerParent {
-
         private final ThreeWindingsTransformerImpl transformer;
 
         private final Function<ThreeWindingsTransformerAttributes, LegAttributes> legGetter;
 
         private final NetworkObjectIndex index;
 
-        public LegImpl(ThreeWindingsTransformerImpl transformer, Function<ThreeWindingsTransformerAttributes, LegAttributes> legGetter, NetworkObjectIndex index) {
+        LegImpl(ThreeWindingsTransformerImpl transformer, Function<ThreeWindingsTransformerAttributes, LegAttributes> legGetter, NetworkObjectIndex index) {
             this.transformer = transformer;
             this.legGetter = legGetter;
             this.index = index;
@@ -56,22 +59,19 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             return legGetter.apply(transformer.getResource().getAttributes());
         }
 
-        protected String getLegAttribute() {
+        protected String getLegName() {
             return String.format("leg%d", getLegAttributes().getLegNumber());
         }
 
         @Override
         public TerminalImpl<ThreeWindingsTransformerAttributes> getTerminal() {
             var attributes = getLegAttributes();
-            if (attributes.getLegNumber() == 1) {
-                return transformer.terminal1;
-            } else if (attributes.getLegNumber() == 2) {
-                return transformer.terminal2;
-            } else if (attributes.getLegNumber() == 3) {
-                return transformer.terminal3;
-            } else {
-                throw new AssertionError();
-            }
+            return switch (attributes.getLegNumber()) {
+                case 1 -> transformer.terminal1;
+                case 2 -> transformer.terminal2;
+                case 3 -> transformer.terminal3;
+                default -> throw new AssertionError();
+            };
         }
 
         @Override
@@ -86,8 +86,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = getLegAttributes().getR();
             if (r != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setR(r));
-                index.notifyUpdate(transformer, getLegAttribute() + ".r", oldValue, r);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setR(r),
+                    getLegName() + ".r", oldValue, r);
             }
             return this;
         }
@@ -104,8 +104,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = getLegAttributes().getX();
             if (x != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setX(x));
-                index.notifyUpdate(transformer, getLegAttribute() + ".x", oldValue, x);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setX(x),
+                    getLegName() + ".x", oldValue, x);
             }
             return this;
         }
@@ -122,8 +122,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = getLegAttributes().getG();
             if (g != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setG(g));
-                index.notifyUpdate(transformer, getLegAttribute() + ".g", oldValue, g);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setG(g),
+                    getLegName() + ".g", oldValue, g);
             }
             return this;
         }
@@ -140,8 +140,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = getLegAttributes().getB();
             if (b != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setB(b));
-                index.notifyUpdate(transformer, getLegAttribute() + ".b", oldValue, b);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setB(b),
+                    getLegName() + ".b", oldValue, b);
             }
             return this;
         }
@@ -156,8 +156,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             ValidationUtil.checkRatedU(this, ratedU, "");
             double oldValue = getLegAttributes().getRatedU();
             if (ratedU != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatedU(ratedU));
-                index.notifyUpdate(transformer, "ratedU", oldValue, ratedU);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatedU(ratedU),
+                    "ratedU", oldValue, ratedU);
             }
             return this;
         }
@@ -169,10 +169,21 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public CurrentLimits getNullableCurrentLimits() {
-            var attributes = getLegAttributes();
-            return attributes.getCurrentLimitsAttributes() != null
-                    ? new CurrentLimitsImpl(this, attributes.getCurrentLimitsAttributes())
+            var operationalLimitsGroup = getLegAttributes().getSelectedOperationalLimitsGroup();
+            return operationalLimitsGroup != null && operationalLimitsGroup.getCurrentLimits() != null
+                    ? new CurrentLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getCurrentLimits())
                     : null;
+        }
+
+        @Override
+        public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+            OperationalLimitsGroupAttributes operationalLimitsGroup = getLegAttributes().getSelectedOperationalLimitsGroup();
+            if (operationalLimitsGroup != null) {
+                return new OperationalLimitsGroupImpl<>(this, null, operationalLimitsGroup);
+            }
+            OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+            setSelectedOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+            return newOperationalLimitsGroup;
         }
 
         @Override
@@ -182,9 +193,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public ApparentPowerLimits getNullableApparentPowerLimits() {
-            var attributes = getLegAttributes();
-            return attributes.getApparentPowerLimitsAttributes() != null
-                    ? new ApparentPowerLimitsImpl(this, attributes.getApparentPowerLimitsAttributes())
+            var operationalLimitsGroup = getLegAttributes().getSelectedOperationalLimitsGroup();
+            return operationalLimitsGroup != null && operationalLimitsGroup.getApparentPowerLimits() != null
+                    ? new ApparentPowerLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getApparentPowerLimits())
                     : null;
         }
 
@@ -195,25 +206,46 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public ActivePowerLimits getNullableActivePowerLimits() {
-            var attributes = getLegAttributes();
-            return attributes.getActivePowerLimitsAttributes() != null
-                    ? new ActivePowerLimitsImpl(this, attributes.getActivePowerLimitsAttributes())
+            var operationalLimitsGroup = getLegAttributes().getSelectedOperationalLimitsGroup();
+            return operationalLimitsGroup != null && operationalLimitsGroup.getActivePowerLimits() != null
+                    ? new ActivePowerLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getActivePowerLimits())
                     : null;
         }
 
+        private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
+        private static final String SELECTED_OPERATIONAL_LIMITS_GROUP_ID = ".selectedOperationalLimitsGroupId";
+
+        private String getSelectedLimitsGroupId() {
+            return getLegAttributes().getSelectedOperationalLimitsGroupId() != null
+                    ? getLegAttributes().getSelectedOperationalLimitsGroupId()
+                    : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+        }
+
+        private void updateSelectedOperationalLimitsGroupIdIfNull(String id) {
+            if (getLegAttributes().getSelectedOperationalLimitsGroupId() == null) {
+                getLegAttributes().setSelectedOperationalLimitsGroupId(id);
+            }
+        }
+
+        @Deprecated(since = "1.29.0")
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
-            return new CurrentLimitsAdderImpl<>(null, this);
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
         }
 
+        @Deprecated(since = "1.29.0")
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
-            return new ApparentPowerLimitsAdderImpl<>(null, this);
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
         }
 
+        @Deprecated(since = "1.29.0")
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
-            return new ActivePowerLimitsAdderImpl<>(null, this);
+            updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+            return getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
         }
 
         @Override
@@ -229,15 +261,15 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public void setPhaseTapChanger(PhaseTapChangerAttributes attributes) {
             PhaseTapChangerAttributes oldValue = getLegAttributes().getPhaseTapChangerAttributes();
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setPhaseTapChangerAttributes(attributes));
-            index.notifyUpdate(transformer, "phaseTapChanger", oldValue, attributes);
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setPhaseTapChangerAttributes(attributes),
+                "phaseTapChanger", oldValue, attributes);
         }
 
         @Override
         public void setRatioTapChanger(RatioTapChangerAttributes attributes) {
             RatioTapChangerAttributes oldValue = getLegAttributes().getRatioTapChangerAttributes();
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatioTapChangerAttributes(attributes));
-            index.notifyUpdate(transformer, "ratioTapChanger", oldValue, attributes);
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatioTapChangerAttributes(attributes),
+                "ratioTapChanger", oldValue, attributes);
         }
 
         @Override
@@ -255,8 +287,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public void setCurrentLimits(Void side, LimitsAttributes currentLimitsAttributes) {
-            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setCurrentLimitsAttributes(currentLimitsAttributes));
+        public void setCurrentLimits(Void side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
+            var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
+            LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(currentLimits),
+                getLegName() + "." + "currentLimits", oldValue, currentLimits);
         }
 
         @Override
@@ -265,13 +300,19 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public void setApparentPowerLimits(Void side, LimitsAttributes apparentPowerLimitsAttributes) {
-            getLegAttributes().setApparentPowerLimitsAttributes(apparentPowerLimitsAttributes);
+        public void setApparentPowerLimits(Void side, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId) {
+            var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
+            LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(apparentPowerLimitsAttributes),
+                getLegName() + "." + "apparentLimits", oldValue, apparentPowerLimitsAttributes);
         }
 
         @Override
-        public void setActivePowerLimits(Void side, LimitsAttributes activePowerLimitsAttributes) {
-            getLegAttributes().setActivePowerLimitsAttributes(activePowerLimitsAttributes);
+        public void setActivePowerLimits(Void side, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId) {
+            var operationalLimitsGroup = getLegAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
+            LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
+            transformer.updateResource(res -> legGetter.apply(res.getAttributes()).getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(activePowerLimitsAttributes),
+                getLegName() + "." + "activePowerLimits", oldValue, activePowerLimitsAttributes);
         }
 
         @Override
@@ -284,15 +325,31 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             ValidationUtil.checkRatedS(this, ratedS);
             double oldValue = getLegAttributes().getRatedS();
             if (ratedS != oldValue) {
-                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatedS(ratedS));
-                index.notifyUpdate(transformer, "ratedS", oldValue, ratedS);
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setRatedS(ratedS),
+                    "ratedS", oldValue, ratedS);
             }
             return this;
         }
 
         @Override
-        public String getMessageHeader() {
-            return "3 windings transformer leg" + getLegAttributes().getLegNumber() + " '" + transformer.getId() + "': ";
+        public ThreeSides getSide() {
+            return ThreeSides.valueOf(getLegAttributes().getLegNumber());
+        }
+
+        @Override
+        public Optional<? extends LoadingLimits> getLimits(LimitType limitType) {
+            return switch (limitType) {
+                case CURRENT -> getCurrentLimits();
+                case ACTIVE_POWER -> getActivePowerLimits();
+                case APPARENT_POWER -> getApparentPowerLimits();
+                default ->
+                        throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", limitType.name()));
+            };
+        }
+
+        @Override
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader("3 windings transformer leg" + getLegAttributes().getLegNumber(), transformer.getId());
         }
 
         @Override
@@ -311,8 +368,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public Set<TapChanger<?, ?>> getAllTapChangers() {
-            Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
+        public Set<TapChanger<?, ?, ?, ?>> getAllTapChangers() {
+            Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
             transformer.leg1.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
             transformer.leg1.getOptionalPhaseTapChanger().ifPresent(tapChangers::add);
             transformer.leg2.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
@@ -322,8 +379,115 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             return tapChangers;
         }
 
-        public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-            index.notifyUpdate(transformer, getLegAttribute() + "." + attribute, oldValue, newValue);
+        @Override
+        public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
+            return getLegAttributes().getOperationalLimitsGroups().values().stream()
+                    .map(group -> new OperationalLimitsGroupImpl<>(this, null, group))
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public Optional<String> getSelectedOperationalLimitsGroupId() {
+            return Optional.ofNullable(getLegAttributes().getSelectedOperationalLimitsGroupId());
+        }
+
+        @Override
+        public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
+            return getOperationalLimitsGroups().stream()
+                    .filter(group -> group.getId().equals(id))
+                    .findFirst();
+        }
+
+        @Override
+        public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
+            return getSelectedOperationalLimitsGroupId().flatMap(this::getOperationalLimitsGroup);
+        }
+
+        @Override
+        public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
+            var ressource = getTransformer().getResource();
+            OperationalLimitsGroupAttributes newGroup = LimitsOwner.newOperationalLimitsGroup(ressource, getTransformer(), getNetwork(), id,
+                    getLegAttributes().getOperationalLimitsGroups(), index, "operationalLimitsGroups");
+            return new OperationalLimitsGroupImpl<>(this, null, newGroup);
+        }
+
+        @Override
+        public void setSelectedOperationalLimitsGroup(String id) {
+            var resource = getLegAttributes();
+            String oldValue = resource.getSelectedOperationalLimitsGroupId();
+            if (!id.equals(oldValue)) {
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(id),
+                    getLegName() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, id);
+            }
+        }
+
+        @Override
+        public void removeOperationalLimitsGroup(String id) {
+            var resource = getLegAttributes();
+            if (resource.getOperationalLimitsGroups().get(id) == null) {
+                throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+            }
+            if (id.equals(resource.getSelectedOperationalLimitsGroupId())) {
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(null),
+                    getLegName() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, null);
+            }
+            OperationalLimitsGroupAttributes oldValue = getLegAttributes().getOperationalLimitsGroups().get(id);
+            LimitsOwner.updateOperationalLimitsResource(getTransformer().getResource(), getTransformer(), getNetwork(),
+                    res -> getLegAttributes().getOperationalLimitsGroups().remove(id), getLegName() + ".operationalLimitsGroupId", oldValue, null, index);
+        }
+
+        @Override
+        public void cancelSelectedOperationalLimitsGroup() {
+            var resource = getLegAttributes();
+            String oldValue = resource.getSelectedOperationalLimitsGroupId();
+            if (oldValue != null) {
+                transformer.updateResource(res -> legGetter.apply(res.getAttributes()).setSelectedOperationalLimitsGroupId(null),
+                    getLegName() + SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
+            }
+        }
+
+        @Override
+        public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+            return selectedOperationalLimitsGroupId.map(Set::of).orElseGet(Set::of);
+        }
+
+        @Override
+        public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered() {
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+            return selectedOperationalLimitsGroupId.map(List::of).orElseGet(List::of);
+        }
+
+        @Override
+        public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+            return getSelectedOperationalLimitsGroup().map(Set::of).orElseGet(Set::of);
+        }
+
+        @Override
+        public void addSelectedOperationalLimitsGroups(String... ids) {
+            //
+            // TODO : to be completed later, when we will handle multiple selected operational limits groups
+            // For now, we only use the first id
+            //
+            if (ids == null || ids.length == 0) {
+                return;
+            }
+            setSelectedOperationalLimitsGroup(ids[0]);
+        }
+
+        @Override
+        public void deselectOperationalLimitsGroups(String... ids) {
+            //
+            // TODO : to be completed later, when we will handle multiple selected operational limits groups
+            // For now, we only use the first id
+            //
+            if (ids == null || ids.length == 0) {
+                return;
+            }
+            Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+            if (selectedOperationalLimitsGroupId.isPresent() && List.of(ids).contains(selectedOperationalLimitsGroupId.get())) {
+                cancelSelectedOperationalLimitsGroup();
+            }
         }
     }
 
@@ -334,9 +498,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         leg2 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg2, index);
         leg3 = new LegImpl(this, ThreeWindingsTransformerAttributes::getLeg3, index);
 
-        terminal1 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg1, r.getAttributes(), Side.ONE));
-        terminal2 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg2, r.getAttributes(), Side.TWO));
-        terminal3 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(leg3, r.getAttributes(), Side.THREE));
+        terminal1 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(r.getAttributes(), ThreeSides.ONE));
+        terminal2 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(r.getAttributes(), ThreeSides.TWO));
+        terminal3 = new TerminalImpl<>(index, this, r -> new ThreeWindingsTransformerToInjectionAttributesAdapter(r.getAttributes(), ThreeSides.THREE));
     }
 
     static ThreeWindingsTransformerImpl create(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
@@ -344,32 +508,68 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public Terminal getTerminal(Side side) {
-        switch (side) {
-            case ONE:
-                return leg1.getTerminal();
-
-            case TWO:
-                return leg2.getTerminal();
-
-            case THREE:
-                return leg3.getTerminal();
-
-            default:
-                throw new AssertionError();
+    public List<Terminal> getTerminals(ThreeSides side) {
+        if (side == null) {
+            return Arrays.asList(terminal1, terminal2, terminal3);
+        } else {
+            return switch (side) {
+                case ONE -> Collections.singletonList(leg1.getTerminal());
+                case TWO -> Collections.singletonList(leg2.getTerminal());
+                case THREE -> Collections.singletonList(leg3.getTerminal());
+            };
         }
     }
 
     @Override
-    public Side getSide(Terminal terminal) {
+    public Terminal getTerminal(ThreeSides side) {
+        return switch (side) {
+            case ONE -> leg1.getTerminal();
+            case TWO -> leg2.getTerminal();
+            case THREE -> leg3.getTerminal();
+        };
+    }
+
+    @Override
+    public Terminal getTerminal(String voltageLevelId) {
+        Objects.requireNonNull(voltageLevelId);
+        boolean isLeg1ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg1(), voltageLevelId);
+        boolean isLeg2ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg2(), voltageLevelId);
+        boolean isLeg3ConnectedToVoltageLevel = isLegConnectedToVoltageLevel(getLeg3(), voltageLevelId);
+        if (isLeg1ConnectedToVoltageLevel
+            && isLeg2ConnectedToVoltageLevel
+            && isLeg3ConnectedToVoltageLevel) {
+            throw new PowsyblException("The three terminals are connected to the same voltage level " + voltageLevelId);
+        } else if (isLeg1ConnectedToVoltageLevel && isLeg2ConnectedToVoltageLevel
+            || isLeg3ConnectedToVoltageLevel && isLeg1ConnectedToVoltageLevel
+            || isLeg2ConnectedToVoltageLevel && isLeg3ConnectedToVoltageLevel) {
+            throw new PowsyblException("Two of the three terminals are connected to the same voltage level " + voltageLevelId);
+        } else if (isLeg1ConnectedToVoltageLevel) {
+            return getLeg1().getTerminal();
+        } else if (isLeg2ConnectedToVoltageLevel) {
+            return getLeg2().getTerminal();
+        } else if (isLeg3ConnectedToVoltageLevel) {
+            return getLeg3().getTerminal();
+        } else {
+            throw new PowsyblException("No terminal connected to voltage level " + voltageLevelId);
+        }
+    }
+
+    private boolean isLegConnectedToVoltageLevel(ThreeWindingsTransformer.Leg leg, String voltageLevelId) {
+        return Optional.ofNullable(leg.getTerminal().getVoltageLevel())
+            .map(vl -> voltageLevelId.equals(vl.getId()))
+            .orElse(Boolean.FALSE);
+    }
+
+    @Override
+    public ThreeSides getSide(Terminal terminal) {
         Objects.requireNonNull(terminal);
 
         if (leg1.getTerminal() == terminal) {
-            return Side.ONE;
+            return ThreeSides.ONE;
         } else if (leg2.getTerminal() == terminal) {
-            return Side.TWO;
+            return ThreeSides.TWO;
         } else if (leg3.getTerminal() == terminal) {
-            return Side.THREE;
+            return ThreeSides.THREE;
         } else {
             throw new AssertionError("The terminal is not connected to this three windings transformer");
         }
@@ -401,6 +601,98 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
+    public boolean isOverloaded() {
+        return isOverloaded(1.0f);
+    }
+
+    @Override
+    public boolean isOverloaded(double limitReduction) {
+        return checkPermanentLimit1(limitReduction, LimitType.CURRENT)
+            || checkPermanentLimit2(limitReduction, LimitType.CURRENT)
+            || checkPermanentLimit3(limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
+    public boolean checkPermanentLimit(ThreeSides side, double limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, side, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit(ThreeSides side, LimitType type) {
+        return checkPermanentLimit(side, 1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(double limitReduction, LimitType type) {
+        return checkPermanentLimit(ThreeSides.ONE, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(LimitType type) {
+        return checkPermanentLimit1(1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(double limitReduction, LimitType type) {
+        return checkPermanentLimit(ThreeSides.TWO, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(LimitType type) {
+        return checkPermanentLimit2(1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit3(double limitReduction, LimitType type) {
+        return checkPermanentLimit(ThreeSides.THREE, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit3(LimitType type) {
+        return checkPermanentLimit3(1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits(ThreeSides side, double limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, side, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits(ThreeSides side, LimitType type) {
+        return checkTemporaryLimits(side, 1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits1(double limitReduction, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.ONE, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits1(LimitType type) {
+        return checkTemporaryLimits1(1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2(double limitReduction, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.TWO, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2(LimitType type) {
+        return checkTemporaryLimits2(1f, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits3(double limitReduction, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.THREE, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits3(LimitType type) {
+        return checkTemporaryLimits3(1f, type);
+    }
+
+    @Override
     public List<? extends Terminal> getTerminals() {
         return Arrays.asList(terminal1, terminal2, terminal3);
     }
@@ -409,6 +701,10 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     public void remove() {
         var resource = getResource();
         index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
+        }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeThreeWindingsTransformer(resource.getId());
@@ -440,16 +736,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         return extension;
     }
 
-    private <E extends Extension<ThreeWindingsTransformer>> E createBranchStatusExtension() {
-        E extension = null;
-        var resource = getResource();
-        String branchStatus = resource.getAttributes().getBranchStatus();
-        if (branchStatus != null) {
-            extension = (E) new BranchStatusImpl(this);
-        }
-        return extension;
-    }
-
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> E getExtension(Class<? super E> type) {
         E extension;
@@ -457,8 +743,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = createConnectablePositionExtension();
         } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
             extension = createPhaseAngleClock();
-        } else if (type == BranchStatus.class) {
-            extension = createBranchStatusExtension();
         } else if (type == CgmesTapChangers.class) {
             extension = createCgmesTapChangers();
         } else {
@@ -474,8 +758,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = createConnectablePositionExtension();
         } else if (name.equals(ThreeWindingsTransformerPhaseAngleClock.NAME)) {
             extension = createPhaseAngleClock();
-        } else if (name.equals(BranchStatus.NAME)) {
-            extension = createBranchStatusExtension();
         } else if (name.equals(CgmesTapChangers.NAME)) {
             extension = createCgmesTapChangers();
         } else {
@@ -493,10 +775,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             result.add(extension);
         }
         extension = createPhaseAngleClock();
-        if (extension != null) {
-            result.add(extension);
-        }
-        extension = createBranchStatusExtension();
         if (extension != null) {
             result.add(extension);
         }
@@ -524,5 +802,49 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = (E) new CgmesTapChangersImpl(this);
         }
         return extension;
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
+    }
+
+    @Override
+    public <E extends Extension<ThreeWindingsTransformer>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            boolean isRemoved = false;
+            if (resource.getAttributes().getPosition1() != null) {
+                resource.getAttributes().setPosition1(null);
+                isRemoved = true;
+            }
+            if (resource.getAttributes().getPosition2() != null) {
+                resource.getAttributes().setPosition2(null);
+                isRemoved = true;
+            }
+            if (resource.getAttributes().getPosition3() != null) {
+                resource.getAttributes().setPosition3(null);
+                isRemoved = true;
+            }
+            return isRemoved;
+        }
+        if (type.isAssignableFrom(CgmesTapChangers.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
+                resource.getAttributes().setCgmesTapChangerAttributesList(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getPhaseAngleClock() != null) {
+                resource.getAttributes().setPhaseAngleClock(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

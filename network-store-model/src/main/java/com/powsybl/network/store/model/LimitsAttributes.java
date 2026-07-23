@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -25,11 +26,12 @@ import java.util.TreeMap;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "limits attributes")
 public class LimitsAttributes {
-
     @Schema(description = "Permanent limit in A")
     private double permanentLimit;
 
     @Schema(description = "List of temporary limits")
     private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
 
+    @Schema(description = "Properties")
+    private Map<String, String> properties;
 }

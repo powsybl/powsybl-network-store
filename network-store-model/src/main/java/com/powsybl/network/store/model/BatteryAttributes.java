@@ -6,10 +6,12 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -19,28 +21,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Battery attributes")
-public class BatteryAttributes extends AbstractAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class BatteryAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes, ReactiveLimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "Battery name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "Battery fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
@@ -63,10 +49,12 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
     @Schema(description = "Maximum active power in MW")
     private double maxP;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Reactive power in MW")
     @Builder.Default
     private double q = Double.NaN;
@@ -77,7 +65,10 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
     @Schema(description = "reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
-    @Schema(description = "activePowerControl")
-    private ActivePowerControlAttributes activePowerControl;
+    @Schema(description = "Battery short circuit attributes")
+    private ShortCircuitAttributes batteryShortCircuitAttributes;
 
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

@@ -6,11 +6,13 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.powsybl.iidm.network.LoadType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -20,28 +22,12 @@ import java.util.Set;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Load attributes")
-public class LoadAttributes extends AbstractAttributes implements InjectionAttributes {
+public class LoadAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
-
-    @Schema(description = "Load name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
@@ -63,10 +49,12 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
 
     @Schema(description = "Active power in MW")
     @Builder.Default
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     private double p = Double.NaN;
 
     @Schema(description = "Reactive power in MW")
     @Builder.Default
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     private double q = Double.NaN;
 
     @Schema(description = "Load detail")
@@ -74,4 +62,8 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    @Builder.Default
+    @Schema(description = "regulatingEquipments")
+    private Set<RegulatingEquipmentIdentifier> regulatingEquipments = new HashSet<>();
 }

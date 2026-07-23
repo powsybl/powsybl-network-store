@@ -7,17 +7,19 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator, ShuntCompensatorAttributes> implements ShuntCompensator {
+public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompensator, ShuntCompensatorAttributes> implements ShuntCompensator {
 
     public ShuntCompensatorImpl(NetworkObjectIndex index, Resource<ShuntCompensatorAttributes> resource) {
         super(index, resource);
@@ -38,15 +40,42 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     }
 
     @Override
+    public Integer getSolvedSectionCount() {
+        return getResource().getAttributes().getSolvedSectionCount();
+    }
+
+    @Override
     public ShuntCompensator setSectionCount(int sectionCount) {
-        ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         int oldValue = getResource().getAttributes().getSectionCount();
         if (sectionCount != oldValue) {
-            updateResource(res -> res.getAttributes().setSectionCount(sectionCount));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "sectionCount", variantId, oldValue, sectionCount);
+            updateResource(res -> res.getAttributes().setSectionCount(sectionCount),
+                "sectionCount", oldValue, sectionCount);
         }
         return this;
+    }
+
+    @Override
+    public ShuntCompensator setSolvedSectionCount(int solvedSectionCount) {
+        Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
+        checkSolvedSectionCount(solvedSectionCount, getMaximumSectionCount());
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(solvedSectionCount), AttributeFilter.SV,
+            "solvedSectionCount", oldValue, solvedSectionCount);
+        return this;
+    }
+
+    @Override
+    public ShuntCompensator unsetSolvedSectionCount() {
+        Integer oldValue = getResource().getAttributes().getSolvedSectionCount();
+        updateResource(res -> res.getAttributes().setSolvedSectionCount(null), AttributeFilter.SV,
+            "solvedSectionCount", oldValue, null);
+        return this;
+    }
+
+    private void checkSolvedSectionCount(Integer solvedSectionCount, int maximumSectionCount) {
+        if (solvedSectionCount != null && (solvedSectionCount < 0 || solvedSectionCount > maximumSectionCount)) {
+            throw new ValidationException(this, "unexpected solved section number (" + solvedSectionCount + "): no existing associated section");
+        }
     }
 
     @Override
@@ -98,10 +127,6 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         }
     }
 
-    public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        index.notifyUpdate(this, attribute, oldValue, newValue);
-    }
-
     @Override
     public <M extends ShuntCompensatorModel> M getModel(Class<M> type) {
         ShuntCompensatorModel shuntCompensatorModel = getModel();
@@ -118,16 +143,17 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return getResource().getAttributes().isVoltageRegulatorOn();
+        return this.isRegulating();
     }
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        boolean oldValue = getResource().getAttributes().isVoltageRegulatorOn();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode(
+                ));
+        boolean oldValue = this.isRegulating();
         if (voltageRegulatorOn != oldValue) {
-            updateResource(res -> res.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn));
+            this.setRegulating(voltageRegulatorOn);
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         }
@@ -135,18 +161,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        TerminalRefAttributes terminalRefAttributes = getResource().getAttributes().getRegulatingTerminal();
-        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
-        return regulatingTerminal != null ? regulatingTerminal : terminal;
-    }
-
-    @Override
     public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        TerminalRefAttributes oldValue = getResource().getAttributes().getRegulatingTerminal();
-        updateResource(res -> res.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal)));
-        index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        setRegTerminal(regulatingTerminal);
         return this;
     }
 
@@ -157,12 +173,11 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setTargetV(double targetV) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getTargetV();
         if (Double.compare(targetV, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setTargetV(targetV));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
+            updateResource(res -> res.getAttributes().setTargetV(targetV),
+                "targetV", oldValue, targetV);
         }
         return this;
     }
@@ -174,12 +189,12 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode(
+                ));
         double oldValue = getResource().getAttributes().getTargetDeadband();
         if (Double.compare(targetDeadband, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setTargetDeadband(targetDeadband));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "targetDeadband", variantId, oldValue, targetDeadband);
+            updateResource(res -> res.getAttributes().setTargetDeadband(targetDeadband),
+                "targetDeadband", oldValue, targetDeadband);
         }
         return this;
     }
@@ -188,9 +203,28 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     public void remove() {
         var resource = getResource();
         index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
+        }
+        regulatingPoint.remove();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeShuntCompensator(resource.getId());
         index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public <E extends Extension<ShuntCompensator>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

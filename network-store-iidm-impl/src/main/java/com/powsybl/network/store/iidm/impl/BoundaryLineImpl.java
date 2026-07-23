@@ -1,0 +1,638 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.network.store.iidm.impl;
+
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.util.BoundaryLineBoundaryImpl;
+import com.powsybl.network.store.model.*;
+import org.apache.commons.lang3.StringUtils;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ */
+public class BoundaryLineImpl extends AbstractInjectionImpl<BoundaryLine, BoundaryLineAttributes> implements BoundaryLine, LimitsOwner<Void> {
+
+    static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
+
+        private final BoundaryLineImpl boundaryLine;
+
+        GenerationImpl(BoundaryLineImpl boundaryLine) {
+            this.boundaryLine = Objects.requireNonNull(boundaryLine);
+        }
+
+        private static BoundaryLineGenerationAttributes getAttributes(Resource<BoundaryLineAttributes> resource) {
+            return resource.getAttributes().getGeneration();
+        }
+
+        private BoundaryLineGenerationAttributes getAttributes() {
+            return getAttributes(boundaryLine.getResource());
+        }
+
+        @Override
+        public double getTargetP() {
+            return getAttributes().getTargetP();
+        }
+
+        @Override
+        public GenerationImpl setTargetP(double targetP) {
+            ValidationUtil.checkActivePowerSetpoint(boundaryLine, targetP, boundaryLine.getNetwork().getMinValidationLevel(), boundaryLine.getNetwork().getReportNodeContext().getReportNode());
+            double oldValue = getAttributes().getTargetP();
+            if (targetP != oldValue) {
+                boundaryLine.updateResource(res -> getAttributes(res).setTargetP(targetP),
+                    "targetP", oldValue, targetP);
+            }
+            return this;
+        }
+
+        @Override
+        public double getMaxP() {
+            return getAttributes().getMaxP();
+        }
+
+        @Override
+        public GenerationImpl setMaxP(double maxP) {
+            ValidationUtil.checkMaxP(boundaryLine, maxP);
+            ValidationUtil.checkActivePowerLimits(boundaryLine, getMinP(), maxP);
+            double oldValue = getAttributes().getMaxP();
+            if (maxP != oldValue) {
+                boundaryLine.updateResource(res -> getAttributes(res).setMaxP(maxP),
+                    "maxP", oldValue, maxP);
+            }
+            return this;
+        }
+
+        @Override
+        public double getMinP() {
+            return getAttributes().getMinP();
+        }
+
+        @Override
+        public GenerationImpl setMinP(double minP) {
+            ValidationUtil.checkMinP(boundaryLine, minP);
+            ValidationUtil.checkActivePowerLimits(boundaryLine, minP, getMaxP());
+            double oldValue = getAttributes().getMinP();
+            if (minP != oldValue) {
+                boundaryLine.updateResource(res -> getAttributes(res).setMinP(minP),
+                    "minP", oldValue, minP);
+            }
+            return this;
+        }
+
+        @Override
+        public double getTargetQ() {
+            return getAttributes().getTargetQ();
+        }
+
+        @Override
+        public GenerationImpl setTargetQ(double targetQ) {
+            ValidationUtil.checkVoltageControl(boundaryLine, isVoltageRegulationOn(), getTargetV(), targetQ, boundaryLine.getNetwork().getMinValidationLevel(), boundaryLine.getNetwork()
+                    .getReportNodeContext().getReportNode());
+            double oldValue = getAttributes().getTargetQ();
+            if (targetQ != oldValue) {
+                boundaryLine.updateResource(res -> getAttributes(res).setTargetQ(targetQ),
+                    "targetQ", oldValue, targetQ);
+            }
+            return this;
+        }
+
+        @Override
+        public boolean isVoltageRegulationOn() {
+            return getAttributes().isVoltageRegulationOn();
+        }
+
+        @Override
+        public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
+            ValidationUtil.checkVoltageControl(boundaryLine, voltageRegulationOn, getTargetV(), getTargetQ(), boundaryLine.getNetwork().getMinValidationLevel(), boundaryLine.getNetwork()
+                    .getReportNodeContext().getReportNode());
+            boolean oldValue = getAttributes().isVoltageRegulationOn();
+            if (voltageRegulationOn != oldValue) {
+                boundaryLine.updateResource(res -> getAttributes(res).setVoltageRegulationOn(voltageRegulationOn),
+                    "voltageRegulationOn", oldValue, voltageRegulationOn);
+            }
+            return this;
+        }
+
+        @Override
+        public double getTargetV() {
+            return getAttributes().getTargetV();
+        }
+
+        @Override
+        public GenerationImpl setTargetV(double targetV) {
+            ValidationUtil.checkVoltageControl(boundaryLine, isVoltageRegulationOn(), targetV, getTargetQ(), boundaryLine.getNetwork().getMinValidationLevel(), boundaryLine.getNetwork()
+                    .getReportNodeContext().getReportNode());
+            double oldValue = getAttributes().getTargetV();
+            if (targetV != oldValue) {
+                boundaryLine.updateResource(res -> getAttributes(res).setTargetV(targetV),
+                    "targetV", oldValue, targetV);
+            }
+            return this;
+        }
+
+        @Override
+        public ReactiveCapabilityCurveAdderImpl<GenerationImpl> newReactiveCapabilityCurve() {
+            return new ReactiveCapabilityCurveAdderImpl<>(this, boundaryLine);
+        }
+
+        @Override
+        public MinMaxReactiveLimitsAdderImpl<GenerationImpl> newMinMaxReactiveLimits() {
+            return new MinMaxReactiveLimitsAdderImpl<>(this, boundaryLine);
+        }
+
+        @Override
+        public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
+            ReactiveLimitsAttributes oldValue = getAttributes().getReactiveLimits();
+            boundaryLine.updateResource(res -> getAttributes(res).setReactiveLimits(reactiveLimits),
+                "reactiveLimits", oldValue, reactiveLimits);
+        }
+
+        @Override
+        public ReactiveLimits getReactiveLimits() {
+            ReactiveLimitsAttributes reactiveLimits = getAttributes().getReactiveLimits();
+            if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+                return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimits, boundaryLine);
+            } else {
+                return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimits, boundaryLine);
+            }
+        }
+
+        @Override
+        public <R extends ReactiveLimits> R getReactiveLimits(Class<R> type) {
+            ReactiveLimits reactiveLimits = getReactiveLimits();
+            if (type == null) {
+                throw new IllegalArgumentException("type is null");
+            }
+            if (type.isInstance(reactiveLimits)) {
+                return type.cast(reactiveLimits);
+            } else {
+                throw new ValidationException(this, "incorrect reactive limits type " + type.getName() + ", expected " + reactiveLimits.getClass());
+            }
+        }
+
+        @Override
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader("generation part for boundary line", boundaryLine.getId());
+        }
+    }
+
+    private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
+    private static final String SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "selectedOperationalLimitsGroupId";
+
+    private final BoundaryLineBoundaryImpl boundary;
+
+    public BoundaryLineImpl(NetworkObjectIndex index, Resource<BoundaryLineAttributes> resource) {
+        super(index, resource);
+        boundary = new BoundaryLineBoundaryImpl(this);
+    }
+
+    static BoundaryLineImpl create(NetworkObjectIndex index, Resource<BoundaryLineAttributes> resource) {
+        return new BoundaryLineImpl(index, resource);
+    }
+
+    @Override
+    public void remove() {
+        var resource = getResource();
+        index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
+        }
+        // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
+        invalidateCalculatedBuses(getTerminals());
+        index.getAreas().forEach(area -> area.removeAreaBoundary(new BoundaryLineBoundaryImpl(this)));
+        index.removeBoundaryLine(resource.getId());
+        index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    protected BoundaryLine getInjection() {
+        return this;
+    }
+
+    @Override
+    public boolean isPaired() {
+        return getTieLine().isPresent();
+    }
+
+    @Override
+    public double getP0() {
+        return getResource().getAttributes().getP0();
+    }
+
+    @Override
+    public BoundaryLine setP0(double p0) {
+        ValidationUtil.checkP0(this, p0, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getResource().getAttributes().getP0();
+        if (p0 != oldValue) {
+            updateResource(res -> res.getAttributes().setP0(p0),
+                "p0", oldValue, p0);
+        }
+        return this;
+    }
+
+    @Override
+    public double getQ0() {
+        return getResource().getAttributes().getQ0();
+    }
+
+    @Override
+    public BoundaryLine setQ0(double q0) {
+        ValidationUtil.checkQ0(this, q0, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getResource().getAttributes().getQ0();
+        if (q0 != oldValue) {
+            updateResource(res -> res.getAttributes().setQ0(q0),
+                "q0", oldValue, q0);
+        }
+        return this;
+    }
+
+    @Override
+    public double getR() {
+        return getResource().getAttributes().getR();
+    }
+
+    @Override
+    public BoundaryLine setR(double r) {
+        ValidationUtil.checkR(this, r);
+        double oldValue = getResource().getAttributes().getR();
+        if (r != oldValue) {
+            updateResource(res -> res.getAttributes().setR(r),
+                "r", oldValue, r);
+        }
+        return this;
+    }
+
+    @Override
+    public double getX() {
+        return getResource().getAttributes().getX();
+    }
+
+    @Override
+    public BoundaryLine setX(double x) {
+        ValidationUtil.checkX(this, x);
+        double oldValue = getResource().getAttributes().getX();
+        if (x != oldValue) {
+            updateResource(res -> res.getAttributes().setX(x),
+                "x", oldValue, x);
+        }
+        return this;
+    }
+
+    @Override
+    public double getG() {
+        return getResource().getAttributes().getG();
+    }
+
+    @Override
+    public BoundaryLine setG(double g) {
+        ValidationUtil.checkG(this, g);
+        double oldValue = getResource().getAttributes().getG();
+        if (g != oldValue) {
+            updateResource(res -> res.getAttributes().setG(g),
+                "g", oldValue, g);
+        }
+        return this;
+    }
+
+    @Override
+    public double getB() {
+        return getResource().getAttributes().getB();
+    }
+
+    @Override
+    public BoundaryLine setB(double b) {
+        ValidationUtil.checkB(this, b);
+        double oldValue = getResource().getAttributes().getB();
+        if (b != oldValue) {
+            updateResource(res -> res.getAttributes().setB(b),
+                "b", oldValue, b);
+        }
+        return this;
+    }
+
+    @Override
+    public BoundaryLine.Generation getGeneration() {
+        var resource = getResource();
+        if (resource.getAttributes().getGeneration() != null) {
+            return new GenerationImpl(this);
+        }
+        return null;
+    }
+
+    @Override
+    public String getPairingKey() {
+        return getResource().getAttributes().getPairingKey();
+    }
+
+    @Override
+    public BoundaryLine setPairingKey(String s) {
+        if (this.isPaired()) {
+            throw new ValidationException(this, "pairing key cannot be set if boundary line is paired.");
+        } else {
+            String oldValue = getPairingKey();
+            if (!StringUtils.equals(s, oldValue)) {
+                updateResource(res -> res.getAttributes().setPairingKey(s),
+                    "pairingKey", oldValue, s);
+            }
+        }
+        return this;
+    }
+
+    private void updateSelectedOperationalLimitsGroupIdIfNull(String id) {
+        var resource = getResource();
+        if (resource.getAttributes().getSelectedOperationalLimitsGroupId() == null) {
+            resource.getAttributes().setSelectedOperationalLimitsGroupId(id);
+        }
+    }
+
+    @Override
+    public void setCurrentLimits(Void side, LimitsAttributes currentLimits, String operationalLimitsGroupId) {
+        var operationalLimitsGroup = getResource().getAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
+        LimitsAttributes oldLimits = operationalLimitsGroup != null ? operationalLimitsGroup.getCurrentLimits() : null;
+        LimitsAttributes newLimits = mergeLimitsAttribute(oldLimits, currentLimits);
+        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setCurrentLimits(newLimits),
+            "currentLimits", oldLimits, currentLimits);
+    }
+
+    private LimitsAttributes mergeLimitsAttribute(LimitsAttributes oldLimits, LimitsAttributes completeValue) {
+        if (oldLimits == null || completeValue == null) {
+            return completeValue;
+        }
+        if (!Double.isNaN(completeValue.getPermanentLimit())) {
+            oldLimits.setPermanentLimit(completeValue.getPermanentLimit());
+        }
+        if (completeValue.getTemporaryLimits() != null && !completeValue.getTemporaryLimits().isEmpty()) {
+            if (oldLimits.getTemporaryLimits() == null) {
+                oldLimits.setTemporaryLimits(completeValue.getTemporaryLimits());
+            } else {
+                oldLimits.getTemporaryLimits().putAll(completeValue.getTemporaryLimits());
+            }
+        }
+        return oldLimits;
+
+    }
+
+    @Override
+    public AbstractIdentifiableImpl<?, ?> getIdentifiable() {
+        return this;
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits() {
+        var operationalLimitsGroup = getResource().getAttributes().getSelectedOperationalLimitsGroup();
+        return operationalLimitsGroup != null && operationalLimitsGroup.getCurrentLimits() != null
+                ? new CurrentLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getCurrentLimits())
+                : null;
+    }
+
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
+        Optional<OperationalLimitsGroup> operationalLimitsGroup = getSelectedOperationalLimitsGroup();
+        if (operationalLimitsGroup.isPresent()) {
+            return operationalLimitsGroup.get();
+        }
+        OperationalLimitsGroup newOperationalLimitsGroup = newOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        setSelectedOperationalLimitsGroup(DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID);
+        return newOperationalLimitsGroup;
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits() {
+        return Optional.ofNullable(getNullableCurrentLimits());
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits() {
+        var operationalLimitsGroup = getResource().getAttributes().getSelectedOperationalLimitsGroup();
+        return operationalLimitsGroup != null && operationalLimitsGroup.getActivePowerLimits() != null
+                ? new ActivePowerLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getActivePowerLimits())
+                : null;
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits() {
+        return Optional.ofNullable(getNullableActivePowerLimits());
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits() {
+        var operationalLimitsGroup = getResource().getAttributes().getSelectedOperationalLimitsGroup();
+        return operationalLimitsGroup != null && operationalLimitsGroup.getApparentPowerLimits() != null
+                ? new ApparentPowerLimitsImpl<>(this, null, operationalLimitsGroup.getId(), operationalLimitsGroup.getApparentPowerLimits())
+                : null;
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits() {
+        return Optional.ofNullable(getNullableApparentPowerLimits());
+    }
+
+    private String getSelectedLimitsGroupId() {
+        return getResource().getAttributes().getSelectedOperationalLimitsGroupId() != null
+                ? getResource().getAttributes().getSelectedOperationalLimitsGroupId()
+                : DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID;
+    }
+
+    @Deprecated(since = "1.29.0")
+    @Override
+    public CurrentLimitsAdder newCurrentLimits() {
+        updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+        return getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
+    }
+
+    @Deprecated(since = "1.29.0")
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits() {
+        updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+        return getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
+    }
+
+    @Deprecated(since = "1.29.0")
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits() {
+        updateSelectedOperationalLimitsGroupIdIfNull(getSelectedLimitsGroupId());
+        return getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
+    }
+
+    @Override
+    public void setApparentPowerLimits(Void unused, LimitsAttributes apparentPowerLimitsAttributes, String operationalLimitsGroupId) {
+        var operationalLimitsGroup = getResource().getAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
+        LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getApparentPowerLimits() : null;
+        LimitsAttributes newValue = mergeLimitsAttribute(oldValue, apparentPowerLimitsAttributes);
+        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setApparentPowerLimits(newValue),
+            "apparentLimits", oldValue, apparentPowerLimitsAttributes);
+    }
+
+    @Override
+    public void setActivePowerLimits(Void unused, LimitsAttributes activePowerLimitsAttributes, String operationalLimitsGroupId) {
+        var operationalLimitsGroup = getResource().getAttributes().getOperationalLimitsGroup(operationalLimitsGroupId);
+        LimitsAttributes oldValue = operationalLimitsGroup != null ? operationalLimitsGroup.getActivePowerLimits() : null;
+        LimitsAttributes newValue = mergeLimitsAttribute(oldValue, activePowerLimitsAttributes);
+        updateResource(res -> res.getAttributes().getOrCreateOperationalLimitsGroup(operationalLimitsGroupId).setActivePowerLimits(newValue),
+            "activeLimits", oldValue, activePowerLimitsAttributes);
+    }
+
+    @Override
+    public Boundary getBoundary() {
+        return boundary;
+    }
+
+    void setTieLine(TieLineImpl tieLine) {
+        var resource = getResource();
+        String oldValue = resource.getAttributes().getTieLineId();
+        String tieLineId = tieLine != null ? tieLine.getId() : null;
+        updateResource(res -> res.getAttributes().setTieLineId(tieLineId),
+            "tieLineId", oldValue, tieLineId);
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+    }
+
+    void removeTieLine() {
+        setTieLine(null);
+    }
+
+    @Override
+    public Optional<TieLine> getTieLine() {
+        var resource = getResource();
+        return Optional.ofNullable(resource.getAttributes().getTieLineId())
+                .flatMap(index::getTieLine);
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
+        return getResource().getAttributes().getOperationalLimitsGroups().values().stream()
+                .map(group -> new OperationalLimitsGroupImpl<>(this, null, group))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<String> getSelectedOperationalLimitsGroupId() {
+        return Optional.ofNullable(getResource().getAttributes().getSelectedOperationalLimitsGroupId());
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
+        return getOperationalLimitsGroups().stream()
+                .filter(group -> group.getId().equals(id))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
+        return getSelectedOperationalLimitsGroupId().flatMap(this::getOperationalLimitsGroup);
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
+        var resource = getResource();
+        OperationalLimitsGroupAttributes newGroup = LimitsOwner.newOperationalLimitsGroup(resource, this, getNetwork(), id,
+                resource.getAttributes().getOperationalLimitsGroups(), index, "operationalLimitsGroups");
+        return new OperationalLimitsGroupImpl<>(this, null, newGroup);
+
+    }
+
+    @Override
+    public void setSelectedOperationalLimitsGroup(String id) {
+        var resource = getResource();
+        String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
+        if (!id.equals(oldValue)) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(id),
+                SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, id);
+        }
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup(String id) {
+        var resource = getResource();
+        if (resource.getAttributes().getOperationalLimitsGroups().get(id) == null) {
+            throw new IllegalArgumentException("Operational limits group '" + id + "' does not exist");
+        }
+        if (id.equals(resource.getAttributes().getSelectedOperationalLimitsGroupId())) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(null),
+                SELECTED_OPERATIONAL_LIMITS_GROUP_ID, id, null);
+        }
+        OperationalLimitsGroupAttributes oldValue = getResource().getAttributes().getOperationalLimitsGroups().get(id);
+        LimitsOwner.updateOperationalLimitsResource(getResource(), this, getNetwork(), res -> res.getAttributes().getOperationalLimitsGroups().remove(id),
+            "operationalLimitsGroups", oldValue, null, index);
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup() {
+        var resource = getResource();
+        String oldValue = resource.getAttributes().getSelectedOperationalLimitsGroupId();
+        if (oldValue != null) {
+            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId(null),
+                SELECTED_OPERATIONAL_LIMITS_GROUP_ID, oldValue, null);
+        }
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+        Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+        return selectedOperationalLimitsGroupId.map(Set::of).orElseGet(Set::of);
+    }
+
+    @Override
+    public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered() {
+        Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+        return selectedOperationalLimitsGroupId.map(List::of).orElseGet(List::of);
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+        return getSelectedOperationalLimitsGroup().map(Set::of).orElseGet(Set::of);
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroups(String... ids) {
+        //
+        // TODO : to be completed later, when we will handle multiple selected operational limits groups
+        // For now, we only use the first id
+        //
+        if (ids == null || ids.length == 0) {
+            return;
+        }
+        setSelectedOperationalLimitsGroup(ids[0]);
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups(String... ids) {
+        //
+        // TODO : to be completed later, when we will handle multiple selected operational limits groups
+        // For now, we only use the first id
+        //
+        if (ids == null || ids.length == 0) {
+            return;
+        }
+        Optional<String> selectedOperationalLimitsGroupId = getSelectedOperationalLimitsGroupId();
+        if (selectedOperationalLimitsGroupId.isPresent() && List.of(ids).contains(selectedOperationalLimitsGroupId.get())) {
+            cancelSelectedOperationalLimitsGroup();
+        }
+    }
+
+    @Override
+    public <E extends Extension<BoundaryLine>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+}

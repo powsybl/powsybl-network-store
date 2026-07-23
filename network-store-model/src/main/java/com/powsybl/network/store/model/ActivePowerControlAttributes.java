@@ -22,11 +22,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @Schema(description = "Active power control attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ActivePowerControlAttributes {
+public class ActivePowerControlAttributes implements ExtensionAttributes {
 
     private boolean participate;
 
     private double droop;
 
     private double participationFactor;
+
+    private double minTargetP;
+
+    private double maxTargetP;
 }

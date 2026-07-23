@@ -8,15 +8,18 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -32,17 +35,20 @@ public class ResourceTest {
         Resource<NetworkAttributes> resource = Resource.networkBuilder().id("foo")
                 .attributes(NetworkAttributes.builder()
                         .uuid(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"))
-                        .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JodaModule());
+        ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         String json = objectMapper.writeValueAsString(resource);
-        assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"variantNum\":0,\"attributes\":{\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"fictitious\":false,\"caseDate\":1420070400000,\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}}", json);
+        assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\","
+                + "\"fullVariantNum\":-1,\"caseDate\":1420070400000,\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}}", json);
         Resource<NetworkAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<NetworkAttributes>>() { });
         assertNotNull(resource2);
         assertEquals("foo", resource2.getId());
-        assertEquals(DateTime.parse("2015-01-01T00:00:00.000Z"), resource2.getAttributes().getCaseDate());
+        assertEquals(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"), resource2.getAttributes().getCaseDate());
         assertEquals(0, resource2.getAttributes().getForecastDistance());
         assertNull(resource2.getAttributes().getSourceFormat());
     }
@@ -61,7 +67,7 @@ public class ResourceTest {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(resource);
 
-        String jsonRef = "{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"name\":\"SS\",\"fictitious\":false,\"country\":\"FR\",\"tso\":\"RTE\"}}";
+        String jsonRef = "{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"name\":\"SS\",\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\",\"tso\":\"RTE\"}}";
         assertEquals(jsonRef, json);
 
         Resource<SubstationAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<SubstationAttributes>>() { });
@@ -149,7 +155,7 @@ public class ResourceTest {
                         .b1(1)
                         .g2(1)
                         .b2(1)
-                        .branchStatus("IN_OPERATION")
+                        .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                         .build())
                 .build();
 
@@ -162,12 +168,12 @@ public class ResourceTest {
 
         resourceLine.getAttributes().setP1(100.0);
         assertEquals(100.0, resourceLine.getAttributes().getP1(), 0);
-
-        assertEquals("IN_OPERATION", resourceLine.getAttributes().getBranchStatus());
+        assertFalse(resourceLine.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceLine.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
     }
 
     @Test
-    public void twoWindingsTransormer() {
+    public void twoWindingsTransformer() {
         Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder()
                 .id("id2WT")
                 .attributes(TwoWindingsTransformerAttributes.builder()
@@ -184,7 +190,7 @@ public class ResourceTest {
                         .g(1)
                         .ratedU1(1.)
                         .ratedU2(1.)
-                        .branchStatus("IN_OPERATION")
+                        .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                         .build())
                 .build();
 
@@ -197,18 +203,18 @@ public class ResourceTest {
 
         resourceTransformer.getAttributes().setP1(100.0);
         assertEquals(100.0, resourceTransformer.getAttributes().getP1(), 0);
-
-        assertEquals("IN_OPERATION", resourceTransformer.getAttributes().getBranchStatus());
+        assertFalse(resourceTransformer.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceTransformer.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
     }
 
     @Test
-    public void threeWindingsTransormer() throws IOException {
+    public void threeWindingsTransformer() {
         Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder()
                 .id("id3WT")
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name("id3WT")
                         .ratedU0(1)
-                        .branchStatus("IN_OPERATION")
+                    .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                         .build())
                 .build();
 
@@ -228,8 +234,8 @@ public class ResourceTest {
         assertEquals(200., resourceTransformer.getAttributes().getP1(), 0);
         assertEquals(500., resourceTransformer.getAttributes().getQ2(), 0);
         assertEquals(700., resourceTransformer.getAttributes().getP3(), 0);
-
-        assertEquals("IN_OPERATION", resourceTransformer.getAttributes().getBranchStatus());
+        assertFalse(resourceTransformer.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceTransformer.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
     }
 
     @Test
@@ -241,6 +247,7 @@ public class ResourceTest {
                 .bus("bus1")
                 .fictitious(false)
                 .node(1)
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
         Resource<LoadAttributes> resourceLoad = Resource.loadBuilder()
@@ -253,10 +260,19 @@ public class ResourceTest {
 
         assertTrue(Double.isNaN(resourceLoad.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceLoad.getAttributes().getQ()));
+        assertFalse(resourceLoad.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceLoad.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
     }
 
     @Test
     public void generator() {
+        TerminalRefAttributes regulatingTerminal = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
+        RegulatingPointAttributes regulatingPointAttributes = RegulatingPointAttributes.builder()
+            .regulatingEquipmentId("gen")
+            .regulatingResourceType(ResourceType.GENERATOR)
+            .regulatingTerminal(regulatingTerminal)
+            .localTerminal(new TerminalRefAttributes("gen", null))
+            .build();
         GeneratorAttributes generatorAttributes = GeneratorAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -269,7 +285,8 @@ public class ResourceTest {
                 .node(1)
                 .targetP(3)
                 .targetV(4)
-                .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
+                .regulatingPoint(regulatingPointAttributes)
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
         Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder()
@@ -287,9 +304,12 @@ public class ResourceTest {
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getQ()));
 
-        assertEquals("idEq", resourceGenerator.getAttributes().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceGenerator.getAttributes().getRegulatingTerminal().getSide());
-
+        assertEquals("idEq", resourceGenerator.getAttributes().getRegulatingPoint().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceGenerator.getAttributes().getRegulatingPoint().getRegulatingTerminal().getSide());
+        assertEquals("gen", resourceGenerator.getAttributes().getRegulatingPoint().getLocalTerminal().getConnectableId());
+        assertNull(resourceGenerator.getAttributes().getRegulatingPoint().getLocalTerminal().getSide());
+        assertFalse(resourceGenerator.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceGenerator.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
     }
 
     @Test
@@ -305,6 +325,7 @@ public class ResourceTest {
                 .targetQ(100)
                 .fictitious(false)
                 .node(1)
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
         Resource<BatteryAttributes> resourceBattery = Resource.batteryBuilder()
@@ -321,6 +342,35 @@ public class ResourceTest {
 
         assertTrue(Double.isNaN(resourceBattery.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceBattery.getAttributes().getQ()));
+        assertFalse(resourceBattery.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceBattery.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
+    }
+
+    @Test
+    public void ground() {
+        GroundAttributes groundAttributes = GroundAttributes
+                .builder()
+                .voltageLevelId("vl1")
+                .name("name")
+                .bus("bus1")
+                .p(250)
+                .q(100)
+                .fictitious(false)
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                .node(1)
+                .build();
+
+        Resource<GroundAttributes> resourceGround = Resource.groundBuilder()
+                .id("ground1")
+                .attributes(groundAttributes)
+                .build();
+
+        assertEquals(Boolean.FALSE, resourceGround.getAttributes().isFictitious());
+        assertEquals(250, resourceGround.getAttributes().getP(), 0);
+        assertEquals(100, resourceGround.getAttributes().getQ(), 0);
+        assertEquals(1, resourceGround.getAttributes().getNode(), 0);
+        assertFalse(resourceGround.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceGround.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
     }
 
     @Test
@@ -342,6 +392,13 @@ public class ResourceTest {
         assertEquals(5, nonLinearModelAttributes.getB(2), 0.1);
         assertEquals(2, nonLinearModelAttributes.getG(1), 0.1);
 
+        TerminalRefAttributes regulatingTerminal = TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build();
+        RegulatingPointAttributes regulatingPointAttributes = RegulatingPointAttributes.builder()
+            .regulatingEquipmentId("shunt")
+            .regulatingResourceType(ResourceType.SHUNT_COMPENSATOR)
+            .regulatingTerminal(regulatingTerminal)
+            .localTerminal(new TerminalRefAttributes("shunt", null))
+            .build();
         ShuntCompensatorAttributes shuntCompensatorAttributes = ShuntCompensatorAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -351,7 +408,8 @@ public class ResourceTest {
                 .q(200)
                 .model(linearModelAttributes)
                 .sectionCount(2)
-                .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
+                .regulatingPoint(regulatingPointAttributes)
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
         Resource<ShuntCompensatorAttributes> resourceShunt = Resource.shuntCompensatorBuilder()
@@ -360,20 +418,24 @@ public class ResourceTest {
                 .build();
 
         assertFalse(resourceShunt.getAttributes().isFictitious());
-        assertEquals("idEq", resourceShunt.getAttributes().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceShunt.getAttributes().getRegulatingTerminal().getSide());
+        assertEquals("idEq", resourceShunt.getAttributes().getRegulatingPoint().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceShunt.getAttributes().getRegulatingPoint().getRegulatingTerminal().getSide());
+        assertEquals("shunt", resourceShunt.getAttributes().getRegulatingPoint().getLocalTerminal().getConnectableId());
+        assertNull(resourceShunt.getAttributes().getRegulatingPoint().getLocalTerminal().getSide());
         assertEquals(100., resourceShunt.getAttributes().getP(), 0.001);
         assertEquals(200, resourceShunt.getAttributes().getQ(), 0.001);
-        assertEquals(2, resourceShunt.getAttributes().getSectionCount());
+        assertEquals((Integer) 2, resourceShunt.getAttributes().getSectionCount());
         assertEquals(ShuntCompensatorModelType.LINEAR, resourceShunt.getAttributes().getModel().getType());
         assertEquals(1, ((ShuntCompensatorLinearModelAttributes) resourceShunt.getAttributes().getModel()).getBPerSection(), 0.001);
         assertEquals(2, ((ShuntCompensatorLinearModelAttributes) resourceShunt.getAttributes().getModel()).getGPerSection(), 0.001);
         assertEquals(3, resourceShunt.getAttributes().getModel().getMaximumSectionCount(), 0.001);
+        assertFalse(resourceShunt.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceShunt.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
     }
 
     @Test
-    public void danglingLine() throws JsonProcessingException {
-        DanglingLineGenerationAttributes danglingLineGenerationAttributes = DanglingLineGenerationAttributes
+    public void boundaryLine() throws JsonProcessingException {
+        BoundaryLineGenerationAttributes boundaryLineGenerationAttributes = BoundaryLineGenerationAttributes
                 .builder()
                 .minP(100)
                 .maxP(200)
@@ -384,7 +446,7 @@ public class ResourceTest {
                 .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().minQ(10).maxQ(20).build())
                 .build();
 
-        DanglingLineAttributes danglingLineAttributes = DanglingLineAttributes
+        BoundaryLineAttributes boundaryLineAttributes = BoundaryLineAttributes
                 .builder()
                 .voltageLevelId("vl1")
                 .name("dl1")
@@ -396,48 +458,51 @@ public class ResourceTest {
                 .x(2)
                 .g(3)
                 .b(4)
-                .generation(danglingLineGenerationAttributes)
-                .ucteXnodeCode("XN1")
+                .generation(boundaryLineGenerationAttributes)
+                .pairingKey("XN1")
                 .bus("bus1")
                 .tieLineId("idTieLineParent")
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
 
-        Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder()
+        Resource<BoundaryLineAttributes> resourceBoundaryLine = Resource.boundaryLineBuilder()
                 .id("dl1")
-                .attributes(danglingLineAttributes)
+                .attributes(boundaryLineAttributes)
                 .build();
 
-        assertEquals("vl1", resourceDanglingLine.getAttributes().getVoltageLevelId());
-        assertEquals("dl1", resourceDanglingLine.getAttributes().getName());
-        assertFalse(resourceDanglingLine.getAttributes().isFictitious());
-        assertEquals(1, resourceDanglingLine.getAttributes().getNode(), 0);
-        assertEquals(1000, resourceDanglingLine.getAttributes().getP0(), 0);
-        assertEquals(2000, resourceDanglingLine.getAttributes().getQ0(), 0);
-        assertEquals(1, resourceDanglingLine.getAttributes().getR(), 0);
-        assertEquals(2, resourceDanglingLine.getAttributes().getX(), 0);
-        assertEquals(3, resourceDanglingLine.getAttributes().getG(), 0);
-        assertEquals(4, resourceDanglingLine.getAttributes().getB(), 0);
-        assertEquals(100, resourceDanglingLine.getAttributes().getGeneration().getMinP(), 0);
-        assertEquals(200, resourceDanglingLine.getAttributes().getGeneration().getMaxP(), 0);
-        assertEquals(300, resourceDanglingLine.getAttributes().getGeneration().getTargetP(), 0);
-        assertEquals(400, resourceDanglingLine.getAttributes().getGeneration().getTargetQ(), 0);
-        assertEquals(500, resourceDanglingLine.getAttributes().getGeneration().getTargetV(), 0);
-        assertTrue(resourceDanglingLine.getAttributes().getGeneration().isVoltageRegulationOn());
-        assertEquals(ReactiveLimitsKind.MIN_MAX, resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits().getKind());
-        assertEquals(10, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMinQ(), 0);
-        assertEquals(20, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMaxQ(), 0);
-        assertEquals("XN1", resourceDanglingLine.getAttributes().getUcteXnodeCode());
-        assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
-        assertEquals("idTieLineParent", resourceDanglingLine.getAttributes().getTieLineId());
+        assertEquals("vl1", resourceBoundaryLine.getAttributes().getVoltageLevelId());
+        assertEquals("dl1", resourceBoundaryLine.getAttributes().getName());
+        assertFalse(resourceBoundaryLine.getAttributes().isFictitious());
+        assertEquals(1, resourceBoundaryLine.getAttributes().getNode(), 0);
+        assertEquals(1000, resourceBoundaryLine.getAttributes().getP0(), 0);
+        assertEquals(2000, resourceBoundaryLine.getAttributes().getQ0(), 0);
+        assertEquals(1, resourceBoundaryLine.getAttributes().getR(), 0);
+        assertEquals(2, resourceBoundaryLine.getAttributes().getX(), 0);
+        assertEquals(3, resourceBoundaryLine.getAttributes().getG(), 0);
+        assertEquals(4, resourceBoundaryLine.getAttributes().getB(), 0);
+        assertEquals(100, resourceBoundaryLine.getAttributes().getGeneration().getMinP(), 0);
+        assertEquals(200, resourceBoundaryLine.getAttributes().getGeneration().getMaxP(), 0);
+        assertEquals(300, resourceBoundaryLine.getAttributes().getGeneration().getTargetP(), 0);
+        assertEquals(400, resourceBoundaryLine.getAttributes().getGeneration().getTargetQ(), 0);
+        assertEquals(500, resourceBoundaryLine.getAttributes().getGeneration().getTargetV(), 0);
+        assertTrue(resourceBoundaryLine.getAttributes().getGeneration().isVoltageRegulationOn());
+        assertEquals(ReactiveLimitsKind.MIN_MAX, resourceBoundaryLine.getAttributes().getGeneration().getReactiveLimits().getKind());
+        assertEquals(10, ((MinMaxReactiveLimitsAttributes) resourceBoundaryLine.getAttributes().getGeneration().getReactiveLimits()).getMinQ(), 0);
+        assertEquals(20, ((MinMaxReactiveLimitsAttributes) resourceBoundaryLine.getAttributes().getGeneration().getReactiveLimits()).getMaxQ(), 0);
+        assertEquals("XN1", resourceBoundaryLine.getAttributes().getPairingKey());
+        assertEquals("bus1", resourceBoundaryLine.getAttributes().getBus());
+        assertEquals("idTieLineParent", resourceBoundaryLine.getAttributes().getTieLineId());
 
-        assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
-        assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
+        assertTrue(Double.isNaN(resourceBoundaryLine.getAttributes().getP()));
+        assertTrue(Double.isNaN(resourceBoundaryLine.getAttributes().getQ()));
+        assertFalse(resourceBoundaryLine.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceBoundaryLine.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
 
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JodaModule());
-        String json = objectMapper.writeValueAsString(resourceDanglingLine);
+        objectMapper.registerModule(new JavaTimeModule());
+        String json = objectMapper.writeValueAsString(resourceBoundaryLine);
 
-        Resource<DanglingLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<DanglingLineAttributes>>() { });
+        Resource<BoundaryLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<BoundaryLineAttributes>>() { });
         assertNotNull(resource2);
     }
 
@@ -447,8 +512,8 @@ public class ResourceTest {
                 .builder()
                 .name("tieLine1")
                 .fictitious(false)
-                .danglingLine1Id("half1")
-                .danglingLine2Id("half2")
+                .boundaryLine1Id("half1")
+                .boundaryLine2Id("half2")
                 .build();
 
         Resource<TieLineAttributes> resourceTieLine = Resource.tieLineBuilder()
@@ -457,7 +522,7 @@ public class ResourceTest {
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JodaModule());
+        objectMapper.registerModule(new JavaTimeModule());
         String json = objectMapper.writeValueAsString(resourceTieLine);
 
         Resource<TieLineAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<TieLineAttributes>>() { });
@@ -465,30 +530,20 @@ public class ResourceTest {
     }
 
     @Test
-    public void toSvTest() {
-        LoadAttributes attributes = LoadAttributes.builder()
+    public void busBarSection() {
+        Resource<BusbarSectionAttributes> resourceTransformer = Resource.busbarSectionBuilder()
+            .id("idBbs")
+            .attributes(BusbarSectionAttributes.builder()
                 .voltageLevelId("vl1")
-                .name("name")
-                .bus("bus1")
-                .fictitious(false)
-                .node(1)
-                .p(10d)
-                .q(20.4)
-                .build();
+                .name("bbs")
+                .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
+                .build())
+            .build();
 
-        Resource<LoadAttributes> resource = Resource.loadBuilder()
-                .id("load1")
-                .attributes(attributes)
-                .build();
-        assertNull(resource.getFilter());
-
-        Resource<Attributes> svResource = resource.filterAttributes(AttributeFilter.SV);
-        assertEquals(ResourceType.LOAD, svResource.getType());
-        assertEquals("load1", svResource.getId());
-        assertEquals(0, svResource.getVariantNum());
-        assertSame(AttributeFilter.SV, svResource.getFilter());
-        assertTrue(svResource.getAttributes() instanceof InjectionSvAttributes);
-        assertEquals(10d, ((InjectionSvAttributes) svResource.getAttributes()).getP(), 0);
-        assertEquals(20.4d, ((InjectionSvAttributes) svResource.getAttributes()).getQ(), 0);
+        assertEquals("idBbs", resourceTransformer.getId());
+        assertEquals("vl1", resourceTransformer.getAttributes().getVoltageLevelId());
+        assertEquals("bbs", resourceTransformer.getAttributes().getName());
+        assertFalse(resourceTransformer.getAttributes().getRegulatingEquipments().isEmpty());
+        assertTrue(resourceTransformer.getAttributes().getRegulatingEquipments().contains(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)));
     }
 }

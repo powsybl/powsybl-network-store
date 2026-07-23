@@ -52,8 +52,8 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
         String id = checkAndGetUniqueId();
         checkNodeBus();
         ValidationUtil.checkLoadType(this, loadType);
-        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkP0(this, p0, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkQ0(this, q0, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
 
         Resource<LoadAttributes> resource = Resource.loadBuilder()
                 .id(id)
@@ -83,7 +83,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
     @Override
     public ZipLoadModelAdder newZipModel() {
         //FIXME Dummy zip load model adder
-        return new ZipLoadModelAdder() {
+        class ZipLoadModelAdderImpl extends AbstractBasePropertiesHolder implements ZipLoadModelAdder {
             @Override
             public ZipLoadModelAdder setC0p(double v) {
                 return this;
@@ -118,13 +118,15 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
             public LoadAdder add() {
                 return null;
             }
-        };
+        }
+
+        return new ZipLoadModelAdderImpl();
     }
 
     @Override
     public ExponentialLoadModelAdder newExponentialModel() {
         //FIXME Dummy exponential load model adder
-        return new ExponentialLoadModelAdder() {
+        class ExponentialModelAdderImpl extends AbstractBasePropertiesHolder implements ExponentialLoadModelAdder {
             @Override
             public ExponentialLoadModelAdder setNp(double v) {
                 return this;
@@ -139,6 +141,8 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
             public LoadAdder add() {
                 return null;
             }
-        };
+        }
+
+        return new ExponentialModelAdderImpl();
     }
 }

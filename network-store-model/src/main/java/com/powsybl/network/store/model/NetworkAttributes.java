@@ -6,11 +6,15 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.powsybl.iidm.network.Bus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.joda.time.DateTime;
+import lombok.experimental.SuperBuilder;
 
-import java.util.*;
+import java.time.ZonedDateTime;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -19,9 +23,11 @@ import java.util.*;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Network attributes")
-public class NetworkAttributes extends AbstractAttributes implements IdentifiableAttributes {
+public class NetworkAttributes extends AbstractIdentifiableAttributes {
+
+    private static final int FULL_VARIANT_INDICATOR = -1;
 
     @Schema(description = "Network UUID", required = true)
     private UUID uuid;
@@ -29,28 +35,16 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @Schema(description = "Variant ID")
     private String variantId;
 
-    @Schema(description = "Network name")
-    private String name;
-
+    @Schema(description = "Full variant number")
     @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
+    private int fullVariantNum = FULL_VARIANT_INDICATOR;
 
     @Schema(description = "Id by alias")
     private Map<String, String> idByAlias;
 
     @Schema(description = "Network date", required = true)
     @Builder.Default
-    private DateTime caseDate = new DateTime();
+    private ZonedDateTime caseDate = ZonedDateTime.now();
 
     @Schema(description = "Forecast distance")
     @Builder.Default
@@ -67,19 +61,21 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @Schema(description = "Synchronous components validity")
     private boolean synchronousComponentsValid = false;
 
-    @Schema(description = "CGMES SV metadata")
-    private CgmesSvMetadataAttributes cgmesSvMetadata;
-
-    @Schema(description = "CGMES SSH metadata")
-    private CgmesSshMetadataAttributes cgmesSshMetadata;
-
     @Schema(description = "CIM characteristics")
     private CimCharacteristicsAttributes cimCharacteristics;
-
-    @Schema(description = "CGMES control areas")
-    private CgmesControlAreasAttributes cgmesControlAreas;
 
     @Schema(description = "Base voltage mapping")
     private BaseVoltageMappingAttributes baseVoltageMapping;
 
+    @JsonIgnore
+    private Map<String, Bus> busCache;
+
+    @JsonIgnore
+    public boolean isFullVariant() {
+        return fullVariantNum == FULL_VARIANT_INDICATOR;
+    }
+
+    public static boolean isFullVariant(int fullVariantNum) {
+        return fullVariantNum == FULL_VARIANT_INDICATOR;
+    }
 }

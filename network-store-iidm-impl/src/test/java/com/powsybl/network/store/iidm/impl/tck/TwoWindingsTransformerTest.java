@@ -12,8 +12,4 @@ import com.powsybl.iidm.network.tck.AbstractTwoWindingsTransformerTest;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class TwoWindingsTransformerTest extends AbstractTwoWindingsTransformerTest {
-    @Override
-    public void baseTests() {
-        // FIXME
-    }
 }

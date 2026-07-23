@@ -6,60 +6,19 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.BusbarSectionAttributes;
+import com.powsybl.network.store.model.ConnectablePositionAttributes;
+import com.powsybl.network.store.model.RegulatingEquipmentIdentifier;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
-
-    private final BusbarSectionAttributes attributes;
+public class BusbarSectionToInjectionAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<BusbarSectionAttributes> {
 
     public BusbarSectionToInjectionAdapter(BusbarSectionAttributes attributes) {
-        this.attributes = attributes;
-    }
-
-    @Override
-    public Resource getResource() {
-        return attributes.getResource();
-    }
-
-    @Override
-    public void setResource(Resource resource) {
-        attributes.setResource(resource);
-    }
-
-    @Override
-    public String getName() {
-        return attributes.getName();
-    }
-
-    @Override
-    public void setName(String name) {
-        attributes.setName(name);
-    }
-
-    @Override
-    public boolean isFictitious() {
-        return attributes.isFictitious();
-    }
-
-    @Override
-    public void setFictitious(boolean fictitious) {
-        attributes.setFictitious(fictitious);
-    }
-
-    @Override
-    public Map<String, String> getProperties() {
-        return attributes.getProperties();
-    }
-
-    @Override
-    public void setProperties(Map<String, String> properties) {
-        attributes.setProperties(properties);
+        super(attributes);
     }
 
     @Override
@@ -104,7 +63,7 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
 
     @Override
     public double getP() {
-        throw new AssertionError();
+        return 0;
     }
 
     @Override
@@ -114,7 +73,7 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
 
     @Override
     public double getQ() {
-        throw new AssertionError();
+        return 0;
     }
 
     @Override
@@ -133,32 +92,12 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     }
 
     @Override
-    public ActivePowerControlAttributes getActivePowerControl() {
-        return null;
+    public Set<RegulatingEquipmentIdentifier> getRegulatingEquipments() {
+        return attributes.getRegulatingEquipments();
     }
 
     @Override
-    public void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
-        //empty on purpose, it cannot have an activePowerControl
-    }
-
-    @Override
-    public Set<String> getAliasesWithoutType() {
-        return attributes.getAliasesWithoutType();
-    }
-
-    @Override
-    public void setAliasesWithoutType(Set<String> aliasesWothoutType) {
-        attributes.setAliasesWithoutType(aliasesWothoutType);
-    }
-
-    @Override
-    public Map<String, String> getAliasByType() {
-        return attributes.getAliasByType();
-    }
-
-    @Override
-    public void setAliasByType(Map<String, String> aliasByType) {
-        attributes.setAliasByType(aliasByType);
+    public void setRegulatingEquipments(Set<RegulatingEquipmentIdentifier> regulatingEquipments) {
+        attributes.setRegulatingEquipments(regulatingEquipments);
     }
 }

@@ -9,7 +9,9 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.network.store.iidm.impl.extensions.ConnectablePositionImpl;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -21,7 +23,7 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractIdentifiableImpl<I, D> implements Injection<I> {
+public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractConnectableImpl<I, D> implements Injection<I> {
 
     protected final TerminalImpl<D> terminal;
 
@@ -67,7 +69,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
     @Override
     public <E extends Extension<I>> E getExtensionByName(String name) {
         E extension;
-        if (name.equals("position")) {
+        if ("position".equals(name)) {
             extension = createConnectablePositionExtension();
         } else {
             extension = super.getExtensionByName(name);
@@ -83,5 +85,10 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
             extensions.add(extension);
         }
         return extensions;
+    }
+
+    @Override
+    public List<Terminal> getTerminals(ThreeSides side) {
+        return (side == null || side.equals(ThreeSides.ONE)) ? Collections.singletonList(terminal) : Collections.emptyList();
     }
 }

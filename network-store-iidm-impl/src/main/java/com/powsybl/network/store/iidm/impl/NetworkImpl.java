@@ -6,25 +6,27 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
-import com.powsybl.cgmes.extensions.*;
+import com.powsybl.cgmes.extensions.BaseVoltageMapping;
+import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.cgmes.extensions.BaseVoltageMapping;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
-import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
-import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
-import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
-import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
+import com.powsybl.network.store.model.CimCharacteristicsAttributes;
+import com.powsybl.network.store.model.NetworkAttributes;
+import com.powsybl.network.store.model.Resource;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
-import org.joda.time.DateTime;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -43,10 +45,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private final BusView busView = new BusViewImpl();
 
+    private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+
     private final List<NetworkListener> listeners = new ArrayList<>();
+
+    private AbstractReportNodeContext reporterContext;
 
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
+        this.reporterContext = new SimpleReportNodeContext();
         index.setNetwork(this);
     }
 
@@ -67,11 +74,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public void addAlias(String alias, String id) {
-        updateResource(res -> getIdByAlias(res).put(alias, id));
+        var oldValue = alias + ":" + (getResource().getAttributes().getIdByAlias() != null ? getResource().getAttributes().getIdByAlias().get(alias) : null);
+        updateResource(res -> getIdByAlias(res).put(alias, id),
+            "alias", oldValue, alias + ":" + id);
     }
 
     public void removeAlias(String alias) {
-        updateResource(res -> getIdByAlias(res).remove(alias));
+        var oldValue = alias + ":" + (getResource().getAttributes().getIdByAlias() != null ? getResource().getAttributes().getIdByAlias().get(alias) : null);
+        updateResource(res -> getIdByAlias(res).remove(alias),
+            "alias", oldValue, null);
     }
 
     public boolean checkAliasUnicity(AbstractIdentifiableImpl<?, ?> obj, String alias) {
@@ -110,6 +121,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
 
         @Override
+        public int getBusCount() {
+            return (int) getBusStream().count();
+        }
+
+        @Override
         public Iterable<Switch> getSwitches() {
             return getSwitchStream().collect(Collectors.toList());
         }
@@ -135,7 +151,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     class BusViewImpl implements Network.BusView {
-
         @Override
         public Iterable<Bus> getBuses() {
             return getBusStream().collect(Collectors.toList());
@@ -146,9 +161,21 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
         }
 
+        private Map<String, Bus> getIdToBusMap() {
+            return getBusStream().collect(ImmutableMap.toImmutableMap(Bus::getId, Functions.identity()));
+        }
+
         @Override
         public Bus getBus(String id) {
-            return getBusStream().filter(b -> b.getId().equals(id)).findFirst().orElse(null);
+            // checking cached data first
+            Map<String, Bus> cachesBuses = getResource().getAttributes().getBusCache();
+            if (cachesBuses != null) {
+                return cachesBuses.get(id);
+            }
+            // if cache not existing, creating it
+            Map<String, Bus> idToBusMap = getIdToBusMap();
+            getResource().getAttributes().setBusCache(idToBusMap);
+            return idToBusMap.get(id);
         }
 
         @Override
@@ -164,6 +191,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
     }
 
+    @Override
     public NetworkObjectIndex getIndex() {
         return index;
     }
@@ -183,14 +211,16 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public DateTime getCaseDate() {
+    public ZonedDateTime getCaseDate() {
         return getResource().getAttributes().getCaseDate();
     }
 
     @Override
-    public Network setCaseDate(DateTime date) {
+    public Network setCaseDate(ZonedDateTime date) {
         ValidationUtil.checkCaseDate(this, date);
-        updateResource(res -> res.getAttributes().setCaseDate(date));
+        ZonedDateTime oldValue = getCaseDate();
+        updateResource(res -> res.getAttributes().setCaseDate(date),
+            "caseDate", oldValue, date);
         return this;
     }
 
@@ -202,7 +232,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public Network setForecastDistance(int forecastDistance) {
         ValidationUtil.checkForecastDistance(this, forecastDistance);
-        updateResource(res -> res.getAttributes().setForecastDistance(forecastDistance));
+        int oldValue = getForecastDistance();
+        updateResource(res -> res.getAttributes().setForecastDistance(forecastDistance),
+            "forecastDistance", oldValue, forecastDistance);
         return this;
     }
 
@@ -214,6 +246,16 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public VariantManagerImpl getVariantManager() {
         return new VariantManagerImpl(index);
+    }
+
+    @Override
+    public void allowReportNodeContextMultiThreadAccess(boolean allow) {
+        this.reporterContext = Networks.allowReportNodeContextMultiThreadAccess(this.reporterContext, allow);
+    }
+
+    @Override
+    public ReportNodeContext getReportNodeContext() {
+        return this.reporterContext;
     }
 
     // country
@@ -393,33 +435,33 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public List<DanglingLine> getDanglingLines() {
-        return index.getDanglingLines();
+    public List<BoundaryLine> getBoundaryLines() {
+        return index.getBoundaryLines();
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return index.getDanglingLines().stream().filter(danglingLineFilter.getPredicate());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return index.getBoundaryLines().stream().filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return index.getDanglingLines().stream();
+    public Stream<BoundaryLine> getBoundaryLineStream() {
+        return index.getBoundaryLines().stream();
     }
 
     @Override
-    public int getDanglingLineCount() {
-        return index.getDanglingLines().size();
+    public int getBoundaryLineCount() {
+        return index.getBoundaryLines().size();
     }
 
     @Override
-    public DanglingLine getDanglingLine(String id) {
-        return index.getDanglingLine(getIdFromAlias(id)).orElse(null);
+    public BoundaryLine getBoundaryLine(String id) {
+        return index.getBoundaryLine(getIdFromAlias(id)).orElse(null);
     }
 
     @Override
@@ -581,6 +623,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return new LineAdderImpl(index);
     }
 
+    @Override
+    public LineAdder newLine(Line line) {
+        return new LineAdderImpl(index, line);
+    }
+
     // 2 windings transformer
 
     @Override
@@ -721,16 +768,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        return new TwoWindingsTransformerAdderImpl(index, null);
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return new ThreeWindingsTransformerAdderImpl(index, null);
-    }
-
-    @Override
     public BusBreakerView getBusBreakerView() {
         return busBreakerView;
     }
@@ -741,12 +778,55 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public void merge(Network other) {
+    public VoltageAngleLimitAdder newVoltageAngleLimit() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    //TODO implement
+    @Override
+    public Iterable<VoltageAngleLimit> getVoltageAngleLimits() {
+        return new ArrayList<>();
+    }
+
+    //TODO implement
+    @Override
+    public Stream<VoltageAngleLimit> getVoltageAngleLimitsStream() {
+        return Stream.empty();
+    }
+
+    //TODO implement
+    @Override
+    public VoltageAngleLimit getVoltageAngleLimit(String s) {
+        return null;
+    }
+
+    @Override
+    public Network createSubnetwork(String s, String s1, String s2) {
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
-    public void merge(Network... others) {
+    public Network detach() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public boolean isDetachable() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public Set<Identifiable<?>> getBoundaryElements() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public boolean isBoundaryElement(Identifiable<?> identifiable) {
+        return false;
+    }
+
+    @Override
+    public void flatten() {
         throw new UnsupportedOperationException("TODO");
     }
 
@@ -849,19 +929,19 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                 bus.visitConnectedEquipments(new DefaultTopologyVisitor() {
 
                     @Override
-                    public void visitLine(Line line, Branch.Side side) {
+                    public void visitLine(Line line, TwoSides side) {
                         graph.addVertex(line);
                         graph.addEdge(bus, line, new Object());
                     }
 
                     @Override
-                    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
                         graph.addVertex(transformer);
                         graph.addEdge(bus, transformer, new Object());
                     }
 
                     @Override
-                    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
                         graph.addVertex(transformer);
                         graph.addEdge(bus, transformer, new Object());
                     }
@@ -875,9 +955,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                     }
 
                     @Override
-                    public void visitDanglingLine(DanglingLine danglingLine) {
-                        if (danglingLine.isPaired()) {
-                            TieLine tieLine = danglingLine.getTieLine().orElseThrow();
+                    public void visitBoundaryLine(BoundaryLine boundaryLine) {
+                        if (boundaryLine.isPaired()) {
+                            TieLine tieLine = boundaryLine.getTieLine().orElseThrow();
                             graph.addVertex(tieLine);
                             graph.addEdge(bus, tieLine, new Object());
                         }
@@ -920,7 +1000,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         var resource = getResource();
         if (!resource.getAttributes().isConnectedComponentsValid()) {
             update(ComponentType.CONNECTED, isBusView);
-            updateResource(res -> res.getAttributes().setConnectedComponentsValid(true));
+            updateResourceWithoutNotification(res -> res.getAttributes().setConnectedComponentsValid(true));
         }
     }
 
@@ -928,33 +1008,24 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         var resource = getResource();
         if (!resource.getAttributes().isSynchronousComponentsValid()) {
             update(ComponentType.SYNCHRONOUS, isBusView);
-            updateResource(res -> res.getAttributes().setSynchronousComponentsValid(true));
+            updateResourceWithoutNotification(res -> res.getAttributes().setSynchronousComponentsValid(true));
         }
     }
 
     void invalidateComponents() {
-        updateResource(res -> {
-            res.getAttributes().setConnectedComponentsValid(false);
-            res.getAttributes().setSynchronousComponentsValid(false);
-        });
+        updateResourceWithoutNotification(res -> res.getAttributes().setConnectedComponentsValid(false));
+        updateResourceWithoutNotification(res -> res.getAttributes().setSynchronousComponentsValid(false));
+    }
+
+    void invalidateCalculatedBuses() {
+        invalidateComponents();
+        getResource().getAttributes().setBusCache(null);
     }
 
     @Override
     public <E extends Extension<Network>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
-        E extension = createCgmesSvMetadata();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createCgmesSshMetadata();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createCimCharacteristics();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createCgmesControlAreas();
+        E extension = createCimCharacteristics();
         if (extension != null) {
             extensions.add(extension);
         }
@@ -963,17 +1034,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <E extends Extension<Network>> E getExtension(Class<? super E> type) {
-        if (type == CgmesSvMetadata.class) {
-            return createCgmesSvMetadata();
-        }
-        if (type == CgmesSshMetadata.class) {
-            return createCgmesSshMetadata();
-        }
         if (type == CimCharacteristics.class) {
             return createCimCharacteristics();
-        }
-        if (type == CgmesControlAreas.class) {
-            return createCgmesControlAreas();
         }
         if (type == BaseVoltageMapping.class) {
             return createBaseVoltageMapping();
@@ -983,42 +1045,13 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <E extends Extension<Network>> E getExtensionByName(String name) {
-        if (name.equals("cgmesSvMetadata")) {
-            return createCgmesSvMetadata();
-        }
-        if (name.equals("cgmesSshMetadata")) {
-            return createCgmesSshMetadata();
-        }
-        if (name.equals("cimCharacteristics")) {
+        if ("cimCharacteristics".equals(name)) {
             return createCimCharacteristics();
         }
-        if (name.equals("cgmesControlAreas")) {
-            return createCgmesControlAreas();
-        }
-        if (name.equals("baseVoltageMapping")) {
+        if ("baseVoltageMapping".equals(name)) {
             return createBaseVoltageMapping();
         }
         return super.getExtensionByName(name);
-    }
-
-    private <E extends Extension<Network>> E createCgmesSvMetadata() {
-        E extension = null;
-        var resource = getResource();
-        CgmesSvMetadataAttributes attributes = resource.getAttributes().getCgmesSvMetadata();
-        if (attributes != null) {
-            extension = (E) new CgmesSvMetadataImpl(this);
-        }
-        return extension;
-    }
-
-    private <E extends Extension<Network>> E createCgmesSshMetadata() {
-        E extension = null;
-        var resource = getResource();
-        CgmesSshMetadataAttributes attributes = resource.getAttributes().getCgmesSshMetadata();
-        if (attributes != null) {
-            extension = (E) new CgmesSshMetadataImpl(this);
-        }
-        return extension;
     }
 
     private <E extends Extension<Network>> E createCimCharacteristics() {
@@ -1031,16 +1064,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return extension;
     }
 
-    private <E extends Extension<Network>> E createCgmesControlAreas() {
-        E extension = null;
-        var resource = getResource();
-        CgmesControlAreasAttributes attributes = resource.getAttributes().getCgmesControlAreas();
-        if (attributes != null) {
-            extension = (E) new CgmesControlAreasImpl(this);
-        }
-        return extension;
-    }
-
     private <E extends Extension<Network>> E createBaseVoltageMapping() {
         E extension = null;
         var resource = getResource();
@@ -1049,5 +1072,323 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             extension = (E) new BaseVoltageMappingImpl(this);
         }
         return extension;
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        // FIXME: implement
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        // FIXME: implement
+        return Stream.empty();
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        // FIXME: implement
+        return 0;
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        // FIXME: implement
+        return null;
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return index.getGrounds();
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return index.getGrounds().stream();
+    }
+
+    @Override
+    public int getGroundCount() {
+        return index.getGrounds().size();
+    }
+
+    @Override
+    public Ground getGround(String id) {
+        return index.getGround(getIdFromAlias(id)).orElse(null);
+    }
+
+    @Override
+    public Iterable<String> getAreaTypes() {
+        return getAreaTypeStream().toList();
+    }
+
+    @Override
+    public Stream<String> getAreaTypeStream() {
+        return getAreaStream().map(Area::getAreaType).distinct();
+    }
+
+    @Override
+    public int getAreaTypeCount() {
+        return (int) getAreaTypeStream().count();
+    }
+
+    @Override
+    public AreaAdder newArea() {
+        return new AreaAdderImpl(index);
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        return getAreaStream().toList();
+    }
+
+    @Override
+    public Stream<Area> getAreaStream() {
+        return index.getAreas().stream();
+    }
+
+    @Override
+    public Network setMinimumAcceptableValidationLevel(ValidationLevel minLevel) {
+        // TODO implement this to comply with the test in AbstractNetworkTest testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork()
+        Objects.requireNonNull(minLevel);
+        ValidationLevel currentLevel = getValidationLevel();
+        if (currentLevel.compareTo(minLevel) < 0) {
+            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + minLevel);
+        }
+        this.minValidationLevel = minLevel;
+        return this;
+    }
+
+    ValidationLevel getMinValidationLevel() {
+        return minValidationLevel;
+    }
+
+    @Override
+    public Area getArea(String id) {
+        return index.getArea(getIdFromAlias(id)).orElse(null);
+    }
+
+    @Override
+    public int getAreaCount() {
+        return getAreaStream().toList().size();
+    }
+
+    // DC modelling
+    // These methods will allow for more detailed modeling of HVDCs.
+    //  This is a long-term work on the powsybl side.
+    //  It is too early to implement it on the network-store side and the need remains to be verified.
+    @Override
+    public DcNodeAdder newDcNode() {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public Iterable<DcNode> getDcNodes() {
+        // FIXME: if needed implement detailed dc model
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L398
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<DcNode> getDcNodeStream() {
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
+    }
+
+    @Override
+    public int getDcNodeCount() {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public DcNode getDcNode(String s) {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public DcLineAdder newDcLine() {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public Iterable<DcLine> getDcLines() {
+        // FIXME: if needed implement detailed dc model
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L422
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<DcLine> getDcLineStream() {
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
+    }
+
+    @Override
+    public int getDcLineCount() {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public DcLine getDcLine(String s) {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public DcSwitchAdder newDcSwitch() {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public Iterable<DcSwitch> getDcSwitches() {
+        // FIXME: if needed implement detailed dc model
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L434
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<DcSwitch> getDcSwitchStream() {
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
+    }
+
+    @Override
+    public int getDcSwitchCount() {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public DcSwitch getDcSwitch(String s) {
+        // FIXME: if needed implement detailed dc model
+        return null;
+    }
+
+    @Override
+    public DcGroundAdder newDcGround() {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public Iterable<DcGround> getDcGrounds() {
+        // FIXME: if needed implement detailed dc model
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/NetworkSerDe.java#L410
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<DcGround> getDcGroundStream() {
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
+    }
+
+    @Override
+    public int getDcGroundCount() {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public DcGround getDcGround(String s) {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        // FIXME: if needed implement detailed dc model
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public LineCommutatedConverter getLineCommutatedConverter(String s) {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        // FIXME: if needed implement detailed dc model
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public VoltageSourceConverter getVoltageSourceConverter(String s) {
+        throw new PowsyblException("Detailed DC network not implemented");
+    }
+
+    @Override
+    public DcBus getDcBus(String id) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public Iterable<DcBus> getDcBuses() {
+        // FIXME: if needed implement detailed dc model
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        // FIXME: if needed implement detailed dc model
+        return Stream.empty();
+    }
+
+    @Override
+    public int getDcBusCount() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public Collection<Component> getDcComponents() {
+        // FIXME: if needed implement detailed dc model
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Iterable<DcConnectable> getDcConnectables() {
+        // FIXME: if needed implement detailed dc model
+        // needed for cgmes export in https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/export/CgmesExportContext.java#L362
+        return Collections.emptyList();
+    }
+
+    @Override
+    public <E extends Extension<Network>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type == BaseVoltageMapping.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getBaseVoltageMapping() != null) {
+                resource.getAttributes().setBaseVoltageMapping(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == CimCharacteristics.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getCimCharacteristics() != null) {
+                resource.getAttributes().setCimCharacteristics(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

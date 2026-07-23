@@ -14,21 +14,21 @@ import com.powsybl.iidm.network.tck.AbstractMultiVariantNetworkTest;
 public class MultiVariantNetworkTest extends AbstractMultiVariantNetworkTest {
     @Override
     public void multiThreadTest() throws InterruptedException {
-        // FIXME
+        // FIXME delete this test when multi-thread access is supported
     }
 
     @Override
     public void multiVariantTopologyTest() {
-        // FIXME
+        // FIXME delete this test when multi-thread access is supported
     }
 
     @Override
     public void variantNotSetTest() throws InterruptedException {
-        // FIXME
+        // FIXME delete this test when multi-thread access is supported
     }
 
     @Override
     public void variantSetTest() throws InterruptedException {
-        // FIXME
+        // FIXME delete this test when multi-thread access is supported
     }
 }

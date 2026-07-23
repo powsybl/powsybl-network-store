@@ -53,8 +53,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     void invalidateCalculatedBuses() {
-        updateResource(res -> res.getAttributes().setCalculatedBusesValid(false));
-        getNetwork().invalidateComponents();
+        updateResourceWithoutNotification(res -> res.getAttributes().setCalculatedBusesValid(false));
+        getNetwork().invalidateCalculatedBuses();
     }
 
     @Override
@@ -63,7 +63,18 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
+    public NetworkImpl getNetwork() {
+        if (getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access network of removed voltage level " + getId());
+        }
+        return super.getNetwork();
+    }
+
+    @Override
     public Optional<Substation> getSubstation() {
+        if (getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access substation of removed voltage level " + getId());
+        }
         String substationId = getResource().getAttributes().getSubstationId();
         return substationId == null ? Optional.empty() : index.getSubstation(substationId).map(Function.identity());
     }
@@ -79,8 +90,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = resource.getAttributes().getNominalV();
         if (nominalV != oldValue) {
-            updateResource(res -> res.getAttributes().setNominalV(nominalV));
-            index.notifyUpdate(this, "nominalV", oldValue, nominalV);
+            updateResource(res -> res.getAttributes().setNominalV(nominalV),
+                "nominalV", oldValue, nominalV);
         }
         return this;
     }
@@ -96,8 +107,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, getHighVoltageLimit());
         double oldValue = resource.getAttributes().getLowVoltageLimit();
         if (lowVoltageLimit != oldValue) {
-            updateResource(res -> res.getAttributes().setLowVoltageLimit(lowVoltageLimit));
-            index.notifyUpdate(this, "lowVoltageLimit", oldValue, lowVoltageLimit);
+            updateResource(res -> res.getAttributes().setLowVoltageLimit(lowVoltageLimit),
+                "lowVoltageLimit", oldValue, lowVoltageLimit);
         }
         return this;
     }
@@ -113,8 +124,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkVoltageLimits(this, getLowVoltageLimit(), highVoltageLimit);
         double oldValue = resource.getAttributes().getHighVoltageLimit();
         if (highVoltageLimit != oldValue) {
-            updateResource(res -> res.getAttributes().setHighVoltageLimit(highVoltageLimit));
-            index.notifyUpdate(this, "highVoltageLimit", oldValue, highVoltageLimit);
+            updateResource(res -> res.getAttributes().setHighVoltageLimit(highVoltageLimit),
+                "highVoltageLimit", oldValue, highVoltageLimit);
         }
         return this;
     }
@@ -255,33 +266,33 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
-    public DanglingLineAdder newDanglingLine() {
-        return new DanglingLineAdderImpl(getResource(), index);
+    public BoundaryLineAdder newBoundaryLine() {
+        return new BoundaryLineAdderImpl(getResource(), index);
     }
 
     @Override
-    public List<DanglingLine> getDanglingLines() {
-        return index.getDanglingLines(getResource().getId());
+    public List<BoundaryLine> getBoundaryLines() {
+        return index.getBoundaryLines(getResource().getId());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getDanglingLines().stream();
+    public Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLines().stream();
     }
 
     @Override
-    public int getDanglingLineCount() {
-        return getDanglingLines().size();
+    public int getBoundaryLineCount() {
+        return getBoundaryLines().size();
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getConnectableStream(BoundaryLine.class).filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
@@ -405,8 +416,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         connectables.addAll(getStaticVarCompensators());
         connectables.addAll(index.getTwoWindingsTransformers(resource.getId()));
         connectables.addAll(index.getThreeWindingsTransformers(resource.getId()));
-        connectables.addAll(getDanglingLines());
+        connectables.addAll(getBoundaryLines());
         connectables.addAll(index.getLines(resource.getId()));
+        connectables.addAll(index.getGrounds(resource.getId()));
         return connectables;
     }
 
@@ -447,8 +459,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             return (List<T>) index.getTwoWindingsTransformers(resource.getId());
         } else if (clazz == ThreeWindingsTransformer.class) {
             return (List<T>) index.getThreeWindingsTransformers(resource.getId());
-        } else if (clazz == DanglingLine.class) {
-            return (List<T>) getDanglingLines();
+        } else if (clazz == BoundaryLine.class) {
+            return (List<T>) getBoundaryLines();
         } else if (clazz == Line.class) {
             return (List<T>) index.getLines(resource.getId());
         } else if (clazz == BusbarSection.class) {
@@ -457,6 +469,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             } else {
                 throw new PowsyblException("No BusbarSection in a bus breaker topology");
             }
+        } else if (clazz == Ground.class) {
+            return (List<T>) getGrounds();
         }
         throw new UnsupportedOperationException("TODO");
     }
@@ -506,34 +520,37 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             visitor.visitHvdcConverterStation(station);
         }
         for (TwoWindingsTransformer twt : index.getTwoWindingsTransformers(resource.getId())) {
-            if (twt.getTerminal(Branch.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitTwoWindingsTransformer(twt, Branch.Side.ONE);
+            if (twt.getTerminal(TwoSides.ONE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitTwoWindingsTransformer(twt, TwoSides.ONE);
             }
-            if (twt.getTerminal(Branch.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitTwoWindingsTransformer(twt, Branch.Side.TWO);
+            if (twt.getTerminal(TwoSides.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitTwoWindingsTransformer(twt, TwoSides.TWO);
             }
         }
         for (ThreeWindingsTransformer twt : index.getThreeWindingsTransformers(resource.getId())) {
-            if (twt.getTerminal(ThreeWindingsTransformer.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitThreeWindingsTransformer(twt, ThreeWindingsTransformer.Side.ONE);
+            if (twt.getTerminal(ThreeSides.ONE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitThreeWindingsTransformer(twt, ThreeSides.ONE);
             }
-            if (twt.getTerminal(ThreeWindingsTransformer.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitThreeWindingsTransformer(twt, ThreeWindingsTransformer.Side.TWO);
+            if (twt.getTerminal(ThreeSides.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitThreeWindingsTransformer(twt, ThreeSides.TWO);
             }
-            if (twt.getTerminal(ThreeWindingsTransformer.Side.THREE).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitThreeWindingsTransformer(twt, ThreeWindingsTransformer.Side.THREE);
+            if (twt.getTerminal(ThreeSides.THREE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitThreeWindingsTransformer(twt, ThreeSides.THREE);
             }
         }
         for (Line line : index.getLines(resource.getId())) {
-            if (line.getTerminal(Branch.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitLine(line, Branch.Side.ONE);
+            if (line.getTerminal(TwoSides.ONE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitLine(line, TwoSides.ONE);
             }
-            if (line.getTerminal(Branch.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
-                visitor.visitLine(line, Branch.Side.TWO);
+            if (line.getTerminal(TwoSides.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitLine(line, TwoSides.TWO);
             }
         }
-        for (DanglingLine danglingLine : getDanglingLines()) {
-            visitor.visitDanglingLine(danglingLine);
+        for (BoundaryLine boundaryLine : getBoundaryLines()) {
+            visitor.visitBoundaryLine(boundaryLine);
+        }
+        for (Ground ground : getGrounds()) {
+            visitor.visitGround(ground);
         }
     }
 
@@ -565,9 +582,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @Override
     @SuppressWarnings("unchecked")
     public <E extends Extension<VoltageLevel>> E getExtensionByName(String name) {
-        if (name.equals("slackTerminal")) {
+        if ("slackTerminal".equals(name)) {
             return (E) createSlackTerminal();
-        } else if (name.equals("identifiableShortCircuit")) {
+        } else if ("identifiableShortCircuit".equals(name)) {
             return (E) createIdentifiableShortCircuitExtension();
         }
         return super.getExtensionByName(name);
@@ -592,6 +609,28 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             extension = (E) new IdentifiableShortCircuitImpl<>(this);
         }
         return extension;
+    }
+
+    @Override
+    public <E extends Extension<VoltageLevel>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type == SlackTerminal.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getSlackTerminal() != null) {
+                resource.getAttributes().setSlackTerminal(null);
+                return true;
+            }
+            return false;
+        }
+        if (type.isAssignableFrom(IdentifiableShortCircuit.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getIdentifiableShortCircuitAttributes() != null) {
+                resource.getAttributes().setIdentifiableShortCircuitAttributes(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 
     public Terminal getTerminal(TerminalRefAttributes tra) {
@@ -625,9 +664,144 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             getBusBreakerView().removeAllSwitches();
             getBusBreakerView().removeAllBuses();
         } else if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            getNodeBreakerView().getSwitches().forEach(s -> {
-                getNodeBreakerView().removeSwitch(s.getId());
-            });
+            getNodeBreakerView().getSwitches().forEach(s -> getNodeBreakerView().removeSwitch(s.getId()));
         }
+    }
+
+    @Override
+    public GroundAdder newGround() {
+        return new GroundAdderImpl(getResource(), index);
+    }
+
+    @Override
+    public List<Ground> getGrounds() {
+        return index.getGrounds(getResource().getId());
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return getGrounds().stream();
+    }
+
+    @Override
+    public int getGroundCount() {
+        return getGrounds().size();
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        return getAreasStream().collect(Collectors.toSet());
+    }
+
+    @Override
+    public Stream<Area> getAreasStream() {
+        return getOptionalResource().orElseThrow(() -> new PowsyblException("Cannot access areas of removed voltage level " + getId()))
+            .getAttributes()
+            .getAreaIds()
+            .stream()
+            .map(areaId -> index.getArea(areaId).orElse(null));
+    }
+
+    @Override
+    public Optional<Area> getArea(String areaType) {
+        Objects.requireNonNull(areaType);
+        return getAreasStream().filter(area -> Objects.equals(area.getAreaType(), areaType)).findFirst();
+    }
+
+    @Override
+    public void addArea(Area area) {
+        Objects.requireNonNull(area);
+        Set<String> oldAreaIds = getOptionalResource().orElseThrow(() -> new PowsyblException("Cannot add areas to removed voltage level " + getId()))
+            .getAttributes().getAreaIds();
+        if (oldAreaIds.contains(area.getId())) {
+            return;
+        }
+        final Optional<Area> previousArea = getArea(area.getAreaType());
+        if (previousArea.isPresent() && previousArea.get() != area) {
+            // This instance already has a different area with the same AreaType
+            throw new PowsyblException("VoltageLevel " + getId() + " is already in Area of the same type=" + previousArea.get().getAreaType() + " with id=" + previousArea.get().getId());
+        }
+        updateResource(r -> r.getAttributes().getAreaIds().add(area.getId()),
+            "areaIds", null, oldAreaIds, this::getAreas);
+        area.addVoltageLevel(this);
+    }
+
+    @Override
+    public void removeArea(Area area) {
+        Objects.requireNonNull(area);
+        Set<String> oldAreaIds = getResource().getAttributes().getAreaIds();
+        updateResource(r -> r.getAttributes().getAreaIds().remove(area.getId()),
+            "areas", null, oldAreaIds, this::getAreas);
+        area.removeVoltageLevel(this);
+    }
+
+    private void convertToBusBreakerModel() {
+        // TODO
+    }
+
+    @Override
+    public void convertToTopology(TopologyKind newTopologyKind) {
+        Objects.requireNonNull(newTopologyKind);
+        if (newTopologyKind != getTopologyKind()) {
+            if (newTopologyKind == TopologyKind.NODE_BREAKER) {
+                throw new PowsyblException("Topology model conversion from bus/breaker to node/breaker not yet supported");
+            } else if (newTopologyKind == TopologyKind.BUS_BREAKER) {
+                convertToBusBreakerModel();
+            }
+        }
+    }
+
+    // DC modelling
+    // These methods will allow for more detailed modeling of HVDCs.
+    //  This is a long-term work on the powsybl side.
+    //  It is too early to implement it on the network-store side and the need remains to be verified.
+    @Override
+    public LineCommutatedConverterAdder newLineCommutatedConverter() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        // FIXME: implement
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/VoltageLevelSerDe.java#L290
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public VoltageSourceConverterAdder newVoltageSourceConverter() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        // FIXME: implement
+        // needed for export in https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-serde/src/main/java/com/powsybl/iidm/serde/VoltageLevelSerDe.java#L277
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        // FIXME: implement
+        throw new PowsyblException("Line commutated not supported");
     }
 }

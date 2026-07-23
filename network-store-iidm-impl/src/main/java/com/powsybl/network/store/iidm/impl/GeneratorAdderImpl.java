@@ -28,9 +28,13 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double targetV = Double.NaN;
 
+    private double equivalentLocalTargetV = Double.NaN;
+
     private double ratedS = Double.NaN;
 
     private Terminal regulatingTerminal;
+
+    private boolean condenser = false;
 
     GeneratorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
@@ -93,27 +97,41 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
+    public GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV) {
+        this.targetV = targetV;
+        this.equivalentLocalTargetV = equivalentLocalTargetV;
+        return this;
+    }
+
+    @Override
     public GeneratorAdder setRatedS(double ratedS) {
         this.ratedS = ratedS;
         return this;
     }
 
     @Override
+    public GeneratorAdder setCondenser(boolean condenser) {
+        this.condenser = condenser;
+        return this;
+    }
+
+    @Override
     public Generator add() {
+        NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
+            voltageRegulatorOn = false;
+        }
         String id = checkAndGetUniqueId();
         checkNodeBus();
         ValidationUtil.checkEnergySource(this, energySource);
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkActivePowerSetpoint(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        // FIXME this is a workaround for an issue in powsybl core 4.7.0
-        if (voltageRegulatorOn == null) {
-            throw new ValidationException(this, "voltage regulator status is not set");
-        }
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkActivePowerSetpoint(this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
 
         MinMaxReactiveLimitsAttributes minMaxAttributes =
                 MinMaxReactiveLimitsAttributes.builder()
@@ -122,6 +140,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .build();
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(id, ResourceType.GENERATOR, RegulatingTapChangerType.NONE,
+            new TerminalRefAttributes(id, null), terminalRefAttributes, null, ResourceType.GENERATOR, voltageRegulatorOn);
 
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder()
                 .id(id)
@@ -136,17 +156,19 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .energySource(energySource)
                         .maxP(maxP)
                         .minP(minP)
-                        .voltageRegulatorOn(voltageRegulatorOn)
                         .targetP(targetP)
                         .targetQ(targetQ)
                         .targetV(targetV)
+                        .equivalentLocalTargetV(equivalentLocalTargetV)
                         .ratedS(ratedS)
                         .reactiveLimits(minMaxAttributes)
-                        .regulatingTerminal(terminalRefAttributes)
+                        .regulatingPoint(regulatingPointAttributes)
+                        .condenser(condenser)
                         .build())
                 .build();
         GeneratorImpl generator = getIndex().createGenerator(resource);
         generator.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        generator.setRegulatingTerminal(regulatingTerminal);
         return generator;
     }
 

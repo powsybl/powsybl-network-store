@@ -6,12 +6,36 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Component;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.network.store.model.AttributeFilter;
+import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
-
+import com.powsybl.network.store.model.VoltageLevelAttributes;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.ObjDoubleConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,31 +79,123 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     }
 
     @Override
+    public double getAngle() {
+        return getResource().getAttributes().getAngle();
+    }
+
+    private void setV(double v, boolean updateCalculatedBus) {
+        double oldValue = getResource().getAttributes().getV();
+        if (v != oldValue) {
+            updateResource(res -> res.getAttributes().setV(v),
+                "v", oldValue, v);
+            if (updateCalculatedBus) {
+                // update V for bus in BusView
+                updateCalculatedBusAttributes(v, getResource().getAttributes().getVoltageLevelId(), this::setVInCalculatedBus);
+            }
+        }
+    }
+
+    // update without the part setting values in calculated buses otherwise it
+    // leads to infinite loops because calculated buses also update configured buses
+    void setConfiguredBusV(double v) {
+        setV(v, false);
+    }
+
+    @Override
     public Bus setV(double v) {
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
         }
-        double oldValue = getResource().getAttributes().getV();
-        if (v != oldValue) {
-            updateResource(res -> res.getAttributes().setV(v));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "v", variantId, oldValue, v);
+        setV(v, true);
+        return this;
+    }
+
+    void setAngle(double angle, boolean updateCalculatedBus) {
+        double oldValue = getResource().getAttributes().getAngle();
+        if (angle != oldValue) {
+            updateResource(res -> res.getAttributes().setAngle(angle),
+                "angle", oldValue, angle);
+            if (updateCalculatedBus) {
+                // update angle for bus in BusView
+                updateCalculatedBusAttributes(angle, getResource().getAttributes().getVoltageLevelId(), this::setAngleInCalculatedBus);
+            }
+        }
+    }
+
+    // update without the part setting values in calculated buses otherwise
+    // it leads to infinite loops because calculated buses also update configured buses
+    void setConfiguredBusAngle(double angle) {
+        setAngle(angle, false);
+    }
+
+    @Override
+    public Bus setAngle(double angle) {
+        setAngle(angle, true);
+        return this;
+    }
+
+    private void setVInCalculatedBus(CalculatedBusAttributes calculatedBusAttributes, double value) {
+        calculatedBusAttributes.setV(value);
+    }
+
+    private void setAngleInCalculatedBus(CalculatedBusAttributes calculatedBusAttributes, double value) {
+        calculatedBusAttributes.setAngle(value);
+    }
+
+    private void updateCalculatedBusAttributes(double newValue,
+                                               String voltageLevelId,
+                                               ObjDoubleConsumer<CalculatedBusAttributes> setValue) {
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(voltageLevelId).orElseThrow(IllegalArgumentException::new);
+        VoltageLevelAttributes vlAttributes = voltageLevel.getResource().getAttributes();
+        Map<String, Integer> calculatedBuses = vlAttributes.getBusToCalculatedBusForBusView();
+        List<CalculatedBusAttributes> busViewCalculatedBusesAttributes = vlAttributes.getCalculatedBusesForBusView();
+        // We only update when isCalculatedBusesValid is true, there is no point in updating stale bus objects and
+        // in when isCalculatedBusesValid is not true, we may even update the wrong buses (but not much of a problem
+        // because they are stale objects).
+        // TODO add tests for updates with isCalculatedBusesValid=false
+        if (vlAttributes.isCalculatedBusesValid()
+            && !CollectionUtils.isEmpty(busViewCalculatedBusesAttributes)
+            && !MapUtils.isEmpty(calculatedBuses)) {
+            Integer busviewnum = calculatedBuses.get(getId());
+            if (busviewnum != null) {
+                CalculatedBusAttributes busViewCalculatedBusAttributes = busViewCalculatedBusesAttributes.get(busviewnum);
+                // Same code as the iidm impl for CalculatedBus setV / setAngle
+                // (without the part setting values in configured buses otherwise
+                // it would be an infinite loop), but copy paste here
+                // to avoid creating the object (calculated buses are created on when computing
+                // the bus view, but we want to only update if the busview exist, not force its creation)
+                setValue.accept(busViewCalculatedBusAttributes, newValue);
+                index.updateVoltageLevelResource(voltageLevel.getResource(), AttributeFilter.SV);
+            }
+        }
+    }
+
+    @Override
+    public double getFictitiousP0() {
+        return getResource().getAttributes().getFictitiousP0();
+    }
+
+    @Override
+    public Bus setFictitiousP0(double p0) {
+        double oldValue = getResource().getAttributes().getFictitiousP0();
+        if (p0 != oldValue) {
+            updateResource(res -> res.getAttributes().setFictitiousP0(p0),
+                "fictitiousP0", oldValue, p0);
         }
         return this;
     }
 
     @Override
-    public double getAngle() {
-        return getResource().getAttributes().getAngle();
+    public double getFictitiousQ0() {
+        return getResource().getAttributes().getFictitiousQ0();
     }
 
     @Override
-    public Bus setAngle(double angle) {
-        double oldValue = getResource().getAttributes().getAngle();
-        if (angle != oldValue) {
-            updateResource(res -> res.getAttributes().setAngle(angle));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "angle", variantId, oldValue, angle);
+    public Bus setFictitiousQ0(double q0) {
+        double oldValue = getResource().getAttributes().getFictitiousQ0();
+        if (q0 != oldValue) {
+            updateResource(res -> res.getAttributes().setFictitiousQ0(q0),
+                "fictitiousQ0", oldValue, q0);
         }
         return this;
     }
@@ -235,13 +351,13 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLineStream().collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLineStream().collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(IdentifiableType.DANGLING_LINE).map(DanglingLine.class::cast);
+    public Stream<BoundaryLine> getBoundaryLineStream() {
+        return getConnectableStream(IdentifiableType.BOUNDARY_LINE).map(BoundaryLine.class::cast);
     }
 
     @Override

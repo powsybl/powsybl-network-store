@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
+import com.powsybl.iidm.network.DefaultMessageHeader;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
@@ -16,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class PointAdderImpl implements ReactiveCapabilityCurveAdder.PointAdder, Validable {
+class PointAdderImpl extends AbstractBasePropertiesHolder implements ReactiveCapabilityCurveAdder.PointAdder, Validable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PointAdderImpl.class);
 
@@ -80,13 +82,14 @@ class PointAdderImpl implements ReactiveCapabilityCurveAdder.PointAdder, Validab
                 .p(p)
                 .minQ(minQ)
                 .maxQ(maxQ)
+                .properties(properties)
                 .build();
         reactiveCapabilityCurveAdder.addPoint(attributes);
         return reactiveCapabilityCurveAdder;
     }
 
     @Override
-    public String getMessageHeader() {
-        return "reactiveCapabilityCurvePoint: ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("reactiveCapabilityCurvePoint", "");
     }
 }

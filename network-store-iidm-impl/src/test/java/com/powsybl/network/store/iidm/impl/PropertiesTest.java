@@ -30,17 +30,17 @@ public class PropertiesTest {
         Load load = network.getLoad("L");
 
         load.setProperty("k", "v");
-        Mockito.verify(mockedListener, Mockito.times(1)).onElementAdded(load, "properties[k]", "v");
+        Mockito.verify(mockedListener, Mockito.times(1)).onPropertyAdded(load, "properties[k]", "v");
         load.setProperty("k", "v-update");
-        Mockito.verify(mockedListener, Mockito.times(1)).onElementReplaced(load, "properties[k]", "v", "v-update");
+        Mockito.verify(mockedListener, Mockito.times(1)).onPropertyReplaced(load, "properties[k]", "v", "v-update");
         load.setProperty("k2", "v2");
-        Mockito.verify(mockedListener, Mockito.times(1)).onElementAdded(load, "properties[k2]", "v2");
+        Mockito.verify(mockedListener, Mockito.times(1)).onPropertyAdded(load, "properties[k2]", "v2");
         assertEquals(Set.of("k", "k2"), load.getPropertyNames());
 
         assertTrue(load.removeProperty("k"));
-        Mockito.verify(mockedListener, Mockito.times(1)).onElementRemoved(load, "properties[k]", "v-update");
+        Mockito.verify(mockedListener, Mockito.times(1)).onPropertyRemoved(load, "properties[k]", "v-update");
         assertTrue(load.removeProperty("k2"));
-        Mockito.verify(mockedListener, Mockito.times(1)).onElementRemoved(load, "properties[k2]", "v2");
+        Mockito.verify(mockedListener, Mockito.times(1)).onPropertyRemoved(load, "properties[k2]", "v2");
         assertFalse(load.removeProperty("k"));
         Mockito.verifyNoMoreInteractions(mockedListener);
         assertFalse(load.removeProperty("unknown"));

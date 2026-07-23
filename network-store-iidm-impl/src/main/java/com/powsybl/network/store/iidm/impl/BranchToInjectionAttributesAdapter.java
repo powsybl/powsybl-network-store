@@ -6,58 +6,22 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.BranchAttributes;
+import com.powsybl.network.store.model.ConnectablePositionAttributes;
+import com.powsybl.network.store.model.RegulatingEquipmentIdentifier;
 
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
-
-    private final AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch;
-
-    private final BranchAttributes attributes;
+public class BranchToInjectionAttributesAdapter extends AbstractIdentifiableToInjectionAttributesAdapter<BranchAttributes> {
 
     private final boolean side1;
 
-    public BranchToInjectionAttributesAdapter(AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch, BranchAttributes attributes, boolean side1) {
-        this.branch = Objects.requireNonNull(branch);
-        this.attributes = attributes;
+    public BranchToInjectionAttributesAdapter(BranchAttributes attributes, boolean side1) {
+        super(attributes);
         this.side1 = side1;
-    }
-
-    @Override
-    public Resource getResource() {
-        return attributes.getResource();
-    }
-
-    @Override
-    public void setResource(Resource resource) {
-        attributes.setResource(resource);
-    }
-
-    @Override
-    public String getName() {
-        return attributes.getName();
-    }
-
-    @Override
-    public void setName(String name) {
-        attributes.setName(name);
-    }
-
-    @Override
-    public Map<String, String> getProperties() {
-        return attributes.getProperties();
-    }
-
-    @Override
-    public void setProperties(Map<String, String> properties) {
-        attributes.setProperties(properties);
     }
 
     @Override
@@ -96,13 +60,9 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     @Override
     public void setBus(String bus) {
         if (side1) {
-            String oldValue = attributes.getBus1();
             attributes.setBus1(bus);
-            branch.notifyUpdate("bus1", oldValue, bus, true);
         } else {
-            String oldValue = attributes.getBus2();
             attributes.setBus2(bus);
-            branch.notifyUpdate("bus2", oldValue, bus, true);
         }
     }
 
@@ -128,13 +88,9 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     @Override
     public void setP(double p) {
         if (side1) {
-            double oldValue = attributes.getP1();
             attributes.setP1(p);
-            branch.notifyUpdate("p1", oldValue, p, true);
         } else {
-            double oldValue = attributes.getP2();
             attributes.setP2(p);
-            branch.notifyUpdate("p2", oldValue, p, true);
         }
     }
 
@@ -146,13 +102,9 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     @Override
     public void setQ(double q) {
         if (side1) {
-            double oldValue = attributes.getQ1();
             attributes.setQ1(q);
-            branch.notifyUpdate("q1", oldValue, q, true);
         } else {
-            double oldValue = attributes.getQ2();
             attributes.setQ2(q);
-            branch.notifyUpdate("q2", oldValue, q, true);
         }
     }
 
@@ -171,43 +123,12 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
-    public ActivePowerControlAttributes getActivePowerControl() {
-        return null;
+    public Set<RegulatingEquipmentIdentifier> getRegulatingEquipments() {
+        return attributes.getRegulatingEquipments();
     }
 
     @Override
-    public void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
-        //empty on purpose, it cannot have an activePowerControl
+    public void setRegulatingEquipments(Set<RegulatingEquipmentIdentifier> regulatingEquipments) {
+        attributes.setRegulatingEquipments(regulatingEquipments);
     }
-
-    @Override
-    public boolean isFictitious() {
-        return attributes.isFictitious();
-    }
-
-    @Override
-    public void setFictitious(boolean fictitious) {
-        attributes.setFictitious(fictitious);
-    }
-
-    @Override
-    public Set<String> getAliasesWithoutType() {
-        return attributes.getAliasesWithoutType();
-    }
-
-    @Override
-    public void setAliasesWithoutType(Set<String> aliasesWithoutType) {
-        attributes.setAliasesWithoutType(aliasesWithoutType);
-    }
-
-    @Override
-    public Map<String, String> getAliasByType() {
-        return attributes.getAliasByType();
-    }
-
-    @Override
-    public void setAliasByType(Map<String, String> aliasByType) {
-        attributes.setAliasByType(aliasByType);
-    }
-
 }

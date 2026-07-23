@@ -31,6 +31,6 @@ public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcCo
     }
 
     protected void validate() {
-        ValidationUtil.checkLossFactor(this, lossFactor);
+        ValidationUtil.checkLossFactor(this, lossFactor, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
     }
 }

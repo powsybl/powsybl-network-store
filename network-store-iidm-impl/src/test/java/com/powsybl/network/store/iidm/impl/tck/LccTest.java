@@ -14,6 +14,6 @@ import com.powsybl.iidm.network.tck.AbstractLccTest;
 public class LccTest extends AbstractLccTest {
     @Override
     public void testHvdcLineRemove() {
-        // FIXME
+        // FIXME remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/3015
     }
 }

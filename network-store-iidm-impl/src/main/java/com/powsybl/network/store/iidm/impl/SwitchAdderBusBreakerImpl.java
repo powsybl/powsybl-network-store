@@ -48,6 +48,9 @@ class SwitchAdderBusBreakerImpl extends AbstractSwitchAdder<SwitchAdderBusBreake
         if (bus2 == null) {
             throw new ValidationException(this, "second connection bus is not set");
         }
+        if (bus1.equals(bus2)) {
+            throw new ValidationException(this, "same bus at both ends");
+        }
 
         Resource<SwitchAttributes> resource = Resource.switchBuilder()
                 .id(id)

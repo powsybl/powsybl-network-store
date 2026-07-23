@@ -6,17 +6,18 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.network.store.iidm.impl.LoadImpl;
 import com.powsybl.network.store.model.LoadDetailAttributes;
 
+import static com.powsybl.network.store.iidm.impl.extensions.LoadDetailImpl.checkPower;
+
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class LoadDetailAdderImpl extends AbstractExtensionAdder<Load, LoadDetail> implements LoadDetailAdder {
+public class LoadDetailAdderImpl extends AbstractIidmExtensionAdder<Load, LoadDetail> implements LoadDetailAdder {
 
     private double fixedActivePower;
 
@@ -33,12 +34,12 @@ public class LoadDetailAdderImpl extends AbstractExtensionAdder<Load, LoadDetail
     @Override
     protected LoadDetail createExtension(Load load) {
         LoadDetailAttributes attributes = LoadDetailAttributes.builder()
-                .fixedActivePower(fixedActivePower)
-                .fixedReactivePower(fixedReactivePower)
-                .variableActivePower(variableActivePower)
-                .variableReactivePower(variableReactivePower)
+                .fixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower", load))
+                .fixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower", load))
+                .variableActivePower(checkPower(variableActivePower, "Invalid variableActivePower", load))
+                .variableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower", load))
                 .build();
-        ((LoadImpl) load).updateResource(res -> res.getAttributes().setLoadDetail(attributes));
+        ((LoadImpl) load).updateResourceWithoutNotification(res -> res.getAttributes().setLoadDetail(attributes));
         return new LoadDetailImpl((LoadImpl) load);
     }
 

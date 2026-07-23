@@ -7,11 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.network.store.iidm.impl.extensions.HvdcAngleDroopActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.HvdcOperatorActivePowerRangeImpl;
 import com.powsybl.network.store.model.HvdcAngleDroopActivePowerControlAttributes;
@@ -20,6 +19,8 @@ import com.powsybl.network.store.model.HvdcOperatorActivePowerRangeAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -57,15 +58,11 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     }
 
     @Override
-    public HvdcConverterStation<?> getConverterStation(Side side) {
-        switch (side) {
-            case ONE:
-                return getConverterStation1();
-            case TWO:
-                return getConverterStation2();
-            default:
-                throw new IllegalStateException("Unknown side: " + side);
-        }
+    public HvdcConverterStation<?> getConverterStation(TwoSides side) {
+        return switch (side) {
+            case ONE -> getConverterStation1();
+            case TWO -> getConverterStation2();
+        };
     }
 
     @Override
@@ -75,12 +72,11 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setConvertersMode(ConvertersMode mode) {
-        ValidationUtil.checkConvertersMode(this, mode, true);
+        ValidationUtil.checkConvertersMode(this, mode, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ConvertersMode oldValue = getResource().getAttributes().getConvertersMode();
         if (mode != oldValue) {
-            updateResource(res -> res.getAttributes().setConvertersMode(mode));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "convertersMode", variantId, oldValue, mode);
+            updateResource(res -> res.getAttributes().setConvertersMode(mode),
+                "convertersMode", oldValue, mode);
         }
         return this;
     }
@@ -95,8 +91,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkR(this, r);
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
-            updateResource(res -> res.getAttributes().setR(r));
-            index.notifyUpdate(this, "r", oldValue, r);
+            updateResource(res -> res.getAttributes().setR(r),
+                "r", oldValue, r);
         }
         return this;
     }
@@ -111,8 +107,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = getResource().getAttributes().getNominalV();
         if (nominalV != oldValue) {
-            updateResource(res -> res.getAttributes().setNominalV(nominalV));
-            index.notifyUpdate(this, "nominalV", oldValue, nominalV);
+            updateResource(res -> res.getAttributes().setNominalV(nominalV),
+                "nominalV", oldValue, nominalV);
         }
         return this;
     }
@@ -124,12 +120,11 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setActivePowerSetpoint(double activePowerSetpoint) {
-        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, true);
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getActivePowerSetpoint();
         if (activePowerSetpoint != oldValue) {
-            updateResource(res -> res.getAttributes().setActivePowerSetpoint(activePowerSetpoint));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
+            updateResource(res -> res.getAttributes().setActivePowerSetpoint(activePowerSetpoint),
+                "activePowerSetpoint", oldValue, activePowerSetpoint);
         }
         return this;
     }
@@ -144,8 +139,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkHvdcMaxP(this, maxP);
         double oldValue = getResource().getAttributes().getMaxP();
         if (maxP != oldValue) {
-            updateResource(res -> res.getAttributes().setMaxP(maxP));
-            index.notifyUpdate(this, "maxP", oldValue, maxP);
+            updateResource(res -> res.getAttributes().setMaxP(maxP),
+                "maxP", oldValue, maxP);
         }
         return this;
     }
@@ -178,9 +173,9 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     @Override
     @SuppressWarnings("unchecked")
     public <E extends Extension<HvdcLine>> E getExtensionByName(String name) {
-        if (name.equals("hvdcAngleDroopActivePowerControl")) {
+        if ("hvdcAngleDroopActivePowerControl".equals(name)) {
             return createHvdcAngleDroopActivePowerControl();
-        } else if (name.equals("hvdcOperatorActivePowerRange")) {
+        } else if ("hvdcOperatorActivePowerRange".equals(name)) {
             return createHvdcOperatorActivePowerRange();
         }
         return super.getExtensionByName(name);
@@ -204,5 +199,74 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
             extension = (E) new HvdcOperatorActivePowerRangeImpl(this);
         }
         return extension;
+    }
+
+    @Override
+    public boolean connectConverterStations() {
+        return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
+    }
+
+    @Override
+    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectConverterStations(isTypeSwitchToOperate, null);
+    }
+
+    @Override
+    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+        return ConnectDisconnectUtil.connectAllTerminals(
+            this,
+            getTerminalsOfConverterStations(side),
+            isTypeSwitchToOperate,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    @Override
+    public boolean disconnectConverterStations() {
+        return disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, null);
+    }
+
+    @Override
+    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
+        return disconnectConverterStations(isSwitchOpenable, null);
+    }
+
+    @Override
+    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+        return ConnectDisconnectUtil.disconnectAllTerminals(
+            this,
+            getTerminalsOfConverterStations(side),
+            isSwitchOpenable,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    public List<Terminal> getTerminalsOfConverterStations(TwoSides side) {
+        return side == null ?
+        List.of(getConverterStation1().getTerminal(), getConverterStation2().getTerminal()) :
+        switch (side) {
+            case ONE -> List.of(getConverterStation1().getTerminal());
+            case TWO -> List.of(getConverterStation2().getTerminal());
+        };
+    }
+
+    @Override
+    public <E extends Extension<HvdcLine>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type == HvdcAngleDroopActivePowerControl.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getHvdcAngleDroopActivePowerControl() != null) {
+                resource.getAttributes().setHvdcAngleDroopActivePowerControl(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == HvdcOperatorActivePowerRange.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getHvdcOperatorActivePowerRange() != null) {
+                resource.getAttributes().setHvdcOperatorActivePowerRange(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

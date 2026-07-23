@@ -7,12 +7,18 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.Iterables;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.Test;
 
+import java.util.List;
+
+import static com.powsybl.cgmes.extensions.Source.BOUNDARY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -57,5 +63,39 @@ public class NetworkTest {
         assertEquals(1, network.getBusView().getSynchronousComponents().size());
         assertNotNull(network.getBusView().getBus("VL1_0"));
         assertNotNull(network.getBusView().getBus("VL2_0"));
+    }
+
+    @Test
+    public void testDcValues() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        assertTrue(((List) network.getDcConnectables()).isEmpty());
+        assertTrue(((List) network.getDcGrounds()).isEmpty());
+        assertTrue(((List) network.getDcSwitches()).isEmpty());
+        assertTrue(((List) network.getDcLines()).isEmpty());
+        assertTrue(((List) network.getDcNodes()).isEmpty());
+        assertTrue(network.getLineCommutatedConverterStream().toList().isEmpty());
+        assertTrue(network.getDcNodeStream().toList().isEmpty());
+        assertTrue(network.getDcLineStream().toList().isEmpty());
+        assertTrue(network.getDcSwitchStream().toList().isEmpty());
+        assertTrue(network.getDcGroundStream().toList().isEmpty());
+        assertTrue(network.getVoltageSourceConverterStream().toList().isEmpty());
+        assertTrue(network.getDcBusStream().toList().isEmpty());
+        assertTrue(((List) network.getLineCommutatedConverters()).isEmpty());
+        assertTrue(((List) network.getVoltageSourceConverters()).isEmpty());
+        assertTrue(((List) network.getDcBuses()).isEmpty());
+        assertTrue(network.getDcComponents().isEmpty());
+    }
+
+    @Test
+    public void removeExtension() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        network.newExtension(BaseVoltageMappingAdder.class).addBaseVoltage("voltage", 1.0, BOUNDARY).add();
+        assertTrue(network.removeExtension(BaseVoltageMapping.class));
+        assertNull(network.getExtension(BaseVoltageMapping.class));
+        assertFalse(network.removeExtension(BaseVoltageMapping.class));
+        network.newExtension(CimCharacteristicsAdder.class).setCimVersion(1).setTopologyKind(CgmesTopologyKind.NODE_BREAKER).add();
+        assertTrue(network.removeExtension(CimCharacteristics.class));
+        assertNull(network.getExtension(CimCharacteristics.class));
+        assertFalse(network.removeExtension(CimCharacteristics.class));
     }
 }

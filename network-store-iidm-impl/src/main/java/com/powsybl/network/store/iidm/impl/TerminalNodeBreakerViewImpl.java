@@ -40,11 +40,28 @@ class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements T
     }
 
     private InjectionAttributes getAttributes() {
-        return attributesGetter.apply(getAbstractIdentifiable().getResource());
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment " + connectable.getId());
+        }
+        return getAttributes(getAbstractIdentifiable().getResource());
+    }
+
+    private InjectionAttributes getAttributes(Resource<U> resource) {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment " + connectable.getId());
+        }
+        return attributesGetter.apply(resource);
+    }
+
+    private VoltageLevelImpl getVoltageLevel() {
+        return index.getVoltageLevel(getAttributes().getVoltageLevelId()).orElseThrow(IllegalStateException::new);
     }
 
     @Override
     public int getNode() {
+        if (getAbstractIdentifiable().getOptionalResource().isEmpty()) {
+            throw new PowsyblException("Cannot access node of removed equipment " + connectable.getId());
+        }
         Integer node = getAttributes().getNode();
         if (node == null) {
             throw new PowsyblException("Not supported in a bus breaker topology");
@@ -70,8 +87,15 @@ class TerminalNodeBreakerViewImpl<U extends IdentifiableAttributes> implements T
             throw new ValidationException(attributes.getResource(), "an equipment (" + terminal.getConnectable().getId()
                     + ") is already connected to node " + node + " of voltage level " + voltageLevelId);
         }
-        attributes.setNode(node);
-        attributes.setVoltageLevelId(voltageLevelId);
+        VoltageLevelImpl oldVoltageLevel = getVoltageLevel();
+        getAbstractIdentifiable().updateResource(res -> {
+            InjectionAttributes attr = getAttributes(res);
+            attr.setConnectableBus(null);
+            attr.setBus(null);
+            attr.setNode(node);
+            attr.setVoltageLevelId(voltageLevelId);
+        }, "injectionAttributes", attributes, getAttributes(getAbstractIdentifiable().getResource()));
+        oldVoltageLevel.invalidateCalculatedBuses();
         voltageLevel.invalidateCalculatedBuses();
     }
 }

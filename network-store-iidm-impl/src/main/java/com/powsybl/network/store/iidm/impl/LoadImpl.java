@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.network.store.iidm.impl.extensions.LoadDetailImpl;
 import com.powsybl.network.store.model.LoadAttributes;
@@ -46,8 +47,8 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         ValidationUtil.checkLoadType(this, loadType);
         LoadType oldValue = getResource().getAttributes().getLoadType();
         if (loadType != oldValue) {
-            updateResource(r -> r.getAttributes().setLoadType(loadType));
-            index.notifyUpdate(this, "loadType", oldValue, loadType);
+            updateResource(r -> r.getAttributes().setLoadType(loadType),
+                "loadType", oldValue, loadType);
         }
         return this;
     }
@@ -59,12 +60,11 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setP0(double p0) {
-        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkP0(this, p0, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getP0();
         if (p0 != oldValue) {
-            updateResource(r -> r.getAttributes().setP0(p0));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "p0", variantId, oldValue, p0);
+            updateResource(r -> r.getAttributes().setP0(p0),
+                "p0", oldValue, p0);
         }
         return this;
     }
@@ -76,12 +76,11 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setQ0(double q0) {
-        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkQ0(this, q0, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getResource().getAttributes().getQ0();
         if (q0 != oldValue) {
-            updateResource(r -> r.getAttributes().setQ0(q0));
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "q0", variantId, oldValue, q0);
+            updateResource(r -> r.getAttributes().setQ0(q0),
+                "q0", oldValue, q0);
         }
         return this;
     }
@@ -113,7 +112,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     @Override
     @SuppressWarnings("unchecked")
     public <E extends Extension<Load>> E getExtensionByName(String name) {
-        if (name.equals("loadDetail")) {
+        if ("loadDetail".equals(name)) {
             return createLoadDetail();
         }
         return super.getExtensionByName(name);
@@ -132,10 +131,35 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     public void remove() {
         var resource = getResource();
         index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
+        }
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeLoad(resource.getId());
         index.notifyAfterRemoval(resource.getId());
     }
 
+    @Override
+    public <E extends Extension<Load>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        if (type == LoadDetail.class) {
+            var resource = getResource();
+            if (resource.getAttributes().getLoadDetail() != null) {
+                resource.getAttributes().setLoadDetail(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
 }

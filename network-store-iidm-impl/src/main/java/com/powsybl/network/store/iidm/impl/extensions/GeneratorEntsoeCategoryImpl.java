@@ -31,7 +31,10 @@ public class GeneratorEntsoeCategoryImpl extends AbstractExtension<Generator> im
 
     @Override
     public GeneratorEntsoeCategory setCode(int code) {
-        getGenerator().updateResource(res -> res.getAttributes().getEntsoeCategoryAttributes().setCode(code));
+        int oldValue = getCode();
+        if (oldValue != code) {
+            getGenerator().updateResourceExtension(this, res -> res.getAttributes().getEntsoeCategoryAttributes().setCode(code), "code", oldValue, code);
+        }
         return this;
     }
 }

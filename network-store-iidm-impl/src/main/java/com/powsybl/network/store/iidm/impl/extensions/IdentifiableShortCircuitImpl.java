@@ -42,7 +42,10 @@ public class IdentifiableShortCircuitImpl<I extends Identifiable<I>> extends Abs
 
     @Override
     public IdentifiableShortCircuit<I> setIpMin(double ipMin) {
-        getVoltageLevel().updateResource(res -> getAttributes(res).setIpMin(ipMin));
+        double oldValue = getIpMin();
+        if (oldValue != ipMin) {
+            getVoltageLevel().updateResourceExtension(this, res -> getAttributes(res).setIpMin(ipMin), "ipMin", oldValue, ipMin);
+        }
         return this;
     }
 
@@ -53,7 +56,10 @@ public class IdentifiableShortCircuitImpl<I extends Identifiable<I>> extends Abs
 
     @Override
     public IdentifiableShortCircuit<I> setIpMax(double ipMax) {
-        getVoltageLevel().updateResource(res -> getAttributes(res).setIpMax(ipMax));
+        double oldValue = getIpMax();
+        if (oldValue != ipMax) {
+            getVoltageLevel().updateResourceExtension(this, res -> getAttributes(res).setIpMax(ipMax), "ipMax", oldValue, ipMax);
+        }
         return this;
     }
 }

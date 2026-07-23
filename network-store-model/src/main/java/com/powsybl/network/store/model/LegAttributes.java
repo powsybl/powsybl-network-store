@@ -7,11 +7,14 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -22,7 +25,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Three windings transformer leg attributes")
-public class LegAttributes implements TapChangerParentAttributes {
+@JsonView(AttributeFilter.JsonViews.Primary.class)
+public class LegAttributes implements TapChangerParentAttributes, FlowsLimitsAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -57,18 +61,21 @@ public class LegAttributes implements TapChangerParentAttributes {
     @Schema(description = "Leg number")
     private int legNumber;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "PhaseTapChangerAttributes")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
+    @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "RatioTapChangerAttributes")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
-    @Schema(description = "currentLimitsAttributes")
-    private LimitsAttributes currentLimitsAttributes;
+    // TODO add lazy loading for 3wt and annotates with @JsonView(AttributeFilter.JsonViews.WithLimits.class) like in line and 2wt
+    // it is not done as there is a few three windings transformers and it does not impact performance
+    @Schema(description = "OperationalLimitGroup")
+    @Builder.Default
+    private Map<String, OperationalLimitsGroupAttributes> operationalLimitsGroups = new HashMap<>();
 
-    @Schema(description = "apparent power limits")
-    private LimitsAttributes apparentPowerLimitsAttributes;
-
-    @Schema(description = "active power limits")
-    private LimitsAttributes activePowerLimitsAttributes;
+    @Schema(description = "selected OperationalLimitGroupId")
+    @Builder.Default
+    private String selectedOperationalLimitsGroupId = "DEFAULT";
 }

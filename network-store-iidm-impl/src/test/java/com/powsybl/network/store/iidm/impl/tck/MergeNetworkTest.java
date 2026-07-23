@@ -34,12 +34,7 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     }
 
     @Override
-    public void multipleDanglingLinesInMergedNetwork() {
-        // FIXME
-    }
-
-    @Override
-    public void testMergeSameId() {
+    public void multipleBoundaryLinesInMergedNetwork() {
         // FIXME
     }
 
@@ -49,22 +44,152 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     }
 
     @Override
-    public void xnodeNonCompatible() {
-        // FIXME
-    }
-
-    @Override
     public void mergeThenCloneVariantBug() {
         // FIXME
     }
 
     @Override
-    public void multipleDanglingLinesInMergingNetwork() {
+    public void multipleBoundaryLinesInMergingNetwork() {
         // FIXME
     }
 
     @Override
     public void checkMergingSameFormat() {
+        // FIXME
+    }
+
+    @Override
+    public void testMergeAndDetach() {
+        // FIXME
+    }
+
+    @Override
+    public void testMergeAndDetachWithProperties() {
+        // FIXME
+    }
+
+    @Override
+    public void testMergeAndDetachWithExtensions() {
+        // FIXME
+    }
+
+    @Override
+    public void failDetachWithALineBetween2Subnetworks() {
+        //FIXME
+    }
+
+    @Override
+    public void failDetachIfMultiVariants() {
+        //FIXME
+    }
+
+    @Override
+    public void testMerge3Networks() {
+        // FIXME
+    }
+
+    @Override
+    public void failMergeBoundaryLinesWithSameId() {
+        // FIXME
+    }
+
+    @Override
+    public void testValidationLevelWhenMerging2Eq() {
+        // FIXME
+    }
+
+    @Override
+    public void testValidationLevelWhenMergingEqAndSsh() {
+        // FIXME
+    }
+
+    @Override
+    public void testValidationLevelWhenMerging2Ssh() {
+        // FIXME
+    }
+
+    @Override
+    public void failMergeOnlyOneNetwork() {
+        // FIXME
+    }
+
+    @Override
+    public void failMergeOnSubnetworks() {
+        // FIXME
+    }
+
+    @Override
+    public void failMergeSubnetworks() {
+        // FIXME
+    }
+
+    @Override
+    public void failMergeContainingSubnetworks() {
+        // FIXME
+    }
+
+    @Override
+    public void testNoEmptyAdditionalSubnetworkIsCreated() {
+        // FIXME
+    }
+
+    @Override
+    public void testListeners() {
+        // FIXME
+    }
+
+    @Override
+    public void dontCreateATieLineWithAlreadyMergedBoundaryLinesInMergedNetwork() {
+        // FIXME
+    }
+
+    @Override
+    public void dontCreateATieLineWithAlreadyMergedBoundaryLinesInMergingNetwork() {
+        // FIXME
+    }
+
+    @Override
+    public void multipleConnectedBoundaryLinesInMergedNetwork() {
+        // FIXME
+    }
+
+    @Override
+    public void multipleConnectedBoundaryLinesWithSamePairingKey() {
+       // FIXME
+    }
+
+    @Override
+    public void invertBoundaryLinesWhenCreatingATieLine() {
+        // FIXME
+    }
+
+    @Override
+    public void failMergeWithCommonAreaConflict() {
+        // FIXME
+    }
+
+    @Override
+    public void testMergeAndDetachWithDistinctAreas() {
+        // FIXME
+    }
+
+    @Override
+    public void failFlattenSubnetwork() {
+        // FIXME
+    }
+
+    @Override
+    public void testMergeAndFlatten() {
+        // FIXME
+    }
+
+    @Override
+    public void testMergeAndFlattenWithExtensions() {
+        // FIXME
+    }
+
+    @Override
+    public void testMergeAndFlattenWithProperties() {
         // FIXME
     }
 }

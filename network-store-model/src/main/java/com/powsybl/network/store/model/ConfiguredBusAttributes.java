@@ -9,8 +9,10 @@ package com.powsybl.network.store.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -20,22 +22,9 @@ import java.util.*;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "ConfiguredBus attributes")
-public class ConfiguredBusAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
-
-    @Schema(description = "Bus name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "Bus fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
+public class ConfiguredBusAttributes extends AbstractIdentifiableAttributes implements Contained {
 
     @Schema(description = "voltage level id")
     private String voltageLevelId;
@@ -48,8 +37,11 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
     @Builder.Default
     private double angle = Double.NaN;
 
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
+    @Schema(description = "fictitious P0")
+    private double fictitiousP0 = Double.NaN;
+
+    @Schema(description = "fictitious Q0")
+    private double fictitiousQ0 = Double.NaN;
 
     @Override
     @JsonIgnore

@@ -7,7 +7,6 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.powsybl.commons.PowsyblException;
 
 import java.util.Collections;
 import java.util.Set;
@@ -15,7 +14,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface InjectionAttributes extends IdentifiableAttributes, Contained {
+public interface InjectionAttributes extends IdentifiableAttributes, Contained, RegulatedEquipmentAttributes {
 
     String getVoltageLevelId();
 
@@ -45,24 +44,9 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained {
 
     void setPosition(ConnectablePositionAttributes position);
 
-    default ActivePowerControlAttributes getActivePowerControl() {
-        return null;
-    }
-
-    default void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
-    }
-
     @JsonIgnore
     default Set<String> getContainerIds() {
         return Collections.singleton(getVoltageLevelId());
     }
 
-    @JsonIgnore
-    @Override
-    default Attributes filter(AttributeFilter filter) {
-        if (filter != AttributeFilter.SV) {
-            throw new PowsyblException("Unsupported attribute filter: " + filter);
-        }
-        return new InjectionSvAttributes(getP(), getQ());
-    }
 }

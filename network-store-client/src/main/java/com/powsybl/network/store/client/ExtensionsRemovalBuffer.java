@@ -1,0 +1,66 @@
+/**
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.network.store.client;
+
+import com.powsybl.network.store.client.util.QuadriConsumer;
+import com.powsybl.network.store.model.ResourceType;
+
+import java.util.*;
+
+/**
+ * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ */
+public class ExtensionsRemovalBuffer {
+
+    private final Map<ResourceType, Map<String, Set<String>>> removedExtensionIds = new EnumMap<>(ResourceType.class);
+    private final QuadriConsumer<UUID, Integer, ResourceType, Map<String, Set<String>>> removeFct;
+
+    public ExtensionsRemovalBuffer(QuadriConsumer<UUID, Integer, ResourceType, Map
+                <String, Set<String>>> removeFct) {
+        this.removeFct = removeFct;
+    }
+
+    public ExtensionsRemovalBuffer cloneBuffer() {
+        var clonedBuffer = new ExtensionsRemovalBuffer(removeFct);
+        removedExtensionIds.forEach((resourceType, extensionsIdsByIdentifiable) ->
+                extensionsIdsByIdentifiable.forEach((identifiableId, extensionIds) ->
+                        clonedBuffer.removedExtensionIds.computeIfAbsent(resourceType, s -> new HashMap<>())
+                                .computeIfAbsent(identifiableId, s -> new HashSet<>()).addAll(extensionIds)));
+        return clonedBuffer;
+    }
+
+    void remove(Map<String, Set<String>> extensionsIds, ResourceType resourceType) {
+        removedExtensionIds.computeIfAbsent(resourceType, s -> new HashMap<>());
+        mergeExtensions(removedExtensionIds.get(resourceType), extensionsIds);
+    }
+
+    void clearPendingRemovalsForResources(List<String> resourceIds, ResourceType resourceType) {
+        Map<String, Set<String>> removeExternalAttributesIdsByResource = removedExtensionIds.get(resourceType);
+        if (removeExternalAttributesIdsByResource != null) {
+            removeExternalAttributesIdsByResource.entrySet().removeIf(entry -> resourceIds.contains(entry.getKey()));
+            if (removeExternalAttributesIdsByResource.isEmpty()) {
+                removedExtensionIds.remove(resourceType);
+            }
+        }
+    }
+
+    void flush(UUID networkUuid, int variantNum) {
+        if (!removedExtensionIds.isEmpty()) {
+            removedExtensionIds.forEach((resourceType, resourceIds) ->
+                    removeFct.accept(networkUuid, variantNum, resourceType, removedExtensionIds.get(resourceType))
+            );
+        }
+        removedExtensionIds.clear();
+    }
+
+    private static void mergeExtensions(Map<String, Set<String>> savedExtensionsToRemove, Map<String, Set<String>> newExtensionsToRemove) {
+        newExtensionsToRemove.forEach((identifiableId, extensionIds) ->
+                savedExtensionsToRemove.computeIfAbsent(identifiableId, s -> new HashSet<>())
+                        .addAll(extensionIds));
+    }
+
+}

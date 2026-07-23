@@ -7,40 +7,14 @@
 package com.powsybl.network.store.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.Map;
-import java.util.Set;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@SuperBuilder
 @Schema(description = "Bus attributes")
-public class BusAttributes extends AbstractAttributes implements IdentifiableAttributes {
-
-    @Schema(description = "Resource")
-    private Resource resource;
-
-    @Schema(description = "Bus name")
-    private String name;
-
-    @Builder.Default
-    @Schema(description = "fictitious")
-    private boolean fictitious = false;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
+public class BusAttributes extends AbstractIdentifiableAttributes {
 }

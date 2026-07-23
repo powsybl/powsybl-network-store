@@ -8,7 +8,6 @@
 
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
@@ -18,7 +17,7 @@ import com.powsybl.network.store.model.HvdcAngleDroopActivePowerControlAttribute
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class HvdcAngleDroopActivePowerControlAdderImpl extends AbstractExtensionAdder<HvdcLine, HvdcAngleDroopActivePowerControl>
+public class HvdcAngleDroopActivePowerControlAdderImpl extends AbstractIidmExtensionAdder<HvdcLine, HvdcAngleDroopActivePowerControl>
         implements HvdcAngleDroopActivePowerControlAdder {
 
     private float p0;
@@ -51,7 +50,7 @@ public class HvdcAngleDroopActivePowerControlAdderImpl extends AbstractExtension
 
     @Override
     protected HvdcAngleDroopActivePowerControl createExtension(HvdcLine hvdcLine) {
-        ((HvdcLineImpl) hvdcLine).updateResource(res -> res.getAttributes().setHvdcAngleDroopActivePowerControl(
+        ((HvdcLineImpl) hvdcLine).updateResourceWithoutNotification(res -> res.getAttributes().setHvdcAngleDroopActivePowerControl(
                 HvdcAngleDroopActivePowerControlAttributes.builder()
                         .p0(p0)
                         .droop(droop)

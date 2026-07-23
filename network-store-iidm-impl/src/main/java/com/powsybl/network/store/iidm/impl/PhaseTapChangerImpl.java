@@ -9,8 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -36,15 +35,17 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public RegulationMode getRegulationMode() {
-        return getAttributes().getRegulationMode();
+        return PhaseTapChanger.RegulationMode.valueOf(getAttributes().getRegulatingPoint().getRegulationMode());
     }
 
     @Override
     public PhaseTapChanger setRegulationMode(RegulationMode regulationMode) {
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), parent.getNetwork(), true);
-        RegulationMode oldValue = getAttributes().getRegulationMode();
-        parent.getTransformer().updateResource(res -> getAttributes(res).setRegulationMode(regulationMode));
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), parent.getNetwork(),
+                parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
+        PhaseTapChanger.RegulationMode oldValue = getRegulationMode();
+        if (regulationMode != oldValue) {
+            regulatingPoint.setRegulationMode(getTapChangerAttribute() + ".regulationMode", String.valueOf(regulationMode));
+        }
         return this;
     }
 
@@ -55,28 +56,39 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public PhaseTapChanger setRegulationValue(double regulationValue) {
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), regulationValue, isRegulating(), getRegulationTerminal(), parent.getNetwork(), true);
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), regulationValue, isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), parent.getNetwork(),
+                parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
         double oldValue = getAttributes().getRegulationValue();
-        parent.getTransformer().updateResource(res -> getAttributes(res).setRegulationValue(regulationValue));
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationValue);
+        parent.getTransformer().updateResource(res -> getAttributes(res).setRegulationValue(regulationValue),
+            getTapChangerAttribute() + ".regulationValue", oldValue, regulationValue);
         return this;
     }
 
     @Override
     public PhaseTapChangerImpl setRegulating(boolean regulating) {
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(), parent.getNetwork(), true);
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, hasLoadTapChangingCapabilities(), getRegulationTerminal(), parent.getNetwork(),
+                parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
 
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
+        Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating, true);
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating, parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode(
+                ));
 
         return super.setRegulating(regulating);
     }
 
     @Override
     public PhaseTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), isRegulating(), regulationTerminal, parent.getNetwork(), true);
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), isRegulating(), hasLoadTapChangingCapabilities(), regulationTerminal, parent.getNetwork(),
+                parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
         return super.setRegulationTerminal(regulationTerminal);
+    }
+
+    @Override
+    public PhaseTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), isRegulating(), loadTapChangingCapabilities, getRegulationTerminal(), parent.getNetwork(),
+                parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
+        return super.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
     }
 
     @Override
@@ -92,9 +104,13 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public PhaseTapChangerStep getStep(int tapPosition) {
-        var attributes = getAttributes();
-        int tapPositionIndex = tapPosition - attributes.getLowTapPosition();
+        int tapPositionIndex = getTapPositionIndex(tapPosition);
         return new PhaseTapChangerStepImpl(this, tapPositionIndex);
+    }
+
+    @Override
+    public PhaseTapChangerStepsReplacer stepsReplacer() {
+        return new PhaseTapChangerStepsReplacerImpl(this);
     }
 
     @Override
@@ -105,7 +121,35 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     }
 
     @Override
+    public PhaseTapChangerStep getSolvedCurrentStep() {
+        Integer solvedPosition = getAttributes().getSolvedTapPosition();
+        if (solvedPosition == null) {
+            return null;
+        }
+        return getStep(solvedPosition);
+    }
+
+    @Override
+    protected Integer getRelativeNeutralPosition() {
+        var steps = getAttributes().getSteps();
+        for (int i = 0; i < steps.size(); i++) {
+            TapChangerStepAttributes stepAttributes = steps.get(i);
+            if (stepAttributes.getRho() == 1 && stepAttributes.getAlpha() == 0) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Optional<PhaseTapChangerStep> getNeutralStep() {
+        Integer relativeNeutralPosition = getRelativeNeutralPosition();
+        return relativeNeutralPosition != null ? Optional.of(new PhaseTapChangerStepImpl(this, relativeNeutralPosition)) : Optional.empty();
+    }
+
+    @Override
     public void remove() {
+        regulatingPoint.remove();
         parent.setPhaseTapChanger(null);
     }
 
@@ -114,7 +158,46 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     }
 
     @Override
-    public String getMessageHeader() {
-        return "phaseTapChanger '" + parent.getTransformer().getId() + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("phaseTapChanger", parent.getTransformer().getId());
+    }
+
+    public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
+        AbstractTapChanger.validateStep(step, parent);
+        if (Double.isNaN(step.getAlpha())) {
+            throw new ValidationException(parent, "step alpha is not set");
+        }
+    }
+
+    // equals and hashCode are overridden to ensure correct behavior of the PhaseTapChanger
+    // in hash table-based collections (e.g., HashSet, HashMap). Without these overrides, the default
+    // implementations include this.attributesGetter, which can lead to incorrect behavior in
+    // hash-based collections by affecting instance identification, retrieval and removal.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PhaseTapChangerImpl that = (PhaseTapChangerImpl) o;
+        if (!Objects.equals(that.getTransformer().getClass(), getTransformer().getClass())) {
+            return false;
+        }
+        // check phase tap changer are on same leg
+        if (that.getTransformer() instanceof ThreeWindingsTransformerImpl &&
+            !Objects.equals(((ThreeWindingsTransformerImpl.LegImpl) parent).getSide(),
+                ((ThreeWindingsTransformerImpl.LegImpl) that.getParent()).getSide())) {
+            return false;
+        }
+        return Objects.equals(getTransformer().getId(), that.getTransformer().getId()) &&
+            Objects.equals(getRegulationMode(), that.getRegulationMode()) &&
+            Objects.equals(getRegulationValue(), that.getRegulationValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getParent(), getTransformer().getId(), getRegulationMode(), getRegulationValue());
     }
 }

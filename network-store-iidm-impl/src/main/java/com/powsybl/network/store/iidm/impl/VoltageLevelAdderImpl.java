@@ -15,6 +15,7 @@ import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.SubstationAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -85,6 +86,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
                                                   .lowVoltageLimit(lowVoltageLimit)
                                                   .highVoltageLimit(highVoltageLimit)
                                                   .topologyKind(topologyKind)
+                                                  .areaIds(new HashSet<>())
                                                   .build())
                 .build();
         return getIndex().createVoltageLevel(voltageLevelResource);

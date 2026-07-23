@@ -15,6 +15,6 @@ public class ExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest ext
 
     @Override
     public void test() throws InterruptedException {
-        // FIXME
+        // FIXME delete this test when multi-thread access is supported
     }
 }

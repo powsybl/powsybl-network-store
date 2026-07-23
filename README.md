@@ -1,10 +1,9 @@
 # PowSyBl Network Store Client
 
-[![Actions Status](https://github.com/powsybl/powsybl-network-store/workflows/CI/badge.svg)](https://github.com/powsybl/powsybl-network-store/actions)
+[![Actions Status](https://github.com/powsybl/powsybl-network-store/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/powsybl/powsybl-network-store/actions)
 [![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-network-store&metric=coverage)](https://sonarcloud.io/component_measures?id=com.powsybl%3Apowsybl-network-store&metric=coverage)
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
-[![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/powsybl)
-[![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://join.slack.com/t/powsybl/shared_invite/zt-rzvbuzjk-nxi0boim1RKPS5PjieI0rA)
+[![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://join.slack.com/t/powsybl/shared_invite/zt-36jvd725u-cnquPgZb6kpjH8SKh~FWHQ)
 
 PowSyBl (**Pow**er **Sy**stem **Bl**ocks) is an open source framework written in Java, that makes it easy to write complex
 software for power systems’ simulations and analysis. Its modular approach allows developers to extend or customize its
@@ -41,12 +40,12 @@ In your preferred IDE, create a project with following dependencies:
 <dependency>
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-network-store-client</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.7.0</version>
 </dependency>
 <dependency>
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-iidm-test</artifactId>
-    <version>5.1.1</version>
+    <version>6.0.2</version>
 </dependency>
 ```
 
