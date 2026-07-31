@@ -47,6 +47,10 @@
     </developers>
 
     <properties>
+        <!-- FIXME to remove when powsybl-parent supports JDK25 -->
+        <java.version>25</java.version>
+        <maven.jacoco.version>0.8.15</maven.jacoco.version>
+        <checkstyle.version>13.8.0</checkstyle.version>
         <springboot.version>3.5.11</springboot.version>
         <powsybl-dependencies.version>2026.1.0</powsybl-dependencies.version>
         <sonar.coverage.jacoco.xmlReportPaths>
