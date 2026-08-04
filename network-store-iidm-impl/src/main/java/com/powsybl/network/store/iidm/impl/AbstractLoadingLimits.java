@@ -6,11 +6,14 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -154,6 +157,17 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
             attributes.getTemporaryLimits().put(acceptableDuration, newTemporaryLimit);
         }
         return (T) this;
+    }
+
+    @Override
+    public T setPermanentLimitName(String name) {
+        attributes.setPermanentLimitName(name);
+        return (T) this;
+    }
+
+    @Override
+    public String getPermanentLimitName() {
+        return attributes.getPermanentLimitName();
     }
 
     protected boolean isTemporaryLimitValueValid(Map.Entry<Integer, TemporaryLimitAttributes> biggerDurationEntry,
