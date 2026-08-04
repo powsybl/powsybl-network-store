@@ -41,11 +41,12 @@ public class ActivePowerLimitsImpl<S, O extends LimitsOwner<S>> extends Abstract
 
     @Override
     public String getPermanentLimitName() {
-        return "";
+        return attributes.getPermanentLimitName();
     }
 
     @Override
     public LoadingLimits setPermanentLimitName(String name) {
+        attributes.setPermanentLimitName(name);
         return this;
     }
 }
