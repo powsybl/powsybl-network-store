@@ -74,7 +74,7 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
         }
     }
 
-    protected final LimitsAttributes attributes;
+    private final LimitsAttributes attributes;
 
     protected final O owner;
 
