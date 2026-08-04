@@ -26,6 +26,10 @@ import java.util.TreeMap;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "limits attributes")
 public class LimitsAttributes {
+
+    @Schema(description = "Permanent limit name")
+    private String permanentLimitName;
+
     @Schema(description = "Permanent limit in A")
     private double permanentLimit;
 

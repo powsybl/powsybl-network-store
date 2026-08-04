@@ -39,6 +39,8 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     protected double permanentLimit = Double.NaN;
 
+    protected String permanentLimitName;
+
     protected TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
 
     protected DetectionKind detectionKind = DetectionKind.HIGH;
@@ -179,6 +181,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
         checkTemporaryLimits();
 
         LimitsAttributes attributes = LimitsAttributes.builder()
+                .permanentLimitName(permanentLimitName)
                 .permanentLimit(permanentLimit)
                 .temporaryLimits(temporaryLimits)
                 .build();
@@ -199,7 +202,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>
 
     @Override
     public A setPermanentLimitName(String limitName) {
-        // TODO: to implement
+        this.permanentLimitName = limitName;
         return (A) this;
     }
 }
