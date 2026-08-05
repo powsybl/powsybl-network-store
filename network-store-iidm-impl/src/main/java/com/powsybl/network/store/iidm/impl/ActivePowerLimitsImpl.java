@@ -38,4 +38,3 @@ public class ActivePowerLimitsImpl<S, O extends LimitsOwner<S>> extends Abstract
         return DetectionKind.HIGH;
     }
 }
-

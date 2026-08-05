@@ -38,4 +38,3 @@ public class ApparentPowerLimitsImpl<S, O extends LimitsOwner<S>> extends Abstra
         return DetectionKind.HIGH;
     }
 }
-
