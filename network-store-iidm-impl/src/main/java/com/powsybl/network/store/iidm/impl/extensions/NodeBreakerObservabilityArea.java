@@ -220,7 +220,7 @@ public class NodeBreakerObservabilityArea extends AbstractExtension<VoltageLevel
         @Override
         public AreaCharacteristics getObservabilityArea(String busId, boolean throwException) {
             Bus bus = getVoltageLevel().getBusBreakerView().getBus(busId);
-            if (busId == null) {
+            if (bus == null) {
                 return null;
             }
             Bus busViewBus = bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst().orElse(null);

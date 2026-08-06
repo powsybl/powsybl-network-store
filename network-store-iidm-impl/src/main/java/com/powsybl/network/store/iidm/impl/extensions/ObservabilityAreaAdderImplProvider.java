@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.extensions.ObservabilityArea;
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class ObservabilityAreaAdderAdderImplProvider implements ExtensionAdderProvider<VoltageLevel, ObservabilityArea, ObservabilityAreaAdderImpl> {
+public class ObservabilityAreaAdderImplProvider implements ExtensionAdderProvider<VoltageLevel, ObservabilityArea, ObservabilityAreaAdderImpl> {
 
     @Override
     public String getImplementationName() {

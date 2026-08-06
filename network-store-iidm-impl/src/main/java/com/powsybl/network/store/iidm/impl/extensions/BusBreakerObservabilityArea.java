@@ -229,7 +229,14 @@ public class BusBreakerObservabilityArea extends AbstractExtension<VoltageLevel>
                     handleNotExistingBusError(e.getKey(), throwException);
                     continue;
                 }
-                if (getVoltageLevel().getBusView().getMergedBus(e.getKey()).getId().equals(busId)) {
+
+                Bus mergedBus = getVoltageLevel().getBusView().getMergedBus(e.getKey());
+                if (mergedBus == null) {
+                    handleNotExistingBusError(e.getKey(), throwException);
+                    continue;
+                }
+
+                if (mergedBus.getId().equals(busId)) {
                     if (characteristics != null && characteristics != e.getValue()) {
                         handleOverridingObservabilityAreaError(busId, throwException);
                     } else {
