@@ -188,14 +188,13 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
     }
 
     @Override
-    public String getPermanentLimitName() {
-        // FIXME: implements it with the network store server part
-        return LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
+    public T setPermanentLimitName(String name) {
+        attributes.setPermanentLimitName(name);
+        return (T) this;
     }
 
     @Override
-    public LoadingLimits setPermanentLimitName(String name) {
-        // FIXME: implements it with the network store server part
-        return this;
+    public String getPermanentLimitName() {
+        return attributes.getPermanentLimitName();
     }
 }
