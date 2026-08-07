@@ -225,13 +225,9 @@ public class BusBreakerObservabilityArea extends AbstractExtension<VoltageLevel>
             AreaCharacteristics characteristics = null;
             for (Map.Entry<String, BusBreakerAreaCharacteristics> e : busBreakerView.observabilityAreas.entrySet()) {
                 Bus bus = getVoltageLevel().getBusBreakerView().getBus(e.getKey());
-                if (bus == null) {
-                    handleNotExistingBusError(e.getKey(), throwException);
-                    continue;
-                }
-
                 Bus mergedBus = getVoltageLevel().getBusView().getMergedBus(e.getKey());
-                if (mergedBus == null) {
+
+                if (bus == null || mergedBus == null) {
                     handleNotExistingBusError(e.getKey(), throwException);
                     continue;
                 }
