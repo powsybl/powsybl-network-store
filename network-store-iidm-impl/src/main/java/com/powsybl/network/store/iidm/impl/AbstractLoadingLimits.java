@@ -186,4 +186,16 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
     protected void persistProperties(Map<String, String> properties) {
         owner.getIdentifiable().updateResourceWithoutNotification(r -> setProperties(properties));
     }
+
+    @Override
+    public String getPermanentLimitName() {
+        // FIXME: implements it with the network store server part
+        return LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
+    }
+
+    @Override
+    public LoadingLimits setPermanentLimitName(String name) {
+        // FIXME: implements it with the network store server part
+        return this;
+    }
 }
