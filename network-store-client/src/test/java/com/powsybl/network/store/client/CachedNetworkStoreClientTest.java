@@ -21,14 +21,10 @@ import com.powsybl.network.store.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import java.io.IOException;
@@ -49,28 +45,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  */
 
 @RestClientTest
+@ContextConfiguration(classes = RestClientImpl.class)
 class CachedNetworkStoreClientTest {
-
-    // Necessary with empty @RestClientTest for this
-    // lib which doesn't have a @SpringBootApplication in
-    // its main sources.
-    @SpringBootConfiguration
-    static class EmptyConfig {
-
-    }
-
-    // Don't use the component scanned RestClient in this test
-    // to avoid the /v1 prefix because the tests were written
-    // without it (could be considered more legible... but not
-    // terribly important. Feel free to change if needed)
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        @Primary
-        public RestClient testClient(RestTemplateBuilder restTemplateBuilder) {
-            return new RestClientImpl(restTemplateBuilder);
-        }
-    }
 
     @Autowired
     private RestClient restClient;
