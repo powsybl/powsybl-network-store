@@ -359,6 +359,39 @@ class RestNetworkStoreClientTest {
         assertEquals("ResourceAccessException error", httpClientErrorException.getMessage());
     }
 
+    @Test
+    void testNetworkExists() throws JsonProcessingException {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+
+        Resource<NetworkAttributes> n1 = Resource.networkBuilder()
+                .id("n1")
+                .attributes(NetworkAttributes.builder()
+                        .uuid(networkUuid)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n1)), MediaType.APPLICATION_JSON));
+
+        assertTrue(restNetworkStoreClient.networkExists(networkUuid));
+        server.verify();
+    }
+
+    @Test
+    void testNetworkExistsWhenNetworkNotFound() {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
+                .andExpect(method(GET))
+                .andRespond(withResourceNotFound());
+
+        assertFalse(restNetworkStoreClient.networkExists(networkUuid));
+        server.verify();
+    }
+
     private void testDeleteAllByType(List<String> ids, String type, Consumer<List<String>> deleteFunction) {
         String idsStr = String.join("\",\"", ids);
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/" + type))

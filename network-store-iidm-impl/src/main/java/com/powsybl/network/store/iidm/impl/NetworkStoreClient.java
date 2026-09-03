@@ -30,6 +30,10 @@ public interface NetworkStoreClient {
 
     Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum);
 
+    default boolean networkExists(UUID networkUuid) {
+        return getNetwork(networkUuid, 0).isPresent();
+    }
+
     void deleteNetwork(UUID networkUuid);
 
     void deleteNetwork(UUID networkUuid, int variantNum);
