@@ -22,13 +22,9 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.ResourceAccessException;
@@ -46,28 +42,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  */
 
 @RestClientTest
+@ContextConfiguration(classes = RestClientImpl.class)
 class RestNetworkStoreClientTest {
-
-    // Necessary with empty @RestClientTest for this
-    // lib which doesn't have a @SpringBootApplication in
-    // its main sources.
-    @SpringBootConfiguration
-    public static class EmptyConfig {
-
-    }
-
-    // Don't use the component scanned RestClient in this test
-    // to avoid the /v1 prefix because the tests were written
-    // without it (could be considered more legible... but not
-    // terribly important. Feel free to change if needed)
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        @Primary
-        public RestClient testClient(RestTemplateBuilder restTemplateBuilder) {
-            return new RestClientImpl(restTemplateBuilder);
-        }
-    }
 
     private static final String VARIANT1 = "variant1";
 
@@ -381,6 +357,39 @@ class RestNetworkStoreClientTest {
                 wrongId2));
         server.verify();
         assertEquals("ResourceAccessException error", httpClientErrorException.getMessage());
+    }
+
+    @Test
+    void testNetworkExists() throws JsonProcessingException {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+
+        Resource<NetworkAttributes> n1 = Resource.networkBuilder()
+                .id("n1")
+                .attributes(NetworkAttributes.builder()
+                        .uuid(networkUuid)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n1)), MediaType.APPLICATION_JSON));
+
+        assertTrue(restNetworkStoreClient.networkExists(networkUuid));
+        server.verify();
+    }
+
+    @Test
+    void testNetworkExistsWhenNetworkNotFound() {
+        RestNetworkStoreClient restNetworkStoreClient = new RestNetworkStoreClient(restClient, objectMapper);
+
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
+                .andExpect(method(GET))
+                .andRespond(withResourceNotFound());
+
+        assertFalse(restNetworkStoreClient.networkExists(networkUuid));
+        server.verify();
     }
 
     private void testDeleteAllByType(List<String> ids, String type, Consumer<List<String>> deleteFunction) {

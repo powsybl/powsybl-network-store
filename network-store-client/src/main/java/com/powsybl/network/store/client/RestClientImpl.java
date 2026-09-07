@@ -22,8 +22,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 
@@ -53,17 +51,14 @@ public class RestClientImpl implements RestClient {
                           @Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri) {
         this.restTemplate = Objects.requireNonNull(restTemplateBuilder)
             .errorHandler(new RestTemplateResponseErrorHandler())
-            .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder
-                .fromUriString(baseUri)
-                .path(NetworkStoreApi.VERSION)))
+            .rootUri(baseUri + NetworkStoreApi.VERSION)
             .additionalCustomizers(RestClientImpl::enableDefaultViewInclusion)
             .build();
     }
 
     public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
         return new RestTemplateBuilder(restTemplate1 -> restTemplate1.setMessageConverters(List.of(createMapping())))
-            .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
-                        .path(NetworkStoreApi.VERSION)));
+            .rootUri(baseUri + NetworkStoreApi.VERSION);
     }
 
     private static ObjectMapper createObjectMapper() {

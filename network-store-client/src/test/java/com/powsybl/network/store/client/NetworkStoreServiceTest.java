@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Mohamed Benrejeb <mohamed.ben-rejeb at rte-france.com>
@@ -59,6 +61,39 @@ class NetworkStoreServiceTest {
         assertEquals("trace-123", executorService.submit(TraceHolderTest::get).get());
 
         service.close();
+    }
+
+    @Test
+    void networkExistsReturnsTrueWhenStoreClientReportsExistingNetwork() {
+        UUID networkUuid = UUID.randomUUID();
+        NetworkStoreClient storeClient = mock(NetworkStoreClient.class);
+        when(storeClient.networkExists(networkUuid)).thenReturn(true);
+        TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator =
+                (rest, strategy, executor) -> storeClient;
+
+        try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE, decorator)) {
+            assertTrue(service.networkExists(networkUuid));
+        }
+    }
+
+    @Test
+    void networkExistsReturnsFalseWhenStoreClientReportsMissingNetwork() {
+        UUID networkUuid = UUID.randomUUID();
+        NetworkStoreClient storeClient = mock(NetworkStoreClient.class);
+        when(storeClient.networkExists(networkUuid)).thenReturn(false);
+        TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator =
+                (rest, strategy, executor) -> storeClient;
+
+        try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE, decorator)) {
+            assertFalse(service.networkExists(networkUuid));
+        }
+    }
+
+    @Test
+    void networkExistsThrowsNullPointerExceptionWhenUuidIsNull() {
+        try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE)) {
+            assertThrows(NullPointerException.class, () -> service.networkExists(null));
+        }
     }
 
     private static final class TraceHolderTest {

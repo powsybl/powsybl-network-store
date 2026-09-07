@@ -214,6 +214,12 @@ public class NetworkStoreService implements AutoCloseable {
                 .orElseThrow(() -> new PowsyblException("Network '" + uuid + "' not found")));
     }
 
+    public boolean networkExists(UUID uuid) {
+        Objects.requireNonNull(uuid);
+        NetworkStoreClient storeClient = decorator.apply(restClient, PreloadingStrategy.NONE, executorService);
+        return storeClient.networkExists(uuid);
+    }
+
     public void deleteNetwork(UUID uuid) {
         new RestNetworkStoreClient(restClient).deleteNetwork(uuid);
     }
