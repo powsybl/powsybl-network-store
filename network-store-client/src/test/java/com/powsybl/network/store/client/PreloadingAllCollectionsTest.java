@@ -48,4 +48,38 @@ class PreloadingAllCollectionsTest {
             }
         }
     }
+
+    @Test
+    public void testGetIdentifiableStaysLazyForAFewCalls() {
+        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        for (int i = 0; i < 5; i++) {
+            client.getIdentifiable(networkUuid, 0, "unknown" + i);
+        }
+        for (ResourceType resourceType : PreloadingNetworkStoreClient.ALL_IDENTIFIABLE_RESOURCE_TYPES) {
+            assertFalse(client.isResourceTypeCached(networkUuid, 0, resourceType));
+        }
+    }
+
+    @Test
+    public void testGetIdentifiablePreloadsEverythingAfterManyCalls() {
+        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        for (int i = 0; i < 20; i++) {
+            client.getIdentifiable(networkUuid, 0, "unknown" + i);
+        }
+        for (ResourceType resourceType : PreloadingNetworkStoreClient.ALL_IDENTIFIABLE_RESOURCE_TYPES) {
+            assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
+        }
+    }
+
+    @Test
+    public void testGetIdentifiablePreloadsEverythingImmediatelyInBusViewMode() {
+        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), true, ForkJoinPool.commonPool());
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        client.getIdentifiable(networkUuid, 0, "unknown");
+        for (ResourceType resourceType : PreloadingNetworkStoreClient.ALL_IDENTIFIABLE_RESOURCE_TYPES) {
+            assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
+        }
+    }
 }
