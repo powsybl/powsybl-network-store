@@ -50,7 +50,7 @@ class PreloadingAllCollectionsTest {
     }
 
     @Test
-    public void testGetIdentifiableStaysLazyForAFewCalls() {
+    void getIdentifiableLazyBelowThreshold() {
         var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         for (int i = 0; i < 5; i++) {
@@ -62,7 +62,7 @@ class PreloadingAllCollectionsTest {
     }
 
     @Test
-    public void testGetIdentifiablePreloadsEverythingAfterManyCalls() {
+    void getIdentifiableFullPreloadAboveThreshold() {
         var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         for (int i = 0; i < 20; i++) {
@@ -74,7 +74,7 @@ class PreloadingAllCollectionsTest {
     }
 
     @Test
-    public void testGetIdentifiablePreloadsEverythingImmediatelyInBusViewMode() {
+    void getIdentifiablePreloadInBusViewMode() {
         var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), true, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         client.getIdentifiable(networkUuid, 0, "unknown");
