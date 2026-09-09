@@ -50,7 +50,7 @@ class PreloadingAllCollectionsTest {
     }
 
     @Test
-    void getIdentifiableLazyBelowThreshold() {
+    void getIdentifiableLazyPreloadBelowThreshold() {
         var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         for (int i = 0; i < 5; i++) {
