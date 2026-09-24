@@ -80,7 +80,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
     @Override
     public HvdcLine add() {
         String id = checkAndGetUniqueId();
-        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkDoubleParamPositive(this, r, HvdcLineImpl.R_ATTRIBUTE);
         ValidationUtil.checkConvertersMode(this, convertersMode, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkNominalV(this, nominalV);
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());

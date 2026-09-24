@@ -16,6 +16,8 @@ import java.util.*;
  */
 public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
+    private final Map<UUID, List<VariantInfos>> variants = new HashMap<>();
+
     @Override
     public List<NetworkInfos> getNetworksInfos() {
         return Collections.emptyList();
@@ -23,12 +25,15 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createNetworks(List<Resource<NetworkAttributes>> networkResources) {
-        // nothing to do
+        for (Resource<NetworkAttributes> resource : networkResources) {
+            variants.computeIfAbsent(resource.getAttributes().getUuid(), ignored -> new ArrayList<>())
+                .add(new VariantInfos(resource.getAttributes().getVariantId(), resource.getVariantNum()));
+        }
     }
 
     @Override
     public List<VariantInfos> getVariantsInfos(UUID networkUuid, boolean disableCache) {
-        return Collections.emptyList();
+        return new ArrayList<>(variants.getOrDefault(networkUuid, Collections.emptyList()));
     }
 
     @Override
@@ -38,12 +43,15 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
-        // nothing to do
+        variants.remove(networkUuid);
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid, int variantNum) {
-        // nothing to do
+        variants.computeIfPresent(networkUuid, (ignored, infos) -> {
+            infos.removeIf(info -> info.getNum() == variantNum);
+            return infos;
+        });
     }
 
     @Override
@@ -53,7 +61,10 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
-        // nothing to do
+        variants.computeIfPresent(networkUuid, (ignored, infos) -> {
+            infos.add(new VariantInfos(targetVariantId, targetVariantNum));
+            return infos;
+        });
     }
 
     @Override
