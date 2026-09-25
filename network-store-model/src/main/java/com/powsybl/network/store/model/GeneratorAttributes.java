@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.powsybl.iidm.network.EnergySource;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Generator attributes")
-public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder, VoltageRegulationReactiveTargetAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -53,8 +54,16 @@ public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes i
     @Schema(description = "Reactive power target in MVar")
     private double targetQ;
 
+    @Builder.Default
+    @Schema(description = "Local reactive power target in MVar")
+    private double localTargetQ = Double.NaN;
+
     @Schema(description = "Voltage target in kV")
     private double targetV;
+
+    @Builder.Default
+    @Schema(description = "Local voltage target in kV")
+    private double localTargetV = Double.NaN;
 
     @Schema(description = "Equivalent local targetV in kV")
     private double equivalentLocalTargetV;
@@ -82,6 +91,7 @@ public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes i
     private CoordinatedReactiveControlAttributes coordinatedReactiveControl;
 
     @Schema(description = "Remote reactive power control attributes")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private RemoteReactivePowerControlAttributes remoteReactivePowerControl;
 
     @Schema(description = "Entsoe category attributes")

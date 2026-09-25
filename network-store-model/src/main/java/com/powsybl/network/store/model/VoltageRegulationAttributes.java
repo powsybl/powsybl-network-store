@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,15 +14,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * Legacy battery voltage-regulation attributes kept for JSON migration.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Voltage regulation attributes")
+@Schema(description = "Legacy voltage regulation attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VoltageRegulationAttributes implements ExtensionAttributes {
+
     private boolean voltageRegulatorOn;
 
     private double targetV;

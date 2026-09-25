@@ -7,10 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractAcDcConverterTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
+@Disabled("Detailed DC network is not implemented by network-store")
 class AcDcConverterTest extends AbstractAcDcConverterTest {
 
     @Override

@@ -356,7 +356,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
                 });
 
         variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
-                .add(new VariantInfos(targetVariantId, targetVariantNum));
+                .removeIf(info -> info.getNum() == targetVariantNum || info.getId().equals(targetVariantId));
+        variantsInfosByNetworkUuid.get(networkUuid).add(new VariantInfos(targetVariantId, targetVariantNum));
     }
 
     @Override

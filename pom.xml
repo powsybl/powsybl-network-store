@@ -53,6 +53,8 @@
         <checkstyle.version>13.8.0</checkstyle.version>
         <springboot.version>3.5.11</springboot.version>
         <powsybl-dependencies.version>2026.1.0</powsybl-dependencies.version>
+        <!-- Local build of powsybl-core PR #3699 while the refactoring is still under review. -->
+        <powsybl-core.version>7.4.0-SNAPSHOT</powsybl-core.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../network-store-client-distribution/target/site/jacoco-aggregate/jacoco.xml,
@@ -88,6 +90,78 @@
                 <version>${powsybl-dependencies.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!-- Use the locally installed powsybl-core PR artifacts. -->
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-iidm-api</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-iidm-extensions</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-iidm-tck</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-iidm-test</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-entsoe-util</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-iidm-serde</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-iidm-modification</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-cgmes-conversion</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-cgmes-extensions</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-cgmes-model-test</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-cgmes-conformity</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-config-test</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-commons-test</artifactId>
+                <version>${powsybl-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
+                <version>${powsybl-core.version}</version>
             </dependency>
 
             <!-- project specific dependencies (also overrides imports, but separate for clarity) -->

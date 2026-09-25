@@ -460,6 +460,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         }
 
         getCachedExtensionAttributes(identifiableId).putIfAbsent(extensionName, extensionAttributes);
+        LegacyVoltageRegulationAttributesMapper.migrate(resources.get(identifiableId).getAttributes());
         Set<String> extensions = removedExtensionAttributes.get(identifiableId);
         if (extensions != null) {
             extensions.remove(extensionName);
@@ -525,6 +526,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         }
 
         extensionAttributes.forEach(getCachedExtensionAttributes(id)::putIfAbsent);
+        LegacyVoltageRegulationAttributesMapper.migrate(resources.get(id).getAttributes());
         fullyLoadedExtensionsByIdentifiableIds.add(id);
         removedExtensionAttributes.remove(id);
     }

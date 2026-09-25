@@ -10,8 +10,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.network.store.model.*;
 
 import java.util.function.Function;
@@ -19,7 +20,8 @@ import java.util.function.Function;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public final class InjectionRegulatingPoint<I extends Injection<I>, D extends InjectionAttributes> extends AbstractRegulatingPoint {
+public final class InjectionRegulatingPoint<I extends Injection<I>,
+    D extends InjectionAttributes & VoltageRegulationTargetAttributes> extends AbstractRegulatingPoint {
     private final AbstractRegulatingInjection<I, D> injection;
 
     public InjectionRegulatingPoint(NetworkObjectIndex index, AbstractRegulatingInjection<I, D> injection, Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
@@ -33,32 +35,58 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
 
     @Override
     public RegulatingPointAttributes getAttributes() {
-        return attributesGetter.apply(getResource().getAttributes()).getRegulatingPoint();
+        AbstractRegulatingEquipmentAttributes equipmentAttributes = attributesGetter.apply(getResource().getAttributes());
+        if (equipmentAttributes.getRegulatingPoint() == null) {
+            ResourceType resourceType = getResource().getType();
+            equipmentAttributes.setRegulatingPoint(RegulatingPointAttributes.builder()
+                .regulatingEquipmentId(getResource().getId())
+                .regulatingResourceType(resourceType)
+                .regulatingTapChangerType(RegulatingTapChangerType.NONE)
+                .localTerminal(TerminalRefUtils.getTerminalRefAttributes(injection.getTerminal()))
+                .regulatedResourceType(resourceType)
+                .regulating(false)
+                .build());
+        }
+        return equipmentAttributes.getRegulatingPoint();
     }
 
     @Override
     protected void resetRegulatingAndRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode) {
+        VoltageRegulation regulation = injection.getVoltageRegulation();
+        boolean sameBus = localTerminal != null && regulatingTerminal != null
+            && sameBus(localTerminal, regulatingTerminal);
+        boolean isSvc = getAttributes().getRegulatingResourceType() == ResourceType.STATIC_VAR_COMPENSATOR;
         // if localTerminal or regulatingTerminal is not connected then the bus is null
         if (regulatingTerminal != null && localTerminal.isConnected() && regulatingTerminal.isConnected()) {
             switch (getAttributes().getRegulatingResourceType()) {
                 // for svc we set the regulation mode to Off if the regulation was not on the same bus than the svc. If the svc is on the same bus were the equipment was remove we keep the regulation
                 case STATIC_VAR_COMPENSATOR -> {
-                    setRegulationMode("regulationMode", String.valueOf(StaticVarCompensator.RegulationMode.VOLTAGE));
+                    setRegulationMode("regulationMode", RegulationMode.VOLTAGE.toString());
                     reportNode.newReportNode()
                         .withMessageTemplate("network.store.resetSVCRegulationMode")
                         .withUntypedValue("identifiableId", getRegulatingEquipmentId())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
                 }
-                case GENERATOR, SHUNT_COMPENSATOR, VSC_CONVERTER_STATION -> {
+                case BATTERY, GENERATOR, SHUNT_COMPENSATOR, VSC_CONVERTER_STATION -> {
                 }
                 default -> throw new PowsyblException("No regulation for this kind of equipment");
             }
             // the target can be inappropriated if it was a remote regulation
-            setRegulating("regulating", false);
+            if (!(isSvc && sameBus && regulation != null && regulation.getMode() == RegulationMode.VOLTAGE)) {
+                setRegulating("regulating", false);
+            }
         }
         // if the regulating equipment was already regulating on his bus but on another element
         // we reallocate the regulating point and we keep the regulation on
+    }
+
+    private static boolean sameBus(Terminal first, Terminal second) {
+        String firstBus = first.getBusBreakerView().getConnectableBus() != null
+            ? first.getBusBreakerView().getConnectableBus().getId() : null;
+        String secondBus = second.getBusBreakerView().getConnectableBus() != null
+            ? second.getBusBreakerView().getConnectableBus().getId() : null;
+        return firstBus != null && firstBus.equals(secondBus);
     }
 
     @Override

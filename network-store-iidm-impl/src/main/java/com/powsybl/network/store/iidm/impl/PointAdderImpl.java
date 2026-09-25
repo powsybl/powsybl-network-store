@@ -63,10 +63,10 @@ class PointAdderImpl extends AbstractBasePropertiesHolder implements ReactiveCap
         if (Double.isNaN(maxQ)) {
             throw new ValidationException(this, "max Q is not set");
         }
-        // TODO: to be activated in IIDM v1.1
-        // if (maxQ < minQ) {
-        //     throw new ValidationException(this, "maximum reactive power " + maxQ + " is expected to be greater than or equal to minimum reactive power " + minQ);
-        // }
+        if (maxQ < minQ) {
+            throw new ValidationException(this,
+                    "maximum reactive power is expected to be greater than or equal to minimum reactive power");
+        }
         ReactiveCapabilityCurvePointAttributes point = reactiveCapabilityCurveAdder.getPoint(p);
         if (point != null) {
             if (point.getMinQ() != minQ || point.getMaxQ() != maxQ) {

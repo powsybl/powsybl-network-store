@@ -64,6 +64,9 @@ public class Resource<T extends Attributes> implements Validable {
         Objects.requireNonNull(attributes);
         Resource<T> resource = new Resource<>(type, id, variantNum, AttributeFilter.UNSET_AS_NULL, attributes);
         attributes.setResource(resource);
+        if (attributes instanceof IdentifiableAttributes identifiableAttributes) {
+            LegacyVoltageRegulationAttributesMapper.migrate(identifiableAttributes);
+        }
         return resource;
     }
 
@@ -108,6 +111,7 @@ public class Resource<T extends Attributes> implements Validable {
             }
             Resource<T> resource = new Resource<>(type, id, variantNum, AttributeFilter.UNSET_AS_NULL, attributes);
             attributes.setResource(resource);
+            LegacyVoltageRegulationAttributesMapper.migrate(attributes);
             return resource;
         }
     }
@@ -202,6 +206,7 @@ public class Resource<T extends Attributes> implements Validable {
         // use json serialization to clone the resources of source collection
         List<Resource<T>> clonedResources;
         try {
+            resources.forEach(resource -> LegacyVoltageRegulationAttributesMapper.migrate(resource.getAttributes()));
             var json = objectMapper.writeValueAsString(resources);
             clonedResources = objectMapper.readValue(json, new TypeReference<>() {
             });

@@ -29,7 +29,10 @@ public class ReferrerManager<T> {
     }
 
     public void register(Referrer<T> referrer) {
-        referrers.add(Objects.requireNonNull(referrer));
+        Referrer<T> requiredReferrer = Objects.requireNonNull(referrer);
+        if (!referrers.contains(requiredReferrer)) {
+            referrers.add(requiredReferrer);
+        }
     }
 
     public void unregister(Referrer<T> referrer) {

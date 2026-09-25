@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -23,7 +24,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Static var compensator attributes")
-public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes {
+public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, VoltageRegulationReactiveTargetAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -46,8 +47,16 @@ public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentA
     @Schema(description = "Voltage setpoint in Kv")
     private double voltageSetPoint;
 
+    @Builder.Default
+    @Schema(description = "Local voltage target in kV")
+    private double localTargetV = Double.NaN;
+
     @Schema(description = "Reactive power setpoint in MVAR")
     private double reactivePowerSetPoint;
+
+    @Builder.Default
+    @Schema(description = "Local reactive power target in MVar")
+    private double localTargetQ = Double.NaN;
 
     @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Active power in MW")
@@ -63,6 +72,7 @@ public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentA
     private ConnectablePositionAttributes position;
 
     @Schema(description = "Voltage per reactive control")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private VoltagePerReactivePowerControlAttributes voltagePerReactiveControl;
 
     @Schema(description = "Standby automaton")
