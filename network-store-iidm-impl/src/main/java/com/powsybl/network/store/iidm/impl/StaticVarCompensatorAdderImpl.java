@@ -7,7 +7,12 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.network.store.model.*;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,12 +29,47 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
 
     private Boolean regulating;
 
-    StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
+    RegulationMode regulationMode = RegulationMode.VOLTAGE;
 
     private Terminal regulatingTerminal;
 
+    private double localTargetV = Double.NaN;
+
+    private double localTargetQ = Double.NaN;
+
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes;
+
+    private boolean voltageRegulationConfigured;
+
     StaticVarCompensatorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
+    }
+
+    @Override
+    public VoltageRegulationAdder<StaticVarCompensatorAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, null, getIndex(), this,
+                attributes -> {
+                    voltageRegulationAttributes = attributes;
+                    voltageRegulationConfigured = true;
+                    return null;
+                });
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return localTargetQ;
+    }
+
+    @Override
+    public StaticVarCompensatorAdder setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
+        return this;
+    }
+
+    @Override
+    public StaticVarCompensatorAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
+        return this;
     }
 
     @Override
@@ -57,7 +97,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
     }
 
     @Override
-    public StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode) {
+    public StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode) {
         this.regulationMode = regulationMode;
         return this;
     }
@@ -82,15 +122,32 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
         }
         String id = checkAndGetUniqueId();
         checkNodeBus();
+        if (voltageRegulationAttributes == null && regulating != null) {
+            createVoltageRegulationBackwardCompatibility(this, regulationMode, voltageSetPoint, reactivePowerSetPoint, regulating, regulatingTerminal);
+        } else if (voltageRegulationConfigured) {
+            if (!Double.isNaN(voltageSetPoint) && Double.isNaN(localTargetV)) {
+                localTargetV = voltageSetPoint;
+            }
+            if (!Double.isNaN(reactivePowerSetPoint) && Double.isNaN(localTargetQ)) {
+                localTargetQ = reactivePowerSetPoint;
+            }
+        }
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
-        ValidationUtil.checkSvcRegulator(this, regulating, voltageSetPoint, reactivePowerSetPoint, regulationMode, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
-                .getReportNode());
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        TerminalRefAttributes voltageRegulationTerminalRef = voltageRegulationAttributes == null
+                ? null
+                : TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal());
+        Boolean regulatingPointStatus = voltageRegulationAttributes == null
+                ? regulating
+                : Boolean.valueOf(voltageRegulationAttributes.isRegulating());
         RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(id, ResourceType.STATIC_VAR_COMPENSATOR, RegulatingTapChangerType.NONE,
-            new TerminalRefAttributes(id, null), terminalRefAttributes, String.valueOf(regulationMode), ResourceType.STATIC_VAR_COMPENSATOR, regulating);
+            new TerminalRefAttributes(id, null), voltageRegulationTerminalRef != null ? voltageRegulationTerminalRef : terminalRefAttributes,
+            String.valueOf(voltageRegulationAttributes == null ? regulationMode : voltageRegulationAttributes.mode()),
+            ResourceType.STATIC_VAR_COMPENSATOR,
+            regulatingPointStatus);
         Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
@@ -105,13 +162,25 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
                         .bmax(bMax)
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
+                        .localTargetV(localTargetV)
+                        .localTargetQ(localTargetQ)
                         .regulatingPoint(regulatingPointAttributes)
+                        .voltageRegulation(voltageRegulationAttributes == null ? null : NetworkVoltageRegulationAttributes.builder()
+                                    .targetValue(voltageRegulationAttributes.targetValue())
+                                    .targetDeadband(voltageRegulationAttributes.targetDeadband())
+                                    .slope(voltageRegulationAttributes.slope())
+                                    .mode(voltageRegulationAttributes.mode())
+                                    .regulating(voltageRegulationAttributes.isRegulating())
+                                    .terminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
+                                    .build())
                         .build())
                 .build();
         StaticVarCompensatorImpl svc = getIndex().createStaticVarCompensator(resource);
 
         svc.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        svc.setRegulatingTerminal(regulatingTerminal);
+        if (!voltageRegulationConfigured && regulatingTerminal != null) {
+            svc.setRegulatingTerminal(regulatingTerminal);
+        }
         return svc;
     }
 

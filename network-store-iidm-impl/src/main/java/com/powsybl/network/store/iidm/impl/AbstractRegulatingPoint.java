@@ -100,6 +100,32 @@ public abstract class AbstractRegulatingPoint {
         }
     }
 
+    /**
+     * Synchronizes the legacy reverse-reference metadata without emitting a
+     * second regulation update. The voltage regulation DTO is the source of
+     * truth; the regulating point is retained for old resources and terminal
+     * deletion lookups.
+     */
+    void synchronizeRegulatingTerminal(Terminal regulatingTerminal) {
+        RegulatingPointAttributes regulatingPointAttributes = getAttributes();
+        if (regulatingPointAttributes == null) {
+            return;
+        }
+        Terminal oldRegulatingTerminal = TerminalRefUtils.getTerminal(index, regulatingPointAttributes.getRegulatingTerminal());
+        if (oldRegulatingTerminal instanceof TerminalImpl<?> oldTerminal) {
+            oldTerminal.removeRegulatingPoint(this);
+        }
+        regulatingPointAttributes.setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        if (regulatingTerminal instanceof TerminalImpl<?> newTerminal) {
+            newTerminal.setAsRegulatingPoint(this);
+            ResourceType regulatedResourceType = ((AbstractIdentifiableImpl<?, ?>) newTerminal.getConnectable())
+                    .getResource().getType();
+            regulatingPointAttributes.setRegulatedResourceType(regulatedResourceType);
+        } else {
+            regulatingPointAttributes.setRegulatedResourceType(getRegulatingEquipmentType());
+        }
+    }
+
     protected abstract void resetRegulatingAndRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode);
 
     void remove() {

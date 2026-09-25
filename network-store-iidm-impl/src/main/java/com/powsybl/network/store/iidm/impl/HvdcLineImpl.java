@@ -88,7 +88,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setR(double r) {
-        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkDoubleParamPositive(this, r, "r");
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r),

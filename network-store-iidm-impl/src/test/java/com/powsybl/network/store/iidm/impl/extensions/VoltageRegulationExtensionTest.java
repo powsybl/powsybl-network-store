@@ -1,127 +1,72 @@
 /**
- * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com).
  * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * License, v. 2.0. If a copy of the MPL was not distributed with
+ * this file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkListener;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.extensions.VoltageRegulation;
-import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
-import com.powsybl.network.store.iidm.impl.BatteryImpl;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
-import com.powsybl.network.store.iidm.impl.DummyNetworkListener;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-/**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
- */
 class VoltageRegulationExtensionTest {
 
     @Test
-    void testBatteryVoltageRegulationExtension() {
+    void shouldCreateUpdateAndRemoveVoltageRegulation() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
-
-        // add dummy listener to check notification
-        DummyNetworkListener listener = new DummyNetworkListener();
-        network.addListener(listener);
-
         Battery battery = network.getBattery("battery");
-        assertNotNull(battery);
+        Terminal remoteTerminal = network.getStaticVarCompensator("SVC2").getTerminal();
 
-        assertNull(battery.getExtension(VoltageRegulation.class));
-        assertEquals(0, battery.getExtensions().size());
+        assertNull(battery.getVoltageRegulation());
+        VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTerminal(remoteTerminal)
+                .withTargetValue(225.0)
+                .build();
 
-        battery.newExtension(VoltageRegulationAdder.class)
-            .withRegulatingTerminal(battery.getTerminal())
-            .withVoltageRegulatorOn(true)
-            .withTargetV(225.0)
-            .add();
+        assertNotNull(voltageRegulation);
+        assertEquals(remoteTerminal, voltageRegulation.getTerminal());
+        assertEquals(225.0, voltageRegulation.getTargetValue());
+        assertTrue(battery.isRegulating());
+        assertTrue(battery.isRemoteRegulating());
 
-        VoltageRegulation vr = battery.getExtension(VoltageRegulation.class);
-        assertNotNull(vr);
-        assertEquals(1, battery.getExtensions().size());
-        assertTrue(vr.isVoltageRegulatorOn());
-        assertEquals(225.0, vr.getTargetV(), 0.0);
+        voltageRegulation.setTargetValue(130.0);
+        voltageRegulation.setRegulating(false);
+        assertEquals(130.0, voltageRegulation.getTargetValue());
+        assertFalse(battery.isRegulating());
 
-        // test update of target v and check notification
-        BatteryImpl batteryImpl = (BatteryImpl) battery;
-        List<NetworkListener> listeners = batteryImpl.getNetwork().getListeners();
-        assertEquals(1, listeners.size());
-        assertEquals(0, listener.getNbUpdatedExtensions());
-
-        vr.setTargetV(130.0);
-        assertEquals(130.0, vr.getTargetV(), 0.0);
-        assertEquals(1, listener.getNbUpdatedExtensions());
-
-        // test update of voltage regulator and check notification
-        vr.setVoltageRegulatorOn(false);
-        assertFalse(vr.isVoltageRegulatorOn());
-        assertEquals(2, listener.getNbUpdatedExtensions());
-
-        // test update of target v and voltage regulator with same old value and check notification
-        vr.setTargetV(130.0);
-        assertEquals(2, listener.getNbUpdatedExtensions());
-        vr.setVoltageRegulatorOn(false);
-        assertEquals(2, listener.getNbUpdatedExtensions());
-        vr.setRegulatingTerminal(network.getStaticVarCompensator("SVC2").getTerminal());
-        assertEquals(3, listener.getNbUpdatedExtensions());
-        // resetting voltage terminal wont change getNbUpdatedExtensions
-        vr.setRegulatingTerminal(network.getStaticVarCompensator("SVC2").getTerminal());
-        assertEquals(3, listener.getNbUpdatedExtensions());
-
-        // test setting null to regulatingTerminal
-        vr.setRegulatingTerminal(null);
-        assertEquals(4, listener.getNbUpdatedExtensions());
-        assertEquals(battery.getTerminal(), vr.getRegulatingTerminal());
+        battery.removeVoltageRegulation();
+        assertNull(battery.getVoltageRegulation());
+        assertTrue(remoteTerminal.getReferrers().isEmpty());
     }
 
     @Test
-    void testVoltageRegulationGetExtension() {
+    void shouldDeactivateWhenRemoteTerminalIsRemovedFromAnotherBus() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
-
         Battery battery = network.getBattery("battery");
-        assertNotNull(battery);
+        Terminal remoteTerminal = network.getShuntCompensator("SHUNT1").getTerminal();
 
-        assertNull(battery.getExtension(Object.class));
-        assertNull(battery.getExtensionByName(""));
-        assertEquals(0, battery.getExtensions().size());
+        VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTerminal(remoteTerminal)
+                .withTargetValue(225.0)
+                .build();
+        assertEquals(remoteTerminal, voltageRegulation.getTerminal());
 
-        battery.newExtension(VoltageRegulationAdder.class)
-            .withRegulatingTerminal(battery.getTerminal())
-            .withVoltageRegulatorOn(true)
-            .withTargetV(225.0)
-            .add();
+        remoteTerminal.getConnectable().remove();
 
-        assertNull(battery.getExtension(Object.class));
-        assertNull(battery.getExtensionByName(""));
-        assertEquals(1, battery.getExtensions().size());
-    }
-
-    @Test
-    void testRegulatingTerminal() {
-        Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
-
-        Battery battery = network.getBattery("battery");
-        ShuntCompensator shuntCompensator = network.getShuntCompensator("SHUNT1");
-        battery.newExtension(VoltageRegulationAdder.class)
-            .withRegulatingTerminal(shuntCompensator.getTerminal())
-            .withVoltageRegulatorOn(true)
-            .withTargetV(225.0)
-            .add();
-        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
-        assertEquals(shuntCompensator.getTerminal(), voltageRegulation.getRegulatingTerminal());
-        shuntCompensator.remove();
-
-        // regulating terminal deleted must relocate to local
-        assertEquals(battery.getTerminal(), voltageRegulation.getRegulatingTerminal());
+        assertNull(voltageRegulation.getTerminal());
+        assertFalse(voltageRegulation.isRegulating());
     }
 }

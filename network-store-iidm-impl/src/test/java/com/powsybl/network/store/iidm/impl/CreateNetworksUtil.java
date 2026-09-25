@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.List;
 import java.util.SortedSet;
@@ -260,7 +261,7 @@ public final class CreateNetworksUtil {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setReactivePowerSetpoint(200)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setRegulating(false)
                 .setVoltageSetpoint(390)
                 .add();

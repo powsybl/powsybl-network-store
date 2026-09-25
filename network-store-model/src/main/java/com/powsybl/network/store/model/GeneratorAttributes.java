@@ -24,7 +24,8 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Generator attributes")
-public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder,
+        VoltageRegulationReactiveTargetAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -58,6 +59,26 @@ public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes i
 
     @Schema(description = "Equivalent local targetV in kV")
     private double equivalentLocalTargetV;
+
+    @Override
+    public double getLocalTargetV() {
+        return Double.isNaN(equivalentLocalTargetV) ? targetV : equivalentLocalTargetV;
+    }
+
+    @Override
+    public void setLocalTargetV(double localTargetV) {
+        this.equivalentLocalTargetV = localTargetV;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return targetQ;
+    }
+
+    @Override
+    public void setLocalTargetQ(double localTargetQ) {
+        this.targetQ = localTargetQ;
+    }
 
     @Schema(description = "Rated apparent power in MVA")
     private double ratedS;

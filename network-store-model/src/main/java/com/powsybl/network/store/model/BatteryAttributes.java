@@ -23,7 +23,8 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Battery attributes")
-public class BatteryAttributes extends AbstractIdentifiableAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class BatteryAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder,
+        VoltageRegulationReactiveTargetAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -42,6 +43,20 @@ public class BatteryAttributes extends AbstractIdentifiableAttributes implements
 
     @Schema(description = "Constant reactive power target in MVar")
     private double targetQ;
+
+    @Schema(description = "Local voltage target in kV")
+    @Builder.Default
+    private double localTargetV = Double.NaN;
+
+    @Override
+    public double getLocalTargetQ() {
+        return targetQ;
+    }
+
+    @Override
+    public void setLocalTargetQ(double localTargetQ) {
+        this.targetQ = localTargetQ;
+    }
 
     @Schema(description = "Minimum active power in MW")
     private double minP;

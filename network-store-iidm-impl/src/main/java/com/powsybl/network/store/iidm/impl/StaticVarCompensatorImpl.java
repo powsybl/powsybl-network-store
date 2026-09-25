@@ -10,9 +10,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.network.store.iidm.impl.extensions.StandbyAutomatonImpl;
-import com.powsybl.network.store.iidm.impl.extensions.VoltagePerReactivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -33,6 +32,47 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
 
     @Override
     protected StaticVarCompensator getInjection() {
+        return this;
+    }
+
+    @Override
+    protected Class<? extends com.powsybl.iidm.network.regulation.VoltageRegulationHolder<?>> getVoltageRegulationHolderClass() {
+        return StaticVarCompensator.class;
+    }
+
+    @Override
+    public double getLocalTargetV() {
+        return getResource().getAttributes().getLocalTargetV();
+    }
+
+    @Override
+    public StaticVarCompensator setLocalTargetV(double localTargetV) {
+        ValidationUtil.checkLocalTargetQandV(this, StaticVarCompensator.class, localTargetV, getLocalTargetQ(),
+                getVoltageRegulation(), getNetwork().getMinValidationLevel(),
+                getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getLocalTargetV();
+        if (Double.compare(oldValue, localTargetV) != 0) {
+            updateResource(res -> res.getAttributes().setLocalTargetV(localTargetV),
+                    "localTargetV", oldValue, localTargetV);
+        }
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return getResource().getAttributes().getLocalTargetQ();
+    }
+
+    @Override
+    public StaticVarCompensator setLocalTargetQ(double localTargetQ) {
+        ValidationUtil.checkLocalTargetQandV(this, StaticVarCompensator.class, getLocalTargetV(), localTargetQ,
+                getVoltageRegulation(), getNetwork().getMinValidationLevel(),
+                getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getLocalTargetQ();
+        if (Double.compare(oldValue, localTargetQ) != 0) {
+            updateResource(res -> res.getAttributes().setLocalTargetQ(localTargetQ),
+                    "localTargetQ", oldValue, localTargetQ);
+        }
         return this;
     }
 
@@ -70,50 +110,48 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
 
     @Override
     public double getVoltageSetpoint() {
-        return getResource().getAttributes().getVoltageSetPoint();
+        return getRegulatingTargetV();
     }
 
     @Override
     public StaticVarCompensator setVoltageSetpoint(double voltageSetPoint) {
-        ValidationUtil.checkSvcRegulator(this, isRegulating(), voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode(), getNetwork().getMinValidationLevel(), getNetwork()
-                .getReportNodeContext().getReportNode());
-        double oldValue = getResource().getAttributes().getVoltageSetPoint();
-        if (Double.compare(voltageSetPoint, oldValue) != 0) { // could be nan
-            updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetPoint),
-                "voltageSetpoint", oldValue, voltageSetPoint);
+        if (isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+            getVoltageRegulation().setTargetValue(voltageSetPoint);
+        } else {
+            setLocalTargetV(voltageSetPoint);
         }
         return this;
     }
 
     @Override
     public double getReactivePowerSetpoint() {
-        return getResource().getAttributes().getReactivePowerSetPoint();
+        return getRegulatingTargetQ();
     }
 
     @Override
     public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetPoint) {
-        ValidationUtil.checkSvcRegulator(this, isRegulating(), getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode(), getNetwork().getMinValidationLevel(), getNetwork()
-                .getReportNodeContext().getReportNode());
-        double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
-        if (Double.compare(reactivePowerSetPoint, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint),
-                "reactivePowerSetpoint", oldValue, reactivePowerSetPoint);
+        if (isRemoteRegulating() && isWithMode(RegulationMode.REACTIVE_POWER)) {
+            getVoltageRegulation().setTargetValue(reactivePowerSetPoint);
+        } else {
+            setLocalTargetQ(reactivePowerSetPoint);
         }
         return this;
     }
 
     @Override
     public RegulationMode getRegulationMode() {
-        return RegulationMode.valueOf(getResource().getAttributes().getRegulatingPoint().getRegulationMode());
+        return getVoltageRegulation() == null ? null : getVoltageRegulation().getMode();
     }
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
-        ValidationUtil.checkSvcRegulator(this, isRegulating(), getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, getNetwork().getMinValidationLevel(), getNetwork()
-                .getReportNodeContext().getReportNode());
-        RegulationMode oldValue = getRegulationMode();
-        if (regulationMode != oldValue) {
-            regulatingPoint.setRegulationMode("regulationMode", String.valueOf(regulationMode));
+        if (getVoltageRegulation() == null) {
+            newVoltageRegulation()
+                    .withMode(regulationMode)
+                    .withRegulating(false)
+                    .build();
+        } else {
+            getVoltageRegulation().setMode(regulationMode);
         }
         return this;
     }
@@ -126,20 +164,8 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
 
     @Override
     public StaticVarCompensator setRegulating(boolean regulating) {
-        ValidationUtil.checkSvcRegulator(this, regulating, getVoltageSetpoint(), getReactivePowerSetpoint(), getRegulationMode(), getNetwork().getMinValidationLevel(), getNetwork()
-                .getReportNodeContext().getReportNode());
-        regulatingPoint.setRegulating("regulating", regulating);
+        super.setRegulating(regulating);
         return this;
-    }
-
-    private <E extends Extension<StaticVarCompensator>> E createVoltagePerReactiveControlExtension() {
-        E extension = null;
-        var resource = getResource();
-        VoltagePerReactivePowerControlAttributes attributes = resource.getAttributes().getVoltagePerReactiveControl();
-        if (attributes != null) {
-            extension = (E) new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) getInjection());
-        }
-        return extension;
     }
 
     private <E extends Extension<StaticVarCompensator>> E createStandbyAutomatonExtension() {
@@ -154,9 +180,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
 
     @Override
     public <E extends Extension<StaticVarCompensator>> E getExtension(Class<? super E> type) {
-        if (type == VoltagePerReactivePowerControl.class) {
-            return createVoltagePerReactiveControlExtension();
-        } else if (type == StandbyAutomaton.class) {
+        if (type == StandbyAutomaton.class) {
             return createStandbyAutomatonExtension();
         }
         return super.getExtension(type);
@@ -164,9 +188,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
 
     @Override
     public <E extends Extension<StaticVarCompensator>> E getExtensionByName(String name) {
-        if ("voltagePerReactivePowerControl".equals(name)) {
-            return createVoltagePerReactiveControlExtension();
-        } else if (name.equals(StandbyAutomaton.NAME)) {
+        if (name.equals(StandbyAutomaton.NAME)) {
             return createStandbyAutomatonExtension();
         }
         return super.getExtensionByName(name);
@@ -175,11 +197,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
     @Override
     public <E extends Extension<StaticVarCompensator>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
-        E extension = createVoltagePerReactiveControlExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createStandbyAutomatonExtension();
+        E extension = createStandbyAutomatonExtension();
         if (extension != null) {
             extensions.add(extension);
         }
@@ -189,6 +207,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
     @Override
     public void remove() {
         var resource = getResource();
+        onVoltageRegulationRemoval();
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
@@ -216,14 +235,6 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
             var resource = getResource();
             if (resource.getAttributes().getStandbyAutomaton() != null) {
                 resource.getAttributes().setStandbyAutomaton(null);
-                return true;
-            }
-            return false;
-        }
-        if (type == VoltagePerReactivePowerControl.class) {
-            var resource = getResource();
-            if (resource.getAttributes().getVoltagePerReactiveControl() != null) {
-                resource.getAttributes().setVoltagePerReactiveControl(null);
                 return true;
             }
             return false;

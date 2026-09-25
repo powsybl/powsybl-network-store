@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.network.store.model.*;
 
 /**
@@ -31,58 +32,100 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
     }
 
     @Override
+    protected Class<? extends com.powsybl.iidm.network.regulation.VoltageRegulationHolder<?>> getVoltageRegulationHolderClass() {
+        return VscConverterStation.class;
+    }
+
+    @Override
+    public double getLocalTargetV() {
+        return getResource().getAttributes().getLocalTargetV();
+    }
+
+    @Override
+    public VscConverterStation setLocalTargetV(double localTargetV) {
+        ValidationUtil.checkDoublePositive(this, localTargetV, "targetV");
+        ValidationUtil.checkLocalTargetQandV(this, VscConverterStation.class, localTargetV, getLocalTargetQ(),
+                getVoltageRegulation(), getNetwork().getMinValidationLevel(),
+                getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getLocalTargetV();
+        if (Double.compare(oldValue, localTargetV) != 0) {
+            updateResource(res -> res.getAttributes().setLocalTargetV(localTargetV),
+                    "localTargetV", oldValue, localTargetV);
+        }
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return getResource().getAttributes().getLocalTargetQ();
+    }
+
+    @Override
+    public VscConverterStation setLocalTargetQ(double localTargetQ) {
+        ValidationUtil.checkLocalTargetQandV(this, VscConverterStation.class, getLocalTargetV(), localTargetQ,
+                getVoltageRegulation(), getNetwork().getMinValidationLevel(),
+                getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getLocalTargetQ();
+        if (Double.compare(oldValue, localTargetQ) != 0) {
+            updateResource(res -> res.getAttributes().setLocalTargetQ(localTargetQ),
+                    "localTargetQ", oldValue, localTargetQ);
+        }
+        return this;
+    }
+
+    @Override
     public HvdcType getHvdcType() {
         return HvdcType.VSC;
     }
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return this.isRegulating();
+        return this.isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
-                .getReportNode());
-        boolean oldValue = this.isRegulating();
-        if (voltageRegulatorOn != oldValue) {
-            this.setRegulating(voltageRegulatorOn);
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        boolean oldValue = isRegulating();
+        if (getVoltageRegulation() != null) {
+            getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+            getVoltageRegulation().setRegulating(voltageRegulatorOn);
+        } else {
+            newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(voltageRegulatorOn)
+                    .build();
         }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
     @Override
     public double getVoltageSetpoint() {
-        return getResource().getAttributes().getVoltageSetPoint();
+        return getRegulatingTargetV();
     }
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
-                .getReportNode());
-        double oldValue = getResource().getAttributes().getVoltageSetPoint();
-        if (Double.compare(voltageSetpoint, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetpoint),
-                "voltageSetpoint", oldValue, voltageSetpoint);
+        if (isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+            getVoltageRegulation().setTargetValue(voltageSetpoint);
+        } else {
+            setLocalTargetV(voltageSetpoint);
         }
         return this;
     }
 
     @Override
     public double getReactivePowerSetpoint() {
-        return getResource().getAttributes().getReactivePowerSetPoint();
+        return getRegulatingTargetQ();
     }
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
-                .getReportNode());
-        double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
-        if (Double.compare(reactivePowerSetpoint, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint),
-                "reactivePowerSetpoint", oldValue, reactivePowerSetpoint);
+        if (isRemoteRegulating() && isWithMode(RegulationMode.REACTIVE_POWER)) {
+            getVoltageRegulation().setTargetValue(reactivePowerSetpoint);
+        } else {
+            setLocalTargetQ(reactivePowerSetpoint);
         }
         return this;
     }
@@ -152,6 +195,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
     @Override
     public void remove() {
         var resource = getResource();
+        onVoltageRegulationRemoval();
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();

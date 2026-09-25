@@ -9,6 +9,8 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.network.store.model.*;
 
 /**
@@ -24,8 +26,38 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double maxP = Double.NaN;
 
+    private double localTargetV = Double.NaN;
+
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes;
+
     BatteryAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
+    }
+
+    @Override
+    public VoltageRegulationAdder<BatteryAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(Battery.class, this, null, getIndex(), this,
+                attributes -> {
+                    voltageRegulationAttributes = attributes;
+                    return null;
+                });
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return targetQ;
+    }
+
+    @Override
+    public BatteryAdder setLocalTargetQ(double localTargetQ) {
+        this.targetQ = localTargetQ;
+        return this;
+    }
+
+    @Override
+    public BatteryAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
+        return this;
     }
 
     @Override
@@ -57,10 +89,16 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         String id = checkAndGetUniqueId();
         checkNodeBus();
         ValidationUtil.checkP0(this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        ValidationUtil.checkQ0(this, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
+        ValidationUtil.checkLocalTargetQandV(this,
+                Battery.class,
+                localTargetV,
+                targetQ,
+                voltageRegulationAttributes,
+                getNetwork().getMinValidationLevel(),
+                getNetwork().getReportNodeContext().getReportNode());
 
         MinMaxReactiveLimitsAttributes minMaxAttributes =
                 MinMaxReactiveLimitsAttributes.builder()
@@ -82,6 +120,15 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
                         .minP(minP)
                         .targetP(targetP)
                         .targetQ(targetQ)
+                        .localTargetV(localTargetV)
+                        .voltageRegulation(voltageRegulationAttributes == null ? null : NetworkVoltageRegulationAttributes.builder()
+                                .targetValue(voltageRegulationAttributes.targetValue())
+                                .targetDeadband(voltageRegulationAttributes.targetDeadband())
+                                .slope(voltageRegulationAttributes.slope())
+                                .mode(voltageRegulationAttributes.mode())
+                                .regulating(voltageRegulationAttributes.isRegulating())
+                                .terminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
+                                .build())
                         .reactiveLimits(minMaxAttributes)
                         .build())
                 .build();
