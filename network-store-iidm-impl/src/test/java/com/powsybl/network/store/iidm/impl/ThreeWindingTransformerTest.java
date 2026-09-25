@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -61,12 +62,12 @@ class ThreeWindingTransformerTest {
         ratioTapChanger.setRegulationTerminal(load.getTerminal());
         assertEquals(load2Id, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
         assertTrue(ratioTapChanger.isRegulating());
-        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
 
         load.remove();
 
         assertFalse(ratioTapChanger.isRegulating());
-        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
         assertNull(ratioTapChanger.getRegulationTerminal());
     }
 

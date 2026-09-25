@@ -675,7 +675,7 @@ public class TerminalImpl<U extends IdentifiableAttributes> implements Terminal,
 
     @SuppressWarnings("checkstyle:LambdaBodyLength")
     public void removeAsRegulatingPoint() {
-        getAttributes().getRegulatingEquipments().forEach(regulatingEquipmentIdentifier -> {
+        new ArrayList<>(getAttributes().getRegulatingEquipments()).forEach(regulatingEquipmentIdentifier -> {
             Identifiable<?> identifiable = index.getIdentifiable(regulatingEquipmentIdentifier.getEquipmentId());
             if (identifiable instanceof AbstractRegulatingInjection<?, ?> regulatingEquipment) {
                 regulatingEquipment.getRegulatingPoint().removeRegulation(connectable.getNetwork().getReportNodeContext().getReportNode());

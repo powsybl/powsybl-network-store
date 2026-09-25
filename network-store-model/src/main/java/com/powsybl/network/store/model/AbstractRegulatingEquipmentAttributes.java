@@ -23,4 +23,7 @@ public abstract class AbstractRegulatingEquipmentAttributes extends AbstractIden
 
     @Schema(description = "Regulating point")
     private RegulatingPointAttributes regulatingPoint;
+
+    @Schema(description = "Voltage regulation")
+    private NetworkVoltageRegulationAttributes voltageRegulation;
 }

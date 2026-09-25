@@ -60,7 +60,7 @@ class GeneratorTest {
         // remove the load
         network.getLoad("LD2").remove();
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertTrue(generator.isVoltageRegulatorOn());
     }
 
     @Test
@@ -131,7 +131,7 @@ class GeneratorTest {
     void updateWithInvalidTargetV() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         Generator generator = network.getGenerator("GH3");
-        assertEquals("Generator 'GH3': invalid value (NaN) for voltage setpoint (voltage regulator is on)",
+        assertEquals("Generator 'GH3': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
                 assertThrows(ValidationException.class, () -> generator.setTargetV(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         generator.setTargetV(Double.NaN);
@@ -142,7 +142,7 @@ class GeneratorTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         Generator generator = network.getGenerator("GH3");
         generator.setVoltageRegulatorOn(false);
-        assertEquals("Generator 'GH3': invalid value (NaN) for reactive power setpoint (voltage regulator is off)",
+        assertEquals("Generator 'GH3': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)",
                 assertThrows(ValidationException.class, () -> generator.setTargetQ(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         generator.setTargetQ(Double.NaN);
