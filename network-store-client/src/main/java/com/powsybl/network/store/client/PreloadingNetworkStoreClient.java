@@ -64,6 +64,8 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private final boolean allCollectionsNeededForBusView;
 
+    private final IdentifiablePreloadingMode identifiablePreloadingMode;
+
     private final ExecutorService executorService;
 
     private final NetworkCollectionIndex<Set<ResourceType>> cachedResourceTypes
@@ -74,8 +76,14 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
                                         ExecutorService executorService) {
+        this(delegate, allCollectionsNeededForBusView, IdentifiablePreloadingMode.LAZY, executorService);
+    }
+
+    public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
+                                        IdentifiablePreloadingMode identifiablePreloadingMode, ExecutorService executorService) {
         super(delegate);
         this.allCollectionsNeededForBusView = allCollectionsNeededForBusView;
+        this.identifiablePreloadingMode = Objects.requireNonNull(identifiablePreloadingMode);
         this.executorService = Objects.requireNonNull(executorService);
     }
 
@@ -174,14 +182,19 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
         if (!resourceTypes.containsAll(ALL_IDENTIFIABLE_RESOURCE_TYPES)) {
-            if (allCollectionsNeededForBusView) {
-                ensureAllIdentifiableCollectionsCached(networkUuid, variantNum);
-            } else {
-                MutableInt callCount = getIdentifiableCallCount.getCollection(networkUuid, variantNum);
-                if (callCount.getValue() >= MAX_GET_IDENTIFIABLE_CALL_COUNT_BEFORE_FULL_PRELOAD) {
-                    ensureAllIdentifiableCollectionsCached(networkUuid, variantNum);
-                } else {
-                    callCount.increment();
+            IdentifiablePreloadingMode mode = allCollectionsNeededForBusView ? IdentifiablePreloadingMode.ALL : identifiablePreloadingMode;
+            switch (mode) {
+                case ALL -> ensureAllIdentifiableCollectionsCached(networkUuid, variantNum);
+                case LAZY -> {
+                    MutableInt callCount = getIdentifiableCallCount.getCollection(networkUuid, variantNum);
+                    if (callCount.getValue() >= MAX_GET_IDENTIFIABLE_CALL_COUNT_BEFORE_FULL_PRELOAD) {
+                        ensureAllIdentifiableCollectionsCached(networkUuid, variantNum);
+                    } else {
+                        callCount.increment();
+                    }
+                }
+                case NONE -> {
+                    // no preloading, resource is fetched on demand
                 }
             }
         }
