@@ -7,10 +7,15 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractAcDcConverterTest;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
+// ExcludeTestsExtension is used to skip the DC voltage regulation tests that are not public
+// in powsybl-core tck and thus cannot be overridden (the detailed DC network model is not
+// implemented in the network store)
+@ExtendWith(ExcludeTestsExtension.class)
 class AcDcConverterTest extends AbstractAcDcConverterTest {
 
     @Override
@@ -131,5 +136,30 @@ class AcDcConverterTest extends AbstractAcDcConverterTest {
     @Override
     public void testMinMaxPNotifyUpdate() {
         // FIXME
+    }
+
+    @Override
+    public void regulationTest() {
+        // FIXME setup() uses DcNode that is not implemented in network store
+    }
+
+    @Override
+    public void testNewVoltageRegulationInMonoVariant() {
+        // FIXME setup() uses DcNode that is not implemented in network store
+    }
+
+    @Override
+    public void testNewVoltageRegulationInMultiVariants() {
+        // FIXME setup() uses DcNode that is not implemented in network store
+    }
+
+    @Override
+    public void testRemoveVoltageRegulationInMultiVariant() {
+        // FIXME setup() uses DcNode that is not implemented in network store
+    }
+
+    @Override
+    public void testVoltageSourceConverterAdderWithoutVoltageRegulatorOnWithEquipmentValidationLevel() {
+        // FIXME setup() uses DcNode that is not implemented in network store
     }
 }

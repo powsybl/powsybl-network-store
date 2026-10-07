@@ -7,7 +7,11 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.network.store.model.*;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createGeneratorVoltageRegulationBackwardCompatibility;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,15 +28,17 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double targetP = Double.NaN;
 
-    private double targetQ = Double.NaN;
+    private double localTargetQ = Double.NaN;
 
     private double targetV = Double.NaN;
 
-    private double equivalentLocalTargetV = Double.NaN;
+    private double localTargetV = Double.NaN;
 
     private double ratedS = Double.NaN;
 
     private Terminal regulatingTerminal;
+
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     private boolean condenser = false;
 
@@ -84,22 +90,35 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     @Override
     public GeneratorAdder setTargetQ(double targetQ) {
-        this.targetQ = targetQ;
-        return this;
+        return this.setLocalTargetQ(targetQ);
+    }
 
+    @Override
+    public GeneratorAdder setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
     }
 
     @Override
     public GeneratorAdder setTargetV(double targetV) {
         this.targetV = targetV;
         return this;
-
     }
 
     @Override
     public GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV) {
         this.targetV = targetV;
-        this.equivalentLocalTargetV = equivalentLocalTargetV;
+        return this.setLocalTargetV(equivalentLocalTargetV);
+    }
+
+    @Override
+    public GeneratorAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
         return this;
     }
 
@@ -116,6 +135,15 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
+    public VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(Generator.class, this, this, getNetwork(), this::setVoltageRegulationAttributes);
+    }
+
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
+    }
+
+    @Override
     public Generator add() {
         NetworkImpl network = getNetwork();
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
@@ -127,11 +155,29 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerSetpoint(this, targetP, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkEquivalentLocalTargetV(this, equivalentLocalTargetV);
+        // Backward compatibility
+        if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
+            // If a generator with old setters is added and voltageRegulation does not exist,
+            // the new voltageRegulation will be created from the old attributes.
+            createGeneratorVoltageRegulationBackwardCompatibility(this, targetV, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
+        } else {
+            // In the case of a generator with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
+            if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
+                localTargetV = targetV;
+            }
+        }
+
+        ValidationUtil.checkLocalTargetQandV(this,
+            Generator.class,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes,
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
 
         MinMaxReactiveLimitsAttributes minMaxAttributes =
                 MinMaxReactiveLimitsAttributes.builder()
@@ -139,9 +185,23 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(id, ResourceType.GENERATOR, RegulatingTapChangerType.NONE,
-            new TerminalRefAttributes(id, null), terminalRefAttributes, null, ResourceType.GENERATOR, voltageRegulatorOn);
+        VoltageRegulationAttributes persistedVoltageRegulation = voltageRegulationAttributes != null
+            ? VoltageRegulationAttributes.builder()
+                .regulatingEquipmentId(id)
+                .regulatingResourceType(ResourceType.GENERATOR)
+                .regulatingTapChangerType(RegulatingTapChangerType.NONE)
+                .localTerminal(new TerminalRefAttributes(id, null))
+                .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
+                .regulatedResourceType(voltageRegulationAttributes.terminal() != null
+                    ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
+                    : ResourceType.GENERATOR)
+                .regulationMode(voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null)
+                .regulating(voltageRegulationAttributes.isRegulating())
+                .targetValue(voltageRegulationAttributes.targetValue())
+                .targetDeadband(voltageRegulationAttributes.targetDeadband())
+                .slope(voltageRegulationAttributes.slope())
+                .build()
+            : null;
 
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder()
                 .id(id)
@@ -150,6 +210,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
                         .fictitious(isFictitious())
+                        .equivalent(isEquivalent())
                         .node(getNode())
                         .bus(getBus())
                         .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
@@ -157,18 +218,20 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .maxP(maxP)
                         .minP(minP)
                         .targetP(targetP)
-                        .targetQ(targetQ)
-                        .targetV(targetV)
-                        .equivalentLocalTargetV(equivalentLocalTargetV)
+                        .localTargetQ(localTargetQ)
+                        .localTargetV(localTargetV)
+                        .voltageRegulation(persistedVoltageRegulation)
                         .ratedS(ratedS)
                         .reactiveLimits(minMaxAttributes)
-                        .regulatingPoint(regulatingPointAttributes)
                         .condenser(condenser)
                         .build())
                 .build();
         GeneratorImpl generator = getIndex().createGenerator(resource);
         generator.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        generator.setRegulatingTerminal(regulatingTerminal);
+        if (voltageRegulationAttributes != null && voltageRegulationAttributes.terminal() != null) {
+            ((TerminalImpl<?>) voltageRegulationAttributes.terminal()).setAsRegulatingPoint(generator.getRegulatingPoint());
+            ((VoltageRegulationImpl) generator.getVoltageRegulation()).registerOnTerminal();
+        }
         return generator;
     }
 

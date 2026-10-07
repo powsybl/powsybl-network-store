@@ -43,7 +43,8 @@ class ResourceTest {
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         String json = objectMapper.writeValueAsString(resource);
-        assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"extensionAttributes\":{},\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\","
+        assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"variantNum\":0,\"attributes\":{\"fictitious\":false," +
+                        "\"equivalent\":false,\"extensionAttributes\":{},\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\","
                 + "\"fullVariantNum\":-1,\"caseDate\":1420070400000,\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}}", json);
         Resource<NetworkAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<NetworkAttributes>>() { });
         assertNotNull(resource2);
@@ -67,7 +68,8 @@ class ResourceTest {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(resource);
 
-        String jsonRef = "{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"name\":\"SS\",\"fictitious\":false,\"extensionAttributes\":{},\"country\":\"FR\",\"tso\":\"RTE\"}}";
+        String jsonRef = "{\"type\":\"SUBSTATION\",\"id\":\"S\",\"variantNum\":0,\"attributes\":{\"name\":\"SS\",\"fictitious\":false," +
+                        "\"equivalent\":false,\"extensionAttributes\":{},\"country\":\"FR\",\"tso\":\"RTE\"}}";
         assertEquals(jsonRef, json);
 
         Resource<SubstationAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<SubstationAttributes>>() { });
@@ -284,7 +286,7 @@ class ResourceTest {
                 .fictitious(false)
                 .node(1)
                 .targetP(3)
-                .targetV(4)
+                .localTargetV(4)
                 .regulatingPoint(regulatingPointAttributes)
                 .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
                 .build();
@@ -298,7 +300,7 @@ class ResourceTest {
         assertEquals(1, resourceGenerator.getAttributes().getMaxP(), 0);
         assertEquals(2, resourceGenerator.getAttributes().getMinP(), 0);
         assertEquals(3, resourceGenerator.getAttributes().getTargetP(), 0);
-        assertEquals(4, resourceGenerator.getAttributes().getTargetV(), 0);
+        assertEquals(4, resourceGenerator.getAttributes().getLocalTargetV(), 0);
         assertEquals(1, resourceGenerator.getAttributes().getNode(), 0);
 
         assertTrue(Double.isNaN(resourceGenerator.getAttributes().getP()));
@@ -322,7 +324,7 @@ class ResourceTest {
                 .maxP(300)
                 .minP(200)
                 .targetP(250)
-                .targetQ(100)
+                .localTargetQ(100)
                 .fictitious(false)
                 .node(1)
                 .regulatingEquipments(Collections.singleton(new RegulatingEquipmentIdentifier("gen1", ResourceType.GENERATOR)))
@@ -337,7 +339,7 @@ class ResourceTest {
         assertEquals(300, resourceBattery.getAttributes().getMaxP(), 0);
         assertEquals(200, resourceBattery.getAttributes().getMinP(), 0);
         assertEquals(250, resourceBattery.getAttributes().getTargetP(), 0);
-        assertEquals(100, resourceBattery.getAttributes().getTargetQ(), 0);
+        assertEquals(100, resourceBattery.getAttributes().getLocalTargetQ(), 0);
         assertEquals(1, resourceBattery.getAttributes().getNode(), 0);
 
         assertTrue(Double.isNaN(resourceBattery.getAttributes().getP()));
