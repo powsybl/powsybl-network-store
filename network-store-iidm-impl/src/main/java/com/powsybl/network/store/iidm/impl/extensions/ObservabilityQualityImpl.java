@@ -54,4 +54,24 @@ public class ObservabilityQualityImpl<T> implements ObservabilityQuality<T> {
         this.setter.accept(this);
         return this;
     }
+
+    // equals and hashCode are implemented on the data (not the setter) so that two
+    // observability quality objects with the same values are considered equal, as in the
+    // powsybl-core in-memory implementation where the same instance is returned
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ObservabilityQualityImpl<?> that)) {
+            return false;
+        }
+        return Double.compare(standardDeviation, that.standardDeviation) == 0
+            && Objects.equals(redundant, that.redundant);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(standardDeviation, redundant);
+    }
 }
