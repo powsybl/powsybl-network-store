@@ -23,7 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Shunt compensator attributes")
-public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes {
+public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, VoltageRegulationHolderAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -60,11 +60,11 @@ public class ShuntCompensatorAttributes extends AbstractRegulatingEquipmentAttri
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @Schema(description = "targetV")
-    private double targetV;
+    @Schema(description = "Local voltage target in kV")
+    private double localTargetV;
 
-    @Schema(description = "targetDeadband")
-    private double targetDeadband;
+    @Schema(description = "Voltage regulation")
+    private VoltageRegulationAttributes voltageRegulation;
 
     @Builder.Default
     @Schema(description = "regulatingEquipments")

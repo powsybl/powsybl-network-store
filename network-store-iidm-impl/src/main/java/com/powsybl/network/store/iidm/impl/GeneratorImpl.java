@@ -10,10 +10,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorEntsoeCategoryImpl;
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorShortCircuitImpl;
-import com.powsybl.network.store.iidm.impl.extensions.RemoteReactivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -96,7 +98,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
-        regulatingPoint.remove();
+        removeVoltageRegulationRefs();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeGenerator(resource.getId());
@@ -104,68 +106,126 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
     }
 
     @Override
+    protected Class<? extends VoltageRegulationHolder<?>> getHolderClass() {
+        return Generator.class;
+    }
+
+    @Override
     public boolean isVoltageRegulatorOn() {
-        return this.isRegulating();
+        return this.isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
 
     @Override
     public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), getTargetQ(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        boolean oldValue = this.isRegulating();
-        if (voltageRegulatorOn != oldValue) {
-            this.setRegulating(voltageRegulatorOn);
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        boolean oldValue = voltageRegulation != null && voltageRegulation.isRegulating();
+        if (voltageRegulation != null) {
+            voltageRegulation.setRegulating(voltageRegulatorOn);
+        } else {
+            newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(voltageRegulatorOn)
+                .build();
         }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
-        setRegTerminal(regulatingTerminal);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        Terminal oldValue = null;
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            oldValue = voltageRegulation.getTerminal();
+            double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : -getRegulatingTargetQ();
+            voltageRegulation.setTerminal(regulatingTerminal, targetValue);
+        } else {
+            newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTerminal(regulatingTerminal)
+                .withRegulating(false)
+                .build();
+        }
+        index.notifyUpdate(this, "regulatingTerminal", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulatingTerminal);
         return this;
     }
 
     @Override
     public double getTargetV() {
-        return getResource().getAttributes().getTargetV();
+        return this.getRegulatingTargetV();
     }
 
     @Override
     public Generator setTargetV(double targetV) {
-        updateTargetV(targetV);
-        updateEquivalentLocalTargetV(Double.NaN);
+        ValidationUtil.checkDoublePositive(this, targetV, "targetV");
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        double oldValueTargetV = getTargetV();
+        double oldEquivalentLocalTargetV = getEquivalentLocalTargetV();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
+            voltageRegulation.setTargetValue(targetV);
+        } else {
+            setLocalTargetV(targetV);
+        }
+        index.notifyUpdate(this, "targetV", variantId, oldValueTargetV, targetV);
+        index.notifyUpdate(this, "equivalentLocalTargetV", variantId, oldEquivalentLocalTargetV, getEquivalentLocalTargetV());
         return this;
     }
 
     @Override
-    public Generator setTargetV(double targetV, double localTargetV) {
-        updateTargetV(targetV);
-        updateEquivalentLocalTargetV(localTargetV);
+    public Generator setTargetV(double targetV, double equivalentLocalTargetV) {
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        double oldTargetV = getTargetV();
+        double oldEquivalentLocalTargetV = getEquivalentLocalTargetV();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            if (hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
+                oldTargetV = voltageRegulation.getTargetValue();
+                setLocalTargetV(equivalentLocalTargetV);
+                voltageRegulation.setTargetValue(targetV);
+            } else {
+                setLocalTargetV(targetV);
+            }
+        } else {
+            newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(targetV)
+                .withRegulating(false)
+                .build();
+            setLocalTargetV(equivalentLocalTargetV);
+        }
+        index.notifyUpdate(this, "targetV", variantId, oldTargetV, targetV);
+        index.notifyUpdate(this, "equivalentLocalTargetV", variantId, oldEquivalentLocalTargetV, getEquivalentLocalTargetV());
         return this;
     }
 
-    private void updateTargetV(double targetV) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getTargetQ(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        double oldValue = getResource().getAttributes().getTargetV();
-        if (Double.compare(targetV, oldValue) != 0) { // could be nan
-            updateResource(res -> res.getAttributes().setTargetV(targetV),
-                    "targetV", oldValue, targetV);
-        }
+    @Override
+    public double getLocalTargetV() {
+        return getResource().getAttributes().getLocalTargetV();
     }
 
-    private void updateEquivalentLocalTargetV(double localTargetV) {
-        ValidationUtil.checkEquivalentLocalTargetV(this, localTargetV);
-        double oldValue = getResource().getAttributes().getEquivalentLocalTargetV();
+    @Override
+    public Generator setLocalTargetV(double localTargetV) {
+        ValidationUtil.checkLocalTargetQandV(this,
+            Generator.class,
+            localTargetV,
+            this.getLocalTargetQ(),
+            getVoltageRegulation(),
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getResource().getAttributes().getLocalTargetV();
         if (Double.compare(localTargetV, oldValue) != 0) { // could be nan
-            updateResource(res -> res.getAttributes().setEquivalentLocalTargetV(localTargetV),
-                    "EquivalentLocalTargetV", oldValue, localTargetV);
+            updateResource(res -> res.getAttributes().setLocalTargetV(localTargetV),
+                "localTargetV", oldValue, localTargetV);
         }
+        return this;
     }
 
     @Override
     public double getEquivalentLocalTargetV() {
-        return getResource().getAttributes().getEquivalentLocalTargetV();
+        return this.getLocalTargetV();
     }
 
     @Override
@@ -186,18 +246,37 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
 
     @Override
     public double getTargetQ() {
-        return getResource().getAttributes().getTargetQ();
+        return this.getLocalTargetQ();
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return getResource().getAttributes().getLocalTargetQ();
+    }
+
+    @Override
+    public Generator setLocalTargetQ(double localTargetQ) {
+        ValidationUtil.checkLocalTargetQandV(this,
+            Generator.class,
+            this.getLocalTargetV(),
+            localTargetQ,
+            getVoltageRegulation(),
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getResource().getAttributes().getLocalTargetQ();
+        if (Double.compare(localTargetQ, oldValue) != 0) { // could be nan
+            updateResource(res -> res.getAttributes().setLocalTargetQ(localTargetQ),
+                "localTargetQ", oldValue, localTargetQ);
+        }
+        return this;
     }
 
     @Override
     public Generator setTargetQ(double targetQ) {
-        var resource = getResource();
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getTargetV(), targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        double oldValue = resource.getAttributes().getTargetQ();
-        if (Double.compare(targetQ, oldValue) != 0) { // could be nan
-            updateResource(res -> res.getAttributes().setTargetQ(targetQ),
-                "targetQ", oldValue, targetQ);
-        }
+        double oldValue = getTargetQ();
+        setLocalTargetQ(targetQ);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
         return this;
     }
 
@@ -274,16 +353,6 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         return extension;
     }
 
-    private <E extends Extension<Generator>> E createRemoteReactivePowerControlExtension() {
-        E extension = null;
-        var resource = getResource();
-        RemoteReactivePowerControlAttributes attributes = resource.getAttributes().getRemoteReactivePowerControl();
-        if (attributes != null) {
-            extension = (E) new RemoteReactivePowerControlImpl((GeneratorImpl) getInjection());
-        }
-        return extension;
-    }
-
     private <E extends Extension<Generator>> E createGeneratorShortCircuitExtension() {
         E extension = null;
         var resource = getResource();
@@ -311,8 +380,6 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
             extension = createCoordinatedReactiveControlExtension();
         } else if (type == GeneratorEntsoeCategory.class) {
             extension = createEntsoeCategoryExtension();
-        } else if (type == RemoteReactivePowerControl.class) {
-            extension = createRemoteReactivePowerControlExtension();
         } else if (type == GeneratorShortCircuit.class) {
             extension = createGeneratorShortCircuitExtension();
         }
@@ -326,8 +393,6 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
             extension = createCoordinatedReactiveControlExtension();
         } else if ("entsoeCategory".equals(name)) {
             extension = createEntsoeCategoryExtension();
-        } else if ("remoteReactivePowerControl".equals(name)) {
-            extension = createRemoteReactivePowerControlExtension();
         } else if ("generatorShortCircuit".equals(name)) {
             extension = createGeneratorShortCircuitExtension();
         }
@@ -345,7 +410,6 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         Collection<E> extensions = super.getExtensions();
         addIfNotNull(extensions, createCoordinatedReactiveControlExtension());
         addIfNotNull(extensions, createEntsoeCategoryExtension());
-        addIfNotNull(extensions, createRemoteReactivePowerControlExtension());
         addIfNotNull(extensions, createGeneratorShortCircuitExtension());
         return extensions;
     }
@@ -358,14 +422,6 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
     @Override
     public <E extends Extension<Generator>> boolean removeExtension(Class<E> type) {
         super.removeExtension(type);
-        if (type == RemoteReactivePowerControl.class) {
-            var resource = getResource();
-            if (resource.getAttributes().getRemoteReactivePowerControl() != null) {
-                resource.getAttributes().setRemoteReactivePowerControl(null);
-                return true;
-            }
-            return false;
-        }
         if (type == GeneratorEntsoeCategory.class) {
             var resource = getResource();
             if (resource.getAttributes().getEntsoeCategoryAttributes() != null) {

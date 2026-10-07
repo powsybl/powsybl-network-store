@@ -29,6 +29,10 @@ public interface IdentifiableAttributes extends Attributes {
 
     void setFictitious(boolean fictitious);
 
+    boolean isEquivalent();
+
+    void setEquivalent(boolean equivalent);
+
     Set<String> getAliasesWithoutType();
 
     void setAliasesWithoutType(Set<String> aliasesWithoutType);

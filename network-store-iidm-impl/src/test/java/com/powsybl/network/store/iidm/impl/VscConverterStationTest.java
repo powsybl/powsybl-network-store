@@ -44,7 +44,7 @@ class VscConverterStationTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         VscConverterStation vscConverterStation = network.getVscConverterStation("VSC1");
         vscConverterStation.setVoltageRegulatorOn(true);
-        assertEquals("VSC converter station 'VSC1': invalid value (NaN) for voltage setpoint (voltage regulator is on)",
+        assertEquals("VSC converter station 'VSC1': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
                 assertThrows(ValidationException.class, () -> vscConverterStation.setVoltageSetpoint(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         vscConverterStation.setVoltageSetpoint(Double.NaN);
@@ -55,7 +55,7 @@ class VscConverterStationTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         VscConverterStation vscConverterStation = network.getVscConverterStation("VSC1");
         vscConverterStation.setVoltageRegulatorOn(false);
-        assertEquals("VSC converter station 'VSC1': invalid value (NaN) for reactive power setpoint (voltage regulator is off)",
+        assertEquals("VSC converter station 'VSC1': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)",
                 assertThrows(ValidationException.class, () -> vscConverterStation.setReactivePowerSetpoint(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         vscConverterStation.setReactivePowerSetpoint(Double.NaN);

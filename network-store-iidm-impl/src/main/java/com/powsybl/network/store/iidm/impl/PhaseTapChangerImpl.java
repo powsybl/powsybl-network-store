@@ -20,7 +20,8 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
     public PhaseTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, Function<Attributes, TapChangerParentAttributes> attributesGetter) {
-        super(parent, index, "phase tap changer");
+        super(parent, index, "phase tap changer", attributes -> ((PhaseTapChangerAttributes) attributes).getRegulatingPoint(),
+            "phase" + parent.getTapChangerAttribute() + ".regulatingTerminal");
         this.attributesGetter = attributesGetter;
     }
 

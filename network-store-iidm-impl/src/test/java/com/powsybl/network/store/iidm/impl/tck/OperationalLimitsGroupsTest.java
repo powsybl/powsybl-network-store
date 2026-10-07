@@ -69,7 +69,7 @@ class OperationalLimitsGroupsTest extends AbstractOperationalLimitsGroupsTest {
     }
 
     @Override
-    public void operationalLimitsGroupLimitReductionValueSelection(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, Collection<String> groupsToApplyLimitReduction,
+    public void operationalLimitsGroupLimitScalingValueSelection(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, Collection<String> groupsToApplyLimitReduction,
             LimitType type, double value, Collection<ExpectedOverload> expected) {
     }
 }
