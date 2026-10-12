@@ -22,7 +22,7 @@ import java.util.Optional;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
+public class RestClientResponseErrorHandler implements ResponseErrorHandler {
     private static final String DUPLICATE_VARIANT_NUM_KEY = "network_pkey";
 
     @Override

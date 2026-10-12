@@ -15,13 +15,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -31,41 +30,49 @@ import java.util.*;
 @Component
 public class RestClientImpl implements RestClient {
 
-    private final RestTemplate restTemplate;
+    private final org.springframework.web.client.RestClient restClient;
 
     // Used for standalone (non-Spring) usage, e.g. from integration tests or external tools
     public RestClientImpl(String baseUri) {
-        this(createRestTemplateBuilder(baseUri));
+        this(createRestClientBuilder(baseUri));
     }
 
-    // Used in unit tests with a mock-backed RestTemplateBuilder
-    public RestClientImpl(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = Objects.requireNonNull(restTemplateBuilder)
-            .errorHandler(new RestTemplateResponseErrorHandler())
-            .additionalCustomizers(RestClientImpl::enableDefaultViewInclusion)
+    // Used in unit tests with a mock-backed RestClientBuilder
+    public RestClientImpl(org.springframework.web.client.RestClient.Builder restClientBuilder) {
+        this.restClient = Objects.requireNonNull(restClientBuilder)
+            .defaultStatusHandler(new RestClientResponseErrorHandler())
+            .messageConverters(RestClientImpl::configureMessageConverters)
             .build();
     }
 
     @Autowired
-    public RestClientImpl(RestTemplateBuilder restTemplateBuilder,
+    public RestClientImpl(org.springframework.web.client.RestClient.Builder restClientBuilder,
                           @Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri) {
-        this.restTemplate = Objects.requireNonNull(restTemplateBuilder)
-            .errorHandler(new RestTemplateResponseErrorHandler())
-            .rootUri(baseUri + NetworkStoreApi.VERSION)
-            .additionalCustomizers(RestClientImpl::enableDefaultViewInclusion)
+        this.restClient = Objects.requireNonNull(restClientBuilder)
+            .defaultStatusHandler(new RestClientResponseErrorHandler())
+            .messageConverters(RestClientImpl::configureMessageConverters)
             .build();
     }
 
-    public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
-        return new RestTemplateBuilder(restTemplate1 -> restTemplate1.setMessageConverters(List.of(createMapping())))
-            .rootUri(baseUri + NetworkStoreApi.VERSION);
+    public static org.springframework.web.client.RestClient.Builder createRestClientBuilder(String baseUri) {
+        return org.springframework.web.client.RestClient.builder()
+            .baseUrl(baseUri + NetworkStoreApi.VERSION)
+            .defaultStatusHandler(new RestClientResponseErrorHandler())
+            .messageConverters(RestClientImpl::configureMessageConverters);
+    }
+
+    private static void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.clear();
+        converters.add(createMapping());
     }
 
     private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule())
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+            .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
         return objectMapper;
     }
 
@@ -75,44 +82,11 @@ public class RestClientImpl implements RestClient {
         return converter;
     }
 
-    /**
-     * Replace the MappingJackson2HttpMessageConverter in the RestTemplate's
-     * converter list with a new instance whose ObjectMapper has
-     * DEFAULT_VIEW_INCLUSION enabled.
-     *
-     * We must replace (not mutate) the converter because Spring Boot 3.x shares the
-     * same MappingJackson2HttpMessageConverter instance across all RestTemplates built
-     * from the auto-configured RestTemplateBuilder. Mutating it would enable
-     * DEFAULT_VIEW_INCLUSION for every RestTemplate in the application.
-     *
-     * The replacement converter should be configured exactly like the Spring
-     * Boot one except for the ObjectMapper. There are no official Spring Boot APIs
-     * to guarantee the converter equivalence, so this may need to be revisited
-     * if future versions change which converters are created by springboot and
-     * how they get the autoconfiguration.
-     * The ObjectMapper is configured exactly like the Spring Boot one except
-     * for DEFAULT_VIEW_INCLUSION (using the jackson copy() API). This is guaranteed
-     * but will also need to be updated when upgrade from jackson2 to jackson3 and
-     * the replacement will depend on springboot's integrations of jackson3's features
-     * (rebuild() vs copy())
-     */
-    private static void enableDefaultViewInclusion(RestTemplate restTemplate) {
-        var converters = restTemplate.getMessageConverters();
-        for (int i = 0; i < converters.size(); i++) {
-            if (converters.get(i) instanceof MappingJackson2HttpMessageConverter c) {
-                converters.set(i, new MappingJackson2HttpMessageConverter(
-                    c.getObjectMapper().copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION)));
-                return;
-            }
-        }
-    }
-
     private <T, D extends AbstractTopLevelDocument<T>> ResponseEntity<D> getDocument(String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
-        return restTemplate.exchange(url,
-                HttpMethod.GET,
-                new HttpEntity<>(new HttpHeaders()),
-                parameterizedTypeReference,
-                uriVariables);
+        return restClient.get()
+            .uri(url, uriVariables)
+            .retrieve()
+            .toEntity(parameterizedTypeReference);
     }
 
     private static <T, D extends AbstractTopLevelDocument<T>> D getBody(ResponseEntity<D> response) {
@@ -129,8 +103,11 @@ public class RestClientImpl implements RestClient {
 
     @Override
     public <T extends IdentifiableAttributes> void createAll(String url, List<Resource<T>> resources, Object... uriVariables) {
-        HttpEntity<?> entity = new HttpEntity<>(resources);
-        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.POST, entity, Void.class, uriVariables);
+        ResponseEntity<Void> response = restClient.post()
+            .uri(url, uriVariables)
+            .body(resources)
+            .retrieve()
+            .toEntity(Void.class);
         if (response.getStatusCode() != HttpStatus.CREATED) {
             throw createHttpException(url, "post", response.getStatusCode());
         }
@@ -179,22 +156,27 @@ public class RestClientImpl implements RestClient {
 
     @Override
     public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Class<?> viewClass, Object... uriVariables) {
-        HttpEntity<?> entity = wrapViewAware(viewClass, resources);
-        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class, uriVariables);
+        MappingJacksonValue body = new MappingJacksonValue(resources);
+        body.setSerializationView(viewClass);
+
+        ResponseEntity<Void> response = restClient.put()
+            .uri(url, uriVariables)
+            .body(body)
+            .retrieve()
+            .toEntity(Void.class);
+
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "put", response.getStatusCode());
         }
     }
 
-    private <T extends Attributes> HttpEntity<?> wrapViewAware(Class<?> viewClass, List<Resource<T>> resources) {
-        MappingJacksonValue jacksonValue = new MappingJacksonValue(resources);
-        jacksonValue.setSerializationView(viewClass);
-        return new HttpEntity<>(jacksonValue);
-    }
-
     @Override
     public <E> E get(String url, ParameterizedTypeReference<E> responseType, Object... uriVariables) {
-        ResponseEntity<E> response = restTemplate.exchange(url, HttpMethod.GET, null, responseType, uriVariables);
+        ResponseEntity<E> response = restClient.get()
+            .uri(url, uriVariables)
+            .retrieve()
+            .toEntity(responseType);
+
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "get", response.getStatusCode());
         }
@@ -203,7 +185,10 @@ public class RestClientImpl implements RestClient {
 
     @Override
     public void put(String url, Object... uriVariables) {
-        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.PUT, null, Void.class, uriVariables);
+        ResponseEntity<Void> response = restClient.put()
+            .uri(url, uriVariables)
+            .retrieve()
+            .toEntity(Void.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "put", response.getStatusCode());
         }
@@ -211,7 +196,10 @@ public class RestClientImpl implements RestClient {
 
     @Override
     public void post(String url, Object... uriVariables) {
-        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.POST, null, Void.class, uriVariables);
+        ResponseEntity<Void> response = restClient.post()
+            .uri(url, uriVariables)
+            .retrieve()
+            .toEntity(Void.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "post", response.getStatusCode());
         }
@@ -219,7 +207,10 @@ public class RestClientImpl implements RestClient {
 
     @Override
     public void delete(String url, Object... uriVariables) {
-        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.DELETE, null, Void.class, uriVariables);
+        ResponseEntity<Void> response = restClient.delete()
+            .uri(url, uriVariables)
+            .retrieve()
+            .toEntity(Void.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "delete", response.getStatusCode());
         }
@@ -227,8 +218,11 @@ public class RestClientImpl implements RestClient {
 
     @Override
     public <T> void deleteAll(String url, T body, Object... uriVariables) {
-        HttpEntity<T> requestEntity = new HttpEntity<>(body);
-        ResponseEntity<Void> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class, uriVariables);
+        ResponseEntity<Void> response = restClient.method(HttpMethod.DELETE)
+            .uri(url, uriVariables)
+            .body(body)
+            .retrieve()
+            .toEntity(Void.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "delete", response.getStatusCode());
         }

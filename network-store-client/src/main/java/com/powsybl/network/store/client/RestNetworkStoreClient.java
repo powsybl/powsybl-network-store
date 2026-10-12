@@ -386,7 +386,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
                     networkUuid, sourceVariantId, targetVariantId, mayOverwrite);
         } catch (HttpClientErrorException ex) {
             String body = ex.getResponseBodyAsString();
-            Optional<TopLevelError> optError = RestTemplateResponseErrorHandler.parseJsonApiError(body, objectMapper);
+            Optional<TopLevelError> optError = RestClientResponseErrorHandler.parseJsonApiError(body, objectMapper);
             if (optError.isPresent()) {
                 TopLevelError error = optError.get();
                 Optional<ErrorObject> errorCloneOverExisting = error.getErrors().stream()
