@@ -15,7 +15,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -64,6 +64,7 @@ public class RestClientImpl implements RestClient {
     private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule())
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         return objectMapper;
@@ -76,9 +77,8 @@ public class RestClientImpl implements RestClient {
     }
 
     /**
-     * Replace the MappingJackson2HttpMessageConverter in the RestTemplate's
-     * converter list with a new instance whose ObjectMapper has
-     * DEFAULT_VIEW_INCLUSION enabled.
+     * Ensure the Jackson 2 converter is first in the RestTemplate's converter
+     * list and has DEFAULT_VIEW_INCLUSION enabled.
      *
      * We must replace (not mutate) the converter because Spring Boot 3.x shares the
      * same MappingJackson2HttpMessageConverter instance across all RestTemplates built
@@ -100,11 +100,15 @@ public class RestClientImpl implements RestClient {
         var converters = restTemplate.getMessageConverters();
         for (int i = 0; i < converters.size(); i++) {
             if (converters.get(i) instanceof MappingJackson2HttpMessageConverter c) {
-                converters.set(i, new MappingJackson2HttpMessageConverter(
+                converters.remove(i);
+                converters.add(0, new MappingJackson2HttpMessageConverter(
                     c.getObjectMapper().copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION)));
                 return;
             }
         }
+        var converter = createMapping();
+        converter.getObjectMapper().enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        converters.add(0, converter);
     }
 
     private <T, D extends AbstractTopLevelDocument<T>> ResponseEntity<D> getDocument(String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
