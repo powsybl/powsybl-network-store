@@ -21,6 +21,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 import java.util.*;
 
@@ -28,51 +29,47 @@ import java.util.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Component
-public class RestClientImpl implements RestClient {
+public class ResourceAttributesRestClientImpl implements ResourceAttributesRestClient {
 
-    private final org.springframework.web.client.RestClient restClient;
+    private final RestClient restClient;
 
     // Used for standalone (non-Spring) usage, e.g. from integration tests or external tools
-    public RestClientImpl(String baseUri) {
+    public ResourceAttributesRestClientImpl(String baseUri) {
         this(createRestClientBuilder(baseUri));
     }
 
-    // Used in unit tests with a mock-backed RestClientBuilder
-    public RestClientImpl(org.springframework.web.client.RestClient.Builder restClientBuilder) {
+    // Used in unit tests with a mock-backed RestClient.Builder
+    public ResourceAttributesRestClientImpl(RestClient.Builder restClientBuilder) {
         this.restClient = Objects.requireNonNull(restClientBuilder)
             .defaultStatusHandler(new RestClientResponseErrorHandler())
-            .messageConverters(RestClientImpl::configureMessageConverters)
+            .messageConverters(ResourceAttributesRestClientImpl::enableDefaultViewInclusion)
             .build();
     }
 
     @Autowired
-    public RestClientImpl(org.springframework.web.client.RestClient.Builder restClientBuilder,
+    public ResourceAttributesRestClientImpl(RestClient.Builder restClientBuilder,
                           @Value("${powsybl.services.network-store-server.base-uri:http://network-store-server/}") String baseUri) {
         this.restClient = Objects.requireNonNull(restClientBuilder)
             .defaultStatusHandler(new RestClientResponseErrorHandler())
-            .messageConverters(RestClientImpl::configureMessageConverters)
+            .baseUrl(baseUri + NetworkStoreApi.VERSION)
+            .messageConverters(ResourceAttributesRestClientImpl::enableDefaultViewInclusion)
             .build();
     }
 
-    public static org.springframework.web.client.RestClient.Builder createRestClientBuilder(String baseUri) {
-        return org.springframework.web.client.RestClient.builder()
+    public static RestClient.Builder createRestClientBuilder(String baseUri) {
+        return RestClient.builder()
             .baseUrl(baseUri + NetworkStoreApi.VERSION)
-            .defaultStatusHandler(new RestClientResponseErrorHandler())
-            .messageConverters(RestClientImpl::configureMessageConverters);
-    }
-
-    private static void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.clear();
-        converters.add(createMapping());
+            .messageConverters(converters -> {
+                converters.clear();
+                converters.add(createMapping());
+            });
     }
 
     private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule())
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-            .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
+            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         return objectMapper;
     }
 
@@ -80,6 +77,37 @@ public class RestClientImpl implements RestClient {
         var converter = new MappingJackson2HttpMessageConverter();
         converter.setObjectMapper(createObjectMapper());
         return converter;
+    }
+
+    /**
+     * Replace the MappingJackson2HttpMessageConverter in the RestClient's
+     * converter list with a new instance whose ObjectMapper has
+     * DEFAULT_VIEW_INCLUSION enabled.
+     *
+     * We must replace (not mutate) the converter because Spring Boot 3.x shares the
+     * same MappingJackson2HttpMessageConverter instance across all RestClients built
+     * from the auto-configured RestClient.Builder. Mutating it would enable
+     * DEFAULT_VIEW_INCLUSION for every RestClient in the application.
+     *
+     * The replacement converter should be configured exactly like the Spring
+     * Boot one except for the ObjectMapper. There are no official Spring Boot APIs
+     * to guarantee the converter equivalence, so this may need to be revisited
+     * if future versions change which converters are created by springboot and
+     * how they get the autoconfiguration.
+     * The ObjectMapper is configured exactly like the Spring Boot one except
+     * for DEFAULT_VIEW_INCLUSION (using the jackson copy() API). This is guaranteed
+     * but will also need to be updated when upgrade from jackson2 to jackson3 and
+     * the replacement will depend on springboot's integrations of jackson3's features
+     * (rebuild() vs copy())
+     */
+    private static void enableDefaultViewInclusion(List<HttpMessageConverter<?>> converters) {
+        for (int i = 0; i < converters.size(); i++) {
+            if (converters.get(i) instanceof MappingJackson2HttpMessageConverter c) {
+                converters.set(i, new MappingJackson2HttpMessageConverter(
+                    c.getObjectMapper().copy().enable(MapperFeature.DEFAULT_VIEW_INCLUSION)));
+                return;
+            }
+        }
     }
 
     private <T, D extends AbstractTopLevelDocument<T>> ResponseEntity<D> getDocument(String url, ParameterizedTypeReference<D> parameterizedTypeReference, Object... uriVariables) {
@@ -156,18 +184,21 @@ public class RestClientImpl implements RestClient {
 
     @Override
     public <T extends Attributes> void updateAll(String url, List<Resource<T>> resources, Class<?> viewClass, Object... uriVariables) {
-        MappingJacksonValue body = new MappingJacksonValue(resources);
-        body.setSerializationView(viewClass);
-
+        MappingJacksonValue body = wrapViewAware(viewClass, resources);
         ResponseEntity<Void> response = restClient.put()
             .uri(url, uriVariables)
             .body(body)
             .retrieve()
             .toEntity(Void.class);
-
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "put", response.getStatusCode());
         }
+    }
+
+    private <T extends Attributes> MappingJacksonValue wrapViewAware(Class<?> viewClass, List<Resource<T>> resources) {
+        MappingJacksonValue jacksonValue = new MappingJacksonValue(resources);
+        jacksonValue.setSerializationView(viewClass);
+        return jacksonValue;
     }
 
     @Override
@@ -176,7 +207,6 @@ public class RestClientImpl implements RestClient {
             .uri(url, uriVariables)
             .retrieve()
             .toEntity(responseType);
-
         if (response.getStatusCode() != HttpStatus.OK) {
             throw createHttpException(url, "get", response.getStatusCode());
         }
