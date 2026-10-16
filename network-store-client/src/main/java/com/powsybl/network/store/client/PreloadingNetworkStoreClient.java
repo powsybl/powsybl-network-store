@@ -52,6 +52,8 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private final boolean allCollectionsNeededForBusView;
 
+    private final PreloadingMode preloadingMode;
+
     private final ExecutorService executorService;
 
     private final NetworkCollectionIndex<Set<ResourceType>> cachedResourceTypes
@@ -59,8 +61,14 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
                                         ExecutorService executorService) {
+        this(delegate, allCollectionsNeededForBusView, PreloadingMode.NONE, executorService);
+    }
+
+    public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
+                                        PreloadingMode preloadingMode, ExecutorService executorService) {
         super(delegate);
         this.allCollectionsNeededForBusView = allCollectionsNeededForBusView;
+        this.preloadingMode = Objects.requireNonNull(preloadingMode);
         this.executorService = Objects.requireNonNull(executorService);
     }
 
@@ -134,6 +142,20 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public void deleteNetwork(UUID networkUuid, int variantNum) {
         delegate.deleteNetwork(networkUuid, variantNum);
         cachedResourceTypes.removeCollection(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
+        Optional<Resource<IdentifiableAttributes>> resource = delegate.getIdentifiable(networkUuid, variantNum, id);
+        if (preloadingMode == PreloadingMode.ALL && resource.isPresent()) {
+            ResourceType resourceType = resource.get().getType();
+            Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
+            if (!resourceTypes.contains(resourceType)) {
+                loadToCache(resourceType, networkUuid, variantNum);
+                resourceTypes.add(resourceType);
+            }
+        }
+        return resource;
     }
 
     @Override
