@@ -13,7 +13,6 @@ import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,39 +50,25 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.TIE_LINE
     );
 
-    static final Set<ResourceType> ALL_IDENTIFIABLE_RESOURCE_TYPES;
-
-    static {
-        EnumSet<ResourceType> types = EnumSet.copyOf(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW);
-        types.add(ResourceType.SWITCH);
-        types.add(ResourceType.CONFIGURED_BUS);
-        ALL_IDENTIFIABLE_RESOURCE_TYPES = Collections.unmodifiableSet(types);
-    }
-
-    private static final int MAX_GET_IDENTIFIABLE_CALL_COUNT_BEFORE_FULL_PRELOAD = 10;
-
     private final boolean allCollectionsNeededForBusView;
 
-    private final IdentifiablePreloadingMode identifiablePreloadingMode;
+    private final PreloadingMode preloadingMode;
 
     private final ExecutorService executorService;
 
     private final NetworkCollectionIndex<Set<ResourceType>> cachedResourceTypes
             = new NetworkCollectionIndex<>(() -> EnumSet.noneOf(ResourceType.class));
 
-    private final NetworkCollectionIndex<MutableInt> getIdentifiableCallCount
-            = new NetworkCollectionIndex<>(MutableInt::new);
-
     public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
                                         ExecutorService executorService) {
-        this(delegate, allCollectionsNeededForBusView, IdentifiablePreloadingMode.LAZY, executorService);
+        this(delegate, allCollectionsNeededForBusView, PreloadingMode.NONE, executorService);
     }
 
     public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
-                                        IdentifiablePreloadingMode identifiablePreloadingMode, ExecutorService executorService) {
+                                        PreloadingMode preloadingMode, ExecutorService executorService) {
         super(delegate);
         this.allCollectionsNeededForBusView = allCollectionsNeededForBusView;
-        this.identifiablePreloadingMode = Objects.requireNonNull(identifiablePreloadingMode);
+        this.preloadingMode = Objects.requireNonNull(preloadingMode);
         this.executorService = Objects.requireNonNull(executorService);
     }
 
@@ -151,54 +136,26 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public void deleteNetwork(UUID networkUuid) {
         delegate.deleteNetwork(networkUuid);
         cachedResourceTypes.removeCollection(networkUuid);
-        getIdentifiableCallCount.removeCollection(networkUuid);
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid, int variantNum) {
         delegate.deleteNetwork(networkUuid, variantNum);
         cachedResourceTypes.removeCollection(networkUuid, variantNum);
-        getIdentifiableCallCount.removeCollection(networkUuid, variantNum);
-    }
-
-    private void ensureAllIdentifiableCollectionsCached(UUID networkUuid, int variantNum) {
-        Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
-        List<Future<?>> futures = new ArrayList<>(ALL_IDENTIFIABLE_RESOURCE_TYPES.size());
-        for (ResourceType resourceType : ALL_IDENTIFIABLE_RESOURCE_TYPES) {
-            if (!resourceTypes.contains(resourceType)) {
-                futures.add(executorService.submit(() -> loadToCache(resourceType, networkUuid, variantNum)));
-            }
-        }
-        if (!futures.isEmpty()) {
-            Stopwatch stopwatch = Stopwatch.createStarted();
-            ExecutorUtil.waitAllFutures(futures);
-            resourceTypes.addAll(ALL_IDENTIFIABLE_RESOURCE_TYPES);
-            stopwatch.stop();
-            LOGGER.info("All identifiable collections loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        }
     }
 
     @Override
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
-        Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
-        if (!resourceTypes.containsAll(ALL_IDENTIFIABLE_RESOURCE_TYPES)) {
-            IdentifiablePreloadingMode mode = allCollectionsNeededForBusView ? IdentifiablePreloadingMode.ALL : identifiablePreloadingMode;
-            switch (mode) {
-                case ALL -> ensureAllIdentifiableCollectionsCached(networkUuid, variantNum);
-                case LAZY -> {
-                    MutableInt callCount = getIdentifiableCallCount.getCollection(networkUuid, variantNum);
-                    if (callCount.getValue() >= MAX_GET_IDENTIFIABLE_CALL_COUNT_BEFORE_FULL_PRELOAD) {
-                        ensureAllIdentifiableCollectionsCached(networkUuid, variantNum);
-                    } else {
-                        callCount.increment();
-                    }
-                }
-                case NONE -> {
-                    // no preloading, resource is fetched on demand
-                }
+        Optional<Resource<IdentifiableAttributes>> resource = delegate.getIdentifiable(networkUuid, variantNum, id);
+        if (preloadingMode == PreloadingMode.ALL && resource.isPresent()) {
+            ResourceType resourceType = resource.get().getType();
+            Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
+            if (!resourceTypes.contains(resourceType)) {
+                loadToCache(resourceType, networkUuid, variantNum);
+                resourceTypes.add(resourceType);
             }
         }
-        return delegate.getIdentifiable(networkUuid, variantNum, id);
+        return resource;
     }
 
     @Override

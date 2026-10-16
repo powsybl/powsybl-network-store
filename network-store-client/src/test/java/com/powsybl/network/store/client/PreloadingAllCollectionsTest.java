@@ -8,9 +8,13 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.OfflineNetworkStoreClient;
+import com.powsybl.network.store.model.IdentifiableAttributes;
+import com.powsybl.network.store.model.LoadAttributes;
+import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
@@ -49,59 +53,74 @@ class PreloadingAllCollectionsTest {
         }
     }
 
+    private static PreloadingNetworkStoreClient createClientWithLoad(PreloadingMode preloadingMode) {
+        return createClientWithLoad(false, preloadingMode);
+    }
+
+    private static PreloadingNetworkStoreClient createClientWithLoad(boolean allCollectionsNeededForBusView, PreloadingMode preloadingMode) {
+        var storeClient = new OfflineNetworkStoreClient() {
+            @Override
+            public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
+                if ("LOAD".equals(id)) {
+                    Resource<LoadAttributes> load = Resource.loadBuilder()
+                            .id("LOAD")
+                            .attributes(LoadAttributes.builder()
+                                    .voltageLevelId("VL")
+                                    .build())
+                            .build();
+                    return Optional.of((Resource<IdentifiableAttributes>) (Resource<?>) load);
+                }
+                return Optional.empty();
+            }
+        };
+        return new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(storeClient), allCollectionsNeededForBusView, preloadingMode, ForkJoinPool.commonPool());
+    }
+
     @Test
-    void getIdentifiableLazyPreloadBelowThreshold() {
-        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
+    void getIdentifiablePreloadInNoneMode() {
+        var client = createClientWithLoad(PreloadingMode.NONE);
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        for (int i = 0; i < 5; i++) {
-            client.getIdentifiable(networkUuid, 0, "unknown" + i);
-        }
-        for (ResourceType resourceType : PreloadingNetworkStoreClient.ALL_IDENTIFIABLE_RESOURCE_TYPES) {
+        assertTrue(client.getIdentifiable(networkUuid, 0, "LOAD").isPresent());
+        for (ResourceType resourceType : ResourceType.values()) {
             assertFalse(client.isResourceTypeCached(networkUuid, 0, resourceType));
         }
     }
 
     @Test
-    void getIdentifiableFullPreloadAboveThreshold() {
-        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, ForkJoinPool.commonPool());
+    void getIdentifiablePreloadCollectionOfTypeInAllMode() {
+        var client = createClientWithLoad(PreloadingMode.ALL);
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        for (int i = 0; i < 20; i++) {
-            client.getIdentifiable(networkUuid, 0, "unknown" + i);
-        }
-        for (ResourceType resourceType : PreloadingNetworkStoreClient.ALL_IDENTIFIABLE_RESOURCE_TYPES) {
-            assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
+        assertTrue(client.getIdentifiable(networkUuid, 0, "LOAD").isPresent());
+        for (ResourceType resourceType : ResourceType.values()) {
+            if (resourceType == ResourceType.LOAD) {
+                assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
+            } else {
+                assertFalse(client.isResourceTypeCached(networkUuid, 0, resourceType));
+            }
         }
     }
 
     @Test
-    void getIdentifiablePreloadInBusViewMode() {
-        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), true, ForkJoinPool.commonPool());
+    void getUnknownIdentifiableNoPreloadInAllMode() {
+        var client = createClientWithLoad(PreloadingMode.ALL);
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        client.getIdentifiable(networkUuid, 0, "unknown");
-        for (ResourceType resourceType : PreloadingNetworkStoreClient.ALL_IDENTIFIABLE_RESOURCE_TYPES) {
-            assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
-        }
-    }
-
-    @Test
-    void getIdentifiableFullPreloadInAllMode() {
-        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, IdentifiablePreloadingMode.ALL, ForkJoinPool.commonPool());
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        client.getIdentifiable(networkUuid, 0, "unknown");
-        for (ResourceType resourceType : PreloadingNetworkStoreClient.ALL_IDENTIFIABLE_RESOURCE_TYPES) {
-            assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
-        }
-    }
-
-    @Test
-    void getIdentifiableNoPreloadInNoneMode() {
-        var client = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()), false, IdentifiablePreloadingMode.NONE, ForkJoinPool.commonPool());
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-        for (int i = 0; i < 20; i++) {
-            client.getIdentifiable(networkUuid, 0, "unknown" + i);
-        }
-        for (ResourceType resourceType : PreloadingNetworkStoreClient.ALL_IDENTIFIABLE_RESOURCE_TYPES) {
+        assertTrue(client.getIdentifiable(networkUuid, 0, "unknown").isEmpty());
+        for (ResourceType resourceType : ResourceType.values()) {
             assertFalse(client.isResourceTypeCached(networkUuid, 0, resourceType));
+        }
+    }
+
+    @Test
+    void getIdentifiablePreloadOnlyCollectionOfTypeInBusViewMode() {
+        var client = createClientWithLoad(true, PreloadingMode.ALL);
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        assertTrue(client.getIdentifiable(networkUuid, 0, "LOAD").isPresent());
+        for (ResourceType resourceType : ResourceType.values()) {
+            if (resourceType == ResourceType.LOAD) {
+                assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
+            } else {
+                assertFalse(client.isResourceTypeCached(networkUuid, 0, resourceType));
+            }
         }
     }
 }

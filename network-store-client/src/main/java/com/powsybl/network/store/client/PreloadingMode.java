@@ -9,8 +9,7 @@ package com.powsybl.network.store.client;
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
-public enum IdentifiablePreloadingMode {
-    LAZY,
-    ALL,
-    NONE
+public enum PreloadingMode {
+    NONE,
+    ALL
 }
