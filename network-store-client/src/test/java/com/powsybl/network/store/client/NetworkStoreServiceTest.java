@@ -96,6 +96,17 @@ class NetworkStoreServiceTest {
         }
     }
 
+    @Test
+    void createWithPreloadingMode() {
+        NetworkStoreConfig config = new NetworkStoreConfig()
+                .setPreloadingStrategy(PreloadingStrategy.COLLECTION)
+                .setPreloadingMode(PreloadingMode.ALL);
+        assertEquals(PreloadingMode.ALL, config.getPreloadingMode());
+        try (NetworkStoreService service = NetworkStoreService.create(config)) {
+            assertNotNull(service.createNetwork("network", "test"));
+        }
+    }
+
     private static final class TraceHolderTest {
         private static final ThreadLocal<String> TRACE_LOCAL = new ThreadLocal<>();
 

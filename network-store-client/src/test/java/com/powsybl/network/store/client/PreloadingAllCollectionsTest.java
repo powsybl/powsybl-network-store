@@ -91,6 +91,8 @@ class PreloadingAllCollectionsTest {
         var client = createClientWithLoad(PreloadingMode.ALL);
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         assertTrue(client.getIdentifiable(networkUuid, 0, "LOAD").isPresent());
+        // second call: the collection is already cached
+        assertTrue(client.getIdentifiable(networkUuid, 0, "LOAD").isPresent());
         for (ResourceType resourceType : ResourceType.values()) {
             if (resourceType == ResourceType.LOAD) {
                 assertTrue(client.isResourceTypeCached(networkUuid, 0, resourceType));
