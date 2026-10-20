@@ -59,16 +59,16 @@ public class NodeBreakerObservabilityArea extends AbstractExtension<VoltageLevel
         if (observabilityAreasByNode.isEmpty()) {
             for (Map.Entry<String, CharacteristicsAttributes> e : observabilityAreaByBus.entrySet()) {
                 String busId = e.getKey();
-                Bus bus = voltageLevel.getBusView().getBus(busId);
-                if (bus == null) {
-                    throw new PowsyblException("Bus-view bus " + busId + " does not exist");
-                }
                 Map<String, Set<Integer>> nodesByBusMap = Networks.getNodesByBus(voltageLevel);
+                Set<Integer> nodes = nodesByBusMap.get(busId);
+                if (nodes == null) {
+                    continue;
+                }
                 NodeBreakerAreaCharacteristics c = new NodeBreakerAreaCharacteristics(
-                        nodesByBusMap.get(busId),
+                        nodes,
                         toCharacteristics(e.getValue()),
                         voltageLevel);
-                nodesByBusMap.get(busId).forEach(node -> observabilityAreas.put(node, c));
+                nodes.forEach(node -> observabilityAreas.put(node, c));
             }
         } else {
             for (Set<Integer> nodes : nodesByBus) {

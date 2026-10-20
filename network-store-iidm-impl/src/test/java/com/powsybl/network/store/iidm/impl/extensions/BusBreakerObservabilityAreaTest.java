@@ -165,14 +165,14 @@ class BusBreakerObservabilityAreaTest {
     }
 
     @Test
-    void shouldThrowWhenBusViewInputReferencesUnknownBus() {
+    void shouldIgnoreBusViewInputForUnknownBus() {
         Network network = ObservabilityAreaTestSupport.createBusBreakerNetwork();
 
-        ObservabilityAreaAdder observabilityAreaAdder = network.getVoltageLevel("VLGEN")
+        ObservabilityArea ext = network.getVoltageLevel("VLGEN")
                 .newExtension(ObservabilityAreaAdder.class)
-                .withObservabilityAreaByBusViewBus("UNKNOWN", 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE);
-        PowsyblException e = assertThrows(PowsyblException.class, observabilityAreaAdder::add);
+                .withObservabilityAreaByBusViewBus("UNKNOWN", 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE)
+                .add();
 
-        assertEquals("Bus-view bus UNKNOWN does not exist", e.getMessage());
+        assertNotNull(ext);
     }
 }
