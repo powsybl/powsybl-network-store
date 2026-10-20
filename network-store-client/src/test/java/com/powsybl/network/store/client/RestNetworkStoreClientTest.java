@@ -159,6 +159,11 @@ class RestNetworkStoreClientTest {
                 .andRespond(withSuccess(objectMapper.writeValueAsString(List.of(new VariantInfos(VariantManagerConstants.INITIAL_VARIANT_ID, Resource.INITIAL_VARIANT_NUM))),
                         MediaType.APPLICATION_JSON));
 
+        server.expect(requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+                + "/identifiables/vl1/extensions/observabilityArea"))
+                .andExpect(method(GET))
+                .andRespond(withResourceNotFound());
+
         // line
         Resource<LineAttributes> line = Resource.lineBuilder()
                 .id("idLine")
