@@ -58,9 +58,8 @@ public class BusBreakerObservabilityArea extends AbstractExtension<VoltageLevel>
         if (observabilityAreaByBusBreakerViewBus.isEmpty()) {
             for (Map.Entry<String, CharacteristicsAttributes> e : observabilityAreaByBusViewBus.entrySet()) {
                 String busId = e.getKey();
-                Bus bus = voltageLevel.getBusView().getBus(busId);
-                if (bus == null) {
-                    throw new PowsyblException("Bus-view bus " + busId + " does not exist");
+                if (voltageLevel.getBusView().getBus(busId) == null) {
+                    continue;
                 }
                 BusBreakerAreaCharacteristics c = new BusBreakerAreaCharacteristics(
                         voltageLevel.getBusBreakerView()
