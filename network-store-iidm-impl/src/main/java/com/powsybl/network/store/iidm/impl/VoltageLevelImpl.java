@@ -54,6 +54,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     void invalidateCalculatedBuses() {
+        // Invalidate ObservabilityArea on topology change to prevent bus ID mismatches
+        // between estimation results and the updated VoltageLevel topology.
         removeExtension(ObservabilityArea.class);
         updateResourceWithoutNotification(res -> res.getAttributes().setCalculatedBusesValid(false));
         getNetwork().invalidateCalculatedBuses();
