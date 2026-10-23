@@ -29,6 +29,21 @@ public abstract class AbstractConnectableImpl<I extends Connectable<I>, D extend
     }
 
     @Override
+    public boolean isEquivalent() {
+        return getResource().getAttributes().isEquivalent();
+    }
+
+    @Override
+    public Connectable<I> setEquivalent(boolean equivalent) {
+        boolean oldValue = getResource().getAttributes().isEquivalent();
+        if (equivalent != oldValue) {
+            updateResource(r -> r.getAttributes().setEquivalent(equivalent),
+                "equivalent", oldValue, equivalent);
+        }
+        return this;
+    }
+
+    @Override
     public boolean connect() {
         return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }

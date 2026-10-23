@@ -47,6 +47,11 @@ public abstract class AbstractTapChangerAdder extends AbstractBasePropertiesHold
 
     protected RegulatingPointAttributes createRegulationPointAttributes(TapChangerParent tapChangerParent, RegulatingTapChangerType regulatingTapChangerType,
                                                                      String regulationMode, Boolean regulating) {
+        return createRegulationPointAttributes(tapChangerParent, regulatingTapChangerType, regulationMode, regulating, regulatingTerminal);
+    }
+
+    protected RegulatingPointAttributes createRegulationPointAttributes(TapChangerParent tapChangerParent, RegulatingTapChangerType regulatingTapChangerType,
+                                                                     String regulationMode, Boolean regulating, Terminal regulationTerminal) {
         RegulatingTapChangerType finalRegulatingTapChangerType = regulatingTapChangerType;
         ResourceType resourceType = ResourceType.TWO_WINDINGS_TRANSFORMER;
         if (tapChangerParent instanceof ThreeWindingsTransformerImpl.LegImpl leg) {
@@ -54,7 +59,7 @@ public abstract class AbstractTapChangerAdder extends AbstractBasePropertiesHold
             finalRegulatingTapChangerType = RegulatingTapChangerType.getThreeWindingsTransformerTapChangerType(side, regulatingTapChangerType);
             resourceType = ResourceType.THREE_WINDINGS_TRANSFORMER;
         }
-        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulationTerminal);
         // local terminal is null for tapChanger because it has more than one
         return new RegulatingPointAttributes(tapChangerParent.getTransformer().getId(), resourceType, finalRegulatingTapChangerType,
             null, terminalRefAttributes, regulationMode, resourceType, regulating);

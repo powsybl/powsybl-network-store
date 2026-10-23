@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
 import com.powsybl.network.store.model.Attributes;
 import com.powsybl.network.store.model.RegulatingPointAttributes;
 
@@ -21,14 +20,15 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
     private final AbstractTapChanger tapChanger;
 
     public TapChangerRegulatingPoint(NetworkObjectIndex index, AbstractTapChanger tapChanger,
-                                     Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
-        super(index, attributesGetter);
+                                     Function<Attributes, ? extends RegulatingPointAttributes> attributesGetter,
+                                     String terminalAttribute) {
+        super(index, attributesGetter, terminalAttribute);
         this.tapChanger = tapChanger;
     }
 
     @Override
     public RegulatingPointAttributes getAttributes() {
-        return attributesGetter.apply(tapChanger.getAttributes()).getRegulatingPoint();
+        return attributesGetter.apply((Attributes) tapChanger.getAttributes());
     }
 
     @Override
@@ -39,6 +39,10 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
     @Override
     protected void resetRegulatingAndRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode) {
         // no reset needed on regulation mode
-        setRegulating("regulating", false);
+        // (as in the powsybl-core in-memory implementation, these resets are not notified)
+        getIdentifiable().updateResourceWithoutNotification(res -> getAttributes().setRegulating(false));
+        if (getAttributes() instanceof com.powsybl.network.store.model.VoltageRegulationAttributes voltageRegulationAttributes) {
+            getIdentifiable().updateResourceWithoutNotification(res -> voltageRegulationAttributes.setTargetValue(Double.NaN));
+        }
     }
 }

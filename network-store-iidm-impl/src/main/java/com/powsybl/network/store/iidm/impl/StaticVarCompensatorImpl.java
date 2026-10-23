@@ -10,9 +10,10 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.network.store.iidm.impl.extensions.StandbyAutomatonImpl;
-import com.powsybl.network.store.iidm.impl.extensions.VoltagePerReactivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -69,77 +70,142 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
     }
 
     @Override
-    public double getVoltageSetpoint() {
-        return getResource().getAttributes().getVoltageSetPoint();
+    protected Class<? extends VoltageRegulationHolder<?>> getHolderClass() {
+        return StaticVarCompensator.class;
     }
 
     @Override
-    public StaticVarCompensator setVoltageSetpoint(double voltageSetPoint) {
-        ValidationUtil.checkSvcRegulator(this, isRegulating(), voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode(), getNetwork().getMinValidationLevel(), getNetwork()
-                .getReportNodeContext().getReportNode());
-        double oldValue = getResource().getAttributes().getVoltageSetPoint();
-        if (Double.compare(voltageSetPoint, oldValue) != 0) { // could be nan
-            updateResource(res -> res.getAttributes().setVoltageSetPoint(voltageSetPoint),
-                "voltageSetpoint", oldValue, voltageSetPoint);
+    public double getVoltageSetpoint() {
+        return this.getRegulatingTargetV();
+    }
+
+    @Override
+    public StaticVarCompensator setVoltageSetpoint(double voltageSetpoint) {
+        double oldValue = getLocalTargetV();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
+            voltageRegulation.setTargetValue(voltageSetpoint);
+        } else {
+            setLocalTargetV(voltageSetpoint);
         }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetpoint);
         return this;
     }
 
     @Override
     public double getReactivePowerSetpoint() {
-        return getResource().getAttributes().getReactivePowerSetPoint();
+        return this.getRegulatingTargetQ();
     }
 
     @Override
-    public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetPoint) {
-        ValidationUtil.checkSvcRegulator(this, isRegulating(), getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode(), getNetwork().getMinValidationLevel(), getNetwork()
-                .getReportNodeContext().getReportNode());
-        double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
-        if (Double.compare(reactivePowerSetPoint, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint),
-                "reactivePowerSetpoint", oldValue, reactivePowerSetPoint);
+    public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        double oldValue = getLocalTargetQ();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.REACTIVE_POWER)) {
+            voltageRegulation.setTargetValue(reactivePowerSetpoint);
+        } else {
+            setLocalTargetQ(reactivePowerSetpoint);
+        }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetV() {
+        return getResource().getAttributes().getLocalTargetV();
+    }
+
+    @Override
+    public StaticVarCompensator setLocalTargetV(double targetV) {
+        ValidationUtil.checkLocalTargetQandV(this,
+            StaticVarCompensator.class,
+            targetV,
+            this.getLocalTargetQ(),
+            getVoltageRegulation(),
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getResource().getAttributes().getLocalTargetV();
+        if (Double.compare(targetV, oldValue) != 0) {
+            updateResource(res -> res.getAttributes().setLocalTargetV(targetV),
+                "localTargetV", oldValue, targetV);
+        }
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return getResource().getAttributes().getLocalTargetQ();
+    }
+
+    @Override
+    public StaticVarCompensator setLocalTargetQ(double targetQ) {
+        ValidationUtil.checkLocalTargetQandV(this,
+            StaticVarCompensator.class,
+            this.getLocalTargetV(),
+            targetQ,
+            getVoltageRegulation(),
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getResource().getAttributes().getLocalTargetQ();
+        if (Double.compare(targetQ, oldValue) != 0) {
+            updateResource(res -> res.getAttributes().setLocalTargetQ(targetQ),
+                "localTargetQ", oldValue, targetQ);
         }
         return this;
     }
 
     @Override
     public RegulationMode getRegulationMode() {
-        return RegulationMode.valueOf(getResource().getAttributes().getRegulatingPoint().getRegulationMode());
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        return voltageRegulation != null ? voltageRegulation.getMode() : null;
     }
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
-        ValidationUtil.checkSvcRegulator(this, isRegulating(), getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, getNetwork().getMinValidationLevel(), getNetwork()
-                .getReportNodeContext().getReportNode());
-        RegulationMode oldValue = getRegulationMode();
-        if (regulationMode != oldValue) {
-            regulatingPoint.setRegulationMode("regulationMode", String.valueOf(regulationMode));
+        RegulationMode oldValue = null;
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            oldValue = voltageRegulation.getMode();
+            voltageRegulation.setMode(regulationMode);
+        } else {
+            newVoltageRegulation().withRegulating(false).withMode(regulationMode).build();
         }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "regulationMode", variantId, oldValue, regulationMode);
         return this;
     }
 
     @Override
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        setRegTerminal(regulatingTerminal);
+        Terminal oldValue = null;
+        double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            oldValue = voltageRegulation.getTerminal();
+            voltageRegulation.setTerminal(regulatingTerminal, targetValue);
+        } else {
+            newVoltageRegulation().withRegulating(false).withTargetValue(targetValue).withTerminal(regulatingTerminal).build();
+        }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "regulatingTerminal", variantId, oldValue, regulatingTerminal);
         return this;
     }
 
     @Override
     public StaticVarCompensator setRegulating(boolean regulating) {
-        ValidationUtil.checkSvcRegulator(this, regulating, getVoltageSetpoint(), getReactivePowerSetpoint(), getRegulationMode(), getNetwork().getMinValidationLevel(), getNetwork()
-                .getReportNodeContext().getReportNode());
-        regulatingPoint.setRegulating("regulating", regulating);
-        return this;
-    }
-
-    private <E extends Extension<StaticVarCompensator>> E createVoltagePerReactiveControlExtension() {
-        E extension = null;
-        var resource = getResource();
-        VoltagePerReactivePowerControlAttributes attributes = resource.getAttributes().getVoltagePerReactiveControl();
-        if (attributes != null) {
-            extension = (E) new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) getInjection());
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            boolean oldValue = voltageRegulation.isRegulating();
+            voltageRegulation.setRegulating(regulating);
+            index.notifyUpdate(this, "regulating", variantId, oldValue, regulating);
+        } else if (regulating) {
+            newVoltageRegulation().withRegulating(true).withMode(RegulationMode.REACTIVE_POWER).build();
+            index.notifyUpdate(this, "regulating", variantId, false, true);
         }
-        return extension;
+        return this;
     }
 
     private <E extends Extension<StaticVarCompensator>> E createStandbyAutomatonExtension() {
@@ -154,9 +220,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
 
     @Override
     public <E extends Extension<StaticVarCompensator>> E getExtension(Class<? super E> type) {
-        if (type == VoltagePerReactivePowerControl.class) {
-            return createVoltagePerReactiveControlExtension();
-        } else if (type == StandbyAutomaton.class) {
+        if (type == StandbyAutomaton.class) {
             return createStandbyAutomatonExtension();
         }
         return super.getExtension(type);
@@ -164,9 +228,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
 
     @Override
     public <E extends Extension<StaticVarCompensator>> E getExtensionByName(String name) {
-        if ("voltagePerReactivePowerControl".equals(name)) {
-            return createVoltagePerReactiveControlExtension();
-        } else if (name.equals(StandbyAutomaton.NAME)) {
+        if (name.equals(StandbyAutomaton.NAME)) {
             return createStandbyAutomatonExtension();
         }
         return super.getExtensionByName(name);
@@ -175,11 +237,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
     @Override
     public <E extends Extension<StaticVarCompensator>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
-        E extension = createVoltagePerReactiveControlExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createStandbyAutomatonExtension();
+        E extension = createStandbyAutomatonExtension();
         if (extension != null) {
             extensions.add(extension);
         }
@@ -194,7 +252,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
-        regulatingPoint.remove();
+        removeVoltageRegulationRefs();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeStaticVarCompensator(resource.getId());
@@ -216,14 +274,6 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
             var resource = getResource();
             if (resource.getAttributes().getStandbyAutomaton() != null) {
                 resource.getAttributes().setStandbyAutomaton(null);
-                return true;
-            }
-            return false;
-        }
-        if (type == VoltagePerReactivePowerControl.class) {
-            var resource = getResource();
-            if (resource.getAttributes().getVoltagePerReactiveControl() != null) {
-                resource.getAttributes().setVoltagePerReactiveControl(null);
                 return true;
             }
             return false;

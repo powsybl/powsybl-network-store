@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TerminalRefAttributes;
@@ -313,7 +314,7 @@ class TwoWindingsTransformerTest {
         assertEquals(loadId, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
         load.remove();
 
-        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
         assertNull(ratioTapChanger.getRegulationTerminal());
         assertFalse(ratioTapChanger.isRegulating());
     }
@@ -430,12 +431,11 @@ class TwoWindingsTransformerTest {
         assertNull(network.getTwoWindingsTransformer(twoWindingsTransformerId));
         List<? extends Record> expectedEvents = List.of(
                 new RemovalNetworkEvent(twoWindingsTransformerId, false),
-                new UpdateNetworkEvent(twoWindingsTransformerId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(
-                        twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
-                new UpdateNetworkEvent(generatorId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(
-                        TwoSides.ONE.name()).build(), TerminalRefAttributes.builder().connectableId(generatorId).build()),
+                new UpdateNetworkEvent(twoWindingsTransformerId, "ratioTapChanger.VoltageRegulation.Terminal", VariantManagerConstants.INITIAL_VARIANT_ID,
+                        TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
+                new UpdateNetworkEvent(generatorId, "VoltageRegulation.Terminal", VariantManagerConstants.INITIAL_VARIANT_ID,
+                        TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.ONE.name()).build(), null),
                 new UpdateNetworkEvent(generatorId, "regulatedResourceType", VariantManagerConstants.INITIAL_VARIANT_ID, ResourceType.TWO_WINDINGS_TRANSFORMER, ResourceType.GENERATOR),
-                new UpdateNetworkEvent(generatorId, "regulating", VariantManagerConstants.INITIAL_VARIANT_ID, true, false),
                 new RemovalNetworkEvent(twoWindingsTransformerId, true));
         // Order is not guaranteed with regulation events as we use Set for regulating equipments
         assertTrue(eventRecorder.getEvents().containsAll(expectedEvents));
