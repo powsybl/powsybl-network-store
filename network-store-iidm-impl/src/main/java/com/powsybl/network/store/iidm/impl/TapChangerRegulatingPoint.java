@@ -38,7 +38,11 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
 
     @Override
     protected void resetRegulatingAndRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode) {
-        // no reset needed on regulation mode
-        setRegulating("regulating", false);
+        if (tapChanger instanceof RatioTapChangerImpl ratioTapChanger
+            && ratioTapChanger.getVoltageRegulation() != null) {
+            ratioTapChanger.getVoltageRegulation().setRegulating(false);
+        } else {
+            setRegulating("regulating", false);
+        }
     }
 }

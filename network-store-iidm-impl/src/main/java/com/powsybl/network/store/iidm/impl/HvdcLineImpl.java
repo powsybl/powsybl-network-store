@@ -27,6 +27,8 @@ import java.util.function.Predicate;
  */
 public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAttributes> implements HvdcLine {
 
+    public static final String R_ATTRIBUTE = "r";
+
     public HvdcLineImpl(NetworkObjectIndex index, Resource<HvdcLineAttributes> resource) {
         super(index, resource);
     }
@@ -88,7 +90,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setR(double r) {
-        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r),

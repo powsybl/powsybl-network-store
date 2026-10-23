@@ -9,6 +9,8 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.network.store.model.*;
 
 /**
@@ -28,6 +30,11 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
     @Override
     protected VscConverterStation getInjection() {
         return this;
+    }
+
+    @Override
+    protected Class<? extends VoltageRegulationHolder<?>> getVoltageRegulationHolderClass() {
+        return VscConverterStation.class;
     }
 
     @Override
@@ -55,11 +62,14 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public double getVoltageSetpoint() {
-        return getResource().getAttributes().getVoltageSetPoint();
+        return getRegulatingTargetV();
     }
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
+        if (Double.isNaN(voltageSetpoint)) {
+            ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        }
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
                 .getReportNode());
         double oldValue = getResource().getAttributes().getVoltageSetPoint();
@@ -72,11 +82,15 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
 
     @Override
     public double getReactivePowerSetpoint() {
-        return getResource().getAttributes().getReactivePowerSetPoint();
+        return getRegulatingTargetQ();
     }
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        if (Double.isNaN(reactivePowerSetpoint) && !isVoltageRegulatorOn()
+            && getNetwork().getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0) {
+            throw new ValidationException(this, "invalid value (NaN) for reactive power setpoint (voltage regulator is off)");
+        }
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
                 .getReportNode());
         double oldValue = getResource().getAttributes().getReactivePowerSetPoint();
@@ -152,6 +166,10 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
     @Override
     public void remove() {
         var resource = getResource();
+        VoltageRegulation regulation = getVoltageRegulation();
+        if (regulation instanceof VoltageRegulationImpl nativeRegulation) {
+            nativeRegulation.onRemove();
+        }
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();

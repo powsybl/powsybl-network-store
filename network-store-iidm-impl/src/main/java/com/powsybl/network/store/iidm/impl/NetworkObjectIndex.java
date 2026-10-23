@@ -1143,6 +1143,27 @@ public class NetworkObjectIndex {
         return getIdentifiable(network.getIdFromAlias(id)) != null;
     }
 
+    Optional<Resource<? extends AbstractRegulatingEquipmentAttributes>> getRegulatingResource(ResourceType type, int variantNum, String id) {
+        return switch (type) {
+            case GENERATOR -> storeClient.getGenerator(networkUuid, variantNum, id)
+                .map(resource -> (Resource<? extends AbstractRegulatingEquipmentAttributes>) resource);
+            case BATTERY -> storeClient.getBattery(networkUuid, variantNum, id)
+                .map(resource -> (Resource<? extends AbstractRegulatingEquipmentAttributes>) resource);
+            case SHUNT_COMPENSATOR -> storeClient.getShuntCompensator(networkUuid, variantNum, id)
+                .map(resource -> (Resource<? extends AbstractRegulatingEquipmentAttributes>) resource);
+            case VSC_CONVERTER_STATION -> storeClient.getVscConverterStation(networkUuid, variantNum, id)
+                .map(resource -> (Resource<? extends AbstractRegulatingEquipmentAttributes>) resource);
+            case STATIC_VAR_COMPENSATOR -> storeClient.getStaticVarCompensator(networkUuid, variantNum, id)
+                .map(resource -> (Resource<? extends AbstractRegulatingEquipmentAttributes>) resource);
+            default -> Optional.empty();
+        };
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    void updateRegulatingResource(Resource<? extends AbstractRegulatingEquipmentAttributes> resource) {
+        updateResource((Resource) resource, AttributeFilter.PRIMARY_AS_NULL);
+    }
+
     @SuppressWarnings("unchecked")
     <T extends IdentifiableAttributes> void updateResource(Resource<T> resource, AttributeFilter attributeFilter) {
         switch (resource.getType()) {

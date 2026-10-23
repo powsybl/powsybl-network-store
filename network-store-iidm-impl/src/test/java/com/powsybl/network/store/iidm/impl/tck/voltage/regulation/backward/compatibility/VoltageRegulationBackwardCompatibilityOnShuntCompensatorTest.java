@@ -1,0 +1,6 @@
+package com.powsybl.network.store.iidm.impl.tck.voltage.regulation.backward.compatibility;
+
+import com.powsybl.iidm.network.tck.voltage.regulation.backward.compatibility.AbstractVoltageRegulationBackwardCompatibilityOnShuntCompensatorTest;
+
+class VoltageRegulationBackwardCompatibilityOnShuntCompensatorTest extends AbstractVoltageRegulationBackwardCompatibilityOnShuntCompensatorTest {
+}

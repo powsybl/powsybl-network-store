@@ -65,17 +65,17 @@ public class InjectionObservabilityImpl<I extends Injection<I>> extends Abstract
     }
 
     @Override
-    public ObservabilityQuality<I> getQualityP() {
+    public ObservabilityQuality<I> getNullableQualityP() {
         return getQuality(InjectionObservabilityAttributes::getQualityP, this::setQualityP);
     }
 
     @Override
-    public ObservabilityQuality<I> getQualityQ() {
+    public ObservabilityQuality<I> getNullableQualityQ() {
         return getQuality(InjectionObservabilityAttributes::getQualityQ, this::setQualityQ);
     }
 
     @Override
-    public ObservabilityQuality<I> getQualityV() {
+    public ObservabilityQuality<I> getNullableQualityV() {
         return getQuality(InjectionObservabilityAttributes::getQualityV, this::setQualityV);
     }
 

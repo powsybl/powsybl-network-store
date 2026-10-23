@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -85,7 +86,7 @@ class RegulatingTest {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setReactivePowerSetpoint(200)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                 .setRegulationMode(RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(390)
                 .setRegulating(false)
                 .add();
@@ -93,7 +94,7 @@ class RegulatingTest {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setReactivePowerSetpoint(200)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                 .setRegulationMode(RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(390)
                 .setRegulating(false)
                 .add();

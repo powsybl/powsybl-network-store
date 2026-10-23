@@ -34,11 +34,17 @@ public class ExtensionAttributesIdResolver extends TypeIdResolverBase {
 
     @Override
     public String idFromValueAndType(Object obj, Class<?> subType) {
+        if (subType == VoltageRegulationAttributes.class) {
+            return "voltageRegulation";
+        }
         return ExtensionLoaders.findLoaderByAttributes(subType).getName();
     }
 
     @Override
     public JavaType typeFromId(DatabindContext context, String id) {
+        if ("voltageRegulation".equals(id)) {
+            return context.constructSpecializedType(superType, VoltageRegulationAttributes.class);
+        }
         if (!ExtensionLoaders.loaderExists(id)) {
             return context.constructSpecializedType(superType, RawExtensionAttributes.class);
         }

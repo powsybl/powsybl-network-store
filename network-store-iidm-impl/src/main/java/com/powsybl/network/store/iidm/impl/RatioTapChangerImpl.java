@@ -7,6 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
@@ -15,13 +19,19 @@ import java.util.function.Function;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, RatioTapChangerImpl, RatioTapChangerAttributes> implements RatioTapChanger, Validable {
+public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, RatioTapChangerImpl, RatioTapChangerAttributes>
+    implements RatioTapChanger, Validable, VoltageRegulationHolder<RatioTapChanger> {
 
     private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
+
+    private VoltageRegulationImpl voltageRegulation;
 
     public RatioTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, Function<Attributes, TapChangerParentAttributes> attributesGetter) {
         super(parent, index, "ratio tap changer");
         this.attributesGetter = Objects.requireNonNull(attributesGetter);
+        if (getAttributes().getVoltageRegulation() != null) {
+            getVoltageRegulation();
+        }
     }
 
     @Override
@@ -34,14 +44,104 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
+    public Terminal getTerminal() {
+        return null;
+    }
+
+    @Override
+    public RatioTapChanger setLocalTargetV(double targetV) {
+        return this;
+    }
+
+    @Override
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return new VoltageRegulationBuilderImpl(RatioTapChanger.class, this, index.getNetwork(),
+            () -> Double.NaN, () -> Double.NaN, this::createOrUpdateVoltageRegulation);
+    }
+
+    @Override
+    public VoltageRegulation getVoltageRegulation() {
+        if (getAttributes().getVoltageRegulation() == null) {
+            return null;
+        }
+        if (voltageRegulation == null) {
+            voltageRegulation = new VoltageRegulationImpl(getTransformer(), index, regulatingPoint, RatioTapChanger.class, this,
+                () -> getAttributes().getVoltageRegulation(),
+                value -> getAttributes().setVoltageRegulation(value));
+        }
+        return voltageRegulation;
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+        VoltageRegulation regulation = getVoltageRegulation();
+        if (regulation != null) {
+            ((VoltageRegulationImpl) regulation).remove();
+            String transformerId = getTransformer().getId();
+            for (var variant : index.getStoreClient().getVariantsInfos(index.getNetworkUuid(), true)) {
+                Resource<? extends IdentifiableAttributes> resource = switch (getTransformer().getResource().getType()) {
+                    case TWO_WINDINGS_TRANSFORMER -> index.getStoreClient()
+                        .getTwoWindingsTransformer(index.getNetworkUuid(), variant.getNum(), transformerId).orElse(null);
+                    case THREE_WINDINGS_TRANSFORMER -> index.getStoreClient()
+                        .getThreeWindingsTransformer(index.getNetworkUuid(), variant.getNum(), transformerId).orElse(null);
+                    default -> null;
+                };
+                if (resource != null) {
+                    RatioTapChangerAttributes attributes = getAttributes(resource);
+                    if (attributes != null && attributes.getVoltageRegulation() != null) {
+                        attributes.setVoltageRegulation(null);
+                        index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
+                    }
+                }
+            }
+            voltageRegulation = null;
+        }
+    }
+
+    private VoltageRegulation.VoltageRegulationAttributes getNativeRegulationAttributes() {
+        VoltageRegulation regulation = getVoltageRegulation();
+        if (regulation != null) {
+            return regulation.getAttributes();
+        }
+        return new VoltageRegulation.VoltageRegulationAttributes(getRegulationValue(), getTargetDeadband(), Double.NaN,
+            getRegulationMode(), isRegulating(), getRegulationTerminal());
+    }
+
+    private VoltageRegulation createOrUpdateVoltageRegulation(VoltageRegulation.VoltageRegulationAttributes attributes) {
+        VoltageRegulation regulation = getVoltageRegulation();
+        if (regulation == null) {
+            getAttributes().setVoltageRegulation(NetworkVoltageRegulationAttributesMapper.map(attributes));
+            voltageRegulation = new VoltageRegulationImpl(getTransformer(), index, regulatingPoint, RatioTapChanger.class, this,
+                () -> getAttributes().getVoltageRegulation(),
+                value -> getAttributes().setVoltageRegulation(value));
+            if (attributes.terminal() != null) {
+                regulatingPoint.setRegulatingTerminal(attributes.terminal());
+            }
+            return voltageRegulation;
+        }
+        ((VoltageRegulationImpl) regulation).setAttributes(attributes);
+        return regulation;
+    }
+
+    private void validateRegulation(VoltageRegulation.VoltageRegulationAttributes attributes) {
+        ValidationUtil.checkRatioTapChangerRegulation(parent, attributes, hasLoadTapChangingCapabilities(), parent.getNetwork(),
+            parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    @Override
     public double getRegulationValue() {
-        return getAttributes().getRegulationValue();
+        VoltageRegulation regulation = getVoltageRegulation();
+        return regulation != null ? regulation.getTargetValue() : getAttributes().getRegulationValue();
     }
 
     @Override
     public RatioTapChanger setRegulationValue(double regulationValue) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), getRegulationMode(), regulationValue, parent.getNetwork(),
-                parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
+        validateRegulation(getNativeRegulationAttributes().withTargetValue(regulationValue));
+        VoltageRegulation regulation = getVoltageRegulation();
+        if (regulation != null) {
+            regulation.setTargetValue(regulationValue);
+            return this;
+        }
         double oldValue = getAttributes().getRegulationValue();
         if (Double.compare(regulationValue, oldValue) != 0) {
             getTransformer().updateResource(res -> getAttributes(res).setRegulationValue(regulationValue),
@@ -52,8 +152,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities, getRegulationTerminal(), getRegulationMode(), getRegulationValue(), parent.getNetwork(),
-                parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
+        validateRegulation(getNativeRegulationAttributes());
         return super.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
     }
 
@@ -65,22 +164,63 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, hasLoadTapChangingCapabilities(), getRegulationTerminal(), getRegulationMode(), getRegulationValue(), parent.getNetwork(),
-                parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
+        validateRegulation(getNativeRegulationAttributes().withRegulating(regulating));
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating, parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode(
-                ));
+                 ));
+
+        VoltageRegulation regulation = getVoltageRegulation();
+        if (regulation != null && regulation.isRegulating() != regulating) {
+            regulation.setRegulating(regulating);
+        }
 
         return super.setRegulating(regulating);
     }
 
     @Override
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), regulationTerminal, getRegulationMode(), getRegulationValue(), parent.getNetwork(),
-                parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
+        VoltageRegulation current = getVoltageRegulation();
+        double targetValue = current != null ? current.getTargetValue() : getRegulationValue();
+        validateRegulation(getNativeRegulationAttributes().withTerminalAndTargetValue(regulationTerminal, targetValue));
+        if (current != null) {
+            current.setTerminal(regulationTerminal, targetValue);
+            return this;
+        }
         return super.setRegulationTerminal(regulationTerminal);
+    }
+
+    @Override
+    public Terminal getRegulationTerminal() {
+        VoltageRegulation regulation = getVoltageRegulation();
+        return regulation != null && regulation.getTerminal() != null
+            ? regulation.getTerminal() : super.getRegulationTerminal();
+    }
+
+    @Override
+    public boolean isRegulating() {
+        VoltageRegulation regulation = getVoltageRegulation();
+        return regulation != null ? regulation.isRegulating() : super.isRegulating();
+    }
+
+    @Override
+    public double getTargetDeadband() {
+        VoltageRegulation regulation = getVoltageRegulation();
+        return regulation != null ? regulation.getTargetDeadband() : super.getTargetDeadband();
+    }
+
+    @Override
+    public RatioTapChangerImpl setTargetDeadband(double targetDeadband) {
+        VoltageRegulation regulation = getVoltageRegulation();
+        if (regulation != null) {
+            if (targetDeadband < 0) {
+                throw new ValidationException(parent, "Unexpected value for target deadband of RatioTapChanger: " + targetDeadband + " < 0");
+            }
+            regulation.setTargetDeadband(targetDeadband);
+            return this;
+        }
+        return super.setTargetDeadband(targetDeadband);
     }
 
     @Override
@@ -135,6 +275,10 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public void remove() {
+        VoltageRegulation regulation = getVoltageRegulation();
+        if (regulation instanceof VoltageRegulationImpl nativeRegulation) {
+            nativeRegulation.remove();
+        }
         regulatingPoint.remove();
         parent.setRatioTapChanger(null);
     }
@@ -150,14 +294,21 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RegulationMode getRegulationMode() {
+        if (getVoltageRegulation() != null && getVoltageRegulation().getMode() != null) {
+            return getVoltageRegulation().getMode();
+        }
         String regulationMode = getAttributes().getRegulatingPoint().getRegulationMode();
         return regulationMode != null ? RegulationMode.valueOf(regulationMode) : null;
     }
 
     @Override
     public RatioTapChanger setRegulationMode(RegulationMode regulationMode) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), regulationMode, getTargetV(), parent.getNetwork(), parent
-                .getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
+        VoltageRegulation current = getVoltageRegulation();
+        validateRegulation(getNativeRegulationAttributes().withMode(regulationMode));
+        if (current != null) {
+            current.setMode(regulationMode);
+            return this;
+        }
         RegulationMode oldValue = getRegulationMode();
         if (regulationMode != oldValue) {
             regulatingPoint.setRegulationMode(getTapChangerAttribute() + ".regulationMode", String.valueOf(regulationMode));
@@ -170,14 +321,22 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         if (getRegulationMode() != RegulationMode.VOLTAGE) {
             return Double.NaN;
         }
-        return getAttributes().getRegulationValue();
+        return getRegulationValue();
     }
 
     @Override
     public RatioTapChanger setTargetV(double targetV) {
+        VoltageRegulation regulation = getVoltageRegulation();
+        if (regulation != null) {
+            if (!Double.isNaN(targetV) && regulation.getMode() != RegulationMode.VOLTAGE) {
+                regulation.setMode(RegulationMode.VOLTAGE);
+            }
+            regulation.setTargetValue(targetV);
+            return this;
+        }
         if (!Double.isNaN(targetV)) {
             regulatingPoint.setRegulationMode(getTapChangerAttribute() + ".regulationMode",
-                String.valueOf(RatioTapChanger.RegulationMode.VOLTAGE));
+                String.valueOf(RegulationMode.VOLTAGE));
         }
         setRegulationValue(targetV);
         return this;

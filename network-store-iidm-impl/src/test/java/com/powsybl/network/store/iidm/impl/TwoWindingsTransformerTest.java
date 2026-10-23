@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TerminalRefAttributes;
@@ -313,7 +314,7 @@ class TwoWindingsTransformerTest {
         assertEquals(loadId, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
         load.remove();
 
-        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
         assertNull(ratioTapChanger.getRegulationTerminal());
         assertFalse(ratioTapChanger.isRegulating());
     }
