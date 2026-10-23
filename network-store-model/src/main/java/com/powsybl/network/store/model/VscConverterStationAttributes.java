@@ -23,7 +23,8 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "VSC converter station attributes")
-public class VscConverterStationAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class VscConverterStationAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder,
+        VoltageRegulationReactiveTargetAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -46,6 +47,14 @@ public class VscConverterStationAttributes extends AbstractRegulatingEquipmentAt
 
     @Schema(description = "Voltage set point in Kv")
     private double voltageSetPoint;
+
+    @Schema(description = "Local voltage target in kV")
+    @Builder.Default
+    private double localTargetV = Double.NaN;
+
+    @Schema(description = "Local reactive power target in MVar")
+    @Builder.Default
+    private double localTargetQ = Double.NaN;
 
     @Schema(description = "Reactive limits of the vsc station")
     private ReactiveLimitsAttributes reactiveLimits;

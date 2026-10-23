@@ -24,4 +24,7 @@ public class RatioTapChangerAttributes extends TapChangerAttributes {
 
     @Schema(description = "regulationValue")
     private double regulationValue;
+
+    @Schema(description = "Voltage regulation")
+    private NetworkVoltageRegulationAttributes voltageRegulation;
 }

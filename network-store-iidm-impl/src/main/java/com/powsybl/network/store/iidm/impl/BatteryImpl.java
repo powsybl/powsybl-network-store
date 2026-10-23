@@ -19,7 +19,7 @@ import java.util.Collection;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttributes> implements Battery, ReactiveLimitsOwner {
+public class BatteryImpl extends AbstractRegulatingInjection<Battery, BatteryAttributes> implements Battery, ReactiveLimitsOwner {
 
     public BatteryImpl(NetworkObjectIndex index, Resource<BatteryAttributes> resource) {
         super(index, resource);
@@ -31,6 +31,47 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     protected Battery getInjection() {
+        return this;
+    }
+
+    @Override
+    protected Class<? extends com.powsybl.iidm.network.regulation.VoltageRegulationHolder<?>> getVoltageRegulationHolderClass() {
+        return Battery.class;
+    }
+
+    @Override
+    public double getLocalTargetV() {
+        return getResource().getAttributes().getLocalTargetV();
+    }
+
+    @Override
+    public Battery setLocalTargetV(double localTargetV) {
+        ValidationUtil.checkLocalTargetQandV(this, Battery.class, localTargetV, getLocalTargetQ(),
+                getVoltageRegulation(), getNetwork().getMinValidationLevel(),
+                getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getLocalTargetV();
+        if (Double.compare(oldValue, localTargetV) != 0) {
+            updateResource(res -> res.getAttributes().setLocalTargetV(localTargetV),
+                    "localTargetV", oldValue, localTargetV);
+        }
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return getResource().getAttributes().getTargetQ();
+    }
+
+    @Override
+    public Battery setLocalTargetQ(double localTargetQ) {
+        ValidationUtil.checkLocalTargetQandV(this, Battery.class, getLocalTargetV(), localTargetQ,
+                getVoltageRegulation(), getNetwork().getMinValidationLevel(),
+                getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getLocalTargetQ();
+        if (Double.compare(oldValue, localTargetQ) != 0) {
+            updateResource(res -> res.getAttributes().setTargetQ(localTargetQ),
+                    "localTargetQ", oldValue, localTargetQ);
+        }
         return this;
     }
 
@@ -58,13 +99,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public Battery setTargetQ(double targetQ) {
-        ValidationUtil.checkQ0(this, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        double oldValue = getResource().getAttributes().getTargetQ();
-        if (targetQ != oldValue) {
-            updateResource(res -> res.getAttributes().setTargetQ(targetQ),
-                "targetQ", oldValue, targetQ);
-        }
-        return this;
+        return setLocalTargetQ(targetQ);
 
     }
 
@@ -201,6 +236,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     @Override
     public void remove() {
         var resource = getResource();
+        onVoltageRegulationRemoval();
         index.notifyBeforeRemoval(this);
         for (Terminal terminal : getTerminals()) {
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();

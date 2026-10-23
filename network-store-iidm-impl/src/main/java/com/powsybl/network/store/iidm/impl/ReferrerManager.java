@@ -29,11 +29,15 @@ public class ReferrerManager<T> {
     }
 
     public void register(Referrer<T> referrer) {
-        referrers.add(Objects.requireNonNull(referrer));
+        Referrer<T> checkedReferrer = Objects.requireNonNull(referrer);
+        if (!referrers.contains(checkedReferrer)) {
+            referrers.add(checkedReferrer);
+        }
     }
 
     public void unregister(Referrer<T> referrer) {
-        referrers.remove(Objects.requireNonNull(referrer));
+        Referrer<T> checkedReferrer = Objects.requireNonNull(referrer);
+        referrers.removeIf(registeredReferrer -> registeredReferrer == checkedReferrer);
     }
 
     public void notifyOfRemoval() {

@@ -7,10 +7,14 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.network.store.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -29,7 +33,13 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     private double targetV = Double.NaN;
 
+    private double localTargetV = Double.NaN;
+
     private double targetDeadband = Double.NaN;
+
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes;
+
+    private boolean voltageRegulationConfigured;
 
     class ShuntCompensatorLinearModelAdderImpl<O extends ShuntCompensatorModelOwner> extends AbstractBasePropertiesHolder implements ShuntCompensatorLinearModelAdder {
 
@@ -153,6 +163,32 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
     }
 
     @Override
+    public VoltageRegulationAdder<ShuntCompensatorAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, null, getIndex(), this,
+                attributes -> {
+                    voltageRegulationAttributes = attributes;
+                    voltageRegulationConfigured = true;
+                    return null;
+                });
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return Double.NaN;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setLocalTargetQ(double localTargetQ) {
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorLinearModelAdder newLinearModel() {
         return new ShuntCompensatorLinearModelAdderImpl(this);
     }
@@ -205,21 +241,54 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     @Override
     public ShuntCompensator add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         checkNodeBus();
         if (model == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        if (getNetwork().getMinValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS && (sectionCount < 0 || sectionCount > model.getMaximumSectionCount())) {
+        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        if (network.getMinValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS && (sectionCount < 0 || sectionCount > model.getMaximumSectionCount())) {
             throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
+        if (voltageRegulationAttributes == null && (voltageRegulatorOn || !Double.isNaN(targetDeadband))) {
+            newVoltageRegulation()
+                    .withMode(VOLTAGE)
+                    .withTargetValue(regulatingTerminal == null ? Double.NaN : targetV)
+                    .withTargetDeadband(targetDeadband)
+                    .withTerminal(regulatingTerminal)
+                    .withRegulating(voltageRegulatorOn)
+                    .add();
+            if (regulatingTerminal == null) {
+                localTargetV = targetV;
+            }
+        } else if (voltageRegulationConfigured && Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
+            localTargetV = targetV;
+        }
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV,
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband,
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+                ShuntCompensator.class,
+                localTargetV,
+                Double.NaN,
+                voltageRegulationAttributes,
+                network.getMinValidationLevel(),
+                network.getReportNodeContext().getReportNode());
+
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        TerminalRefAttributes voltageRegulationTerminalRef = voltageRegulationAttributes == null
+                ? null
+                : TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal());
+        Boolean regulatingPointStatus = voltageRegulationAttributes == null
+                ? Boolean.valueOf(voltageRegulatorOn)
+                : Boolean.valueOf(voltageRegulationAttributes.isRegulating());
         RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(id, ResourceType.SHUNT_COMPENSATOR, RegulatingTapChangerType.NONE,
-            new TerminalRefAttributes(id, null), terminalRefAttributes, null, ResourceType.SHUNT_COMPENSATOR, voltageRegulatorOn);
+            new TerminalRefAttributes(id, null), voltageRegulationTerminalRef != null ? voltageRegulationTerminalRef : terminalRefAttributes,
+            null, ResourceType.SHUNT_COMPENSATOR,
+            regulatingPointStatus);
 
         Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder()
                 .id(id)
@@ -235,13 +304,23 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                         .solvedSectionCount(solvedSectionCount)
                         .model(model)
                         .regulatingPoint(regulatingPointAttributes)
-                        .targetV(targetV)
+                        .targetV(localTargetV)
                         .targetDeadband(targetDeadband)
+                        .voltageRegulation(voltageRegulationAttributes == null ? null : NetworkVoltageRegulationAttributes.builder()
+                                    .targetValue(voltageRegulationAttributes.targetValue())
+                                    .targetDeadband(voltageRegulationAttributes.targetDeadband())
+                                    .slope(voltageRegulationAttributes.slope())
+                                    .mode(voltageRegulationAttributes.mode())
+                                    .regulating(voltageRegulationAttributes.isRegulating())
+                                    .terminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
+                                    .build())
                         .build())
                 .build();
         ShuntCompensatorImpl shuntCompensator = getIndex().createShuntCompensator(resource);
         shuntCompensator.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        shuntCompensator.setRegulatingTerminal(regulatingTerminal);
+        if (!voltageRegulationConfigured && regulatingTerminal != null) {
+            shuntCompensator.setRegulatingTerminal(regulatingTerminal);
+        }
         return shuntCompensator;
     }
 

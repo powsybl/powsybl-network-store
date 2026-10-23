@@ -131,11 +131,14 @@ class TopLevelDocumentTest {
                 "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"variantNum\":0,\"attributes\":{\"name\":\"name\",\"fictitious\":false,\"extensionAttributes\":{},"
                         + "\"regulatingPoint\":{\"regulatingEquipmentId\":\"gen1\",\"regulatingResourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\","
                                 + "\"localTerminal\":{\"connectableId\":\"gen1\"},\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"},\"regulationMode\":null,"
-                                        + "\"regulatedResourceType\":\"GENERATOR\",\"regulating\":true},\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\","
-                                                 + "\"minP\":2.0,\"maxP\":1.0,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,"
-                                                         + "\"equivalentLocalTargetV\":0.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"condenser\":false,"
-                                                        + "\"regulatingEquipments\":[{\"equipmentId\":\"gen1\",\"resourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\"},"
-                                                                + "{\"equipmentId\":\"gen2\",\"resourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\"}]}}],\"meta\":{}}";
+                                        + "\"regulatedResourceType\":\"GENERATOR\",\"regulating\":true},\"voltageRegulation\":{\"targetValue\":4.0,\"targetDeadband\":NaN,"
+                                                + "\"slope\":NaN,\"mode\":\"VOLTAGE\",\"regulating\":true,\"terminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"}},"
+                                                        + "\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\",\"minP\":2.0,\"maxP\":1.0,"
+                                                                + "\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"equivalentLocalTargetV\":0.0,\"ratedS\":0.0,"
+                                                                        + "\"p\":NaN,\"q\":NaN,\"condenser\":false,\"regulatingEquipments\":[{\"equipmentId\":\"gen1\","
+                                                                                + "\"resourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\"},{\"equipmentId\":\"gen2\","
+                                                                                        + "\"resourceType\":\"GENERATOR\",\"regulatingTapChangerType\":\"NONE\"}],\"localTargetV\":0.0,"
+                                                                                                + "\"localTargetQ\":0.0}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resourceGenerator, document2.getData().get(0));

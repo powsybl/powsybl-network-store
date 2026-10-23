@@ -54,4 +54,21 @@ public class ObservabilityQualityImpl<T> implements ObservabilityQuality<T> {
         this.setter.accept(this);
         return this;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof ObservabilityQuality<?> other)) {
+            return false;
+        }
+        return Double.compare(standardDeviation, other.getStandardDeviation()) == 0
+                && Objects.equals(redundant, other.isRedundant().orElse(null));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(standardDeviation, redundant);
+    }
 }

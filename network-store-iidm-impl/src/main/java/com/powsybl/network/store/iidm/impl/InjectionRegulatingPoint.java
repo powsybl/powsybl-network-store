@@ -10,8 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.network.store.model.*;
 
 import java.util.function.Function;
@@ -19,7 +19,9 @@ import java.util.function.Function;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public final class InjectionRegulatingPoint<I extends Injection<I>, D extends InjectionAttributes> extends AbstractRegulatingPoint {
+public final class InjectionRegulatingPoint<
+        I extends Injection<I> & com.powsybl.iidm.network.regulation.VoltageRegulationHolder<I>,
+        D extends InjectionAttributes> extends AbstractRegulatingPoint {
     private final AbstractRegulatingInjection<I, D> injection;
 
     public InjectionRegulatingPoint(NetworkObjectIndex index, AbstractRegulatingInjection<I, D> injection, Function<Attributes, AbstractRegulatingEquipmentAttributes> attributesGetter) {
@@ -43,7 +45,7 @@ public final class InjectionRegulatingPoint<I extends Injection<I>, D extends In
             switch (getAttributes().getRegulatingResourceType()) {
                 // for svc we set the regulation mode to Off if the regulation was not on the same bus than the svc. If the svc is on the same bus were the equipment was remove we keep the regulation
                 case STATIC_VAR_COMPENSATOR -> {
-                    setRegulationMode("regulationMode", String.valueOf(StaticVarCompensator.RegulationMode.VOLTAGE));
+                    setRegulationMode("regulationMode", String.valueOf(RegulationMode.VOLTAGE));
                     reportNode.newReportNode()
                         .withMessageTemplate("network.store.resetSVCRegulationMode")
                         .withUntypedValue("identifiableId", getRegulatingEquipmentId())

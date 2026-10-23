@@ -7,7 +7,11 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.extensions.StandbyAutomaton;
+import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
@@ -34,12 +38,13 @@ class StaticVarCompensatorTest {
         assertTrue(staticVarCompensator.removeExtension(StandbyAutomaton.class));
         assertNull(staticVarCompensator.getExtension(StandbyAutomaton.class));
         assertFalse(staticVarCompensator.removeExtension(StandbyAutomaton.class));
-        staticVarCompensator.newExtension(VoltagePerReactivePowerControlAdder.class)
+        staticVarCompensator.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
                 .withSlope(1.0)
-                .add();
-        assertTrue(staticVarCompensator.removeExtension(VoltagePerReactivePowerControl.class));
-        assertNull(staticVarCompensator.getExtension(VoltagePerReactivePowerControl.class));
-        assertFalse(staticVarCompensator.removeExtension(VoltagePerReactivePowerControl.class));
+                .build();
+        assertNotNull(staticVarCompensator.getVoltageRegulation());
+        staticVarCompensator.removeVoltageRegulation();
+        assertNull(staticVarCompensator.getVoltageRegulation());
     }
 
     @Test
@@ -47,8 +52,8 @@ class StaticVarCompensatorTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC");
         svc.setRegulating(true);
-        svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
-        assertEquals("Static var compensator 'SVC': invalid value (NaN) for voltage setpoint",
+        svc.setRegulationMode(RegulationMode.VOLTAGE);
+        assertEquals("Static var compensator 'SVC': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
                 assertThrows(ValidationException.class, () -> svc.setVoltageSetpoint(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         svc.setVoltageSetpoint(Double.NaN);
@@ -60,8 +65,8 @@ class StaticVarCompensatorTest {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC");
         svc.setRegulating(true);
         svc.setReactivePowerSetpoint(100.0);
-        svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
-        assertEquals("Static var compensator 'SVC': invalid value (NaN) for reactive power setpoint",
+        svc.setRegulationMode(RegulationMode.REACTIVE_POWER);
+        assertEquals("Static var compensator 'SVC': invalid value (NaN) for localTargetQ (voltageRegulation is set with REACTIVE_POWER mode and regulating true and the terminal is unset)",
                 assertThrows(ValidationException.class, () -> svc.setReactivePowerSetpoint(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         svc.setReactivePowerSetpoint(Double.NaN);
@@ -112,8 +117,7 @@ class StaticVarCompensatorTest {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setReactivePowerSetpoint(1.0);
-        ValidationException e = assertThrows(ValidationException.class, svc3::add);
-
-        assertEquals("Static var compensator 'SVC3': regulating is not set", e.getMessage());
+        StaticVarCompensator svc = svc3.add();
+        assertFalse(svc.isRegulating());
     }
 }

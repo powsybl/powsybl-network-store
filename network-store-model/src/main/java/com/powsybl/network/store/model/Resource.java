@@ -62,6 +62,7 @@ public class Resource<T extends Attributes> implements Validable {
 
     public static <T extends Attributes> Resource<T> create(ResourceType type, String id, int variantNum, T attributes) {
         Objects.requireNonNull(attributes);
+        VoltageRegulationAttributesMapper.normalize(attributes);
         Resource<T> resource = new Resource<>(type, id, variantNum, AttributeFilter.UNSET_AS_NULL, attributes);
         attributes.setResource(resource);
         return resource;
@@ -107,6 +108,7 @@ public class Resource<T extends Attributes> implements Validable {
                 throw new IllegalStateException("attributes is not set");
             }
             Resource<T> resource = new Resource<>(type, id, variantNum, AttributeFilter.UNSET_AS_NULL, attributes);
+            VoltageRegulationAttributesMapper.normalize(attributes);
             attributes.setResource(resource);
             return resource;
         }

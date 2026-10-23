@@ -71,6 +71,19 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         index.notifyUpdate(this, attribute, variantId, oldValue, newValueSupplier.get());
     }
 
+    protected void forEachVariant(Consumer<String> action) {
+        VariantManager variantManager = getNetwork().getVariantManager();
+        String workingVariantId = variantManager.getWorkingVariantId();
+        try {
+            for (String variantId : new ArrayList<>(variantManager.getVariantIds())) {
+                variantManager.setWorkingVariant(variantId);
+                action.accept(variantId);
+            }
+        } finally {
+            variantManager.setWorkingVariant(workingVariantId);
+        }
+    }
+
     public void updateResourcePropertyAdded(Consumer<Resource<D>> modifier, String attribute, Object newValue) {
         modifier.accept(resource);
         index.updateResource(resource, AttributeFilter.PRIMARY_AS_NULL);
