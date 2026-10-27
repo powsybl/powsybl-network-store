@@ -36,11 +36,13 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  */
 
 @RestClientTest
-@ContextConfiguration(classes = RestClientImpl.class)
+@ContextConfiguration(classes = ResourceAttributesRestClientImpl.class)
 class BufferedNetworkStoreClientTest {
 
+    private static final String BASE_URI = "http://network-store-server/" + NetworkStoreApi.VERSION;
+
     @Autowired
-    private RestClient restClient;
+    private ResourceAttributesRestClient restClient;
 
     @Autowired
     private MockRestServiceServer server;
@@ -74,14 +76,14 @@ class BufferedNetworkStoreClientTest {
                 .build();
         bufferedClient.updateNetworks(List.of(n1), AttributeFilter.PRIMARY_AS_NULL);
         // Partial clone 0 -> 1
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
         server.verify();
         server.reset();
         // Partial clone 1 -> 2
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + targetVariantNum1 + "/to/" + targetVariantNum2 + "?targetVariantId=" + targetVariantId2))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         bufferedClient.cloneNetwork(networkUuid, targetVariantNum1, targetVariantNum2, targetVariantId2);
@@ -98,7 +100,7 @@ class BufferedNetworkStoreClientTest {
                         .caseDate(ZonedDateTime.parse("2018-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1UpdatedAfterClone))))
                 .andRespond(withSuccess());
@@ -112,7 +114,7 @@ class BufferedNetworkStoreClientTest {
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone0to1))))
                 .andRespond(withSuccess());
@@ -126,7 +128,7 @@ class BufferedNetworkStoreClientTest {
                         .caseDate(ZonedDateTime.parse("2015-01-01T00:00:00.000Z"))
                         .build())
                 .build();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(n1Clone1to2))))
                 .andRespond(withSuccess());
@@ -142,17 +144,17 @@ class BufferedNetworkStoreClientTest {
         String targetVariantId1 = "variant1";
         bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LOAD, Map.of("load", Set.of("ActivePowerControl")));
         // Partial clone 0 -> 1
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
         server.verify();
         server.reset();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/0/identifiables/extensions"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/0/identifiables/extensions"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"load\":[\"ActivePowerControl\"]}"))
                 .andRespond(withSuccess());
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/1/identifiables/extensions"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/1/identifiables/extensions"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"load\":[\"ActivePowerControl\"]}"))
                 .andRespond(withSuccess());
@@ -169,17 +171,17 @@ class BufferedNetworkStoreClientTest {
         int targetVariantNum1 = 1;
         String targetVariantId1 = "variant1";
         // Partial clone 0 -> 1
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
         server.verify();
         server.reset();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/0/branch/types/LINE/operationalLimitsGroup"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/0/branch/types/LINE/operationalLimitsGroup"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"line\":{\"1\":[\"olg1toRemove\"]}}"))
                 .andRespond(withSuccess());
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/1/branch/types/LINE/operationalLimitsGroup"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/1/branch/types/LINE/operationalLimitsGroup"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"line\":{\"1\":[\"olg1toRemove\"]}}"))
                 .andRespond(withSuccess());
@@ -200,19 +202,19 @@ class BufferedNetworkStoreClientTest {
         int targetVariantNum1 = 1;
         String targetVariantId1 = "variant1";
         // Partial clone 0 -> 1
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + targetVariantNum1 + "?targetVariantId=" + targetVariantId1))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
         bufferedClient.cloneNetwork(networkUuid, Resource.INITIAL_VARIANT_NUM, targetVariantNum1, targetVariantId1);
         server.verify();
         server.reset();
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/loads"))
                 .andExpect(method(PUT))
                 .andExpect(content().string(
                         "[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"attributes\":{\"fictitious\":false,\"equivalent\":false," +
                                 "\"extensionAttributes\":{},\"p0\":0.0,\"q0\":0.0,\"p\":200.0,\"q\":-200.0,\"regulatingEquipments\":[]}}]"))
                 .andRespond(withSuccess());
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/loads"))
                 .andExpect(method(PUT))
                 .andExpect(content().string(
                         "[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":1,\"attributes\":{\"fictitious\":false,\"equivalent\":false," +
@@ -246,7 +248,7 @@ class BufferedNetworkStoreClientTest {
                 .build();
         // test only sv filter
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/sv"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/lines/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
                 .andRespond(withSuccess());
@@ -257,7 +259,7 @@ class BufferedNetworkStoreClientTest {
         // test sv then with limits filter -> should apply with limits
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.LIMITS);
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/lines"))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(l1Copy))))
                 .andRespond(withSuccess());
@@ -268,7 +270,7 @@ class BufferedNetworkStoreClientTest {
         // test primary then sv filter -> should apply primary (without limits)
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.PRIMARY_AS_NULL);
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/lines"))
                 .andExpect(method(PUT))
                 // no operational limits group in request, no filter field (PRIMARY)
                 .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"attributes\":{" +
@@ -283,7 +285,7 @@ class BufferedNetworkStoreClientTest {
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.SV);
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.PRIMARY_AS_NULL);
         bufferedClient.updateLines(networkUuid, List.of(l1), AttributeFilter.LIMITS);
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/lines"))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(l1Copy))))
                 .andRespond(withSuccess());
@@ -314,7 +316,7 @@ class BufferedNetworkStoreClientTest {
                 .build();
         // test only sv filter
         bufferedClient.updateLines(networkUuid, List.of(l1, l2), AttributeFilter.SV);
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/sv"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/lines/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"LINE\",\"id\":\"LINE_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}"
                         + "},{\"type\":\"LINE\",\"id\":\"LINE_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}}]"))
@@ -348,7 +350,7 @@ class BufferedNetworkStoreClientTest {
                 .build();
         // test sv filter
         bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.SV);
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers/sv"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/2-windings-transformers/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":3.0,"
                         + "\"p2\":2.0,\"q2\":4.0}},{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_2\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p1\":1.0,\"q1\":"
@@ -360,7 +362,7 @@ class BufferedNetworkStoreClientTest {
 
         // test primary filter
         bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.PRIMARY_AS_NULL);
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/2-windings-transformers"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"TWO_WINDINGS_TRANSFORMER\",\"id\":\"TWT_1\",\"variantNum\":0,\"attributes\":{" +
                         "\"fictitious\":false,\"equivalent\":false,\"extensionAttributes\":"
@@ -377,7 +379,7 @@ class BufferedNetworkStoreClientTest {
 
         // test with_limits filter
         bufferedClient.updateTwoWindingsTransformers(networkUuid, List.of(twt1, twt2), AttributeFilter.LIMITS);
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/2-windings-transformers"))
                 .andExpect(method(PUT))
                 .andExpect(content().string(objectMapper.writeValueAsString(List.of(twt1, twt2))))
                 .andRespond(withSuccess());
@@ -395,7 +397,7 @@ class BufferedNetworkStoreClientTest {
         Resource<LoadAttributes> loadResource = Resource.create(ResourceType.LOAD, "loadId", 0, loadAttributes);
         List<Resource<LoadAttributes>> loadResources = List.of(loadResource);
         bufferedClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads/sv"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/loads/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p\":200.0,\"q\":-200.0}}]"))
                 .andRespond(withSuccess());
@@ -409,7 +411,7 @@ class BufferedNetworkStoreClientTest {
         loadResource = new Resource<>(ResourceType.LOAD, "loadId", 0, AttributeFilter.SV, loadAttributes);
         loadResources = List.of(loadResource);
         bufferedClient.updateLoads(networkUuid, loadResources, AttributeFilter.SV);
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads/sv"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/loads/sv"))
                 .andExpect(method(PUT))
                 .andExpect(content().string("[{\"type\":\"LOAD\",\"id\":\"loadId\",\"variantNum\":0,\"filter\":\"SV\",\"attributes\":{\"p\":200.0,\"q\":-200.0}}]"))
                 .andRespond(withSuccess());
@@ -431,7 +433,7 @@ class BufferedNetworkStoreClientTest {
         bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId))));
         bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(1, Set.of(operationalLimitsGroupId2))));
         bufferedClient.removeOperationalLimitsGroupAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.LINE, Map.of(branchId, Map.of(2, Set.of(operationalLimitsGroupId3))));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                         + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
                 .andExpect(method(DELETE))
                 .andExpect(content().string("{\"LINE\":{\"1\":[\"toRemove2\",\"toRemove1\"],\"2\":[\"toRemove3\"]}}"))
@@ -450,7 +452,7 @@ class BufferedNetworkStoreClientTest {
         bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
         bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator2, Set.of(ActivePowerControl.NAME),
                 generator1, Set.of(CoordinatedReactiveControl.NAME)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/extensions"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/extensions"))
                 .andExpect(method(DELETE))
                 .andExpect(content().json("{\"GEN1\":[\"coordinatedReactiveControl\", \"activePowerControl\"],\"GEN2\":[\"activePowerControl\"]}"))
                 .andRespond(withSuccess());
@@ -466,10 +468,10 @@ class BufferedNetworkStoreClientTest {
         bufferedClient.removeExtensionsAttributes(networkUuid, Resource.INITIAL_VARIANT_NUM, ResourceType.GENERATOR, Map.of(generator1, Set.of(ActivePowerControl.NAME)));
         bufferedClient.removeGenerators(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(generator1));
         // remove extension elements and then remove the generator containing it will call only the server once
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/generators"))
                 .andExpect(method(DELETE))
                 .andRespond(withStatus(HttpStatus.OK));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/extensions"))
+        server.expect(ExpectedCount.never(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/identifiables/extensions"))
                 .andExpect(method(DELETE));
         bufferedClient.flush(networkUuid);
         server.verify();
@@ -486,10 +488,10 @@ class BufferedNetworkStoreClientTest {
         bufferedClient.removeLines(networkUuid, Resource.INITIAL_VARIANT_NUM, List.of(branchId));
 
         // removing olg and then removing the line will only remove the line (because it contains the olg)
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(DELETE))
                 .andRespond(withStatus(HttpStatus.OK));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
+        server.expect(ExpectedCount.never(), requestTo(BASE_URI + "/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM
                         + "/branch/types/" + ResourceType.LINE + "/operationalLimitsGroup"))
                 .andExpect(method(DELETE));
         bufferedClient.flush(networkUuid);
