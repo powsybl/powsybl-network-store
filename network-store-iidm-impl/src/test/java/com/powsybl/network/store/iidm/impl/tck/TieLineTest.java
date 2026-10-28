@@ -96,10 +96,4 @@ class TieLineTest extends AbstractTieLineTest {
         assertEquals(List.of(terminal1), ((TieLineImpl) line).getTerminalsOfBoundaryLines(TwoSides.ONE));
         assertEquals(List.of(terminal2), ((TieLineImpl) line).getTerminalsOfBoundaryLines(TwoSides.TWO));
     }
-
-    @Test
-    void testConnectDisconnectWithFictitiousBreaker() {
-        // FIXME: to be removed when asymetric connect/disconnect is fixed
-        // https://github.com/powsybl/powsybl-core/pull/3885
-    }
 }
