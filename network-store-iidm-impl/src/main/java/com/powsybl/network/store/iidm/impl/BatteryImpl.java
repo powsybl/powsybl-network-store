@@ -64,11 +64,7 @@ public class BatteryImpl extends AbstractRegulatingInjection<Battery, BatteryAtt
 
     @Override
     public Battery setTargetQ(double targetQ) {
-        double oldValue = getTargetQ();
-        setLocalTargetQ(targetQ);
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
-        return this;
+        return setLocalTargetQ(targetQ);
     }
 
     @Override

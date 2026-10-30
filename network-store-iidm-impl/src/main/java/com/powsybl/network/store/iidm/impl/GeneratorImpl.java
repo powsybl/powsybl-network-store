@@ -160,29 +160,20 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
     @Override
     public Generator setTargetV(double targetV) {
         ValidationUtil.checkDoublePositive(this, targetV, "targetV");
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        double oldValueTargetV = getTargetV();
-        double oldEquivalentLocalTargetV = getEquivalentLocalTargetV();
         VoltageRegulation voltageRegulation = getVoltageRegulation();
         if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
             voltageRegulation.setTargetValue(targetV);
         } else {
             setLocalTargetV(targetV);
         }
-        index.notifyUpdate(this, "targetV", variantId, oldValueTargetV, targetV);
-        index.notifyUpdate(this, "equivalentLocalTargetV", variantId, oldEquivalentLocalTargetV, getEquivalentLocalTargetV());
         return this;
     }
 
     @Override
     public Generator setTargetV(double targetV, double equivalentLocalTargetV) {
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        double oldTargetV = getTargetV();
-        double oldEquivalentLocalTargetV = getEquivalentLocalTargetV();
         VoltageRegulation voltageRegulation = getVoltageRegulation();
         if (voltageRegulation != null) {
             if (hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
-                oldTargetV = voltageRegulation.getTargetValue();
                 setLocalTargetV(equivalentLocalTargetV);
                 voltageRegulation.setTargetValue(targetV);
             } else {
@@ -196,8 +187,6 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
                 .build();
             setLocalTargetV(equivalentLocalTargetV);
         }
-        index.notifyUpdate(this, "targetV", variantId, oldTargetV, targetV);
-        index.notifyUpdate(this, "equivalentLocalTargetV", variantId, oldEquivalentLocalTargetV, getEquivalentLocalTargetV());
         return this;
     }
 
@@ -273,11 +262,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
 
     @Override
     public Generator setTargetQ(double targetQ) {
-        double oldValue = getTargetQ();
-        setLocalTargetQ(targetQ);
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
-        return this;
+        return setLocalTargetQ(targetQ);
     }
 
     @Override
