@@ -7,7 +7,11 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.network.store.model.*;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibilityForGeneratorConvention;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -19,6 +23,12 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     private double reactivePowerSetPoint = Double.NaN;
 
     private double voltageSetPoint = Double.NaN;
+
+    private double localTargetQ = Double.NaN;
+
+    private double localTargetV = Double.NaN;
+
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     private Terminal regulatingTerminal;
 
@@ -51,6 +61,32 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     }
 
     @Override
+    public VscConverterStationAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
+    }
+
+    @Override
+    public VoltageRegulationAdder<VscConverterStationAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(VscConverterStation.class, this, this, getNetwork(), this::setVoltageRegulationAttributes);
+    }
+
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
+    }
+
+    @Override
     public VscConverterStation add() {
         NetworkImpl network = getNetwork();
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
@@ -58,7 +94,31 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         }
         String id = checkAndGetUniqueId();
         checkNodeBus();
+
+        // Backward compatibility
+        if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
+            // If a vsc converter station with old setters is added and voltageRegulation does not exist,
+            // the new voltageRegulation will be created from the old attributes.
+            createVoltageRegulationBackwardCompatibilityForGeneratorConvention(this, voltageSetPoint, reactivePowerSetPoint, voltageRegulatorOn, regulatingTerminal);
+        } else {
+            // In the case of a vsc converter station with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
+            if (!Double.isNaN(voltageSetPoint) && Double.isNaN(localTargetV)) {
+                localTargetV = voltageSetPoint;
+            }
+            if (!Double.isNaN(reactivePowerSetPoint) && Double.isNaN(localTargetQ)) {
+                localTargetQ = reactivePowerSetPoint;
+            }
+        }
+
         validate();
+        ValidationUtil.checkLocalTargetQandV(this,
+            VscConverterStation.class,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes,
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
 
         MinMaxReactiveLimitsAttributes minMaxAttributes =
                 MinMaxReactiveLimitsAttributes.builder()
@@ -66,9 +126,23 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(id, ResourceType.VSC_CONVERTER_STATION, RegulatingTapChangerType.NONE,
-            new TerminalRefAttributes(id, null), terminalRefAttributes, null, ResourceType.VSC_CONVERTER_STATION, voltageRegulatorOn);
+        VoltageRegulationAttributes persistedVoltageRegulation = voltageRegulationAttributes != null
+            ? VoltageRegulationAttributes.builder()
+                .regulatingEquipmentId(id)
+                .regulatingResourceType(ResourceType.VSC_CONVERTER_STATION)
+                .regulatingTapChangerType(RegulatingTapChangerType.NONE)
+                .localTerminal(new TerminalRefAttributes(id, null))
+                .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
+                .regulatedResourceType(voltageRegulationAttributes.terminal() != null
+                    ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
+                    : ResourceType.VSC_CONVERTER_STATION)
+                .regulationMode(voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null)
+                .regulating(voltageRegulationAttributes.isRegulating())
+                .targetValue(voltageRegulationAttributes.targetValue())
+                .targetDeadband(voltageRegulationAttributes.targetDeadband())
+                .slope(voltageRegulationAttributes.slope())
+                .build()
+            : null;
 
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
@@ -77,26 +151,29 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
                         .fictitious(isFictitious())
+                        .equivalent(isEquivalent())
                         .node(getNode())
                         .bus(getBus())
                         .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .lossFactor(getLossFactor())
-                        .voltageSetPoint(voltageSetPoint)
-                        .reactivePowerSetPoint(reactivePowerSetPoint)
-                        .regulatingPoint(regulatingPointAttributes)
+                        .localTargetV(localTargetV)
+                        .localTargetQ(localTargetQ)
+                        .voltageRegulation(persistedVoltageRegulation)
                         .reactiveLimits(minMaxAttributes)
                         .build())
                 .build();
         VscConverterStationImpl station = getIndex().createVscConverterStation(resource);
         station.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        station.setRegulatingTerminal(regulatingTerminal);
+        if (voltageRegulationAttributes != null && voltageRegulationAttributes.terminal() != null) {
+            ((TerminalImpl<?>) voltageRegulationAttributes.terminal()).setAsRegulatingPoint(station.getRegulatingPoint());
+            ((VoltageRegulationImpl) station.getVoltageRegulation()).registerOnTerminal();
+        }
         return station;
     }
 
     @Override
     protected void validate() {
         super.validate();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
     }
 

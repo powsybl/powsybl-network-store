@@ -519,7 +519,7 @@ class PreloadingNetworkStoreClientTest {
                         .voltageLevelId("vl1")
                         .name("svc1")
                         .bmax(20)
-                        .reactivePowerSetPoint(100)
+                        .localTargetQ(100)
                         .build())
                 .build();
 
@@ -533,16 +533,16 @@ class PreloadingNetworkStoreClientTest {
         Resource<StaticVarCompensatorAttributes> staticVarCompensatorAttributesResource = cachedClient.getStaticVarCompensator(networkUuid, Resource.INITIAL_VARIANT_NUM, "svc1").orElse(null);
         assertNotNull(staticVarCompensatorAttributesResource);
         assertEquals(20, staticVarCompensatorAttributesResource.getAttributes().getBmax(), 0.001);
-        assertEquals(100, staticVarCompensatorAttributesResource.getAttributes().getReactivePowerSetPoint(), 0.001);
+        assertEquals(100, staticVarCompensatorAttributesResource.getAttributes().getLocalTargetQ(), 0.001);
 
         staticVarCompensatorAttributesResource.getAttributes().setBmax(50.);
-        staticVarCompensatorAttributesResource.getAttributes().setReactivePowerSetPoint(1500.);
+        staticVarCompensatorAttributesResource.getAttributes().setLocalTargetQ(1500.);
 
         // Second time static var compensator retrieval by Id
         staticVarCompensatorAttributesResource = cachedClient.getStaticVarCompensator(networkUuid, Resource.INITIAL_VARIANT_NUM, "svc1").orElse(null);
         assertNotNull(staticVarCompensatorAttributesResource);
         assertEquals(50., staticVarCompensatorAttributesResource.getAttributes().getBmax(), 0.001);
-        assertEquals(1500., staticVarCompensatorAttributesResource.getAttributes().getReactivePowerSetPoint(), 0.001);
+        assertEquals(1500., staticVarCompensatorAttributesResource.getAttributes().getLocalTargetQ(), 0.001);
 
         // Remove component
         assertEquals(1, cachedClient.getStaticVarCompensators(networkUuid, Resource.INITIAL_VARIANT_NUM).size());
@@ -556,7 +556,7 @@ class PreloadingNetworkStoreClientTest {
         assertEquals(1, staticVarCompensators.size());
         assertNotNull(staticVarCompensators.get(0));
         assertEquals(20., staticVarCompensators.get(0).getAttributes().getBmax(), 0.001);
-        assertEquals(100., staticVarCompensators.get(0).getAttributes().getReactivePowerSetPoint(), 0.001);
+        assertEquals(100., staticVarCompensators.get(0).getAttributes().getLocalTargetQ(), 0.001);
 
         // Update static var compensator
         Resource<StaticVarCompensatorAttributes> updateStaticVarCompensator = Resource.staticVarCompensatorBuilder()
@@ -565,7 +565,7 @@ class PreloadingNetworkStoreClientTest {
                         .voltageLevelId("vl1")
                         .name("svc1")
                         .bmax(50)
-                        .reactivePowerSetPoint(1500)
+                        .localTargetQ(1500)
                         .build())
                 .build();
         cachedClient.updateStaticVarCompensators(networkUuid, List.of(updateStaticVarCompensator), null);
@@ -573,7 +573,7 @@ class PreloadingNetworkStoreClientTest {
         assertEquals(1, staticVarCompensators.size());
         assertNotNull(staticVarCompensators.get(0));
         assertEquals(50., staticVarCompensators.get(0).getAttributes().getBmax(), 0.001);
-        assertEquals(1500., staticVarCompensators.get(0).getAttributes().getReactivePowerSetPoint(), 0.001);
+        assertEquals(1500., staticVarCompensators.get(0).getAttributes().getLocalTargetQ(), 0.001);
 
         server.verify();
     }

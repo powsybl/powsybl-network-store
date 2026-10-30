@@ -65,22 +65,22 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityP1() {
+    public ObservabilityQuality<B> getNullableQualityP1() {
         return getQuality(BranchObservabilityAttributes::getQualityP1, this::setQualityP1);
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityP2() {
+    public ObservabilityQuality<B> getNullableQualityP2() {
         return getQuality(BranchObservabilityAttributes::getQualityP2, this::setQualityP2);
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityQ1() {
+    public ObservabilityQuality<B> getNullableQualityQ1() {
         return getQuality(BranchObservabilityAttributes::getQualityQ1, this::setQualityQ1);
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityQ2() {
+    public ObservabilityQuality<B> getNullableQualityQ2() {
         return getQuality(BranchObservabilityAttributes::getQualityQ2, this::setQualityQ2);
     }
 

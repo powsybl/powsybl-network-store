@@ -10,6 +10,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
@@ -142,60 +145,105 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
     }
 
     @Override
+    protected Class<? extends VoltageRegulationHolder<?>> getHolderClass() {
+        return ShuntCompensator.class;
+    }
+
+    @Override
+    public double getLocalTargetV() {
+        return getResource().getAttributes().getLocalTargetV();
+    }
+
+    @Override
+    public ShuntCompensator setLocalTargetV(double localTargetV) {
+        ValidationUtil.checkLocalTargetQandV(this,
+            ShuntCompensator.class,
+            localTargetV,
+            this.getLocalTargetQ(),
+            getVoltageRegulation(),
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getResource().getAttributes().getLocalTargetV();
+        if (Double.compare(localTargetV, oldValue) != 0) {
+            updateResource(res -> res.getAttributes().setLocalTargetV(localTargetV),
+                "localTargetV", oldValue, localTargetV);
+        }
+        return this;
+    }
+
+    @Override
     public boolean isVoltageRegulatorOn() {
-        return this.isRegulating();
+        return this.isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode(
-                ));
-        boolean oldValue = this.isRegulating();
-        if (voltageRegulatorOn != oldValue) {
-            this.setRegulating(voltageRegulatorOn);
-            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-            index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        boolean oldValue = isRegulating();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            voltageRegulation.setMode(RegulationMode.VOLTAGE);
+            voltageRegulation.setRegulating(voltageRegulatorOn);
+        } else {
+            newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(voltageRegulatorOn).build();
         }
+        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
     @Override
     public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        setRegTerminal(regulatingTerminal);
+        Terminal oldValue = getRegulatingTerminal();
+        double targetValue = getRegulatingTargetV();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            voltageRegulation.setTerminal(regulatingTerminal, targetValue);
+        } else {
+            newVoltageRegulation().withRegulating(false).withTargetValue(targetValue).withTerminal(regulatingTerminal).build();
+        }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "regulatingTerminal", variantId, oldValue, regulatingTerminal);
         return this;
     }
 
     @Override
     public double getTargetV() {
-        return getResource().getAttributes().getTargetV();
+        return this.getRegulatingTargetV();
     }
 
     @Override
     public ShuntCompensator setTargetV(double targetV) {
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        double oldValue = getResource().getAttributes().getTargetV();
-        if (Double.compare(targetV, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setTargetV(targetV),
-                "targetV", oldValue, targetV);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        double oldValue = getLocalTargetV();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
+            oldValue = voltageRegulation.getTargetValue();
+            voltageRegulation.setTargetValue(targetV);
+        } else {
+            setLocalTargetV(targetV);
         }
+        index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
         return this;
     }
 
     @Override
     public double getTargetDeadband() {
-        return getResource().getAttributes().getTargetDeadband();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        return voltageRegulation != null ? voltageRegulation.getTargetDeadband() : Double.NaN;
     }
 
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode(
-                ));
-        double oldValue = getResource().getAttributes().getTargetDeadband();
-        if (Double.compare(targetDeadband, oldValue) != 0) {
-            updateResource(res -> res.getAttributes().setTargetDeadband(targetDeadband),
-                "targetDeadband", oldValue, targetDeadband);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        double oldValue = Double.NaN;
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            oldValue = voltageRegulation.getTargetDeadband();
+            voltageRegulation.setTargetDeadband(targetDeadband);
+        } else {
+            newVoltageRegulation().withRegulating(false).withTargetDeadband(targetDeadband).build();
         }
+        index.notifyUpdate(this, "targetDeadband", variantId, oldValue, targetDeadband);
         return this;
     }
 
@@ -207,7 +255,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
-        regulatingPoint.remove();
+        removeVoltageRegulationRefs();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeShuntCompensator(resource.getId());
