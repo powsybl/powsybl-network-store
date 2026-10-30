@@ -78,18 +78,18 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
     @Override
     public void removeVoltageRegulation() {
         // the voltage regulation is removed on all existing variants
-        if (voltageRegulation != null) {
-            voltageRegulation.onRemove();
-            voltageRegulation = null;
+        VoltageRegulation oldVoltageRegulation = getVoltageRegulation();
+        if (oldVoltageRegulation != null) {
+            ((VoltageRegulationImpl) oldVoltageRegulation).onRemove();
         }
+        voltageRegulation = null;
         VariantManager variantManager = index.getNetwork().getVariantManager();
         String workingVariantId = variantManager.getWorkingVariantId();
         for (String variantId : variantManager.getVariantIds()) {
             variantManager.setWorkingVariant(variantId);
             if (getVoltageRegulationAttributes() != null) {
-                VoltageRegulationAttributes oldAttributes = getVoltageRegulationAttributes();
                 updateResource(res -> res.getAttributes().setVoltageRegulation(null),
-                    "voltageRegulation", oldAttributes, null);
+                    "VoltageRegulation.removed", oldVoltageRegulation, null);
             }
         }
         variantManager.setWorkingVariant(workingVariantId);
@@ -116,8 +116,9 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
                 .targetDeadband(coreAttributes.targetDeadband())
                 .slope(coreAttributes.slope())
                 .build();
+            voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
             updateResource(res -> res.getAttributes().setVoltageRegulation(attributes),
-                "voltageRegulation", null, attributes);
+                "VoltageRegulation.created", null, voltageRegulation);
             if (coreAttributes.terminal() != null) {
                 ((TerminalImpl<?>) coreAttributes.terminal()).setAsRegulatingPoint(regulatingPoint);
                 ((VoltageRegulationImpl) getVoltageRegulation()).registerOnTerminal();
