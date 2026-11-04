@@ -49,11 +49,11 @@ public class NetworkStoreService implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkStoreService.class);
 
-    private final RestClient restClient;
+    private final ResourceAttributesRestClient restClient;
 
     private final PreloadingStrategy defaultPreloadingStrategy;
 
-    private final TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator;
+    private final TriFunction<ResourceAttributesRestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator;
 
     private final ContextSnapshotFactory contextSnapshotFactory = ContextSnapshotFactory.builder().build();
 
@@ -66,34 +66,34 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy) {
-        this(new RestClientImpl(baseUri), defaultPreloadingStrategy);
+        this(new ResourceAttributesRestClientImpl(baseUri), defaultPreloadingStrategy);
     }
 
     public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy, PreloadingMode defaultPreloadingMode) {
-        this(new RestClientImpl(baseUri), defaultPreloadingStrategy, defaultPreloadingMode);
+        this(new ResourceAttributesRestClientImpl(baseUri), defaultPreloadingStrategy, defaultPreloadingMode);
     }
 
-    public NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
+    public NetworkStoreService(ResourceAttributesRestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
         this(restClient, defaultPreloadingStrategy, PreloadingMode.NONE);
     }
 
     @Autowired
-    public NetworkStoreService(RestClient restClient,
+    public NetworkStoreService(ResourceAttributesRestClient restClient,
                                @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy,
                                @Value("${powsybl.services.network-store-server.preloading-mode:NONE}") PreloadingMode defaultPreloadingMode) {
-        this(restClient, defaultPreloadingStrategy, createStoreClientDecorator(defaultPreloadingMode));
+        this(restClient, defaultPreloadingStrategy, createStoreClient(defaultPreloadingMode));
     }
 
-    NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy,
-                        TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
+    NetworkStoreService(ResourceAttributesRestClient restClient, PreloadingStrategy defaultPreloadingStrategy,
+                        TriFunction<ResourceAttributesRestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
         this.restClient = Objects.requireNonNull(restClient);
         this.defaultPreloadingStrategy = Objects.requireNonNull(defaultPreloadingStrategy);
         this.decorator = Objects.requireNonNull(decorator);
     }
 
     public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy,
-                               TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
-        this(new RestClientImpl(baseUri), defaultPreloadingStrategy, decorator);
+                               TriFunction<ResourceAttributesRestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator) {
+        this(new ResourceAttributesRestClientImpl(baseUri), defaultPreloadingStrategy, decorator);
     }
 
     public static NetworkStoreService create(NetworkStoreConfig config) {
@@ -105,12 +105,12 @@ public class NetworkStoreService implements AutoCloseable {
         return preloadingStrategy != null ? preloadingStrategy : defaultPreloadingStrategy;
     }
 
-    private static TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> createStoreClientDecorator(PreloadingMode preloadingMode) {
+    private static TriFunction<ResourceAttributesRestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> createStoreClient(PreloadingMode preloadingMode) {
         Objects.requireNonNull(preloadingMode);
         return (restClient, preloadingStrategy, executorService) -> createStoreClient(restClient, preloadingStrategy, preloadingMode, executorService);
     }
 
-    private static NetworkStoreClient createStoreClient(RestClient restClient, PreloadingStrategy preloadingStrategy,
+    private static NetworkStoreClient createStoreClient(ResourceAttributesRestClient restClient, PreloadingStrategy preloadingStrategy,
                                                         PreloadingMode preloadingMode,
                                                         ExecutorService executorService) {
         Objects.requireNonNull(preloadingStrategy);

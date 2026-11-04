@@ -61,15 +61,15 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     private static final String STR_OPERATIONAL_LIMITS_GROUP = "operational limits group";
     private static final String STR_EXTENSION = "extension";
 
-    private final RestClient restClient;
+    private final ResourceAttributesRestClient restClient;
 
     private final ObjectMapper objectMapper;
 
-    public RestNetworkStoreClient(RestClient restClient) {
+    public RestNetworkStoreClient(ResourceAttributesRestClient restClient) {
         this(restClient, new ObjectMapper());
     }
 
-    public RestNetworkStoreClient(RestClient restClient, ObjectMapper objectMapper) {
+    public RestNetworkStoreClient(ResourceAttributesRestClient restClient, ObjectMapper objectMapper) {
         this.restClient = Objects.requireNonNull(restClient);
         this.objectMapper = Objects.requireNonNull(objectMapper);
         objectMapper.registerModule(new JavaTimeModule())
@@ -386,7 +386,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
                     networkUuid, sourceVariantId, targetVariantId, mayOverwrite);
         } catch (HttpClientErrorException ex) {
             String body = ex.getResponseBodyAsString();
-            Optional<TopLevelError> optError = RestTemplateResponseErrorHandler.parseJsonApiError(body, objectMapper);
+            Optional<TopLevelError> optError = RestClientResponseErrorHandler.parseJsonApiError(body, objectMapper);
             if (optError.isPresent()) {
                 TopLevelError error = optError.get();
                 Optional<ErrorObject> errorCloneOverExisting = error.getErrors().stream()

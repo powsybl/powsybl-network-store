@@ -33,14 +33,14 @@ import static org.mockito.Mockito.when;
 class NetworkStoreServiceTest {
 
     @Mock
-    private RestClient restClient;
+    private ResourceAttributesRestClient restClient;
 
     private static final String TRACE_KEY = "trace-id";
 
     @Test
     void executorServicePropagatesContext() throws ExecutionException, InterruptedException {
         AtomicReference<ExecutorService> executorHolder = new AtomicReference<>();
-        TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator = (rest, strategy, executor) -> {
+        TriFunction<ResourceAttributesRestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator = (rest, strategy, executor) -> {
             executorHolder.set(executor);
             NetworkStoreClient storeClient = mock(NetworkStoreClient.class);
             doNothing().when(storeClient).createNetworks(anyList());
@@ -68,7 +68,7 @@ class NetworkStoreServiceTest {
         UUID networkUuid = UUID.randomUUID();
         NetworkStoreClient storeClient = mock(NetworkStoreClient.class);
         when(storeClient.networkExists(networkUuid)).thenReturn(true);
-        TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator =
+        TriFunction<ResourceAttributesRestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator =
                 (rest, strategy, executor) -> storeClient;
 
         try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE, decorator)) {
@@ -81,7 +81,7 @@ class NetworkStoreServiceTest {
         UUID networkUuid = UUID.randomUUID();
         NetworkStoreClient storeClient = mock(NetworkStoreClient.class);
         when(storeClient.networkExists(networkUuid)).thenReturn(false);
-        TriFunction<RestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator =
+        TriFunction<ResourceAttributesRestClient, PreloadingStrategy, ExecutorService, NetworkStoreClient> decorator =
                 (rest, strategy, executor) -> storeClient;
 
         try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE, decorator)) {
