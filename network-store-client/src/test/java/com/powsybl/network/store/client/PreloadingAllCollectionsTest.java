@@ -8,20 +8,25 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.OfflineNetworkStoreClient;
-import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -57,47 +62,33 @@ class PreloadingAllCollectionsTest {
         }
     }
 
-    private static final class StoreClientWithLoad extends OfflineNetworkStoreClient {
-        private int getIdentifiableCallCount = 0;
-        private int getLoadsCallCount = 0;
-
-        @Override
-        public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
-            getIdentifiableCallCount++;
-            if ("LOAD".equals(id)) {
-                Resource<LoadAttributes> load = Resource.loadBuilder()
-                        .id("LOAD")
-                        .attributes(LoadAttributes.builder()
-                                .voltageLevelId("VL")
-                                .build())
-                        .build();
-                return Optional.of((Resource<IdentifiableAttributes>) (Resource<?>) load);
-            }
-            return Optional.empty();
-        }
-
-        @Override
-        public List<Resource<LoadAttributes>> getLoads(UUID networkUuid, int variantNum) {
-            getLoadsCallCount++;
-            return super.getLoads(networkUuid, variantNum);
-        }
+    private static OfflineNetworkStoreClient createStoreClientWithLoad() {
+        var storeClient = spy(new OfflineNetworkStoreClient());
+        Resource<LoadAttributes> load = Resource.loadBuilder()
+                .id("LOAD")
+                .attributes(LoadAttributes.builder()
+                        .voltageLevelId("VL")
+                        .build())
+                .build();
+        doReturn(Optional.of(load)).when(storeClient).getIdentifiable(any(), anyInt(), eq("LOAD"));
+        return storeClient;
     }
 
-    private static PreloadingNetworkStoreClient createClientWithLoad(StoreClientWithLoad storeClient, PreloadingMode preloadingMode) {
+    private static PreloadingNetworkStoreClient createClientWithLoad(OfflineNetworkStoreClient storeClient, PreloadingMode preloadingMode) {
         return createClientWithLoad(storeClient, false, preloadingMode);
     }
 
-    private static PreloadingNetworkStoreClient createClientWithLoad(StoreClientWithLoad storeClient, boolean allCollectionsNeededForBusView, PreloadingMode preloadingMode) {
+    private static PreloadingNetworkStoreClient createClientWithLoad(OfflineNetworkStoreClient storeClient, boolean allCollectionsNeededForBusView, PreloadingMode preloadingMode) {
         return new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(storeClient), allCollectionsNeededForBusView, preloadingMode, ForkJoinPool.commonPool());
     }
 
     @Test
     void getIdentifiablePreloadInNoneMode() {
-        var storeClient = new StoreClientWithLoad();
-        var client = createClientWithLoad(storeClient, PreloadingMode.NONE);
+        OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, PreloadingMode.NONE);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
-        assertEquals(1, storeClient.getIdentifiableCallCount);
-        assertEquals(0, storeClient.getLoadsCallCount);
+        verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "LOAD");
+        verify(storeClient, never()).getLoads(NETWORK_UUID, 0);
         for (ResourceType resourceType : ResourceType.values()) {
             assertFalse(client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));
         }
@@ -105,13 +96,13 @@ class PreloadingAllCollectionsTest {
 
     @Test
     void getIdentifiablePreloadCollectionOfTypeInAllMode() {
-        var storeClient = new StoreClientWithLoad();
-        var client = createClientWithLoad(storeClient, PreloadingMode.ALL);
+        OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, PreloadingMode.ALL);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
         // second call: the collection is already cached
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
-        assertEquals(1, storeClient.getIdentifiableCallCount);
-        assertEquals(1, storeClient.getLoadsCallCount);
+        verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "LOAD");
+        verify(storeClient, times(1)).getLoads(NETWORK_UUID, 0);
         for (ResourceType resourceType : ResourceType.values()) {
             if (resourceType == ResourceType.LOAD) {
                 assertTrue(client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));
@@ -123,11 +114,11 @@ class PreloadingAllCollectionsTest {
 
     @Test
     void getUnknownIdentifiableNoPreloadInAllMode() {
-        var storeClient = new StoreClientWithLoad();
-        var client = createClientWithLoad(storeClient, PreloadingMode.ALL);
+        OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, PreloadingMode.ALL);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "unknown").isEmpty());
-        assertEquals(1, storeClient.getIdentifiableCallCount);
-        assertEquals(0, storeClient.getLoadsCallCount);
+        verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "unknown");
+        verify(storeClient, never()).getLoads(NETWORK_UUID, 0);
         for (ResourceType resourceType : ResourceType.values()) {
             assertFalse(client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));
         }
@@ -135,11 +126,11 @@ class PreloadingAllCollectionsTest {
 
     @Test
     void getIdentifiablePreloadOnlyCollectionOfTypeInBusViewMode() {
-        var storeClient = new StoreClientWithLoad();
-        var client = createClientWithLoad(storeClient, true, PreloadingMode.ALL);
+        OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, true, PreloadingMode.ALL);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
-        assertEquals(1, storeClient.getIdentifiableCallCount);
-        assertEquals(1, storeClient.getLoadsCallCount);
+        verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "LOAD");
+        verify(storeClient, times(1)).getLoads(NETWORK_UUID, 0);
         for (ResourceType resourceType : ResourceType.values()) {
             if (resourceType == ResourceType.LOAD) {
                 assertTrue(client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));

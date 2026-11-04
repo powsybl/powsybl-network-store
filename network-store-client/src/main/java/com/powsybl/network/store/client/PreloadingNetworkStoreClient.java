@@ -49,6 +49,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.BOUNDARY_LINE,
         ResourceType.TIE_LINE
     );
+    public static final PreloadingMode DEFAULT_PRELOADING_MODE = PreloadingMode.NONE;
 
     private final boolean allCollectionsNeededForBusView;
 
@@ -61,7 +62,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
                                         ExecutorService executorService) {
-        this(delegate, allCollectionsNeededForBusView, PreloadingMode.NONE, executorService);
+        this(delegate, allCollectionsNeededForBusView, DEFAULT_PRELOADING_MODE, executorService);
     }
 
     public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
@@ -110,6 +111,10 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         resourceTypes.addAll(RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW);
         stopwatch.stop();
         LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    PreloadingMode getPreloadingMode() {
+        return preloadingMode;
     }
 
     boolean isResourceTypeCached(UUID networkUuid, int variantNum, ResourceType resourceType) {

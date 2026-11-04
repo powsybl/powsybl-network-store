@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.util.TriFunction;
 import io.micrometer.context.ContextExecutorService;
@@ -101,9 +102,10 @@ class NetworkStoreServiceTest {
         NetworkStoreConfig config = new NetworkStoreConfig()
                 .setPreloadingStrategy(PreloadingStrategy.COLLECTION)
                 .setPreloadingMode(PreloadingMode.ALL);
-        assertEquals(PreloadingMode.ALL, config.getPreloadingMode());
         try (NetworkStoreService service = NetworkStoreService.create(config)) {
-            assertNotNull(service.createNetwork("network", "test"));
+            NetworkImpl network = (NetworkImpl) service.createNetwork("network", "test");
+            PreloadingNetworkStoreClient storeClient = (PreloadingNetworkStoreClient) network.getIndex().getStoreClient();
+            assertEquals(PreloadingMode.ALL, storeClient.getPreloadingMode());
         }
     }
 
