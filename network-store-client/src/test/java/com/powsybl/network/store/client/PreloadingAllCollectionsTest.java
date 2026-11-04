@@ -14,9 +14,11 @@ import com.powsybl.network.store.model.ResourceType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -74,69 +76,76 @@ class PreloadingAllCollectionsTest {
         return storeClient;
     }
 
-    private static PreloadingNetworkStoreClient createClientWithLoad(OfflineNetworkStoreClient storeClient, PreloadingMode preloadingMode) {
-        return createClientWithLoad(storeClient, false, preloadingMode);
-    }
-
     private static PreloadingNetworkStoreClient createClientWithLoad(OfflineNetworkStoreClient storeClient, boolean allCollectionsNeededForBusView, PreloadingMode preloadingMode) {
         return new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(storeClient), allCollectionsNeededForBusView, preloadingMode, ForkJoinPool.commonPool());
+    }
+
+    private static void assertCachedResourceTypes(PreloadingNetworkStoreClient client, Set<ResourceType> expectedResourceTypes) {
+        for (ResourceType resourceType : ResourceType.values()) {
+            assertEquals(expectedResourceTypes.contains(resourceType), client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));
+        }
     }
 
     @Test
     void getIdentifiablePreloadInNoneMode() {
         OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
-        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, PreloadingMode.NONE);
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, false, PreloadingMode.NONE);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
         verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "LOAD");
         verify(storeClient, never()).getLoads(NETWORK_UUID, 0);
-        for (ResourceType resourceType : ResourceType.values()) {
-            assertFalse(client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));
-        }
+        verify(storeClient, never()).getGenerators(NETWORK_UUID, 0);
+        assertCachedResourceTypes(client, Set.of());
+    }
+
+    @Test
+    void getIdentifiablePreloadInNoneModeWithBusView() {
+        OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, true, PreloadingMode.NONE);
+        assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
+        verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "LOAD");
+        verify(storeClient, never()).getLoads(NETWORK_UUID, 0);
+        verify(storeClient, never()).getGenerators(NETWORK_UUID, 0);
+        assertCachedResourceTypes(client, Set.of());
+
+        // the bus view flag still applies as soon as a collection is requested
+        client.getSubstations(NETWORK_UUID, 0);
+        verify(storeClient, times(1)).getLoads(NETWORK_UUID, 0);
+        verify(storeClient, times(1)).getGenerators(NETWORK_UUID, 0);
+        assertCachedResourceTypes(client, PreloadingNetworkStoreClient.RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW);
     }
 
     @Test
     void getIdentifiablePreloadCollectionOfTypeInAllMode() {
         OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
-        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, PreloadingMode.ALL);
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, false, PreloadingMode.ALL);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
         // second call: the collection is already cached
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
         verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "LOAD");
         verify(storeClient, times(1)).getLoads(NETWORK_UUID, 0);
-        for (ResourceType resourceType : ResourceType.values()) {
-            if (resourceType == ResourceType.LOAD) {
-                assertTrue(client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));
-            } else {
-                assertFalse(client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));
-            }
-        }
+        verify(storeClient, never()).getGenerators(NETWORK_UUID, 0);
+        assertCachedResourceTypes(client, Set.of(ResourceType.LOAD));
     }
 
     @Test
-    void getUnknownIdentifiableNoPreloadInAllMode() {
-        OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
-        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, PreloadingMode.ALL);
-        assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "unknown").isEmpty());
-        verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "unknown");
-        verify(storeClient, never()).getLoads(NETWORK_UUID, 0);
-        for (ResourceType resourceType : ResourceType.values()) {
-            assertFalse(client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));
-        }
-    }
-
-    @Test
-    void getIdentifiablePreloadOnlyCollectionOfTypeInBusViewMode() {
+    void getIdentifiablePreloadAllCollectionsNeededForBusViewInAllMode() {
         OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
         PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, true, PreloadingMode.ALL);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
         verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "LOAD");
         verify(storeClient, times(1)).getLoads(NETWORK_UUID, 0);
-        for (ResourceType resourceType : ResourceType.values()) {
-            if (resourceType == ResourceType.LOAD) {
-                assertTrue(client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));
-            } else {
-                assertFalse(client.isResourceTypeCached(NETWORK_UUID, 0, resourceType));
-            }
-        }
+        verify(storeClient, times(1)).getGenerators(NETWORK_UUID, 0);
+        assertCachedResourceTypes(client, PreloadingNetworkStoreClient.RESOURCE_TYPES_NEEDED_FOR_BUS_VIEW);
+    }
+
+    @Test
+    void getUnknownIdentifiableNoPreloadInAllMode() {
+        OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, false, PreloadingMode.ALL);
+        assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "unknown").isEmpty());
+        verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "unknown");
+        verify(storeClient, never()).getLoads(NETWORK_UUID, 0);
+        verify(storeClient, never()).getGenerators(NETWORK_UUID, 0);
+        assertCachedResourceTypes(client, Set.of());
     }
 }

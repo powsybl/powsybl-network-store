@@ -153,12 +153,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         Optional<Resource<IdentifiableAttributes>> resource = delegate.getIdentifiable(networkUuid, variantNum, id);
         if (preloadingMode == PreloadingMode.ALL && resource.isPresent()) {
-            ResourceType resourceType = resource.get().getType();
-            Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
-            if (!resourceTypes.contains(resourceType)) {
-                loadToCache(resourceType, networkUuid, variantNum);
-                resourceTypes.add(resourceType);
-            }
+            ensureCached(resource.get().getType(), networkUuid, variantNum);
         }
         return resource;
     }
