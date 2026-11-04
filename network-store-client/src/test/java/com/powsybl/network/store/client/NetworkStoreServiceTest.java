@@ -98,14 +98,14 @@ class NetworkStoreServiceTest {
     }
 
     @Test
-    void createWithPreloadingMode() {
+    void createWithIdentifiablePreloadingMode() {
         NetworkStoreConfig config = new NetworkStoreConfig()
                 .setPreloadingStrategy(PreloadingStrategy.COLLECTION)
-                .setPreloadingMode(PreloadingMode.ALL);
+                .setIdentifiablePreloadingMode(IdentifiablePreloadingMode.COLLECTION);
         try (NetworkStoreService service = NetworkStoreService.create(config)) {
             NetworkImpl network = (NetworkImpl) service.createNetwork("network", "test");
             PreloadingNetworkStoreClient storeClient = (PreloadingNetworkStoreClient) network.getIndex().getStoreClient();
-            assertEquals(PreloadingMode.ALL, storeClient.getPreloadingMode());
+            assertEquals(IdentifiablePreloadingMode.COLLECTION, storeClient.getIdentifiablePreloadingMode());
         }
     }
 

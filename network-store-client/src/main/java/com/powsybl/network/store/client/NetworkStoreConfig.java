@@ -21,13 +21,13 @@ public final class NetworkStoreConfig {
 
     private static final PreloadingStrategy DEFAULT_PRELOADING_STRATEGY = PreloadingStrategy.NONE;
 
-    private static final PreloadingMode DEFAULT_PRELOADING_MODE = PreloadingMode.NONE;
+    private static final IdentifiablePreloadingMode DEFAULT_PRELOADING_MODE = IdentifiablePreloadingMode.NONE;
 
     private String baseUrl;
 
     private PreloadingStrategy preloadingStrategy = DEFAULT_PRELOADING_STRATEGY;
 
-    private PreloadingMode preloadingMode = DEFAULT_PRELOADING_MODE;
+    private IdentifiablePreloadingMode identifiablePreloadingMode = DEFAULT_PRELOADING_MODE;
 
     public NetworkStoreConfig(String baseUrl) {
         this.baseUrl = Objects.requireNonNull(baseUrl);
@@ -44,11 +44,11 @@ public final class NetworkStoreConfig {
                 .orElse(DEFAULT_BASE_URL);
         PreloadingStrategy preloadingStrategy = moduleConfig.flatMap(mc -> mc.getOptionalEnumProperty("preloading-strategy", PreloadingStrategy.class))
                 .orElse(DEFAULT_PRELOADING_STRATEGY);
-        PreloadingMode preloadingMode = moduleConfig.flatMap(mc -> mc.getOptionalEnumProperty("preloading-mode", PreloadingMode.class))
+        IdentifiablePreloadingMode identifiablePreloadingMode = moduleConfig.flatMap(mc -> mc.getOptionalEnumProperty("identifiable-preloading-mode", IdentifiablePreloadingMode.class))
                 .orElse(DEFAULT_PRELOADING_MODE);
         return new NetworkStoreConfig(baseUrl)
                 .setPreloadingStrategy(preloadingStrategy)
-                .setPreloadingMode(preloadingMode);
+                .setIdentifiablePreloadingMode(identifiablePreloadingMode);
     }
 
     public String getBaseUrl() {
@@ -69,12 +69,12 @@ public final class NetworkStoreConfig {
         return this;
     }
 
-    public PreloadingMode getPreloadingMode() {
-        return preloadingMode;
+    public IdentifiablePreloadingMode getIdentifiablePreloadingMode() {
+        return identifiablePreloadingMode;
     }
 
-    public NetworkStoreConfig setPreloadingMode(PreloadingMode preloadingMode) {
-        this.preloadingMode = Objects.requireNonNull(preloadingMode);
+    public NetworkStoreConfig setIdentifiablePreloadingMode(IdentifiablePreloadingMode identifiablePreloadingMode) {
+        this.identifiablePreloadingMode = Objects.requireNonNull(identifiablePreloadingMode);
         return this;
     }
 }

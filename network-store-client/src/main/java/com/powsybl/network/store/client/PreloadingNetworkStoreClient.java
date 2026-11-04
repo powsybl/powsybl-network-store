@@ -49,11 +49,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.BOUNDARY_LINE,
         ResourceType.TIE_LINE
     );
-    public static final PreloadingMode DEFAULT_PRELOADING_MODE = PreloadingMode.NONE;
+    public static final IdentifiablePreloadingMode DEFAULT_PRELOADING_MODE = IdentifiablePreloadingMode.NONE;
 
     private final boolean allCollectionsNeededForBusView;
 
-    private final PreloadingMode preloadingMode;
+    private final IdentifiablePreloadingMode identifiablePreloadingMode;
 
     private final ExecutorService executorService;
 
@@ -66,10 +66,10 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
-                                        PreloadingMode preloadingMode, ExecutorService executorService) {
+                                        IdentifiablePreloadingMode identifiablePreloadingMode, ExecutorService executorService) {
         super(delegate);
         this.allCollectionsNeededForBusView = allCollectionsNeededForBusView;
-        this.preloadingMode = Objects.requireNonNull(preloadingMode);
+        this.identifiablePreloadingMode = Objects.requireNonNull(identifiablePreloadingMode);
         this.executorService = Objects.requireNonNull(executorService);
     }
 
@@ -113,8 +113,8 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
-    PreloadingMode getPreloadingMode() {
-        return preloadingMode;
+    IdentifiablePreloadingMode getIdentifiablePreloadingMode() {
+        return identifiablePreloadingMode;
     }
 
     boolean isResourceTypeCached(UUID networkUuid, int variantNum, ResourceType resourceType) {
@@ -152,7 +152,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     @Override
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         Optional<Resource<IdentifiableAttributes>> resource = delegate.getIdentifiable(networkUuid, variantNum, id);
-        if (preloadingMode == PreloadingMode.ALL && resource.isPresent()) {
+        if (identifiablePreloadingMode == IdentifiablePreloadingMode.COLLECTION && resource.isPresent()) {
             ensureCached(resource.get().getType(), networkUuid, variantNum);
         }
         return resource;

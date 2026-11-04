@@ -76,8 +76,10 @@ class PreloadingAllCollectionsTest {
         return storeClient;
     }
 
-    private static PreloadingNetworkStoreClient createClientWithLoad(OfflineNetworkStoreClient storeClient, boolean allCollectionsNeededForBusView, PreloadingMode preloadingMode) {
-        return new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(storeClient), allCollectionsNeededForBusView, preloadingMode, ForkJoinPool.commonPool());
+    private static PreloadingNetworkStoreClient createClientWithLoad(OfflineNetworkStoreClient storeClient,
+                                                                     boolean allCollectionsNeededForBusView,
+                                                                     IdentifiablePreloadingMode identifiablePreloadingMode) {
+        return new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(storeClient), allCollectionsNeededForBusView, identifiablePreloadingMode, ForkJoinPool.commonPool());
     }
 
     private static void assertCachedResourceTypes(PreloadingNetworkStoreClient client, Set<ResourceType> expectedResourceTypes) {
@@ -89,7 +91,7 @@ class PreloadingAllCollectionsTest {
     @Test
     void getIdentifiablePreloadInNoneMode() {
         OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
-        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, false, PreloadingMode.NONE);
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, false, IdentifiablePreloadingMode.NONE);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
         verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "LOAD");
         verify(storeClient, never()).getLoads(NETWORK_UUID, 0);
@@ -100,7 +102,7 @@ class PreloadingAllCollectionsTest {
     @Test
     void getIdentifiablePreloadInNoneModeWithBusView() {
         OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
-        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, true, PreloadingMode.NONE);
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, true, IdentifiablePreloadingMode.NONE);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
         verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "LOAD");
         verify(storeClient, never()).getLoads(NETWORK_UUID, 0);
@@ -117,7 +119,7 @@ class PreloadingAllCollectionsTest {
     @Test
     void getIdentifiablePreloadCollectionOfTypeInAllMode() {
         OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
-        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, false, PreloadingMode.ALL);
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, false, IdentifiablePreloadingMode.COLLECTION);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
         // second call: the collection is already cached
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
@@ -130,7 +132,7 @@ class PreloadingAllCollectionsTest {
     @Test
     void getIdentifiablePreloadAllCollectionsNeededForBusViewInAllMode() {
         OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
-        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, true, PreloadingMode.ALL);
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, true, IdentifiablePreloadingMode.COLLECTION);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "LOAD").isPresent());
         verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "LOAD");
         verify(storeClient, times(1)).getLoads(NETWORK_UUID, 0);
@@ -141,7 +143,7 @@ class PreloadingAllCollectionsTest {
     @Test
     void getUnknownIdentifiableNoPreloadInAllMode() {
         OfflineNetworkStoreClient storeClient = createStoreClientWithLoad();
-        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, false, PreloadingMode.ALL);
+        PreloadingNetworkStoreClient client = createClientWithLoad(storeClient, false, IdentifiablePreloadingMode.COLLECTION);
         assertTrue(client.getIdentifiable(NETWORK_UUID, 0, "unknown").isEmpty());
         verify(storeClient, times(1)).getIdentifiable(NETWORK_UUID, 0, "unknown");
         verify(storeClient, never()).getLoads(NETWORK_UUID, 0);
