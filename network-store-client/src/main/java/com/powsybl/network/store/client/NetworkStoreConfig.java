@@ -21,13 +21,13 @@ public final class NetworkStoreConfig {
 
     private static final PreloadingStrategy DEFAULT_PRELOADING_STRATEGY = PreloadingStrategy.NONE;
 
-    private static final IdentifiablePreloadingMode DEFAULT_PRELOADING_MODE = IdentifiablePreloadingMode.NONE;
+    private static final IdentifiablePreloadingMode DEFAULT_IDENTIFIABLE_PRELOADING_MODE = IdentifiablePreloadingMode.NONE;
 
     private String baseUrl;
 
     private PreloadingStrategy preloadingStrategy = DEFAULT_PRELOADING_STRATEGY;
 
-    private IdentifiablePreloadingMode identifiablePreloadingMode = DEFAULT_PRELOADING_MODE;
+    private IdentifiablePreloadingMode identifiablePreloadingMode = DEFAULT_IDENTIFIABLE_PRELOADING_MODE;
 
     public NetworkStoreConfig(String baseUrl) {
         this.baseUrl = Objects.requireNonNull(baseUrl);
@@ -45,7 +45,7 @@ public final class NetworkStoreConfig {
         PreloadingStrategy preloadingStrategy = moduleConfig.flatMap(mc -> mc.getOptionalEnumProperty("preloading-strategy", PreloadingStrategy.class))
                 .orElse(DEFAULT_PRELOADING_STRATEGY);
         IdentifiablePreloadingMode identifiablePreloadingMode = moduleConfig.flatMap(mc -> mc.getOptionalEnumProperty("identifiable-preloading-mode", IdentifiablePreloadingMode.class))
-                .orElse(DEFAULT_PRELOADING_MODE);
+                .orElse(DEFAULT_IDENTIFIABLE_PRELOADING_MODE);
         return new NetworkStoreConfig(baseUrl)
                 .setPreloadingStrategy(preloadingStrategy)
                 .setIdentifiablePreloadingMode(identifiablePreloadingMode);

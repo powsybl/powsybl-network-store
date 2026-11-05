@@ -117,7 +117,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Optional<Resource<T>> resource = restClient.getOne(target, url, uriVariables);
         stopwatch.stop();
-        LOGGER.info("{} resource (empty={}) loaded in {} ms", target, resource.isEmpty(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        LOGGER.info("{} resource (empty={}, type={}) loaded in {} ms", target, resource.isEmpty(), resource.map(Resource::getType).orElse(null), stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return resource;
     }
 
