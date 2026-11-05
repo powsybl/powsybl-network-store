@@ -20,8 +20,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "RatioTapChanger attributes")
-public class RatioTapChangerAttributes extends TapChangerAttributes {
+public class RatioTapChangerAttributes extends TapChangerAttributes implements VoltageRegulationHolderAttributes {
 
-    @Schema(description = "regulationValue")
-    private double regulationValue;
+    @Schema(description = "Voltage regulation")
+    private VoltageRegulationAttributes voltageRegulation;
 }

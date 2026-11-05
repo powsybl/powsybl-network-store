@@ -171,6 +171,7 @@ public class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAd
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
                         .fictitious(isFictitious())
+                        .equivalent(isEquivalent())
                         .node(getNode())
                         .bus(getBus())
                         .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
