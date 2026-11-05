@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.util.TriFunction;
 import io.micrometer.context.ContextExecutorService;
@@ -93,6 +94,18 @@ class NetworkStoreServiceTest {
     void networkExistsThrowsNullPointerExceptionWhenUuidIsNull() {
         try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE)) {
             assertThrows(NullPointerException.class, () -> service.networkExists(null));
+        }
+    }
+
+    @Test
+    void createWithIdentifiablePreloadingMode() {
+        NetworkStoreConfig config = new NetworkStoreConfig()
+                .setPreloadingStrategy(PreloadingStrategy.COLLECTION)
+                .setIdentifiablePreloadingMode(IdentifiablePreloadingMode.COLLECTION);
+        try (NetworkStoreService service = NetworkStoreService.create(config)) {
+            NetworkImpl network = (NetworkImpl) service.createNetwork("network", "test");
+            PreloadingNetworkStoreClient storeClient = (PreloadingNetworkStoreClient) network.getIndex().getStoreClient();
+            assertEquals(IdentifiablePreloadingMode.COLLECTION, storeClient.getIdentifiablePreloadingMode());
         }
     }
 
