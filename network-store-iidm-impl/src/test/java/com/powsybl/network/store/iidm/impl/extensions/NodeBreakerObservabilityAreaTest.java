@@ -122,6 +122,17 @@ class NodeBreakerObservabilityAreaTest {
     }
 
     @Test
+    void shouldRemoveExtensionAfterTopologyChange() {
+        Network network = ObservabilityAreaTestSupport.createNodeBreakerNetwork();
+        VoltageLevel vlC = network.getVoltageLevel("C");
+        ObservabilityAreaTestSupport.populateNodeBreakerAreaFromNodes(vlC);
+
+        vlC.getNodeBreakerView().getSwitch("TEST_SW").setOpen(false);
+
+        assertNull(vlC.getExtension(ObservabilityArea.class));
+    }
+
+    @Test
     void shouldHandlePartiallyDefinedAndConflictingCurrentBuses() {
         Network network = ObservabilityAreaTestSupport.createNodeBreakerNetwork();
         VoltageLevel vlC = network.getVoltageLevel("C");

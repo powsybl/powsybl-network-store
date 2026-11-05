@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
+import com.powsybl.iidm.network.extensions.ObservabilityArea;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.network.store.iidm.impl.extensions.IdentifiableShortCircuitImpl;
@@ -53,6 +54,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     void invalidateCalculatedBuses() {
+        // Invalidate ObservabilityArea on topology change to prevent bus ID mismatches
+        // between estimation results and the updated VoltageLevel topology.
+        removeExtension(ObservabilityArea.class);
         updateResourceWithoutNotification(res -> res.getAttributes().setCalculatedBusesValid(false));
         getNetwork().invalidateCalculatedBuses();
     }
