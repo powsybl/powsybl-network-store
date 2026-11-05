@@ -29,6 +29,9 @@ public class LimitsAttributes {
     @Schema(description = "Permanent limit in A")
     private double permanentLimit;
 
+    @Schema(description = "Permanent limit name")
+    private String permanentLimitName;
+
     @Schema(description = "List of temporary limits")
     private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
 
