@@ -29,6 +29,7 @@ By participating, you are expected to uphold this code. Please report unacceptab
   - [Buffering](#buffering)
   - [Caching](#caching)
   - [Preloading strategies](#preloading-strategies)
+  - [Identifiable preloading mode](#identifiable-preloading-mode)
   - [Thread-safety](#thread-safety)
 - [Getting started](#getting-started)
   - [Requirements](#requirements)
@@ -103,6 +104,27 @@ explicit `PreloadingStrategy` argument to `getNetwork()`, `createNetwork()`, `im
 Once a `Network` instance has been created, its preloading strategy is fixed for the lifetime of that instance:
 there is no way to change it afterwards. To use a different strategy, call `getNetwork()` again to obtain a new
 `Network` instance built with a fresh client/cache/buffer stack.
+
+### Identifiable preloading mode
+
+The `IdentifiablePreloadingMode` controls what happens when a single identifiable is fetched by id 
+(e.g. `network.getIdentifiable(id)`). It is independent from the preloading strategy, which decides what is loaded when 
+a collection is accessed:
+
+| Mode         | Behavior                                                                                                                                                         |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NONE`       | Only the requested identifiable is fetched. Collections are loaded later, when they are accessed.                                                                |
+| `COLLECTION` | The requested identifiable is fetched, then the whole collection of its type is loaded, following the preloading strategy. Nothing else is loaded if the id is unknown. |
+
+The result of a `getIdentifiable` call therefore depends on both settings:
+
+| Preloading strategy                   | `NONE` mode                  | `COLLECTION` mode                                                     |
+| ------------------------------------- | ---------------------------- | --------------------------------------------------------------------- |
+| `NONE`                                | Only the identifiable        | Only the identifiable: the mode has no effect without preloading      |
+| `COLLECTION`                          | Only the identifiable        | The identifiable and the collection of its type                       |
+| `ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW` | Only the identifiable        | The identifiable and, if its type is needed for the bus view, all the collections needed for the bus view; otherwise the collection of its type |
+
+Unlike the preloading strategy, this mode is set once for the whole `NetworkStoreService`, through the `identifiable-preloading-mode` property described below or the `NetworkStoreService` constructor. It cannot be overridden per call.
 
 ### Thread-safety
 
@@ -210,14 +232,16 @@ powsybl:
         network-store-server:
             base-uri: http://localhost:8080/
             preloading-strategy: COLLECTION
+            identifiable-preloading-mode: COLLECTION
 ```
 
 List of available variables:
 
-| Variable                                                  | Description                     | Optional | Default value                |
-| --------------------------------------------------------- | ------------------------------- | -------- | ---------------------------- |
-| powsybl.services.network-store-server.base-uri            | URL of the network store server | Yes      | http://network-store-server/ |
-| powsybl.services.network-store-server.preloading-strategy | Preloading strategy             | Yes      | NONE                         |
+| Variable                                                           | Description                     | Optional | Default value                |
+| ------------------------------------------------------------------ | ------------------------------- | -------- | ---------------------------- |
+| powsybl.services.network-store-server.base-uri                     | URL of the network store server | Yes      | http://network-store-server/ |
+| powsybl.services.network-store-server.preloading-strategy          | Preloading strategy             | Yes      | NONE                         |
+| powsybl.services.network-store-server.identifiable-preloading-mode | Identifiable preloading mode    | Yes      | NONE                         |
 
 ### Standalone / PlatformConfig configuration
 
@@ -230,12 +254,14 @@ depending on how the client is used:
 network-store:
     base-url: http://localhost:8080/
     preloading-strategy: COLLECTION
+    identifiable-preloading-mode: COLLECTION
 ```
 
-| Variable                          | Description                     | Optional | Default value            |
-| ---------------------------------- | -------------------------------- | -------- | ------------------------ |
-| network-store.base-url             | URL of the network store server | Yes      | http://localhost:8080/   |
-| network-store.preloading-strategy  | Preloading strategy             | Yes      | NONE                     |
+| Variable                                   | Description                     | Optional | Default value          |
+| ------------------------------------------ | ------------------------------- | -------- | ---------------------- |
+| network-store.base-url                     | URL of the network store server | Yes      | http://localhost:8080/ |
+| network-store.preloading-strategy          | Preloading strategy             | Yes      | NONE                   |
+| network-store.identifiable-preloading-mode | Identifiable preloading mode    | Yes      | NONE                   |
 
 This configuration is loaded via `NetworkStoreConfig.load()` and can be used to create a `NetworkStoreService`
 without relying on Spring:
