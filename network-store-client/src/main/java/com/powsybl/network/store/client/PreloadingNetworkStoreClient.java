@@ -49,8 +49,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         ResourceType.BOUNDARY_LINE,
         ResourceType.TIE_LINE
     );
+    public static final IdentifiablePreloadingMode DEFAULT_PRELOADING_MODE = IdentifiablePreloadingMode.NONE;
 
     private final boolean allCollectionsNeededForBusView;
+
+    private final IdentifiablePreloadingMode identifiablePreloadingMode;
 
     private final ExecutorService executorService;
 
@@ -59,8 +62,14 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
                                         ExecutorService executorService) {
+        this(delegate, allCollectionsNeededForBusView, DEFAULT_PRELOADING_MODE, executorService);
+    }
+
+    public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate, boolean allCollectionsNeededForBusView,
+                                        IdentifiablePreloadingMode identifiablePreloadingMode, ExecutorService executorService) {
         super(delegate);
         this.allCollectionsNeededForBusView = allCollectionsNeededForBusView;
+        this.identifiablePreloadingMode = Objects.requireNonNull(identifiablePreloadingMode);
         this.executorService = Objects.requireNonNull(executorService);
     }
 
@@ -104,6 +113,10 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         LOGGER.info("All collections needed for bus view loaded in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
+    IdentifiablePreloadingMode getIdentifiablePreloadingMode() {
+        return identifiablePreloadingMode;
+    }
+
     boolean isResourceTypeCached(UUID networkUuid, int variantNum, ResourceType resourceType) {
         Set<ResourceType> resourceTypes = cachedResourceTypes.getCollection(networkUuid, variantNum);
         Objects.requireNonNull(resourceType);
@@ -134,6 +147,15 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public void deleteNetwork(UUID networkUuid, int variantNum) {
         delegate.deleteNetwork(networkUuid, variantNum);
         cachedResourceTypes.removeCollection(networkUuid, variantNum);
+    }
+
+    @Override
+    public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
+        Optional<Resource<IdentifiableAttributes>> resource = delegate.getIdentifiable(networkUuid, variantNum, id);
+        if (identifiablePreloadingMode == IdentifiablePreloadingMode.COLLECTION && resource.isPresent()) {
+            ensureCached(resource.get().getType(), networkUuid, variantNum);
+        }
+        return resource;
     }
 
     @Override

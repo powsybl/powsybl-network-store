@@ -106,7 +106,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         Stopwatch stopwatch = Stopwatch.createStarted();
         List<Resource<T>> resourceList = restClient.getAll(target, url, uriVariables);
         stopwatch.stop();
-        LOGGER.info("{} {} resources loaded in {} ms", resourceList.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        ResourceType resourceType = resourceList.isEmpty() ? null : resourceList.getFirst().getType();
+        LOGGER.info("{} {} resources (type={}) loaded in {} ms", resourceList.size(), target, resourceType, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return resourceList;
     }
 
@@ -117,7 +118,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Optional<Resource<T>> resource = restClient.getOne(target, url, uriVariables);
         stopwatch.stop();
-        LOGGER.info("{} resource (empty={}) loaded in {} ms", target, resource.isEmpty(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        LOGGER.info("{} resource (empty={}, type={}) loaded in {} ms", target, resource.isEmpty(), resource.map(Resource::getType).orElse(null), stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return resource;
     }
 

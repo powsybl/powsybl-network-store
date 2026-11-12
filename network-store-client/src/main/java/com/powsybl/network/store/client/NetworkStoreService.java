@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 public class NetworkStoreService implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkStoreService.class);
+    public static final IdentifiablePreloadingMode DEFAULT_PRELOADING_MODE = IdentifiablePreloadingMode.NONE;
 
     private final ResourceAttributesRestClient restClient;
 
@@ -69,10 +70,20 @@ public class NetworkStoreService implements AutoCloseable {
         this(new ResourceAttributesRestClientImpl(baseUri), defaultPreloadingStrategy);
     }
 
+    public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy, IdentifiablePreloadingMode defaultIdentifiablePreloadingMode) {
+        this(new ResourceAttributesRestClientImpl(baseUri), defaultPreloadingStrategy, defaultIdentifiablePreloadingMode);
+    }
+
+    public NetworkStoreService(ResourceAttributesRestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
+        this(restClient, defaultPreloadingStrategy, DEFAULT_PRELOADING_MODE);
+    }
+
     @Autowired
     public NetworkStoreService(ResourceAttributesRestClient restClient,
-                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
-        this(restClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
+                               @Value("${powsybl.services.network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy,
+                               @Value("${powsybl.services.network-store-server.identifiable-preloading-mode:NONE}") IdentifiablePreloadingMode defaultIdentifiablePreloadingMode) {
+        this(restClient, defaultPreloadingStrategy,
+                (client, strategy, executor) -> createStoreClient(client, strategy, defaultIdentifiablePreloadingMode, executor));
     }
 
     NetworkStoreService(ResourceAttributesRestClient restClient, PreloadingStrategy defaultPreloadingStrategy,
@@ -89,7 +100,7 @@ public class NetworkStoreService implements AutoCloseable {
 
     public static NetworkStoreService create(NetworkStoreConfig config) {
         Objects.requireNonNull(config);
-        return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy());
+        return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy(), config.getIdentifiablePreloadingMode());
     }
 
     private PreloadingStrategy getNonNullPreloadingStrategy(PreloadingStrategy preloadingStrategy) {
@@ -97,15 +108,16 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     private static NetworkStoreClient createStoreClient(ResourceAttributesRestClient restClient, PreloadingStrategy preloadingStrategy,
+                                                        IdentifiablePreloadingMode identifiablePreloadingMode,
                                                         ExecutorService executorService) {
         Objects.requireNonNull(preloadingStrategy);
-        LOGGER.info("Preloading strategy: {}", preloadingStrategy);
+        LOGGER.info("Preloading strategy: {}, Identifiable preloading mode: {}", preloadingStrategy, identifiablePreloadingMode);
         var cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient), executorService));
         return switch (preloadingStrategy) {
             case NONE -> cachedClient;
-            case COLLECTION -> new PreloadingNetworkStoreClient(cachedClient, false, executorService);
+            case COLLECTION -> new PreloadingNetworkStoreClient(cachedClient, false, identifiablePreloadingMode, executorService);
             case ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW ->
-                new PreloadingNetworkStoreClient(cachedClient, true, executorService);
+                new PreloadingNetworkStoreClient(cachedClient, true, identifiablePreloadingMode, executorService);
         };
     }
 
