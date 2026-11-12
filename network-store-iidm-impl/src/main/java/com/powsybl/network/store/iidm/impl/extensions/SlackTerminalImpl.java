@@ -14,19 +14,18 @@ import com.powsybl.network.store.iidm.impl.TerminalImpl;
 import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
 import com.powsybl.network.store.iidm.impl.VoltageLevelImpl;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 public class SlackTerminalImpl extends AbstractIidmExtension<VoltageLevel> implements SlackTerminal {
-    private final Set<Terminal> registeredTerminals = new HashSet<>();
-
     public SlackTerminalImpl(VoltageLevelImpl voltageLevel) {
         super(Objects.requireNonNull(voltageLevel));
-        syncReferrers();
+        TerminalImpl<?> terminal = (TerminalImpl<?>) getTerminal();
+        if (terminal != null) {
+            terminal.getReferrerManager().register(this);
+        }
     }
 
     @Override
@@ -40,9 +39,17 @@ public class SlackTerminalImpl extends AbstractIidmExtension<VoltageLevel> imple
             throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
                     + terminal.getVoltageLevel().getId() + " instead of " + getExtendable().getId() + ")");
         }
+        // Get old terminal and, if not null, unregister the slack terminal from this old terminal
+        Terminal oldTerminal = getTerminal();
+        if (oldTerminal != null) {
+            ((TerminalImpl<?>) oldTerminal).getReferrerManager().unregister(this);
+        }
         ((VoltageLevelImpl) getExtendable()).updateResourceExtension(this, res -> res.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal)), "terminal",
-                TerminalRefUtils.getTerminalRefAttributes(getTerminal()), TerminalRefUtils.getTerminalRefAttributes(terminal));
-        syncReferrers();
+                TerminalRefUtils.getTerminalRefAttributes(oldTerminal), TerminalRefUtils.getTerminalRefAttributes(terminal));
+        // register the slack terminal in this new terminal, if not null
+        if (terminal != null) {
+            ((TerminalImpl<?>) terminal).getReferrerManager().register(this);
+        }
         return this;
     }
 
@@ -53,18 +60,9 @@ public class SlackTerminalImpl extends AbstractIidmExtension<VoltageLevel> imple
 
     @Override
     public void onReferencedRemoval(Terminal removedTerminal) {
-        var variantManager = getExtendable().getNetwork().getVariantManager();
-        String workingVariantId = variantManager.getWorkingVariantId();
-        try {
-            for (String variantId : variantManager.getVariantIds()) {
-                variantManager.setWorkingVariant(variantId);
-                Terminal currentTerminal = getTerminal();
-                if (sameTerminal(currentTerminal, removedTerminal)) {
-                    setTerminal(null);
-                }
-            }
-        } finally {
-            variantManager.setWorkingVariant(workingVariantId);
+        Terminal oldTerminal = getTerminal();
+        if (oldTerminal != null && oldTerminal.getConnectable().getId().equals(removedTerminal.getConnectable().getId())) {
+            setTerminal(null);
         }
     }
 
@@ -78,43 +76,8 @@ public class SlackTerminalImpl extends AbstractIidmExtension<VoltageLevel> imple
 
     @Override
     public void cleanup() {
-        for (Terminal terminal : registeredTerminals) {
-            ((TerminalImpl<?>) terminal).getReferrerManager().unregister(this);
+        if (getTerminal() != null) {
+            ((TerminalImpl<?>) getTerminal()).getReferrerManager().unregister(this);
         }
-        registeredTerminals.clear();
-    }
-
-    private void syncReferrers() {
-        var variantManager = getExtendable().getNetwork().getVariantManager();
-        String workingVariantId = variantManager.getWorkingVariantId();
-        Set<Terminal> referencedTerminals = new HashSet<>();
-        try {
-            for (String variantId : variantManager.getVariantIds()) {
-                variantManager.setWorkingVariant(variantId);
-                Terminal terminal = getTerminal();
-                if (terminal != null) {
-                    referencedTerminals.add(terminal);
-                }
-            }
-        } finally {
-            variantManager.setWorkingVariant(workingVariantId);
-        }
-
-        for (Terminal terminal : new HashSet<>(registeredTerminals)) {
-            if (!referencedTerminals.contains(terminal)) {
-                ((TerminalImpl<?>) terminal).getReferrerManager().unregister(this);
-                registeredTerminals.remove(terminal);
-            }
-        }
-        for (Terminal terminal : referencedTerminals) {
-            if (registeredTerminals.add(terminal)) {
-                ((TerminalImpl<?>) terminal).getReferrerManager().register(this);
-            }
-        }
-    }
-
-    private boolean sameTerminal(Terminal first, Terminal second) {
-        return first != null && second != null
-            && Objects.equals(TerminalRefUtils.getTerminalRefAttributes(first), TerminalRefUtils.getTerminalRefAttributes(second));
     }
 }
