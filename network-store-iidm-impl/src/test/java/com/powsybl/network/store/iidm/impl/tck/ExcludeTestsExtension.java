@@ -24,7 +24,11 @@ public class ExcludeTestsExtension implements InvocationInterceptor {
             "testInvalidLineSegment",
             "testInvalidRAndX",
             "testListener",
-            "testConnectDisconnectWithFictitiousBreaker"
+            "testConnectDisconnectWithFictitiousBreaker",
+            // the following tests are not public in powsybl-core tck and use the detailed DC
+            // network model, which is not implemented in the network store
+            "equivalentAcDcConverter",
+            "testSignOnRemoteReactiveMode"
     );
 
     @Override
@@ -33,6 +37,19 @@ public class ExcludeTestsExtension implements InvocationInterceptor {
                                     ExtensionContext extensionContext) throws Throwable {
         String methodName = invocationContext.getExecutable().getName();
         if (EXCLUDED_TESTS.contains(methodName)) {
+            throw new TestAbortedException("Test not applicable for network-store implementation");
+        }
+        invocation.proceed();
+    }
+
+    // some excluded tests already fail in the setup (@BeforeEach) of the tck class, before the
+    // test method is invoked, so the setup must be skipped too
+    @Override
+    public void interceptBeforeEachMethod(Invocation<Void> invocation,
+                                          ReflectiveInvocationContext<Method> invocationContext,
+                                          ExtensionContext extensionContext) throws Throwable {
+        String testMethodName = extensionContext.getTestMethod().map(Method::getName).orElse("");
+        if (EXCLUDED_TESTS.contains(testMethodName)) {
             throw new TestAbortedException("Test not applicable for network-store implementation");
         }
         invocation.proceed();

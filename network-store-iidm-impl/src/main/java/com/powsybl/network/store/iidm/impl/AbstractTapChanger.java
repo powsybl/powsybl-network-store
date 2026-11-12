@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.function.Function;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -29,11 +30,12 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     @Getter
     protected final TapChangerRegulatingPoint regulatingPoint;
 
-    AbstractTapChanger(H parent, NetworkObjectIndex index, String type) {
+    AbstractTapChanger(H parent, NetworkObjectIndex index, String type, Function<Attributes, ? extends RegulatingPointAttributes> regulatingPointAttributesGetter,
+                       String regulatingTerminalAttribute) {
         this.parent = parent;
         this.index = index;
         this.type = Objects.requireNonNull(type);
-        regulatingPoint = new TapChangerRegulatingPoint(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
+        regulatingPoint = new TapChangerRegulatingPoint(index, this, regulatingPointAttributesGetter, regulatingTerminalAttribute);
     }
 
     AbstractIdentifiableImpl<?, ?> getTransformer() {

@@ -23,7 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Static var compensator attributes")
-public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes {
+public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, VoltageRegulationHolderAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -43,11 +43,14 @@ public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentA
     @Schema(description = "Maximum susceptance in S")
     private double bmax;
 
-    @Schema(description = "Voltage setpoint in Kv")
-    private double voltageSetPoint;
+    @Schema(description = "Local voltage target in kV")
+    private double localTargetV;
 
-    @Schema(description = "Reactive power setpoint in MVAR")
-    private double reactivePowerSetPoint;
+    @Schema(description = "Local reactive power target in MVar")
+    private double localTargetQ;
+
+    @Schema(description = "Voltage regulation")
+    private VoltageRegulationAttributes voltageRegulation;
 
     @JsonView(AttributeFilter.JsonViews.OnlySv.class)
     @Schema(description = "Active power in MW")
@@ -61,9 +64,6 @@ public class StaticVarCompensatorAttributes extends AbstractRegulatingEquipmentA
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
-
-    @Schema(description = "Voltage per reactive control")
-    private VoltagePerReactivePowerControlAttributes voltagePerReactiveControl;
 
     @Schema(description = "Standby automaton")
     private StandbyAutomatonAttributes standbyAutomaton;
