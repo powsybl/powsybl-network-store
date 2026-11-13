@@ -33,9 +33,9 @@ public class CgmesTapChangersImpl<C extends Connectable<C>> extends AbstractExte
 
     CgmesTapChangersAttributes getAttributes() {
         if (getExtendable() instanceof TwoWindingsTransformerImpl twt) {
-            return (CgmesTapChangersAttributes) twt.getResource().getAttributes().getExtensionAttributes().get(CgmesTapChangers.NAME);
+            return (CgmesTapChangersAttributes) twt.getExtensionAttributes(CgmesTapChangers.NAME);
         } else if (getExtendable() instanceof ThreeWindingsTransformerImpl twt) {
-            return (CgmesTapChangersAttributes) twt.getResource().getAttributes().getExtensionAttributes().get(CgmesTapChangers.NAME);
+            return (CgmesTapChangersAttributes) twt.getExtensionAttributes(CgmesTapChangers.NAME);
         }
         throw new PowsyblException("Cgmes tap changer extension is not allowed on identifiable type: " + getExtendable().getType());
     }

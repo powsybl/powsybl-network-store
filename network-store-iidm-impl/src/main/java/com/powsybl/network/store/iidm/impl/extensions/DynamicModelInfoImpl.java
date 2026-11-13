@@ -28,7 +28,7 @@ public class DynamicModelInfoImpl<I extends Identifiable<I>> extends AbstractExt
     }
 
     private DynamicModelInfoAttributes getDynamicModelInfoAttributes() {
-        return (DynamicModelInfoAttributes) getIdentifiable().getResource().getAttributes().getExtensionAttributes().get(DynamicModelInfo.NAME);
+        return (DynamicModelInfoAttributes) getIdentifiable().getExtensionAttributes(DynamicModelInfo.NAME);
     }
 
     @Override

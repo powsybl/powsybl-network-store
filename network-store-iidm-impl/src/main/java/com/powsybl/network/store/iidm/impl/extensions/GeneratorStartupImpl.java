@@ -28,7 +28,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
     }
 
     private GeneratorStartupAttributes getGeneratorStartupAttributes() {
-        return (GeneratorStartupAttributes) getGenerator().getResource().getAttributes().getExtensionAttributes().get(GeneratorStartup.NAME);
+        return (GeneratorStartupAttributes) getGenerator().getExtensionAttributes(GeneratorStartup.NAME);
     }
 
     @Override

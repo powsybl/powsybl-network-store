@@ -33,7 +33,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     private BranchObservabilityAttributes getBranchObservabilityAttributes() {
-        return (BranchObservabilityAttributes) getBranch().getResource().getAttributes().getExtensionAttributes().get(BranchObservability.NAME);
+        return (BranchObservabilityAttributes) getBranch().getExtensionAttributes(BranchObservability.NAME);
     }
 
     @Override
