@@ -27,7 +27,7 @@ public class TwoWindingsTransformerToBeEstimatedImpl extends AbstractExtension<T
     }
 
     private TwoWindingsTransformerToBeEstimatedAttributes getTwoWindingsTransformerAttributes() {
-        return (TwoWindingsTransformerToBeEstimatedAttributes) getTwoWindingsTransformer().getResource().getAttributes().getExtensionAttributes().get(TwoWindingsTransformerToBeEstimated.NAME);
+        return (TwoWindingsTransformerToBeEstimatedAttributes) getTwoWindingsTransformer().getExtensionAttributes(TwoWindingsTransformerToBeEstimated.NAME);
     }
 
     @Override

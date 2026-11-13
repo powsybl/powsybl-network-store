@@ -37,7 +37,7 @@ public class VoltageRegulationImpl extends AbstractIidmExtension<Battery> implem
     }
 
     private VoltageRegulationAttributes getVoltageRegulationAttributes() {
-        return (VoltageRegulationAttributes) getBattery().getResource().getAttributes().getExtensionAttributes().get(VoltageRegulation.NAME);
+        return (VoltageRegulationAttributes) getBattery().getExtensionAttributes(VoltageRegulation.NAME);
     }
 
     @Override

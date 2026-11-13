@@ -26,7 +26,7 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
     }
 
     private LineFortescueAttributes getLineFortescueAttributes() {
-        return (LineFortescueAttributes) getLine().getResource().getAttributes().getExtensionAttributes().get(LineFortescue.NAME);
+        return (LineFortescueAttributes) getLine().getExtensionAttributes(LineFortescue.NAME);
     }
 
     @Override

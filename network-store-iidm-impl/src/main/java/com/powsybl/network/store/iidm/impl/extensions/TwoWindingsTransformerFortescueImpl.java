@@ -27,7 +27,7 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     }
 
     private TwoWindingsTransformerFortescueAttributes getTwoWindingsTransformerFortescueAttributes() {
-        return (TwoWindingsTransformerFortescueAttributes) getTwoWindingsTransformer().getResource().getAttributes().getExtensionAttributes().get(TwoWindingsTransformerFortescue.NAME);
+        return (TwoWindingsTransformerFortescueAttributes) getTwoWindingsTransformer().getExtensionAttributes(TwoWindingsTransformerFortescue.NAME);
     }
 
     @Override

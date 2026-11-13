@@ -33,14 +33,14 @@ public class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractE
     }
 
     ReferencePrioritiesAttributes getAttributes() {
-        if (getExtendable() instanceof BusbarSectionImpl) {
-            return (ReferencePrioritiesAttributes) ((BusbarSectionImpl) getExtendable()).getResource().getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
-        } else if (getExtendable() instanceof AbstractInjectionImpl) {
-            return (ReferencePrioritiesAttributes) ((AbstractInjectionImpl<?, ?>) getExtendable()).getResource().getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
-        } else if (getExtendable() instanceof AbstractBranchImpl) {
-            return (ReferencePrioritiesAttributes) ((AbstractBranchImpl<?, ?>) getExtendable()).getResource().getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
-        } else if (getExtendable() instanceof ThreeWindingsTransformerImpl) {
-            return (ReferencePrioritiesAttributes) ((ThreeWindingsTransformerImpl) getExtendable()).getResource().getAttributes().getExtensionAttributes().get(ReferencePriorities.NAME);
+        if (getExtendable() instanceof BusbarSectionImpl busbarSection) {
+            return (ReferencePrioritiesAttributes) busbarSection.getExtensionAttributes(ReferencePriorities.NAME);
+        } else if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
+            return (ReferencePrioritiesAttributes) injection.getExtensionAttributes(ReferencePriorities.NAME);
+        } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
+            return (ReferencePrioritiesAttributes) branch.getExtensionAttributes(ReferencePriorities.NAME);
+        } else if (getExtendable() instanceof ThreeWindingsTransformerImpl twt) {
+            return (ReferencePrioritiesAttributes) twt.getExtensionAttributes(ReferencePriorities.NAME);
         }
         throw new PowsyblException("Reference priorities extension is not allowed on identifiable type: " + getExtendable().getType());
     }

@@ -29,7 +29,7 @@ public class SecondaryVoltageControlImpl extends AbstractExtension<Network> impl
 
     SecondaryVoltageControlAttributes getSecondaryVoltageControlAttributes() {
         NetworkImpl network = (NetworkImpl) getExtendable();
-        return (SecondaryVoltageControlAttributes) network.getResource().getAttributes().getExtensionAttributes().get(SecondaryVoltageControl.NAME);
+        return (SecondaryVoltageControlAttributes) network.getExtensionAttributes(SecondaryVoltageControl.NAME);
     }
 
     @Override
