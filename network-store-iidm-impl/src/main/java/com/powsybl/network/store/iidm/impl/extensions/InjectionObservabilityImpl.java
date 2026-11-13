@@ -33,7 +33,7 @@ public class InjectionObservabilityImpl<I extends Injection<I>> extends Abstract
     }
 
     private InjectionObservabilityAttributes getInjectionObservabilityAttributes() {
-        return (InjectionObservabilityAttributes) getInjection().getResource().getAttributes().getExtensionAttributes().get(InjectionObservability.NAME);
+        return (InjectionObservabilityAttributes) getInjection().getExtensionAttributes(InjectionObservability.NAME);
     }
 
     @Override

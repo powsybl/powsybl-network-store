@@ -26,7 +26,7 @@ public class GeneratorFortescueImpl extends AbstractExtension<Generator> impleme
     }
 
     private GeneratorFortescueAttributes getGeneratorFortescueAttributes() {
-        return (GeneratorFortescueAttributes) getGenerator().getResource().getAttributes().getExtensionAttributes().get(GeneratorFortescue.NAME);
+        return (GeneratorFortescueAttributes) getGenerator().getExtensionAttributes(GeneratorFortescue.NAME);
     }
 
     @Override

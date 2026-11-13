@@ -92,7 +92,7 @@ public class BusBreakerObservabilityArea extends AbstractExtension<VoltageLevel>
     }
 
     private ObservabilityAreaAttributes getAttributes() {
-        return (ObservabilityAreaAttributes) getVoltageLevel().getResource().getAttributes().getExtensionAttributes().get(ObservabilityArea.NAME);
+        return (ObservabilityAreaAttributes) getVoltageLevel().getExtensionAttributes(ObservabilityArea.NAME);
     }
 
     @Override

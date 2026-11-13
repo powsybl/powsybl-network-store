@@ -362,11 +362,40 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (!loaderExists(name)) {
             return null;
         }
-        index.loadExtensionAttributes(resource.getType(), resource.getId(), name);
-        if (resource.getAttributes().getExtensionAttributes().containsKey(name)) {
+        if (getExtensionAttributes(name) != null) {
             return (E) ExtensionLoaders.findLoaderByName(name).load(this);
         }
         return null;
+    }
+
+    /**
+     * Returns the up-to-date attributes of the extension {@code name} on this identifiable, (re)loading them
+     * from the store client if needed. Unlike relying on a cache side effect, this always reflects the current
+     * working variant's resource, whether the underlying client is cached or not.
+     * <p>
+     * Do not assume that the {@code Resource} held here is kept up to date by some caching side effect and read
+     * {@code resource.getAttributes().getExtensionAttributes()} directly instead of calling this method: that
+     * single-instance-per-variant sharing is only guaranteed by {@link CollectionCache} (see its {@code resources}
+     * field javadoc), which is only in the loop when the store client is wrapped with {@link CachedNetworkStoreClient}.
+     * With a bare, uncached client, nothing refreshes a stale {@code Resource} unless this method is called again.
+     */
+    public ExtensionAttributes getExtensionAttributes(String name) {
+        index.loadExtensionAttributes(resource.getType(), resource.getId(), name)
+                .ifPresent(attributes -> putExtensionAttributes(Map.of(name, attributes)));
+        return resource.getAttributes().getExtensionAttributes().get(name);
+    }
+
+    /**
+     * Merges the given extension attributes into this identifiable's resource, without assuming the existing
+     * {@code extensionAttributes} map is mutable (it may be an immutable map, e.g. built with {@code Map.of(...)}).
+     */
+    private void putExtensionAttributes(Map<String, ExtensionAttributes> newAttributes) {
+        if (newAttributes.isEmpty()) {
+            return;
+        }
+        Map<String, ExtensionAttributes> merged = new HashMap<>(resource.getAttributes().getExtensionAttributes());
+        merged.putAll(newAttributes);
+        resource.getAttributes().setExtensionAttributes(merged);
     }
 
     public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
@@ -382,7 +411,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        index.loadAllExtensionsAttributesByIdentifiableId(resource.getType(), resource.getId());
+        putExtensionAttributes(index.loadAllExtensionsAttributesByIdentifiableId(resource.getType(), resource.getId()));
         return resource.getAttributes().getExtensionAttributes().keySet().stream()
                 .filter(ExtensionLoaders::loaderExists)
                 .map(name -> (E) ExtensionLoaders.findLoaderByName(name).load(this))

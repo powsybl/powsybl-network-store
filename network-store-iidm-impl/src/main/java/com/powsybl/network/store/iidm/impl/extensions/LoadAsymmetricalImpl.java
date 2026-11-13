@@ -28,7 +28,7 @@ public class LoadAsymmetricalImpl extends AbstractExtension<Load> implements Loa
     }
 
     private LoadAsymmetricalAttributes getLoadAsymmetricalAttributes() {
-        return (LoadAsymmetricalAttributes) getLoad().getResource().getAttributes().getExtensionAttributes().get(LoadAsymmetrical.NAME);
+        return (LoadAsymmetricalAttributes) getLoad().getExtensionAttributes(LoadAsymmetrical.NAME);
     }
 
     @Override

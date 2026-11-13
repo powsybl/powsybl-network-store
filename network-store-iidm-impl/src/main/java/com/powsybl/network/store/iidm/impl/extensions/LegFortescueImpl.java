@@ -35,7 +35,7 @@ public class LegFortescueImpl implements LegFortescue {
     }
 
     private ThreeWindingsTransformerFortescueAttributes getTransformerFortescueAttributes() {
-        return (ThreeWindingsTransformerFortescueAttributes) transformer.getResource().getAttributes().getExtensionAttributes().get(ThreeWindingsTransformerFortescue.NAME);
+        return (ThreeWindingsTransformerFortescueAttributes) transformer.getExtensionAttributes(ThreeWindingsTransformerFortescue.NAME);
     }
 
     private LegFortescueAttributes getLegFortecueAttributes() {
