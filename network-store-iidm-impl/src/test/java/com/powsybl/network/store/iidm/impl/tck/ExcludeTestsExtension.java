@@ -23,8 +23,7 @@ public class ExcludeTestsExtension implements InvocationInterceptor {
             "testSetters",
             "testInvalidLineSegment",
             "testInvalidRAndX",
-            "testListener",
-            "testConnectDisconnectWithFictitiousBreaker"
+            "testListener"
     );
 
     @Override

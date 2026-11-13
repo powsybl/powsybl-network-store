@@ -39,10 +39,4 @@ class HvdcLineTest extends AbstractHvdcLineTest {
         assertEquals(List.of(terminal1), ((HvdcLineImpl) line).getTerminalsOfConverterStations(TwoSides.ONE));
         assertEquals(List.of(terminal2), ((HvdcLineImpl) line).getTerminalsOfConverterStations(TwoSides.TWO));
     }
-
-    @Test
-    void testConnectDisconnectWithFictitiousBreaker() {
-        // FIXME: to be removed when asymetric connect/disconnect is fixed
-        // https://github.com/powsybl/powsybl-core/pull/3885
-    }
 }
