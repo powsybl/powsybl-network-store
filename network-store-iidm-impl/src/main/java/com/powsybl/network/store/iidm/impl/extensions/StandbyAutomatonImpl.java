@@ -106,7 +106,10 @@ public class StandbyAutomatonImpl extends AbstractExtension<StaticVarCompensator
     public StandbyAutomatonImpl setStandby(boolean standby) {
         checkVoltageConfig(getSvc(), getLowVoltageSetpoint(), getHighVoltageSetpoint(), getLowVoltageThreshold(),
             getHighVoltageThreshold(), standby, getSvc().getId());
-        getAttributes().setStandby(standby);
+        boolean oldValue = isStandby();
+        if (oldValue != standby) {
+            getSvc().updateResourceExtension(this, res -> getAttributes(res).setStandby(standby), "standby", oldValue, standby);
+        }
         return this;
     }
 
