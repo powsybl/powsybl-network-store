@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -104,9 +103,6 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     private VoltageRegulation createOrUpdateVoltageRegulation(VoltageRegulation.VoltageRegulationAttributes coreAttributes) {
         if (getVoltageRegulationAttributes() == null) {
-            if (coreAttributes.terminal() != null && index.getNetwork().getVariantManager().getVariantIds().size() > 1) {
-                throw new PowsyblException(parent.getMessageHeader() + "Cannot set terminal when there are multiple variants");
-            }
             VoltageRegulationAttributes attributes = VoltageRegulationAttributes.builder()
                 .regulatingEquipmentId(getTransformer().getId())
                 .regulatingResourceType(getTransformer().getResource().getType())

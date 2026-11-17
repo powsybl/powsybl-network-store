@@ -9,4 +9,8 @@ package com.powsybl.network.store.iidm.impl.tck.voltage.regulation;
 import com.powsybl.iidm.network.tck.voltage.regulation.AbstractVoltageRegulationOnShuntCompensatorTest;
 
 class VoltageRegulationOnShuntCompensatorTest extends AbstractVoltageRegulationOnShuntCompensatorTest {
+    @Override
+    public void testRemoveTerminalOnMultiVariantThrowException() {
+        // Setting the terminal on multiple variants is now allowed
+    }
 }

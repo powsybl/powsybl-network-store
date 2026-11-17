@@ -189,9 +189,6 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
 
     @Override
     public VoltageRegulation setTerminal(Terminal terminal, double targetValue) {
-        if (getNetwork().getVariantManager().getVariantIds().size() > 1) {
-            throw new PowsyblException(getValidable().getMessageHeader() + "Cannot set terminal when there are multiple variants");
-        }
         VoltageRegulation.VoltageRegulationAttributes newAttributes = toCoreAttributes().withTerminalAndTargetValue(terminal, targetValue);
         checkAttributes(newAttributes);
         if (terminal == null) {
