@@ -6,11 +6,13 @@
  */
 package com.powsybl.network.store.iidm.impl.tck.extensions;
 
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
 import com.powsybl.iidm.network.tck.extensions.AbstractInjectionObservabilityTest;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +25,55 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class InjectionObservabilityTest extends AbstractInjectionObservabilityTest {
+    @Test
+    @Override
+    public void test() {
+        Network network = BatteryNetworkFactory.create();
+        Battery battery = network.getBattery("BAT");
+        assertNotNull(battery);
+        battery.newExtension(InjectionObservabilityAdder.class)
+            .withObservable(true)
+            .withStandardDeviationP(0.02d)
+            .withRedundantP(true)
+            .withStandardDeviationQ(0.5d)
+            .withRedundantQ(true)
+            .withStandardDeviationV(0.0d)
+            .withRedundantV(true)
+            .add();
+        InjectionObservability<Battery> injectionObservability = battery.getExtension(InjectionObservability.class);
+        assertEquals("injectionObservability", injectionObservability.getName());
+        assertEquals("BAT", injectionObservability.getExtendable().getId());
+
+        assertTrue(injectionObservability.isObservable());
+        injectionObservability.setObservable(false);
+        assertFalse(injectionObservability.isObservable());
+
+        assertTrue(injectionObservability.getQualityP().isPresent());
+        assertTrue(injectionObservability.getQualityQ().isPresent());
+        assertTrue(injectionObservability.getQualityV().isPresent());
+
+        assertEquals(0.02d, injectionObservability.getQualityP().orElseThrow().getStandardDeviation(), 0d);
+        injectionObservability.getQualityP().orElseThrow().setStandardDeviation(0.03d);
+        assertEquals(0.03d, injectionObservability.getQualityP().orElseThrow().getStandardDeviation(), 0d);
+        assertTrue(injectionObservability.getQualityP().orElseThrow().isRedundant().orElseThrow());
+        injectionObservability.getQualityP().orElseThrow().setRedundant(false);
+        assertFalse(injectionObservability.getQualityP().orElseThrow().isRedundant().orElseThrow());
+
+        assertEquals(0.5d, injectionObservability.getQualityQ().orElseThrow().getStandardDeviation(), 0d);
+        injectionObservability.getQualityQ().orElseThrow().setStandardDeviation(0.6d);
+        assertEquals(0.6d, injectionObservability.getQualityQ().orElseThrow().getStandardDeviation(), 0d);
+        assertTrue(injectionObservability.getQualityQ().orElseThrow().isRedundant().orElseThrow());
+        injectionObservability.getQualityQ().orElseThrow().setRedundant(false);
+        assertFalse(injectionObservability.getQualityQ().orElseThrow().isRedundant().orElseThrow());
+
+        assertEquals(0.0d, injectionObservability.getQualityV().orElseThrow().getStandardDeviation(), 0d);
+        injectionObservability.getQualityV().orElseThrow().setStandardDeviation(0.01d);
+        assertEquals(0.01d, injectionObservability.getQualityV().orElseThrow().getStandardDeviation(), 0d);
+        assertTrue(injectionObservability.getQualityV().orElseThrow().isRedundant().orElseThrow());
+        injectionObservability.getQualityV().orElseThrow().setRedundant(false);
+        assertFalse(injectionObservability.getQualityV().orElseThrow().isRedundant().orElseThrow());
+    }
+
     // TODO : add this test method later in AbstractInjectionObservabilityTest
     @Test
     void testOnBusbarSections() {
