@@ -18,4 +18,6 @@ class VoltageRegulationOnGeneratorTest extends AbstractVoltageRegulationOnGenera
     public void testMergeWithTerminalInMultiVariant() {
         // network store iidm implementation supports structure modification in variants. Should not throw exception.
     }
+
+    //TODO in this PR: add multi variant tests
 }
