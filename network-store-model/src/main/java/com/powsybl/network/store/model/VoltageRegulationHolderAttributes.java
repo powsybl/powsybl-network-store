@@ -7,9 +7,6 @@
 package com.powsybl.network.store.model;
 
 /**
- * Marker interface for attributes of equipments implementing
- * {@link com.powsybl.iidm.network.regulation.VoltageRegulationHolder}.
- *
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public interface VoltageRegulationHolderAttributes {

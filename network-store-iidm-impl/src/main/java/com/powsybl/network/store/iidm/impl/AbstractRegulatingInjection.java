@@ -15,9 +15,6 @@ import com.powsybl.network.store.model.*;
 import lombok.Getter;
 
 /**
- * Base class for injection implementations that are {@link VoltageRegulationHolder}s
- * (generators, batteries, shunt compensators, static var compensators, vsc converter stations).
- *
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
