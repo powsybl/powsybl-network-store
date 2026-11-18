@@ -31,7 +31,7 @@ public class MeasurementsImpl<C extends Connectable<C>> extends AbstractExtensio
     }
 
     MeasurementsAttributes getMeasurementsAttributes() {
-        return (MeasurementsAttributes) getIdentifiable().getResource().getAttributes().getExtensionAttributes().get(Measurements.NAME);
+        return (MeasurementsAttributes) getIdentifiable().getExtensionAttributes(Measurements.NAME);
     }
 
     @Override

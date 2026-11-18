@@ -46,7 +46,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> extends AbstractExte
     }
 
     private ActivePowerControlAttributes getActivePowerControlAttributes() {
-        return (ActivePowerControlAttributes) getInjection().getResource().getAttributes().getExtensionAttributes().get(ActivePowerControl.NAME);
+        return (ActivePowerControlAttributes) getInjection().getExtensionAttributes(ActivePowerControl.NAME);
     }
 
     @Override

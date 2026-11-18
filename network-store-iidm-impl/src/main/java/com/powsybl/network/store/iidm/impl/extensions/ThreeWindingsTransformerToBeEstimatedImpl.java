@@ -28,7 +28,7 @@ public class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension
     }
 
     private ThreeWindingsTransformerToBeEstimatedAttributes getThreeWindingsTransformerAttributes() {
-        return (ThreeWindingsTransformerToBeEstimatedAttributes) getThreeWindingsTransformer().getResource().getAttributes().getExtensionAttributes().get(ThreeWindingsTransformerToBeEstimated.NAME);
+        return (ThreeWindingsTransformerToBeEstimatedAttributes) getThreeWindingsTransformer().getExtensionAttributes(ThreeWindingsTransformerToBeEstimated.NAME);
     }
 
     @Override

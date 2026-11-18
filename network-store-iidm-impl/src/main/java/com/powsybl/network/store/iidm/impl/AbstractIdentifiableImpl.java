@@ -362,11 +362,29 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (!loaderExists(name)) {
             return null;
         }
-        index.loadExtensionAttributes(resource.getType(), resource.getId(), name);
-        if (resource.getAttributes().getExtensionAttributes().containsKey(name)) {
+        if (getExtensionAttributes(name) != null) {
             return (E) ExtensionLoaders.findLoaderByName(name).load(this);
         }
         return null;
+    }
+
+    /**
+     * Returns the up-to-date attributes of the extension {@code name} on this identifiable, (re)loading them
+     * from the store client if needed.
+     * <p>
+     * Do not read {@code resource.getAttributes().getExtensionAttributes()} directly instead of calling this
+     * method: nothing refreshes that map after it was first populated, so a long-lived extension object would
+     * keep reading a stale snapshot once the identifiable's {@code Resource} changes, for instance after a
+     * variant switch.
+     * <p>
+     * The store client call is made on every access (a caching client makes repeated reads cheap). A client
+     * that does not cache (e.g. the REST one) only returns the loaded value without putting it in the resource,
+     * so it is put in the resource's map here when missing.
+     */
+    public ExtensionAttributes getExtensionAttributes(String name) {
+        Optional<ExtensionAttributes> loaded = index.loadExtensionAttributes(resource.getType(), resource.getId(), name);
+        loaded.ifPresent(attributes -> resource.getAttributes().getExtensionAttributes().putIfAbsent(name, attributes));
+        return resource.getAttributes().getExtensionAttributes().get(name);
     }
 
     public <E extends Extension<I>> boolean removeExtension(Class<E> type) {

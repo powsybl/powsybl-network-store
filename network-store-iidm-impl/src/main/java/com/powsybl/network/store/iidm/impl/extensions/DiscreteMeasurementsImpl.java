@@ -25,7 +25,7 @@ public class DiscreteMeasurementsImpl<I extends Identifiable<I>> extends Abstrac
     }
 
     DiscreteMeasurementsAttributes getMeasurementsAttributes() {
-        return (DiscreteMeasurementsAttributes) getIdentifiable().getResource().getAttributes().getExtensionAttributes().get(DiscreteMeasurements.NAME);
+        return (DiscreteMeasurementsAttributes) getIdentifiable().getExtensionAttributes(DiscreteMeasurements.NAME);
     }
 
     @Override
