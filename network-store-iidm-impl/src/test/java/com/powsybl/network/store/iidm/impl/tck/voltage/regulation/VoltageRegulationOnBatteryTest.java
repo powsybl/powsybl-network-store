@@ -11,6 +11,6 @@ import com.powsybl.iidm.network.tck.voltage.regulation.AbstractVoltageRegulation
 class VoltageRegulationOnBatteryTest extends AbstractVoltageRegulationOnBatteryTest {
     @Override
     public void testRemoveTerminalOnMultiVariantThrowException() {
-        // Setting the terminal on multiple variants is now allowed
+        // network store iidm implementation supports structure modification in variants. Should not throw exception.
     }
 }
