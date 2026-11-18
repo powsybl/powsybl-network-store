@@ -7,13 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractComponentCalculationBugWhenMergingTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
+
+@Disabled("Network merging is not implemented in the network store")
 class ComponentCalculationBugWhenMergingTest extends AbstractComponentCalculationBugWhenMergingTest {
-    @Override
-    public void shouldNotThrowShouldNotHappen() {
-        // FIXME remove this test when network merge are implemented
-    }
 }

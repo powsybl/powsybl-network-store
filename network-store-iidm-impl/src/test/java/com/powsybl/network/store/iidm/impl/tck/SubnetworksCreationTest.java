@@ -7,80 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractSubnetworksCreationTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-// FIXME remove all the tests in this class when we implement subnetworks and areas
+
+@Disabled("Subnetworks and areas are not implemented in the network store")
 class SubnetworksCreationTest extends AbstractSubnetworksCreationTest {
-
-    @Override
-    public void testAreaCreation() {
-        // FIXME
-    }
-
-    @Override
-    public void testSubstationCreation() {
-        // FIXME
-    }
-
-    @Override
-    public void testVoltageLevelCreation() {
-        // FIXME
-    }
-
-    @Override
-    public void testLineCreation() {
-        // FIXME
-    }
-
-    @Override
-    public void failCreateLineFromSubnetworkBetweenRootAndSubnetwork() {
-        // FIXME
-    }
-
-    @Override
-    public void failCreateLineFromASubnetworkInAnother() {
-        // FIXME
-    }
-
-    @Override
-    public void testTwoWindingsTransformersCreation() {
-        // FIXME
-    }
-
-    @Override
-    public void testThreeWindingsTransformersCreation() {
-        // FIXME
-    }
-
-    @Override
-    public void testValidationWithSubnetworkChanges(String networkId) {
-        // FIXME
-    }
-
-    @Override
-    public void testListeners() {
-        // FIXME
-    }
-
-    @Override
-    public void testAngleVoltageLimitCreation() {
-        // FIXME
-    }
-
-    @Override
-    public void failCreateVoltageAngleLimitFromSubnetworkBetweenRootAndSubnetwork() {
-        // FIXME
-    }
-
-    @Override
-    public void failCreateVoltageAngleLimitFromASubnetworkInAnother() {
-        // FIXME
-    }
-
-    @Override
-    public void subnetworksWithSubstationFromSameCountry() {
-        // FIXME
-    }
 }
