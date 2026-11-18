@@ -41,25 +41,29 @@ class StaticVarCompensatorTest {
     void updateWithInvalidVoltageSetpoint() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC");
-        svc.setRegulating(true);
-        svc.setRegulationMode(RegulationMode.VOLTAGE);
+        svc.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .build();
         assertEquals("Static var compensator 'SVC': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
-                assertThrows(ValidationException.class, () -> svc.setVoltageSetpoint(Double.NaN)).getMessage());
+                assertThrows(ValidationException.class, () -> svc.setLocalTargetV(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        svc.setVoltageSetpoint(Double.NaN);
+        svc.setLocalTargetV(Double.NaN);
     }
 
     @Test
     void updateWithInvalidReactivePowerSetpoint() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC");
-        svc.setRegulating(true);
-        svc.setReactivePowerSetpoint(100.0);
-        svc.setRegulationMode(RegulationMode.REACTIVE_POWER);
+        svc.setLocalTargetQ(100.0);
+        svc.newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withRegulating(true)
+                .build();
         assertEquals("Static var compensator 'SVC': invalid value (NaN) for localTargetQ (voltageRegulation is set with REACTIVE_POWER mode and regulating true and the terminal is unset)",
-                assertThrows(ValidationException.class, () -> svc.setReactivePowerSetpoint(Double.NaN)).getMessage());
+                assertThrows(ValidationException.class, () -> svc.setLocalTargetQ(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        svc.setReactivePowerSetpoint(Double.NaN);
+        svc.setLocalTargetQ(Double.NaN);
     }
 
     @Test
@@ -81,7 +85,7 @@ class StaticVarCompensatorTest {
                 .setNode(0)
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setReactivePowerSetpoint(1.0)
+                .setLocalTargetQ(1.0)
                 .add();
 
         assertFalse(svc.isRegulating());
@@ -106,7 +110,7 @@ class StaticVarCompensatorTest {
                 .setNode(0)
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setReactivePowerSetpoint(1.0)
+                .setLocalTargetQ(1.0)
                 .add();
 
         assertFalse(svc3.isRegulating());

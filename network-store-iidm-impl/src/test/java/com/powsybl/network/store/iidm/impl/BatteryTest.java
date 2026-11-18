@@ -52,8 +52,8 @@ class BatteryTest {
         Network network = BatteryNetworkFactory.create();
         Battery battery = network.getBattery("BAT");
         assertEquals("Battery 'BAT': invalid value (NaN) for localTargetQ (voltageRegulation is not set)",
-                assertThrows(ValidationException.class, () -> battery.setTargetQ(Double.NaN)).getMessage());
+                assertThrows(ValidationException.class, () -> battery.setLocalTargetQ(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        battery.setTargetQ(Double.NaN);
+        battery.setLocalTargetQ(Double.NaN);
     }
 }

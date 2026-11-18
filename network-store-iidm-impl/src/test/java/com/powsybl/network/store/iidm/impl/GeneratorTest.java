@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
@@ -25,21 +26,20 @@ class GeneratorTest {
         // initialization
         Generator generator = network.getGenerator("GH3");
         Load load = network.getLoad("LD1");
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
-        assertEquals(400, generator.getTargetV());
+        assertEquals(400, generator.getRegulatingTargetV());
 
         // set the generator's regulation on the load terminal (both equipments are not on the same voltage level/bus)
-        generator.setRegulatingTerminal(load.getTerminal());
-        generator.setTargetV(225);
-        assertTrue(generator.isVoltageRegulatorOn());
+        generator.getVoltageRegulation().setTerminal(load.getTerminal(), 225);
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(load.getTerminal(), generator.getRegulatingTerminal());
-        assertEquals(225, generator.getTargetV());
+        assertEquals(225, generator.getRegulatingTargetV());
 
         // remove the load
         network.getLoad("LD1").remove();
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
     }
 
     @Test
@@ -49,12 +49,12 @@ class GeneratorTest {
         // initialization
         Generator generator = network.getGenerator("GH3");
         Load load = network.getLoad("LD2");
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
 
         // set the generator's regulation on the load terminal (both equipments are on the same voltage level/bus)
-        generator.setRegulatingTerminal(load.getTerminal());
-        assertTrue(generator.isVoltageRegulatorOn());
+        generator.getVoltageRegulation().setTerminal(load.getTerminal(), generator.getRegulatingTargetV());
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(load.getTerminal(), generator.getRegulatingTerminal());
 
         // remove the load
@@ -62,7 +62,7 @@ class GeneratorTest {
         // since powsybl-core 7.4.0, when the regulated equipment is on the same bus, the regulation
         // is relocated on the local terminal and stays active
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
     }
 
     @Test
@@ -134,20 +134,20 @@ class GeneratorTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         Generator generator = network.getGenerator("GH3");
         assertEquals("Generator 'GH3': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
-                assertThrows(ValidationException.class, () -> generator.setTargetV(Double.NaN)).getMessage());
+                assertThrows(ValidationException.class, () -> generator.setLocalTargetV(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        generator.setTargetV(Double.NaN);
+        generator.setLocalTargetV(Double.NaN);
     }
 
     @Test
     void updateWithInvalidTargetQ() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         Generator generator = network.getGenerator("GH3");
-        generator.setVoltageRegulatorOn(false);
+        generator.getVoltageRegulation().setRegulating(false);
         assertEquals("Generator 'GH3': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)",
-                assertThrows(ValidationException.class, () -> generator.setTargetQ(Double.NaN)).getMessage());
+                assertThrows(ValidationException.class, () -> generator.setLocalTargetQ(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        generator.setTargetQ(Double.NaN);
+        generator.setLocalTargetQ(Double.NaN);
     }
 
     @Test
@@ -169,11 +169,11 @@ class GeneratorTest {
                 .setMaxP(Double.MAX_VALUE)
                 .setMinP(-Double.MAX_VALUE)
                 .setTargetP(30.0)
-                .setTargetQ(40.0)
+                .setLocalTargetQ(40.0)
                 .setNode(0)
                 .add();
 
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
 }

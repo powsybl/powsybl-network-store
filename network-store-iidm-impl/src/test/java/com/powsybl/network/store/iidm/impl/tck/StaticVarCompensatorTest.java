@@ -31,15 +31,18 @@ class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
             .setConnectableBus("B2")
             .add();
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
-        svc.setRegulatingTerminal(network.getLoad("load").getTerminal());
-        svc.setRegulationMode(RegulationMode.VOLTAGE);
-        svc.setRegulating(true);
+        svc.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .withTargetValue(svc.getRegulatingTargetV())
+                .withTerminal(network.getLoad("load").getTerminal())
+                .build();
         network.getLoad("load").remove();
         Assertions.assertEquals("SVC2", svc.getRegulatingTerminal().getConnectable().getId());
-        Assertions.assertEquals(RegulationMode.VOLTAGE, svc.getRegulationMode());
+        Assertions.assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
         Assertions.assertTrue(svc.isRegulating());
 
-        svc.setRegulatingTerminal(network.getGenerator("G1").getTerminal());
+        svc.getVoltageRegulation().setTerminal(network.getGenerator("G1").getTerminal(), svc.getVoltageRegulation().getTargetValue());
         Assertions.assertEquals("G1", svc.getRegulatingTerminal().getConnectable().getId());
         network.getGenerator("G1").remove();
         Assertions.assertEquals("SVC2", svc.getRegulatingTerminal().getConnectable().getId());

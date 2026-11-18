@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.tck.AbstractNetworkTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -164,9 +165,9 @@ class NetworkTest extends AbstractNetworkTest {
         assertEquals(200.0, generator1.getMinP(), 0.0);
         assertEquals(900.0, generator1.getMaxP(), 0.0);
         assertSame(EnergySource.NUCLEAR, generator1.getEnergySource());
-        assertTrue(generator1.isVoltageRegulatorOn());
+        assertTrue(generator1.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(900.0, generator1.getTargetP(), 0.0);
-        assertEquals(380.0, generator1.getTargetV(), 0.0);
+        assertEquals(380.0, generator1.getRegulatingTargetV(), 0.0);
         ReactiveCapabilityCurve rcc1 = generator1.getReactiveLimits(ReactiveCapabilityCurve.class);
         assertEquals(2, rcc1.getPointCount());
         assertEquals(500.0, rcc1.getMaxQ(500), 0.0);
