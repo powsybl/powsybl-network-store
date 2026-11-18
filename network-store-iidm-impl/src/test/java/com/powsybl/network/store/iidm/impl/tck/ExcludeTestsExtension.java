@@ -9,8 +9,7 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 //FIXME: WORKAROUND to ignore one test that fails in tck and cannot be overridden because it's not public in powsybl-core
-// delete this class when we use at least powsybl-core 7.0.0
-// + remove the annotation "@ExtendWith(ExcludeTestsExtension.class)" from NetworkTest
+// Should be delete with powsybl-core 7.5.0
 public class ExcludeTestsExtension implements InvocationInterceptor {
     private static final Set<String> EXCLUDED_TESTS = Set.of(
             "testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork",
