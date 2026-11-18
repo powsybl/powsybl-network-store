@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class InjectionObservabilityTest extends AbstractInjectionObservabilityTest {
+    //FIXME: to be removed with powsybl-core 7.5.0. See https://github.com/powsybl/powsybl-core/commit/994b7f42599fb411f5b6001c714cbeb80312da59
     @Test
-    @Override
     public void test() {
         Network network = BatteryNetworkFactory.create();
         Battery battery = network.getBattery("BAT");
