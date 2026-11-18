@@ -112,6 +112,6 @@ class SlackTerminalTest extends AbstractSlackTerminalTest {
     @Test
     @Override
     public void removeTerminalConnectableInMultiVariantContextTest() {
-        // FIXME
+        // FIXME BEFORE MERGE OR PROVE OVERRIDE IS OK
     }
 }
