@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -98,9 +97,6 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
     VoltageRegulation createOrUpdateVoltageRegulation(VoltageRegulation.VoltageRegulationAttributes coreAttributes) {
         VoltageRegulationAttributes existing = getVoltageRegulationAttributes();
         if (existing == null) {
-            if (coreAttributes.terminal() != null && index.getNetwork().getVariantManager().getVariantIds().size() > 1) {
-                throw new PowsyblException(getMessageHeader() + "Cannot set terminal when there are multiple variants");
-            }
             VoltageRegulationAttributes attributes = VoltageRegulationAttributes.builder()
                 .regulatingEquipmentId(getId())
                 .regulatingResourceType(getResource().getType())
