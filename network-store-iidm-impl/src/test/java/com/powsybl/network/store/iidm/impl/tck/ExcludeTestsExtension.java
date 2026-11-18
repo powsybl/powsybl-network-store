@@ -8,24 +8,14 @@ import org.opentest4j.TestAbortedException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-//FIXME: WORKAROUND to ignore one test that fails in tck and cannot be overridden because it's not public in powsybl-core
-// Should be delete with powsybl-core 7.5.0
+// FIXME: Workaround for the package-private TCK test that cannot be overridden in HvdcLineTest and TieLineTest.
+// Should be deleted with powsybl-core 7.5.0. See https://github.com/powsybl/powsybl-core/pull/4258
 public class ExcludeTestsExtension implements InvocationInterceptor {
     private static final Set<String> EXCLUDED_TESTS = Set.of(
-            "testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork",
-            "testSameLine",
-            "testNullLine",
-            "testDuplicateCoupling",
-            "testFindSymmetric",
-            "testRemoveByLines",
-            "testRemoveByMutualCoupling",
-            "testSetters",
-            "testInvalidLineSegment",
-            "testInvalidRAndX",
-            "testListener",
-            "testConnectDisconnectWithFictitiousBreaker",
-            "equivalentAcDcConverter",
-            "testSignOnRemoteReactiveMode"
+            // FIXME: to be removed when asymetric connect/disconnect is fixed
+            // Supposed to be fixed in https://github.com/powsybl/powsybl-core/pull/3885
+            // But still not working
+            "testConnectDisconnectWithFictitiousBreaker"
     );
 
     @Override
@@ -34,17 +24,6 @@ public class ExcludeTestsExtension implements InvocationInterceptor {
                                     ExtensionContext extensionContext) throws Throwable {
         String methodName = invocationContext.getExecutable().getName();
         if (EXCLUDED_TESTS.contains(methodName)) {
-            throw new TestAbortedException("Test not applicable for network-store implementation");
-        }
-        invocation.proceed();
-    }
-
-    @Override
-    public void interceptBeforeEachMethod(Invocation<Void> invocation,
-                                          ReflectiveInvocationContext<Method> invocationContext,
-                                          ExtensionContext extensionContext) throws Throwable {
-        String testMethodName = extensionContext.getTestMethod().map(Method::getName).orElse("");
-        if (EXCLUDED_TESTS.contains(testMethodName)) {
             throw new TestAbortedException("Test not applicable for network-store implementation");
         }
         invocation.proceed();

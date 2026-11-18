@@ -7,14 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractIdentifiableExtensionTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class IdentifiableExtensionTest extends AbstractIdentifiableExtensionTest {
 
-    @Override
-    public void test() {
-        //FIXME remove this test when ZipLoadModelAdder is implemented
-    }
+@Disabled("Zip load model extensions are not implemented in the network store")
+class IdentifiableExtensionTest extends AbstractIdentifiableExtensionTest {
 }
