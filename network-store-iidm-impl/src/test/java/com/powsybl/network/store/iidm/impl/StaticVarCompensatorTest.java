@@ -101,8 +101,6 @@ class StaticVarCompensatorTest {
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
 
-        // since powsybl-core 7.4.0, the regulating status is not mandatory anymore:
-        // a static var compensator without voltage regulation is simply not regulating
         StaticVarCompensator svc3 = voltageLevel.newStaticVarCompensator()
                 .setId("SVC3")
                 .setNode(0)
