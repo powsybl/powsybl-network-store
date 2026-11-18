@@ -7,38 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractDroopCurveTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
+
+@Disabled("Droop curves for the detailed DC network model are not implemented in the network store")
 class DroopCurveTest extends AbstractDroopCurveTest {
-    @Override
-    public void testAdder() {
-        // FIXME setup() uses DcNode that is not implemented in network store
-    }
-
-    @Override
-    public void invalidMaxV() {
-        // FIXME setup() uses DcNode that is not implemented in network store
-    }
-
-    @Override
-    public void invalidMinV() {
-        // FIXME setup() uses DcNode that is not implemented in network store
-    }
-
-    @Override
-    public void overlapping() {
-        // FIXME setup() uses DcNode that is not implemented in network store
-    }
-
-    @Override
-    public void invalidK() {
-        // FIXME setup() uses DcNode that is not implemented in network store
-    }
-
-    @Override
-    public void discontinuous() {
-        // FIXME setup() uses DcNode that is not implemented in network store
-    }
 }
