@@ -85,16 +85,16 @@ class RegulatingTest {
         vl1.newStaticVarCompensator().setId("SVC1").setEnsureIdUnicity(true).setNode(0)
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-        .setLocalTargetQ(200)
-        .setLocalTargetV(390)
-        .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .setLocalTargetQ(200)
+                .setLocalTargetV(390)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
                 .add();
         vl1.newStaticVarCompensator().setId("SVC1").setEnsureIdUnicity(true).setNode(1)
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-        .setLocalTargetQ(200)
-        .setLocalTargetV(390)
-        .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .setLocalTargetQ(200)
+                .setLocalTargetV(390)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
                 .add();
 
         Assertions.assertEquals("SVC1", network.getStaticVarCompensator("SVC1").getRegulatingTerminal().getConnectable().getId());
@@ -108,15 +108,15 @@ class RegulatingTest {
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(400f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl1.newVscConverterStation().setId("VSC1").setEnsureIdUnicity(true).setNode(0)
                 .setLossFactor(24)
-        .setLocalTargetQ(300)
-        .setLocalTargetV(290)
-        .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
+                .setLocalTargetQ(300)
+                .setLocalTargetV(290)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .add();
         vl1.newVscConverterStation().setId("VSC1").setEnsureIdUnicity(true).setNode(1)
                 .setLossFactor(24)
-        .setLocalTargetQ(300)
-        .setLocalTargetV(290)
-        .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
+                .setLocalTargetQ(300)
+                .setLocalTargetV(290)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .add();
 
         Assertions.assertEquals("VSC1", network.getVscConverterStation("VSC1").getRegulatingTerminal().getConnectable().getId());
