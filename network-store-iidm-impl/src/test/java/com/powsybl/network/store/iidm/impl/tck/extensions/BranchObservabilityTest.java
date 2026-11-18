@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class BranchObservabilityTest extends AbstractBranchObservabilityTest {
 
-    //FIXME: to be removed when tck test does not check object instance are equals, but fields are equals
+    //FIXME: to be removed with powsybl-core 7.5.0. See https://github.com/powsybl/powsybl-core/commit/994b7f42599fb411f5b6001c714cbeb80312da59
     @Test
     public void test() {
         Network network = BatteryNetworkFactory.create();
