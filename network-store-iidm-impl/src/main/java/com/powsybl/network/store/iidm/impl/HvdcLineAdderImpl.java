@@ -31,6 +31,8 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     private String converterStationId2;
 
+    public static final String R_ATTRIBUTE = "r";
+
     public HvdcLineAdderImpl(NetworkObjectIndex index) {
         super(index);
     }
@@ -80,7 +82,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
     @Override
     public HvdcLine add() {
         String id = checkAndGetUniqueId();
-        ValidationUtil.checkDoubleParamPositive(this, r, "r");
+        ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
         ValidationUtil.checkConvertersMode(this, convertersMode, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         ValidationUtil.checkNominalV(this, nominalV);
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
