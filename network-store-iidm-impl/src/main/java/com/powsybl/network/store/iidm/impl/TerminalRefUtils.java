@@ -22,9 +22,6 @@ public final class TerminalRefUtils {
             return null;
         }
         Identifiable<?> identifiable = index.getIdentifiable(terminalRefAttributes.getConnectableId());
-        if (identifiable == null) {
-            return null;
-        }
 
         String side = terminalRefAttributes.getSide();
 
