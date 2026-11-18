@@ -25,8 +25,6 @@ public class ExcludeTestsExtension implements InvocationInterceptor {
             "testInvalidRAndX",
             "testListener",
             "testConnectDisconnectWithFictitiousBreaker",
-            // the following tests are not public in powsybl-core tck and use the detailed DC
-            // network model, which is not implemented in the network store
             "equivalentAcDcConverter",
             "testSignOnRemoteReactiveMode"
     );
@@ -42,8 +40,6 @@ public class ExcludeTestsExtension implements InvocationInterceptor {
         invocation.proceed();
     }
 
-    // some excluded tests already fail in the setup (@BeforeEach) of the tck class, before the
-    // test method is invoked, so the setup must be skipped too
     @Override
     public void interceptBeforeEachMethod(Invocation<Void> invocation,
                                           ReflectiveInvocationContext<Method> invocationContext,
