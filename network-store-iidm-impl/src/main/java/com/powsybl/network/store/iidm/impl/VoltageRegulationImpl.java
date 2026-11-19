@@ -18,15 +18,10 @@ import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
- * Network-store implementation of {@link VoltageRegulation}.
- *
- * <p>The regulation state is persisted in the {@link com.powsybl.network.store.model.VoltageRegulationAttributes} of the current
- * variant resource of the regulating equipment. Terminal reference maintenance (registration on the
- * regulated terminal) is delegated to an {@link AbstractRegulatingPoint}.
- *
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Terminal> {
@@ -39,6 +34,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
     private final Validable validable;
     private final AbstractRegulatingPoint regulatingPoint;
     private final String notificationPrefix;
+    private final String regulatingEquipmentId;
 
     public VoltageRegulationImpl(NetworkObjectIndex index,
                                  VoltageRegulationHolder<?> holder,
@@ -52,6 +48,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         this.validable = validable;
         this.regulatingPoint = regulatingPoint;
         this.notificationPrefix = notificationPrefix;
+        this.regulatingEquipmentId = regulatingPoint.getIdentifiable().getId();
     }
 
     private com.powsybl.network.store.model.VoltageRegulationAttributes getVoltageRegulationAttributes() {
@@ -70,9 +67,6 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         return index.getNetwork();
     }
 
-    /**
-     * Build the powsybl-core attributes record of this voltage regulation, used for validation.
-     */
     VoltageRegulation.VoltageRegulationAttributes toCoreAttributes() {
         com.powsybl.network.store.model.VoltageRegulationAttributes attributes = getVoltageRegulationAttributes();
         if (attributes == null) {
@@ -158,11 +152,6 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         return regulatingPoint.getExplicitRegulatingTerminal();
     }
 
-    /**
-     * Register this regulation as a referrer of its regulating terminal, so that it is notified
-     * when the terminal is removed. To be called when a regulation with an explicit terminal is
-     * created or loaded.
-     */
     public void registerOnTerminal() {
         Terminal terminal = getTerminal();
         if (terminal != null) {
@@ -172,9 +161,6 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
 
     @Override
     public void onReferencedRemoval(Terminal removedTerminal) {
-        // The removal of a regulated equipment is already handled through the persisted
-        // regulatingEquipments references (see TerminalImpl.removeAsRegulatingPoint). This callback
-        // only covers the cases where the regulating point has not been cleaned yet.
         if (getTerminal() == removedTerminal) {
             regulatingPoint.removeRegulation(getNetwork().getReportNodeContext().getReportNode());
         }
@@ -282,16 +268,8 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         return this;
     }
 
-    /**
-     * Update all the attributes of this regulation on the current variant, following the powsybl-core
-     * in-memory implementation (see {@code VoltageRegulationImpl.setAttributesOnCurrentVariant}).
-     * Contrary to {@link #setTerminal(Terminal, double)}, setting the same terminal is allowed in a
-     * multi-variant context.
-     */
     public void setAttributesOnCurrentVariant(VoltageRegulation.VoltageRegulationAttributes attributes) {
         checkAttributes(attributes);
-        // attributes are mutated directly, without the individual setter validations,
-        // like in the powsybl-core in-memory implementation
         RegulationMode oldMode = getMode();
         if (attributes.mode() != oldMode) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setRegulationMode(attributes.mode() != null ? attributes.mode().name() : null),
@@ -333,15 +311,30 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         }
     }
 
-    /**
-     * Unregister this regulation from the referenced terminal. To be called when the regulation
-     * or the regulating equipment is removed.
-     */
     public void onRemove() {
         Terminal terminal = getTerminal();
         if (terminal != null) {
             ((TerminalImpl<?>) terminal).getReferrerManager().unregister(this);
         }
         regulatingPoint.remove();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        VoltageRegulationImpl that = (VoltageRegulationImpl) object;
+        return index == that.index
+            && Objects.equals(regulatingEquipmentId, that.regulatingEquipmentId)
+            && holderClass == that.holderClass;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(index, regulatingEquipmentId, holderClass);
     }
 }

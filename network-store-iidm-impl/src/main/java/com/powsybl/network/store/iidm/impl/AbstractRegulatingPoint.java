@@ -72,11 +72,6 @@ public abstract class AbstractRegulatingPoint {
         return attributes == null ? null : TerminalRefUtils.getTerminal(index, attributes.getLocalTerminal());
     }
 
-    /**
-     * Set the regulating terminal without updating the reverse references on the terminals.
-     * Used when the regulated equipment is being removed: its regulating equipments set is being
-     * iterated and cleared by the caller, so it must not be modified here.
-     */
     private void setRegulatingTerminalWithoutReverseReferenceUpdate(Terminal regulatingTerminal) {
         var oldRegulatingTerminalAttributes = getAttributes().getRegulatingTerminal();
         TerminalRefAttributes newAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
@@ -147,13 +142,6 @@ public abstract class AbstractRegulatingPoint {
         }
     }
 
-    /**
-     * Called when the regulated equipment is removed.
-     * Following the iidm in-memory implementation (see VoltageRegulationImpl), if the regulating terminal
-     * is on the same bus as the local terminal, the regulation is relocated on the local terminal and stays
-     * active. Otherwise the regulating terminal is unset (which means local regulation) and the regulation
-     * is deactivated.
-     */
     public void removeRegulation(ReportNode reportNode) {
         RegulatingPointAttributes attributes = getAttributes();
         if (attributes == null) {
@@ -181,11 +169,6 @@ public abstract class AbstractRegulatingPoint {
         resetRegulatingAndRegulationMode(regulatingTerminal, localTerminal, reportNode);
     }
 
-    /**
-     * Whether the regulation can stay active by being relocated on the local terminal when the regulated
-     * equipment is removed. Always true except for specific equipments (e.g. static var compensators
-     * regulating in reactive power mode).
-     */
     protected boolean canRelocateOnLocalTerminal() {
         return true;
     }

@@ -24,10 +24,6 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
     @Getter
     protected final InjectionRegulatingPoint<I, D> regulatingPoint;
 
-    // the voltage regulation object is cached so that two calls to getVoltageRegulation()
-    // return the same instance, as in the powsybl-core in-memory implementation
-    private VoltageRegulationImpl voltageRegulation;
-
     protected AbstractRegulatingInjection(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
         regulatingPoint = new InjectionRegulatingPoint<>(index, this, attributes -> ((VoltageRegulationHolderAttributes) attributes).getVoltageRegulation());
@@ -44,22 +40,15 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
 
     @Override
     public VoltageRegulation getVoltageRegulation() {
-        if (voltageRegulation != null) {
-            // return the cached instance (also in an invalid variant context, where reading
-            // the attributes would throw); it reads the current variant attributes lazily
-            return voltageRegulation;
+        if (index.getWorkingVariantNum() == -1) {
+            return new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
         }
         if (getVoltageRegulationAttributes() == null) {
             return null;
         }
-        voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
-        return voltageRegulation;
+        return new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
     }
 
-    /**
-     * Clean the references of the voltage regulation (on the regulating terminal). To be called
-     * when the regulating equipment is removed.
-     */
     protected void removeVoltageRegulationRefs() {
         if (getVoltageRegulationAttributes() != null) {
             ((VoltageRegulationImpl) getVoltageRegulation()).onRemove();
@@ -73,12 +62,10 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
 
     @Override
     public void removeVoltageRegulation() {
-        // the voltage regulation is removed on all existing variants
         VoltageRegulation oldVoltageRegulation = getVoltageRegulation();
         if (oldVoltageRegulation != null) {
             ((VoltageRegulationImpl) oldVoltageRegulation).onRemove();
         }
-        voltageRegulation = null;
         VariantManager variantManager = index.getNetwork().getVariantManager();
         String workingVariantId = variantManager.getWorkingVariantId();
         for (String variantId : variantManager.getVariantIds()) {
@@ -109,7 +96,7 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
                 .targetDeadband(coreAttributes.targetDeadband())
                 .slope(coreAttributes.slope())
                 .build();
-            voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
+            VoltageRegulation voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
             updateResource(res -> res.getAttributes().setVoltageRegulation(attributes),
                 "VoltageRegulation.created", null, voltageRegulation);
             if (coreAttributes.terminal() != null) {

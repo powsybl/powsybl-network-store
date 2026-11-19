@@ -6,10 +6,23 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.tck.AbstractVscTest;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class VscTest extends AbstractVscTest {
+
+    @Test
+    public void testNewVoltageRegulationInMultiVariants() {
+        Network network = HvdcTestNetwork.createVsc();
+        VscConverterStation converterStation = network.getVscConverterStation("C1");
+        converterStation.setLocalTargetQ(10);
+
+        VoltageRegulationTestUtils.assertNewVoltageRegulationInMultiVariants(network, converterStation);
+    }
 }
