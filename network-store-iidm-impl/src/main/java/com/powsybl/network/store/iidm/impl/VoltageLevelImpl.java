@@ -202,7 +202,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public int getLoadCount() {
-        return index.getLoads().size();
+        return getLoads().size();
     }
 
     @Override
