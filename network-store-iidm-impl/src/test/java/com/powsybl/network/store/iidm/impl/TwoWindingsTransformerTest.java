@@ -561,6 +561,6 @@ class TwoWindingsTransformerTest {
         clearInvocations(client);
         assertTrue(twt.removeExtension(ConnectablePosition.class));
         assertNull(twt.getExtension(ConnectablePosition.class));
-        verify(client).updateTwoWindingsTransformers(eq(UUID.randomUUID()), anyList(), any());
+        verify(client).updateTwoWindingsTransformers(any(UUID.class), anyList(), eq(null));
     }
 }
