@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.events.RemovalNetworkEvent;
 import com.powsybl.iidm.network.events.UpdateNetworkEvent;
@@ -16,6 +17,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,9 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -516,5 +521,46 @@ class TwoWindingsTransformerTest {
         assertTrue(twoWindingsTransformer.removeExtension(ConnectablePosition.class));
         assertNull(twoWindingsTransformer.getExtension(ConnectablePosition.class));
         assertFalse(twoWindingsTransformer.removeExtension(ConnectablePosition.class));
+    }
+
+    @Test
+    void cgmesTapChangersAddExtensionAndRemoveExtensionUpdateResource() {
+        NetworkStoreClient client = spy(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()));
+        Network network = FourSubstationsNodeBreakerFactory.create(new NetworkFactoryImpl(() -> client));
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        clearInvocations(client);
+
+        twt.addExtension(CgmesTapChangers.class, new CgmesTapChangersImpl<>(twt));
+        assertNotNull(((TwoWindingsTransformerImpl) twt).getResource().getAttributes().getCgmesTapChangerAttributesList());
+        verify(client).updateTwoWindingsTransformers(any(), anyList(), any());
+
+        clearInvocations(client);
+        assertTrue(twt.removeExtension(CgmesTapChangers.class));
+        assertNull(((TwoWindingsTransformerImpl) twt).getResource().getAttributes().getCgmesTapChangerAttributesList());
+        verify(client).updateTwoWindingsTransformers(any(), anyList(), any());
+    }
+
+    @Test
+    void phaseAngleClockRemoveExtensionUpdatesResource() {
+        NetworkStoreClient client = spy(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()));
+        Network network = FourSubstationsNodeBreakerFactory.create(new NetworkFactoryImpl(() -> client));
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        twt.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(11).add();
+        clearInvocations(client);
+        assertTrue(twt.removeExtension(TwoWindingsTransformerPhaseAngleClock.class));
+        assertNull(((TwoWindingsTransformerImpl) twt).getResource().getAttributes().getPhaseAngleClockAttributes());
+        verify(client).updateTwoWindingsTransformers(any(), anyList(), any());
+    }
+
+    @Test
+    void removeConnectablePositionUpdatesResource() {
+        NetworkStoreClient client = spy(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()));
+        Network network = FourSubstationsNodeBreakerFactory.create(new NetworkFactoryImpl(() -> client));
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        twt.newExtension(ConnectablePositionAdder.class).newFeeder1().withOrder(3).add().add();
+        clearInvocations(client);
+        assertTrue(twt.removeExtension(ConnectablePosition.class));
+        assertNull(twt.getExtension(ConnectablePosition.class));
+        verify(client).updateTwoWindingsTransformers(eq(UUID.randomUUID()), anyList(), any());
     }
 }

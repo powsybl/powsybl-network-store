@@ -162,7 +162,7 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
                     .build();
             owner.getIdentifiable().updateResource(res -> attributes.getTemporaryLimits().put(acceptableDuration, newTemporaryLimit),
                 AttributeFilter.LIMITS,
-                TEMPORARY_LIMIT_VALUE,
+                TEMPORARY_LIMIT_VALUE + "[" + acceptableDuration + "]",
                 previousValue,
                 temporaryLimitValue);
         }
