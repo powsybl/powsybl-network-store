@@ -50,8 +50,9 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
     }
 
     protected void removeVoltageRegulationRefs() {
-        if (getVoltageRegulationAttributes() != null) {
-            ((VoltageRegulationImpl) getVoltageRegulation()).onRemove();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            ((VoltageRegulationImpl) voltageRegulation).onRemove();
         }
     }
 
@@ -105,7 +106,7 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
             }
         } else {
             // update the existing regulation on the current variant
-            VoltageRegulationImpl voltageRegulation = (VoltageRegulationImpl) getVoltageRegulation();
+            VoltageRegulationImpl voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
             voltageRegulation.setAttributesOnCurrentVariant(coreAttributes);
         }
         return getVoltageRegulation();

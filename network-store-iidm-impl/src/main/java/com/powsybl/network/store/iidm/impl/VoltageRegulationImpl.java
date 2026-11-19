@@ -101,7 +101,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
 
     @Override
     public VoltageRegulation setTargetValue(double targetValue) {
-        VoltageRegulation.VoltageRegulationAttributes newAttributes = toCoreAttributes().withTargetValue(targetValue);
+        VoltageRegulation.VoltageRegulationAttributes newAttributes = Objects.requireNonNull(toCoreAttributes()).withTargetValue(targetValue);
         checkAttributes(newAttributes);
         double oldValue = getTargetValue();
         if (Double.compare(targetValue, oldValue) != 0) {
@@ -119,7 +119,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
 
     @Override
     public VoltageRegulation setTargetDeadband(double targetDeadband) {
-        VoltageRegulation.VoltageRegulationAttributes newAttributes = toCoreAttributes().withTargetDeadband(targetDeadband);
+        VoltageRegulation.VoltageRegulationAttributes newAttributes = Objects.requireNonNull(toCoreAttributes()).withTargetDeadband(targetDeadband);
         checkAttributes(newAttributes);
         double oldValue = getTargetDeadband();
         if (Double.compare(targetDeadband, oldValue) != 0) {
@@ -137,7 +137,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
 
     @Override
     public VoltageRegulation setSlope(double slope) {
-        VoltageRegulation.VoltageRegulationAttributes newAttributes = toCoreAttributes().withSlope(slope);
+        VoltageRegulation.VoltageRegulationAttributes newAttributes = Objects.requireNonNull(toCoreAttributes()).withSlope(slope);
         checkAttributes(newAttributes);
         double oldValue = getSlope();
         if (Double.compare(slope, oldValue) != 0) {
@@ -175,7 +175,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
 
     @Override
     public VoltageRegulation setTerminal(Terminal terminal, double targetValue) {
-        VoltageRegulation.VoltageRegulationAttributes newAttributes = toCoreAttributes().withTerminalAndTargetValue(terminal, targetValue);
+        VoltageRegulation.VoltageRegulationAttributes newAttributes = Objects.requireNonNull(toCoreAttributes()).withTerminalAndTargetValue(terminal, targetValue);
         checkAttributes(newAttributes);
         if (terminal == null) {
             ValidationUtil.checkLocalTargetQandV(getValidable(),
@@ -210,7 +210,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
 
     @Override
     public VoltageRegulation setMode(RegulationMode mode) {
-        VoltageRegulation.VoltageRegulationAttributes newAttributes = toCoreAttributes().withMode(mode);
+        VoltageRegulation.VoltageRegulationAttributes newAttributes = Objects.requireNonNull(toCoreAttributes()).withMode(mode);
         checkAttributes(newAttributes);
         ValidationUtil.checkLocalTargetQandV(getValidable(),
             holderClass,
@@ -238,7 +238,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
 
     @Override
     public VoltageRegulation setRegulating(boolean regulating) {
-        VoltageRegulation.VoltageRegulationAttributes newAttributes = toCoreAttributes().withRegulating(regulating);
+        VoltageRegulation.VoltageRegulationAttributes newAttributes = Objects.requireNonNull(toCoreAttributes()).withRegulating(regulating);
         if (holder instanceof RatioTapChanger ratioTapChanger && validable instanceof TapChangerParent parent) {
             NetworkImpl network = getNetwork();
             ValidationUtil.checkRatioTapChangerRegulation(parent, newAttributes,

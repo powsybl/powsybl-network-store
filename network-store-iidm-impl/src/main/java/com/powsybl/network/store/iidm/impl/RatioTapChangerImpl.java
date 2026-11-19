@@ -363,7 +363,8 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public double getTargetV() {
-        return isWithMode(RegulationMode.VOLTAGE) ? getVoltageRegulation().getTargetValue() : Double.NaN;
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        return voltageRegulation != null && isWithMode(RegulationMode.VOLTAGE) ? voltageRegulation.getTargetValue() : Double.NaN;
     }
 
     @Override

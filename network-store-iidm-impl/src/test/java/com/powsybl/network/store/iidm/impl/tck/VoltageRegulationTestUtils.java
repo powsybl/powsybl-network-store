@@ -7,10 +7,8 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkEventRecorder;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.iidm.network.events.UpdateNetworkEvent;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
@@ -19,7 +17,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,22 +47,6 @@ public final class VoltageRegulationTestUtils {
         assertInitialVariantValues(holder.getVoltageRegulation());
     }
 
-    public static void assertVoltageRegulationRemovalEventByValue(Network network, VoltageRegulationHolder<?> holder, String id) {
-        VoltageRegulation expectedOldValue = holder.getVoltageRegulation();
-        assertNotNull(expectedOldValue);
-
-        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
-        network.addListener(eventRecorder);
-        holder.removeVoltageRegulation();
-
-        assertEquals(1, eventRecorder.getEvents().size());
-        UpdateNetworkEvent event = assertInstanceOf(UpdateNetworkEvent.class, eventRecorder.getEvents().getFirst());
-        assertEquals(VoltageRegulation.NotifyUpdateKey.REMOVE_REGULATION.getKey(), event.attribute());
-        assertEquals(id, event.id());
-        assertNull(event.newValue());
-        assertVoltageRegulationValuesEqual(expectedOldValue, assertInstanceOf(VoltageRegulation.class, event.oldValue()));
-    }
-
     private static void assertVariant1Values(VoltageRegulation voltageRegulation) {
         assertNotNull(voltageRegulation);
         assertNull(voltageRegulation.getMode());
@@ -84,26 +65,5 @@ public final class VoltageRegulationTestUtils {
         assertTrue(Double.isNaN(voltageRegulation.getTargetDeadband()));
         assertTrue(Double.isNaN(voltageRegulation.getSlope()));
         assertFalse(voltageRegulation.isRegulating());
-    }
-
-    private static void assertVoltageRegulationValuesEqual(VoltageRegulation expected, VoltageRegulation actual) {
-        assertEquals(expected.getMode(), actual.getMode());
-        assertEquals(terminalId(expected), terminalId(actual));
-        assertEquals(expected.isRegulating(), actual.isRegulating());
-        assertDoubleEquals(expected.getTargetValue(), actual.getTargetValue());
-        assertDoubleEquals(expected.getTargetDeadband(), actual.getTargetDeadband());
-        assertDoubleEquals(expected.getSlope(), actual.getSlope());
-    }
-
-    private static String terminalId(VoltageRegulation voltageRegulation) {
-        return voltageRegulation.getTerminal() == null ? null : voltageRegulation.getTerminal().getConnectable().getId();
-    }
-
-    private static void assertDoubleEquals(double expected, double actual) {
-        if (Double.isNaN(expected)) {
-            assertTrue(Double.isNaN(actual));
-        } else {
-            assertEquals(expected, actual);
-        }
     }
 }

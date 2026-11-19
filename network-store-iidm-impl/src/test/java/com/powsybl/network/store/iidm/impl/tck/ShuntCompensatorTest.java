@@ -25,40 +25,4 @@ class ShuntCompensatorTest extends AbstractShuntCompensatorTest {
     public void baseLinearShuntTest() {
         // FIXME remove this test when we use the release containing this PR : https://github.com/powsybl/powsybl-core/pull/2847
     }
-
-    //FIXME: Override of testNewVoltageRegulationInMultiVariants(). To be removed when testNewVoltageRegulationInMultiVariants() asserts on values, not reference
-    @Test
-    void testNewVoltageRegulationInMultiVariantsByValues() {
-        Network network = NoEquipmentNetworkFactory.create();
-        network.getVoltageLevel("vl2").newLoad()
-                .setId("load")
-                .setBus("busB")
-                .setConnectableBus("busB")
-                .setP0(0)
-                .setQ0(0)
-                .add();
-        Terminal terminal = network.getLoad("load").getTerminal();
-        VoltageLevel voltageLevel = network.getVoltageLevel("vl1");
-        ShuntCompensator shunt = voltageLevel.newShuntCompensator()
-                .setId("testMultiVariant")
-                .setName("shuntName")
-                .setConnectableBus("busA")
-                .setSectionCount(6)
-                .setLocalTargetV(200)
-                .newVoltageRegulation()
-                    .withTerminal(terminal)
-                    .withRegulating(true)
-                    .withTargetValue(200)
-                    .withMode(RegulationMode.VOLTAGE)
-                    .withTargetDeadband(10)
-                    .add()
-                .newLinearModel()
-                    .setBPerSection(5)
-                    .setGPerSection(4)
-                    .setMaximumSectionCount(10)
-                    .add()
-                .add();
-
-        VoltageRegulationTestUtils.assertNewVoltageRegulationInMultiVariants(network, shunt);
-    }
 }

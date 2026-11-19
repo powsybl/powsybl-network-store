@@ -15,11 +15,7 @@ public class ExcludeTestsExtension implements InvocationInterceptor {
             // FIXME: to be removed when asymetric connect/disconnect is fixed
             // Supposed to be fixed in https://github.com/powsybl/powsybl-core/pull/3885
             // But still not working
-            "testConnectDisconnectWithFictitiousBreaker",
-            // Replaced by value-based multi-variant tests
-            "testNewVoltageRegulationInMultiVariants",
-            // Replaced by value-based notification tests
-            "testNotifyUpdate"
+            "testConnectDisconnectWithFictitiousBreaker"
     );
 
     @Override
