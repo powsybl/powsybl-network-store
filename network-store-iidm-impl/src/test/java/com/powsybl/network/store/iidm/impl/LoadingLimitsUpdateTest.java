@@ -33,7 +33,7 @@ class LoadingLimitsUpdateTest {
         CurrentLimits limits = line.getCurrentLimits1().orElseThrow();
         limits.setPermanentLimit(150);
         assertEquals(150, line.getCurrentLimits1().orElseThrow().getPermanentLimit(), 0.0);
-        verify(mockedListener).onUpdate(line, "permanentLimit", "InitialState",100.0, 150.0);
+        verify(mockedListener).onUpdate(line, "permanentLimit", "InitialState", 100.0, 150.0);
 
         clearInvocations(mockedListener);
 
