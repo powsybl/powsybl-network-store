@@ -185,23 +185,26 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        VoltageRegulationAttributes persistedVoltageRegulation = voltageRegulationAttributes != null
-            ? VoltageRegulationAttributes.builder()
+        VoltageRegulationAttributes persistedVoltageRegulation = null;
+        if (voltageRegulationAttributes != null) {
+            ResourceType regulatedResourceType = voltageRegulationAttributes.terminal() != null
+                ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
+                : ResourceType.GENERATOR;
+            String regulationMode = voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null;
+            persistedVoltageRegulation = VoltageRegulationAttributes.builder()
                 .regulatingEquipmentId(id)
                 .regulatingResourceType(ResourceType.GENERATOR)
                 .regulatingTapChangerType(RegulatingTapChangerType.NONE)
                 .localTerminal(new TerminalRefAttributes(id, null))
                 .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
-                .regulatedResourceType(voltageRegulationAttributes.terminal() != null
-                    ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
-                    : ResourceType.GENERATOR)
-                .regulationMode(voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null)
+                .regulatedResourceType(regulatedResourceType)
+                .regulationMode(regulationMode)
                 .regulating(voltageRegulationAttributes.isRegulating())
                 .targetValue(voltageRegulationAttributes.targetValue())
                 .targetDeadband(voltageRegulationAttributes.targetDeadband())
                 .slope(voltageRegulationAttributes.slope())
-                .build()
-            : null;
+                .build();
+        }
 
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder()
                 .id(id)

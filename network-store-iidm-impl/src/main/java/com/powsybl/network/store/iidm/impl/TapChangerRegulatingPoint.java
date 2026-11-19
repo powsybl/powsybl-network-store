@@ -28,7 +28,7 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
 
     @Override
     public RegulatingPointAttributes getAttributes() {
-        return attributesGetter.apply((Attributes) tapChanger.getAttributes());
+        return attributesGetter.apply(tapChanger.getAttributes());
     }
 
     @Override

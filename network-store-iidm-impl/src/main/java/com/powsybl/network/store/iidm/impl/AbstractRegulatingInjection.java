@@ -29,9 +29,6 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
         regulatingPoint = new InjectionRegulatingPoint<>(index, this, attributes -> ((VoltageRegulationHolderAttributes) attributes).getVoltageRegulation());
     }
 
-    /**
-     * The iidm interface of the holder (e.g. {@code Generator.class}), used for validation.
-     */
     protected abstract Class<? extends VoltageRegulationHolder<?>> getHolderClass();
 
     protected VoltageRegulationAttributes getVoltageRegulationAttributes() {

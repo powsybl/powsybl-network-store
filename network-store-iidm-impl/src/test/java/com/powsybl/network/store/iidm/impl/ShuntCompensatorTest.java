@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 import java.util.Set;
@@ -218,9 +219,10 @@ class ShuntCompensatorTest {
                 .withRegulating(true)
                 .withTargetDeadband(0.5)
                 .build();
+        VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
         assertEquals("Shunt compensator 'SHUNT': Undefined value for target deadband of regulating shunt compensator",
-                assertThrows(ValidationException.class, () -> shuntCompensator.getVoltageRegulation().setTargetDeadband(Double.NaN)).getMessage());
+                assertThrows(ValidationException.class, () -> voltageRegulation.setTargetDeadband(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        shuntCompensator.getVoltageRegulation().setTargetDeadband(Double.NaN);
+        voltageRegulation.setTargetDeadband(Double.NaN);
     }
 }

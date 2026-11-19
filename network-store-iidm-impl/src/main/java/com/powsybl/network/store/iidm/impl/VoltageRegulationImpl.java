@@ -28,6 +28,8 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
 
     private static final String VOLTAGE_REGULATION_PREFIX = "VoltageRegulation.";
 
+    private static final String TARGET_VALUE = "TargetValue";
+
     private final NetworkObjectIndex index;
     private final VoltageRegulationHolder<?> holder;
     private final Class<? extends VoltageRegulationHolder<?>> holderClass;
@@ -106,7 +108,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         double oldValue = getTargetValue();
         if (Double.compare(targetValue, oldValue) != 0) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setTargetValue(targetValue),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + "TargetValue", oldValue, targetValue);
+                notificationPrefix + VOLTAGE_REGULATION_PREFIX + TARGET_VALUE, oldValue, targetValue);
         }
         return this;
     }
@@ -192,7 +194,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         ValidationUtil.checkRegulatingTerminal(getValidable(), terminal, getNetwork());
         updateTerminal(terminal);
         getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setTargetValue(targetValue),
-            notificationPrefix + VOLTAGE_REGULATION_PREFIX + "TargetValue", getTargetValue(), targetValue);
+            notificationPrefix + VOLTAGE_REGULATION_PREFIX + TARGET_VALUE, getTargetValue(), targetValue);
         return this;
     }
 
@@ -245,7 +247,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
                 ratioTapChanger.hasLoadTapChangingCapabilities(),
                 network, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
             Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
-            tapChangers.remove(holder);
+            tapChangers.remove(ratioTapChanger);
             ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating,
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         }
@@ -291,7 +293,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         double oldTargetValue = getTargetValue();
         if (Double.compare(attributes.targetValue(), oldTargetValue) != 0) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setTargetValue(attributes.targetValue()),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + "TargetValue", oldTargetValue, attributes.targetValue());
+                notificationPrefix + VOLTAGE_REGULATION_PREFIX + TARGET_VALUE, oldTargetValue, attributes.targetValue());
         }
         boolean oldRegulating = isRegulating();
         if (attributes.isRegulating() != oldRegulating) {

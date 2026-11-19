@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
 
     @Test
+    @Override
     public void testNewVoltageRegulationInMultiVariants() {
         Network network = SvcTestCaseFactory.create();
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");

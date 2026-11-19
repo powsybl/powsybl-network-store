@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TerminalRefAttributes;
@@ -502,10 +503,11 @@ class TwoWindingsTransformerTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
         RatioTapChanger rtc = twt.getRatioTapChanger();
+        VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
         assertEquals("2 windings transformer 'TWT': Undefined value for target deadband of regulating ratio tap changer",
-                assertThrows(ValidationException.class, () -> rtc.getVoltageRegulation().setTargetDeadband(Double.NaN)).getMessage());
+                assertThrows(ValidationException.class, () -> voltageRegulation.setTargetDeadband(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        rtc.getVoltageRegulation().setTargetDeadband(Double.NaN);
+        voltageRegulation.setTargetDeadband(Double.NaN);
     }
 
     @Test

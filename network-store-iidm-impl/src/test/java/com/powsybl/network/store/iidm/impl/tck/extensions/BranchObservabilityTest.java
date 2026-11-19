@@ -26,6 +26,7 @@ class BranchObservabilityTest extends AbstractBranchObservabilityTest {
 
     //FIXME: to be removed with powsybl-core 7.5.0. See https://github.com/powsybl/powsybl-core/commit/994b7f42599fb411f5b6001c714cbeb80312da59
     @Test
+    @Override
     public void test() {
         Network network = BatteryNetworkFactory.create();
         Line line = network.getLine("NHV1_NHV2_1");
@@ -49,7 +50,11 @@ class BranchObservabilityTest extends AbstractBranchObservabilityTest {
         branchObservability.setObservable(false);
         assertFalse(branchObservability.isObservable());
 
-        // P
+        checkQualityP(branchObservability);
+        checkQualityQ(branchObservability);
+    }
+
+    private static void checkQualityP(BranchObservability<Line> branchObservability) {
         assertTrue(branchObservability.getQualityP1().isPresent());
         assertTrue(branchObservability.getQualityP2().isPresent());
         assertEquals(0.02d, branchObservability.getNullableQualityP1().getStandardDeviation(), 0d);
@@ -69,8 +74,9 @@ class BranchObservabilityTest extends AbstractBranchObservabilityTest {
         branchObservability.getNullableQualityP2().setRedundant(true);
         assertTrue(branchObservability.getNullableQualityP2().isRedundant().isPresent());
         assertTrue(branchObservability.getNullableQualityP2().isRedundant().get());
+    }
 
-        // Q
+    private static void checkQualityQ(BranchObservability<Line> branchObservability) {
         assertTrue(branchObservability.getQualityQ1().isPresent());
         assertTrue(branchObservability.getQualityQ2().isPresent());
         assertEquals(0.5d, branchObservability.getNullableQualityQ1().getStandardDeviation(), 0d);

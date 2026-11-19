@@ -105,23 +105,26 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        VoltageRegulationAttributes persistedVoltageRegulation = voltageRegulationAttributes != null
-            ? VoltageRegulationAttributes.builder()
+        VoltageRegulationAttributes persistedVoltageRegulation = null;
+        if (voltageRegulationAttributes != null) {
+            ResourceType regulatedResourceType = voltageRegulationAttributes.terminal() != null
+                ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
+                : ResourceType.BATTERY;
+            String regulationMode = voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null;
+            persistedVoltageRegulation = VoltageRegulationAttributes.builder()
                 .regulatingEquipmentId(id)
                 .regulatingResourceType(ResourceType.BATTERY)
                 .regulatingTapChangerType(RegulatingTapChangerType.NONE)
                 .localTerminal(new TerminalRefAttributes(id, null))
                 .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
-                .regulatedResourceType(voltageRegulationAttributes.terminal() != null
-                    ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
-                    : ResourceType.BATTERY)
-                .regulationMode(voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null)
+                .regulatedResourceType(regulatedResourceType)
+                .regulationMode(regulationMode)
                 .regulating(voltageRegulationAttributes.isRegulating())
                 .targetValue(voltageRegulationAttributes.targetValue())
                 .targetDeadband(voltageRegulationAttributes.targetDeadband())
                 .slope(voltageRegulationAttributes.slope())
-                .build()
-            : null;
+                .build();
+        }
 
         Resource<BatteryAttributes> resource = Resource.batteryBuilder()
                 .id(id)

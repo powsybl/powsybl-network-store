@@ -126,23 +126,26 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        VoltageRegulationAttributes persistedVoltageRegulation = voltageRegulationAttributes != null
-            ? VoltageRegulationAttributes.builder()
+        VoltageRegulationAttributes persistedVoltageRegulation = null;
+        if (voltageRegulationAttributes != null) {
+            ResourceType regulatedResourceType = voltageRegulationAttributes.terminal() != null
+                ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
+                : ResourceType.VSC_CONVERTER_STATION;
+            String regulationMode = voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null;
+            persistedVoltageRegulation = VoltageRegulationAttributes.builder()
                 .regulatingEquipmentId(id)
                 .regulatingResourceType(ResourceType.VSC_CONVERTER_STATION)
                 .regulatingTapChangerType(RegulatingTapChangerType.NONE)
                 .localTerminal(new TerminalRefAttributes(id, null))
                 .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
-                .regulatedResourceType(voltageRegulationAttributes.terminal() != null
-                    ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
-                    : ResourceType.VSC_CONVERTER_STATION)
-                .regulationMode(voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null)
+                .regulatedResourceType(regulatedResourceType)
+                .regulationMode(regulationMode)
                 .regulating(voltageRegulationAttributes.isRegulating())
                 .targetValue(voltageRegulationAttributes.targetValue())
                 .targetDeadband(voltageRegulationAttributes.targetDeadband())
                 .slope(voltageRegulationAttributes.slope())
-                .build()
-            : null;
+                .build();
+        }
 
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
