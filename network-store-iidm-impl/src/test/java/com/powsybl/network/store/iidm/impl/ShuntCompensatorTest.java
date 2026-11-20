@@ -6,10 +6,14 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorNonLinearModel;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -224,5 +228,103 @@ class ShuntCompensatorTest {
                 assertThrows(ValidationException.class, () -> voltageRegulation.setTargetDeadband(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         voltageRegulation.setTargetDeadband(Double.NaN);
+    }
+
+    @Test
+    void voltageRegulatorOn() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        ShuntCompensator shunt = network.getShuntCompensator("SHUNT");
+        assertFalse(shunt.isVoltageRegulatorOn());
+        shunt.setLocalTargetV(400.0);
+        shunt.setVoltageRegulatorOn(false);
+        assertFalse(shunt.isVoltageRegulatorOn());
+        shunt.setTargetDeadband(0.5);
+        shunt.setVoltageRegulatorOn(true);
+        assertTrue(shunt.isVoltageRegulatorOn());
+        assertEquals(RegulationMode.VOLTAGE, shunt.getVoltageRegulation().getMode());
+    }
+
+    @Test
+    void regulatingTerminal() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        ShuntCompensator shunt = network.getShuntCompensator("SHUNT");
+        shunt.setLocalTargetV(400.0);
+        Terminal loadTerminal = network.getLoad("LD1").getTerminal();
+        shunt.setRegulatingTerminal(loadTerminal);
+        assertEquals(loadTerminal, shunt.getRegulatingTerminal());
+        assertFalse(shunt.isRegulating());
+        assertEquals(400.0, shunt.getVoltageRegulation().getTargetValue());
+        Terminal load2Terminal = network.getLoad("LD2").getTerminal();
+        shunt.setRegulatingTerminal(load2Terminal);
+        assertEquals(load2Terminal, shunt.getRegulatingTerminal());
+    }
+
+    @Test
+    void targetV() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        ShuntCompensator shunt = network.getShuntCompensator("SHUNT");
+        shunt.setLocalTargetV(400.0);
+        assertEquals(400.0, shunt.getTargetV());
+        shunt.setTargetV(390.0);
+        assertEquals(390.0, shunt.getLocalTargetV());
+        assertEquals(390.0, shunt.getTargetV());
+        shunt.setVoltageRegulatorOn(false);
+        shunt.setTargetV(395.0);
+        assertEquals(395.0, shunt.getLocalTargetV());
+        shunt.setTargetDeadband(0.5);
+        shunt.setVoltageRegulatorOn(true);
+        shunt.setRegulatingTerminal(network.getLoad("LD1").getTerminal());
+        shunt.setTargetV(405.0);
+        assertEquals(405.0, shunt.getTargetV());
+        assertEquals(405.0, shunt.getVoltageRegulation().getTargetValue());
+        assertEquals(395.0, shunt.getLocalTargetV());
+    }
+
+    @Test
+    void targetDeadband() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        ShuntCompensator shunt = network.getShuntCompensator("SHUNT");
+        assertTrue(Double.isNaN(shunt.getTargetDeadband()));
+        shunt.setTargetDeadband(0.5);
+        assertEquals(0.5, shunt.getTargetDeadband());
+        shunt.setTargetDeadband(1.0);
+        assertEquals(1.0, shunt.getTargetDeadband());
+        shunt.setRegulatingTerminal(network.getLoad("LD1").getTerminal());
+        shunt.setTargetV(405.0);
+        assertEquals(405.0, shunt.getLocalTargetV());
+        assertEquals(405.0, shunt.getTargetV());
+    }
+
+    @Test
+    void adderWithVoltageRegulatorOnAndNoTerminal() {
+        Network network = Network.create("test", "test");
+        VoltageLevel voltageLevel = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add()
+                .newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
+                .setId("SHUNT1")
+                .setNode(0)
+                .setSectionCount(1)
+                .newLinearModel()
+                .setBPerSection(0.001)
+                .setMaximumSectionCount(2)
+                .add()
+                .setVoltageRegulatorOn(true)
+                .setTargetV(400.0)
+                .setTargetDeadband(5.0);
+        assertTrue(Double.isNaN(adder.getLocalTargetQ()));
+
+        ShuntCompensator shunt = adder.add();
+        assertEquals(400.0, shunt.getLocalTargetV());
+        assertTrue(Double.isNaN(shunt.getVoltageRegulation().getTargetValue()));
+        assertEquals(400.0, shunt.getTargetV());
+        assertTrue(shunt.isVoltageRegulatorOn());
     }
 }
