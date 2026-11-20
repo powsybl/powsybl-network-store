@@ -37,9 +37,6 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
 
     @Override
     public VoltageRegulation getVoltageRegulation() {
-        if (index.getWorkingVariantNum() == -1) {
-            return new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
-        }
         if (getVoltageRegulationAttributes() == null) {
             return null;
         }
