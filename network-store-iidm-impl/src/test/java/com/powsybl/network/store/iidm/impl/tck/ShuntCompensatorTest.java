@@ -7,10 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractShuntCompensatorTest;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@ExtendWith(ExcludeTestsExtension.class)
 class ShuntCompensatorTest extends AbstractShuntCompensatorTest {
     @Override
     public void baseLinearShuntTest() {

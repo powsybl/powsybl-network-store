@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.network.store.iidm.impl.extensions.BatteryShortCircuitImpl;
 import com.powsybl.network.store.model.*;
 
@@ -19,7 +20,7 @@ import java.util.Collection;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttributes> implements Battery, ReactiveLimitsOwner {
+public class BatteryImpl extends AbstractRegulatingInjection<Battery, BatteryAttributes> implements Battery, ReactiveLimitsOwner {
 
     public BatteryImpl(NetworkObjectIndex index, Resource<BatteryAttributes> resource) {
         super(index, resource);
@@ -52,20 +53,62 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     }
 
     @Override
+    protected Class<? extends VoltageRegulationHolder<?>> getHolderClass() {
+        return Battery.class;
+    }
+
+    @Override
     public double getTargetQ() {
-        return getResource().getAttributes().getTargetQ();
+        return this.getLocalTargetQ();
     }
 
     @Override
     public Battery setTargetQ(double targetQ) {
-        ValidationUtil.checkQ0(this, targetQ, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        double oldValue = getResource().getAttributes().getTargetQ();
-        if (targetQ != oldValue) {
-            updateResource(res -> res.getAttributes().setTargetQ(targetQ),
-                "targetQ", oldValue, targetQ);
+        return setLocalTargetQ(targetQ);
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return getResource().getAttributes().getLocalTargetQ();
+    }
+
+    @Override
+    public Battery setLocalTargetQ(double targetQ) {
+        ValidationUtil.checkLocalTargetQandV(this,
+            Battery.class,
+            this.getLocalTargetV(),
+            targetQ,
+            getVoltageRegulation(),
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getResource().getAttributes().getLocalTargetQ();
+        if (Double.compare(targetQ, oldValue) != 0) {
+            updateResource(res -> res.getAttributes().setLocalTargetQ(targetQ),
+                "localTargetQ", oldValue, targetQ);
         }
         return this;
+    }
 
+    @Override
+    public double getLocalTargetV() {
+        return getResource().getAttributes().getLocalTargetV();
+    }
+
+    @Override
+    public Battery setLocalTargetV(double targetV) {
+        ValidationUtil.checkLocalTargetQandV(this,
+            Battery.class,
+            targetV,
+            this.getLocalTargetQ(),
+            getVoltageRegulation(),
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
+        double oldValue = getResource().getAttributes().getLocalTargetV();
+        if (Double.compare(targetV, oldValue) != 0) {
+            updateResource(res -> res.getAttributes().setLocalTargetV(targetV),
+                "localTargetV", oldValue, targetV);
+        }
+        return this;
     }
 
     @Override
@@ -206,6 +249,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
+        removeVoltageRegulationRefs();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeBattery(resource.getId());

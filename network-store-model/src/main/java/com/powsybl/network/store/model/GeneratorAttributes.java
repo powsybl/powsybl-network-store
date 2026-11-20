@@ -24,7 +24,7 @@ import java.util.Set;
 @AllArgsConstructor
 @SuperBuilder
 @Schema(description = "Generator attributes")
-public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder {
+public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes implements InjectionAttributes, ReactiveLimitHolder, VoltageRegulationHolderAttributes {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -50,14 +50,14 @@ public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes i
     @Schema(description = "Active power target in MW")
     private double targetP;
 
-    @Schema(description = "Reactive power target in MVar")
-    private double targetQ;
+    @Schema(description = "Local reactive power target in MVar (generator sign convention)")
+    private double localTargetQ;
 
-    @Schema(description = "Voltage target in kV")
-    private double targetV;
+    @Schema(description = "Local voltage target in kV")
+    private double localTargetV;
 
-    @Schema(description = "Equivalent local targetV in kV")
-    private double equivalentLocalTargetV;
+    @Schema(description = "Voltage regulation")
+    private VoltageRegulationAttributes voltageRegulation;
 
     @Schema(description = "Rated apparent power in MVA")
     private double ratedS;
@@ -80,9 +80,6 @@ public class GeneratorAttributes extends AbstractRegulatingEquipmentAttributes i
 
     @Schema(description = "Coordinated reactive power control")
     private CoordinatedReactiveControlAttributes coordinatedReactiveControl;
-
-    @Schema(description = "Remote reactive power control attributes")
-    private RemoteReactivePowerControlAttributes remoteReactivePowerControl;
 
     @Schema(description = "Entsoe category attributes")
     private GeneratorEntsoeCategoryAttributes entsoeCategoryAttributes;

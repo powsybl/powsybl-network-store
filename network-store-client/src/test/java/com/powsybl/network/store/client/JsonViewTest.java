@@ -33,7 +33,7 @@ class JsonViewTest {
                 .build();
 
         // primary view
-        String primaryResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0," +
+        String primaryResultExpected = "{\"name\":\"line1\",\"fictitious\":false,\"equivalent\":false,\"extensionAttributes\":{},\"r\":5.0,\"x\":6.0," +
                 "\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0,\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0," +
                 "\"selectedOperationalLimitsGroupId1\":\"group1\",\"regulatingEquipments\":[]}";
         String primaryResult = mapper
@@ -48,7 +48,7 @@ class JsonViewTest {
         assertEquals("{\"p1\":1.0,\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0}", svResult);
 
         // WithLimits view
-        String expectedWithLimitsResult = "{\"name\":\"line1\",\"fictitious\":false,\"extensionAttributes\":{}," +
+        String expectedWithLimitsResult = "{\"name\":\"line1\",\"fictitious\":false,\"equivalent\":false,\"extensionAttributes\":{}," +
                 "\"r\":5.0,\"x\":6.0,\"g1\":0.0,\"b1\":0.0,\"g2\":0.0,\"b2\":0.0,\"p1\":1.0," +
                 "\"q1\":\"NaN\",\"p2\":2.0,\"q2\":4.0,\"operationalLimitsGroups1\":{\"group1\":{}}," +
                 "\"selectedOperationalLimitsGroupId1\":\"group1\",\"operationalLimitsGroups2\":{},\"regulatingEquipments\":[]}";
@@ -85,7 +85,7 @@ class JsonViewTest {
                 .extensionAttributes(Map.of("activePowerControl", activePowerControlAttributes))
                 .build();
 
-        String primaryResultExpected = "{\"name\":\"twt1\",\"fictitious\":false,\"properties\":{\"key\":\"value\"}," +
+        String primaryResultExpected = "{\"name\":\"twt1\",\"fictitious\":false,\"equivalent\":false,\"properties\":{\"key\":\"value\"}," +
                 "\"aliasesWithoutType\":[\"alias2\"],\"aliasByType\":{\"typ1\":\"alias1\"}," +
                 "\"extensionAttributes\":{\"activePowerControl\":{\"extensionName\":\"activePowerControl\",\"participate\":true," +
                 "\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":10.0}}," +
@@ -102,7 +102,7 @@ class JsonViewTest {
                 .writeValueAsString(twoWindingsTransformerAttributes);
         assertEquals("{\"p1\":1.0,\"q1\":3.0,\"p2\":2.0,\"q2\":4.0}", svResult);
 
-        String expectedWithLimitsResult = "{\"name\":\"twt1\",\"fictitious\":false,\"properties\":{\"key\":\"value\"}," +
+        String expectedWithLimitsResult = "{\"name\":\"twt1\",\"fictitious\":false,\"equivalent\":false,\"properties\":{\"key\":\"value\"}," +
                 "\"aliasesWithoutType\":[\"alias2\"],\"aliasByType\":{\"typ1\":\"alias1\"}," +
                 "\"extensionAttributes\":{\"activePowerControl\":{\"extensionName\":\"activePowerControl\"," +
                 "\"participate\":true,\"droop\":5.2,\"participationFactor\":0.5,\"minTargetP\":0.0,\"maxTargetP\":10.0}}," +
@@ -129,7 +129,7 @@ class JsonViewTest {
                 .q(2)
                 .build();
 
-        String primaryResultExpected = "{\"name\":\"ground1\",\"fictitious\":false,\"extensionAttributes\":{}," +
+        String primaryResultExpected = "{\"name\":\"ground1\",\"fictitious\":false,\"equivalent\":false,\"extensionAttributes\":{}," +
                 "\"voltageLevelId\":\"vl1\",\"node\":1,\"bus\":\"bus1\",\"connectableBus\":\"cb1\",\"p\":1.0,\"q\":2.0," +
                 "\"regulatingEquipments\":[]}";
         String primaryResult = mapper

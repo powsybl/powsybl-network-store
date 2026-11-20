@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TerminalRefAttributes;
@@ -307,14 +309,14 @@ class TwoWindingsTransformerTest {
         String twtId1 = "b94318f6-6d24-4f56-96b9-df2531ad6543";
         Network network = createNetwork();
         RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer(twtId1).getRatioTapChanger();
-        assertEquals(twtId1, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertEquals(twtId1, ratioTapChanger.getVoltageRegulation().getTerminal().getConnectable().getId());
         Load load = network.getLoad(loadId);
-        ratioTapChanger.setRegulationTerminal(load.getTerminal());
-        assertEquals(loadId, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        ratioTapChanger.getVoltageRegulation().setTerminal(load.getTerminal(), ratioTapChanger.getVoltageRegulation().getTargetValue());
+        assertEquals(loadId, ratioTapChanger.getVoltageRegulation().getTerminal().getConnectable().getId());
         load.remove();
 
-        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
-        assertNull(ratioTapChanger.getRegulationTerminal());
+        assertEquals(RegulationMode.VOLTAGE, ratioTapChanger.getVoltageRegulation().getMode());
+        assertNull(ratioTapChanger.getVoltageRegulation().getTerminal());
         assertFalse(ratioTapChanger.isRegulating());
     }
 
@@ -381,10 +383,13 @@ class TwoWindingsTransformerTest {
         twt.newRatioTapChanger()
             .setLowTapPosition(0)
             .setTapPosition(0)
-            .setRegulating(false)
-            .setRegulationTerminal(network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b").getTerminal())
-            .setTargetDeadband(22)
-            .setTargetV(220)
+            .newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .withTerminal(network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b").getTerminal())
+            .withTargetDeadband(22)
+            .withTargetValue(220)
+            .add()
             .beginStep()
             .setRho(0.99)
             .setR(1.)
@@ -407,7 +412,8 @@ class TwoWindingsTransformerTest {
             .setB(1.7)
             .endStep()
             .add();
-        assertEquals(network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b").getTerminal(), twt.getRatioTapChanger().getRegulationTerminal());
+        assertEquals(network.getLoad("69add5b4-70bd-4360-8a93-286256c0d38b").getTerminal(),
+                twt.getRatioTapChanger().getVoltageRegulation().getTerminal());
     }
 
     @Test
@@ -421,7 +427,12 @@ class TwoWindingsTransformerTest {
         assertNotNull(generator);
 
         // Add regulation to the generator
-        generator.setRegulatingTerminal(twoWindingsTransformer.getTerminal(TwoSides.ONE));
+        generator.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .withTargetValue(generator.getRegulatingTargetV())
+                .withTerminal(twoWindingsTransformer.getTerminal(TwoSides.ONE))
+                .build();
 
         // Add event listener on 2WT removal
         NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
@@ -430,12 +441,11 @@ class TwoWindingsTransformerTest {
         assertNull(network.getTwoWindingsTransformer(twoWindingsTransformerId));
         List<? extends Record> expectedEvents = List.of(
                 new RemovalNetworkEvent(twoWindingsTransformerId, false),
-                new UpdateNetworkEvent(twoWindingsTransformerId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(
-                        twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
-                new UpdateNetworkEvent(generatorId, "regulatingTerminal", VariantManagerConstants.INITIAL_VARIANT_ID, TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(
-                        TwoSides.ONE.name()).build(), TerminalRefAttributes.builder().connectableId(generatorId).build()),
+                new UpdateNetworkEvent(twoWindingsTransformerId, "ratioTapChanger.VoltageRegulation.Terminal", VariantManagerConstants.INITIAL_VARIANT_ID,
+                        TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.TWO.name()).build(), null),
+                new UpdateNetworkEvent(generatorId, "VoltageRegulation.Terminal", VariantManagerConstants.INITIAL_VARIANT_ID,
+                        TerminalRefAttributes.builder().connectableId(twoWindingsTransformerId).side(TwoSides.ONE.name()).build(), null),
                 new UpdateNetworkEvent(generatorId, "regulatedResourceType", VariantManagerConstants.INITIAL_VARIANT_ID, ResourceType.TWO_WINDINGS_TRANSFORMER, ResourceType.GENERATOR),
-                new UpdateNetworkEvent(generatorId, "regulating", VariantManagerConstants.INITIAL_VARIANT_ID, true, false),
                 new RemovalNetworkEvent(twoWindingsTransformerId, true));
         // Order is not guaranteed with regulation events as we use Set for regulating equipments
         assertTrue(eventRecorder.getEvents().containsAll(expectedEvents));
@@ -493,10 +503,140 @@ class TwoWindingsTransformerTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
         RatioTapChanger rtc = twt.getRatioTapChanger();
+        VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
         assertEquals("2 windings transformer 'TWT': Undefined value for target deadband of regulating ratio tap changer",
-                assertThrows(ValidationException.class, () -> rtc.setTargetDeadband(Double.NaN)).getMessage());
+                assertThrows(ValidationException.class, () -> voltageRegulation.setTargetDeadband(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        rtc.setTargetDeadband(Double.NaN);
+        voltageRegulation.setTargetDeadband(Double.NaN);
+    }
+
+    @Test
+    void testRatioTapChangerLegacyRegulationAccessors() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
+
+        assertEquals(225.0, ratioTapChanger.getRegulationValue());
+        ratioTapChanger.setRegulationValue(230.0);
+        assertEquals(230.0, ratioTapChanger.getRegulationValue());
+
+        assertSame(ratioTapChanger, ratioTapChanger.setLocalTargetV(400.0));
+
+        ratioTapChanger.setRegulating(false);
+        assertFalse(ratioTapChanger.isRegulating());
+        ratioTapChanger.setLoadTapChangingCapabilities(false);
+        assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
+        ratioTapChanger.setLoadTapChangingCapabilities(true);
+        assertTrue(ratioTapChanger.hasLoadTapChangingCapabilities());
+        ratioTapChanger.setRegulating(true);
+        assertTrue(ratioTapChanger.isRegulating());
+
+        Terminal loadTerminal = network.getLoad("LD1").getTerminal();
+        ratioTapChanger.setRegulationTerminal(loadTerminal);
+        assertEquals(loadTerminal, ratioTapChanger.getRegulationTerminal());
+
+        assertEquals(0.0, ratioTapChanger.getTargetDeadband());
+        ratioTapChanger.setTargetDeadband(2.0);
+        assertEquals(2.0, ratioTapChanger.getTargetDeadband());
+
+        ratioTapChanger.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .withTerminal(loadTerminal)
+            .withTargetValue(231.0)
+            .withTargetDeadband(1.0)
+            .build();
+        assertEquals(231.0, ratioTapChanger.getRegulationValue());
+        assertEquals(1.0, ratioTapChanger.getTargetDeadband());
+
+        ratioTapChanger.setRegulationMode(RegulationMode.REACTIVE_POWER);
+        assertEquals(RegulationMode.REACTIVE_POWER, ratioTapChanger.getRegulationMode());
+        assertTrue(Double.isNaN(ratioTapChanger.getTargetV()));
+        ratioTapChanger.setTargetV(Double.NaN);
+        assertTrue(Double.isNaN(ratioTapChanger.getTargetV()));
+        ratioTapChanger.setTargetV(240.0);
+        assertEquals(RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals(240.0, ratioTapChanger.getTargetV());
+        ratioTapChanger.setTargetV(241.0);
+        assertEquals(241.0, ratioTapChanger.getTargetV());
+
+        assertEquals("ratioTapChanger", ((Validable) ratioTapChanger).getMessageHeader().type());
+
+        ratioTapChanger.remove();
+        assertNull(twt.getRatioTapChanger());
+    }
+
+    @Test
+    void testRatioTapChangerLegacyRegulationAccessorsWithoutVoltageRegulation() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        twt.getRatioTapChanger().remove();
+        RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(0)
+            .setLoadTapChangingCapabilities(true)
+            .beginStep()
+            .setRho(1)
+            .endStep()
+            .add();
+
+        ratioTapChanger.removeVoltageRegulation();
+        assertTrue(Double.isNaN(ratioTapChanger.getRegulationValue()));
+        assertTrue(Double.isNaN(ratioTapChanger.getTargetDeadband()));
+        assertTrue(Double.isNaN(ratioTapChanger.getTargetV()));
+        assertNull(ratioTapChanger.getRegulationTerminal());
+        assertFalse(ratioTapChanger.isRegulating());
+
+        ratioTapChanger.setRegulationValue(230.0);
+        assertEquals(230.0, ratioTapChanger.getVoltageRegulation().getTargetValue());
+        ratioTapChanger.removeVoltageRegulation();
+
+        ratioTapChanger.setTargetDeadband(1.5);
+        assertEquals(1.5, ratioTapChanger.getVoltageRegulation().getTargetDeadband());
+        ratioTapChanger.removeVoltageRegulation();
+
+        ratioTapChanger.setRegulationMode(RegulationMode.VOLTAGE);
+        assertEquals(RegulationMode.VOLTAGE, ratioTapChanger.getVoltageRegulation().getMode());
+        ratioTapChanger.removeVoltageRegulation();
+
+        ratioTapChanger.setRegulationMode(null);
+        assertNull(ratioTapChanger.getVoltageRegulation().getMode());
+        ratioTapChanger.removeVoltageRegulation();
+
+        ratioTapChanger.setTargetV(235.0);
+        assertEquals(235.0, ratioTapChanger.getVoltageRegulation().getTargetValue());
+        ratioTapChanger.removeVoltageRegulation();
+
+        Terminal loadTerminal = network.getLoad("LD1").getTerminal();
+        ratioTapChanger.setRegulationTerminal(loadTerminal);
+        assertEquals(loadTerminal, ratioTapChanger.getRegulationTerminal());
+        ratioTapChanger.removeVoltageRegulation();
+
+        ratioTapChanger.setRegulating(false);
+        assertNull(ratioTapChanger.getVoltageRegulation());
+        assertThrows(ValidationException.class, () -> ratioTapChanger.setRegulating(true));
+
+        ratioTapChanger.remove();
+        assertNull(twt.getRatioTapChanger());
+        assertTrue(Double.isNaN(ratioTapChanger.getRegulationValue()));
+    }
+
+    @Test
+    void testRatioTapChangerAdderLocalTargets() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        twt.getRatioTapChanger().remove();
+        RatioTapChangerAdder ratioTapChangerAdder = twt.newRatioTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(0)
+            .setLocalTargetQ(10.0)
+            .setLocalTargetV(225.0)
+            .beginStep()
+            .setRho(1)
+            .endStep();
+        assertTrue(Double.isNaN(ratioTapChangerAdder.getLocalTargetQ()));
+        ratioTapChangerAdder.add();
+        assertNotNull(twt.getRatioTapChanger());
     }
 
     @Test

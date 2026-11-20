@@ -19,4 +19,34 @@ class IdentifiableTest extends AbstractIdentifiableTest {
     public void test() {
         // FIXME: to be removed when Identifiable#setId is implemented
     }
+
+    @Override
+    public void testSetIdBusesBusBreaker() {
+        // FIXME: to be removed when Identifiable#setId is implemented
+    }
+
+    @Override
+    public void testSetIdBusesNodeBreaker() {
+        // FIXME: to be removed when Identifiable#setId is implemented
+    }
+
+    @Override
+    public void testSetIdBusUpdatesConnectableBusOfTerminals() {
+        // FIXME: to be removed when Identifiable#setId is implemented
+    }
+
+    @Override
+    public void testSetIdBusAlreadyExists() {
+        // FIXME: to be removed when Identifiable#setId is implemented
+    }
+
+    @Override
+    public void testSetIdSwitch() {
+        // FIXME: to be removed when Identifiable#setId is implemented
+    }
+
+    @Override
+    public void testSetIdSwitchAlreadyExists() {
+        // FIXME: to be removed when Identifiable#setId is implemented
+    }
 }

@@ -7,6 +7,8 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -19,8 +21,10 @@ class RegulatingTest {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation().setId("S1").setCountry(Country.FR).add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(400f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
-        vl1.newGenerator().setId("G1").setEnsureIdUnicity(true).setNode(0).setMinP(0).setMaxP(1).setTargetP(1).setTargetQ(0).setVoltageRegulatorOn(false).add();
-        vl1.newGenerator().setId("G1").setEnsureIdUnicity(true).setNode(1).setMinP(0).setMaxP(1).setTargetP(1).setTargetQ(0).setVoltageRegulatorOn(false).add();
+        vl1.newGenerator().setId("G1").setEnsureIdUnicity(true).setNode(0).setMinP(0).setMaxP(1).setTargetP(1)
+                .setLocalTargetQ(0).newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add().add();
+        vl1.newGenerator().setId("G1").setEnsureIdUnicity(true).setNode(1).setMinP(0).setMaxP(1).setTargetP(1)
+                .setLocalTargetQ(0).newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add().add();
 
         Assertions.assertEquals("G1", network.getGenerator("G1").getRegulatingTerminal().getConnectable().getId());
         Assertions.assertEquals("G1#0", network.getGenerator("G1#0").getRegulatingTerminal().getConnectable().getId());
@@ -32,9 +36,8 @@ class RegulatingTest {
         Substation s1 = network.newSubstation().setId("S1").setCountry(Country.FR).add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(400f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl1.newShuntCompensator().setId("SC1").setEnsureIdUnicity(true).setNode(0)
-                .setVoltageRegulatorOn(false)
-                .setTargetDeadband(20)
-                .setTargetV(420)
+                .setLocalTargetV(420)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).withTargetDeadband(20).add()
                 .newNonLinearModel()
                 .beginSection()
                 .setB(1).setG(2)
@@ -52,9 +55,8 @@ class RegulatingTest {
                 .setSectionCount(3)
                 .add();
         vl1.newShuntCompensator().setId("SC1").setEnsureIdUnicity(true).setNode(1)
-                .setVoltageRegulatorOn(false)
-                .setTargetDeadband(20)
-                .setTargetV(420)
+                .setLocalTargetV(420)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).withTargetDeadband(20).add()
                 .newNonLinearModel()
                 .beginSection()
                 .setB(1).setG(2)
@@ -84,18 +86,16 @@ class RegulatingTest {
         vl1.newStaticVarCompensator().setId("SVC1").setEnsureIdUnicity(true).setNode(0)
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setReactivePowerSetpoint(200)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetpoint(390)
-                .setRegulating(false)
+                .setLocalTargetQ(200)
+                .setLocalTargetV(390)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
                 .add();
         vl1.newStaticVarCompensator().setId("SVC1").setEnsureIdUnicity(true).setNode(1)
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setReactivePowerSetpoint(200)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetpoint(390)
-                .setRegulating(false)
+                .setLocalTargetQ(200)
+                .setLocalTargetV(390)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
                 .add();
 
         Assertions.assertEquals("SVC1", network.getStaticVarCompensator("SVC1").getRegulatingTerminal().getConnectable().getId());
@@ -109,18 +109,25 @@ class RegulatingTest {
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(400f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl1.newVscConverterStation().setId("VSC1").setEnsureIdUnicity(true).setNode(0)
                 .setLossFactor(24)
-                .setReactivePowerSetpoint(300)
-                .setVoltageRegulatorOn(true)
-                .setVoltageSetpoint(290)
+                .setLocalTargetQ(300)
+                .setLocalTargetV(290)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .add();
         vl1.newVscConverterStation().setId("VSC1").setEnsureIdUnicity(true).setNode(1)
                 .setLossFactor(24)
-                .setReactivePowerSetpoint(300)
-                .setVoltageRegulatorOn(true)
-                .setVoltageSetpoint(290)
+                .setLocalTargetQ(300)
+                .setLocalTargetV(290)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .add();
 
         Assertions.assertEquals("VSC1", network.getVscConverterStation("VSC1").getRegulatingTerminal().getConnectable().getId());
         Assertions.assertEquals("VSC1#0", network.getVscConverterStation("VSC1#0").getRegulatingTerminal().getConnectable().getId());
+    }
+
+    @Test
+    void testTapChangerRegulatingPointCanRelocateOnLocalTerminal() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        RatioTapChangerImpl ratioTapChanger = (RatioTapChangerImpl) network.getTwoWindingsTransformer("TWT").getRatioTapChanger();
+        Assertions.assertTrue(ratioTapChanger.getRegulatingPoint().canRelocateOnLocalTerminal());
     }
 }

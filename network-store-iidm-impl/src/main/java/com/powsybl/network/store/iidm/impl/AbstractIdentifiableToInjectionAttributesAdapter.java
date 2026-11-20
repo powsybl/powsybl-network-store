@@ -82,6 +82,16 @@ public abstract class AbstractIdentifiableToInjectionAttributesAdapter<T extends
     }
 
     @Override
+    public boolean isEquivalent() {
+        return attributes.isEquivalent();
+    }
+
+    @Override
+    public void setEquivalent(boolean equivalent) {
+        attributes.setEquivalent(equivalent);
+    }
+
+    @Override
     public Map<String, ExtensionAttributes> getExtensionAttributes() {
         return attributes.getExtensionAttributes();
     }
