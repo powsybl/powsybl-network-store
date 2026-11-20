@@ -65,8 +65,6 @@ public final class InjectionRegulatingPoint<I extends Injection<I> & VoltageRegu
                 getIdentifiable().updateResourceWithoutNotification(res -> voltageRegulationAttributes.setTargetValue(Double.NaN));
             }
         }
-        // if the regulating equipment was already regulating on his bus but on another element
-        // we reallocate the regulating point and we keep the regulation on
     }
 
     @Override

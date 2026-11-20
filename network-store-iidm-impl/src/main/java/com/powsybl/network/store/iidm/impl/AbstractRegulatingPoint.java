@@ -30,6 +30,12 @@ public abstract class AbstractRegulatingPoint {
         this.terminalAttribute = terminalAttribute;
     }
 
+    protected boolean canRelocateOnLocalTerminal() {
+        return true;
+    }
+
+    protected abstract void resetRegulatingAndRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode);
+
     String getNotificationPrefix() {
         return "";
     }
@@ -48,10 +54,6 @@ public abstract class AbstractRegulatingPoint {
 
     public abstract RegulatingPointAttributes getAttributes();
 
-    /**
-     * Get the terminal explicitly set as regulating terminal, or null if none was set.
-     * Unlike {@link #getRegulatingTerminal()}, no fallback on the local terminal is done.
-     */
     public Terminal getExplicitRegulatingTerminal() {
         RegulatingPointAttributes attributes = getAttributes();
         return attributes == null ? null : TerminalRefUtils.getTerminal(index, attributes.getRegulatingTerminal());
@@ -152,28 +154,16 @@ public abstract class AbstractRegulatingPoint {
         if (regulatingTerminal == null) {
             return;
         }
-        // if localTerminal or regulatingTerminal is not connected then the bus is null
-        // (buses are compared by id because the network store may materialize several instances of the same bus)
         Bus bus = regulatingTerminal.getBusView().getBus();
         Bus localBus = localTerminal != null ? localTerminal.getBusView().getBus() : null;
         if (localTerminal != null && bus != null && localBus != null && bus.getId().equals(localBus.getId()) && canRelocateOnLocalTerminal()) {
-            // regulation point is re-located at the regulating equipment, regulation stays on
-            // the reverse reference on the removed terminal is not cleaned here: the whole regulating
-            // equipments set of the removed terminal is being iterated and cleared by the caller
             setRegulatingTerminalWithoutReverseReferenceUpdate(localTerminal);
             return;
         }
         // unset the regulating terminal (regulation falls back to the local terminal)
         setRegulatingTerminalWithoutReverseReferenceUpdate(null);
-        // reset regulating and regulation mode for equipment having one
         resetRegulatingAndRegulationMode(regulatingTerminal, localTerminal, reportNode);
     }
-
-    protected boolean canRelocateOnLocalTerminal() {
-        return true;
-    }
-
-    protected abstract void resetRegulatingAndRegulationMode(Terminal regulatingTerminal, Terminal localTerminal, ReportNode reportNode);
 
     public Boolean isRegulating() {
         RegulatingPointAttributes attributes = getAttributes();
