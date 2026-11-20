@@ -172,6 +172,35 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
     }
 
     @Override
+    public void remove() {
+        var resource = getResource();
+        index.notifyBeforeRemoval(this);
+        for (Terminal terminal : getTerminals()) {
+            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
+            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
+        }
+        this.removeVoltageRegulation();
+        // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
+        invalidateCalculatedBuses(getTerminals());
+        index.removeShuntCompensator(resource.getId());
+        index.notifyAfterRemoval(resource.getId());
+    }
+
+    @Override
+    public <E extends Extension<ShuntCompensator>> boolean removeExtension(Class<E> type) {
+        super.removeExtension(type);
+        if (type.isAssignableFrom(ConnectablePosition.class)) {
+            var resource = getResource();
+            if (resource.getAttributes().getPosition() != null) {
+                resource.getAttributes().setPosition(null);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    @Override
     public boolean isVoltageRegulatorOn() {
         return this.isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
@@ -245,34 +274,5 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         }
         index.notifyUpdate(this, "targetDeadband", variantId, oldValue, targetDeadband);
         return this;
-    }
-
-    @Override
-    public void remove() {
-        var resource = getResource();
-        index.notifyBeforeRemoval(this);
-        for (Terminal terminal : getTerminals()) {
-            ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
-            ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
-        }
-        this.removeVoltageRegulation();
-        // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
-        invalidateCalculatedBuses(getTerminals());
-        index.removeShuntCompensator(resource.getId());
-        index.notifyAfterRemoval(resource.getId());
-    }
-
-    @Override
-    public <E extends Extension<ShuntCompensator>> boolean removeExtension(Class<E> type) {
-        super.removeExtension(type);
-        if (type.isAssignableFrom(ConnectablePosition.class)) {
-            var resource = getResource();
-            if (resource.getAttributes().getPosition() != null) {
-                resource.getAttributes().setPosition(null);
-                return true;
-            }
-            return false;
-        }
-        return false;
     }
 }

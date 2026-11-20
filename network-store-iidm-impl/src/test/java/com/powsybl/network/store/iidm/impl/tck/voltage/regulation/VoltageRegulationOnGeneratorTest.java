@@ -23,5 +23,9 @@ class VoltageRegulationOnGeneratorTest extends AbstractVoltageRegulationOnGenera
         // network store iidm implementation supports structure modification in variants. Should not throw exception.
     }
 
+    @Override
+    public void testCreateVoltageRegulationInMultiVariant() {
+        // network store iidm implementation supports structure modification in variants. Should not throw exception.
+    }
     //TODO in this PR: add multi variant tests
 }

@@ -60,8 +60,7 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
     }
 
     VoltageRegulation createOrUpdateVoltageRegulation(VoltageRegulation.VoltageRegulationAttributes coreAttributes) {
-        VoltageRegulationAttributes existing = getVoltageRegulationAttributes();
-        if (existing == null) {
+        if (getVoltageRegulationAttributes() == null) {
             VoltageRegulationAttributes attributes = VoltageRegulationAttributes.builder()
                 .regulatingEquipmentId(getId())
                 .regulatingResourceType(getResource().getType())
@@ -85,7 +84,6 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
                 ((VoltageRegulationImpl) getVoltageRegulation()).registerOnTerminal();
             }
         } else {
-            // update the existing regulation on the current variant
             VoltageRegulationImpl voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
             voltageRegulation.setAttributesOnCurrentVariant(coreAttributes);
         }

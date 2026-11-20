@@ -58,16 +58,6 @@ public class BatteryImpl extends AbstractRegulatingInjection<Battery, BatteryAtt
     }
 
     @Override
-    public double getTargetQ() {
-        return this.getLocalTargetQ();
-    }
-
-    @Override
-    public Battery setTargetQ(double targetQ) {
-        return setLocalTargetQ(targetQ);
-    }
-
-    @Override
     public double getLocalTargetQ() {
         return getResource().getAttributes().getLocalTargetQ();
     }
@@ -276,5 +266,15 @@ public class BatteryImpl extends AbstractRegulatingInjection<Battery, BatteryAtt
             return false;
         }
         return false;
+    }
+
+    @Override
+    public double getTargetQ() {
+        return this.getLocalTargetQ();
+    }
+
+    @Override
+    public Battery setTargetQ(double targetQ) {
+        return setLocalTargetQ(targetQ);
     }
 }

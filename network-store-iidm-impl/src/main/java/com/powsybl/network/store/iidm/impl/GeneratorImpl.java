@@ -111,86 +111,6 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
     }
 
     @Override
-    public boolean isVoltageRegulatorOn() {
-        return this.isRegulatingWithMode(RegulationMode.VOLTAGE);
-    }
-
-    @Override
-    public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        boolean oldValue = voltageRegulation != null && voltageRegulation.isRegulating();
-        if (voltageRegulation != null) {
-            voltageRegulation.setRegulating(voltageRegulatorOn);
-        } else {
-            newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withRegulating(voltageRegulatorOn)
-                .build();
-        }
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
-        return this;
-    }
-
-    @Override
-    public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        Terminal oldValue = null;
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null) {
-            oldValue = voltageRegulation.getTerminal();
-            double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : -getRegulatingTargetQ();
-            voltageRegulation.setTerminal(regulatingTerminal, targetValue);
-        } else {
-            newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTerminal(regulatingTerminal)
-                .withRegulating(false)
-                .build();
-        }
-        index.notifyUpdate(this, "regulatingTerminal", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulatingTerminal);
-        return this;
-    }
-
-    @Override
-    public double getTargetV() {
-        return this.getRegulatingTargetV();
-    }
-
-    @Override
-    public Generator setTargetV(double targetV) {
-        ValidationUtil.checkDoublePositive(this, targetV, "targetV");
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
-            voltageRegulation.setTargetValue(targetV);
-        } else {
-            setLocalTargetV(targetV);
-        }
-        return this;
-    }
-
-    @Override
-    public Generator setTargetV(double targetV, double equivalentLocalTargetV) {
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null) {
-            if (hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
-                setLocalTargetV(equivalentLocalTargetV);
-                voltageRegulation.setTargetValue(targetV);
-            } else {
-                setLocalTargetV(targetV);
-            }
-        } else {
-            newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(targetV)
-                .withRegulating(false)
-                .build();
-            setLocalTargetV(equivalentLocalTargetV);
-        }
-        return this;
-    }
-
-    @Override
     public double getLocalTargetV() {
         return getResource().getAttributes().getLocalTargetV();
     }
@@ -213,11 +133,6 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
     }
 
     @Override
-    public double getEquivalentLocalTargetV() {
-        return this.getLocalTargetV();
-    }
-
-    @Override
     public double getTargetP() {
         return getResource().getAttributes().getTargetP();
     }
@@ -231,11 +146,6 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
                 "targetP", oldValue, targetP);
         }
         return this;
-    }
-
-    @Override
-    public double getTargetQ() {
-        return this.getLocalTargetQ();
     }
 
     @Override
@@ -258,11 +168,6 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
                 "localTargetQ", oldValue, localTargetQ);
         }
         return this;
-    }
-
-    @Override
-    public Generator setTargetQ(double targetQ) {
-        return setLocalTargetQ(targetQ);
     }
 
     @Override
@@ -440,5 +345,100 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
             return false;
         }
         return false;
+    }
+
+    @Override
+    public boolean isVoltageRegulatorOn() {
+        return this.isRegulatingWithMode(RegulationMode.VOLTAGE);
+    }
+
+    @Override
+    public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        boolean oldValue = voltageRegulation != null && voltageRegulation.isRegulating();
+        if (voltageRegulation != null) {
+            voltageRegulation.setRegulating(voltageRegulatorOn);
+        } else {
+            newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(voltageRegulatorOn)
+                    .build();
+        }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        return this;
+    }
+
+    @Override
+    public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        Terminal oldValue = null;
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            oldValue = voltageRegulation.getTerminal();
+            double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : -getRegulatingTargetQ();
+            voltageRegulation.setTerminal(regulatingTerminal, targetValue);
+        } else {
+            newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(regulatingTerminal)
+                    .withRegulating(false)
+                    .build();
+        }
+        index.notifyUpdate(this, "regulatingTerminal", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulatingTerminal);
+        return this;
+    }
+
+    @Override
+    public double getTargetV() {
+        return this.getRegulatingTargetV();
+    }
+
+    @Override
+    public Generator setTargetV(double targetV) {
+        ValidationUtil.checkDoublePositive(this, targetV, "targetV");
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
+            voltageRegulation.setTargetValue(targetV);
+        } else {
+            setLocalTargetV(targetV);
+        }
+        return this;
+    }
+
+    @Override
+    public Generator setTargetV(double targetV, double equivalentLocalTargetV) {
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            if (hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
+                setLocalTargetV(equivalentLocalTargetV);
+                voltageRegulation.setTargetValue(targetV);
+            } else {
+                setLocalTargetV(targetV);
+            }
+        } else {
+            newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(targetV)
+                    .withRegulating(false)
+                    .build();
+            setLocalTargetV(equivalentLocalTargetV);
+        }
+        return this;
+    }
+
+    @Override
+    public double getEquivalentLocalTargetV() {
+        return this.getLocalTargetV();
+    }
+
+    @Override
+    public double getTargetQ() {
+        return this.getLocalTargetQ();
+    }
+
+    @Override
+    public Generator setTargetQ(double targetQ) {
+        return setLocalTargetQ(targetQ);
     }
 }

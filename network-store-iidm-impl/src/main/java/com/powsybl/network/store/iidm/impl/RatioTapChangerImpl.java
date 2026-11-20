@@ -135,6 +135,154 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
+    public RatioTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        ValidationUtil.checkRatioTapChangerRegulation(parent, toCoreAttributes(a -> a),
+            loadTapChangingCapabilities,
+            parent.getNetwork(), parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
+        return super.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
+    }
+
+    @Override
+    public int getHighTapPosition() {
+        var attributes = getAttributes();
+        return attributes.getLowTapPosition() + attributes.getSteps().size() - 1;
+    }
+
+    @Override
+    public int getStepCount() {
+        return getAttributes().getSteps().size();
+    }
+
+    @Override
+    public RatioTapChangerStep getStep(int tapPosition) {
+        int tapPositionIndex = getTapPositionIndex(tapPosition);
+        return new RatioTapChangerStepImpl(this, tapPositionIndex);
+    }
+
+    @Override
+    public RatioTapChangerStepsReplacer stepsReplacer() {
+        return new RatioTapChangerStepsReplacerImpl(this);
+    }
+
+    @Override
+    public RatioTapChangerStep getCurrentStep() {
+        var attributes = getAttributes();
+        int tapPositionIndex = attributes.getTapPosition() - attributes.getLowTapPosition();
+        return new RatioTapChangerStepImpl(this, tapPositionIndex);
+    }
+
+    @Override
+    public RatioTapChangerStep getSolvedCurrentStep() {
+        Integer solvedPosition = getAttributes().getSolvedTapPosition();
+        if (solvedPosition == null) {
+            return null;
+        }
+        return getStep(solvedPosition);
+    }
+
+    @Override
+    public Optional<RatioTapChangerStep> getNeutralStep() {
+        Integer relativeNeutralPosition = getRelativeNeutralPosition();
+        return relativeNeutralPosition != null ? Optional.of(new RatioTapChangerStepImpl(this, relativeNeutralPosition)) : Optional.empty();
+    }
+
+    @Override
+    protected Integer getRelativeNeutralPosition() {
+        var steps = getAttributes().getSteps();
+        for (int i = 0; i < steps.size(); i++) {
+            TapChangerStepAttributes stepAttributes = steps.get(i);
+            if (stepAttributes.getRho() == 1) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void remove() {
+        if (voltageRegulation != null) {
+            voltageRegulation.onRemove();
+        } else {
+            regulatingPoint.remove();
+        }
+        parent.setRatioTapChanger(null);
+    }
+
+    @Override
+    public boolean isRegulating() {
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        return voltageRegulation != null && voltageRegulation.isRegulating();
+    }
+
+    protected String getTapChangerAttribute() {
+        return "ratio" + parent.getTapChangerAttribute();
+    }
+
+    @Override
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("ratioTapChanger", parent.getTransformer().getId());
+    }
+
+    public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
+        AbstractTapChanger.validateStep(step, parent);
+    }
+
+    // equals and hashCode are overridden to ensure correct behavior of the RatioTapChanger
+    // in hash table-based collections (e.g., HashSet, HashMap). Without these overrides, the default
+    // implementations include this.attributesGetter, which can lead to incorrect behavior in
+    // hash-based collections by affecting instance identification, retrieval and removal.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RatioTapChangerImpl that = (RatioTapChangerImpl) o;
+        if (!Objects.equals(that.getTransformer().getClass(), getTransformer().getClass())) {
+            return false;
+        }
+        // check ratio tap changer are on same leg
+        if (that.getTransformer() instanceof ThreeWindingsTransformerImpl &&
+            !Objects.equals(((ThreeWindingsTransformerImpl.LegImpl) parent).getSide(),
+                ((ThreeWindingsTransformerImpl.LegImpl) that.getParent()).getSide())) {
+            return false;
+        }
+        return Objects.equals(getTransformer().getId(), that.getTransformer().getId()) &&
+            Objects.equals(getRegulationMode(), that.getRegulationMode()) &&
+            Objects.equals(getRegulationValue(), that.getRegulationValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getParent(), getTransformer().getId(), getRegulationMode(), getRegulationValue());
+    }
+
+    @Override
+    public RegulationMode getRegulationMode() {
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        return voltageRegulation != null ? voltageRegulation.getMode() : null;
+    }
+
+    @Override
+    public RatioTapChanger setRegulationMode(RegulationMode regulationMode) {
+        RegulationMode oldValue = null;
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            oldValue = voltageRegulation.getMode();
+            voltageRegulation.setMode(regulationMode);
+        } else {
+            newVoltageRegulation()
+                .withMode(regulationMode)
+                .withRegulating(false)
+                .build();
+        }
+        index.notifyUpdate(getTransformer(), getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
+        return this;
+    }
+
+    @Override
     public double getRegulationValue() {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
         return voltageRegulation != null ? voltageRegulation.getTargetValue() : Double.NaN;
@@ -160,17 +308,39 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
     }
 
     @Override
-    public RatioTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, toCoreAttributes(a -> a),
-            loadTapChangingCapabilities,
-            parent.getNetwork(), parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
-        return super.setLoadTapChangingCapabilities(loadTapChangingCapabilities);
+    public double getTargetV() {
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        return voltageRegulation != null && isWithMode(RegulationMode.VOLTAGE) ? voltageRegulation.getTargetValue() : Double.NaN;
     }
 
     @Override
-    public int getHighTapPosition() {
-        var attributes = getAttributes();
-        return attributes.getLowTapPosition() + attributes.getSteps().size() - 1;
+    public RatioTapChanger setTargetV(double targetV) {
+        double oldValue = Double.NaN;
+        VoltageRegulation.VoltageRegulationAttributes attributes = toCoreAttributes(a -> a.withTargetValue(targetV).withMode(RegulationMode.VOLTAGE));
+        ValidationUtil.checkRatioTapChangerRegulation(parent, attributes,
+            hasLoadTapChangingCapabilities(),
+            parent.getNetwork(), parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        if (voltageRegulation != null) {
+            if (!Double.isNaN(targetV) && !isWithMode(RegulationMode.VOLTAGE)) {
+                RegulationMode oldMode = voltageRegulation.getMode();
+                voltageRegulation.setMode(RegulationMode.VOLTAGE);
+                index.notifyUpdate(getTransformer(), getTapChangerAttribute() + ".regulationMode", variantId, oldMode, RegulationMode.VOLTAGE);
+            }
+            if (isWithMode(RegulationMode.VOLTAGE)) {
+                oldValue = voltageRegulation.getTargetValue();
+                voltageRegulation.setTargetValue(targetV);
+            }
+        } else {
+            newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(targetV)
+                .withRegulating(false)
+                .build();
+        }
+        index.notifyUpdate(getTransformer(), getTapChangerAttribute() + ".regulationValue", variantId, oldValue, targetV);
+        return this;
     }
 
     @Override
@@ -253,175 +423,5 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(getTransformer(), getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, targetDeadband);
         return this;
-    }
-
-    @Override
-    public int getStepCount() {
-        return getAttributes().getSteps().size();
-    }
-
-    @Override
-    public RatioTapChangerStep getStep(int tapPosition) {
-        int tapPositionIndex = getTapPositionIndex(tapPosition);
-        return new RatioTapChangerStepImpl(this, tapPositionIndex);
-    }
-
-    @Override
-    public RatioTapChangerStepsReplacer stepsReplacer() {
-        return new RatioTapChangerStepsReplacerImpl(this);
-    }
-
-    @Override
-    public RatioTapChangerStep getCurrentStep() {
-        var attributes = getAttributes();
-        int tapPositionIndex = attributes.getTapPosition() - attributes.getLowTapPosition();
-        return new RatioTapChangerStepImpl(this, tapPositionIndex);
-    }
-
-    @Override
-    public RatioTapChangerStep getSolvedCurrentStep() {
-        Integer solvedPosition = getAttributes().getSolvedTapPosition();
-        if (solvedPosition == null) {
-            return null;
-        }
-        return getStep(solvedPosition);
-    }
-
-    @Override
-    public Optional<RatioTapChangerStep> getNeutralStep() {
-        Integer relativeNeutralPosition = getRelativeNeutralPosition();
-        return relativeNeutralPosition != null ? Optional.of(new RatioTapChangerStepImpl(this, relativeNeutralPosition)) : Optional.empty();
-    }
-
-    @Override
-    protected Integer getRelativeNeutralPosition() {
-        var steps = getAttributes().getSteps();
-        for (int i = 0; i < steps.size(); i++) {
-            TapChangerStepAttributes stepAttributes = steps.get(i);
-            if (stepAttributes.getRho() == 1) {
-                return i;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void remove() {
-        if (voltageRegulation != null) {
-            voltageRegulation.onRemove();
-        } else {
-            regulatingPoint.remove();
-        }
-        parent.setRatioTapChanger(null);
-    }
-
-    @Override
-    public boolean isRegulating() {
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        return voltageRegulation != null && voltageRegulation.isRegulating();
-    }
-
-    protected String getTapChangerAttribute() {
-        return "ratio" + parent.getTapChangerAttribute();
-    }
-
-    @Override
-    public MessageHeader getMessageHeader() {
-        return new DefaultMessageHeader("ratioTapChanger", parent.getTransformer().getId());
-    }
-
-    @Override
-    public RegulationMode getRegulationMode() {
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        return voltageRegulation != null ? voltageRegulation.getMode() : null;
-    }
-
-    @Override
-    public RatioTapChanger setRegulationMode(RegulationMode regulationMode) {
-        RegulationMode oldValue = null;
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null) {
-            oldValue = voltageRegulation.getMode();
-            voltageRegulation.setMode(regulationMode);
-        } else {
-            newVoltageRegulation()
-                .withMode(regulationMode)
-                .withRegulating(false)
-                .build();
-        }
-        index.notifyUpdate(getTransformer(), getTapChangerAttribute() + ".regulationMode", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationMode);
-        return this;
-    }
-
-    @Override
-    public double getTargetV() {
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        return voltageRegulation != null && isWithMode(RegulationMode.VOLTAGE) ? voltageRegulation.getTargetValue() : Double.NaN;
-    }
-
-    @Override
-    public RatioTapChanger setTargetV(double targetV) {
-        double oldValue = Double.NaN;
-        VoltageRegulation.VoltageRegulationAttributes attributes = toCoreAttributes(a -> a.withTargetValue(targetV).withMode(RegulationMode.VOLTAGE));
-        ValidationUtil.checkRatioTapChangerRegulation(parent, attributes,
-            hasLoadTapChangingCapabilities(),
-            parent.getNetwork(), parent.getNetwork().getMinValidationLevel(), parent.getNetwork().getReportNodeContext().getReportNode());
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        if (voltageRegulation != null) {
-            if (!Double.isNaN(targetV) && !isWithMode(RegulationMode.VOLTAGE)) {
-                RegulationMode oldMode = voltageRegulation.getMode();
-                voltageRegulation.setMode(RegulationMode.VOLTAGE);
-                index.notifyUpdate(getTransformer(), getTapChangerAttribute() + ".regulationMode", variantId, oldMode, RegulationMode.VOLTAGE);
-            }
-            if (isWithMode(RegulationMode.VOLTAGE)) {
-                oldValue = voltageRegulation.getTargetValue();
-                voltageRegulation.setTargetValue(targetV);
-            }
-        } else {
-            newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(targetV)
-                .withRegulating(false)
-                .build();
-        }
-        index.notifyUpdate(getTransformer(), getTapChangerAttribute() + ".regulationValue", variantId, oldValue, targetV);
-        return this;
-    }
-
-    public static void validateStep(TapChangerStepAttributes step, TapChangerParent parent) {
-        AbstractTapChanger.validateStep(step, parent);
-    }
-
-    // equals and hashCode are overridden to ensure correct behavior of the RatioTapChanger
-    // in hash table-based collections (e.g., HashSet, HashMap). Without these overrides, the default
-    // implementations include this.attributesGetter, which can lead to incorrect behavior in
-    // hash-based collections by affecting instance identification, retrieval and removal.
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RatioTapChangerImpl that = (RatioTapChangerImpl) o;
-        if (!Objects.equals(that.getTransformer().getClass(), getTransformer().getClass())) {
-            return false;
-        }
-        // check ratio tap changer are on same leg
-        if (that.getTransformer() instanceof ThreeWindingsTransformerImpl &&
-            !Objects.equals(((ThreeWindingsTransformerImpl.LegImpl) parent).getSide(),
-                ((ThreeWindingsTransformerImpl.LegImpl) that.getParent()).getSide())) {
-            return false;
-        }
-        return Objects.equals(getTransformer().getId(), that.getTransformer().getId()) &&
-            Objects.equals(getRegulationMode(), that.getRegulationMode()) &&
-            Objects.equals(getRegulationValue(), that.getRegulationValue());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getParent(), getTransformer().getId(), getRegulationMode(), getRegulationValue());
     }
 }

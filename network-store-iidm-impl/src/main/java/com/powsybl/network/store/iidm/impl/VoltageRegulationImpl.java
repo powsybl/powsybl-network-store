@@ -7,7 +7,6 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
@@ -89,10 +88,6 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
             NetworkImpl network = getNetwork();
             ValidationUtil.checkVoltageRegulation(getValidable(), newAttributes, network, holderClass,
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
-            if (network.getVariantManager().getVariantIds().size() > 1
-                && regulatingPoint.getExplicitRegulatingTerminal() != newAttributes.terminal()) {
-                throw new PowsyblException(getValidable().getMessageHeader() + "Cannot change terminal when there are multiple variants");
-            }
         }
     }
 

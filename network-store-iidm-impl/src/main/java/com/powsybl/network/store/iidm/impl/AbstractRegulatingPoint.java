@@ -46,10 +46,6 @@ public abstract class AbstractRegulatingPoint {
         return getAttributes().getRegulatingTapChangerType();
     }
 
-    /**
-     * Get the regulating point attributes. Can be null when the regulating equipment
-     * has no regulation defined (e.g. no voltage regulation for a voltage regulation holder).
-     */
     public abstract RegulatingPointAttributes getAttributes();
 
     /**

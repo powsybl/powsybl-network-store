@@ -75,44 +75,6 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
     }
 
     @Override
-    public double getVoltageSetpoint() {
-        return this.getRegulatingTargetV();
-    }
-
-    @Override
-    public StaticVarCompensator setVoltageSetpoint(double voltageSetpoint) {
-        double oldValue = getLocalTargetV();
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
-            voltageRegulation.setTargetValue(voltageSetpoint);
-        } else {
-            setLocalTargetV(voltageSetpoint);
-        }
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetpoint);
-        return this;
-    }
-
-    @Override
-    public double getReactivePowerSetpoint() {
-        return this.getRegulatingTargetQ();
-    }
-
-    @Override
-    public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        double oldValue = getLocalTargetQ();
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.REACTIVE_POWER)) {
-            voltageRegulation.setTargetValue(reactivePowerSetpoint);
-        } else {
-            setLocalTargetQ(reactivePowerSetpoint);
-        }
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
-        return this;
-    }
-
-    @Override
     public double getLocalTargetV() {
         return getResource().getAttributes().getLocalTargetV();
     }
@@ -152,58 +114,6 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         if (Double.compare(targetQ, oldValue) != 0) {
             updateResource(res -> res.getAttributes().setLocalTargetQ(targetQ),
                 "localTargetQ", oldValue, targetQ);
-        }
-        return this;
-    }
-
-    @Override
-    public RegulationMode getRegulationMode() {
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        return voltageRegulation != null ? voltageRegulation.getMode() : null;
-    }
-
-    @Override
-    public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
-        RegulationMode oldValue = null;
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null) {
-            oldValue = voltageRegulation.getMode();
-            voltageRegulation.setMode(regulationMode);
-        } else {
-            newVoltageRegulation().withRegulating(false).withMode(regulationMode).build();
-        }
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "regulationMode", variantId, oldValue, regulationMode);
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        Terminal oldValue = null;
-        double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null) {
-            oldValue = voltageRegulation.getTerminal();
-            voltageRegulation.setTerminal(regulatingTerminal, targetValue);
-        } else {
-            newVoltageRegulation().withRegulating(false).withTargetValue(targetValue).withTerminal(regulatingTerminal).build();
-        }
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "regulatingTerminal", variantId, oldValue, regulatingTerminal);
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensator setRegulating(boolean regulating) {
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null) {
-            boolean oldValue = voltageRegulation.isRegulating();
-            voltageRegulation.setRegulating(regulating);
-            index.notifyUpdate(this, "regulating", variantId, oldValue, regulating);
-        } else if (regulating) {
-            newVoltageRegulation().withRegulating(true).withMode(RegulationMode.REACTIVE_POWER).build();
-            index.notifyUpdate(this, "regulating", variantId, false, true);
         }
         return this;
     }
@@ -279,5 +189,95 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
             return false;
         }
         return false;
+    }
+
+    @Override
+    public double getVoltageSetpoint() {
+        return this.getRegulatingTargetV();
+    }
+
+    @Override
+    public StaticVarCompensator setVoltageSetpoint(double voltageSetpoint) {
+        double oldValue = getLocalTargetV();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.VOLTAGE)) {
+            voltageRegulation.setTargetValue(voltageSetpoint);
+        } else {
+            setLocalTargetV(voltageSetpoint);
+        }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetpoint);
+        return this;
+    }
+
+    @Override
+    public double getReactivePowerSetpoint() {
+        return this.getRegulatingTargetQ();
+    }
+
+    @Override
+    public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        double oldValue = getLocalTargetQ();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null && hasRegulatingTerminal() && isWithMode(RegulationMode.REACTIVE_POWER)) {
+            voltageRegulation.setTargetValue(reactivePowerSetpoint);
+        } else {
+            setLocalTargetQ(reactivePowerSetpoint);
+        }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
+        return this;
+    }
+
+    @Override
+    public RegulationMode getRegulationMode() {
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        return voltageRegulation != null ? voltageRegulation.getMode() : null;
+    }
+
+    @Override
+    public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
+        RegulationMode oldValue = null;
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            oldValue = voltageRegulation.getMode();
+            voltageRegulation.setMode(regulationMode);
+        } else {
+            newVoltageRegulation().withRegulating(false).withMode(regulationMode).build();
+        }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "regulationMode", variantId, oldValue, regulationMode);
+        return this;
+    }
+
+    @Override
+    public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        Terminal oldValue = null;
+        double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            oldValue = voltageRegulation.getTerminal();
+            voltageRegulation.setTerminal(regulatingTerminal, targetValue);
+        } else {
+            newVoltageRegulation().withRegulating(false).withTargetValue(targetValue).withTerminal(regulatingTerminal).build();
+        }
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "regulatingTerminal", variantId, oldValue, regulatingTerminal);
+        return this;
+    }
+
+    @Override
+    public StaticVarCompensator setRegulating(boolean regulating) {
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (voltageRegulation != null) {
+            boolean oldValue = voltageRegulation.isRegulating();
+            voltageRegulation.setRegulating(regulating);
+            index.notifyUpdate(this, "regulating", variantId, oldValue, regulating);
+        } else if (regulating) {
+            newVoltageRegulation().withRegulating(true).withMode(RegulationMode.REACTIVE_POWER).build();
+            index.notifyUpdate(this, "regulating", variantId, false, true);
+        }
+        return this;
     }
 }
