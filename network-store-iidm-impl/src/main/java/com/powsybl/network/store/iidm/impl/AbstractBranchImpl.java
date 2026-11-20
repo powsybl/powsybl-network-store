@@ -352,11 +352,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T> & Connectable<T>, U
     private void updateSelectedOperationalLimitsGroupIdIfNull(TwoSides side, String id) {
         var resource = getResource();
         if (side == TwoSides.ONE && resource.getAttributes().getSelectedOperationalLimitsGroupId1() == null) {
-            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId1(id),
-                SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, null, id);
+            resource.getAttributes().setSelectedOperationalLimitsGroupId1(id);
         } else if (side == TwoSides.TWO && resource.getAttributes().getSelectedOperationalLimitsGroupId2() == null) {
-            updateResource(res -> res.getAttributes().setSelectedOperationalLimitsGroupId2(id),
-                SELECTED_OPERATIONAL_LIMITS_GROUP_ID2, null, id);
+            resource.getAttributes().setSelectedOperationalLimitsGroupId2(id);
         }
     }
 
