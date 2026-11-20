@@ -9,11 +9,20 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.CreateNetworksUtil;
+import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
+import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.OfflineNetworkStoreClient;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.network.store.iidm.impl.CreateNetworksUtil.createNodeBreakerNetworkWithLine;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -113,5 +122,57 @@ class ConnectablePositionExtensionTest {
         assertEquals(ConnectablePosition.Direction.BOTTOM, twt1.getExtension(ConnectablePosition.class).getFeeder1().getDirection());
         assertEquals(ConnectablePosition.Direction.TOP, twt1.getExtension(ConnectablePosition.class).getFeeder2().getDirection());
         assertEquals(ConnectablePosition.Direction.TOP, twt1.getExtension(ConnectablePosition.class).getFeeder3().getDirection());
+    }
+
+    @Test
+    void testRemoveOrderOfBranch() {
+        NetworkStoreClient client = spy(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()));
+        Network network = FourSubstationsNodeBreakerFactory.create(new NetworkFactoryImpl(() -> client));
+        Line l1 = network.getLine("LINE_S2S3");
+        l1.newExtension(ConnectablePositionAdder.class)
+                .newFeeder1().withName("l1").withOrder(1).withDirection(ConnectablePosition.Direction.TOP).add()
+                .newFeeder2().withName("l2").withOrder(2).withDirection(ConnectablePosition.Direction.TOP).add()
+                .add();
+        ConnectablePosition.Feeder feeder1 = l1.getExtension(ConnectablePosition.class).getFeeder1();
+        assertTrue(feeder1.getOrder().isPresent());
+        clearInvocations(client);
+        feeder1.removeOrder();
+        assertTrue(feeder1.getOrder().isEmpty());
+        // check network store client is actually updating resource when removing order
+        verify(client).updateLines(any(), anyList(), any());
+    }
+
+    @Test
+    void testRemoveOrderOfInjection() {
+        NetworkStoreClient client = spy(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()));
+        Network network = FourSubstationsNodeBreakerFactory.create(new NetworkFactoryImpl(() -> client));
+        Load load = network.getLoad("LD1");
+        load.newExtension(ConnectablePositionAdder.class)
+                .newFeeder().withName("ld").withOrder(20).withDirection(ConnectablePosition.Direction.TOP).add()
+                .add();
+        ConnectablePosition.Feeder feeder = load.getExtension(ConnectablePosition.class).getFeeder();
+        clearInvocations(client);
+        feeder.removeOrder();
+        assertTrue(feeder.getOrder().isEmpty());
+        // check network store client is actually updating resource when removing order
+        verify(client).updateLoads(any(), anyList(), any());
+    }
+
+    @Test
+    void testRemoveOrderOfThreeWindingsTransformer() {
+        NetworkStoreClient client = spy(new CachedNetworkStoreClient(new OfflineNetworkStoreClient()));
+        Network network = ThreeWindingsTransformerNetworkFactory.create(new NetworkFactoryImpl(() -> client));
+        ThreeWindingsTransformer twt1 = network.getThreeWindingsTransformer("3WT");
+        twt1.newExtension(ConnectablePositionAdder.class)
+                .newFeeder1().withName("twt1").withOrder(10).withDirection(ConnectablePosition.Direction.TOP).add()
+                .newFeeder2().withName("twt2").withOrder(20).withDirection(ConnectablePosition.Direction.BOTTOM).add()
+                .newFeeder3().withName("twt3").withOrder(30).withDirection(ConnectablePosition.Direction.BOTTOM).add()
+                .add();
+        ConnectablePosition.Feeder feeder1 = twt1.getExtension(ConnectablePosition.class).getFeeder1();
+        clearInvocations(client);
+        feeder1.removeOrder();
+        assertTrue(feeder1.getOrder().isEmpty());
+        // check network store client is actually updating resource when removing order
+        verify(client).updateThreeWindingsTransformers(any(), anyList(), any());
     }
 }
