@@ -44,7 +44,11 @@ public class GroundImpl extends AbstractInjectionImpl<Ground, GroundAttributes> 
         if (fictitious) {
             throw new PowsyblException("The ground cannot be fictitious.");
         } else {
-            getResource().getAttributes().setFictitious(false);
+            boolean oldValue = getResource().getAttributes().isFictitious();
+            if (oldValue) {
+                updateResource(r -> r.getAttributes().setFictitious(false),
+                    "fictitious", true, false);
+            }
         }
     }
 

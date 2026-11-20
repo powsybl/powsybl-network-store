@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.AttributeFilter;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import org.slf4j.Logger;
@@ -20,6 +21,9 @@ import java.util.stream.Collectors;
 public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T extends LoadingLimits> extends AbstractPropertiesHolder implements LoadingLimits {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
+
+    private static final String PERMANENT_LIMIT = "permanentLimit";
+    private static final String TEMPORARY_LIMIT_VALUE = "temporaryLimitValue";
 
     // Epsilon to filter small temporary limit changes (in A, MW and MVA)
     private static final double TEMPORARY_LIMIT_EPSILON = 1e-6;
@@ -96,7 +100,12 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
         ValidationUtil.checkPermanentLimit(owner, permanentLimit, getDetectionKind(), getTemporaryLimits(),
                 owner.getIdentifiable().getNetwork().getMinValidationLevel(),
                 owner.getIdentifiable().getNetwork().getReportNodeContext().getReportNode());
-        attributes.setPermanentLimit(permanentLimit);
+        double oldPermanentLimit = attributes.getPermanentLimit();
+        owner.getIdentifiable().updateResource(res -> attributes.setPermanentLimit(permanentLimit),
+            AttributeFilter.LIMITS,
+            PERMANENT_LIMIT,
+            oldPermanentLimit,
+            permanentLimit);
         return (T) this;
     }
 
@@ -151,7 +160,11 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
                     .value(temporaryLimitValue)
                     .acceptableDuration(acceptableDuration)
                     .build();
-            attributes.getTemporaryLimits().put(acceptableDuration, newTemporaryLimit);
+            owner.getIdentifiable().updateResource(res -> attributes.getTemporaryLimits().put(acceptableDuration, newTemporaryLimit),
+                AttributeFilter.LIMITS,
+                TEMPORARY_LIMIT_VALUE + "[" + acceptableDuration + "]",
+                previousValue,
+                temporaryLimitValue);
         }
         return (T) this;
     }

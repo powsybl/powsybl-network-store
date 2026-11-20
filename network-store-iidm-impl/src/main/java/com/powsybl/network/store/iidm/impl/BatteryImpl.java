@@ -108,7 +108,6 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         var resource = getResource();
         ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
-        resource.getAttributes().setReactiveLimits(reactiveLimits);
         updateResource(res -> res.getAttributes().setReactiveLimits(reactiveLimits),
             "reactiveLimits", oldValue, reactiveLimits);
     }
@@ -218,7 +217,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         if (type == BatteryShortCircuit.class) {
             var resource = getResource();
             if (resource.getAttributes().getBatteryShortCircuitAttributes() != null) {
-                resource.getAttributes().setBatteryShortCircuitAttributes(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setBatteryShortCircuitAttributes(null));
                 return true;
             }
             return false;
@@ -226,7 +225,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         if (type.isAssignableFrom(ConnectablePosition.class)) {
             var resource = getResource();
             if (resource.getAttributes().getPosition() != null) {
-                resource.getAttributes().setPosition(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setPosition(null));
                 return true;
             }
             return false;

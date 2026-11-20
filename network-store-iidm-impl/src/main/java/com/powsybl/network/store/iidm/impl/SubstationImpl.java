@@ -277,7 +277,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         if (type == EntsoeArea.class) {
             var resource = getResource();
             if (resource.getAttributes().getEntsoeArea() != null) {
-                resource.getAttributes().setEntsoeArea(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setEntsoeArea(null));
                 return true;
             }
             return false;

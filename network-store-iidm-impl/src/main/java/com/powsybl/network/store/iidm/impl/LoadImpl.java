@@ -147,7 +147,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         if (type.isAssignableFrom(ConnectablePosition.class)) {
             var resource = getResource();
             if (resource.getAttributes().getPosition() != null) {
-                resource.getAttributes().setPosition(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setPosition(null));
                 return true;
             }
             return false;
@@ -155,7 +155,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         if (type == LoadDetail.class) {
             var resource = getResource();
             if (resource.getAttributes().getLoadDetail() != null) {
-                resource.getAttributes().setLoadDetail(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setLoadDetail(null));
                 return true;
             }
             return false;
