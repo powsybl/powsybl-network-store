@@ -7,14 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest extends AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest {
 
-    @Override
-    public void test() throws InterruptedException {
-        // FIXME delete this test when multi-thread access is supported
-    }
+@Disabled("Multi-thread access to variants is not supported in the network store")
+class ExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest extends AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest {
 }

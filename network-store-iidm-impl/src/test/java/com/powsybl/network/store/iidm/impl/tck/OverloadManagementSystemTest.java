@@ -7,59 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractOverloadManagementSystemTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-// FIXME remove all the tests in this class when we implement OverloadManagementSystem
+
+@Disabled("Overload management systems are not implemented in the network store")
 class OverloadManagementSystemTest extends AbstractOverloadManagementSystemTest {
-    @Override
-    public void baseTests() {
-        // FIXME
-    }
-
-    @Override
-    public void threeWindingsTransformerTrippingTest() {
-        // FIXME
-    }
-
-    @Override
-    public void testSetterGetterInMultiVariants() {
-        // FIXME
-    }
-
-    @Override
-    public void invalidCurrentLimitsTest() {
-        // FIXME
-    }
-
-    @Override
-    public void duplicateTrippingKeysOnSameOmsTest() {
-        // FIXME
-    }
-
-    @Override
-    public void duplicateTrippingKeysOnDifferentOmsTest() {
-        // FIXME
-    }
-
-    @Override
-    public void unknownMonitoredElementTest() {
-        // FIXME
-    }
-
-    @Override
-    public void unknownTrippingElementTest() {
-        // FIXME
-    }
-
-    @Override
-    public void removalTest() {
-        // FIXME
-    }
-
-    @Override
-    public void substationRemovalTest() {
-        // FIXME
-    }
 }

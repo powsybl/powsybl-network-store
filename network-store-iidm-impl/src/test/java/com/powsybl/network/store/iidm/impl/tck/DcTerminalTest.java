@@ -7,28 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractDcTerminalTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
+
+@Disabled("The detailed DC network model is not implemented in the network store")
 class DcTerminalTest extends AbstractDcTerminalTest {
-
-    // These methods will allow for more detailed modeling of HVDCs.
-    // This is a long-term work on the powsybl side.
-    // It is too early to implement it on the network-store side and the need remains to be verified.
-
-    @Override
-    public void testDcLineDcTerminal() {
-        // FIXME: implement the new DC model
-    }
-
-    @Override
-    public void testDcConverterDcTerminal() {
-        // FIXME: implement the new DC model
-    }
-
-    @Override
-    public void testChangesNotification() {
-        // FIXME: implement the new DC model
-    }
 }
