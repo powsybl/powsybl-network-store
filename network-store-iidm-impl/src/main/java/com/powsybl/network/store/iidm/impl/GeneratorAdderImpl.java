@@ -143,6 +143,14 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
+    private void applyVoltageRegulationBackwardCompatibility() {
+        if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
+            createGeneratorVoltageRegulationBackwardCompatibility(this, targetV, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
+        } else if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
+            localTargetV = targetV;
+        }
+    }
+
     @Override
     public Generator add() {
         NetworkImpl network = getNetwork();
@@ -158,18 +166,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        // Backward compatibility
-        if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
-            // If a generator with old setters is added and voltageRegulation does not exist,
-            // the new voltageRegulation will be created from the old attributes.
-            createGeneratorVoltageRegulationBackwardCompatibility(this, targetV, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
-        } else {
-            // In the case of a generator with old setters and newVoltageRegulation method used
-            // the old local attributes will be set without overriding the local attributes if already set
-            if (Double.isNaN(localTargetV) && !Double.isNaN(targetV)) {
-                localTargetV = targetV;
-            }
-        }
+        applyVoltageRegulationBackwardCompatibility();
 
         ValidationUtil.checkLocalTargetQandV(this,
             Generator.class,
@@ -206,7 +203,20 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                 .build();
         }
 
-        Resource<GeneratorAttributes> resource = Resource.generatorBuilder()
+        Resource<GeneratorAttributes> resource = createResource(id, persistedVoltageRegulation, minMaxAttributes);
+        GeneratorImpl generator = getIndex().createGenerator(resource);
+        generator.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        if (voltageRegulationAttributes != null && voltageRegulationAttributes.terminal() != null) {
+            ((TerminalImpl<?>) voltageRegulationAttributes.terminal()).setAsRegulatingPoint(generator.getRegulatingPoint());
+            ((VoltageRegulationImpl) generator.getVoltageRegulation()).registerOnTerminal();
+        }
+        return generator;
+    }
+
+    private Resource<GeneratorAttributes> createResource(String id,
+                                                         VoltageRegulationAttributes persistedVoltageRegulation,
+                                                         MinMaxReactiveLimitsAttributes minMaxAttributes) {
+        return Resource.generatorBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
                 .attributes(GeneratorAttributes.builder()
@@ -229,13 +239,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .condenser(condenser)
                         .build())
                 .build();
-        GeneratorImpl generator = getIndex().createGenerator(resource);
-        generator.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        if (voltageRegulationAttributes != null && voltageRegulationAttributes.terminal() != null) {
-            ((TerminalImpl<?>) voltageRegulationAttributes.terminal()).setAsRegulatingPoint(generator.getRegulatingPoint());
-            ((VoltageRegulationImpl) generator.getVoltageRegulation()).registerOnTerminal();
-        }
-        return generator;
     }
 
     @Override
