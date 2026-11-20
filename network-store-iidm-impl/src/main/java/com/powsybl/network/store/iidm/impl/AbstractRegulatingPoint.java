@@ -30,6 +30,10 @@ public abstract class AbstractRegulatingPoint {
         this.terminalAttribute = terminalAttribute;
     }
 
+    String getNotificationPrefix() {
+        return "";
+    }
+
     public String getRegulatingEquipmentId() {
         return getAttributes().getRegulatingEquipmentId();
     }

@@ -35,22 +35,23 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
     private final Class<? extends VoltageRegulationHolder<?>> holderClass;
     private final Validable validable;
     private final AbstractRegulatingPoint regulatingPoint;
-    private final String notificationPrefix;
     private final String regulatingEquipmentId;
 
     public VoltageRegulationImpl(NetworkObjectIndex index,
                                  VoltageRegulationHolder<?> holder,
                                  Class<? extends VoltageRegulationHolder<?>> holderClass,
                                  Validable validable,
-                                 AbstractRegulatingPoint regulatingPoint,
-                                 String notificationPrefix) {
+                                 AbstractRegulatingPoint regulatingPoint) {
         this.index = index;
         this.holder = holder;
         this.holderClass = holderClass;
         this.validable = validable;
         this.regulatingPoint = regulatingPoint;
-        this.notificationPrefix = notificationPrefix;
         this.regulatingEquipmentId = regulatingPoint.getIdentifiable().getId();
+    }
+
+    private String attributeName(String attribute) {
+        return regulatingPoint.getNotificationPrefix() + VOLTAGE_REGULATION_PREFIX + attribute;
     }
 
     private com.powsybl.network.store.model.VoltageRegulationAttributes getVoltageRegulationAttributes() {
@@ -108,7 +109,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         double oldValue = getTargetValue();
         if (Double.compare(targetValue, oldValue) != 0) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setTargetValue(targetValue),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + TARGET_VALUE, oldValue, targetValue);
+                attributeName(TARGET_VALUE), oldValue, targetValue);
         }
         return this;
     }
@@ -126,7 +127,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         double oldValue = getTargetDeadband();
         if (Double.compare(targetDeadband, oldValue) != 0) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setTargetDeadband(targetDeadband),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + "TargetDeadband", oldValue, targetDeadband);
+                attributeName("TargetDeadband"), oldValue, targetDeadband);
         }
         return this;
     }
@@ -144,7 +145,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         double oldValue = getSlope();
         if (Double.compare(slope, oldValue) != 0) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setSlope(slope),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + "Slope", oldValue, slope);
+                attributeName("Slope"), oldValue, slope);
         }
         return this;
     }
@@ -171,7 +172,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
     @Override
     public void onReferencedReplacement(Terminal oldTerminal, Terminal newTerminal) {
         if (getTerminal() == oldTerminal) {
-            regulatingPoint.setRegulatingTerminal(notificationPrefix + VOLTAGE_REGULATION_PREFIX + "Terminal", newTerminal);
+            regulatingPoint.setRegulatingTerminal(attributeName("Terminal"), newTerminal);
         }
     }
 
@@ -194,7 +195,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         ValidationUtil.checkRegulatingTerminal(getValidable(), terminal, getNetwork());
         updateTerminal(terminal);
         getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setTargetValue(targetValue),
-            notificationPrefix + VOLTAGE_REGULATION_PREFIX + TARGET_VALUE, getTargetValue(), targetValue);
+            attributeName(TARGET_VALUE), getTargetValue(), targetValue);
         return this;
     }
 
@@ -227,7 +228,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         RegulationMode oldMode = getMode();
         if (mode != oldMode) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setRegulationMode(mode != null ? mode.name() : null),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + "RegulationMode", oldMode, mode);
+                attributeName("RegulationMode"), oldMode, mode);
         }
         return this;
     }
@@ -265,7 +266,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         boolean oldValue = isRegulating();
         if (regulating != oldValue) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setRegulating(regulating),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + "isRegulating", oldValue, regulating);
+                attributeName("isRegulating"), oldValue, regulating);
         }
         return this;
     }
@@ -275,17 +276,17 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         RegulationMode oldMode = getMode();
         if (attributes.mode() != oldMode) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setRegulationMode(attributes.mode() != null ? attributes.mode().name() : null),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + "RegulationMode", oldMode, attributes.mode());
+                attributeName("RegulationMode"), oldMode, attributes.mode());
         }
         double oldSlope = getSlope();
         if (Double.compare(attributes.slope(), oldSlope) != 0) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setSlope(attributes.slope()),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + "Slope", oldSlope, attributes.slope());
+                attributeName("Slope"), oldSlope, attributes.slope());
         }
         double oldTargetDeadband = getTargetDeadband();
         if (Double.compare(attributes.targetDeadband(), oldTargetDeadband) != 0) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setTargetDeadband(attributes.targetDeadband()),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + "TargetDeadband", oldTargetDeadband, attributes.targetDeadband());
+                attributeName("TargetDeadband"), oldTargetDeadband, attributes.targetDeadband());
         }
         if (regulatingPoint.getExplicitRegulatingTerminal() != attributes.terminal()) {
             updateTerminal(attributes.terminal());
@@ -293,12 +294,12 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         double oldTargetValue = getTargetValue();
         if (Double.compare(attributes.targetValue(), oldTargetValue) != 0) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setTargetValue(attributes.targetValue()),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + TARGET_VALUE, oldTargetValue, attributes.targetValue());
+                attributeName(TARGET_VALUE), oldTargetValue, attributes.targetValue());
         }
         boolean oldRegulating = isRegulating();
         if (attributes.isRegulating() != oldRegulating) {
             getIdentifiable().updateResource(res -> getVoltageRegulationAttributes().setRegulating(attributes.isRegulating()),
-                notificationPrefix + VOLTAGE_REGULATION_PREFIX + "isRegulating", oldRegulating, attributes.isRegulating());
+                attributeName("isRegulating"), oldRegulating, attributes.isRegulating());
         }
     }
 
@@ -307,7 +308,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         if (oldTerminal != null) {
             ((TerminalImpl<?>) oldTerminal).getReferrerManager().unregister(this);
         }
-        regulatingPoint.setRegulatingTerminal(notificationPrefix + VOLTAGE_REGULATION_PREFIX + "Terminal", newTerminal);
+        regulatingPoint.setRegulatingTerminal(attributeName("Terminal"), newTerminal);
         if (newTerminal != null) {
             ((TerminalImpl<?>) newTerminal).getReferrerManager().register(this);
         }

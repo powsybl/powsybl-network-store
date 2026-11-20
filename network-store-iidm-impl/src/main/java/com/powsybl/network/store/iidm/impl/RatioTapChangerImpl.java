@@ -66,8 +66,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         if (getVoltageRegulationAttributes() == null) {
             return null;
         }
-        voltageRegulation = new VoltageRegulationImpl(index, this, RatioTapChanger.class, parent, regulatingPoint,
-            getTapChangerAttribute() + ".");
+        voltageRegulation = new VoltageRegulationImpl(index, this, RatioTapChanger.class, parent, regulatingPoint);
         return voltageRegulation;
     }
 

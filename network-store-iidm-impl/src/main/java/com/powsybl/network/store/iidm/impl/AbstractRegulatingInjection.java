@@ -38,12 +38,12 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
     @Override
     public VoltageRegulation getVoltageRegulation() {
         if (index.getWorkingVariantNum() == -1) {
-            return new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
+            return new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
         }
         if (getVoltageRegulationAttributes() == null) {
             return null;
         }
-        return new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
+        return new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
     }
 
     protected void removeVoltageRegulationRefs() {
@@ -94,7 +94,7 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
                 .targetDeadband(coreAttributes.targetDeadband())
                 .slope(coreAttributes.slope())
                 .build();
-            VoltageRegulation voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
+            VoltageRegulation voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
             updateResource(res -> res.getAttributes().setVoltageRegulation(attributes),
                 "VoltageRegulation.created", null, voltageRegulation);
             if (coreAttributes.terminal() != null) {
@@ -103,7 +103,7 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
             }
         } else {
             // update the existing regulation on the current variant
-            VoltageRegulationImpl voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint, "");
+            VoltageRegulationImpl voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
             voltageRegulation.setAttributesOnCurrentVariant(coreAttributes);
         }
         return getVoltageRegulation();

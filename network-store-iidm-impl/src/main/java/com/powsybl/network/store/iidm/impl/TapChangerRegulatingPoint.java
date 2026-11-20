@@ -32,6 +32,11 @@ public final class TapChangerRegulatingPoint extends AbstractRegulatingPoint {
     }
 
     @Override
+    String getNotificationPrefix() {
+        return tapChanger.getTapChangerAttribute() + ".";
+    }
+
+    @Override
     protected AbstractIdentifiableImpl<?, ?> getIdentifiable() {
         return tapChanger.getTransformer();
     }
