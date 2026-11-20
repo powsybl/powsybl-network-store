@@ -453,6 +453,30 @@ class TwoWindingsTransformerTest {
     }
 
     @Test
+    void testVoltageRegulationNotificationAttributeNames() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        NetworkEventRecorder eventRecorder = new NetworkEventRecorder();
+        network.addListener(eventRecorder);
+
+        Generator generator = network.getGenerator("GH1");
+        VoltageRegulation generatorVoltageRegulation = generator.getVoltageRegulation();
+        generatorVoltageRegulation.setRegulating(!generatorVoltageRegulation.isRegulating());
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        VoltageRegulation rtcVoltageRegulation = twt.getRatioTapChanger().getVoltageRegulation();
+        rtcVoltageRegulation.setTargetValue(rtcVoltageRegulation.getTargetValue() + 1);
+
+        List<UpdateNetworkEvent> updateEvents = eventRecorder.getEvents().stream()
+                .filter(UpdateNetworkEvent.class::isInstance)
+                .map(UpdateNetworkEvent.class::cast)
+                .toList();
+        assertEquals(2, updateEvents.size());
+        assertEquals(generator.getId(), updateEvents.get(0).id());
+        assertEquals("VoltageRegulation.isRegulating", updateEvents.get(0).attribute());
+        assertEquals(twt.getId(), updateEvents.get(1).id());
+        assertEquals("ratioTapChanger.VoltageRegulation.TargetValue", updateEvents.get(1).attribute());
+    }
+
+    @Test
     void testPhaseTapChangerPositionsChecks() {
         Network network = createNetwork();
         TwoWindingsTransformer twtWithPhaseTapChanger = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
