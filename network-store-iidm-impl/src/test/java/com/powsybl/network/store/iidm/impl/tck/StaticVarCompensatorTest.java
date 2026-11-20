@@ -59,4 +59,16 @@ class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
         Assertions.assertEquals("SVC2", svc.getRegulatingTerminal().getConnectable().getId());
         Assertions.assertFalse(svc.isRegulating());
     }
+
+    @Test
+    void testRemoveVoltageRegulationPerVariant() {
+        Network network = SvcTestCaseFactory.create();
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        svc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+
+        VoltageRegulationTestUtils.assertRemoveVoltageRegulationPerVariant(network, svc);
+    }
 }

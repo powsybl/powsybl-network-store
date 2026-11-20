@@ -136,4 +136,17 @@ class ShuntCompensatorTest extends AbstractShuntCompensatorTest {
         variantManager.setWorkingVariant("s3");
         assertEquals(5, shunt.getSectionCount());
     }
+
+    @Test
+    void testRemoveVoltageRegulationPerVariant() {
+        network = NoEquipmentNetworkFactory.create();
+        voltageLevel = network.getVoltageLevel("vl1");
+        ShuntCompensator shunt = createLinearShunt("shunt", "shunt", 2.0, 1.0, 1, 2, null, false, 200, 10);
+        shunt.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+
+        VoltageRegulationTestUtils.assertRemoveVoltageRegulationPerVariant(network, shunt);
+    }
 }

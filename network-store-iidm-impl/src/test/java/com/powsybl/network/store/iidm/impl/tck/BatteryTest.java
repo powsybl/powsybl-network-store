@@ -6,7 +6,12 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.tck.AbstractBatteryTest;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
@@ -14,4 +19,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(ExcludeTestsExtension.class)
 class BatteryTest extends AbstractBatteryTest {
+
+    @Test
+    void testRemoveVoltageRegulationPerVariant() {
+        Network network = BatteryNetworkFactory.create();
+        Battery battery = network.getBattery("BAT");
+        battery.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+
+        VoltageRegulationTestUtils.assertRemoveVoltageRegulationPerVariant(network, battery);
+    }
 }

@@ -47,6 +47,26 @@ public final class VoltageRegulationTestUtils {
         assertInitialVariantValues(holder.getVoltageRegulation());
     }
 
+    public static void assertRemoveVoltageRegulationPerVariant(Network network, VoltageRegulationHolder<?> holder) {
+        VariantManager variantManager = network.getVariantManager();
+        assertNotNull(holder.getVoltageRegulation());
+
+        String variant1 = "variant1";
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, List.of(variant1));
+        variantManager.setWorkingVariant(variant1);
+        assertNotNull(holder.getVoltageRegulation());
+        holder.removeVoltageRegulation();
+        assertNull(holder.getVoltageRegulation());
+
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNotNull(holder.getVoltageRegulation());
+        holder.removeVoltageRegulation();
+        assertNull(holder.getVoltageRegulation());
+
+        variantManager.setWorkingVariant(variant1);
+        assertNull(holder.getVoltageRegulation());
+    }
+
     private static void assertVariant1Values(VoltageRegulation voltageRegulation) {
         assertNotNull(voltageRegulation);
         assertNull(voltageRegulation.getMode());

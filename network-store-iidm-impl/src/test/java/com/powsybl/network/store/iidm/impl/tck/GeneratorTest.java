@@ -6,7 +6,12 @@
  */
 package com.powsybl.network.store.iidm.impl.tck;
 
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.tck.AbstractGeneratorTest;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
@@ -14,4 +19,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(ExcludeTestsExtension.class)
 class GeneratorTest extends AbstractGeneratorTest {
+
+    @Test
+    void testRemoveVoltageRegulationPerVariant() {
+        Network network = FictitiousSwitchFactory.create();
+        Generator generator = network.getGenerator("CB");
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+
+        VoltageRegulationTestUtils.assertRemoveVoltageRegulationPerVariant(network, generator);
+    }
 }
