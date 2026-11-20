@@ -72,19 +72,13 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public void removeVoltageRegulation() {
-        // the voltage regulation is removed on all existing variants
         if (voltageRegulation != null) {
             voltageRegulation.onRemove();
             voltageRegulation = null;
         }
-        VariantManager variantManager = index.getNetwork().getVariantManager();
-        String workingVariantId = variantManager.getWorkingVariantId();
-        for (String variantId : variantManager.getVariantIds()) {
-            variantManager.setWorkingVariant(variantId);
-            if (getVoltageRegulationAttributes() != null) {
-                getTransformer().updateResource(res -> getAttributes(res).setVoltageRegulation(null),
-                    getTapChangerAttribute() + ".voltageRegulation", null, null);
-            }
+        if (getVoltageRegulationAttributes() != null) {
+            getTransformer().updateResource(res -> getAttributes(res).setVoltageRegulation(null),
+                    getTapChangerAttribute() + ".voltageRegulation", voltageRegulation, null);
         }
     }
 

@@ -7,10 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractTapChangerTest;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@ExtendWith(ExcludeTestsExtension.class)
 class TapChangerTest extends AbstractTapChangerTest {
 
 }

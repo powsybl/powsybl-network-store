@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
@@ -54,13 +53,9 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
         if (oldVoltageRegulation != null) {
             ((VoltageRegulationImpl) oldVoltageRegulation).onRemove();
         }
-        VariantManager variantManager = index.getNetwork().getVariantManager();
-        for (String variantId : variantManager.getVariantIds()) {
-            variantManager.setWorkingVariant(variantId);
-            if (getVoltageRegulationAttributes() != null) {
-                updateResource(res -> res.getAttributes().setVoltageRegulation(null),
+        if (getVoltageRegulationAttributes() != null) {
+            updateResource(res -> res.getAttributes().setVoltageRegulation(null),
                     "VoltageRegulation.removed", oldVoltageRegulation, null);
-            }
         }
     }
 

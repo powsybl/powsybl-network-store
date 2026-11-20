@@ -322,6 +322,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         regulatingPoint.remove();
     }
 
+    // Instances are recreated on access, so equality must allow a new wrapper to unregister the previously registered referrer.
     @Override
     public boolean equals(Object object) {
         if (this == object) {

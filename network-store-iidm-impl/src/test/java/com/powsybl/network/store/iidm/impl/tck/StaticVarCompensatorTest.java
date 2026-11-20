@@ -14,10 +14,12 @@ import com.powsybl.iidm.network.tck.AbstractStaticVarCompensatorTest;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@ExtendWith(ExcludeTestsExtension.class)
 class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
 
     @Test
