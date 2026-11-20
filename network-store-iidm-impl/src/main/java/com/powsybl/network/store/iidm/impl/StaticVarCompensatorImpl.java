@@ -252,7 +252,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
-        removeVoltageRegulationRefs();
+        this.removeVoltageRegulation();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeStaticVarCompensator(resource.getId());

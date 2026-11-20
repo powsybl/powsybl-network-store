@@ -46,13 +46,6 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
         return new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
     }
 
-    protected void removeVoltageRegulationRefs() {
-        VoltageRegulation voltageRegulation = getVoltageRegulation();
-        if (voltageRegulation != null) {
-            ((VoltageRegulationImpl) voltageRegulation).onRemove();
-        }
-    }
-
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
         return new VoltageRegulationBuilderImpl(getHolderClass(), this, this, index.getNetwork(), this::createOrUpdateVoltageRegulation);
@@ -65,7 +58,6 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
             ((VoltageRegulationImpl) oldVoltageRegulation).onRemove();
         }
         VariantManager variantManager = index.getNetwork().getVariantManager();
-        String workingVariantId = variantManager.getWorkingVariantId();
         for (String variantId : variantManager.getVariantIds()) {
             variantManager.setWorkingVariant(variantId);
             if (getVoltageRegulationAttributes() != null) {
@@ -73,7 +65,6 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
                     "VoltageRegulation.removed", oldVoltageRegulation, null);
             }
         }
-        variantManager.setWorkingVariant(workingVariantId);
     }
 
     VoltageRegulation createOrUpdateVoltageRegulation(VoltageRegulation.VoltageRegulationAttributes coreAttributes) {

@@ -86,7 +86,6 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
                     getTapChangerAttribute() + ".voltageRegulation", null, null);
             }
         }
-        variantManager.setWorkingVariant(workingVariantId);
     }
 
     @Override

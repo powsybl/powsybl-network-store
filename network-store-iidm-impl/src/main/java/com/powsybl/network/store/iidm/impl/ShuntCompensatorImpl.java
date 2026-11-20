@@ -255,7 +255,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
-        removeVoltageRegulationRefs();
+        this.removeVoltageRegulation();
         // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
         index.removeShuntCompensator(resource.getId());

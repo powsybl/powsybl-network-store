@@ -220,7 +220,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
             ((TerminalImpl<?>) terminal).removeAsRegulatingPoint();
             ((TerminalImpl<?>) terminal).getReferrerManager().notifyOfRemoval();
         }
-        removeVoltageRegulationRefs();
+        this.removeVoltageRegulation();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
