@@ -91,7 +91,8 @@ class BoundaryLineTest {
         Optional<String> selectedGroupId = boundaryLine.getSelectedOperationalLimitsGroupId();
         assertTrue(selectedGroupId.isPresent());
 
-        CurrentLimitsAdder currentLimitsAdder = boundaryLine.newCurrentLimits();
+        OperationalLimitsGroup operationalLimitsGroup = boundaryLine.getOrCreateSelectedOperationalLimitsGroup();
+        CurrentLimitsAdder currentLimitsAdder = operationalLimitsGroup.newCurrentLimits();
         assertNotNull(currentLimitsAdder);
         currentLimitsAdder
                 .setPermanentLimit(1000.0)
@@ -106,7 +107,7 @@ class BoundaryLineTest {
         assertTrue(currentLimits.isPresent());
         assertEquals(1000.0, currentLimits.get().getPermanentLimit(), 0.0);
 
-        ActivePowerLimitsAdder activePowerLimitsAdder = boundaryLine.newActivePowerLimits();
+        ActivePowerLimitsAdder activePowerLimitsAdder = operationalLimitsGroup.newActivePowerLimits();
         assertNotNull(activePowerLimitsAdder);
         activePowerLimitsAdder
                 .setPermanentLimit(800.0)
@@ -121,7 +122,7 @@ class BoundaryLineTest {
         assertTrue(activePowerLimits.isPresent());
         assertEquals(800.0, activePowerLimits.get().getPermanentLimit(), 0.0);
 
-        ApparentPowerLimitsAdder apparentPowerLimitsAdder = boundaryLine.newApparentPowerLimits();
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder = operationalLimitsGroup.newApparentPowerLimits();
         assertNotNull(apparentPowerLimitsAdder);
         apparentPowerLimitsAdder
                 .setPermanentLimit(850.0)

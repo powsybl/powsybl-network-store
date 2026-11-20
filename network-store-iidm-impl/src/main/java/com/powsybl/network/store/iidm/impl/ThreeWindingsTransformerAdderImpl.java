@@ -305,6 +305,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name(getName())
                         .fictitious(isFictitious())
+                        .equivalent(isEquivalent())
                         .ratedU0(ratedU0)
                         .leg1(leg1)
                         .leg2(leg2)

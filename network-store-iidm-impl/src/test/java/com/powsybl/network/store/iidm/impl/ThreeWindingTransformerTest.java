@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -56,18 +57,18 @@ class ThreeWindingTransformerTest {
         Network network = createNetwork();
 
         RatioTapChanger ratioTapChanger = network.getThreeWindingsTransformer(twtId).getLeg2().getRatioTapChanger();
-        assertEquals(load1Id, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertEquals(load1Id, ratioTapChanger.getVoltageRegulation().getTerminal().getConnectable().getId());
         Load load = network.getLoad(load2Id);
-        ratioTapChanger.setRegulationTerminal(load.getTerminal());
-        assertEquals(load2Id, ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        ratioTapChanger.getVoltageRegulation().setTerminal(load.getTerminal(), ratioTapChanger.getVoltageRegulation().getTargetValue());
+        assertEquals(load2Id, ratioTapChanger.getVoltageRegulation().getTerminal().getConnectable().getId());
         assertTrue(ratioTapChanger.isRegulating());
-        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, ratioTapChanger.getVoltageRegulation().getMode());
 
         load.remove();
 
         assertFalse(ratioTapChanger.isRegulating());
-        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
-        assertNull(ratioTapChanger.getRegulationTerminal());
+        assertEquals(RegulationMode.VOLTAGE, ratioTapChanger.getVoltageRegulation().getMode());
+        assertNull(ratioTapChanger.getVoltageRegulation().getTerminal());
     }
 
     @Test
@@ -76,7 +77,7 @@ class ThreeWindingTransformerTest {
         String load2Id = "LOAD_11";
         Network network = createNetwork();
         RatioTapChanger ratioTapChanger = network.getThreeWindingsTransformer(twtId).getLeg2().getRatioTapChanger();
-        ratioTapChanger.setRegulating(false);
+        ratioTapChanger.getVoltageRegulation().setRegulating(false);
 
         Load load = network.getLoad(load2Id);
 

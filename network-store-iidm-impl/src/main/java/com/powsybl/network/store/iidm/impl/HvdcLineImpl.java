@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.powsybl.network.store.iidm.impl.HvdcLineAdderImpl.R_ATTRIBUTE;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -88,7 +90,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setR(double r) {
-        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
         double oldValue = getResource().getAttributes().getR();
         if (r != oldValue) {
             updateResource(res -> res.getAttributes().setR(r),

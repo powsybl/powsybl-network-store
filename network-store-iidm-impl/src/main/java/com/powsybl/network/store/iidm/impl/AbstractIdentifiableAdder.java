@@ -26,6 +26,8 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
 
     private boolean fictitious = false;
 
+    private boolean equivalent = false;
+
     AbstractIdentifiableAdder(NetworkObjectIndex index) {
         this.index = index;
     }
@@ -69,6 +71,15 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
 
     public T setFictitious(boolean fictitious) {
         this.fictitious = fictitious;
+        return (T) this;
+    }
+
+    protected boolean isEquivalent() {
+        return equivalent;
+    }
+
+    public T setEquivalent(boolean equivalent) {
+        this.equivalent = equivalent;
         return (T) this;
     }
 

@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 import java.util.Set;
@@ -195,25 +197,32 @@ class ShuntCompensatorTest {
     void updateWithInvalidTargetV() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         ShuntCompensator shuntCompensator = network.getShuntCompensator("SHUNT");
-        shuntCompensator.setTargetV(100.0);
-        shuntCompensator.setTargetDeadband(0.5);
-        shuntCompensator.setVoltageRegulatorOn(true);
-        assertEquals("Shunt compensator 'SHUNT': invalid value (NaN) for voltage setpoint (voltage regulator is on)",
-                assertThrows(ValidationException.class, () -> shuntCompensator.setTargetV(Double.NaN)).getMessage());
+        shuntCompensator.setLocalTargetV(100.0);
+        shuntCompensator.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .withTargetDeadband(0.5)
+                .build();
+        assertEquals("Shunt compensator 'SHUNT': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
+                assertThrows(ValidationException.class, () -> shuntCompensator.setLocalTargetV(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        shuntCompensator.setTargetV(Double.NaN);
+        shuntCompensator.setLocalTargetV(Double.NaN);
     }
 
     @Test
     void updateWithInvalidTargetDeadband() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         ShuntCompensator shuntCompensator = network.getShuntCompensator("SHUNT");
-        shuntCompensator.setTargetV(100.0);
-        shuntCompensator.setTargetDeadband(0.5);
-        shuntCompensator.setVoltageRegulatorOn(true);
+        shuntCompensator.setLocalTargetV(100.0);
+        shuntCompensator.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .withTargetDeadband(0.5)
+                .build();
+        VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
         assertEquals("Shunt compensator 'SHUNT': Undefined value for target deadband of regulating shunt compensator",
-                assertThrows(ValidationException.class, () -> shuntCompensator.setTargetDeadband(Double.NaN)).getMessage());
+                assertThrows(ValidationException.class, () -> voltageRegulation.setTargetDeadband(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        shuntCompensator.setTargetDeadband(Double.NaN);
+        voltageRegulation.setTargetDeadband(Double.NaN);
     }
 }
