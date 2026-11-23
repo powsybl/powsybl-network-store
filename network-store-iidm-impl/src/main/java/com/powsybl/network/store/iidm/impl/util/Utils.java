@@ -26,14 +26,12 @@ public final class Utils {
         if (!hasPosition1 && !hasPosition2) {
             return false;
         }
-        branch.updateResourceWithoutNotification(res -> {
-            if (hasPosition1) {
-                res.getAttributes().setPosition1(null);
-            }
-            if (hasPosition2) {
-                res.getAttributes().setPosition2(null);
-            }
-        });
+        if (hasPosition1) {
+            branch.updateResourceWithoutNotification(res -> res.getAttributes().setPosition1(null));
+        }
+        if (hasPosition2) {
+            branch.updateResourceWithoutNotification(res -> res.getAttributes().setPosition2(null));
+        }
         return true;
     }
 }
