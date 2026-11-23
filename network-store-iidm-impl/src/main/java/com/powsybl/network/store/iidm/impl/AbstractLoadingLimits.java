@@ -101,11 +101,13 @@ public abstract class AbstractLoadingLimits<S, O extends LimitsOwner<S>, T exten
                 owner.getIdentifiable().getNetwork().getMinValidationLevel(),
                 owner.getIdentifiable().getNetwork().getReportNodeContext().getReportNode());
         double oldPermanentLimit = attributes.getPermanentLimit();
-        owner.getIdentifiable().updateResource(res -> attributes.setPermanentLimit(permanentLimit),
-            AttributeFilter.LIMITS,
-            PERMANENT_LIMIT,
-            oldPermanentLimit,
-            permanentLimit);
+        if (permanentLimit != oldPermanentLimit) {
+            owner.getIdentifiable().updateResource(res -> attributes.setPermanentLimit(permanentLimit),
+                AttributeFilter.LIMITS,
+                PERMANENT_LIMIT,
+                oldPermanentLimit,
+                permanentLimit);
+        }
         return (T) this;
     }
 
