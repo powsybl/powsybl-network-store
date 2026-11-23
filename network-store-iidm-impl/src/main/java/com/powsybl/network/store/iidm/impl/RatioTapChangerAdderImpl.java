@@ -129,26 +129,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
     }
 
     @Override
-    public RatioTapChangerAdder setRegulating(boolean regulating) {
-        this.regulating = regulating;
-        return this;
-    }
-
-    @Override
-    public RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
-        this.targetDeadband = targetDeadband;
-        return this;
-    }
-
-    @Override
     public RatioTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();
-    }
-
-    @Override
-    public RatioTapChangerAdder setRegulationTerminal(Terminal regulatingTerminal) {
-        this.regulatingTerminal = regulatingTerminal;
-        return this;
     }
 
     @Override
@@ -250,6 +232,24 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
             ((VoltageRegulationImpl) ratioTapChanger.getVoltageRegulation()).registerOnTerminal();
         }
         return ratioTapChanger;
+    }
+
+    @Override
+    public RatioTapChangerAdder setRegulating(boolean regulating) {
+        this.regulating = regulating;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
+        this.targetDeadband = targetDeadband;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setRegulationTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
     }
 
     @Override

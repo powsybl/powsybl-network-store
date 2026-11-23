@@ -56,36 +56,6 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
     }
 
     @Override
-    public StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint) {
-        this.voltageSetpoint = voltageSetpoint;
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        this.reactivePowerSetpoint = reactivePowerSetpoint;
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode) {
-        this.regulationMode = regulationMode;
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdderImpl setRegulating(boolean regulating) {
-        this.regulating = regulating;
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        this.regulatingTerminal = regulatingTerminal;
-        return this;
-    }
-
-    @Override
     public StaticVarCompensatorAdder setLocalTargetQ(double localTargetQ) {
         this.localTargetQ = localTargetQ;
         return this;
@@ -199,5 +169,35 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
     @Override
     protected String getTypeDescription() {
         return ResourceType.STATIC_VAR_COMPENSATOR.getDescription();
+    }
+
+    @Override
+    public StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint) {
+        this.voltageSetpoint = voltageSetpoint;
+        return this;
+    }
+
+    @Override
+    public StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
+        return this;
+    }
+
+    @Override
+    public StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode) {
+        this.regulationMode = regulationMode;
+        return this;
+    }
+
+    @Override
+    public StaticVarCompensatorAdderImpl setRegulating(boolean regulating) {
+        this.regulating = regulating;
+        return this;
+    }
+
+    @Override
+    public StaticVarCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
     }
 }

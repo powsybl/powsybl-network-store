@@ -41,11 +41,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     }
 
     @Override
-    public BatteryAdder setTargetQ(double targetQ) {
-        return this.setLocalTargetQ(targetQ);
-    }
-
-    @Override
     public BatteryAdder setLocalTargetQ(double localTargetQ) {
         this.localTargetQ = localTargetQ;
         return this;
@@ -158,5 +153,10 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     @Override
     protected String getTypeDescription() {
         return ResourceType.BATTERY.getDescription();
+    }
+
+    @Override
+    public BatteryAdder setTargetQ(double targetQ) {
+        return this.setLocalTargetQ(targetQ);
     }
 }

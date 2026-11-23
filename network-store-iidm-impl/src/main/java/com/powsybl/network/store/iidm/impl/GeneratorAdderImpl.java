@@ -68,29 +68,9 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        this.voltageRegulatorOn = voltageRegulatorOn;
-        return this;
-
-    }
-
-    @Override
-    public GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
-        this.regulatingTerminal = regulatingTerminal;
-        return this;
-
-    }
-
-    @Override
     public GeneratorAdder setTargetP(double targetP) {
         this.targetP = targetP;
         return this;
-
-    }
-
-    @Override
-    public GeneratorAdder setTargetQ(double targetQ) {
-        return this.setLocalTargetQ(targetQ);
     }
 
     @Override
@@ -102,18 +82,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     public double getLocalTargetQ() {
         return this.localTargetQ;
-    }
-
-    @Override
-    public GeneratorAdder setTargetV(double targetV) {
-        this.targetV = targetV;
-        return this;
-    }
-
-    @Override
-    public GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV) {
-        this.targetV = targetV;
-        return this.setLocalTargetV(equivalentLocalTargetV);
     }
 
     @Override
@@ -244,5 +212,34 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     protected String getTypeDescription() {
         return ResourceType.GENERATOR.getDescription();
+    }
+
+    @Override
+    public GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        this.voltageRegulatorOn = voltageRegulatorOn;
+        return this;
+    }
+
+    @Override
+    public GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
+    }
+
+    @Override
+    public GeneratorAdder setTargetQ(double targetQ) {
+        return this.setLocalTargetQ(targetQ);
+    }
+
+    @Override
+    public GeneratorAdder setTargetV(double targetV) {
+        this.targetV = targetV;
+        return this;
+    }
+
+    @Override
+    public GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV) {
+        this.targetV = targetV;
+        return this.setLocalTargetV(equivalentLocalTargetV);
     }
 }

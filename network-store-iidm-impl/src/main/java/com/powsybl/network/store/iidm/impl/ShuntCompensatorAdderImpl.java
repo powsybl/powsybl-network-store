@@ -182,30 +182,6 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
     }
 
     @Override
-    public ShuntCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        this.regulatingTerminal = regulatingTerminal;
-        return this;
-    }
-
-    @Override
-    public ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        this.voltageRegulatorOn = voltageRegulatorOn;
-        return this;
-    }
-
-    @Override
-    public ShuntCompensatorAdder setTargetV(double targetV) {
-        this.targetV = targetV;
-        return this;
-    }
-
-    @Override
-    public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
-        this.targetDeadband = targetDeadband;
-        return this;
-    }
-
-    @Override
     public ShuntCompensatorAdder setLocalTargetV(double localTargetV) {
         this.localTargetV = localTargetV;
         return this;
@@ -340,5 +316,29 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
     @Override
     protected String getTypeDescription() {
         return ResourceType.SHUNT_COMPENSATOR.getDescription();
+    }
+
+    @Override
+    public ShuntCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        this.voltageRegulatorOn = voltageRegulatorOn;
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setTargetV(double targetV) {
+        this.targetV = targetV;
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
+        this.targetDeadband = targetDeadband;
+        return this;
     }
 }

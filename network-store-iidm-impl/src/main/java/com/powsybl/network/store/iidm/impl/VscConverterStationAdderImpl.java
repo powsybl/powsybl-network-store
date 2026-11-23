@@ -37,30 +37,6 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     }
 
     @Override
-    public VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        this.voltageRegulatorOn = voltageRegulatorOn;
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdder setVoltageSetpoint(double voltageSetPoint) {
-        this.voltageSetPoint = voltageSetPoint;
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetPoint) {
-        this.reactivePowerSetPoint = reactivePowerSetPoint;
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {
-        this.regulatingTerminal = regulatingTerminal;
-        return this;
-    }
-
-    @Override
     public VscConverterStationAdder setLocalTargetV(double localTargetV) {
         this.localTargetV = localTargetV;
         return this;
@@ -183,5 +159,29 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     @Override
     protected String getTypeDescription() {
         return ResourceType.VSC_CONVERTER_STATION.getDescription();
+    }
+
+    @Override
+    public VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        this.voltageRegulatorOn = voltageRegulatorOn;
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setVoltageSetpoint(double voltageSetPoint) {
+        this.voltageSetPoint = voltageSetPoint;
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetPoint) {
+        this.reactivePowerSetPoint = reactivePowerSetPoint;
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
     }
 }

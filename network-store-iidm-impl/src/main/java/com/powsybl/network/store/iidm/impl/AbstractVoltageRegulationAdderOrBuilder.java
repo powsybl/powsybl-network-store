@@ -16,9 +16,6 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 /**
- * Base class for {@link com.powsybl.iidm.network.regulation.VoltageRegulationAdder} and
- * {@link com.powsybl.iidm.network.regulation.VoltageRegulationBuilder} network-store implementations.
- *
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>> implements VoltageRegulationAdderOrBuilder<T> {
@@ -28,7 +25,6 @@ abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulati
     final Validable validable;
     final VoltageRegulationHolder<?> holder;
     final NetworkImpl network;
-    // VoltageRegulation attributes
     RegulationMode mode = null;
     boolean regulating = true;
     Terminal terminal = null;
