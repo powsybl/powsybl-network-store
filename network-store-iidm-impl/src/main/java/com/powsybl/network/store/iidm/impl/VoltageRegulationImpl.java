@@ -266,7 +266,7 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         return this;
     }
 
-    public void setAttributesOnCurrentVariant(VoltageRegulation.VoltageRegulationAttributes attributes) {
+    public void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes attributes) {
         checkAttributes(attributes);
         RegulationMode oldMode = getMode();
         if (attributes.mode() != oldMode) {
@@ -314,7 +314,6 @@ public class VoltageRegulationImpl implements VoltageRegulation, Referrer<Termin
         if (terminal != null) {
             ((TerminalImpl<?>) terminal).getReferrerManager().unregister(this);
         }
-        regulatingPoint.remove();
     }
 
     // Instances are recreated on access, so equality must allow a new wrapper to unregister the previously registered referrer.

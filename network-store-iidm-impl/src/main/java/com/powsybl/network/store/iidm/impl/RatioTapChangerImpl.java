@@ -118,7 +118,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
             }
         } else {
             VoltageRegulationImpl voltageRegulation = (VoltageRegulationImpl) getVoltageRegulation();
-            voltageRegulation.setAttributesOnCurrentVariant(coreAttributes);
+            voltageRegulation.setVoltageRegulationAttributes(coreAttributes);
         }
         return getVoltageRegulation();
     }

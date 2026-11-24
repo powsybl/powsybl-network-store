@@ -85,7 +85,7 @@ public abstract class AbstractRegulatingInjection<I extends Injection<I> & Volta
             }
         } else {
             VoltageRegulationImpl voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
-            voltageRegulation.setAttributesOnCurrentVariant(coreAttributes);
+            voltageRegulation.setVoltageRegulationAttributes(coreAttributes);
         }
         return getVoltageRegulation();
     }
