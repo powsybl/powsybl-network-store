@@ -7,28 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractMultiVariantNetworkTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+
+@Disabled("Multi-thread access to variants is not supported in the network store")
 class MultiVariantNetworkTest extends AbstractMultiVariantNetworkTest {
-    @Override
-    public void multiThreadTest() throws InterruptedException {
-        // FIXME delete this test when multi-thread access is supported
-    }
-
-    @Override
-    public void multiVariantTopologyTest() {
-        // FIXME delete this test when multi-thread access is supported
-    }
-
-    @Override
-    public void variantNotSetTest() throws InterruptedException {
-        // FIXME delete this test when multi-thread access is supported
-    }
-
-    @Override
-    public void variantSetTest() throws InterruptedException {
-        // FIXME delete this test when multi-thread access is supported
-    }
 }

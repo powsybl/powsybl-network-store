@@ -7,22 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractDcConnectableTest;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+
+@Disabled("The detailed DC network model is not implemented in the network store")
 class DcConnectableTest extends AbstractDcConnectableTest {
-
-    @Override
-    @Test
-    public void connectAndDisconnect() {
-        // FIXME: to be removed when detailed DC model is implemented
-    }
-
-    @Override
-    @Test
-    public void connectAndDisconnectAcDcConverter() {
-        // FIXME: to be removed when detailed DC model is implemented
-    }
 }
