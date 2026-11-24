@@ -227,9 +227,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public <E extends Extension<TwoWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
-        var resource = getResource();
         if (type == CgmesTapChangers.class) {
-            resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
+            updateResourceWithoutNotification(res -> res.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>()));
         }
         super.addExtension(type, extension);
     }
@@ -295,12 +294,12 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     public <E extends Extension<TwoWindingsTransformer>> boolean removeExtension(Class<E> type) {
         super.removeExtension(type);
         if (type.isAssignableFrom(ConnectablePosition.class)) {
-            return removeConnectionPositionForBranches(getResource());
+            return removeConnectionPositionForBranches(this);
         }
         if (type.isAssignableFrom(CgmesTapChangers.class)) {
             var resource = getResource();
             if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
-                resource.getAttributes().setCgmesTapChangerAttributesList(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setCgmesTapChangerAttributesList(null));
                 return true;
             }
             return false;
@@ -308,7 +307,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         if (type == TwoWindingsTransformerPhaseAngleClock.class) {
             var resource = getResource();
             if (resource.getAttributes().getPhaseAngleClockAttributes() != null) {
-                resource.getAttributes().setPhaseAngleClockAttributes(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setPhaseAngleClockAttributes(null));
                 return true;
             }
             return false;

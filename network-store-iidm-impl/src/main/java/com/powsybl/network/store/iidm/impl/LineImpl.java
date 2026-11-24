@@ -149,7 +149,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     public <E extends Extension<Line>> boolean removeExtension(Class<E> type) {
         super.removeExtension(type);
         if (type.isAssignableFrom(ConnectablePosition.class)) {
-            return removeConnectionPositionForBranches(getResource());
+            return removeConnectionPositionForBranches(this);
         }
         return false;
     }
