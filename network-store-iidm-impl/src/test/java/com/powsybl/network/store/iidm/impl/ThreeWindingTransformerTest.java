@@ -97,6 +97,39 @@ class ThreeWindingTransformerTest {
     }
 
     @Test
+    void testRatioTapChangerLegacySettersOnLegs() {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+
+        twt.getLeg1().newRatioTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(0)
+            .beginStep()
+            .setRho(1)
+            .endStep()
+            .add();
+        RatioTapChanger ratioTapChangerLeg1 = twt.getLeg1().getRatioTapChanger();
+        assertNull(ratioTapChangerLeg1.getVoltageRegulation());
+        ratioTapChangerLeg1.setRegulationValue(135.0);
+        assertEquals(135.0, ratioTapChangerLeg1.getRegulationValue());
+        assertEquals(RegulationMode.VOLTAGE, ratioTapChangerLeg1.getRegulationMode());
+
+        RatioTapChanger ratioTapChangerLeg2 = twt.getLeg2().getRatioTapChanger();
+        assertEquals(33.0, ratioTapChangerLeg2.getRegulationValue());
+        ratioTapChangerLeg2.removeVoltageRegulation();
+        assertNull(ratioTapChangerLeg2.getVoltageRegulation());
+        ratioTapChangerLeg2.setRegulationValue(30.0);
+        assertEquals(30.0, ratioTapChangerLeg2.getRegulationValue());
+
+        RatioTapChanger ratioTapChangerLeg3 = twt.getLeg3().getRatioTapChanger();
+        assertEquals(11.0, ratioTapChangerLeg3.getRegulationValue());
+        ratioTapChangerLeg3.removeVoltageRegulation();
+        assertNull(ratioTapChangerLeg3.getVoltageRegulation());
+        ratioTapChangerLeg3.setRegulationValue(12.0);
+        assertEquals(12.0, ratioTapChangerLeg3.getRegulationValue());
+    }
+
+    @Test
     void removeExtension() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("3WT");
