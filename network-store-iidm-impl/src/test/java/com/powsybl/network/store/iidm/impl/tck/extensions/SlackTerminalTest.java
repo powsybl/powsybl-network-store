@@ -36,6 +36,7 @@ class SlackTerminalTest extends AbstractSlackTerminalTest {
        In this implementation the isEmpty return true if the slackTerminal is empty for the current variant only
        whereas it returns true on the core implementation when the slackterminal is empty on all variants
      */
+    @Override
     @Test
     public void variantsResetTest() {
         String variant1 = "variant1";
@@ -106,6 +107,7 @@ class SlackTerminalTest extends AbstractSlackTerminalTest {
     }
 
     // This test is overwritten because multi-variant management is different in network-store
+    @Override
     @Test
     public void removeTerminalConnectableInMultiVariantContextTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
@@ -137,8 +139,8 @@ class SlackTerminalTest extends AbstractSlackTerminalTest {
         assertNotNull(slackTerminal.getTerminal());
     }
 
-    @Test
     @Override
+    @Test
     public void testWithSubnetwork() {
         // Network merging unavailable
     }

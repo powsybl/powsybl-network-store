@@ -33,10 +33,6 @@ class ShuntCompensatorTest extends AbstractShuntCompensatorTest {
     }
 
     //TODO: remove all this code when shunt::getVoltageRegulation throws PowsyblException
-    private static final String INVALID = "invalid";
-
-    private static final String SHUNT = "shunt";
-
     private static final String TEST_MULTI_VARIANT = "testMultiVariant";
 
     private ShuntCompensatorAdder createShuntAdder(String id, String name, int sectionCount, Terminal regulatingTerminal,
@@ -72,6 +68,7 @@ class ShuntCompensatorTest extends AbstractShuntCompensatorTest {
     private VoltageLevel voltageLevel;
     private Terminal terminal;
 
+    @Override
     @Test
     public void testSetterGetterInMultiVariants() {
         network = NoEquipmentNetworkFactory.create();
