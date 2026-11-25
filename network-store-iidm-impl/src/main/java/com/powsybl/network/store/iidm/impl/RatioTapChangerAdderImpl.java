@@ -35,7 +35,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private RegulationMode regulationMode;
 
-    private Boolean regulating;
+    //TODO: to remove when deprecated voltage regulation methods are removed
+    private Boolean legacyRegulating;
 
     private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
@@ -171,12 +172,12 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         NetworkImpl network = index.getNetwork();
 
         // Backward compatibility
-        if (voltageRegulationAttributes == null && regulating != null) {
+        if (voltageRegulationAttributes == null && legacyRegulating != null) {
             this.newVoltageRegulation()
                 .withMode(regulationMode)
                 .withTargetValue(regulationValue)
                 .withTerminal(regulatingTerminal)
-                .withRegulating(regulating)
+                .withRegulating(legacyRegulating)
                 .withTargetDeadband(targetDeadband)
                 .add();
         }
@@ -236,7 +237,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     @Override
     public RatioTapChangerAdder setRegulating(boolean regulating) {
-        this.regulating = regulating;
+        this.legacyRegulating = regulating;
         return this;
     }
 
