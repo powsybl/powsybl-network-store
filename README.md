@@ -31,6 +31,8 @@ By participating, you are expected to uphold this code. Please report unacceptab
   - [Preloading strategies](#preloading-strategies)
   - [Identifiable preloading mode](#identifiable-preloading-mode)
   - [Thread-safety](#thread-safety)
+- [IIDM TCK](#iidm-tck)
+- [In-memory usage outside of tests](#in-memory-usage-outside-of-tests)
 - [Getting started](#getting-started)
   - [Requirements](#requirements)
   - [Build](#build)
@@ -137,6 +139,76 @@ unsynchronized collections. Concurrent reads and writes on the same `Network` ob
 result in race conditions, inconsistent state, or lost updates. If a network needs to be accessed from multiple
 threads, external synchronization is the caller's responsibility (or load a separate `Network` instance per thread
 via a new `getNetwork()` call).
+
+
+## IIDM TCK
+
+The IIDM network model from powsybl-core is defined through **interfaces** (`Network`, `Line`,
+`Generator`, etc., in `powsybl-iidm-api`). The TCK is a suite of tests, written solely against
+these interfaces, that guarantees an IIDM implementation honors the expected contract (equipment
+behavior, variant management, validations, exceptions...).
+
+Powsybl-core provides this TCK through the `powsybl-iidm-tck` module, which exposes abstract test
+classes (`AbstractLineTest`, `AbstractGeneratorTest`, ...) packaged as a *test-jar* and reusable by
+any IIDM implementation.
+
+### How the TCK is used in this repo
+
+This repo contains `network-store-iidm-impl`, which implements the IIDM interfaces
+(`LineImpl`, `GeneratorImpl`, ...) on top of an internal abstraction, `NetworkStoreClient`.
+
+For testing, `network-store-iidm-impl` uses a `NetworkFactoryImpl()` configured with a fully
+in-memory client (`OfflineNetworkStoreClient` and `CachedNetworkStoreClient`), with no server and no
+network calls. Under `src/test/.../tck/`, classes such as `GeneratorTest extends
+AbstractGeneratorTest` run the TCK directly against this object model, to quickly validate its
+conformance to the IIDM contract, at the unit test level.
+
+Switching to this implementation relies on powsybl-core's **SPI mechanism**
+(`NetworkFactoryService`, discovered via `ServiceLoader`): `NetworkFactoryServiceImpl`, named
+`"NetworkStore"`, exposes the `NetworkFactoryImpl()` provided by this repo.
+
+A separate, end-to-end usage of the same TCK exists outside of this repo, in the
+[`powsybl-network-store-server`](https://github.com/powsybl/powsybl-network-store-server) repo
+(module `network-store-iidm-tck`), where the TCK is run through the full chain:
+IIDM API -> `RestNetworkStoreClient` → HTTP → the `network-store-server` Spring Boot application → database
+persistence.
+
+## In-memory usage outside of tests
+
+While `network-store-iidm-impl` is primarily exercised by the TCK in-memory for unit testing (see
+above), its default `NetworkFactoryImpl()` — backed by `OfflineNetworkStoreClient` wrapped in
+`CachedNetworkStoreClient` — may be used in code that needs to manipulate an
+IIDM network (or a network in another format) purely in memory, without any network-store server or database. 
+The network-store, even in memory, has a different feature set than powsybl-core in memory so it could be useful
+to use it this way instead of using powsybl implementation.
+
+It is worth noting that `OfflineNetworkStoreClient` itself does not store anything: every
+create/update is a no-op and every read returns an empty result. The actual in-memory storage is
+provided by `CachedNetworkStoreClient`, a layer originally designed as a **performance cache** on
+top of a real REST client (to avoid repeated HTTP calls), here repurposed as the sole backing
+store since its delegate never returns any data.
+
+### A different variant model than powsybl-core
+
+This in-memory implementation handles variants differently from powsybl-core's native
+`iidm-impl`:
+
+- In **powsybl-core**, only a few explicitly chosen attributes are variant-dependent, stored as
+  small arrays indexed by variant number (e.g. a battery's current state of charge); most
+  attributes (e.g. a line's `r`/`x`/`g1`/`b1`/`g2`/`b2`) are plain fields, shared identically across
+  all variants. Cloning a variant is therefore cheap: it only extends those small per-variant
+  arrays(sometimes it doesn't even have to extend them because they already have free slots), 
+  while immutable/shared data is never duplicated. Making a new attribute variant-dependent
+  requires a code change in the corresponding `*Impl` class. Object themselves are shared among variants,
+  (e.g. when a generator is created in one variant it exists in all variants, and the trick
+  is to disconnect it where you don't want it)
+- In **network-store**, `VariantManagerImpl.cloneVariant()` delegates to
+  `NetworkStoreClient.cloneNetwork()`, which — in `CachedNetworkStoreClient` — clones the *entire*
+  cached collection of every equipment type (via full JSON serialization/deserialization), for
+  every attribute of every resource. As a result, **any attribute of any equipment can vary between
+  variants and even creation/deletion**, a much more flexible model. This flexibility comes
+  at the cost of higher memory usage and CPU cost on every `cloneVariant()` call, since whole
+  objects are duplicated rather than a handful of small arrays.
 
 
 ## Getting started
