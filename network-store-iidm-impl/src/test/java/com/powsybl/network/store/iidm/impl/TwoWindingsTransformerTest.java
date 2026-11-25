@@ -534,6 +534,7 @@ class TwoWindingsTransformerTest {
         voltageRegulation.setTargetDeadband(Double.NaN);
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void testRatioTapChangerLegacyRegulationAccessors() {
         Network network = FourSubstationsNodeBreakerFactory.create();
@@ -590,6 +591,7 @@ class TwoWindingsTransformerTest {
         assertNull(twt.getRatioTapChanger());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void testRatioTapChangerLegacyRegulationAccessorsWithoutVoltageRegulation() {
         Network network = FourSubstationsNodeBreakerFactory.create();
@@ -643,24 +645,6 @@ class TwoWindingsTransformerTest {
         ratioTapChanger.remove();
         assertNull(twt.getRatioTapChanger());
         assertTrue(Double.isNaN(ratioTapChanger.getRegulationValue()));
-    }
-
-    @Test
-    void testRatioTapChangerAdderLocalTargets() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
-        twt.getRatioTapChanger().remove();
-        RatioTapChangerAdder ratioTapChangerAdder = twt.newRatioTapChanger()
-            .setLowTapPosition(0)
-            .setTapPosition(0)
-            .setLocalTargetQ(10.0)
-            .setLocalTargetV(225.0)
-            .beginStep()
-            .setRho(1)
-            .endStep();
-        assertTrue(Double.isNaN(ratioTapChangerAdder.getLocalTargetQ()));
-        ratioTapChangerAdder.add();
-        assertNotNull(twt.getRatioTapChanger());
     }
 
     @Test

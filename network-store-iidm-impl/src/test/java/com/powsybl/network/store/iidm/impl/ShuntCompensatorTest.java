@@ -230,6 +230,7 @@ class ShuntCompensatorTest {
         voltageRegulation.setTargetDeadband(Double.NaN);
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void voltageRegulatorOn() {
         Network network = FourSubstationsNodeBreakerFactory.create();
@@ -244,6 +245,7 @@ class ShuntCompensatorTest {
         assertEquals(RegulationMode.VOLTAGE, shunt.getVoltageRegulation().getMode());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void regulatingTerminal() {
         Network network = FourSubstationsNodeBreakerFactory.create();
@@ -259,6 +261,7 @@ class ShuntCompensatorTest {
         assertEquals(load2Terminal, shunt.getRegulatingTerminal());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void targetV() {
         Network network = FourSubstationsNodeBreakerFactory.create();
@@ -280,6 +283,7 @@ class ShuntCompensatorTest {
         assertEquals(395.0, shunt.getLocalTargetV());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void targetDeadband() {
         Network network = FourSubstationsNodeBreakerFactory.create();
@@ -295,6 +299,7 @@ class ShuntCompensatorTest {
         assertEquals(405.0, shunt.getTargetV());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void adderWithVoltageRegulatorOnAndNoTerminal() {
         Network network = Network.create("test", "test");

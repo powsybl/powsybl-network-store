@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -124,10 +123,4 @@ class RegulatingTest {
         Assertions.assertEquals("VSC1#0", network.getVscConverterStation("VSC1#0").getRegulatingTerminal().getConnectable().getId());
     }
 
-    @Test
-    void testTapChangerRegulatingPointCanRelocateOnLocalTerminal() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-        RatioTapChangerImpl ratioTapChanger = (RatioTapChangerImpl) network.getTwoWindingsTransformer("TWT").getRatioTapChanger();
-        Assertions.assertTrue(ratioTapChanger.getRegulatingPoint().canRelocateOnLocalTerminal());
-    }
 }

@@ -124,6 +124,7 @@ class VscConverterStationTest {
         Assertions.assertEquals(-Double.MAX_VALUE, minMaxReactiveLimits.getMinQ());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void legacyVoltageRegulatorOnSetterWithoutVoltageRegulation() {
         Network network = Network.create("test", "test");
@@ -150,6 +151,7 @@ class VscConverterStationTest {
         assertFalse(converterStation.isVoltageRegulatorOn());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void legacyVoltageSetpointSetter() {
         Network network = FourSubstationsNodeBreakerFactory.create();
@@ -161,6 +163,7 @@ class VscConverterStationTest {
         assertEquals(420.0, converterStation.getVoltageSetpoint());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void legacyReactivePowerSetpointSetter() {
         Network network = FourSubstationsNodeBreakerFactory.create();
@@ -169,6 +172,7 @@ class VscConverterStationTest {
         assertEquals(250.0, converterStation.getReactivePowerSetpoint());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void legacySetRegulatingTerminalWithoutVoltageRegulation() {
         Network network = Network.create("test", "test");

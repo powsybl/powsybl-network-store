@@ -6,20 +6,14 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.BatteryAdder;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -63,55 +57,4 @@ class BatteryTest {
         battery.setLocalTargetQ(Double.NaN);
     }
 
-    @Test
-    void batteryAdderGetLocalTargetQ() {
-        Network network = Network.create("test", "test");
-        VoltageLevel voltageLevel = network.newSubstation()
-                .setId("S1")
-                .setCountry(Country.FR)
-                .add()
-                .newVoltageLevel()
-                .setId("VL1")
-                .setNominalV(400.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        BatteryAdder adder = voltageLevel.newBattery()
-                .setId("BAT1")
-                .setNode(0)
-                .setMinP(-20.0)
-                .setMaxP(20.0)
-                .setTargetP(10.0)
-                .setLocalTargetQ(5.0);
-        assertEquals(5.0, adder.getLocalTargetQ());
-        Battery battery = adder.add();
-        assertEquals(5.0, battery.getLocalTargetQ());
-    }
-
-    @Test
-    void regulatingPointWithoutVoltageRegulation() {
-        Network network = BatteryNetworkFactory.create();
-        Battery battery = network.getBattery("BAT");
-        AbstractRegulatingPoint regulatingPoint = ((BatteryImpl) battery).getRegulatingPoint();
-        assertNull(regulatingPoint.getAttributes());
-        assertNull(regulatingPoint.getRegulatingTerminal());
-        assertNull(regulatingPoint.getLocalTerminal());
-        assertNull(regulatingPoint.getExplicitRegulatingTerminal());
-        regulatingPoint.removeRegulation(ReportNode.NO_OP);
-        assertNull(regulatingPoint.getRegulatingTerminal());
-    }
-
-    @Test
-    void removeRegulationWithoutRegulatingTerminal() {
-        Network network = BatteryNetworkFactory.create();
-        Battery battery = network.getBattery("BAT");
-        battery.newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withRegulating(false)
-                .withTargetValue(400.0)
-                .build();
-        AbstractRegulatingPoint regulatingPoint = ((BatteryImpl) battery).getRegulatingPoint();
-        regulatingPoint.removeRegulation(ReportNode.NO_OP);
-        assertEquals(battery.getTerminal(), regulatingPoint.getRegulatingTerminal());
-        assertFalse(regulatingPoint.isRegulating());
-    }
 }

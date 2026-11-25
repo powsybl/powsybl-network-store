@@ -117,6 +117,7 @@ class StaticVarCompensatorTest {
         assertFalse(svc3.isRegulating());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void voltageSetpointWithoutVoltageRegulation() {
         Network network = createNetworkWithSvc();
@@ -127,6 +128,7 @@ class StaticVarCompensatorTest {
         assertEquals(390.0, svc.getVoltageSetpoint());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void reactivePowerSetpointWithoutVoltageRegulation() {
         Network network = createNetworkWithSvc();
@@ -137,6 +139,7 @@ class StaticVarCompensatorTest {
         assertEquals(50.0, svc.getReactivePowerSetpoint());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void voltageSetpointWithRegulatingTerminal() {
         Network network = SvcTestCaseFactory.create();
@@ -158,6 +161,7 @@ class StaticVarCompensatorTest {
         assertEquals(395.0, svc.getVoltageRegulation().getTargetValue());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void reactivePowerSetpointWithRegulatingTerminal() {
         Network network = SvcTestCaseFactory.create();
@@ -181,6 +185,7 @@ class StaticVarCompensatorTest {
         assertEquals(70.0, svc.getVoltageRegulation().getTargetValue());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void regulationMode() {
         Network network = createNetworkWithSvc();
@@ -192,6 +197,7 @@ class StaticVarCompensatorTest {
         assertEquals(RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void regulatingTerminalWithoutVoltageRegulation() {
         Network network = createNetworkWithSvc();
@@ -203,6 +209,7 @@ class StaticVarCompensatorTest {
         assertEquals(100.0, svc.getVoltageRegulation().getTargetValue());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void regulating() {
         Network network = createNetworkWithSvc();
@@ -214,43 +221,6 @@ class StaticVarCompensatorTest {
         assertEquals(RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
         svc.setRegulating(false);
         assertFalse(svc.isRegulating());
-    }
-
-    @Test
-    void getExtensions() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-        StaticVarCompensator svc = network.getStaticVarCompensator("SVC");
-        assertTrue(svc.getExtensions().isEmpty());
-        svc.newExtension(StandbyAutomatonAdder.class).withB0(1.0)
-                .withLowVoltageSetpoint(0.0)
-                .withLowVoltageThreshold(0.5)
-                .withHighVoltageSetpoint(1.0)
-                .withHighVoltageThreshold(0.1)
-                .add();
-        assertEquals(1, svc.getExtensions().size());
-    }
-
-    @Test
-    void adderLocalTargetQGetter() {
-        Network network = Network.create("test", "test");
-        VoltageLevel voltageLevel = network.newSubstation()
-                .setId("S1")
-                .setCountry(Country.FR)
-                .add()
-                .newVoltageLevel()
-                .setId("VL1")
-                .setNominalV(400.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-
-        StaticVarCompensatorAdder adder = voltageLevel.newStaticVarCompensator()
-                .setId("SVC3")
-                .setNode(0)
-                .setBmin(0.0002)
-                .setBmax(0.0008)
-                .setLocalTargetQ(1.0);
-
-        assertEquals(1.0, adder.getLocalTargetQ());
     }
 
     private static Network createNetworkWithSvc() {

@@ -96,6 +96,7 @@ class ThreeWindingTransformerTest {
         assertFalse(phaseTapChanger.isRegulating());
     }
 
+    //TODO: to remove when deprecated voltage regulation methods are removed.
     @Test
     void testRatioTapChangerLegacySettersOnLegs() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();

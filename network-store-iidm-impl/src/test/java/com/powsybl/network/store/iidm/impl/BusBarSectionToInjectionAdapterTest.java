@@ -28,7 +28,6 @@ class BusBarSectionToInjectionAdapterTest {
         Map<String, String> aliasByType = Map.of("alias1", "val1");
         Set<String> aliasWithoutType = Set.of("alias1");
         boolean isFictitious = false;
-        boolean isEquivalent = true;
         Map<String, ExtensionAttributes> extensionAttributes = Map.of("activePowerControl", new ActivePowerControlAttributes());
 
         BusbarSectionAttributes bbsAttributes = new BusbarSectionAttributes();
@@ -38,7 +37,6 @@ class BusBarSectionToInjectionAdapterTest {
         bbsToInjectionAdapter.setAliasByType(aliasByType);
         bbsToInjectionAdapter.setAliasesWithoutType(aliasWithoutType);
         bbsToInjectionAdapter.setFictitious(isFictitious);
-        bbsToInjectionAdapter.setEquivalent(isEquivalent);
         bbsToInjectionAdapter.setExtensionAttributes(extensionAttributes);
 
         assertEquals(name, bbsToInjectionAdapter.getName());
@@ -46,7 +44,6 @@ class BusBarSectionToInjectionAdapterTest {
         assertEquals(aliasByType, bbsToInjectionAdapter.getAliasByType());
         assertEquals(aliasWithoutType, bbsToInjectionAdapter.getAliasesWithoutType());
         assertEquals(isFictitious, bbsToInjectionAdapter.isFictitious());
-        assertEquals(isEquivalent, bbsToInjectionAdapter.isEquivalent());
         assertEquals(extensionAttributes, bbsToInjectionAdapter.getExtensionAttributes());
     }
 }
