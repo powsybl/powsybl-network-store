@@ -81,16 +81,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
         this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
-    @Override
-    public StaticVarCompensator add() {
-        NetworkImpl network = getNetwork();
-        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && regulating == null) {
-            regulating = false;
-        }
-        String id = checkAndGetUniqueId();
-        checkNodeBus();
-
-        // Backward compatibility
+    private void applyVoltageRegulationBackwardCompatibility() {
         if (voltageRegulationAttributes == null && regulating != null) {
             // If a static var compensator with old setters is added and voltageRegulation does not exist,
             // the new voltageRegulation will be created from the old attributes.
@@ -105,6 +96,41 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
                 localTargetQ = reactivePowerSetpoint;
             }
         }
+    }
+
+    private VoltageRegulationAttributes createVoltageRegulationAttributes(String id) {
+        if (voltageRegulationAttributes == null) {
+            return null;
+        }
+        ResourceType regulatedResourceType = voltageRegulationAttributes.terminal() != null
+            ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
+            : ResourceType.STATIC_VAR_COMPENSATOR;
+        String regulationMode = voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null;
+        return VoltageRegulationAttributes.builder()
+            .regulatingEquipmentId(id)
+            .regulatingResourceType(ResourceType.STATIC_VAR_COMPENSATOR)
+            .regulatingTapChangerType(RegulatingTapChangerType.NONE)
+            .localTerminal(new TerminalRefAttributes(id, null))
+            .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
+            .regulatedResourceType(regulatedResourceType)
+            .regulationMode(regulationMode)
+            .regulating(voltageRegulationAttributes.isRegulating())
+            .targetValue(voltageRegulationAttributes.targetValue())
+            .targetDeadband(voltageRegulationAttributes.targetDeadband())
+            .slope(voltageRegulationAttributes.slope())
+            .build();
+    }
+
+    @Override
+    public StaticVarCompensator add() {
+        NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && regulating == null) {
+            regulating = false;
+        }
+        String id = checkAndGetUniqueId();
+        checkNodeBus();
+
+        applyVoltageRegulationBackwardCompatibility();
 
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
@@ -117,26 +143,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
             getNetwork().getMinValidationLevel(),
             getNetwork().getReportNodeContext().getReportNode());
 
-        VoltageRegulationAttributes persistedVoltageRegulation = null;
-        if (voltageRegulationAttributes != null) {
-            ResourceType regulatedResourceType = voltageRegulationAttributes.terminal() != null
-                ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
-                : ResourceType.STATIC_VAR_COMPENSATOR;
-            String regulationMode = voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null;
-            persistedVoltageRegulation = VoltageRegulationAttributes.builder()
-                .regulatingEquipmentId(id)
-                .regulatingResourceType(ResourceType.STATIC_VAR_COMPENSATOR)
-                .regulatingTapChangerType(RegulatingTapChangerType.NONE)
-                .localTerminal(new TerminalRefAttributes(id, null))
-                .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
-                .regulatedResourceType(regulatedResourceType)
-                .regulationMode(regulationMode)
-                .regulating(voltageRegulationAttributes.isRegulating())
-                .targetValue(voltageRegulationAttributes.targetValue())
-                .targetDeadband(voltageRegulationAttributes.targetDeadband())
-                .slope(voltageRegulationAttributes.slope())
-                .build();
-        }
+        VoltageRegulationAttributes persistedVoltageRegulation = createVoltageRegulationAttributes(id);
 
         Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder()
                 .id(id)

@@ -62,16 +62,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
-    @Override
-    public VscConverterStation add() {
-        NetworkImpl network = getNetwork();
-        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
-            voltageRegulatorOn = false;
-        }
-        String id = checkAndGetUniqueId();
-        checkNodeBus();
-
-        // Backward compatibility
+    private void applyVoltageRegulationBackwardCompatibility() {
         if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
             // If a vsc converter station with old setters is added and voltageRegulation does not exist,
             // the new voltageRegulation will be created from the old attributes.
@@ -86,6 +77,41 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                 localTargetQ = reactivePowerSetPoint;
             }
         }
+    }
+
+    private VoltageRegulationAttributes createVoltageRegulationAttributes(String id) {
+        if (voltageRegulationAttributes == null) {
+            return null;
+        }
+        ResourceType regulatedResourceType = voltageRegulationAttributes.terminal() != null
+            ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
+            : ResourceType.VSC_CONVERTER_STATION;
+        String regulationMode = voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null;
+        return VoltageRegulationAttributes.builder()
+            .regulatingEquipmentId(id)
+            .regulatingResourceType(ResourceType.VSC_CONVERTER_STATION)
+            .regulatingTapChangerType(RegulatingTapChangerType.NONE)
+            .localTerminal(new TerminalRefAttributes(id, null))
+            .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
+            .regulatedResourceType(regulatedResourceType)
+            .regulationMode(regulationMode)
+            .regulating(voltageRegulationAttributes.isRegulating())
+            .targetValue(voltageRegulationAttributes.targetValue())
+            .targetDeadband(voltageRegulationAttributes.targetDeadband())
+            .slope(voltageRegulationAttributes.slope())
+            .build();
+    }
+
+    @Override
+    public VscConverterStation add() {
+        NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
+            voltageRegulatorOn = false;
+        }
+        String id = checkAndGetUniqueId();
+        checkNodeBus();
+
+        applyVoltageRegulationBackwardCompatibility();
 
         validate();
         ValidationUtil.checkLocalTargetQandV(this,
@@ -102,26 +128,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        VoltageRegulationAttributes persistedVoltageRegulation = null;
-        if (voltageRegulationAttributes != null) {
-            ResourceType regulatedResourceType = voltageRegulationAttributes.terminal() != null
-                ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
-                : ResourceType.VSC_CONVERTER_STATION;
-            String regulationMode = voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null;
-            persistedVoltageRegulation = VoltageRegulationAttributes.builder()
-                .regulatingEquipmentId(id)
-                .regulatingResourceType(ResourceType.VSC_CONVERTER_STATION)
-                .regulatingTapChangerType(RegulatingTapChangerType.NONE)
-                .localTerminal(new TerminalRefAttributes(id, null))
-                .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
-                .regulatedResourceType(regulatedResourceType)
-                .regulationMode(regulationMode)
-                .regulating(voltageRegulationAttributes.isRegulating())
-                .targetValue(voltageRegulationAttributes.targetValue())
-                .targetDeadband(voltageRegulationAttributes.targetDeadband())
-                .slope(voltageRegulationAttributes.slope())
-                .build();
-        }
+        VoltageRegulationAttributes persistedVoltageRegulation = createVoltageRegulationAttributes(id);
 
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
