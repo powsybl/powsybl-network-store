@@ -22,10 +22,6 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     private final Function<Attributes, TapChangerParentAttributes> attributesGetter;
 
-    // the voltage regulation object is cached so that two calls to getVoltageRegulation()
-    // return the same instance, as in the powsybl-core in-memory implementation
-    private VoltageRegulationImpl voltageRegulation;
-
     public RatioTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, Function<Attributes, TapChangerParentAttributes> attributesGetter) {
         super(parent, index, "ratio tap changer", attributes -> ((RatioTapChangerAttributes) attributes).getVoltageRegulation(),
             "ratio" + parent.getTapChangerAttribute() + ".VoltageRegulation.Terminal");
@@ -58,27 +54,21 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public VoltageRegulation getVoltageRegulation() {
-        if (voltageRegulation != null) {
-            // return the cached instance (also in an invalid variant context, where reading
-            // the attributes would throw); it reads the current variant attributes lazily
-            return voltageRegulation;
-        }
         if (getVoltageRegulationAttributes() == null) {
             return null;
         }
-        voltageRegulation = new VoltageRegulationImpl(index, this, RatioTapChanger.class, parent, regulatingPoint);
-        return voltageRegulation;
+        return new VoltageRegulationImpl(index, this, RatioTapChanger.class, parent, regulatingPoint);
     }
 
     @Override
     public void removeVoltageRegulation() {
-        if (voltageRegulation != null) {
-            voltageRegulation.onRemove();
-            voltageRegulation = null;
+        VoltageRegulation oldVoltageRegulation = getVoltageRegulation();
+        if (oldVoltageRegulation != null) {
+            ((VoltageRegulationImpl) oldVoltageRegulation).onRemove();
         }
         if (getVoltageRegulationAttributes() != null) {
             getTransformer().updateResource(res -> getAttributes(res).setVoltageRegulation(null),
-                    getTapChangerAttribute() + ".voltageRegulation", voltageRegulation, null);
+                    getTapChangerAttribute() + ".voltageRegulation", oldVoltageRegulation, null);
         }
     }
 
@@ -200,8 +190,9 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public void remove() {
+        VoltageRegulation voltageRegulation = getVoltageRegulation();
         if (voltageRegulation != null) {
-            voltageRegulation.onRemove();
+            ((VoltageRegulationImpl) voltageRegulation).onRemove();
         } else {
             regulatingPoint.remove();
         }
