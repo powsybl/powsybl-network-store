@@ -315,7 +315,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         if (type == GeneratorEntsoeCategory.class) {
             var resource = getResource();
             if (resource.getAttributes().getEntsoeCategoryAttributes() != null) {
-                resource.getAttributes().setEntsoeCategoryAttributes(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setEntsoeCategoryAttributes(null));
                 return true;
             }
             return false;
@@ -323,7 +323,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         if (type == CoordinatedReactiveControl.class) {
             var resource = getResource();
             if (resource.getAttributes().getCoordinatedReactiveControl() != null) {
-                resource.getAttributes().setCoordinatedReactiveControl(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setCoordinatedReactiveControl(null));
                 return true;
             }
             return false;
@@ -331,7 +331,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         if (type == GeneratorShortCircuit.class) {
             var resource = getResource();
             if (resource.getAttributes().getGeneratorShortCircuitAttributes() != null) {
-                resource.getAttributes().setGeneratorShortCircuitAttributes(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setGeneratorShortCircuitAttributes(null));
                 return true;
             }
             return false;
@@ -339,7 +339,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         if (type.isAssignableFrom(ConnectablePosition.class)) {
             var resource = getResource();
             if (resource.getAttributes().getPosition() != null) {
-                resource.getAttributes().setPosition(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setPosition(null));
                 return true;
             }
             return false;

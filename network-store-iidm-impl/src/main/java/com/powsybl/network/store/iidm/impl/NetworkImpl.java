@@ -1338,7 +1338,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (type == BaseVoltageMapping.class) {
             var resource = getResource();
             if (resource.getAttributes().getBaseVoltageMapping() != null) {
-                resource.getAttributes().setBaseVoltageMapping(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setBaseVoltageMapping(null));
                 return true;
             }
             return false;
@@ -1346,7 +1346,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (type == CimCharacteristics.class) {
             var resource = getResource();
             if (resource.getAttributes().getCimCharacteristics() != null) {
-                resource.getAttributes().setCimCharacteristics(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setCimCharacteristics(null));
                 return true;
             }
             return false;

@@ -175,7 +175,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         if (type.isAssignableFrom(ConnectablePosition.class)) {
             var resource = getResource();
             if (resource.getAttributes().getPosition() != null) {
-                resource.getAttributes().setPosition(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setPosition(null));
                 return true;
             }
             return false;
@@ -183,7 +183,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         if (type == StandbyAutomaton.class) {
             var resource = getResource();
             if (resource.getAttributes().getStandbyAutomaton() != null) {
-                resource.getAttributes().setStandbyAutomaton(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setStandbyAutomaton(null));
                 return true;
             }
             return false;

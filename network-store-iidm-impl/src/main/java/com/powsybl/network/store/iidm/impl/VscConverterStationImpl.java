@@ -186,7 +186,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         if (type.isAssignableFrom(ConnectablePosition.class)) {
             var resource = getResource();
             if (resource.getAttributes().getPosition() != null) {
-                resource.getAttributes().setPosition(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setPosition(null));
                 return true;
             }
             return false;

@@ -256,7 +256,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         if (type == HvdcAngleDroopActivePowerControl.class) {
             var resource = getResource();
             if (resource.getAttributes().getHvdcAngleDroopActivePowerControl() != null) {
-                resource.getAttributes().setHvdcAngleDroopActivePowerControl(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setHvdcAngleDroopActivePowerControl(null));
                 return true;
             }
             return false;
@@ -264,7 +264,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         if (type == HvdcOperatorActivePowerRange.class) {
             var resource = getResource();
             if (resource.getAttributes().getHvdcOperatorActivePowerRange() != null) {
-                resource.getAttributes().setHvdcOperatorActivePowerRange(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setHvdcOperatorActivePowerRange(null));
                 return true;
             }
             return false;

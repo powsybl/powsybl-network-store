@@ -81,7 +81,18 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
         @Override
         public Feeder removeOrder() {
-            getAttributes().setOrder(null);
+            Integer oldValue = getAttributes().getOrder();
+            if (oldValue != null) {
+                if (getExtendable() instanceof AbstractInjectionImpl<?, ?> injection) {
+                    updateInjectionOrderResource(connectablePosition, injection, null, oldValue, null);
+                } else if (getExtendable() instanceof AbstractBranchImpl<?, ?> branch) {
+                    updateBranchOrderResource(connectablePosition, branch, null, oldValue, null);
+                } else if (getExtendable() instanceof ThreeWindingsTransformerImpl windingsTransformer) {
+                    updateTransformerOrderResource(connectablePosition, windingsTransformer, null, oldValue, null);
+                } else {
+                    throw new AssertionError(UNEXPECTED_EXTENDABLE + getExtendable().getClass());
+                }
+            }
             return this;
         }
 
@@ -160,13 +171,13 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
             }, LABEL, oldValue, newValue);
         }
 
-        private void updateInjectionOrderResource(Extension<?> extension, AbstractInjectionImpl<?, ?> injection, int order, Object oldValue, Object newValue) {
+        private void updateInjectionOrderResource(Extension<?> extension, AbstractInjectionImpl<?, ?> injection, Integer order, Object oldValue, Object newValue) {
             injection.updateResourceExtension(extension,
                 res -> res.getAttributes().getPosition().setOrder(order),
                 ORDER, oldValue, newValue);
         }
 
-        private void updateBranchOrderResource(Extension<?> extension, AbstractBranchImpl<?, ?> branch, int order, Object oldValue, Object newValue) {
+        private void updateBranchOrderResource(Extension<?> extension, AbstractBranchImpl<?, ?> branch, Integer order, Object oldValue, Object newValue) {
             ThreeSides sides = Objects.requireNonNull(getSide());
             branch.updateResourceExtension(extension,
                 res -> {
@@ -180,7 +191,7 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
                 }, ORDER, oldValue, newValue);
         }
 
-        private void updateTransformerOrderResource(Extension<?> extension, ThreeWindingsTransformerImpl windingsTransformer, int order, Object oldValue, Object newValue) {
+        private void updateTransformerOrderResource(Extension<?> extension, ThreeWindingsTransformerImpl windingsTransformer, Integer order, Object oldValue, Object newValue) {
             ThreeSides sides = Objects.requireNonNull(getSide());
             windingsTransformer.updateResourceExtension(extension,
                 res -> {
