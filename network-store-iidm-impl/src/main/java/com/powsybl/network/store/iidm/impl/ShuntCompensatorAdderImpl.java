@@ -318,24 +318,28 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
         return ResourceType.SHUNT_COMPENSATOR.getDescription();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public ShuntCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = regulatingTerminal;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         this.voltageRegulatorOn = voltageRegulatorOn;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public ShuntCompensatorAdder setTargetV(double targetV) {
         this.targetV = targetV;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
         this.targetDeadband = targetDeadband;

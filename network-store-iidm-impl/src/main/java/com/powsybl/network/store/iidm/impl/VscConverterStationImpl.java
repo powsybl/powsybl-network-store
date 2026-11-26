@@ -194,11 +194,13 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         return false;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public boolean isVoltageRegulatorOn() {
         return this.isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         boolean oldValue = isRegulating();
@@ -214,11 +216,13 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getVoltageSetpoint() {
         return this.getRegulatingTargetV();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
         double oldValue;
@@ -235,11 +239,13 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getReactivePowerSetpoint() {
         return this.getRegulatingTargetQ();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         double oldValue;
@@ -257,6 +263,7 @@ public class VscConverterStationImpl extends AbstractRegulatingInjection<VscConv
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());

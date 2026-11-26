@@ -267,11 +267,13 @@ public class BatteryImpl extends AbstractRegulatingInjection<Battery, BatteryAtt
         return false;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getTargetQ() {
         return this.getLocalTargetQ();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public Battery setTargetQ(double targetQ) {
         return setLocalTargetQ(targetQ);

@@ -250,12 +250,14 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         return Objects.hash(getParent(), getTransformer().getId(), getRegulationMode(), getRegulationValue());
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RegulationMode getRegulationMode() {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
         return voltageRegulation != null ? voltageRegulation.getMode() : null;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChanger setRegulationMode(RegulationMode regulationMode) {
         RegulationMode oldValue = null;
@@ -273,12 +275,14 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getRegulationValue() {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
         return voltageRegulation != null ? voltageRegulation.getTargetValue() : Double.NaN;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChanger setRegulationValue(double regulationValue) {
         double oldValue = Double.NaN;
@@ -298,12 +302,14 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getTargetV() {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
         return voltageRegulation != null && isWithMode(RegulationMode.VOLTAGE) ? voltageRegulation.getTargetValue() : Double.NaN;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChanger setTargetV(double targetV) {
         double oldValue = Double.NaN;
@@ -334,6 +340,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
         NetworkImpl network = index.getNetwork();
@@ -362,6 +369,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
         NetworkImpl network = index.getNetwork();
@@ -386,17 +394,20 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public Terminal getRegulationTerminal() {
         return this.getRegulatingTerminal();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getTargetDeadband() {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
         return voltageRegulation != null ? voltageRegulation.getTargetDeadband() : Double.NaN;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChangerImpl setTargetDeadband(double targetDeadband) {
         double oldValue = Double.NaN;

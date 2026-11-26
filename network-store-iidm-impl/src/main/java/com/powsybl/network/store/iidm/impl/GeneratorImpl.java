@@ -347,11 +347,13 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         return false;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public boolean isVoltageRegulatorOn() {
         return this.isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
@@ -369,6 +371,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
@@ -389,11 +392,13 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getTargetV() {
         return this.getRegulatingTargetV();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public Generator setTargetV(double targetV) {
         ValidationUtil.checkDoublePositive(this, targetV, "targetV");
@@ -406,6 +411,7 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public Generator setTargetV(double targetV, double equivalentLocalTargetV) {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
@@ -427,16 +433,19 @@ public class GeneratorImpl extends AbstractRegulatingInjection<Generator, Genera
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getEquivalentLocalTargetV() {
         return this.getLocalTargetV();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getTargetQ() {
         return this.getLocalTargetQ();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public Generator setTargetQ(double targetQ) {
         return setLocalTargetQ(targetQ);

@@ -178,30 +178,35 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
         return ResourceType.STATIC_VAR_COMPENSATOR.getDescription();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint) {
         this.voltageSetpoint = voltageSetpoint;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
         this.reactivePowerSetpoint = reactivePowerSetpoint;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode) {
         this.regulationMode = regulationMode;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public StaticVarCompensatorAdderImpl setRegulating(boolean regulating) {
         this.regulating = regulating;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public StaticVarCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = regulatingTerminal;

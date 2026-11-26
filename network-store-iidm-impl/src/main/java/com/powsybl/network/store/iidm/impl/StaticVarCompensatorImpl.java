@@ -191,11 +191,13 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         return false;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getVoltageSetpoint() {
         return this.getRegulatingTargetV();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public StaticVarCompensator setVoltageSetpoint(double voltageSetpoint) {
         double oldValue = getLocalTargetV();
@@ -210,11 +212,13 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getReactivePowerSetpoint() {
         return this.getRegulatingTargetQ();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint) {
         double oldValue = getLocalTargetQ();
@@ -229,12 +233,14 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RegulationMode getRegulationMode() {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
         return voltageRegulation != null ? voltageRegulation.getMode() : null;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
         RegulationMode oldValue = null;
@@ -250,6 +256,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         Terminal oldValue = null;
@@ -266,6 +273,7 @@ public class StaticVarCompensatorImpl extends AbstractRegulatingInjection<Static
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public StaticVarCompensator setRegulating(boolean regulating) {
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();

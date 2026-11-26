@@ -168,24 +168,28 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         return ResourceType.VSC_CONVERTER_STATION.getDescription();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         this.voltageRegulatorOn = voltageRegulatorOn;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public VscConverterStationAdder setVoltageSetpoint(double voltageSetPoint) {
         this.voltageSetPoint = voltageSetPoint;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetPoint) {
         this.reactivePowerSetPoint = reactivePowerSetPoint;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = regulatingTerminal;

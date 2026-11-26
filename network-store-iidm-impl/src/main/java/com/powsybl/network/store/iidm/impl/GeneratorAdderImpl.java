@@ -209,34 +209,40 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                 .build();
     }
 
+    @Deprecated
     @Override
     protected String getTypeDescription() {
         return ResourceType.GENERATOR.getDescription();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         this.voltageRegulatorOn = voltageRegulatorOn;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = regulatingTerminal;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public GeneratorAdder setTargetQ(double targetQ) {
         return this.setLocalTargetQ(targetQ);
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public GeneratorAdder setTargetV(double targetV) {
         this.targetV = targetV;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV) {
         this.targetV = targetV;

@@ -235,36 +235,42 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         return ratioTapChanger;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChangerAdder setRegulating(boolean regulating) {
         this.legacyRegulating = regulating;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
         this.targetDeadband = targetDeadband;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChangerAdder setRegulationTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = regulatingTerminal;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChangerAdder setRegulationMode(RegulationMode regulationMode) {
         this.regulationMode = regulationMode;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChangerAdder setRegulationValue(double regulationValue) {
         this.regulationValue = regulationValue;
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public RatioTapChangerAdder setTargetV(double targetV) {
         setRegulationValue(targetV);

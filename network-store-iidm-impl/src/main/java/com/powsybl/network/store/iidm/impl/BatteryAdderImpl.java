@@ -155,6 +155,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         return ResourceType.BATTERY.getDescription();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public BatteryAdder setTargetQ(double targetQ) {
         return this.setLocalTargetQ(targetQ);

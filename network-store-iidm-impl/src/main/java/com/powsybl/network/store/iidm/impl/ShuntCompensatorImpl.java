@@ -200,11 +200,13 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         return false;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public boolean isVoltageRegulatorOn() {
         return this.isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -220,6 +222,7 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         Terminal oldValue = getRegulatingTerminal();
@@ -235,11 +238,13 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getTargetV() {
         return this.getRegulatingTargetV();
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public ShuntCompensator setTargetV(double targetV) {
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -255,12 +260,14 @@ public class ShuntCompensatorImpl extends AbstractRegulatingInjection<ShuntCompe
         return this;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public double getTargetDeadband() {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
         return voltageRegulation != null ? voltageRegulation.getTargetDeadband() : Double.NaN;
     }
 
+    @Deprecated(forRemoval = true, since = "7.4.0")
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
