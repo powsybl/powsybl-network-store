@@ -6,8 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl.util;
 
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.network.store.iidm.impl.AbstractBranchImpl;
 import com.powsybl.network.store.model.BranchAttributes;
-import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -17,16 +19,19 @@ public final class Utils {
 
     }
 
-    public static <T extends BranchAttributes> boolean removeConnectionPositionForBranches(Resource<T> resource) {
-        boolean isRemoved = false;
-        if (resource.getAttributes().getPosition1() != null) {
-            resource.getAttributes().setPosition1(null);
-            isRemoved = true;
+    public static <T extends Branch<T> & Connectable<T>, U extends BranchAttributes> boolean removeConnectionPositionForBranches(AbstractBranchImpl<T, U> branch) {
+        var attributes = branch.getResource().getAttributes();
+        boolean hasPosition1 = attributes.getPosition1() != null;
+        boolean hasPosition2 = attributes.getPosition2() != null;
+        if (!hasPosition1 && !hasPosition2) {
+            return false;
         }
-        if (resource.getAttributes().getPosition2() != null) {
-            resource.getAttributes().setPosition2(null);
-            isRemoved = true;
+        if (hasPosition1) {
+            branch.updateResourceWithoutNotification(res -> res.getAttributes().setPosition1(null));
         }
-        return isRemoved;
+        if (hasPosition2) {
+            branch.updateResourceWithoutNotification(res -> res.getAttributes().setPosition2(null));
+        }
+        return true;
     }
 }

@@ -713,9 +713,8 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
 
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
-        var resource = getResource();
         if (type == CgmesTapChangers.class) {
-            resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
+            updateResourceWithoutNotification(res -> res.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>()));
         } else {
             super.addExtension(type, extension);
         }
@@ -816,15 +815,15 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
             var resource = getResource();
             boolean isRemoved = false;
             if (resource.getAttributes().getPosition1() != null) {
-                resource.getAttributes().setPosition1(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setPosition1(null));
                 isRemoved = true;
             }
             if (resource.getAttributes().getPosition2() != null) {
-                resource.getAttributes().setPosition2(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setPosition2(null));
                 isRemoved = true;
             }
             if (resource.getAttributes().getPosition3() != null) {
-                resource.getAttributes().setPosition3(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setPosition3(null));
                 isRemoved = true;
             }
             return isRemoved;
@@ -832,7 +831,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         if (type.isAssignableFrom(CgmesTapChangers.class)) {
             var resource = getResource();
             if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
-                resource.getAttributes().setCgmesTapChangerAttributesList(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setCgmesTapChangerAttributesList(null));
                 return true;
             }
             return false;
@@ -840,7 +839,7 @@ public class ThreeWindingsTransformerImpl extends AbstractConnectableImpl<ThreeW
         if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
             var resource = getResource();
             if (resource.getAttributes().getPhaseAngleClock() != null) {
-                resource.getAttributes().setPhaseAngleClock(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setPhaseAngleClock(null));
                 return true;
             }
             return false;

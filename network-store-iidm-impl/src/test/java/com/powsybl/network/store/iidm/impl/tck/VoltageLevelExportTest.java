@@ -7,18 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractVoltageLevelExportTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VoltageLevelExportTest extends AbstractVoltageLevelExportTest {
-    @Override
-    public void nodeBreakerTest() {
-        // FIXME remove this test when VoltageLevelImpl.exportTopology is implemented
-    }
 
-    @Override
-    public void busBreakerTest() {
-        // FIXME remove this test when VoltageLevelImpl.exportTopology is implemented
-    }
+@Disabled("Voltage level topology export is not implemented in the network store")
+class VoltageLevelExportTest extends AbstractVoltageLevelExportTest {
 }

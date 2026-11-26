@@ -617,7 +617,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         if (type == SlackTerminal.class) {
             var resource = getResource();
             if (resource.getAttributes().getSlackTerminal() != null) {
-                resource.getAttributes().setSlackTerminal(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setSlackTerminal(null));
                 return true;
             }
             return false;
@@ -625,7 +625,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         if (type.isAssignableFrom(IdentifiableShortCircuit.class)) {
             var resource = getResource();
             if (resource.getAttributes().getIdentifiableShortCircuitAttributes() != null) {
-                resource.getAttributes().setIdentifiableShortCircuitAttributes(null);
+                updateResourceWithoutNotification(res -> res.getAttributes().setIdentifiableShortCircuitAttributes(null));
                 return true;
             }
             return false;

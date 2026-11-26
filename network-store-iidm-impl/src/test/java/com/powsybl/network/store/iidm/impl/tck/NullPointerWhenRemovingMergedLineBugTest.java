@@ -7,15 +7,12 @@
 package com.powsybl.network.store.iidm.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractNullPointerWhenRemovingMergedLineBugTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NullPointerWhenRemovingMergedLineBugTest extends AbstractNullPointerWhenRemovingMergedLineBugTest {
 
-    //TODO remove this test when network merge is implemented
-    @Override
-    public void test() {
-        // FIXME
-    }
+@Disabled("Network merging is not implemented in the network store")
+class NullPointerWhenRemovingMergedLineBugTest extends AbstractNullPointerWhenRemovingMergedLineBugTest {
 }

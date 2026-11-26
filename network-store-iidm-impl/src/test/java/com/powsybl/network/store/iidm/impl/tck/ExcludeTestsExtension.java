@@ -8,22 +8,13 @@ import org.opentest4j.TestAbortedException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-//FIXME: WORKAROUND to ignore one test that fails in tck and cannot be overridden because it's not public in powsybl-core
-// delete this class when we use at least powsybl-core 7.0.0
-// + remove the annotation "@ExtendWith(ExcludeTestsExtension.class)" from NetworkTest
+// FIXME: Workaround for the package-private TCK test that cannot be overridden in HvdcLineTest and TieLineTest.
+// Should be deleted with powsybl-core 7.5.0. See https://github.com/powsybl/powsybl-core/pull/4258
 public class ExcludeTestsExtension implements InvocationInterceptor {
     private static final Set<String> EXCLUDED_TESTS = Set.of(
-            "testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork",
-            "testSameLine",
-            "testNullLine",
-            "testDuplicateCoupling",
-            "testFindSymmetric",
-            "testRemoveByLines",
-            "testRemoveByMutualCoupling",
-            "testSetters",
-            "testInvalidLineSegment",
-            "testInvalidRAndX",
-            "testListener",
+            // FIXME: to be removed when asymetric connect/disconnect is fixed
+            // Supposed to be fixed in https://github.com/powsybl/powsybl-core/pull/3885
+            // But still not working
             "testConnectDisconnectWithFictitiousBreaker"
     );
 
