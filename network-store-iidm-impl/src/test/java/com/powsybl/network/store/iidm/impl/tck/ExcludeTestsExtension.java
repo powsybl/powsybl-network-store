@@ -8,14 +8,16 @@ import org.opentest4j.TestAbortedException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-// FIXME: Workaround for the package-private TCK test that cannot be overridden in HvdcLineTest and TieLineTest.
+// FIXME: Workarounds for package-private TCK tests that cannot be overridden by network-store tests.
 // Should be deleted with powsybl-core 7.5.0. See https://github.com/powsybl/powsybl-core/pull/4258
 public class ExcludeTestsExtension implements InvocationInterceptor {
     private static final Set<String> EXCLUDED_TESTS = Set.of(
             // FIXME: to be removed when asymetric connect/disconnect is fixed
             // Supposed to be fixed in https://github.com/powsybl/powsybl-core/pull/3885
             // But still not working
-            "testConnectDisconnectWithFictitiousBreaker"
+            "testConnectDisconnectWithFictitiousBreaker",
+            // in powsybl-network-store iidm implementation, voltage regulation is not removed on all variants
+            "testRemoveVoltageRegulationInMultiVariant"
     );
 
     @Override

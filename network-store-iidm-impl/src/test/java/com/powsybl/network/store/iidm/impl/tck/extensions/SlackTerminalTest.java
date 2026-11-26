@@ -11,8 +11,10 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.tck.extensions.AbstractSlackTerminalTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -34,6 +36,7 @@ class SlackTerminalTest extends AbstractSlackTerminalTest {
        In this implementation the isEmpty return true if the slackTerminal is empty for the current variant only
        whereas it returns true on the core implementation when the slackterminal is empty on all variants
      */
+    @Override
     @Test
     public void variantsResetTest() {
         String variant1 = "variant1";
@@ -103,9 +106,43 @@ class SlackTerminalTest extends AbstractSlackTerminalTest {
 
     }
 
-    @Test
+    // This test is overwritten because multi-variant management is different in network-store
     @Override
+    @Test
+    public void removeTerminalConnectableInMultiVariantContextTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        var load1 = network.getLoad("LD1");
+        var slackTerminal = network.getVoltageLevel(FourSubstationsNodeBreakerFactory.S1VL1)
+                .newExtension(SlackTerminalAdder.class)
+                .withTerminal(load1.getTerminal())
+                .add();
+
+        // Create 2 variants => the load terminal is used for all of them
+        final String variant1 = "variant1";
+        final String variant2 = "variant2";
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, variant1);
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, variant2);
+        // Change the terminal in variant1
+        Terminal otherTerminal = network.getTwoWindingsTransformer("TWT").getTerminal1();
+        variantManager.setWorkingVariant(variant1);
+        slackTerminal.setTerminal(otherTerminal);
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+
+        // Remove load1. Its terminal is removed from the extension only for INITIAL_VARIANT_ID
+        load1.remove();
+        assertNull(slackTerminal.getTerminal());
+        variantManager.setWorkingVariant(variant1);
+        assertNotNull(slackTerminal.getTerminal());
+        assertEquals(otherTerminal, slackTerminal.getTerminal());
+        variantManager.setWorkingVariant(variant2);
+        assertNotNull(slackTerminal.getTerminal());
+    }
+
+    @Override
+    @Test
     public void testWithSubnetwork() {
         // Network merging unavailable
     }
+
 }

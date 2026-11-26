@@ -7,7 +7,12 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.network.store.model.*;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createSvcVoltageRegulationBackwardCompatibility;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,15 +23,21 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
 
     private double bMax = Double.NaN;
 
-    private double voltageSetPoint = Double.NaN;
+    private double voltageSetpoint = Double.NaN;
 
-    private double reactivePowerSetPoint = Double.NaN;
+    private double reactivePowerSetpoint = Double.NaN;
+
+    private RegulationMode regulationMode;
+
+    private Terminal regulatingTerminal;
+
+    private double localTargetQ = Double.NaN;
+
+    private double localTargetV = Double.NaN;
 
     private Boolean regulating;
 
-    StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
-
-    private Terminal regulatingTerminal;
+    private VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes = null;
 
     StaticVarCompensatorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
@@ -45,33 +56,69 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
     }
 
     @Override
-    public StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetPoint) {
-        this.voltageSetPoint = voltageSetPoint;
+    public StaticVarCompensatorAdder setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
         return this;
     }
 
     @Override
-    public StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetPoint) {
-        this.reactivePowerSetPoint = reactivePowerSetPoint;
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
+    }
+
+    @Override
+    public StaticVarCompensatorAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
         return this;
     }
 
     @Override
-    public StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode) {
-        this.regulationMode = regulationMode;
-        return this;
+    public VoltageRegulationAdder<StaticVarCompensatorAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, this, getNetwork(), this::setVoltageRegulationAttributes);
     }
 
-    @Override
-    public StaticVarCompensatorAdderImpl setRegulating(boolean regulating) {
-        this.regulating = regulating;
-        return this;
+    private void setVoltageRegulationAttributes(VoltageRegulation.VoltageRegulationAttributes voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
-    @Override
-    public StaticVarCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        this.regulatingTerminal = regulatingTerminal;
-        return this;
+    private void applyVoltageRegulationBackwardCompatibility() {
+        if (voltageRegulationAttributes == null && regulating != null) {
+            // If a static var compensator with old setters is added and voltageRegulation does not exist,
+            // the new voltageRegulation will be created from the old attributes.
+            createSvcVoltageRegulationBackwardCompatibility(this, regulationMode, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal);
+        } else {
+            // In the case of a static var compensator with old setters and newVoltageRegulation method used
+            // the old local attributes will be set without overriding the local attributes if already set
+            if (!Double.isNaN(voltageSetpoint) && Double.isNaN(localTargetV)) {
+                localTargetV = voltageSetpoint;
+            }
+            if (!Double.isNaN(reactivePowerSetpoint) && Double.isNaN(localTargetQ)) {
+                localTargetQ = reactivePowerSetpoint;
+            }
+        }
+    }
+
+    private VoltageRegulationAttributes createVoltageRegulationAttributes(String id) {
+        if (voltageRegulationAttributes == null) {
+            return null;
+        }
+        ResourceType regulatedResourceType = voltageRegulationAttributes.terminal() != null
+            ? ((AbstractIdentifiableImpl<?, ?>) voltageRegulationAttributes.terminal().getConnectable()).getResource().getType()
+            : ResourceType.STATIC_VAR_COMPENSATOR;
+        String regulationMode = voltageRegulationAttributes.mode() != null ? voltageRegulationAttributes.mode().name() : null;
+        return VoltageRegulationAttributes.builder()
+            .regulatingEquipmentId(id)
+            .regulatingResourceType(ResourceType.STATIC_VAR_COMPENSATOR)
+            .regulatingTapChangerType(RegulatingTapChangerType.NONE)
+            .localTerminal(new TerminalRefAttributes(id, null))
+            .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(voltageRegulationAttributes.terminal()))
+            .regulatedResourceType(regulatedResourceType)
+            .regulationMode(regulationMode)
+            .regulating(voltageRegulationAttributes.isRegulating())
+            .targetValue(voltageRegulationAttributes.targetValue())
+            .targetDeadband(voltageRegulationAttributes.targetDeadband())
+            .slope(voltageRegulationAttributes.slope())
+            .build();
     }
 
     @Override
@@ -82,15 +129,22 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
         }
         String id = checkAndGetUniqueId();
         checkNodeBus();
+
+        applyVoltageRegulationBackwardCompatibility();
+
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
-        ValidationUtil.checkSvcRegulator(this, regulating, voltageSetPoint, reactivePowerSetPoint, regulationMode, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext()
-                .getReportNode());
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        ValidationUtil.checkLocalTargetQandV(this,
+            StaticVarCompensator.class,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes,
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
 
-        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
-        RegulatingPointAttributes regulatingPointAttributes = new RegulatingPointAttributes(id, ResourceType.STATIC_VAR_COMPENSATOR, RegulatingTapChangerType.NONE,
-            new TerminalRefAttributes(id, null), terminalRefAttributes, String.valueOf(regulationMode), ResourceType.STATIC_VAR_COMPENSATOR, regulating);
+        VoltageRegulationAttributes persistedVoltageRegulation = createVoltageRegulationAttributes(id);
+
         Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder()
                 .id(id)
                 .variantNum(index.getWorkingVariantNum())
@@ -98,25 +152,64 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
                         .fictitious(isFictitious())
+                        .equivalent(isEquivalent())
                         .node(getNode())
                         .bus(getBus())
                         .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .bmin(bMin)
                         .bmax(bMax)
-                        .voltageSetPoint(voltageSetPoint)
-                        .reactivePowerSetPoint(reactivePowerSetPoint)
-                        .regulatingPoint(regulatingPointAttributes)
+                        .localTargetV(localTargetV)
+                        .localTargetQ(localTargetQ)
+                        .voltageRegulation(persistedVoltageRegulation)
                         .build())
                 .build();
         StaticVarCompensatorImpl svc = getIndex().createStaticVarCompensator(resource);
 
         svc.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        svc.setRegulatingTerminal(regulatingTerminal);
+        if (voltageRegulationAttributes != null && voltageRegulationAttributes.terminal() != null) {
+            ((TerminalImpl<?>) voltageRegulationAttributes.terminal()).setAsRegulatingPoint(svc.getRegulatingPoint());
+            ((VoltageRegulationImpl) svc.getVoltageRegulation()).registerOnTerminal();
+        }
         return svc;
     }
 
     @Override
     protected String getTypeDescription() {
         return ResourceType.STATIC_VAR_COMPENSATOR.getDescription();
+    }
+
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    @Override
+    public StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint) {
+        this.voltageSetpoint = voltageSetpoint;
+        return this;
+    }
+
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    @Override
+    public StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
+        return this;
+    }
+
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    @Override
+    public StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode) {
+        this.regulationMode = regulationMode;
+        return this;
+    }
+
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    @Override
+    public StaticVarCompensatorAdderImpl setRegulating(boolean regulating) {
+        this.regulating = regulating;
+        return this;
+    }
+
+    @Deprecated(forRemoval = true, since = "7.4.0")
+    @Override
+    public StaticVarCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
     }
 }

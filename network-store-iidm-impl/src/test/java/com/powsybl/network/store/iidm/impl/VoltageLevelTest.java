@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -442,8 +443,11 @@ class VoltageLevelTest {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .add()
                 .add();
         vl1.getNodeBreakerView().newDisconnector()
                 .setId("D3")

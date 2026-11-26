@@ -9,15 +9,27 @@ package com.powsybl.network.store.iidm.impl.tck;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.tck.AbstractStaticVarCompensatorTest;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@ExtendWith(ExcludeTestsExtension.class)
 class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
+
+    @Test
+    @Override
+    public void testNewVoltageRegulationInMultiVariants() {
+        Network network = SvcTestCaseFactory.create();
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+
+        VoltageRegulationTestUtils.assertNewVoltageRegulationInMultiVariants(network, svc);
+    }
 
     @Test
     void testRegulationWhenRegulatedElementIsRemoved() {
@@ -30,18 +42,33 @@ class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
             .setConnectableBus("B2")
             .add();
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
-        svc.setRegulatingTerminal(network.getLoad("load").getTerminal());
-        svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
-        svc.setRegulating(true);
+        svc.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .withTargetValue(svc.getRegulatingTargetV())
+                .withTerminal(network.getLoad("load").getTerminal())
+                .build();
         network.getLoad("load").remove();
         Assertions.assertEquals("SVC2", svc.getRegulatingTerminal().getConnectable().getId());
-        Assertions.assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+        Assertions.assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
         Assertions.assertTrue(svc.isRegulating());
 
-        svc.setRegulatingTerminal(network.getGenerator("G1").getTerminal());
+        svc.getVoltageRegulation().setTerminal(network.getGenerator("G1").getTerminal(), svc.getVoltageRegulation().getTargetValue());
         Assertions.assertEquals("G1", svc.getRegulatingTerminal().getConnectable().getId());
         network.getGenerator("G1").remove();
         Assertions.assertEquals("SVC2", svc.getRegulatingTerminal().getConnectable().getId());
         Assertions.assertFalse(svc.isRegulating());
+    }
+
+    @Test
+    void testRemoveVoltageRegulationPerVariant() {
+        Network network = SvcTestCaseFactory.create();
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        svc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+
+        VoltageRegulationTestUtils.assertRemoveVoltageRegulationPerVariant(network, svc);
     }
 }

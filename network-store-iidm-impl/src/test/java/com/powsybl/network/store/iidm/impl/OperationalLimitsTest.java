@@ -58,7 +58,7 @@ class OperationalLimitsTest {
         l1.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getCurrentLimits1().get().getPermanentLimit(), DOUBLE_TOLERANCE);
-        l1.newActivePowerLimits1().setPermanentLimit(9999).beginTemporaryLimit()
+        l1.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(9999).beginTemporaryLimit()
                 .setName("name1").setAcceptableDuration(9999).setValue(9999).endTemporaryLimit().add();
         assertEquals(9999, l1.getActivePowerLimits1().get().getPermanentLimit(), DOUBLE_TOLERANCE);
         l1.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(9999).beginTemporaryLimit()

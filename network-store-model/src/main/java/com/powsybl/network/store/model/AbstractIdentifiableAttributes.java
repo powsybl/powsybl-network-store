@@ -32,6 +32,10 @@ public abstract class AbstractIdentifiableAttributes extends AbstractAttributes 
     @Schema(description = "Fictitious")
     private boolean fictitious = false;
 
+    @Builder.Default
+    @Schema(description = "Equivalent")
+    private boolean equivalent = false;
+
     @Schema(description = "Properties")
     private Map<String, String> properties;
 

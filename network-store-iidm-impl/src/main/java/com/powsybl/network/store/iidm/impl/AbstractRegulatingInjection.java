@@ -7,44 +7,86 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.AbstractRegulatingEquipmentAttributes;
-import com.powsybl.network.store.model.InjectionAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+import com.powsybl.network.store.model.*;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-@Setter
-@Getter
-public abstract class AbstractRegulatingInjection<I extends Injection<I>, D extends InjectionAttributes> extends AbstractInjectionImpl<I, D> implements Injection<I> {
+public abstract class AbstractRegulatingInjection<I extends Injection<I> & VoltageRegulationHolder<I>, D extends InjectionAttributes & VoltageRegulationHolderAttributes>
+        extends AbstractInjectionImpl<I, D> implements VoltageRegulationHolder<I> {
 
+    @Getter
     protected final InjectionRegulatingPoint<I, D> regulatingPoint;
 
     protected AbstractRegulatingInjection(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
-        regulatingPoint = new InjectionRegulatingPoint<>(index, this, AbstractRegulatingEquipmentAttributes.class::cast);
+        regulatingPoint = new InjectionRegulatingPoint<>(index, this, attributes -> ((VoltageRegulationHolderAttributes) attributes).getVoltageRegulation());
     }
 
-    // should be setRegulatingTerminal but there is already a method with the same name in the regulating equipments
-    protected void setRegTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
+    protected abstract Class<? extends VoltageRegulationHolder<?>> getHolderClass();
+
+    protected VoltageRegulationAttributes getVoltageRegulationAttributes() {
+        return getResource().getAttributes().getVoltageRegulation();
     }
 
-    public Terminal getRegulatingTerminal() {
-        return regulatingPoint.getRegulatingTerminal();
+    @Override
+    public VoltageRegulation getVoltageRegulation() {
+        if (getVoltageRegulationAttributes() == null) {
+            return null;
+        }
+        return new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
     }
 
-    public boolean isRegulating() {
-        return regulatingPoint.isRegulating();
+    @Override
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return new VoltageRegulationBuilderImpl(getHolderClass(), this, this, index.getNetwork(), this::createOrUpdateVoltageRegulation);
     }
 
-    public I setRegulating(boolean regulating) {
-        regulatingPoint.setRegulating("regulating", regulating);
-        return getInjection();
+    @Override
+    public void removeVoltageRegulation() {
+        VoltageRegulation oldVoltageRegulation = getVoltageRegulation();
+        if (oldVoltageRegulation != null) {
+            ((VoltageRegulationImpl) oldVoltageRegulation).onRemove();
+        }
+        if (getVoltageRegulationAttributes() != null) {
+            updateResource(res -> res.getAttributes().setVoltageRegulation(null),
+                    "VoltageRegulation.removed", oldVoltageRegulation, null);
+        }
+    }
+
+    VoltageRegulation createOrUpdateVoltageRegulation(VoltageRegulation.VoltageRegulationAttributes coreAttributes) {
+        if (getVoltageRegulationAttributes() == null) {
+            VoltageRegulationAttributes attributes = VoltageRegulationAttributes.builder()
+                .regulatingEquipmentId(getId())
+                .regulatingResourceType(getResource().getType())
+                .regulatingTapChangerType(RegulatingTapChangerType.NONE)
+                .localTerminal(new TerminalRefAttributes(getId(), null))
+                .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(coreAttributes.terminal()))
+                .regulatedResourceType(coreAttributes.terminal() != null
+                    ? ((AbstractIdentifiableImpl<?, ?>) coreAttributes.terminal().getConnectable()).getResource().getType()
+                    : getResource().getType())
+                .regulationMode(coreAttributes.mode() != null ? coreAttributes.mode().name() : null)
+                .regulating(coreAttributes.isRegulating())
+                .targetValue(coreAttributes.targetValue())
+                .targetDeadband(coreAttributes.targetDeadband())
+                .slope(coreAttributes.slope())
+                .build();
+            VoltageRegulation voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
+            updateResource(res -> res.getAttributes().setVoltageRegulation(attributes),
+                "VoltageRegulation.created", null, voltageRegulation);
+            if (coreAttributes.terminal() != null) {
+                ((TerminalImpl<?>) coreAttributes.terminal()).setAsRegulatingPoint(regulatingPoint);
+                ((VoltageRegulationImpl) getVoltageRegulation()).registerOnTerminal();
+            }
+        } else {
+            VoltageRegulationImpl voltageRegulation = new VoltageRegulationImpl(index, this, getHolderClass(), this, regulatingPoint);
+            voltageRegulation.setVoltageRegulationAttributes(coreAttributes);
+        }
+        return getVoltageRegulation();
     }
 }

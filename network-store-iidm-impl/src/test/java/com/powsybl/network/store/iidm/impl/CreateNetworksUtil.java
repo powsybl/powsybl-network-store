@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.List;
 import java.util.SortedSet;
@@ -192,9 +193,12 @@ public final class CreateNetworksUtil {
         invalidNode = initAdder(adder, topologyKind, invalidNode);
         ShuntCompensator shunt1 = ((ShuntCompensatorAdder) adder)
                 .setId("SHUNT1")
-                .setVoltageRegulatorOn(true)
-                .setTargetDeadband(10)
-                .setTargetV(380)
+                .setLocalTargetV(380)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .withTargetDeadband(10)
+                .add()
                 .newLinearModel().setBPerSection(1).setGPerSection(2).setMaximumSectionCount(10).add()
                 .setSectionCount(5)
                 .add();
@@ -204,9 +208,12 @@ public final class CreateNetworksUtil {
         invalidNode = initAdder(adder, topologyKind, invalidNode);
         ShuntCompensator shunt2 = ((ShuntCompensatorAdder) adder)
                 .setId("SHUNT2")
-                .setVoltageRegulatorOn(false)
-                .setTargetDeadband(20)
-                .setTargetV(420)
+                .setLocalTargetV(420)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .withTargetDeadband(20)
+                .add()
                 .newNonLinearModel()
                 .beginSection()
                 .setB(1).setG(2)
@@ -230,7 +237,7 @@ public final class CreateNetworksUtil {
         Battery battery = ((BatteryAdder) adder)
                 .setId("battery")
                 .setTargetP(50)
-                .setTargetQ(10)
+                .setLocalTargetQ(10)
                 .setMinP(40)
                 .setMaxP(70)
                 .add();
@@ -259,10 +266,12 @@ public final class CreateNetworksUtil {
                 .setId("SVC2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setReactivePowerSetpoint(200)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setRegulating(false)
-                .setVoltageSetpoint(390)
+                .setLocalTargetQ(200)
+                .setLocalTargetV(390)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .add()
                 .add();
         svc.getTerminal().setP(435);
         svc.getTerminal().setQ(315);
@@ -272,9 +281,12 @@ public final class CreateNetworksUtil {
         VscConverterStation vscConverterStation1 = ((VscConverterStationAdder) adder)
                 .setId("VSC1")
                 .setLossFactor(24)
-                .setReactivePowerSetpoint(300)
-                .setVoltageRegulatorOn(true)
-                .setVoltageSetpoint(290)
+                .setLocalTargetQ(300)
+                .setLocalTargetV(290)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .add()
                 .add();
 
         adder = vl2.newVscConverterStation();
@@ -282,9 +294,12 @@ public final class CreateNetworksUtil {
         VscConverterStation vscConverterStation2 = ((VscConverterStationAdder) adder)
                 .setId("VSC2")
                 .setLossFactor(17)
-                .setReactivePowerSetpoint(227)
-                .setVoltageRegulatorOn(false)
-                .setVoltageSetpoint(213)
+                .setLocalTargetQ(227)
+                .setLocalTargetV(213)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .add()
                 .add();
 
         adder = vl1.newBoundaryLine();
@@ -519,10 +534,13 @@ public final class CreateNetworksUtil {
         threeWindingsTransformer.getLeg2().newRatioTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(0)
-                .setRegulating(false)
-                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeSides.ONE))
-                .setTargetDeadband(22)
-                .setTargetV(220)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .withTerminal(threeWindingsTransformer.getTerminal(ThreeSides.ONE))
+                .withTargetDeadband(22)
+                .withTargetValue(220)
+                .add()
                 .beginStep()
                 .setRho(0.99)
                 .setR(1.)
@@ -564,8 +582,11 @@ public final class CreateNetworksUtil {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .add()
                 .add();
         vl.getNodeBreakerView().newBreaker()
                 .setId("BRS12")
@@ -633,8 +654,11 @@ public final class CreateNetworksUtil {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .add()
                 .add();
 
         return network;
@@ -704,8 +728,11 @@ public final class CreateNetworksUtil {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .add()
                 .add();
 
         network.newLine()
@@ -785,8 +812,11 @@ public final class CreateNetworksUtil {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(true)
+                .add()
                 .add();
         vl1.newLoad()
                 .setId("L")

@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
@@ -25,21 +26,20 @@ class GeneratorTest {
         // initialization
         Generator generator = network.getGenerator("GH3");
         Load load = network.getLoad("LD1");
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
-        assertEquals(400, generator.getTargetV());
+        assertEquals(400, generator.getRegulatingTargetV());
 
         // set the generator's regulation on the load terminal (both equipments are not on the same voltage level/bus)
-        generator.setRegulatingTerminal(load.getTerminal());
-        generator.setTargetV(225);
-        assertTrue(generator.isVoltageRegulatorOn());
+        generator.getVoltageRegulation().setTerminal(load.getTerminal(), 225);
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(load.getTerminal(), generator.getRegulatingTerminal());
-        assertEquals(225, generator.getTargetV());
+        assertEquals(225, generator.getRegulatingTargetV());
 
         // remove the load
         network.getLoad("LD1").remove();
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
     }
 
     @Test
@@ -49,18 +49,20 @@ class GeneratorTest {
         // initialization
         Generator generator = network.getGenerator("GH3");
         Load load = network.getLoad("LD2");
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
 
         // set the generator's regulation on the load terminal (both equipments are on the same voltage level/bus)
-        generator.setRegulatingTerminal(load.getTerminal());
-        assertTrue(generator.isVoltageRegulatorOn());
+        generator.getVoltageRegulation().setTerminal(load.getTerminal(), generator.getRegulatingTargetV());
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(load.getTerminal(), generator.getRegulatingTerminal());
 
         // remove the load
         network.getLoad("LD2").remove();
+        // since powsybl-core 7.4.0, when the regulated equipment is on the same bus, the regulation
+        // is relocated on the local terminal and stays active
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertTrue(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
     }
 
     @Test
@@ -131,21 +133,21 @@ class GeneratorTest {
     void updateWithInvalidTargetV() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         Generator generator = network.getGenerator("GH3");
-        assertEquals("Generator 'GH3': invalid value (NaN) for voltage setpoint (voltage regulator is on)",
-                assertThrows(ValidationException.class, () -> generator.setTargetV(Double.NaN)).getMessage());
+        assertEquals("Generator 'GH3': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
+                assertThrows(ValidationException.class, () -> generator.setLocalTargetV(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        generator.setTargetV(Double.NaN);
+        generator.setLocalTargetV(Double.NaN);
     }
 
     @Test
     void updateWithInvalidTargetQ() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         Generator generator = network.getGenerator("GH3");
-        generator.setVoltageRegulatorOn(false);
-        assertEquals("Generator 'GH3': invalid value (NaN) for reactive power setpoint (voltage regulator is off)",
-                assertThrows(ValidationException.class, () -> generator.setTargetQ(Double.NaN)).getMessage());
+        generator.getVoltageRegulation().setRegulating(false);
+        assertEquals("Generator 'GH3': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)",
+                assertThrows(ValidationException.class, () -> generator.setLocalTargetQ(Double.NaN)).getMessage());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        generator.setTargetQ(Double.NaN);
+        generator.setLocalTargetQ(Double.NaN);
     }
 
     @Test
@@ -167,11 +169,169 @@ class GeneratorTest {
                 .setMaxP(Double.MAX_VALUE)
                 .setMinP(-Double.MAX_VALUE)
                 .setTargetP(30.0)
-                .setTargetQ(40.0)
+                .setLocalTargetQ(40.0)
                 .setNode(0)
                 .add();
 
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertFalse(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
+
+    //TODO: to remove when deprecated voltage regulation methods are removed.
+    @Test
+    void legacyVoltageRegulatorOnSetter() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Generator generator = network.getGenerator("GH3");
+        generator.setVoltageRegulatorOn(false);
+        assertFalse(generator.isVoltageRegulatorOn());
+        generator.setVoltageRegulatorOn(true);
+        assertTrue(generator.isVoltageRegulatorOn());
+    }
+
+    //TODO: to remove when deprecated voltage regulation methods are removed.
+    @Test
+    void legacyVoltageRegulatorOnSetterWithoutVoltageRegulation() {
+        Network network = Network.create("test", "test");
+        VoltageLevel voltageLevel = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add()
+                .newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        GeneratorAdder adder = voltageLevel.newGenerator()
+                .setId("GEN")
+                .setMaxP(Double.MAX_VALUE)
+                .setMinP(-Double.MAX_VALUE)
+                .setTargetP(30.0)
+                .setLocalTargetV(400.0)
+                .setLocalTargetQ(40.0)
+                .setNode(0);
+        assertEquals(40.0, adder.getLocalTargetQ());
+        Generator generator = adder.add();
+        assertFalse(generator.isVoltageRegulatorOn());
+        generator.setVoltageRegulatorOn(true);
+        assertTrue(generator.isVoltageRegulatorOn());
+        generator.setVoltageRegulatorOn(false);
+        assertFalse(generator.isVoltageRegulatorOn());
+    }
+
+    //TODO: to remove when deprecated voltage regulation methods are removed.
+    @Test
+    void legacySetRegulatingTerminalWithoutVoltageRegulation() {
+        Network network = Network.create("test", "test");
+        VoltageLevel voltageLevel = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add()
+                .newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        Generator generator = voltageLevel.newGenerator()
+                .setId("GEN")
+                .setMaxP(Double.MAX_VALUE)
+                .setMinP(-Double.MAX_VALUE)
+                .setTargetP(30.0)
+                .setLocalTargetV(400.0)
+                .setLocalTargetQ(40.0)
+                .setNode(0)
+                .add();
+        voltageLevel.newLoad()
+                .setId("LD1")
+                .setP0(10.0)
+                .setQ0(5.0)
+                .setNode(1)
+                .add();
+        Load load = network.getLoad("LD1");
+        generator.setRegulatingTerminal(load.getTerminal());
+        assertEquals(load.getTerminal(), generator.getRegulatingTerminal());
+        assertFalse(generator.isVoltageRegulatorOn());
+    }
+
+    //TODO: to remove when deprecated voltage regulation methods are removed.
+    @Test
+    void legacySetTargetV() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Generator generator = network.getGenerator("GH3");
+        assertEquals(400, generator.getTargetV());
+        generator.setRegulatingTerminal(generator.getTerminal());
+        generator.setTargetV(405);
+        assertEquals(405, generator.getTargetV());
+    }
+
+    //TODO: to remove when deprecated voltage regulation methods are removed.
+    @Test
+    void legacySetTargetVWithEquivalentLocalTargetV() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Generator generator = network.getGenerator("GH3");
+        generator.setRegulatingTerminal(generator.getTerminal());
+        generator.setTargetV(405, 404);
+        assertEquals(405, generator.getTargetV());
+        assertEquals(404, generator.getLocalTargetV());
+        assertEquals(404, generator.getEquivalentLocalTargetV());
+    }
+
+    //TODO: to remove when deprecated voltage regulation methods are removed.
+    @Test
+    void legacySetTargetVWithEquivalentLocalTargetVWithoutRegulatingTerminal() {
+        Network network = Network.create("test", "test");
+        VoltageLevel voltageLevel = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add()
+                .newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        Generator generator = voltageLevel.newGenerator()
+                .setId("GEN")
+                .setMaxP(Double.MAX_VALUE)
+                .setMinP(-Double.MAX_VALUE)
+                .setTargetP(30.0)
+                .setLocalTargetV(400.0)
+                .setLocalTargetQ(40.0)
+                .setNode(0)
+                .add();
+        generator.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .build();
+        generator.setTargetV(401, 402);
+        assertEquals(401, generator.getLocalTargetV());
+        assertEquals(401, generator.getTargetV());
+    }
+
+    //TODO: to remove when deprecated voltage regulation methods are removed.
+    @Test
+    void legacySetTargetVWithEquivalentLocalTargetVWithoutVoltageRegulation() {
+        Network network = Network.create("test", "test");
+        VoltageLevel voltageLevel = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add()
+                .newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        Generator generator = voltageLevel.newGenerator()
+                .setId("GEN")
+                .setMaxP(Double.MAX_VALUE)
+                .setMinP(-Double.MAX_VALUE)
+                .setTargetP(30.0)
+                .setLocalTargetV(400.0)
+                .setLocalTargetQ(40.0)
+                .setNode(0)
+                .add();
+        generator.setTargetV(401, 402);
+        assertEquals(401, generator.getVoltageRegulation().getTargetValue());
+        assertEquals(402, generator.getLocalTargetV());
+        assertFalse(generator.isVoltageRegulatorOn());
+    }
+
 }
