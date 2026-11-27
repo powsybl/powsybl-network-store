@@ -1263,8 +1263,8 @@ public class NetworkObjectIndex {
         storeClient.updateBusbarSections(network.getUuid(), Collections.singletonList(resource), attributeFilter);
     }
 
-    public void loadExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
-        storeClient.getExtensionAttributes(network.getUuid(), workingVariantNum, type, identifiableId, extensionName);
+    public Optional<ExtensionAttributes> loadExtensionAttributes(ResourceType type, String identifiableId, String extensionName) {
+        return storeClient.getExtensionAttributes(network.getUuid(), workingVariantNum, type, identifiableId, extensionName);
     }
 
     public void loadAllExtensionsAttributesByIdentifiableId(ResourceType type, String identifiableId) {

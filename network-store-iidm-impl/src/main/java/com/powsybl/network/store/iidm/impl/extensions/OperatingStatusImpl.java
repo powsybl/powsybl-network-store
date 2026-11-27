@@ -23,8 +23,8 @@ public class OperatingStatusImpl<I extends Identifiable<I>> extends AbstractExte
 
     @Override
     public Status getStatus() {
-        var resource = ((AbstractIdentifiableImpl<?, ?>) getExtendable()).getResource();
-        return Status.valueOf(((OperatingStatusAttributes) (resource.getAttributes().getExtensionAttributes().get(OperatingStatus.NAME))).getOperatingStatus());
+        var attributes = (OperatingStatusAttributes) ((AbstractIdentifiableImpl<?, ?>) getExtendable()).getExtensionAttributes(OperatingStatus.NAME);
+        return Status.valueOf(attributes.getOperatingStatus());
     }
 
     @Override

@@ -40,7 +40,7 @@ public class LinePositionImpl<T extends Identifiable<T>> extends AbstractExtensi
     }
 
     private LinePositionAttributes getLinePositionAttributes() {
-        return (LinePositionAttributes) getIdentifiable().getResource().getAttributes().getExtensionAttributes().get(LinePosition.NAME);
+        return (LinePositionAttributes) getIdentifiable().getExtensionAttributes(LinePosition.NAME);
     }
 
     @Override

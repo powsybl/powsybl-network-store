@@ -37,7 +37,7 @@ public class CgmesMetadataModelsImpl extends AbstractExtension<Network> implemen
 
     @Override
     public Collection<CgmesMetadataModel> getModels() {
-        return ((CgmesMetadataModelsAttributes) getNetwork().getResource().getAttributes().getExtensionAttributes().get(CgmesMetadataModels.NAME)).getModels().stream().map(m -> {
+        return ((CgmesMetadataModelsAttributes) getNetwork().getExtensionAttributes(CgmesMetadataModels.NAME)).getModels().stream().map(m -> {
                 CgmesMetadataModel model = new CgmesMetadataModelImpl(m.getSubset(), m.getModelingAuthoritySet());
                 model.setId(m.getId());
                 model.setDescription(m.getDescription());
